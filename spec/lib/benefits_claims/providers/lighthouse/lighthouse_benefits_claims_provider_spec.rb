@@ -3,10 +3,12 @@
 require 'rails_helper'
 require 'benefits_claims/providers/lighthouse/lighthouse_benefits_claims_provider'
 require 'benefits_claims/responses/claim_response'
+require 'support/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider do
   let(:current_user) { build(:user, :loa3, icn: '1234567890V123456') }
   let(:provider) { described_class.new(current_user) }
+  subject { provider }
   let(:mock_service) { instance_double(BenefitsClaims::Service) }
   let(:mock_config) { instance_double(BenefitsClaims::Configuration) }
 
@@ -157,6 +159,9 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       .and_return("https://sandbox-api.va.gov/#{BenefitsClaims::Configuration::CLAIMS_PATH}")
   end
 
+  # Validate interface contract compliance
+  it_behaves_like 'benefits claims provider'
+
   describe '#initialize' do
     it 'initializes with a user and creates a service' do
       expect(BenefitsClaims::Service).to receive(:new).with(current_user.icn)
@@ -166,7 +171,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
   describe '#get_claims' do
     before do
-      allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_return(
+      allow(mock_service).to receive(:get_claims).with(no_args).and_return(
         'data' => [
           { 'id' => '600342023', 'type' => 'claim', 'attributes' => comprehensive_claim_attributes },
           { 'id' => '600141237', 'type' => 'claim', 'attributes' => comprehensive_claim_attributes.slice(
@@ -178,7 +183,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
     it 'retrieves claims from the Lighthouse service' do
       provider.get_claims
-      expect(mock_service).to have_received(:get_claims).with(nil, nil, {})
+      expect(mock_service).to have_received(:get_claims).with(no_args)
     end
 
     describe 'claim data transformation' do
@@ -198,7 +203,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       end
 
       before do
-        allow(mock_service).to receive(:get_claims).with(nil, nil, {}).and_raise(faraday_error)
+        allow(mock_service).to receive(:get_claims).with(no_args).and_raise(faraday_error)
       end
 
       it 'handles the error using Lighthouse::ServiceException' do
@@ -218,14 +223,14 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
     let(:claim_id) { '600342023' }
 
     before do
-      allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_return(
+      allow(mock_service).to receive(:get_claim).with(claim_id).and_return(
         'data' => { 'id' => claim_id, 'type' => 'claim', 'attributes' => comprehensive_claim_attributes }
       )
     end
 
     it 'retrieves a single claim from the Lighthouse service' do
       provider.get_claim(claim_id)
-      expect(mock_service).to have_received(:get_claim).with(claim_id, nil, nil, {})
+      expect(mock_service).to have_received(:get_claim).with(claim_id)
     end
 
     describe 'claim data transformation' do
@@ -245,7 +250,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       end
 
       before do
-        allow(mock_service).to receive(:get_claim).with(claim_id, nil, nil, {}).and_raise(faraday_error)
+        allow(mock_service).to receive(:get_claim).with(claim_id).and_raise(faraday_error)
       end
 
       it 'handles the error using Lighthouse::ServiceException' do

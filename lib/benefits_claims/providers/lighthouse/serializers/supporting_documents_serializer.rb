@@ -13,7 +13,7 @@ module BenefitsClaims
                 'originalFileName' => doc.original_file_name,
                 'trackedItemId' => doc.tracked_item_id,
                 'uploadDate' => doc.upload_date
-              }.compact
+              }
             end
           end
         end

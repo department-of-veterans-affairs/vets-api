@@ -13,7 +13,7 @@ module BenefitsClaims
                 'diagnosticCode' => issue.diagnostic_code,
                 'lastAction' => issue.last_action,
                 'date' => issue.date
-              }.compact
+              }
             end
           end
         end
