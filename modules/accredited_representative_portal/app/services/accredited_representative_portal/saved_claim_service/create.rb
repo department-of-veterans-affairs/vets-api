@@ -60,10 +60,14 @@ module AccreditedRepresentativePortal
         #
         rescue RecordInvalidError, WrongAttachmentsError, ::BenefitsIntakeService::Service::InvalidDocumentError
           raise
+        rescue Faraday::TooManyRequestsError
+          # Faraday raises TooManyRequestsError for 429 responses
+          # We are reraising this particular error so vets-website can display a specific message to
+          # the user while we continue to have rate-limiting issues
+          raise TooManyRequestsError
         rescue Common::Client::Errors::ClientError => e
           if e.message&.match(/429/)
-            # We are reraising this particular error so vets-website can display a specific message to
-            # the user while we continue to have rate-limiting issues
+            # Legacy catch for Common::Client 429 errors
             raise TooManyRequestsError
           else
             raise UnknownError
