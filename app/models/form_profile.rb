@@ -249,6 +249,7 @@ class FormProfile
 
   def self.load_form_mapping(form_id)
     form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    form_id = form_id.downcase if form_id == '1330M' # handle case sensitivity for 1330M
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
