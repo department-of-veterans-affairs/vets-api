@@ -61,6 +61,26 @@ module DependentsVerification
       submit_event(:info, message, stats_key) # no additional context
     end
 
+    ##
+    # Tracks an error when adding VA profile email to the claim
+    # @param claim [DependentsVerification::SavedClaim] The claim being processed
+    # @param current_user [User] The current user
+    # @param error [StandardError] The error that occurred
+    # @return [void]
+    def track_add_va_profile_email_error(claim, current_user, error)
+      message = "Form21-0538 add VA profile email failed. #{error.message}"
+      stats_key = "#{claim_stats_key}.add_va_profile_email_error"
+      context = {
+        claim_id: claim.id,
+        user_account_uuid: current_user&.uuid,
+        error: error.message,
+        confirmation_number: claim.confirmation_number,
+        form_id: claim.form_id
+      }
+
+      submit_event(:error, message, stats_key, **context)
+    end
+
     private
 
     ##

@@ -15,12 +15,45 @@ module PdfFill
         'intermediate' => 2
       }.freeze
 
+      # Coordinates for the 21-0779 signature field
+      # Question 20: SIGNATURE OF NURSING HOME OFFICIAL (bottom left of page 1)
+      SIGNATURE_X = 60
+      SIGNATURE_Y = 70
+      SIGNATURE_PAGE = 0 # zero-indexed; 0 == page 1
+      SIGNATURE_SIZE = 10
+
       def merge_fields(_options = {})
         reformat_vet_info
         reformat_claimant_info
         reformat_nursing_home_info
         reformat_general_info
         @form_data
+      end
+
+      # Stamp a typed signature string onto the PDF using DatestampPdf
+      #
+      # @param pdf_path [String] Path to the PDF to stamp
+      # @param form_data [Hash] The form data containing the signature
+      # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
+      def self.stamp_signature(pdf_path, form_data)
+        signature_text = form_data.dig('generalInformation', 'signature')
+
+        return pdf_path if signature_text.nil? || signature_text.to_s.strip.empty?
+
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: SIGNATURE_X,
+          y: SIGNATURE_Y,
+          page_number: SIGNATURE_PAGE,
+          size: SIGNATURE_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
+      rescue => e
+        Rails.logger.error('Form210779: Error stamping signature', error: e.message, backtrace: e.backtrace)
+        pdf_path # Return original PDF if stamping fails
       end
 
       def reformat_vet_info
