@@ -9,7 +9,7 @@
 # - Deletes S3 files and NULLs out PII fields
 # - Keeps metadata (form_type, created_at, etc.)
 #
-# Schedule: Daily at 2 AM via Sidekiq scheduler
+# Schedule: After staging testing I will add to periodic jobs to run this daily. I think around ~3am
 
 class FormUploadDataPurgeJob
   include Sidekiq::Job
@@ -69,7 +69,7 @@ class FormUploadDataPurgeJob
       .joins(:form_submission_attempts)
       .where(form_submission_attempts: { aasm_state: 'vbms' })
       .where('form_submission_attempts.lighthouse_updated_at < ?', cutoff_date)
-      .where.not(form_data_ciphertext: nil) 
+      .where.not(form_data_ciphertext: nil)
       .distinct
       .limit(BATCH_SIZE)
   end
@@ -151,7 +151,7 @@ class FormUploadDataPurgeJob
   def purge_form_data(form_submission)
     # rubocop:disable Rails/SkipsModelValidations
     form_submission.update_columns(
-      form_data: nil,
+      form_data_ciphertext: nil,
       updated_at: Time.zone.now
     )
 
