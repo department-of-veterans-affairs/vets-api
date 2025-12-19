@@ -19,6 +19,10 @@ module UnifiedHealthData
     attribute :note, String
     attribute :reaction, String
     attribute :short_description, String
+    attribute :administration_site, String
+    attribute :lot_number, String
+    attribute :status, String
+
 
     default_sort_by sort_date: :desc
   end

@@ -17,6 +17,9 @@ module UnifiedHealthData
                :manufacturer,
                :note,
                :reaction,
-               :short_description
+               :short_description,
+               :administration_site,
+               :lot_number,
+               :status
   end
 end

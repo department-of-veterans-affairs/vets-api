@@ -1375,7 +1375,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles VistA-only data' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(10)
+          expect(prescriptions.size).to eq(9)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '25804851', '25804852', '25804853', '25804854', '25804855',
             '25804856', '25804858', '25804859', '25804860', '25804848'
@@ -1962,7 +1962,7 @@ describe UnifiedHealthData::Service, type: :service do
           # polio vax: M20875036615 (VistA polio vaccine)
           # vax with note: M20875183434 (OH Flu vaccine with note and manufacturer)
           vista_vaccine = vaccines.find { |v| v.id == 'c648f661-d8a1-4369-b7f1-1ed5c9b5f874' }
-          vaccine_note = vaccines.find { |v| v.id == 'M20875183434' }
+          vaccine_oh_with_note = vaccines.find { |v| v.id == 'M20875183434' }
 
           expect(vista_vaccine).to have_attributes(
             {
@@ -1977,11 +1977,14 @@ describe UnifiedHealthData::Service, type: :service do
               'manufacturer' => nil,
               'note' => nil,
               'reaction' => nil,
-              'short_description' => 'TDAP'
+              'short_description' => 'TDAP',
+              'administration_site' => 'RIGHT DELTOID',
+              'lot_number' => nil,
+              'status' => 'completed'
             }
           )
 
-          expect(vaccine_note).to have_attributes(
+          expect(vaccine_oh_with_note).to have_attributes(
             {
               'id' => 'M20875183434',
               'cvx_code' => 140,
@@ -1994,7 +1997,10 @@ describe UnifiedHealthData::Service, type: :service do
               'manufacturer' => 'Seqirus USA Inc',
               'note' => 'Added comment "note"',
               'reaction' => nil,
-              'short_description' => 'influenza virus vaccine, inactivated'
+              'short_description' => 'influenza virus vaccine, inactivated',
+              'administration_site' => 'Shoulder, left (deltoid)',
+              'lot_number' => 'AX5586C',
+              'status' => 'completed'
             }
           )
 
@@ -2011,7 +2017,10 @@ describe UnifiedHealthData::Service, type: :service do
                                       'manufacturer' => be_a(String).or(be_nil),
                                       'note' => be_a(String).or(be_nil),
                                       'reaction' => be_a(String).or(be_nil),
-                                      'short_description' => be_a(String).or(be_nil)
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil) 
                                     }
                                   ))
         end
@@ -2060,7 +2069,10 @@ describe UnifiedHealthData::Service, type: :service do
                                       'manufacturer' => be_a(String).or(be_nil),
                                       'note' => be_a(String).or(be_nil),
                                       'reaction' => be_a(String).or(be_nil),
-                                      'short_description' => be_a(String).or(be_nil)
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil)
                                     }
                                   ))
         end
@@ -2089,7 +2101,10 @@ describe UnifiedHealthData::Service, type: :service do
                                       'manufacturer' => be_a(String).or(be_nil),
                                       'note' => be_a(String).or(be_nil),
                                       'reaction' => be_a(String).or(be_nil),
-                                      'short_description' => be_a(String).or(be_nil)
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil)
                                     }
                                   ))
         end
