@@ -27,7 +27,7 @@ module V0
     end
 
     def download_pdf
-      # When we have time to change the front end, we should reference the claim created in in the create action
+      # When we have time to change the front end, we should reference the claim created in the create action
       # and make this a get request that takes the guid of the saved claim
       claim = build_claim
 
