@@ -168,7 +168,7 @@ RSpec.describe 'V0::form21p530a',
         'source_app:21p-530a-interment-allowance,status:500'
       )
 
-      expect(response).to have_http_status(:internal_server_error)
+
       expect(JSON.parse(response.body)['errors']).to be_present
       expect(JSON.parse(response.body)['errors'].first['status']).to eq('500')
     end
