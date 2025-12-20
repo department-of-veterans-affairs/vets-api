@@ -58,7 +58,7 @@ module V0
     end
 
     def build_claim
-      # Body parsed by Rails,schema validated by committee before hitting here.
+      # Body parsed by Rails; schema validation is performed via claim.valid? below.
       payload = request.raw_post
       claim = SavedClaim::Form21p530a.new(form: payload)
       raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
