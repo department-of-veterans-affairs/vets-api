@@ -336,7 +336,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
         end
       end
 
-      describe 'Getting 500 Internal Server Error from BGS' do
+      describe 'When BGS returns 500 Internal Server Error' do
         response '404', '0966 Response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'default.json').read)
@@ -368,7 +368,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
             }
           end
 
-          it 'returns a 404 response' do |example|
+          it 'return a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
