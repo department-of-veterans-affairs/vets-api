@@ -5,8 +5,6 @@ parameters:
 appName: vets-api
 target_env:
 domain:
-audit:
-  enabled: false
 manualRoll:
 image:
   value: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/vets-api
