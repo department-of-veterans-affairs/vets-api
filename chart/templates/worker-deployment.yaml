@@ -55,7 +55,7 @@ spec:
           args:
             - clone
             - --single-branch
-            - --branch 
+            - --branch
             - {{ $root.Values.mockData.branch }}
             - --
             - https://$(GITHUB_TOKEN)@github.com/department-of-veterans-affairs/vets-api-mockdata.git
@@ -176,6 +176,9 @@ spec:
             requests:
               cpu: "{{ $root.Values.clamav.requestedCPU }}"
               memory: "{{ $root.Values.clamav.requestedMemory }}"
+            limits:
+              cpu: "{{ $root.Values.clamav.limitCPU }}"
+              memory: "{{ $root.Values.clamav.limitMemory }}"
           volumeMounts:
             - name: clamav-volume
               mountPath: /vets-api

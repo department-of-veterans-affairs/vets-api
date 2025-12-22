@@ -186,7 +186,9 @@ socat:
 clamav:
   enabled: false
   requestedCPU: "100m"
-  requestedMemory: "3Gi"
+  requestedMemory: "2Gi"
+  limitCPU: "2"
+  limitMemory: "6Gi"
   image:
     tag:
     value:

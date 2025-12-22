@@ -201,6 +201,9 @@ spec:
             requests:
               cpu: "{{ $root.Values.clamav.requestedCPU }}"
               memory: "{{ $root.Values.clamav.requestedMemory }}"
+            limits:
+              cpu: "{{ $root.Values.clamav.limitCPU }}"
+              memory: "{{ $root.Values.clamav.limitMemory }}"
           volumeMounts:
             - name: clamav-volume
               mountPath: /vets-api
