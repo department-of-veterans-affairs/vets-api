@@ -15,11 +15,15 @@ module MedicalExpenseReports
           'to' => {
             key: 'form1[0].#subform[9].Date_To[0]'
           }
+        },
+        'firstTimeReporting' => {
+          key: 'form1[0].#subform[9].Date_Received_By_For_Initial_Applications_Only[0]'
         }
       }.freeze
 
       # expand reporting period
       def expand(form_data = {})
+        form_data['firstTimeReporting'] = form_data['firstTimeReporting'] ? '1' : 'Off'
         form_data
       end
     end

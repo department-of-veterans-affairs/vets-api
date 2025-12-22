@@ -63,7 +63,6 @@ app/controllers/v0/education_career_counseling_claims_controller.rb @department-
 app/controllers/v0/efolder_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/enrollment_periods_controller.rb @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/event_bus_gateway_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
-app/controllers/v0/evidence_submissions_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/evss_benefits_claims_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/evss_claims_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/example_controller.rb @department-of-veterans-affairs/backend-review-group
@@ -1189,7 +1188,6 @@ spec/controllers/v0/documents_controller_spec.rb @department-of-veterans-affairs
 spec/controllers/v0/education_benefits_claims_controller_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/education_career_counseling_claims_controller_spec.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/event_bus_gateway_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
-spec/controllers/v0/evidence_submissions_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/evss_claims_controller_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/example_controller_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/feature_toggles_controller_spec.rb @department-of-veterans-affairs/backend-review-group
