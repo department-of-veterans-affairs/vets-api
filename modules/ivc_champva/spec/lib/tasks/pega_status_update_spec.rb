@@ -195,7 +195,8 @@ RSpec.describe 'ivc_champva:pega_status_update rake tasks', type: :task do
 
       context 'when DRY_RUN=true' do
         before do
-          ENV['DRY_RUN'] = 'true'
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[]).with('DRY_RUN').and_return('true')
           task.reenable
         end
 
