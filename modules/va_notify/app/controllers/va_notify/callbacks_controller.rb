@@ -24,9 +24,8 @@ module VANotify
 
     def create
       notification_id = params[:id]
-      if Flipper.enabled?(:vanotify_delivery_status_update_job)
+      if Flipper.enabled?(:va_notify_delivery_status_update_job)
         attr_package_params_cache_key = Sidekiq::AttrPackage.create(
-          expires_in: 1.day,
           **notification_params.to_h.symbolize_keys
         )
         VANotify::DeliveryStatusUpdateJob.perform_async(notification_id, attr_package_params_cache_key)

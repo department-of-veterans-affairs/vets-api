@@ -28,6 +28,10 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       end
 
       context 'with valid token' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_delivery_status_update_job).and_return(false)
+        end
+
         context 'with found notification' do
           let(:template_id) { SecureRandom.uuid }
           let!(:notification) do
@@ -80,20 +84,19 @@ RSpec.describe 'VANotify Callbacks', type: :request do
           end
         end
 
-        context 'when :vanotify_delivery_status_update_job enabled' do
+        context 'when :va_notify_delivery_status_update_job enabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:vanotify_delivery_status_update_job).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_delivery_status_update_job).and_return(true)
             allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_package_params_cache_key)
             allow(VANotify::DeliveryStatusUpdateJob).to receive(:perform_async)
           end
 
-          it 'stores notification params in AttrPackage with 1 day TTL' do
+          it 'stores notification params in AttrPackage' do
             post(callback_route,
                  params: callback_params.to_json,
                  headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
 
             expect(Sidekiq::AttrPackage).to have_received(:create).with(
-              expires_in: 1.day,
               status: 'delivered',
               notification_type: 'email',
               to: 'user@example.com',
