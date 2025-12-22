@@ -84,8 +84,7 @@ redis:
 This is also where you will place any other customizations, such as API tokens
 or certificate paths.
 
-Config settings that vary in value depending on the deployment environment will need
-to be set appropriately for each environment following [these instructions](https://depo-platform-documentation.scrollhelp.site/developer-docs/settings-and-parameter-store).
+Config settings that vary in value depending on the deployment environment will need to be set appropriately for each environment following [these instructions](https://depo-platform-documentation.scrollhelp.site/developer-docs/settings-and-parameter-store). Secrets like keys, certs, and .pem files are stored in a different way. See [these instructions](https://depo-platform-documentation.scrollhelp.site/developer-docs/how-to-add-secret-files-to-vets-api).
 
 ### Optional application configuration
 
@@ -109,8 +108,12 @@ features, and will run the unit tests successfully.
 ## Deployment
 
 - Vets-api deployment is explained [in this document](https://depo-platform-documentation.scrollhelp.site/developer-docs/vets-api-on-eks)
-- The latest deploy for dev is shown here: https://dev-api.va.gov/v0/status (Change to "sandbox", or "staging", or leave off "dev-" for prod)
 - The [deploy status dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) shows which environments a merged commit has been deployed to
+- The latest deploys can also be seen at the links below:
+    - dev: https://dev-api.va.gov/v0/status
+    - staging: https://staging-api.va.gov/v0/status
+    - sandbox: https://sandbox-api.va.gov/v0/status
+    - prod: https://api.va.gov/v0/status
 
 ## API request key formatting
 
