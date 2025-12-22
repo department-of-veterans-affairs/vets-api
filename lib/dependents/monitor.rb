@@ -24,7 +24,7 @@ module Dependents
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
     # statsd key for pension-related submissions
-    PENSION_SUBMISSION_STATS_KEY = 'dependents.submit_dependents_pension'
+    PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
 
     # allowed logging params
     ALLOWLIST = %w[

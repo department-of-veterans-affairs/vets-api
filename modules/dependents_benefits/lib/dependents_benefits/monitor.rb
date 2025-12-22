@@ -29,7 +29,7 @@ module DependentsBenefits
     PREFILL_STATS_KEY = 'api.dependents_benefits.prefill'
 
     # statsd key for pension-related submissions
-    PENSION_SUBMISSION_STATS_KEY = 'app.dependents_benefits.submit_dependents_pension'
+    PENSION_SUBMISSION_STATS_KEY = 'app.dependents_benefits.pension_submission'
 
     # Allowed context keys for logging
     ALLOWLIST = %w[

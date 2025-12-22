@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'claim_behavior/submission_status'
-require_relative 'claim_behavior/form_validation'
-require_relative 'claim_behavior/form_type_checking'
-require_relative 'claim_behavior/veteran_information'
+require 'dependents_benefits/claim_behavior/submission_status'
+require 'dependents_benefits/claim_behavior/form_validation'
+require 'dependents_benefits/claim_behavior/form_type_checking'
+require 'dependents_benefits/claim_behavior/veteran_information'
 
 module DependentsBenefits
   ##
