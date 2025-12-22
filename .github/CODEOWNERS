@@ -1258,7 +1258,7 @@ spec/factories/caregivers_assistance_claim.rb @department-of-veterans-affairs/he
 spec/factories/central_mail_submissions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 spec/factories/coe_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
-spec/factories/configurations.rb https://github.com/department-of-veterans-affairs/vets-api/pull/24982
+spec/factories/configurations.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/factories/decision_review_evidence_attachment.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/decision_review_notification_audit_logs.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 spec/factories/debt_transaction_logs.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group

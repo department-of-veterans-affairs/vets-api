@@ -854,6 +854,10 @@ features:
     actor_type: user
     description: enables sending the claim date to Lighthouse when submitting a Form 526EZ when present
     enable_in_development: true
+  disability_526_extra_bdd_pages_enabled:
+    actor_type: user
+    description: Enables extra pages during a BDD claim
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1655,6 +1659,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_hide_health_care_contacts:
+    actor_type: user
+    description: Hides the health care contacts section on the Profile
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
@@ -2625,6 +2633,9 @@ features:
   my_va_display_decision_reviews_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
+  my_va_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
