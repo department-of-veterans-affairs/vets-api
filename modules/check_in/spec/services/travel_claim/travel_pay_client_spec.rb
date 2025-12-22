@@ -288,7 +288,6 @@ RSpec.describe TravelClaim::TravelPayClient do
       it 'logs original_status (downstream HTTP status) instead of transformed status' do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_travel_claim_log_api_error_details).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
 
         with_settings(Settings.check_in.travel_reimbursement_api_v2,
                       claims_url_v2:) do
@@ -324,10 +323,6 @@ RSpec.describe TravelClaim::TravelPayClient do
   end
 
   describe '#extract_and_redact_message' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
-    end
-
     it 'removes ICN from error message using DataScrubber' do
       icn = '1234567890V123456'
       body = { 'message' => "Error occurred for patient #{icn}" }.to_json
@@ -1112,7 +1107,6 @@ RSpec.describe TravelClaim::TravelPayClient do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_travel_claim_log_api_error_details).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
       end
 
       it 'logs error with api_error_message and error_detail fields' do
