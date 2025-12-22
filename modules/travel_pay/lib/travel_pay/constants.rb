@@ -19,7 +19,7 @@ module TravelPay
     # TravelPay::Constants::EXPENSE_TYPES[:parking]
     EXPENSE_TYPES = {
       airtravel: 'airtravel',
-      common_carrier: 'commoncarrier',
+      commoncarrier: 'commoncarrier',
       lodging: 'lodging',
       meal: 'meal',
       mileage: 'mileage',
