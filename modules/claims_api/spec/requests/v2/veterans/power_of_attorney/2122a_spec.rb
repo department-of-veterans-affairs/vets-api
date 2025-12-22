@@ -133,6 +133,27 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
               end
             end
 
+            context 'auth headers' do
+              let(:poa) do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                      .and_return(bgs_poa)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                      .and_return({ person_poa_history: nil })
+
+                    post appoint_individual_path, params: data.to_json, headers: auth_header
+                    poa_id = JSON.parse(response.body)['data']['id']
+                    ClaimsApi::PowerOfAttorney.find(poa_id)
+                  end
+                end
+              end
+
+              it 'adds the file_number to the header' do
+                expect(poa.auth_headers).to have_key('file_number')
+              end
+            end
+
             describe 'lighthouse_claims_api_poa_dependent_claimants feature' do
               let(:request_body) do
                 Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
