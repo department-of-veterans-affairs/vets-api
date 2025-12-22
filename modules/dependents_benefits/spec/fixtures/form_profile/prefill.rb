@@ -28,7 +28,7 @@ module FormPrefillSpecData
       'veteranSsnLastFour' => '1863',
       'veteranVaFileNumberLastFour' => '1863',
       'isInReceiptOfPension' => -1,
-      'netWorthLimit' => 159_240
+      'netWorthLimit' => 163_699
     }
   end
 

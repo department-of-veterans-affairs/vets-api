@@ -38,8 +38,13 @@ module DependentsBenefits
       to_state
     ].freeze
 
+    # Additional safe keys specific to dependents_benefits
+    SAFE_KEYS = %w[
+      parent_claim_id
+    ].freeze
+
     def initialize
-      super('dependents-benefits-application', allowlist: ALLOWLIST)
+      super('dependents-benefits-application', allowlist: ALLOWLIST, safe_keys: SAFE_KEYS)
     end
 
     ##

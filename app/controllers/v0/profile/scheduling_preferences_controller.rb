@@ -2,7 +2,7 @@
 
 # Controller for managing user scheduling preferences in VA.gov profile.
 # This controller is still under development, with stubbed transaction responses gated
-# behind the profile_health_care_settings_page feature flag.
+# behind the profile_scheduling_preferences feature flag.
 
 module V0
   module Profile
@@ -42,7 +42,7 @@ module V0
       private
 
       def check_feature_flag!
-        unless Flipper.enabled?(:profile_health_care_settings_page, @current_user)
+        unless Flipper.enabled?(:profile_scheduling_preferences, @current_user)
           raise Common::Exceptions::Forbidden, detail: 'Scheduling preferences not available'
         end
       end
