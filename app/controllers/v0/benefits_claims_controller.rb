@@ -23,9 +23,14 @@ module V0
     ].freeze
 
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+    FEATURE_MULTI_CLAIM_PROVIDER = 'cst_multi_claim_provider'
 
     def index
-      claims = get_claims_from_providers
+      claims = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                 get_claims_from_providers
+               else
+                 service.get_claims
+               end
 
       check_for_birls_id
       check_for_file_number
@@ -49,7 +54,11 @@ module V0
     end
 
     def show
-      claim = get_claim_from_providers(params[:id])
+      claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                get_claim_from_providers(params[:id])
+              else
+                service.get_claim(params[:id])
+              end
       update_claim_type_language(claim['data'])
 
       # Manual status override for certain tracked items
