@@ -74,7 +74,7 @@ module VAProfile
           )
 
           return DodServiceSummaryResponse.new(404, dod_service_summary: nil)
-        elsif error_status && error_status >= 400 && error_status < 500
+        elsif error_status && (400...500).include?(error_status)
           return DodServiceSummaryResponse.new(error_status, dod_service_summary: nil)
         end
 

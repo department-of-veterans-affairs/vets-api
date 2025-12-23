@@ -80,11 +80,7 @@ module VeteranStatusCard
     # @return [Boolean] true if eligible, false otherwise
     #
     def eligible?
-      return true if vet_verification_eligible?
-
-      return true if ssc_eligible?
-
-      false
+      vet_verification_eligible? || ssc_eligible?
     end
 
     ##
@@ -264,9 +260,7 @@ module VeteranStatusCard
     # @return [Boolean] true if SSC code indicates eligibility, false otherwise
     #
     def ssc_eligible?
-      return true if more_research_required_not_title_38? && CONFIRMED_SSC_CODES.include?(ssc_code)
-
-      false
+      more_research_required_not_title_38? && CONFIRMED_SSC_CODES.include?(ssc_code)
     end
 
     ##
