@@ -355,19 +355,11 @@ features:
     enable_in_development: false
   check_in_experience_travel_reimbursement:
     actor_type: user
-    description: Enables travel reimbursement workflow for day-of check-in application.
+    description: Enables travel reimbursement workflow for day-of check-in application. It functions as a toggle for just the travel reimbursement feature in the day of check-in app, allowing veterans to continue to check in to their appointments. Vets-api uses it to gate v1 travel endpoints.
     enable_in_development: true
   check_in_experience_travel_pay_api:
     actor_type: user
-    description: Enables the use of Travel Pay API for travel claim operations
-    enable_in_development: true
-  check_in_experience_lorota_travel_reimbursement:
-    actor_type: user
-    description: Enables the full LoROTA standalone mileage-only travel reimbursement feature
-    enable_in_development: true
-  check_in_experience_cerner_travel_claims_enabled:
-    actor_type: user
-    description: Enables travel claims filing for Oracle Health (Cerner) sites
+    description: Switches travel reimbursement to use the new Travel Pay API(v1) instead of the Claim Ingest api(v0).
     enable_in_development: true
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
@@ -698,6 +690,10 @@ features:
   decision_review_sc_redesign_nov2025:
     actor_type: user
     description: Enables the Nov 2025 Supplemental Claims redesign
+  decision_review_upload_notification_pdfs_enabled:
+    actor_type: user
+    description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
+    enable_in_development: true
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1376,6 +1372,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
     enable_in_development: true
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
   mhv_secure_messaging_recipient_opt_groups:
     actor_type: user
     description: Disables/Enables Secure Messaging optgroups in recipient dropdown on Start a new message page
@@ -1543,9 +1543,6 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
-  mhv_medications_new_policy:
-    actor_type: user
-    description: Updates MHV Medications policy based on recent updates to MHV Account Creation API
   mhv_medications_v2_status_mapping:
     actor_type: user
     description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
@@ -1659,6 +1656,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_hide_health_care_contacts:
+    actor_type: user
+    description: Hides the health care contacts section on the Profile
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
@@ -1920,14 +1921,6 @@ features:
   confirm_contact_email_interstitial_enabled:
     actor_type: user
     description: Enables users with emails tied to MHV classic accounts to be redirected to the confirm contact email interstitial page (Identity)
-    enable_in_development: false
-  dslogon_interstitial_redirect:
-    actor_type: user
-    description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
-    enable_in_development: false
-  dslogon_button_disabled:
-    actor_type: user
-    description: Hides the DS Logon button credential on sign-in page + modal (Identity)
     enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
@@ -2629,6 +2622,9 @@ features:
   my_va_display_decision_reviews_forms:
     actor_type: user
     description: When enabled, a user will see all submitted Lighthouse Decision Reviews forms in My VA for form status.
+  my_va_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
