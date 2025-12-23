@@ -99,7 +99,8 @@ module PdfFill
         form_data = JSON.parse(JSON.generate(@form_data))
 
         form_data['designatingOfficial']['signatureName'] =
-          combine_full_name(form_data['designatingOfficial']['fullName'])
+          combine_full_name(form_data['designatingOfficial']['fullName']) +
+          ", #{form_data['designatingOfficial']['title']}"
         form_data['designatingOfficial']['phoneNumber'] = combine_phone_numbers(form_data['designatingOfficial'])
         form_data['institutionNameAndAddress'] = <<~TEXT
           #{form_data.dig('institutionDetails', 'institutionName')}

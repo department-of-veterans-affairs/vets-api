@@ -209,5 +209,28 @@ RSpec.describe DependentsVerification::Monitor do
         monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'submitted', monitor_error)
       end
     end
+
+    describe '#track_add_va_profile_email_error' do
+      it 'logs add VA profile email error' do
+        log = "Form21-0538 add VA profile email failed. #{monitor_error.message}"
+        payload = {
+          user_account_uuid: current_user.user_account_uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
+          confirmation_number: claim.confirmation_number,
+          error: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          :error,
+          log,
+          "#{claim_stats_key}.add_va_profile_email_error",
+          call_location: anything,
+          **payload
+        )
+        monitor.track_add_va_profile_email_error(claim, current_user, monitor_error)
+      end
+    end
   end
 end

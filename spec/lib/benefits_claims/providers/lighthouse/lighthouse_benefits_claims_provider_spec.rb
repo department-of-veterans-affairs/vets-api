@@ -6,12 +6,11 @@ require 'benefits_claims/responses/claim_response'
 require 'support/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider do
-  let(:current_user) { build(:user, :loa3, icn: '1234567890V123456') }
-  let(:provider) { described_class.new(current_user) }
   subject { provider }
+
+  let(:current_user) { build(:user, :loa3, icn: '1234567890V123456') }
   let(:mock_service) { instance_double(BenefitsClaims::Service) }
   let(:mock_config) { instance_double(BenefitsClaims::Configuration) }
-
   # Shared comprehensive claim data structure
   let(:comprehensive_claim_attributes) do
     {
@@ -99,6 +98,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       ]
     }
   end
+  let(:provider) { described_class.new(current_user) }
 
   # Shared examples for verifying comprehensive claim structure
   shared_examples 'preserves comprehensive claim structure' do
