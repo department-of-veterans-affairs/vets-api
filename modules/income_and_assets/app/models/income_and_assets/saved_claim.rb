@@ -116,10 +116,10 @@ module IncomeAndAssets
     def populate_has_property
       data = parsed_form
 
-      before_property_validation = proc do |data, property, property_schema, parent|
-        hasProp = "has#{property.upcase_first}"
+      before_property_validation = proc do |data, property, _property_schema, parent|
+        has_prop = "has#{property.upcase_first}"
         value = data[property]
-        data[hasProp] = !!(value && !value.empty?) if parent['properties'][hasProp].present?
+        data[has_prop] = value.present? if parent['properties'][has_prop].present?
       end
       JSONSchemer.schema(form_schema, insert_property_defaults: true, before_property_validation:).validate(data)
 
