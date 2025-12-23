@@ -82,7 +82,7 @@ module VeteranStatusCard
     def eligible?
       return true if vet_verification_eligible?
 
-      return true if ssc_eligibile?
+      return true if ssc_eligible?
 
       false
     end
@@ -91,7 +91,7 @@ module VeteranStatusCard
     # Generates error response details based on the reason for ineligibility
     # Returns appropriate messaging based on vet verification status reason or SSC code
     #
-    # @return [Hash] error details with keys :confirmed, :title, :message, :status
+    # @return [Hash] error details with keys :title, :message, :status
     #
     def error_results
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR,
@@ -125,9 +125,9 @@ module VeteranStatusCard
     end
 
     ##
-    # Returns the user's normalized full name
+    # Returns the user's normalized full name components
     #
-    # @return [String] the user's full name in normalized format
+    # @return [Hash] the user's full name in normalized format with keys :first, :middle, :last, and :suffix
     #
     def full_name
       @user.full_name_normalized
@@ -263,7 +263,7 @@ module VeteranStatusCard
     #
     # @return [Boolean] true if SSC code indicates eligibility, false otherwise
     #
-    def ssc_eligibile?
+    def ssc_eligible?
       return true if more_research_required_not_title_38? && CONFIRMED_SSC_CODES.include?(ssc_code)
 
       false

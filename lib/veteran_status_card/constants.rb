@@ -4,6 +4,14 @@ module VeteranStatusCard
   module Constants
     STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card."
 
+    STANDARD_ERROR_MESSAGE = [
+      'Your record is missing information about your service history or discharge status.',
+      "To fix the problem, contact VA.gov technical support. We're open Monday through Friday, 8:00 a.m. \
+      to 8:00 p.m. E.T.",
+      '866-279-3677',
+      'TTY: 711'
+    ].freeze
+
     DISHONORABLE_TITLE = STANDARD_ERROR_TITLE
     DISHONORABLE_MESSAGE = [
       'To get a Veteran Status Card, you must have received an honorable discharge for at least one period of service.',
@@ -65,13 +73,7 @@ module VeteranStatusCard
     }.freeze
 
     CURRENTLY_SERVING_TITLE = STANDARD_ERROR_TITLE
-    CURRENTLY_SERVING_MESSAGE = [
-      'Our records indicate you are currently serving.',
-      "If you have a previous period of service, contact VA.gov technical support. We're open Monday through \
-      Friday, 8:00 a.m. to 8:00 p.m. E.T.",
-      '866-279-3677',
-      'TTY: 711'
-    ].freeze
+    CURRENTLY_SERVING_MESSAGE = STANDARD_ERROR_MESSAGE
     CURRENTLY_SERVING_STATUS = 'warning'
     CURRENTLY_SERVING_RESPONSE = {
       title: CURRENTLY_SERVING_TITLE,
@@ -80,13 +82,7 @@ module VeteranStatusCard
     }.freeze
 
     ERROR_TITLE = STANDARD_ERROR_TITLE
-    ERROR_MESSAGE = [
-      'Your record is missing information about your service history or discharge status.',
-      "To fix the problem, contact VA.gov technical support. We're open Monday through Friday, 8:00 a.m. to \
-      8:00 p.m. E.T.",
-      '866-279-3677',
-      'TTY: 711'
-    ].freeze
+    ERROR_MESSAGE = STANDARD_ERROR_MESSAGE
     ERROR_STATUS = 'error'
     ERROR_RESPONSE = {
       title: ERROR_TITLE,

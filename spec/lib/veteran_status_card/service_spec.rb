@@ -104,7 +104,7 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'via ssc_eligibile? with MORE_RESEARCH_REQUIRED reason' do
+      context 'via ssc_eligible? with MORE_RESEARCH_REQUIRED reason' do
         let(:veteran_status) { 'not confirmed' }
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
 
@@ -122,7 +122,7 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'via ssc_eligibile? with NOT_TITLE_38 reason' do
+      context 'via ssc_eligible? with NOT_TITLE_38 reason' do
         let(:veteran_status) { 'not confirmed' }
         let(:not_confirmed_reason) { 'NOT_TITLE_38' }
 
@@ -442,7 +442,7 @@ RSpec.describe VeteranStatusCard::Service do
       end
     end
 
-    context 'when ssc_eligibile? returns true' do
+    context 'when ssc_eligible? returns true' do
       let(:veteran_status) { 'not confirmed' }
       let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
       let(:ssc_code) { 'A1' }
@@ -481,14 +481,14 @@ RSpec.describe VeteranStatusCard::Service do
     end
   end
 
-  describe '#ssc_eligibile?' do
+  describe '#ssc_eligible?' do
     context 'when reason is MORE_RESEARCH_REQUIRED and SSC code is confirmed' do
       let(:veteran_status) { 'not confirmed' }
       let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
       let(:ssc_code) { 'A1' }
 
       it 'returns true' do
-        expect(subject.send(:ssc_eligibile?)).to be true
+        expect(subject.send(:ssc_eligible?)).to be true
       end
     end
 
@@ -498,7 +498,7 @@ RSpec.describe VeteranStatusCard::Service do
       let(:ssc_code) { 'B2' }
 
       it 'returns true' do
-        expect(subject.send(:ssc_eligibile?)).to be true
+        expect(subject.send(:ssc_eligible?)).to be true
       end
     end
 
@@ -508,7 +508,7 @@ RSpec.describe VeteranStatusCard::Service do
       let(:ssc_code) { 'U' }
 
       it 'returns false' do
-        expect(subject.send(:ssc_eligibile?)).to be false
+        expect(subject.send(:ssc_eligible?)).to be false
       end
     end
 
@@ -518,7 +518,7 @@ RSpec.describe VeteranStatusCard::Service do
       let(:ssc_code) { 'A1' }
 
       it 'returns false' do
-        expect(subject.send(:ssc_eligibile?)).to be false
+        expect(subject.send(:ssc_eligible?)).to be false
       end
     end
   end
