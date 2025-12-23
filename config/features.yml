@@ -1421,10 +1421,6 @@ features:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
     enable_in_development: true
-  mhv_medical_records_hold_time_messaging_update:
-    actor_type: user
-    description: Enables updated hold time messaging
-    enable_in_development: true
   mhv_medical_records_ccd_extended_file_types:
     actor_type: user
     description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
@@ -1432,6 +1428,10 @@ features:
   mhv_medical_records_ccd_oh:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
+    enable_in_development: true
+  mhv_medical_records_hold_time_messaging_update:
+    actor_type: user
+    description: Enables updated hold time messaging
     enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
