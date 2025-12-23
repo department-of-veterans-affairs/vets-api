@@ -48,7 +48,10 @@ module BenefitsClaims
               Serializers::SupportingDocumentsSerializer.serialize(dto.supporting_documents)
           end
           attributes['evidenceSubmissions'] = dto.evidence_submissions if dto.evidence_submissions&.any?
-          attributes['contentions'] = Serializers::ContentionsSerializer.serialize(dto.contentions) if dto.contentions&.any?
+          if dto.contentions&.any?
+            attributes['contentions'] =
+              Serializers::ContentionsSerializer.serialize(dto.contentions)
+          end
           attributes['events'] = Serializers::EventsSerializer.serialize(dto.events) if dto.events&.any?
           attributes['issues'] = Serializers::IssuesSerializer.serialize(dto.issues) if dto.issues&.any?
           attributes['evidence'] = Serializers::EvidenceSerializer.serialize(dto.evidence) if dto.evidence&.any?
