@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+module Mobile
+  module V0
+    class VeteranStatusCardsController < ApplicationController
+      def show
+        redner json: service.status_card
+      end
+
+      private
+
+      def service
+        @service ||= VeteranStatusCard::Service.new(@current_user)
+      end
+    end
+  end
+end
