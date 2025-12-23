@@ -141,46 +141,34 @@ module V0
     end
 
     def get_claims_from_providers
-      if configured_providers.count == 1
-        provider = configured_providers.first.new(@current_user)
-        return provider.get_claims
-      end
+      return configured_providers.first.new(@current_user).get_claims if configured_providers.count == 1
 
       claims_data = []
       provider_errors = []
-
       configured_providers.each do |provider_class|
         provider = provider_class.new(@current_user)
-        provider_claims = provider.get_claims
-        claims_data.concat(provider_claims['data'])
+        claims_data.concat(provider.get_claims['data'])
       rescue => e
-        provider_errors << { provider: provider_class.name, error: e.message }
-        ::Rails.logger.error("Provider #{provider_class.name} failed: #{e.message}")
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
-                         tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
+        handle_provider_error(provider_class, e, provider_errors)
       end
+      { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
+    end
 
-      {
-        'data' => claims_data,
-        'meta' => {
-          'provider_errors' => provider_errors.presence
-        }.compact
-      }
+    def handle_provider_error(provider_class, error, provider_errors)
+      provider_errors << { provider: provider_class.name, error: error.message }
+      ::Rails.logger.error("Provider #{provider_class.name} failed: #{error.message}")
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
+                       tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
     end
 
     def get_claim_from_providers(claim_id)
-      if configured_providers.count == 1
-        provider = configured_providers.first.new(@current_user)
-        return provider.get_claim(claim_id)
-      end
+      return configured_providers.first.new(@current_user).get_claim(claim_id) if configured_providers.count == 1
 
       configured_providers.each do |provider_class|
-        provider = provider_class.new(@current_user)
-        return provider.get_claim(claim_id)
+        return provider_class.new(@current_user).get_claim(claim_id)
       rescue => e
         ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
       end
-
       raise Common::Exceptions::RecordNotFound, claim_id
     end
 
@@ -225,20 +213,9 @@ module V0
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
-      tracked_items = claim['attributes']['trackedItems']
-
-      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-    end
-
-    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
       non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-
-      filtered_evidence_submissions = []
-      non_duplicate_submissions.each do |es|
-        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
-      end
-
-      filtered_evidence_submissions
+      tracked_items = claim['attributes']['trackedItems']
+      non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
     end
 
     def filter_duplicate_evidence_submissions(evidence_submissions, claim)
