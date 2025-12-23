@@ -19,10 +19,14 @@ module IvcChampva
     end
 
     def metadata
+      use_renamed_keys = Flipper.enabled?(:champva_update_metadata_keys)
+      name_prefix = use_renamed_keys ? 'sponsor' : 'veteran'
+      applicant_prefix = use_renamed_keys ? 'beneficiary' : 'applicant'
+
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranMiddleName' => @data.dig('applicant_name', 'middle'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_prefix}MiddleName" => @data.dig('applicant_name', 'middle'),
+        "#{name_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'fileNumber' => @data['applicant_ssn'],
         'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'country' => @data.dig('applicant_address', 'country') || 'USA',
@@ -33,7 +37,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
-        'applicantEmail' => @data['applicant_email'] || ''
+        "#{applicant_prefix}Email" => @data['applicant_email'] || ''
       }
     end
 

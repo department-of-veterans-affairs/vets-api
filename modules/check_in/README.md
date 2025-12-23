@@ -65,7 +65,7 @@ for the Check-in project can be viewed in Datadog at: https://app.datadoghq.com/
 
 - Sentry reporting is setup in the main vets-api application and as a result, the Check-in engine will report
 errors to Sentry automatically. If custom Sentry errors and warning messages need to be reported, you can
-include the `SentryLogging` module located within the `vets-api` codebase in your relevant class and call the appropriate methods provided by the module.
+include the `Vets::SharedLogging` module (formerly known as `SentryLogging`) located within the `vets-api` codebase in your relevant class and call the appropriate methods provided by the module.
 
 - The `vets-api` logs are shipped to Grafana Loki and can be viewed at: http://grafana.vfs.va.gov/explore?orgId=1&left=%5B%22now-1h%22,%22now%22,%22Loki%20(Prod)%22,%7B%22expr%22:%22%7Bapp%3D~%5C%22vets-api-.%2B%5C%22%7D%22%7D%5D
 

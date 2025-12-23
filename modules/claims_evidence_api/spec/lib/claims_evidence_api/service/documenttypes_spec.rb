@@ -19,7 +19,7 @@ RSpec.describe ClaimsEvidenceApi::Service::DocumentTypes do
     end
   end
 
-  describe '##get' do
+  describe '#get' do
     it 'performs a GET via class method' do
       allow(ClaimsEvidenceApi::Service::DocumentTypes).to receive(:new).and_return service
 

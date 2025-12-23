@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/digital_dispute_submission_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
@@ -9,7 +10,7 @@ module DebtsApi
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
-        Flipper.enabled?(:digital_dmc_dispute_service) ? create_via_dmc! : create_legacy!
+        Flipper.enabled?(:digital_dmc_dispute_service, current_user) ? create_via_dmc! : create_legacy!
       end
 
       private
@@ -19,9 +20,10 @@ module DebtsApi
 
         begin
           submission.save!
+          send_submission_email if email_notifications_enabled?
           DebtsApi::V0::DigitalDisputeJob.perform_async(submission.id)
 
-          render json: { message: 'Submission received', submission_id: submission.id }, status: :ok
+          render json: { message: 'Submission received', submission_id: submission.guid }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
           errors_hash = e.record.errors.to_hash
@@ -82,6 +84,23 @@ module DebtsApi
         params.permit(
           :metadata,
           files: []
+        )
+      end
+
+      def email_notifications_enabled?
+        Flipper.enabled?(:digital_dispute_email_notifications, current_user) && current_user.email.present?
+      end
+
+      def send_submission_email
+        cache_key = Sidekiq::AttrPackage.create(email: current_user.email, first_name: current_user.first_name)
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
+          5.minutes,
+          {
+            'submission_type' => 'digital_dispute',
+            'cache_key' => cache_key,
+            'user_uuid' => current_user.uuid,
+            'template_id' => DebtsApi::V0::DigitalDisputeSubmission::SUBMISSION_TEMPLATE
+          }
         )
       end
     end

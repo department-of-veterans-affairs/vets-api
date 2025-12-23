@@ -81,4 +81,25 @@ class AccreditedIndividual < ApplicationRecord
   def self.max_per_page
     AccreditedRepresentation::Constants::MAX_PER_PAGE
   end
+
+  # Validates and updates the address for this individual
+  #
+  # Uses the raw_address field (populated from OGC API) to call the address validation service.
+  # If validation is successful, updates the record with validated address data including
+  # geocoded coordinates.
+  #
+  # @return [Boolean] true if validation and update successful, false otherwise
+  def validate_address
+    return false if raw_address.blank?
+
+    service = RepresentationManagement::AddressValidationService.new
+    validated_attrs = service.validate_address(raw_address)
+
+    return false if validated_attrs.nil?
+
+    update(validated_attrs)
+  rescue => e
+    Rails.logger.error("Address validation failed for AccreditedIndividual #{id}: #{e.message}")
+    false
+  end
 end

@@ -8,7 +8,7 @@ describe 'VeteranEnrollmentSystem::EnrollmentPeriods::Configuration' do
 
   describe '.api_key_path' do
     it 'returns the api key path' do
-      expect(VeteranEnrollmentSystem::EnrollmentPeriods::Configuration.api_key_path).to eq(:form1095b)
+      expect(VeteranEnrollmentSystem::EnrollmentPeriods::Configuration.api_key_path).to eq(:enrollment_periods)
     end
   end
 

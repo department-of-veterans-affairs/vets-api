@@ -8,13 +8,22 @@ require 'pdf_fill/hash_converter'
 
 module DependentsBenefits
   module PdfFill
+    ##
+    # PDF form filler for VA Form 21-686c (Add/Remove Dependent)
+    #
+    # Handles the transformation of JSON form data into the PDF field format required
+    # for VA Form 21-686c, which is used to add or remove dependents from VA benefits.
+    #
     class Va21686c < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
 
+      # Iterator constant from PdfFill::HashConverter
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
+      # Path to the 21-686c PDF template
       TEMPLATE = DependentsBenefits::PDF_PATH_21_686C
 
+      # Field mapping hash defining all PDF form fields and their constraints
       KEY = {
         'veteran_information' => {
           'full_name' => {
@@ -457,7 +466,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of end of full name
             'start_date' => {
               'month' => {
@@ -593,7 +602,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'start_date' => {
               'month' => {
@@ -730,7 +739,7 @@ module DependentsBenefits
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > LAST NAME'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'ssn' => {
               'first' => {
@@ -983,7 +992,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > NAME OF FORMER SPOUSE'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'divorce_location' => {
               'location' => {
@@ -1189,7 +1198,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'dependent_death_date' => {
               'month' => {
@@ -1265,7 +1274,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT MARRIAGE OF A CHILD > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'date_married' => {
               'month' => {
@@ -1316,7 +1325,7 @@ module DependentsBenefits
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT CHILD STOPPED ATTENDING SCHOOL > NAME > LAST'
               }
-              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
+              # @todo 'suffix' =>  FE has suffix but no place for it on PDF
             },
             'date_child_left_school' => {
               'month' => {
@@ -1429,7 +1438,7 @@ module DependentsBenefits
             question_suffix: 'L',
             question_text: 'REMARKS'
           }
-          # @TODO remarks
+          # @todo remarks
         },
         'addendum' => { key: 'addendum' },
         'veteran_ssn' => {
@@ -1514,6 +1523,15 @@ module DependentsBenefits
         } # end signature_date
       }.freeze
 
+      ##
+      # Merges and transforms all form data for PDF generation
+      #
+      # Orchestrates the transformation of all sections of the form including veteran info,
+      # spouse info, children, marriages, divorces, deaths, and other dependent changes.
+      #
+      # @param options [Hash] Options for form generation
+      # @option options [Time] :created_at Optional creation timestamp for signature date
+      # @return [Hash] Transformed form data ready for PDF generation
       def merge_fields(options = {})
         merge_addendum_helpers
 
@@ -1575,6 +1593,10 @@ module DependentsBenefits
         veteran_contact_information['electronic_correspondence'] = electronic_correspondence
       end
 
+      ##
+      # Merges and transforms spouse-related data
+      #
+      # @return [void]
       def merge_spouse_helpers
         spouse = @form_data['dependents_application']['spouse_information']
         return if spouse.blank?
@@ -1607,6 +1629,12 @@ module DependentsBenefits
         expand_does_live_with_spouse
       end
 
+      ##
+      # Merges and transforms veteran's previous marriage history data
+      #
+      # Processes each previous marriage including name, dates, end reason, and locations.
+      #
+      # @return [void]
       def merge_previous_marriage_helpers
         previous_spouses = @form_data['dependents_application']['veteran_marriage_history']
         return if previous_spouses.blank?
@@ -1620,7 +1648,7 @@ module DependentsBenefits
           spouse['end_date'] = split_date(spouse['end_date'])
 
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO why is annulment not an option on FE ('Annulment or other')
+          # @todo why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
             'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
@@ -1634,6 +1662,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges and transforms spouse's previous marriage history data
+      #
+      # @return [void]
       def merge_spouse_marriage_history_helpers
         previous_spouses = @form_data['dependents_application']['spouse_marriage_history']
         return if previous_spouses.blank?
@@ -1648,7 +1680,7 @@ module DependentsBenefits
 
           # expand reason marriage ended
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO why is annulment not an option on FE ('Annulment or other')
+          # @todo why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
             'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
@@ -1662,6 +1694,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges and transforms children data for add dependent operations
+      #
+      # @return [void]
       def merge_child_helpers
         children_to_add = @form_data['dependents_application']['children_to_add']
         return if children_to_add.blank?
@@ -1715,7 +1751,7 @@ module DependentsBenefits
         child['school_age_in_school'] =
           child.key?('school_age_in_school') ? 'Off' : select_radio_button(child['school_age_in_school'])
 
-        # @TODO 18-23 YEARS OLD AND IN SCHOOL
+        # @todo 18-23 YEARS OLD AND IN SCHOOL
         child['relationship_to_child'] = {
           # 'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
           'adopted' => select_radio_button(child_status['adopted']),
@@ -1754,6 +1790,13 @@ module DependentsBenefits
         expand_other_reason_marriage_ended(child)
       end
 
+      ##
+      # Expands other reason marriage ended description into multi-line format
+      #
+      # Splits long marriage end descriptions into two lines if needed for PDF form fields.
+      #
+      # @param child [Hash] Child hash containing marriage_end_description
+      # @return [void] Modifies child hash in place
       def expand_other_reason_marriage_ended(child)
         other_reason_marriage_ended = child['marriage_end_description']
         if other_reason_marriage_ended.present?
@@ -1770,6 +1813,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges and transforms divorce report data
+      #
+      # @return [void]
       def merge_divorce_helpers
         divorce = @form_data['dependents_application']['report_divorce']
         return if divorce.blank?
@@ -1786,6 +1833,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges and transforms stepchildren data
+      #
+      # @return [void]
       def merge_stepchildren_helpers
         step_children = @form_data['dependents_application']['step_children']
         return if step_children.blank?
@@ -1797,8 +1848,10 @@ module DependentsBenefits
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
-          stepchild['address']['country'] = extract_country(stepchild['address'])
+          if stepchild['address'].present?
+            stepchild['address']['postal_code'] = split_postal_code(stepchild['address'])
+            stepchild['address']['country'] = extract_country(stepchild['address'])
+          end
 
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']
@@ -1809,7 +1862,7 @@ module DependentsBenefits
           }
         end
 
-        # @TODO we ask this on our form for each child, the pdf only has this in one place
+        # @todo we ask this on our form for each child, the pdf only has this in one place
         # expand_supporting_stepchild
       end
 
@@ -1850,6 +1903,10 @@ module DependentsBenefits
       end
       # rubocop:enable Metrics/MethodLength
 
+      ##
+      # Merges and transforms child marriage report data
+      #
+      # @return [void]
       def merge_child_marriage_helpers
         child_marriages = @form_data['dependents_application']['child_marriage']
         return if child_marriages.blank?
@@ -1862,6 +1919,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges and transforms child stopped attending school report data
+      #
+      # @return [void]
       def merge_child_stopped_attending_school_helpers
         children_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
         return if children_stopped_attending_school.blank?
@@ -1876,6 +1937,11 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Expands phone number into area code and number segments
+      #
+      # @param veteran_contact_information [Hash] Hash containing phone_number key
+      # @return [void] Modifies hash in place
       def expand_phone_number(veteran_contact_information)
         phone_number = veteran_contact_information['phone_number']
         if phone_number.present?
@@ -1888,6 +1954,10 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Expands current marriage information into PDF format
+      #
+      # @return [void]
       def expand_marriage_info
         # extract marriage date
         @form_data['dependents_application']['current_marriage_information']['date'] =
@@ -1907,6 +1977,10 @@ module DependentsBenefits
           extract_country(@form_data.dig('dependents_application', 'current_marriage_information', 'location'))
       end
 
+      ##
+      # Expands does live with spouse field into yes/no radio buttons
+      #
+      # @return [void]
       def expand_does_live_with_spouse
         does_live_with_spouse =
           @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_does_live_with_veteran')
@@ -1916,14 +1990,23 @@ module DependentsBenefits
         }
       end
 
+      ##
+      # Expands remarks field for PDF form
+      #
+      # @todo FE changes for remarks - implement multi-line remarks expansion
+      # @return [void]
       def expand_remarks
         @form_data['remarks'] = {}
-        # @TODO FE changes for remarks
+        # @todo FE changes for remarks
         # 12.times do |i|
         #   @form_data['remarks']['remarks_line' + (i + 1).to_s] = ""
         # end
       end
 
+      ##
+      # Duplicates veteran SSN for all 8 pages of the PDF form
+      #
+      # @return [void]
       def expand_veteran_ssn
         # veteran ssn is repeated at the top of 8 pages
         veteran_ssn = @form_data['veteran_information']['ssn']
@@ -1933,43 +2016,89 @@ module DependentsBenefits
         end
       end
 
+      ##
+      # Merges addendum text for household and dependent income questions
+      #
+      # @return [void]
       def merge_addendum_helpers
+        pension_flipper = Flipper.enabled?(:va_dependents_net_worth_and_pension)
         addendum_text = add_household_income
 
         # income question when adding spouse
         spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
         spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
-        addendum_text += add_dependent_income(spouse_name, spouse_income)
+        spouse_income_exists = @form_data.dig('dependents_application', 'does_live_with_spouse')&.key?('spouse_income')
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        unless pension_flipper && !spouse_income_exists
+          addendum_text += add_dependent_income(spouse_name, spouse_income)
+        end
 
         # income questions when adding children
         children_to_add = @form_data.dig('dependents_application', 'children_to_add')
         addendum_text += add_dependents(children_to_add, 'income_in_last_year')
 
         # income question when reporting a divorce
-        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
-        spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
-        addendum_text += add_dependent_income(spouse_name, spouse_income)
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        unless pension_flipper
+          spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
+          spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
+          addendum_text += add_dependent_income(spouse_name, spouse_income)
+        end
 
         # income questions when reporting deaths
-        deaths = @form_data.dig('dependents_application', 'deaths')
-        addendum_text += add_dependents(deaths, 'deceased_dependent_income')
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        unless pension_flipper
+          deaths = @form_data.dig('dependents_application', 'deaths')
+          addendum_text += add_dependents(deaths, 'deceased_dependent_income')
+        end
+
         @form_data['addendum'] = addendum_text
       end
 
+      ##
+      # Generates addendum text for household income question
+      #
+      # @return [String] Formatted household income question with answer
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
 
-        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
+        # If va_dependents_net_worth_and_pension FF is off, show "greater than" wording
+        # If on, show "less than" wording (reversed logic for UI versus RBPS value)
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        if Flipper.enabled?(:va_dependents_net_worth_and_pension)
+          return '' unless @form_data['dependents_application']&.key?('household_income')
+
+          "Did the household have a net worth less than $163,699 in the last tax year? #{format_boolean(!net_worth)}"
+        else
+          "Did the household have a net worth greater than $163,699 in the last tax year? #{format_boolean(net_worth)}"
+        end
       end
 
+      ##
+      # Generates addendum text for a dependent's income question
+      #
+      # @param dependent_name [String] Full name of the dependent
+      # @param dependent_income [Boolean] Whether dependent had income
+      # @return [String] Formatted income question with answer, or empty string if no name
       def add_dependent_income(dependent_name, dependent_income)
         return '' if dependent_name.blank?
 
-        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_radio_yes_no(dependent_income)}"
       end
 
+      ##
+      # Generates addendum text for multiple dependents' income questions
+      #
+      # @param dependents_hash [Array<Hash>] Array of dependent hashes
+      # @param income_attr [String] Name of income attribute to check
+      # @return [String] Combined income questions for all dependents, or empty string if none
       def add_dependents(dependents_hash, income_attr)
         return '' if dependents_hash.blank?
+        # Question will only be asked if va_dependents_net_worth_and_pension FF is off
+        # OR if FF is on and veteran receives pension benefits
+        return '' if Flipper.enabled?(:va_dependents_net_worth_and_pension) && !dependents_hash.first&.key?(income_attr)
 
         dependent_text = ''
         dependents_hash.each do |dependent|

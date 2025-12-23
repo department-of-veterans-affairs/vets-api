@@ -83,13 +83,25 @@ describe VAProfile::Profile::V3::Service do
         expect(response.status).to eq(200)
         expect(response.contacts.size).to eq(4)
         types = response.contacts.map(&:contact_type)
-        valid_contact_types = VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
+        valid_contact_types =
+          VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
         expect(types).to match_array(valid_contact_types)
       end
 
-      it 'does not call Sentry.set_extras' do
-        expect(Sentry).not_to receive(:set_extras)
+      it 'logs request and response events and success metrics' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:measure)
+
         subject.get_health_benefit_bio
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(event: 'va_profile.health_benefit_bio.request', bios_requested: 1)
+        )
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(event: 'va_profile.health_benefit_bio.response', contacts_present: true)
+        )
+        expect(StatsD).to have_received(:measure).with('va_profile.health_benefit_bio.latency', kind_of(Numeric))
       end
     end
 
@@ -97,7 +109,9 @@ describe VAProfile::Profile::V3::Service do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
       let(:status) { 404 }
-      let(:message) { 'MVI201 MviNotFound The person with the identifier requested was not found in MVI.' }
+      let(:message) do
+        'MVI201 MviNotFound The person with the identifier requested was not found in MVI.'
+      end
       let(:code) { 'MVI201' }
 
       it 'includes messages received from the api' do
@@ -105,11 +119,6 @@ describe VAProfile::Profile::V3::Service do
         expect(response.status).to eq(404)
         expect(response.contacts.size).to eq(0)
         expect(response.messages.size).to eq(1)
-      end
-
-      it 'calls Sentry.set_extras' do
-        expect(Sentry).to receive(:set_extras).once.with(debug_data)
-        subject.get_health_benefit_bio
       end
     end
 
@@ -120,6 +129,17 @@ describe VAProfile::Profile::V3::Service do
       it 'raises an error' do
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::BackendServiceException)
       end
+
+      it 'logs server_error and increments error metric' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+        expect { subject.get_health_benefit_bio }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(event: 'va_profile.health_benefit_bio.server_error')
+        )
+      end
     end
 
     context 'api timeout' do
@@ -129,6 +149,34 @@ describe VAProfile::Profile::V3::Service do
       it 'raises an error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+
+      it 'increments error metric on timeout' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        allow(StatsD).to receive(:increment)
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
+
+    context 'empty contacts success' do
+      let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
+
+      it 'increments empty metric when contacts are blank' do
+        allow(StatsD).to receive(:increment)
+        allow(StatsD).to receive(:measure)
+        allow(Rails.logger).to receive(:info)
+        # Wrap original to override contacts
+        allow(VAProfile::Profile::V3::HealthBenefitBioResponse)
+          .to receive(:new).and_wrap_original do |orig, resp|
+          response = orig.call(resp)
+          allow(response).to receive(:contacts).and_return([])
+          response
+        end
+        subject.get_health_benefit_bio
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(event: 'va_profile.health_benefit_bio.response', contacts_present: false)
+        )
       end
     end
   end

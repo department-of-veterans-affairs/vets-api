@@ -190,7 +190,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   describe 'GET /my_health/v2/prescriptions' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
         get('/my_health/v2/prescriptions', headers:)
 
@@ -200,7 +200,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
       it 'returns a successful response' do
@@ -298,19 +298,19 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data']).not_to be_empty
 
-          # Verify we have at least one Oracle prescription (station number 556 is Oracle Health facility)
+          # Verify we have at least one Oracle prescription (station number 668 is Oracle Health facility)
           oracle_prescriptions = json_response['data'].select do |rx|
-            rx['attributes']['station_number'] == '556'
+            rx['attributes']['station_number'] == '668'
           end
           expect(oracle_prescriptions).not_to be_empty,
-                                              'Expected to find at least one Oracle prescription (station 556)'
+                                              'Expected to find at least one Oracle prescription (station 668)'
 
           # Select an Oracle prescription and verify key fields have expected data
           oracle_rx = oracle_prescriptions.first
           oracle_attrs = oracle_rx['attributes']
 
           # Verify Oracle prescription has required fields populated
-          expect(oracle_attrs['station_number']).to eq('556')
+          expect(oracle_attrs['station_number']).to eq('668')
           expect(oracle_attrs['prescription_id']).to be_present
           expect(oracle_attrs['prescription_name']).to be_present
           expect(oracle_attrs['ordered_date']).to be_present
@@ -666,7 +666,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   describe 'GET /my_health/v2/prescriptions/list_refillable_prescriptions' do
     context 'when feature flag is disabled' do
       it 'returns forbidden' do
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
 
         get('/my_health/v2/prescriptions/list_refillable_prescriptions', headers:)
 
@@ -676,7 +676,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
       it 'filters prescriptions to only include refillable ones' do
@@ -939,6 +939,63 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
               expect(dispense.keys).to include('quantity') if dispense['quantity'].present?
             end
           end
+        end
+      end
+    end
+  end
+
+  describe 'GET /my_health/v2/prescriptions/:id' do
+    context 'when feature flag is disabled' do
+      it 'returns forbidden' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(false)
+
+        get('/my_health/v2/prescriptions/12345', params: { station_number: '556' }, headers:)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+      end
+
+      it 'returns a successful response when prescription is found' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/20848812135', params: { station_number: '668' }, headers:)
+
+          expect(response).to have_http_status(:success)
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['attributes']['prescription_id']).to eq('20848812135')
+          expect(json_response['data']['attributes']['station_number']).to eq('668')
+          expect(json_response['data']['attributes']['prescription_name'])
+            .to eq('albuterol (albuterol 90 mcg inhaler [18g])')
+        end
+      end
+
+      it 'returns 404 when prescription is not found' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/99999', params: { station_number: '123' }, headers:)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      it 'returns camelCase attributes when X-Key-Inflection: camel header is provided' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          camel_headers = headers.merge('X-Key-Inflection' => 'camel')
+          get('/my_health/v2/prescriptions/20848812135', params: { station_number: '668' }, headers: camel_headers)
+
+          expect(response).to have_http_status(:success)
+          json_response = JSON.parse(response.body)
+          attributes = json_response['data']['attributes']
+
+          expect(attributes).to have_key('prescriptionId')
+          expect(attributes['prescriptionId']).to eq('20848812135')
+          expect(attributes).to have_key('stationNumber')
+          expect(attributes['stationNumber']).to eq('668')
+          expect(attributes).not_to have_key('prescription_id')
+          expect(attributes).not_to have_key('station_number')
         end
       end
     end

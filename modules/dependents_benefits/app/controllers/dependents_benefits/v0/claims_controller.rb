@@ -20,6 +20,7 @@ module DependentsBenefits
 
       service_tag 'dependent-change'
 
+      # Returns a list of dependents for the current user
       def show
         dependents = create_dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
@@ -30,7 +31,7 @@ module DependentsBenefits
       end
 
       def create
-        claim = DependentsBenefits::SavedClaim.new(form: dependent_params.to_json)
+        claim = DependentsBenefits::PrimaryDependencyClaim.new(form: dependent_params.to_json)
 
         # Populate the form_start_date from the IPF if available
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -58,17 +59,18 @@ module DependentsBenefits
         end
 
         monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 claim_id: claim.id, user_account_uuid: current_user&.user_account_uuid)
+                                 parent_claim_id: claim.id, claim_id: claim.id,
+                                 user_account_uuid: current_user&.user_account_uuid)
 
-        # Enqueue all proc jobs for the created claim.
-        # Success triggers further submission jobs.
-        DependentsBenefits::ClaimProcessor.create_proc_forms(claim.id)
+        # Enqueue all submission jobs for the created claim.
+        DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id)
 
         render json: SavedClaimSerializer.new(claim)
       end
 
       private
 
+      # Limits the allowed parameters for dependents benefits claim submissions
       def dependent_params
         params.permit(
           :add_spouse,
@@ -89,6 +91,7 @@ module DependentsBenefits
         )
       end
 
+      # Returns the stats key for dependents application events
       def stats_key
         'api.dependents_application'
       end
@@ -98,14 +101,17 @@ module DependentsBenefits
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:dependents_module_enabled, current_user)
       end
 
+      # Creates the BGS dependent service for the current user
       def create_dependent_service
         @dependent_service ||= BGS::DependentV2Service.new(current_user)
       end
 
+      # Creates the BGS dependency verification service for the current user
       def dependency_verification_service
         @dependency_verification_service ||= BGS::DependencyVerificationService.new(current_user)
       end
 
+      # Creates a new monitor instance for tracking events
       def monitor
         DependentsBenefits::Monitor.new
       end

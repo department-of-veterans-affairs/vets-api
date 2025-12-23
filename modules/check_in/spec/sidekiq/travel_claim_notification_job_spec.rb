@@ -198,19 +198,27 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'oh-failure-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number], 'error_message' => 'Test error' }
 
-      expect(SentryLogging).to receive(:log_exception_to_sentry).with(
+      logging_helper = double('logging_helper')
+      allow(described_class).to receive(:logging_helper).and_return(logging_helper)
+      allow(logging_helper).to receive(:log_exception_to_sentry)
+      expect(logging_helper).to receive(:log_exception_to_sentry).with(
         error,
         hash_including(template_id:, claim_number:, phone_last_four: '0123'),
         hash_including(error: :check_in_va_notify_job, team: 'check-in')
       )
+      expect(Rails.logger).to receive(:error).with(
+        include("Travel Claim Notification retries exhausted: #{error.message}")
+      )
 
       allow(described_class).to receive(:handle_retries_exhausted) do |_job, ex|
         phone_last_four = CheckIn::TravelClaimNotificationUtilities.extract_phone_last_four(mobile_phone)
-        SentryLogging.log_exception_to_sentry(
+        logging_helper.log_exception_to_sentry(
           ex,
           { template_id:, phone_last_four:, claim_number: },
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
+        context_hash = { template_id:, phone_last_four:, claim_number: }
+        Rails.logger.error("Travel Claim Notification retries exhausted: #{ex.message} - Context: #{context_hash}")
         described_class.log_failure_no_retry('Retries exhausted', { template_id:, facility_type: 'oh' })
       end
 
@@ -230,6 +238,10 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'cie-failure-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
 
+      logging_helper = double('logging_helper')
+      allow(described_class).to receive(:logging_helper).and_return(logging_helper)
+      allow(logging_helper).to receive(:log_exception_to_sentry)
+
       described_class.handle_retries_exhausted(job_hash, error)
 
       expect(StatsD).to have_received(:increment).with(
@@ -242,6 +254,10 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
     it 'handles errors correctly with regular templates' do
       template_id = 'regular-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number] }
+
+      logging_helper = double('logging_helper')
+      allow(described_class).to receive(:logging_helper).and_return(logging_helper)
+      allow(logging_helper).to receive(:log_exception_to_sentry)
 
       described_class.handle_retries_exhausted(job_hash, error)
 
@@ -259,10 +275,16 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       template_id = 'oh-failure-template-id'
       job_hash = { 'args' => [uuid, appointment_date, template_id, claim_number], 'error_message' => 'Test error' }
 
-      expect(SentryLogging).to receive(:log_exception_to_sentry).with(
+      logging_helper = double('logging_helper')
+      allow(described_class).to receive(:logging_helper).and_return(logging_helper)
+      allow(logging_helper).to receive(:log_exception_to_sentry)
+      expect(logging_helper).to receive(:log_exception_to_sentry).with(
         error,
         hash_including(template_id:, claim_number:, phone_last_four: '0123'),
         any_args
+      )
+      expect(Rails.logger).to receive(:error).with(
+        include("Travel Claim Notification retries exhausted: #{error.message}")
       )
 
       described_class.sidekiq_retries_exhausted_block.call(job_hash, error)

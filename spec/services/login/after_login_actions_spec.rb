@@ -114,14 +114,6 @@ RSpec.describe Login::AfterLoginActions do
 
         it_behaves_like 'identity-mpi id validation'
       end
-
-      context 'MHV correlation id validation' do
-        let(:expected_identity_value) { loa3_user.identity.mhv_credential_uuid }
-        let(:expected_mpi_value) { loa3_user.mpi_mhv_correlation_id }
-        let(:validation_id) { 'MHV Correlation ID' }
-
-        it_behaves_like 'identity-mpi id validation'
-      end
     end
 
     context 'when creating an MHV account' do

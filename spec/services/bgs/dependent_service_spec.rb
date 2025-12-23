@@ -28,6 +28,25 @@ RSpec.describe BGS::DependentService do
   end
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:service) { BGS::DependentService.new(user) }
+  let(:single_dependent_response) do
+    {
+      number_of_records: '1',
+      persons: { award_indicator: 'Y',
+                 date_of_birth: '07/09/2024',
+                 email_address: nil,
+                 first_name: 'TESTER',
+                 gender: 'M',
+                 last_name: 'TEST',
+                 proof_of_dependency: 'N',
+                 participant_id: '123456789',
+                 related_to_vet: 'Y',
+                 relationship: 'Child',
+                 ssn: '123456789',
+                 veteran_indicator: 'N' },
+      return_code: 'SHAR 9999',
+      return_message: 'Records found'
+    }
+  end
 
   before do
     # TODO: Add back user_account_id once the DB migration is done
@@ -189,6 +208,16 @@ RSpec.describe BGS::DependentService do
         expect(response).to have_key(:persons)
       end
     end
+
+    it 'handles a single dependent response' do
+      allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+        .with(user.participant_id, user.ssn).and_return(single_dependent_response.deep_dup)
+      response = service.get_dependents
+
+      expect(response).to include(persons: Array)
+      expect(response[:persons].size).to eq(1)
+      expect(response[:persons][0]).to eq(single_dependent_response[:persons])
+    end
   end
 
   describe '#submit_674_form' do
@@ -299,8 +328,6 @@ RSpec.describe BGS::DependentService do
     let(:stats_key) { BGS::DependentService::STATS_KEY }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(true)
-
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true, process_pdf: pdf_path)
 

@@ -1276,6 +1276,15 @@ paths:
               schema:
                 $ref: ./schemas/SecureMessageDetail.yml
           description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: |-
+            Bad Request - Oracle Health message send failed. This can occur when:
+            - Message status polling returns FAILED or INVALID status
+            - Error code SM98 will be returned in the response
         "401":
           content:
             application/json:
@@ -1541,6 +1550,17 @@ paths:
               schema:
                 $ref: ./schemas/SecureMessageDetail.yml
           description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: |
+            Bad Request - Oracle Health message send failed. This can occur when:
+            <ul>
+              <li>Message status polling returns FAILED or INVALID status</li>
+              <li>Error code SM98 will be returned in the response</li>
+            </ul>
         "401":
           content:
             application/json:
@@ -2057,7 +2077,7 @@ paths:
 
         This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
-        
+
         <strong>Valid Event Names:</strong> Event names must be from the approved registry of valid events.
         See <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a>
         for the complete list of valid event names. Invalid event names will return a status of 'invalid' without causing the request to fail.
@@ -2186,6 +2206,192 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: No lab results found
       summary: /v2/labs_and_tests
+  /v2/prescriptions:
+    get:
+      description: |
+        List medications for the current user. This endpoint uses the Unified Health Data (Oracle Health) backend
+        and requires the `mhv_medications_cerner_pilot` feature flag to be enabled.
+
+        Supports filtering, sorting, and pagination. Results can be filtered by prescription status and sorted
+        by various attributes. Pending (PD) prescriptions are included based on the `mhv_medications_display_pending_meds`
+        feature flag.
+      operationId: get_v2_prescriptions
+      parameters:
+        - description: Filter prescriptions by disp_status (comma-separated for multiple values, e.g., "Active,Expired")
+          in: query
+          name: filter[disp_status][eq]
+          required: false
+          schema:
+            type: string
+            example: "Active"
+        - description: The page number for pagination
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - description: The number of items per page
+          in: query
+          name: per_page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 20
+        - description: |
+            The attribute to sort by. Prefix with "-" for descending order. 
+            Supported values: "alphabetical-rx-name", "last-fill-date", or field names like "disp_status", "prescription_name", "dispensed_date"
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            example: "alphabetical-rx-name"
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions
+  /v2/prescriptions/list_refillable_prescriptions:
+    get:
+      description: |
+        List refillable medications for the current user. This endpoint returns prescriptions that can be refilled,
+        including those marked as refillable or renewable (Active/Expired within 120 days).
+
+        Uses the Unified Health Data (Oracle Health) backend and requires the `mhv_medications_cerner_pilot` feature flag.
+      operationId: get_v2_list_refillable_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ./schemas/PrescriptionDetail.yml
+                  meta:
+                    type: object
+                    required:
+                      - recently_requested
+                    properties:
+                      recently_requested:
+                        type: array
+                        description: >
+                          List of prescriptions with status "Active: Refill in Process" 
+                          or "Active: Submitted"
+                        items:
+                          type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions/list_refillable_prescriptions
+  /v2/prescriptions/refill:
+    post:
+      description: |
+        Refill one or more prescriptions in a batch operation. This endpoint accepts an array of prescription orders,
+        each containing a station number and prescription ID. Returns detailed results for each refill attempt,
+        including successful refills and any errors encountered.
+
+        Uses the Unified Health Data (Oracle Health) backend and requires the `mhv_medications_cerner_pilot` feature flag.
+
+        <strong>NOTES:</strong>
+        <ul>
+          <li>All orders are processed in a single batch operation</li>
+          <li>Partial failures are allowed - some prescriptions may succeed while others fail</li>
+          <li>Each order must include both stationNumber and id fields</li>
+          <li>At least one order must be provided</li>
+          <li>Results include separate lists for successful and failed refills</li>
+        </ul>
+      operationId: post_v2_refill_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/PrescriptionRefillRequest.yml
+        description: Array of prescription orders to refill
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionRefillResponse.yml
+          description: OK - Refill operation completed (may include partial failures)
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - Invalid request format or missing required fields
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden - Feature not available or user not authorized
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Internal Server Error
+      summary: /v2/prescriptions/refill
 
 components:
   securitySchemes:

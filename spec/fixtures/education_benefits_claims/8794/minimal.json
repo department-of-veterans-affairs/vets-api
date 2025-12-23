@@ -7,7 +7,7 @@
     },
     "title": "Designating Official",
     "emailAddress": "john.doe@example.com",
-    "phoneNumber": "5556071234"
+    "internationalPhoneNumber": "5556071234"
   },
   "institutionDetails": {
     "hasVaFacilityCode": true,
@@ -61,7 +61,7 @@
           "last": "Official2"
         },
         "title": "Some role",
-        "phoneNumber": "5556071235",
+        "internationalPhoneNumber": "3334445555",
         "emailAddress": "john_official2@example.com",
         "trainingCompletionDate": "2024-03-16",
         "hasVaEducationBenefits": true

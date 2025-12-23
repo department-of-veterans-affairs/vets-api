@@ -17,6 +17,23 @@ module V0
     end
 
     def update
+      if Flipper.enabled?(:in_progress_form_atomicity, @current_user)
+        atomic_update
+      else
+        original_update
+      end
+    end
+
+    def destroy
+      raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
+
+      form_for_user.destroy
+      render json: InProgressFormSerializer.new(form_for_user)
+    end
+
+    private
+
+    def original_update
       form = InProgressForm.form_for_user(form_id, @current_user) ||
              InProgressForm.new(form_id:, user_uuid: @current_user.uuid)
       form.user_account = @current_user.user_account
@@ -32,19 +49,42 @@ module V0
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
-      form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
+      form.update!(
+        form_data: params[:form_data] || params[:formData],
+        metadata: params[:metadata],
+        expires_at: form.next_expires_at
+      )
 
       render json: InProgressFormSerializer.new(form)
     end
 
-    def destroy
-      raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
+    def atomic_update
+      form_data = params[:form_data] || params[:formData]
+      InProgressForm.transaction do
+        # Lock the specific row to prevent concurrent updates, and use create_or_find_by! to prevent concurrent creation
+        form = InProgressForm.form_for_user(form_id, @current_user, with_lock: true) ||
+               InProgressForm.create_or_find_by!(form_id:, user_uuid: @current_user.uuid) do |f|
+                 f.form_data = form_data
+                 f.metadata = params[:metadata]
+                 f.user_account = @current_user.user_account
+               end
 
-      form_for_user.destroy
-      render json: InProgressFormSerializer.new(form_for_user)
+        form.user_account = @current_user.user_account if @current_user.user_account
+        form.real_user_uuid = @current_user.uuid
+
+        if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+           (form_id == FormProfiles::VA526ez::FORM_ID) && params[:metadata].present? && form_data.present?
+          form_hash = form_data.is_a?(String) ? JSON.parse(form_data) : form_data
+          params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
+        end
+
+        ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
+
+        form.update!(form_data:, metadata: params[:metadata], expires_at: form.next_expires_at)
+
+        render json: InProgressFormSerializer.new(form)
+      end
     end
-
-    private
 
     def form_for_user
       @form_for_user ||= InProgressForm.submission_pending.form_for_user(form_id, @current_user)

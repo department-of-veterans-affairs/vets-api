@@ -289,7 +289,11 @@ module VAOS
       end
 
       def scheduling_url
-        '/facilities/v2/scheduling/configurations'
+        if Flipper.enabled?(:va_online_scheduling_cscs_migration, user)
+          '/cscs/v1/configurations'
+        else
+          '/facilities/v2/scheduling/configurations'
+        end
       end
 
       def facilities_url
