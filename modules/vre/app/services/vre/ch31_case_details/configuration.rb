@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VRE
-  module Ch31Eligibility
+  module Ch31CaseDetails
     class Configuration < VRE::Configuration
       def connection
         @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
@@ -15,13 +15,13 @@ module VRE
       end
 
       def service_name
-        'RES_CH31_ELIGIBILITY'
+        'RES_CH31_CASE_DETAILS'
       end
 
       private
 
       def mock_enabled?
-        ActiveModel::Type::Boolean.new.cast(Settings.res.ch_31_eligibility.mock) || false
+        ActiveModel::Type::Boolean.new.cast(Settings.res.ch_31_case_details.mock) || false
       end
     end
   end
