@@ -156,7 +156,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'with all conditions met for refillable prescription' do
       it 'returns true' do
-        expect(subject.send(:extract_is_refillable, base_refillable_resource)).to be true
+        expect(subject.send(:extract_is_refillable, base_refillable_resource, 'active')).to be true
       end
     end
 
@@ -166,7 +166,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false for non-VA medications' do
-        expect(subject.send(:extract_is_refillable, non_va_resource)).to be false
+        expect(subject.send(:extract_is_refillable, non_va_resource, 'active')).to be false
       end
     end
 
@@ -176,7 +176,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when status is not active' do
-        expect(subject.send(:extract_is_refillable, inactive_resource)).to be false
+        expect(subject.send(:extract_is_refillable, inactive_resource, 'active')).to be false
       end
     end
 
@@ -186,7 +186,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when status is null' do
-        expect(subject.send(:extract_is_refillable, null_status_resource)).to be false
+        expect(subject.send(:extract_is_refillable, null_status_resource, 'active')).to be false
       end
     end
 
@@ -203,7 +203,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when prescription is expired' do
-        expect(subject.send(:extract_is_refillable, expired_resource)).to be false
+        expect(subject.send(:extract_is_refillable, expired_resource, 'active')).to be false
       end
     end
 
@@ -215,7 +215,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when no expiration date (safety default)' do
-        expect(subject.send(:extract_is_refillable, no_expiration_resource)).to be false
+        expect(subject.send(:extract_is_refillable, no_expiration_resource, 'active')).to be false
       end
     end
 
@@ -235,7 +235,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false and logs warning for invalid dates' do
-        expect(subject.send(:extract_is_refillable, invalid_expiration_resource)).to be false
+        expect(subject.send(:extract_is_refillable, invalid_expiration_resource, 'active')).to be false
         expect(Rails.logger).to have_received(:warn).with(
           /Invalid expiration date for prescription.*: invalid-date/
         )
@@ -255,7 +255,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when no refills remaining' do
-        expect(subject.send(:extract_is_refillable, no_refills_resource)).to be false
+        expect(subject.send(:extract_is_refillable, no_refills_resource, 'active')).to be false
       end
     end
 
@@ -274,7 +274,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when multiple conditions fail' do
-        expect(subject.send(:extract_is_refillable, multiple_fail_resource)).to be false
+        expect(subject.send(:extract_is_refillable, multiple_fail_resource, 'active')).to be false
       end
     end
 
@@ -303,7 +303,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns true when exactly one refill remains' do
-        expect(subject.send(:extract_is_refillable, one_refill_resource)).to be true
+        expect(subject.send(:extract_is_refillable, one_refill_resource, 'active')).to be true
       end
     end
 
@@ -328,7 +328,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is in-progress' do
-        expect(subject.send(:extract_is_refillable, in_progress_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, in_progress_dispense_resource, 'active')).to be false
       end
     end
 
@@ -347,7 +347,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is preparation' do
-        expect(subject.send(:extract_is_refillable, preparation_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, preparation_dispense_resource, 'active')).to be false
       end
     end
 
@@ -366,7 +366,13 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
 
       it 'returns false when most recent dispense is on-hold' do
-        expect(subject.send(:extract_is_refillable, on_hold_dispense_resource)).to be false
+        expect(subject.send(:extract_is_refillable, on_hold_dispense_resource, 'active')).to be false
+      end
+    end
+
+    context 'with submitted refill status' do
+      it 'returns false when refill_status is submitted' do
+        expect(subject.send(:extract_is_refillable, base_refillable_resource, 'submitted')).to be false
       end
     end
   end
@@ -1913,11 +1919,259 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
+  describe '#extract_refill_status' do
+    context 'when Task resources indicate a submitted refill' do
+      it 'returns "submitted" when a valid Task with status=requested exists and no subsequent dispense' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+        dispenses_data = []
+
+        result = subject.send(:extract_refill_status, resource, dispenses_data)
+
+        expect(result).to eq('submitted')
+      end
+
+      it 'returns "submitted" with multiple tasks when most recent has no subsequent dispense' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-20T10:00:00.000Z' }
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+        # Dispenses before the most recent task
+        dispenses_data = [
+          { when_prepared: '2025-06-19T12:00:00.000Z', when_handed_over: '2025-06-19T14:00:00.000Z' }
+        ]
+
+        result = subject.send(:extract_refill_status, resource, dispenses_data)
+
+        expect(result).to eq('submitted')
+      end
+    end
+
+    context 'when Task resources have failed or do not qualify' do
+      it 'returns normalized status when Task has status=failed' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'failed',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('active')
+      end
+
+      it 'returns normalized status when Task has intent=refill instead of order' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'refill',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('active')
+      end
+
+      it 'returns normalized status when Task focus reference does not match' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/99999' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('active')
+      end
+    end
+
+    context 'when a subsequent dispense exists after Task submission' do
+      it 'returns normalized status when dispense whenPrepared is after task date' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          { when_prepared: '2025-06-24T12:00:00.000Z', when_handed_over: nil }
+        ]
+
+        result = subject.send(:extract_refill_status, resource, dispenses_data)
+
+        expect(result).to eq('active')
+      end
+
+      it 'returns normalized status when dispense whenHandedOver is after task date' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          { when_prepared: nil, when_handed_over: '2025-06-25T12:00:00.000Z' }
+        ]
+
+        result = subject.send(:extract_refill_status, resource, dispenses_data)
+
+        expect(result).to eq('active')
+      end
+    end
+
+    context 'when no Task resources are present' do
+      it 'returns normalized status based on MedicationRequest status' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+          },
+          'contained' => []
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('active')
+      end
+
+      it 'returns "discontinued" for cancelled MedicationRequest without tasks' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'cancelled',
+          'contained' => []
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('discontinued')
+      end
+    end
+
+    context 'with mixed contained resources' do
+      it 'only considers Task resources, ignores MedicationDispense' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        result = subject.send(:extract_refill_status, resource, [])
+
+        expect(result).to eq('submitted')
+      end
+    end
+  end
+
   describe '#map_refill_status_to_disp_status' do
     context 'with standard refill_status values' do
       it 'maps "active" to "Active"' do
         result = subject.send(:map_refill_status_to_disp_status, 'active', 'VA')
         expect(result).to eq('Active')
+      end
+
+      it 'maps "submitted" to "Active: Submitted"' do
+        result = subject.send(:map_refill_status_to_disp_status, 'submitted', 'VA')
+        expect(result).to eq('Active: Submitted')
       end
 
       it 'maps "refillinprocess" to "Active: Refill in Process"' do
@@ -2097,6 +2351,676 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'sets disp_status to "Active: Refill in Process"' do
         result = subject.parse(refill_in_process_resource)
         expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+
+    context 'when parsing a prescription with Task resources indicating submitted refill' do
+      let(:submitted_refill_resource) do
+        base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+      end
+
+      it 'sets refill_status to "submitted"' do
+        result = subject.parse(submitted_refill_resource)
+        expect(result.refill_status).to eq('submitted')
+      end
+
+      it 'sets disp_status to "Active: Submitted"' do
+        result = subject.parse(submitted_refill_resource)
+        expect(result.disp_status).to eq('Active: Submitted')
+      end
+
+      it 'sets refill_submit_date from Task executionPeriod.start' do
+        result = subject.parse(submitted_refill_resource)
+        expect(result.refill_submit_date).to eq('2025-06-24T21:05:53.000Z')
+      end
+    end
+
+    context 'when parsing a prescription with failed Task resource' do
+      let(:failed_task_resource) do
+        base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'failed',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+      end
+
+      it 'sets refill_status to "active" (not submitted)' do
+        result = subject.parse(failed_task_resource)
+        expect(result.refill_status).to eq('active')
+      end
+
+      it 'sets disp_status to "Active" (not "Active: Submitted")' do
+        result = subject.parse(failed_task_resource)
+        expect(result.disp_status).to eq('Active')
+      end
+
+      it 'does not set refill_submit_date' do
+        result = subject.parse(failed_task_resource)
+        expect(result.refill_submit_date).to be_nil
+      end
+    end
+
+    context 'when Task exists but dispense occurred after task submission' do
+      let(:task_with_subsequent_dispense_resource) do
+        base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenPrepared' => '2025-06-24T12:00:00.000Z',
+              'whenHandedOver' => '2025-06-24T14:00:00.000Z'
+            }
+          ]
+        )
+      end
+
+      it 'sets refill_status to "active" because dispense fulfilled the task' do
+        result = subject.parse(task_with_subsequent_dispense_resource)
+        expect(result.refill_status).to eq('active')
+      end
+
+      it 'sets disp_status to "Active"' do
+        result = subject.parse(task_with_subsequent_dispense_resource)
+        expect(result.disp_status).to eq('Active')
+      end
+
+      it 'does not set refill_submit_date' do
+        result = subject.parse(task_with_subsequent_dispense_resource)
+        expect(result.refill_submit_date).to be_nil
+      end
+    end
+
+    context 'when parsing prescription with both Task and MedicationDispense (dispense before task)' do
+      let(:task_after_dispense_resource) do
+        base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'status' => 'completed',
+              'whenPrepared' => '2025-06-20T12:00:00.000Z',
+              'whenHandedOver' => '2025-06-20T14:00:00.000Z'
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+      end
+
+      it 'sets refill_status to "submitted" because task is after dispense' do
+        result = subject.parse(task_after_dispense_resource)
+        expect(result.refill_status).to eq('submitted')
+      end
+
+      it 'sets disp_status to "Active: Submitted"' do
+        result = subject.parse(task_after_dispense_resource)
+        expect(result.disp_status).to eq('Active: Submitted')
+      end
+
+      it 'sets refill_submit_date from Task' do
+        result = subject.parse(task_after_dispense_resource)
+        expect(result.refill_submit_date).to eq('2025-06-24T10:00:00.000Z')
+      end
+    end
+
+    context 'when parsing prescription with multiple Task resources' do
+      let(:multiple_tasks_resource) do
+        base_resource.merge(
+          'id' => '12345',
+          'status' => 'active',
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 3,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          },
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-20T10:00:00.000Z' }
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+      end
+
+      it 'uses most recent task for refill_submit_date' do
+        result = subject.parse(multiple_tasks_resource)
+        expect(result.refill_submit_date).to eq('2025-06-24T21:05:53.000Z')
+      end
+
+      it 'sets refill_status to "submitted"' do
+        result = subject.parse(multiple_tasks_resource)
+        expect(result.refill_status).to eq('submitted')
+      end
+    end
+  end
+
+  describe '#task_references_medication_request?' do
+    it 'returns true when Task.focus.reference matches MedicationRequest/<id>' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/12345'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be true
+    end
+
+    it 'returns false when Task.focus.reference does not match' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/99999'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be false
+    end
+
+    it 'returns false when focus reference is missing' do
+      task = {}
+      result = subject.send(:task_references_medication_request?, task, '12345')
+      expect(result).to be false
+    end
+
+    it 'returns false when medication_request_id is nil' do
+      task = {
+        'focus' => {
+          'reference' => 'MedicationRequest/12345'
+        }
+      }
+      result = subject.send(:task_references_medication_request?, task, nil)
+      expect(result).to be false
+    end
+  end
+
+  describe '#extract_refill_submission_metadata_from_tasks' do
+    context 'when Task resources are present in MedicationRequest' do
+      it 'extracts refill_submit_date from most recent successful Task resource with status=requested' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
+      end
+
+      it 'ignores failed Task resources' do
+        resource = base_resource.merge(
+          'id' => '20848812135',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'failed',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/20848812135' },
+              'executionPeriod' => { 'start' => '2025-11-18T23:18:20+00:00' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores in-progress Task resources (only requested status is valid)' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'in-progress',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores Task resources with intent=refill' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'refill',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'ignores Task resources with non-matching focus reference' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/99999' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns most recent successful task when multiple tasks exist' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-20T10:00:00.000Z' }
+            },
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T21:05:53.000Z' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T21:05:53.000Z')
+      end
+
+      it 'handles tasks without execution_period_start gracefully' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'handles invalid date format gracefully by returning empty hash' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => 'invalid-date' }
+            }
+          ]
+        )
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+    end
+
+    context 'when a subsequent dispense exists' do
+      it 'returns empty metadata when dispense whenPrepared is after task submit date' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          {
+            when_prepared: '2025-06-24T12:00:00.000Z',
+            when_handed_over: nil
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns empty metadata when dispense whenHandedOver is after task submit date' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          {
+            when_prepared: nil,
+            when_handed_over: '2025-06-25T12:00:00.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns refill_submit_date when dispense dates are before task submit date' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          {
+            when_prepared: '2025-06-20T12:00:00.000Z',
+            when_handed_over: '2025-06-21T12:00:00.000Z'
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
+      end
+
+      it 'returns refill_submit_date when no dispenses have dates' do
+        resource = base_resource.merge(
+          'id' => '12345',
+          'contained' => [
+            {
+              'resourceType' => 'Task',
+              'status' => 'requested',
+              'intent' => 'order',
+              'focus' => { 'reference' => 'MedicationRequest/12345' },
+              'executionPeriod' => { 'start' => '2025-06-24T10:00:00.000Z' }
+            }
+          ]
+        )
+        dispenses_data = [
+          {
+            when_prepared: nil,
+            when_handed_over: nil
+          }
+        ]
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, dispenses_data)
+
+        expect(metadata[:refill_submit_date]).to eq('2025-06-24T10:00:00.000Z')
+      end
+    end
+
+    context 'when no Task resources are present' do
+      it 'returns empty metadata hash when contained is empty' do
+        resource = base_resource.merge('contained' => [])
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+
+      it 'returns empty metadata hash when contained is nil' do
+        resource = base_resource.merge('contained' => nil)
+
+        metadata = subject.send(:extract_refill_submission_metadata_from_tasks, resource, [])
+
+        expect(metadata).to eq({})
+      end
+    end
+  end
+
+  describe '#subsequent_dispense?' do
+    it 'returns true when dispense whenPrepared is after task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-24T12:00:00.000Z',
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be true
+    end
+
+    it 'returns true when dispense whenHandedOver is after task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: nil,
+          when_handed_over: '2025-06-25T12:00:00.000Z'
+        }
+      ]
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be true
+    end
+
+    it 'returns false when all dispense dates are before task date' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-20T12:00:00.000Z',
+          when_handed_over: '2025-06-21T12:00:00.000Z'
+        }
+      ]
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses have no dates' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+      dispenses_data = [
+        {
+          when_prepared: nil,
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses_data is empty' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, [])
+
+      expect(result).to be false
+    end
+
+    it 'returns false when dispenses_data is nil' do
+      task_submit_date = '2025-06-24T10:00:00.000Z'
+
+      result = subject.send(:subsequent_dispense?, task_submit_date, nil)
+
+      expect(result).to be false
+    end
+
+    it 'returns false when task_submit_date is nil' do
+      dispenses_data = [
+        {
+          when_prepared: '2025-06-24T12:00:00.000Z',
+          when_handed_over: nil
+        }
+      ]
+
+      result = subject.send(:subsequent_dispense?, nil, dispenses_data)
+
+      expect(result).to be false
+    end
+
+    context 'with multiple dispenses' do
+      it 'iterates all dispenses and returns true when last dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-26T12:00:00.000Z', when_handed_over: nil } # After task date
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
+      end
+
+      it 'iterates all dispenses and returns true when middle dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-26T12:00:00.000Z', when_handed_over: nil }, # After task date
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil }
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
+      end
+
+      it 'iterates all dispenses and returns false when no dispense has date after task date' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: '2025-06-20T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-22T12:00:00.000Z', when_handed_over: nil },
+          { when_prepared: '2025-06-23T12:00:00.000Z', when_handed_over: nil }
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be false
+      end
+
+      it 'checks whenHandedOver for each dispense when whenPrepared is nil' do
+        task_submit_date = '2025-06-24T10:00:00.000Z'
+        dispenses_data = [
+          { when_prepared: nil, when_handed_over: '2025-06-20T12:00:00.000Z' },
+          { when_prepared: nil, when_handed_over: '2025-06-22T12:00:00.000Z' },
+          { when_prepared: nil, when_handed_over: '2025-06-26T12:00:00.000Z' } # After task date
+        ]
+
+        result = subject.send(:subsequent_dispense?, task_submit_date, dispenses_data)
+
+        expect(result).to be true
       end
     end
   end
