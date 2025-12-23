@@ -657,7 +657,9 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         expect(parsed_body['data'].count).to eq(2)
-        expect(parsed_body['data'].map { |c| c['id'] }).to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
+        expect(parsed_body['data'].map do |c|
+          c['id']
+        end).to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
       end
 
       it 'continues processing when one provider fails' do
@@ -687,7 +689,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'logs errors and increments StatsD when provider fails' do
         failing_provider = Class.new do
-          def initialize(user)
+          def initialize(_user)
             raise StandardError, 'Provider initialization failed'
           end
         end
@@ -707,13 +709,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'returns empty data when multiple providers fail' do
         failing_provider_one = Class.new do
-          def initialize(user)
+          def initialize(_user)
             raise StandardError, 'Provider 1 failed'
           end
         end
 
         failing_provider_two = Class.new do
-          def initialize(user)
+          def initialize(_user)
             raise StandardError, 'Provider 2 failed'
           end
         end
@@ -2051,10 +2053,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   end
 
   describe '#get_claims_from_providers' do
-    let(:mock_provider_class) { class_double('BenefitsClaims::Providers::MockProvider') }
-    let(:mock_provider) { instance_double('BenefitsClaims::Providers::MockProvider') }
-    let(:second_provider_class) { class_double('BenefitsClaims::Providers::SecondProvider') }
-    let(:second_provider) { instance_double('BenefitsClaims::Providers::SecondProvider') }
+    let(:mock_provider_class) { class_double(BenefitsClaims::Providers::MockProvider) }
+    let(:mock_provider) { instance_double(BenefitsClaims::Providers::MockProvider) }
+    let(:second_provider_class) { class_double(BenefitsClaims::Providers::SecondProvider) }
+    let(:second_provider) { instance_double(BenefitsClaims::Providers::SecondProvider) }
 
     before do
       controller.instance_variable_set(:@current_user, user)
@@ -2204,10 +2206,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
   describe '#get_claim_from_providers' do
     let(:claim_id) { '123456' }
-    let(:mock_provider_class) { class_double('BenefitsClaims::Providers::MockProvider') }
-    let(:mock_provider) { instance_double('BenefitsClaims::Providers::MockProvider') }
-    let(:second_provider_class) { class_double('BenefitsClaims::Providers::SecondProvider') }
-    let(:second_provider) { instance_double('BenefitsClaims::Providers::SecondProvider') }
+    let(:mock_provider_class) { class_double(BenefitsClaims::Providers::MockProvider) }
+    let(:mock_provider) { instance_double(BenefitsClaims::Providers::MockProvider) }
+    let(:second_provider_class) { class_double(BenefitsClaims::Providers::SecondProvider) }
+    let(:second_provider) { instance_double(BenefitsClaims::Providers::SecondProvider) }
 
     before do
       controller.instance_variable_set(:@current_user, user)
@@ -2277,7 +2279,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         before do
           allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
           allow(mock_provider).to receive(:get_claim).with(claim_id)
-                                                      .and_raise(Common::Exceptions::RecordNotFound, claim_id)
+                                                     .and_raise(Common::Exceptions::RecordNotFound, claim_id)
           allow(mock_provider_class).to receive(:name).and_return('MockProvider')
           allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
           allow(second_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
@@ -2303,7 +2305,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         before do
           allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
           allow(mock_provider).to receive(:get_claim).with(claim_id)
-                                                      .and_raise(Common::Exceptions::RecordNotFound, claim_id)
+                                                     .and_raise(Common::Exceptions::RecordNotFound, claim_id)
           allow(mock_provider_class).to receive(:name).and_return('MockProvider')
           allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
           allow(second_provider).to receive(:get_claim).with(claim_id)
@@ -2312,7 +2314,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Rails.logger).to receive(:info)
         end
 
-        # TODO:: What happens if both providers have a claim with the same id? 
+        # TODO: : What happens if both providers have a claim with the same id?
 
         it 'raises RecordNotFound exception' do
           expect do

@@ -156,7 +156,8 @@ module V0
       rescue => e
         provider_errors << { provider: provider_class.name, error: e.message }
         ::Rails.logger.error("Provider #{provider_class.name} failed: #{e.message}")
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error", tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
+                         tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
       end
 
       {
