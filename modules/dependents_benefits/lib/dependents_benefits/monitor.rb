@@ -206,6 +206,8 @@ module DependentsBenefits
     ##
     # Tracks a pension-related submission event
     #
+    # @param message [String] The message to log
+    # @param context [Hash] Additional context for the event (e.g., parent_claim_id, form_type)
     # @return [void]
     def track_pension_related_submission(message, **context)
       context = append_tags(context)
