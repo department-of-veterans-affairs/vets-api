@@ -15,7 +15,7 @@ RSpec.describe UniqueUserEvents::Service do
       allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:record_event)
       allow(described_class).to receive(:increment_statsd_counter)
-      allow(described_class).to receive(:increment_events_to_log_counter)
+      allow(StatsD).to receive(:increment)
       allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
     end
 
@@ -46,7 +46,10 @@ RSpec.describe UniqueUserEvents::Service do
         it 'increments events_to_log counter with correct count' do
           described_class.log_event(user:, event_name:)
 
-          expect(described_class).to have_received(:increment_events_to_log_counter).with(1)
+          expect(StatsD).to have_received(:increment).with(
+            'uum.unique_user_metrics.events_to_log',
+            tags: ['count:1']
+          )
         end
       end
 
@@ -99,7 +102,10 @@ RSpec.describe UniqueUserEvents::Service do
       it 'increments events_to_log counter with total count including OH events' do
         described_class.log_event(user:, event_name: oh_event_name)
 
-        expect(described_class).to have_received(:increment_events_to_log_counter).with(2)
+        expect(StatsD).to have_received(:increment).with(
+          'uum.unique_user_metrics.events_to_log',
+          tags: ['count:2']
+        )
       end
     end
 
@@ -227,22 +233,6 @@ RSpec.describe UniqueUserEvents::Service do
         expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to increment StatsD counter', { event_name:, error: error_message })
       end
-    end
-  end
-
-  describe '.increment_events_to_log_counter' do
-    before do
-      allow(StatsD).to receive(:increment)
-    end
-
-    it 'increments StatsD counter with correct parameters' do
-      count = 3
-      described_class.send(:increment_events_to_log_counter, count)
-
-      expect(StatsD).to have_received(:increment).with(
-        'uum.unique_user_metrics.events_to_log',
-        tags: ["count:#{count}"]
-      )
     end
   end
 end

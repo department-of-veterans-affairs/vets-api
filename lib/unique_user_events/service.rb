@@ -89,13 +89,6 @@ module UniqueUserEvents
       # Don't raise - metrics failure shouldn't break the main flow
     end
 
-    # Private method to increment StatsD counter for events to be logged
-    #
-    # @param count [Integer] Number of events to be logged
-    def self.increment_events_to_log_counter(count)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.events_to_log", tags: ["count:#{count}"])
-    end
-
     # Get all events to be logged (original + Oracle Health events)
     #
     # @param user [User] the authenticated User object
@@ -109,7 +102,7 @@ module UniqueUserEvents
       events.concat(oh_events)
 
       # Track the number of events to be logged
-      increment_events_to_log_counter(events.size)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.events_to_log", tags: ["count:#{events.size}"])
 
       events
     end
@@ -195,7 +188,7 @@ module UniqueUserEvents
       }
     end
 
-    private_class_method :increment_statsd_counter, :increment_events_to_log_counter, :get_all_events_to_log,
-                         :log_single_event, :extract_user_id, :build_event_result
+    private_class_method :increment_statsd_counter, :get_all_events_to_log, :log_single_event, :extract_user_id,
+                         :build_event_result
   end
 end
