@@ -1224,7 +1224,7 @@ features:
   identity_ial2_enforcement:
     actor_type: user
     description: Enforces IAL2 for newly verified users
-    enable_in_development: true
+    enable_in_development: false
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
