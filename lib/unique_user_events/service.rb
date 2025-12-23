@@ -94,9 +94,6 @@ module UniqueUserEvents
     # @param count [Integer] Number of events to be logged
     def self.increment_events_to_log_counter(count)
       StatsD.increment("#{STATSD_KEY_PREFIX}.events_to_log", tags: ["count:#{count}"])
-    rescue => e
-      Rails.logger.error('UUM: Failed to increment events_to_log counter', { count:, error: e.message })
-      # Don't raise - metrics failure shouldn't break the main flow
     end
 
     # Get all events to be logged (original + Oracle Health events)

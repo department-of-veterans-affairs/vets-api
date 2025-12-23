@@ -232,7 +232,6 @@ RSpec.describe UniqueUserEvents::Service do
 
   describe '.increment_events_to_log_counter' do
     before do
-      allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
     end
 
@@ -244,24 +243,6 @@ RSpec.describe UniqueUserEvents::Service do
         'uum.unique_user_metrics.events_to_log',
         tags: ["count:#{count}"]
       )
-    end
-
-    context 'when StatsD increment fails' do
-      let(:error_message) { 'StatsD connection error' }
-      let(:count) { 2 }
-
-      before do
-        allow(StatsD).to receive(:increment).and_raise(StandardError, error_message)
-      end
-
-      it 'logs error without raising exception' do
-        expect do
-          described_class.send(:increment_events_to_log_counter, count)
-        end.not_to raise_error
-
-        expect(Rails.logger).to have_received(:error)
-          .with('UUM: Failed to increment events_to_log counter', { count:, error: error_message })
-      end
     end
   end
 end
