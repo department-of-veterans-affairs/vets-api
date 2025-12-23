@@ -63,18 +63,7 @@ module MebApi
       end
 
       def submit_claim
-        response_data = nil
-
-        if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-          rescue => e
-            Rails.logger.error("BGS service error: #{e}")
-            head :internal_server_error
-            return
-          end
-        end
-
+        response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
@@ -84,6 +73,9 @@ module MebApi
             status: response.status
           }
         }
+      rescue => e
+        Rails.logger.error("MEB submit_claim failed: #{e.class} - #{e.message}")
+        raise
       end
 
       def enrollment
@@ -170,6 +162,24 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
+      end
+
+      # Fetch unmasked direct deposit if asterisks present. Gracefully handles failures.
+      def fetch_direct_deposit_info
+        return nil if Rails.env.development?
+
+        account_number = params.dig(:education_benefit, :direct_deposit, :direct_deposit_account_number)
+        routing_number = params.dig(:education_benefit, :direct_deposit, :direct_deposit_routing_number)
+        return nil unless account_number&.include?('*') || routing_number&.include?('*')
+
+        DirectDeposit::Client.new(@current_user&.icn).get_payment_info.tap do |response_data|
+          if response_data.nil?
+            Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+          end
+        end
+      rescue => e
+        Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        nil
       end
     end
   end

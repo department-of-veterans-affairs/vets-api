@@ -156,52 +156,9 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
   end
 
   describe '#apply_v2_status_mapping' do
-    context 'with hash-based prescription' do
+    context 'with prescription object' do
       it 'maps disp_status to V2 status' do
-        prescription = { disp_status: 'Active: Submitted', prescription_name: 'Test Med' }
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result[:disp_status]).to eq('In progress')
-        expect(result[:prescription_name]).to eq('Test Med')
-      end
-
-      it 'preserves other hash attributes' do
-        prescription = {
-          disp_status: 'Expired',
-          prescription_id: '12345',
-          refill_status: 'expired',
-          facility_name: 'Test Facility'
-        }
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result[:disp_status]).to eq('Inactive')
-        expect(result[:prescription_id]).to eq('12345')
-        expect(result[:refill_status]).to eq('expired')
-        expect(result[:facility_name]).to eq('Test Facility')
-      end
-
-      it 'returns prescription unchanged when disp_status is nil' do
-        prescription = { disp_status: nil, prescription_name: 'Test Med' }
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result[:disp_status]).to be_nil
-      end
-
-      it 'returns prescription unchanged when disp_status is empty' do
-        prescription = { disp_status: '', prescription_name: 'Test Med' }
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result[:disp_status]).to eq('')
-      end
-    end
-
-    context 'with object-based prescription (OpenStruct)' do
-      it 'maps disp_status to V2 status' do
-        prescription = OpenStruct.new(disp_status: 'Active: Refill in Process', prescription_name: 'Test Med')
+        prescription = OpenStruct.new(disp_status: 'Active: Submitted', prescription_name: 'Test Med')
 
         result = mapper.apply_v2_status_mapping(prescription)
 
@@ -210,6 +167,47 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       end
 
       it 'preserves other object attributes' do
+        prescription = OpenStruct.new(
+          disp_status: 'Expired',
+          prescription_id: '12345',
+          refill_status: 'expired',
+          facility_name: 'Test Facility'
+        )
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Inactive')
+        expect(result.prescription_id).to eq('12345')
+        expect(result.refill_status).to eq('expired')
+        expect(result.facility_name).to eq('Test Facility')
+      end
+
+      it 'returns prescription unchanged when disp_status is nil and no refill_status' do
+        prescription = OpenStruct.new(disp_status: nil, prescription_name: 'Test Med')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to be_nil
+      end
+
+      it 'returns prescription unchanged when disp_status is empty and no refill_status' do
+        prescription = OpenStruct.new(disp_status: '', prescription_name: 'Test Med')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('')
+      end
+
+      it 'maps Active: Refill in Process to In progress' do
+        prescription = OpenStruct.new(disp_status: 'Active: Refill in Process', prescription_name: 'Test Med')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('In progress')
+        expect(result.prescription_name).to eq('Test Med')
+      end
+
+      it 'maps Discontinued to Inactive and preserves other attributes' do
         prescription = OpenStruct.new(
           disp_status: 'Discontinued',
           prescription_id: '67890',
@@ -224,22 +222,6 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
         expect(result.refill_status).to eq('discontinued')
         expect(result.facility_name).to eq('Another Facility')
       end
-
-      it 'returns prescription unchanged when disp_status is nil' do
-        prescription = OpenStruct.new(disp_status: nil, prescription_name: 'Test Med')
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result.disp_status).to be_nil
-      end
-
-      it 'returns prescription unchanged when disp_status is empty' do
-        prescription = OpenStruct.new(disp_status: '', prescription_name: 'Test Med')
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result.disp_status).to eq('')
-      end
     end
 
     context 'with object that does not respond to disp_status=' do
@@ -251,6 +233,17 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
         result = mapper.apply_v2_status_mapping(prescription)
 
         expect(result).to eq(prescription)
+      end
+    end
+
+    context 'with hash (unsupported - returns unchanged)' do
+      it 'returns hash unchanged since hashes are not supported' do
+        prescription = { disp_status: 'Active: Submitted', prescription_name: 'Test Med' }
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        # Hash is returned unchanged - only objects with disp_status/disp_status= are processed
+        expect(result[:disp_status]).to eq('Active: Submitted')
       end
     end
   end
@@ -272,7 +265,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       expect(result[3].disp_status).to eq('Inactive')
     end
 
-    it 'handles mixed hash and object prescriptions' do
+    it 'ignores hashes in collection (only processes objects)' do
       prescriptions = [
         { disp_status: 'Active', prescription_id: '1' },
         OpenStruct.new(disp_status: 'Expired', prescription_id: '2')
@@ -280,6 +273,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
 
       result = mapper.apply_v2_status_mapping_to_all(prescriptions)
 
+      # Hash is unchanged, object is mapped
       expect(result[0][:disp_status]).to eq('Active')
       expect(result[1].disp_status).to eq('Inactive')
     end
@@ -392,126 +386,89 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
 
   describe 'disp_status derivation from refill_status' do
     context 'when disp_status is nil/blank and refill_status is present' do
-      context 'with hash-based prescription' do
-        it 'derives disp_status from refill_status and maps to V2' do
-          prescription = { disp_status: nil, refill_status: 'active', prescription_id: '1' }
+      it 'derives disp_status from refill_status and maps to V2' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'active', prescription_id: '1')
 
-          result = mapper.apply_v2_status_mapping(prescription)
+        result = mapper.apply_v2_status_mapping(prescription)
 
-          expect(result[:disp_status]).to eq('Active')
-        end
-
-        it 'maps "refillinprocess" refill_status to "In progress" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'refillinprocess', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('In progress')
-        end
-
-        it 'maps "submitted" refill_status to "In progress" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'submitted', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('In progress')
-        end
-
-        it 'maps "hold" refill_status to "Inactive" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'hold', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Inactive')
-        end
-
-        it 'maps "providerhold" refill_status to "Inactive" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'providerhold', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Inactive')
-        end
-
-        it 'maps "expired" refill_status to "Inactive" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'expired', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Inactive')
-        end
-
-        it 'maps "discontinued" refill_status to "Inactive" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'discontinued', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Inactive')
-        end
-
-        it 'maps "transferred" refill_status to "Transferred" V2 status' do
-          prescription = { disp_status: nil, refill_status: 'transferred', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Transferred')
-        end
-
-        it 'handles unknown refill_status by mapping to "Status not available"' do
-          prescription = { disp_status: nil, refill_status: 'unknownstatus', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Status not available')
-        end
-
-        it 'is case-insensitive for refill_status' do
-          prescription = { disp_status: nil, refill_status: 'ACTIVE', prescription_id: '1' }
-
-          result = mapper.apply_v2_status_mapping(prescription)
-
-          expect(result[:disp_status]).to eq('Active')
-        end
+        expect(result.disp_status).to eq('Active')
       end
 
-      context 'with object-based prescription' do
-        it 'derives disp_status from refill_status and maps to V2' do
-          prescription = OpenStruct.new(disp_status: nil, refill_status: 'expired', prescription_id: '1')
+      it 'maps "refillinprocess" refill_status to "In progress" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'refillinprocess', prescription_id: '1')
 
-          result = mapper.apply_v2_status_mapping(prescription)
+        result = mapper.apply_v2_status_mapping(prescription)
 
-          expect(result.disp_status).to eq('Inactive')
-        end
+        expect(result.disp_status).to eq('In progress')
+      end
 
-        it 'maps "refillinprocess" refill_status to "In progress" V2 status' do
-          prescription = OpenStruct.new(disp_status: nil, refill_status: 'refillinprocess', prescription_id: '1')
+      it 'maps "submitted" refill_status to "In progress" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'submitted', prescription_id: '1')
 
-          result = mapper.apply_v2_status_mapping(prescription)
+        result = mapper.apply_v2_status_mapping(prescription)
 
-          expect(result.disp_status).to eq('In progress')
-        end
+        expect(result.disp_status).to eq('In progress')
+      end
 
-        it 'handles empty string disp_status by deriving from refill_status' do
-          prescription = OpenStruct.new(disp_status: '', refill_status: 'active', prescription_id: '1')
+      it 'maps "hold" refill_status to "Inactive" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'hold', prescription_id: '1')
 
-          result = mapper.apply_v2_status_mapping(prescription)
+        result = mapper.apply_v2_status_mapping(prescription)
 
-          expect(result.disp_status).to eq('Active')
-        end
+        expect(result.disp_status).to eq('Inactive')
+      end
+
+      it 'maps "providerhold" refill_status to "Inactive" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'providerhold', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Inactive')
+      end
+
+      it 'maps "expired" refill_status to "Inactive" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'expired', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Inactive')
+      end
+
+      it 'maps "discontinued" refill_status to "Inactive" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'discontinued', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Inactive')
+      end
+
+      it 'maps "transferred" refill_status to "Transferred" V2 status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'transferred', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Transferred')
+      end
+
+      it 'handles unknown refill_status by mapping to "Status not available"' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'unknownstatus', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Status not available')
+      end
+
+      it 'is case-insensitive for refill_status' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: 'ACTIVE', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('Active')
       end
     end
 
     context 'when disp_status is already present' do
-      it 'uses existing disp_status instead of deriving from refill_status (hash)' do
-        prescription = { disp_status: 'Expired', refill_status: 'active', prescription_id: '1' }
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        # Should map 'Expired' -> 'Inactive', not derive from 'active'
-        expect(result[:disp_status]).to eq('Inactive')
-      end
-
-      it 'uses existing disp_status instead of deriving from refill_status (object)' do
+      it 'uses existing disp_status instead of deriving from refill_status' do
         prescription = OpenStruct.new(disp_status: 'Active: Submitted', refill_status: 'expired', prescription_id: '1')
 
         result = mapper.apply_v2_status_mapping(prescription)
@@ -522,20 +479,20 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
     end
 
     context 'when both disp_status and refill_status are nil/blank' do
-      it 'leaves disp_status as nil (hash)' do
-        prescription = { disp_status: nil, refill_status: nil, prescription_id: '1' }
+      it 'leaves disp_status as nil' do
+        prescription = OpenStruct.new(disp_status: nil, refill_status: nil, prescription_id: '1')
 
         result = mapper.apply_v2_status_mapping(prescription)
 
-        expect(result[:disp_status]).to be_nil
+        expect(result.disp_status).to be_nil
       end
 
-      it 'leaves empty disp_status as empty when refill_status is also empty (hash)' do
-        prescription = { disp_status: '', refill_status: '', prescription_id: '1' }
+      it 'leaves empty disp_status as empty when refill_status is also empty' do
+        prescription = OpenStruct.new(disp_status: '', refill_status: '', prescription_id: '1')
 
         result = mapper.apply_v2_status_mapping(prescription)
 
-        expect(result[:disp_status]).to eq('')
+        expect(result.disp_status).to eq('')
       end
     end
   end

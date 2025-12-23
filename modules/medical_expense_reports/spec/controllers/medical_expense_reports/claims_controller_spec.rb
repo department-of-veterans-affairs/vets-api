@@ -76,7 +76,11 @@ RSpec.describe MedicalExpenseReports::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:medical_expense_reports_claim)
       allow(MedicalExpenseReports::SavedClaim).to receive(:find_by!).and_return(claim)
-      allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_URL)
+      mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
+      allow_any_instance_of(MedicalExpenseReports::V0::ClaimsController)
+        .to receive(:last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(MedicalExpenseReports::V0::ClaimsController)
+        .to receive(:s3_signed_url).and_return(MOCK_URL)
 
       get '/medical_expense_reports/v0/claims/:id', params: { id: 'medical_expense_reports_claim' }
 

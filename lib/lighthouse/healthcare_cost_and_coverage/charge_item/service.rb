@@ -27,6 +27,16 @@ module Lighthouse
           handle_error(e, endpoint)
         end
 
+        def read(id)
+          raise ArgumentError, 'no ID passed in for HCCC ChargeItem read request' if id.blank?
+
+          endpoint = "r4/ChargeItem/#{id}"
+
+          config.get(endpoint, icn: @icn).body
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+          handle_error(e, endpoint)
+        end
+
         private
 
         def handle_error(error, endpoint)

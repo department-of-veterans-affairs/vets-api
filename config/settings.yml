@@ -947,8 +947,9 @@ mhv:
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   oh_facility_checks:
-    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] || '612, 555' %>
-    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] || '612, 357, 555' %>
+    facilities_migrating_to_oh: <%= ENV['mhv__facilities_migrating_to_oh'] %>
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
@@ -1037,6 +1038,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    s3:
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
@@ -1196,8 +1202,10 @@ reports:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  ch_31_case_details:
+    mock: <%= ENV['res__ch_31_case_details__mock'] %>
   ch_31_eligibility:
-    mock: <%= ENV['res__ch_31_eligibility__mock']%>
+    mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
@@ -1923,6 +1931,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

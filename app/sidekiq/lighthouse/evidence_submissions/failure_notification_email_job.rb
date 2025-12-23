@@ -67,8 +67,6 @@ module Lighthouse
         ::Rails.logger.error(error_message, { message: error.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
         log_exception_to_sentry(error)
-
-        log_exception_to_rails(error)
       end
     end
   end

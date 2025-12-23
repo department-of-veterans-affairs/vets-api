@@ -45,6 +45,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  describe 'token' do
+    it 'automatically generates a unique token' do
+      expect(education_benefits_claim.token).not_to be_nil
+    end
+  end
+
   describe '#update_education_benefits_submission_status' do
     subject do
       education_benefits_claim.update!(processed_at: Time.zone.now)

@@ -665,7 +665,9 @@ RSpec.describe 'Mobile::V0::Health::Immunizations', :skip_json_api_validation, t
           dates = response.parsed_body['data'].map { |imm| imm['attributes']['date'] }
           group_names = response.parsed_body['data'].map { |imm| imm['attributes']['groupName'] }
           expect(dates).to eq(['2016-04-28T12:24:55Z', '2016-04-28T12:24:55Z', '2010-03-25T12:24:55Z', nil])
-          expect(group_names).to eq(%w[FLU PneumoPPV FLU FLU])
+          expect(group_names).to eq(['FLU', 'PneumoPPV',
+                                     'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE',
+                                     'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE'])
         end
       end
     end
