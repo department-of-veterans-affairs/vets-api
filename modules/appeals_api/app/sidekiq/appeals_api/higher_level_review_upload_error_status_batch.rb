@@ -11,8 +11,7 @@ module AppealsApi
 
     # No need to retry since the schedule will run this regularly
     sidekiq_options retry: false, unique_for: 6.hours
-
-    # Age in days to continue to update the status of HigherLevelReviews with an upstream DOC202 procesing error
+    # Age in days to continue to update the status of HigherLevelReviews with an upstream DOC202 processing error
     DOC202_ERROR_STATUS_UPDATE_LOOKBACK = 14.days
 
     def perform
