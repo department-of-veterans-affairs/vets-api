@@ -15,6 +15,7 @@ RSpec.describe UniqueUserEvents::Service do
       allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:record_event)
       allow(described_class).to receive(:increment_statsd_counter)
+      allow(described_class).to receive(:increment_events_to_log_counter)
       allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
     end
 
@@ -40,6 +41,12 @@ RSpec.describe UniqueUserEvents::Service do
           expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
           expect(described_class).to have_received(:increment_statsd_counter).with(event_name)
           expect(Rails.logger).to have_received(:info).with('UUM: New event logged', { user_id:, event_name: })
+        end
+
+        it 'increments events_to_log counter with correct count' do
+          described_class.log_event(user:, event_name:)
+
+          expect(described_class).to have_received(:increment_events_to_log_counter).with(1)
         end
       end
 
@@ -87,6 +94,12 @@ RSpec.describe UniqueUserEvents::Service do
         described_class.log_event(user:, event_name: oh_event_name)
 
         expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).with(user:, event_name: oh_event_name)
+      end
+
+      it 'increments events_to_log counter with total count including OH events' do
+        described_class.log_event(user:, event_name: oh_event_name)
+
+        expect(described_class).to have_received(:increment_events_to_log_counter).with(2)
       end
     end
 
@@ -213,6 +226,41 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(Rails.logger).to have_received(:error)
           .with('UUM: Failed to increment StatsD counter', { event_name:, error: error_message })
+      end
+    end
+  end
+
+  describe '.increment_events_to_log_counter' do
+    before do
+      allow(Rails.logger).to receive(:error)
+      allow(StatsD).to receive(:increment)
+    end
+
+    it 'increments StatsD counter with correct parameters' do
+      count = 3
+      described_class.send(:increment_events_to_log_counter, count)
+
+      expect(StatsD).to have_received(:increment).with(
+        'uum.unique_user_metrics.events_to_log',
+        tags: ["count:#{count}"]
+      )
+    end
+
+    context 'when StatsD increment fails' do
+      let(:error_message) { 'StatsD connection error' }
+      let(:count) { 2 }
+
+      before do
+        allow(StatsD).to receive(:increment).and_raise(StandardError, error_message)
+      end
+
+      it 'logs error without raising exception' do
+        expect do
+          described_class.send(:increment_events_to_log_counter, count)
+        end.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error)
+          .with('UUM: Failed to increment events_to_log counter', { count:, error: error_message })
       end
     end
   end
