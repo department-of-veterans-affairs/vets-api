@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Job that reqs statsu updates for Supps that hit a processing error within EMMS API.
+# Job that requests status updates for Supps that hit a processing error within EMMS API.
 # These errors sometimes recover within EMMS, so continue to poll EMMS for status changes
 require 'sidekiq'
 require 'appeals_api/central_mail_updater'
