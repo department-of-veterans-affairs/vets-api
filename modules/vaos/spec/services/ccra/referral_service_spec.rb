@@ -172,6 +172,174 @@ describe Ccra::ReferralService do
         end
       end
     end
+
+    context 'NPI field logging' do
+      let(:id) { 'test_referral_123' }
+      let(:response_double) { double('Response', body: response_body) }
+
+      before do
+        allow_any_instance_of(Ccra::ReferralService).to receive(:perform).and_return(response_double)
+        allow(Ccra::ReferralDetail).to receive(:new).and_return(referral_detail)
+      end
+
+      context 'when both top-level and nested NPI fields are present' do
+        let(:response_body) do
+          {
+            provider_npi: '1234567890',
+            treating_provider_info: {
+              provider_npi: '0987654321'
+            },
+            category_of_care: 'CARDIOLOGY',
+            referral_number: 'VA0000005681'
+          }
+        end
+
+        it 'logs both NPI fields with correct presence flags and last 3 digits' do
+          expected_log_data = {
+            referral_id_last4: '123',
+            top_level_npi_present: true,
+            top_level_npi_last3: '890',
+            nested_npi_present: true,
+            nested_npi_last3: '321'
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            expected_log_data
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+
+      context 'when only top-level NPI is present' do
+        let(:response_body) do
+          {
+            provider_npi: '1234567890',
+            treating_provider_info: {},
+            category_of_care: 'CARDIOLOGY',
+            referral_number: 'VA0000005681'
+          }
+        end
+
+        it 'logs only top-level NPI data' do
+          expected_log_data = {
+            referral_id_last4: '123',
+            top_level_npi_present: true,
+            top_level_npi_last3: '890',
+            nested_npi_present: false
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            expected_log_data
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+
+      context 'when only nested NPI is present' do
+        let(:response_body) do
+          {
+            treating_provider_info: {
+              provider_npi: '0987654321'
+            },
+            category_of_care: 'CARDIOLOGY',
+            referral_number: 'VA0000005681'
+          }
+        end
+
+        it 'logs only nested NPI data' do
+          expected_log_data = {
+            referral_id_last4: '123',
+            top_level_npi_present: false,
+            nested_npi_present: true,
+            nested_npi_last3: '321'
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            expected_log_data
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+
+      context 'when no NPI fields are present' do
+        let(:response_body) do
+          {
+            category_of_care: 'CARDIOLOGY',
+            referral_number: 'VA0000005681'
+          }
+        end
+
+        it 'logs absence of both NPI fields' do
+          expected_log_data = {
+            referral_id_last4: '123',
+            top_level_npi_present: false,
+            nested_npi_present: false
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            expected_log_data
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+
+      context 'when NPI fields contain short values' do
+        let(:response_body) do
+          {
+            provider_npi: '12',
+            treating_provider_info: {
+              provider_npi: 'X'
+            },
+            category_of_care: 'CARDIOLOGY',
+            referral_number: 'VA0000005681'
+          }
+        end
+
+        it 'handles short NPI values correctly' do
+          expected_log_data = {
+            referral_id_last4: '123',
+            top_level_npi_present: true,
+            top_level_npi_last3: '12',
+            nested_npi_present: true,
+            nested_npi_last3: 'X'
+          }
+
+          expect(Rails.logger).to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            expected_log_data
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+
+      context 'when referral data is cached' do
+        let(:response_body) { {} }
+
+        before do
+          allow(referral_cache).to receive(:fetch_referral_data)
+            .with(id:, icn:)
+            .and_return(referral_detail)
+        end
+
+        it 'does not log NPI fields' do
+          expect(Rails.logger).not_to receive(:info).with(
+            'Community Care Appointments: CCRA referral NPI fields',
+            anything
+          )
+
+          subject.get_referral(id, icn)
+        end
+      end
+    end
   end
 
   describe '#get_booking_start_time' do
