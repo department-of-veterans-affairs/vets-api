@@ -2553,6 +2553,9 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_delivery_status_update_job:
+    actor_type: user
+    description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
