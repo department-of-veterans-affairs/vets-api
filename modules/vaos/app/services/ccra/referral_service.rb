@@ -146,7 +146,7 @@ module Ccra
       nested_npi = response_body.dig(:treating_provider_info, :provider_npi)
 
       log_data = {
-        referral_id_last4: referral_id.to_s.last(3),
+        referral_id_last3: referral_id.to_s.last(3),
         top_level_npi_present: top_level_npi.present?,
         top_level_npi_last3: top_level_npi.present? ? top_level_npi.to_s.last(3) : nil,
         nested_npi_present: nested_npi.present?,
