@@ -1425,6 +1425,10 @@ features:
     actor_type: user
     description: Enables CCD downloads in XML, HTML, PDF w/ support for OH and VistA facilities
     enable_in_development: true
+  mhv_medical_records_ccd_oh:
+    actor_type: user
+    description: Enables users w/ Oracle Health facilities to download an OH CCD
+    enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
     description: Combines CVIX lab record list with the SCDF/Unified lab record list
