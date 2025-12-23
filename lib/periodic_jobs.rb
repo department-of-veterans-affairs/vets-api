@@ -290,4 +290,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Hourly job to cache facility names for UHD prescriptions
   # Runs at 37 minutes past the hour to avoid resource contention
   mgr.register('37 * * * *', 'UnifiedHealthData::FacilityNameCacheJob')
+
+  # Process buffered Unique User Metrics events every 10 minutes
+  mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
 }

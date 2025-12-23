@@ -1310,6 +1310,12 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
+unique_user_metrics:
+  processor_job:
+    batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] || 500 %>
+    max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] || 20 %>
+    max_job_duration_seconds: <%= ENV['unique_user_metrics__processor_job__max_job_duration_seconds'] || 60 %>
+    max_queue_depth: <%= ENV['unique_user_metrics__processor_job__max_queue_depth'] || 10000 %>
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>

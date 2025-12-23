@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'unique_user_events/service'
+require 'unique_user_events/buffer'
 
 # Top-level module for Unique User Metrics system
 #
@@ -35,15 +36,58 @@ module UniqueUserEvents
   def self.log_event(user:, event_name:)
     return [Service.build_disabled_result(event_name)] unless Flipper.enabled?(:unique_user_metrics_logging)
 
-    start_time = Time.current
-    result = Service.log_event(user:, event_name:)
-    duration = (Time.current - start_time) * 1000.0 # Convert to milliseconds
-
-    StatsD.measure('uum.unique_user_metrics.log_event.duration', duration, tags: ["event_name:#{event_name}"])
-    result
+    # Route to async buffer or sync processing based on feature flag
+    if Flipper.enabled?(:unique_user_metrics_async_buffering, user)
+      log_event_async(user:, event_name:)
+    else
+      log_event_sync(user:, event_name:)
+    end
   rescue => e
     Rails.logger.error("UUM: Failed during log_event - Event: #{event_name}, Error: #{e.message}")
     [Service.build_error_result(event_name)]
+  end
+
+  # Synchronous event logging (original behavior)
+  #
+  # Records events directly to the database and increments StatsD counters.
+  #
+  # @param user [User] the authenticated User object
+  # @param event_name [String] Name of the event being logged
+  # @return [Array<Hash>] Array of event results
+  def self.log_event_sync(user:, event_name:)
+    start_time = Time.current
+    result = Service.log_event(user:, event_name:)
+    duration = (Time.current - start_time) * 1000.0
+
+    StatsD.measure('uum.unique_user_metrics.log_event.duration', duration, tags: ["event_name:#{event_name}"])
+    result
+  end
+
+  # Asynchronous event logging via Redis buffer
+  #
+  # Pushes events to a Redis list for batch processing by UniqueUserMetricsProcessorJob.
+  # Events include Oracle Health variants when applicable.
+  #
+  # @param user [User] the authenticated User object
+  # @param event_name [String] Name of the event being logged
+  # @return [Array<Hash>] Array of buffered event results
+  def self.log_event_async(user:, event_name:)
+    start_time = Time.current
+    Service::EventRegistry.validate_event!(event_name)
+    user_id = Service.extract_user_id(user)
+
+    # Get all events to buffer (original + OH events)
+    events_to_buffer = Service.get_all_events_to_log(user:, event_name:)
+
+    # Push each event to the buffer
+    result = events_to_buffer.map do |event_name_to_buffer|
+      Buffer.push(user_id:, event_name: event_name_to_buffer)
+      Service.build_buffered_result(event_name_to_buffer)
+    end
+
+    duration = (Time.current - start_time) * 1000.0
+    StatsD.measure('uum.unique_user_metrics.log_event_async.duration', duration, tags: ["event_name:#{event_name}"])
+    result
   end
 
   # Log multiple unique user events with DataDog metrics
