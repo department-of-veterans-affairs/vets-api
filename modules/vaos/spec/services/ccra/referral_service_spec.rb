@@ -196,7 +196,7 @@ describe Ccra::ReferralService do
 
         it 'logs both NPI fields with correct presence flags and last 3 digits' do
           expected_log_data = {
-            referral_id_last4: '123',
+            referral_id_last3: '123',
             top_level_npi_present: true,
             top_level_npi_last3: '890',
             nested_npi_present: true,
@@ -224,7 +224,7 @@ describe Ccra::ReferralService do
 
         it 'logs only top-level NPI data' do
           expected_log_data = {
-            referral_id_last4: '123',
+            referral_id_last3: '123',
             top_level_npi_present: true,
             top_level_npi_last3: '890',
             nested_npi_present: false
@@ -252,7 +252,7 @@ describe Ccra::ReferralService do
 
         it 'logs only nested NPI data' do
           expected_log_data = {
-            referral_id_last4: '123',
+            referral_id_last3: '123',
             top_level_npi_present: false,
             nested_npi_present: true,
             nested_npi_last3: '321'
@@ -277,7 +277,7 @@ describe Ccra::ReferralService do
 
         it 'logs absence of both NPI fields' do
           expected_log_data = {
-            referral_id_last4: '123',
+            referral_id_last3: '123',
             top_level_npi_present: false,
             nested_npi_present: false
           }
@@ -305,7 +305,7 @@ describe Ccra::ReferralService do
 
         it 'handles short NPI values correctly' do
           expected_log_data = {
-            referral_id_last4: '123',
+            referral_id_last3: '123',
             top_level_npi_present: true,
             top_level_npi_last3: '12',
             nested_npi_present: true,
