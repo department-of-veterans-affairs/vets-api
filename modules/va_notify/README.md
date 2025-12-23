@@ -314,6 +314,7 @@ VANotify::V2::SendEmail.enqueue(
   "user@example.com",
   "template-id-123",
   { first_name: "Jane", date_submitted: "May 1, 2024" }, # personalisation hash
+  # be sure to include api_key here, too
   { callback_metadata: { notification_type: "confirmation" } }
 )
 ```

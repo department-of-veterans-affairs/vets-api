@@ -2,7 +2,7 @@
 
 module VANotify
   module V2
-    class SendEmail
+    class QueueEmailJob
       include Sidekiq::Job
       include Vets::SharedLogging
 
@@ -19,9 +19,11 @@ module VANotify
         StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
       end
 
-      def perform(email, template_id, attr_package_key, api_key, callback_options = {})
-        attrs = fetch_attrs(email, template_id, attr_package_key)
+      def perform(template_id, attr_package_key, callback_options = {})
+        attrs = fetch_attrs(attr_package_key, template_id)
+        email = attrs[:email]
         personalisation = attrs[:personalisation]
+        api_key = attrs[:api_key]
 
         begin
           VaNotify::Service.new(api_key, callback_options).send_email(
@@ -29,7 +31,6 @@ module VANotify
             template_id:,
             personalisation:
           )
-          Sidekiq::AttrPackage.delete(attr_package_key)
           StatsD.increment('api.vanotify.v2.send_email.success')
         rescue VANotify::Error => e
           StatsD.increment('api.vanotify.v2.send_email.failure')
@@ -41,22 +42,20 @@ module VANotify
       end
 
       def self.enqueue(email, template_id, personalisation, api_key, callback_options = {})
-        key = Sidekiq::AttrPackage.create(attrs: { personalisation: })
-        perform_async(email, template_id, key, api_key, callback_options)
+        key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation:, api_key: })
+        perform_async(template_id, key, callback_options)
       end
 
       private
 
       # rubocop:disable Metrics/MethodLength
-      def fetch_attrs(email, template_id, attr_package_key)
+      def fetch_attrs(attr_package_key, template_id = nil)
         begin
           attrs = Sidekiq::AttrPackage.find(attr_package_key)
         rescue Sidekiq::AttrPackageError => e
-          Rails.logger.error('VANotify::V2::SendEmail AttrPackage error', {
+          Rails.logger.error('VANotify::V2::QueueEmailJob AttrPackage error', {
                                error: e.message,
-                               email:,
-                               template_id:,
-                               attr_package_key:
+                               template_id: template_id
                              })
           raise ArgumentError, e.message
         end
@@ -64,21 +63,14 @@ module VANotify
         if attrs
           attrs
         else
-          Rails.logger.error('VANotify::V2::SendEmail failed: Missing personalisation data in Redis', {
-                               email:,
-                               template_id:,
+          Rails.logger.error('VANotify::V2::QueueEmailJob failed: Missing personalisation data in Redis', {
+                               template_id: template_id,
                                attr_package_key_present: attr_package_key.present?
                              })
           raise ArgumentError, 'Missing personalisation data in Redis'
         end
       end
       # rubocop:enable Metrics/MethodLength
-
-      def fetch_and_cleanup_personalisation(attr_package_key)
-        attrs = Sidekiq::AttrPackage.find(attr_package_key)
-        Sidekiq::AttrPackage.delete(attr_package_key) if attrs
-        attrs&.dig(:personalisation)
-      end
 
       def handle_backend_exception(e)
         if e.status_code == 400
