@@ -490,7 +490,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
       end
     end
 
-    describe 'validate2122a' do
+    describe 'validate 2122a' do
       let(:data) do
         {
           data: {
