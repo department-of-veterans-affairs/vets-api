@@ -48,14 +48,13 @@ module VANotify
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def fetch_attrs(attr_package_key, template_id = nil)
         begin
           attrs = Sidekiq::AttrPackage.find(attr_package_key)
         rescue Sidekiq::AttrPackageError => e
           Rails.logger.error('VANotify::V2::QueueEmailJob AttrPackage error', {
                                error: e.message,
-                               template_id: template_id
+                               template_id:
                              })
           raise ArgumentError, e.message
         end
@@ -64,13 +63,12 @@ module VANotify
           attrs
         else
           Rails.logger.error('VANotify::V2::QueueEmailJob failed: Missing personalisation data in Redis', {
-                               template_id: template_id,
+                               template_id:,
                                attr_package_key_present: attr_package_key.present?
                              })
           raise ArgumentError, 'Missing personalisation data in Redis'
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def handle_backend_exception(e)
         if e.status_code == 400

@@ -35,7 +35,8 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'raises ArgumentError and logs when AttrPackage.find raises Sidekiq::AttrPackageError' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_raise(Sidekiq::AttrPackageError.new('find', 'redis down'))
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_raise(Sidekiq::AttrPackageError.new('find',
+                                                                                                      'redis down'))
       expect(Rails.logger).to receive(:error).with('VANotify::V2::QueueEmailJob AttrPackage error',
                                                    hash_including(error: /redis down/))
       expect do
