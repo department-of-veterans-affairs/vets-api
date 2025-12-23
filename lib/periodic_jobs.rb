@@ -278,6 +278,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
 
+  # Engine version: Upload PDF copies of notification emails to VBMS
+  mgr.register('30 0 * * *', 'DecisionReviews::UploadNotificationPdfsJob')
+
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionsCleanupJob')
 
