@@ -31,7 +31,7 @@ describe AppealsApi::NoticeOfDisagreementUploadErrorStatusBatch, type: :job do
 
     context 'when status updater is enabled' do
       it 'updates all the statuses' do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_nod_status_updater_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_nod_status_updater_enabled).and_return(true)
         Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadErrorStatusBatch.new.perform }
 
         # target upload should be updated with status change
