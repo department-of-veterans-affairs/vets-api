@@ -10,7 +10,7 @@ module BenefitsClaims
               {
                 'date' => event.date,
                 'type' => event.type
-              }.compact
+              }
             end
           end
         end

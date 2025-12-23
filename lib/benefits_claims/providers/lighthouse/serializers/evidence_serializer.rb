@@ -11,7 +11,7 @@ module BenefitsClaims
                 'date' => ev.date,
                 'description' => ev.description,
                 'type' => ev.type
-              }.compact
+              }
             end
           end
         end

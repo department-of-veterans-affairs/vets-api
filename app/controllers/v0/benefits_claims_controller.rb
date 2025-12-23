@@ -23,9 +23,14 @@ module V0
     ].freeze
 
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+    FEATURE_MULTI_CLAIM_PROVIDER = 'cst_multi_claim_provider'
 
     def index
-      claims = service.get_claims
+      claims = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                 get_claims_from_providers
+               else
+                 service.get_claims
+               end
 
       check_for_birls_id
       check_for_file_number
@@ -49,7 +54,11 @@ module V0
     end
 
     def show
-      claim = service.get_claim(params[:id])
+      claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                get_claim_from_providers(params[:id])
+              else
+                service.get_claim(params[:id])
+              end
       update_claim_type_language(claim['data'])
 
       # Manual status override for certain tracked items
@@ -127,6 +136,42 @@ module V0
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
     end
 
+    def configured_providers
+      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
+    end
+
+    def get_claims_from_providers
+      return configured_providers.first.new(@current_user).get_claims if configured_providers.count == 1
+
+      claims_data = []
+      provider_errors = []
+      configured_providers.each do |provider_class|
+        provider = provider_class.new(@current_user)
+        claims_data.concat(provider.get_claims['data'])
+      rescue => e
+        handle_provider_error(provider_class, e, provider_errors)
+      end
+      { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
+    end
+
+    def handle_provider_error(provider_class, error, provider_errors)
+      provider_errors << { provider: provider_class.name, error: error.message }
+      ::Rails.logger.error("Provider #{provider_class.name} failed: #{error.message}")
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
+                       tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
+    end
+
+    def get_claim_from_providers(claim_id)
+      return configured_providers.first.new(@current_user).get_claim(claim_id) if configured_providers.count == 1
+
+      configured_providers.each do |provider_class|
+        return provider_class.new(@current_user).get_claim(claim_id)
+      rescue => e
+        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
+      end
+      raise Common::Exceptions::RecordNotFound, claim_id
+    end
+
     def check_for_birls_id
       ::Rails.logger.info('[BenefitsClaims#index] No birls id') if current_user.birls_id.nil?
     end
@@ -168,20 +213,9 @@ module V0
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
-      tracked_items = claim['attributes']['trackedItems']
-
-      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-    end
-
-    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
       non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-
-      filtered_evidence_submissions = []
-      non_duplicate_submissions.each do |es|
-        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
-      end
-
-      filtered_evidence_submissions
+      tracked_items = claim['attributes']['trackedItems']
+      non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
     end
 
     def filter_duplicate_evidence_submissions(evidence_submissions, claim)

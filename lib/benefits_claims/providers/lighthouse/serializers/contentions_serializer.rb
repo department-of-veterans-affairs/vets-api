@@ -9,7 +9,7 @@ module BenefitsClaims
             contentions.map do |contention|
               {
                 'name' => contention.name
-              }.compact
+              }
             end
           end
         end

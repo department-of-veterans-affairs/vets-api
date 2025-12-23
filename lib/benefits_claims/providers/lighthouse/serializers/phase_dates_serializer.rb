@@ -12,7 +12,7 @@ module BenefitsClaims
               'phaseType' => phase_dates.phase_type,
               'latestPhaseType' => phase_dates.latest_phase_type,
               'previousPhases' => phase_dates.previous_phases
-            }.compact
+            }
           end
         end
       end
