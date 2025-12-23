@@ -20,7 +20,6 @@ module BenefitsClaims
           }.with_indifferent_access
         end
 
-        # rubocop:disable Metrics/MethodLength
         def self.serialize_claim_attributes(dto)
           attributes = {
             'baseEndProductCode' => dto.base_end_product_code,
@@ -39,6 +38,11 @@ module BenefitsClaims
             'status' => dto.status
           }
 
+          add_optional_attributes(attributes, dto)
+          attributes
+        end
+
+        def self.add_optional_attributes(attributes, dto)
           if dto.claim_phase_dates
             attributes['claimPhaseDates'] =
               Serializers::PhaseDatesSerializer.serialize(dto.claim_phase_dates)
@@ -56,10 +60,7 @@ module BenefitsClaims
             attributes['trackedItems'] =
               Serializers::TrackedItemsSerializer.serialize(dto.tracked_items)
           end
-
-          attributes
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end
