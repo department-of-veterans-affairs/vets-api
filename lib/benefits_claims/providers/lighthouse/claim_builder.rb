@@ -12,16 +12,21 @@ module BenefitsClaims
   module Providers
     module Lighthouse
       module ClaimBuilder
-        # rubocop:disable Metrics/MethodLength
         def self.build_claim_response(claim_data)
           attrs = claim_data['attributes']
+          BenefitsClaims::Responses::ClaimResponse.new(build_claim_params(claim_data, attrs))
+        end
 
-          BenefitsClaims::Responses::ClaimResponse.new(
+        def self.build_claim_params(claim_data, attrs)
+          build_core_attributes(claim_data, attrs).merge(build_nested_attributes(attrs))
+        end
+
+        def self.build_core_attributes(claim_data, attrs)
+          {
             id: claim_data['id'],
             type: claim_data['type'],
             base_end_product_code: attrs['baseEndProductCode'],
             claim_date: attrs['claimDate'],
-            claim_phase_dates: Builders::PhaseDatesBuilder.build(attrs['claimPhaseDates']),
             claim_type: attrs['claimType'],
             claim_type_code: attrs['claimTypeCode'],
             display_title: attrs['displayTitle'],
@@ -33,7 +38,13 @@ module BenefitsClaims
             end_product_code: attrs['endProductCode'],
             evidence_waiver_submitted5103: attrs['evidenceWaiverSubmitted5103'],
             lighthouse_id: attrs['lighthouseId'],
-            status: attrs['status'],
+            status: attrs['status']
+          }
+        end
+
+        def self.build_nested_attributes(attrs)
+          {
+            claim_phase_dates: Builders::PhaseDatesBuilder.build(attrs['claimPhaseDates']),
             supporting_documents: Builders::SupportingDocumentsBuilder.build(attrs['supportingDocuments']),
             evidence_submissions: attrs['evidenceSubmissions'] || [],
             contentions: Builders::ContentionsBuilder.build(attrs['contentions']),
@@ -41,9 +52,8 @@ module BenefitsClaims
             issues: Builders::IssuesBuilder.build(attrs['issues']),
             evidence: Builders::EvidenceBuilder.build(attrs['evidence']),
             tracked_items: Builders::TrackedItemsBuilder.build(attrs['trackedItems'])
-          )
+          }
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end
