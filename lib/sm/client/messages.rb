@@ -34,7 +34,7 @@ module SM
       # Get a message thread old api
       #
       # @param id [Fixnum] message id
-      # @return [Common::Collection[Message]]
+      # @return [Vets::Collection[Message]]
       #
       def get_message_history(id)
         path = "message/#{id}/history"
@@ -46,7 +46,7 @@ module SM
       # Get a message thread
       #
       # @param id [Fixnum] message id
-      # @return [Common::Collection[MessageThread]]
+      # @return [Vets::Collection[MessageThread]]
       #
       def get_messages_for_thread(id)
         path = "message/#{id}/messagesforthread"
@@ -60,7 +60,7 @@ module SM
       # Get a message thread with full body and attachments
       #
       # @param id [Fixnum] message id
-      # @return [Common::Collection[MessageThreadDetails]]
+      # @return [Vets::Collection[MessageThreadDetails]]
       #
       def get_full_messages_for_thread(id)
         path = "message/#{id}/allmessagesforthread/1"

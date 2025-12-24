@@ -36,7 +36,7 @@ module Rx
     ##
     # Get a list of active Prescriptions
     #
-    # @return [Common::Collection[Prescription]]
+    # @return [Vets::Collection[Prescription]]
     #
     def get_active_rxs
       Vets::Collection.fetch(::Prescription) do
@@ -47,7 +47,7 @@ module Rx
     ##
     # Get a list of active Prescriptions using new model PrescriptionDetails
     #
-    # @return [Common::Collection[PrescriptionDetails]]
+    # @return [Vets::Collection[PrescriptionDetails]]
     #
     def get_active_rxs_with_details
       Vets::Collection.fetch(::PrescriptionDetails) do
@@ -58,7 +58,7 @@ module Rx
     ##
     # Get a list of all Prescriptions
     #
-    # @return [Common::Collection[Prescription]]
+    # @return [Vets::Collection[Prescription]]
     #
     def get_history_rxs
       Vets::Collection.fetch(::Prescription) do
@@ -70,7 +70,7 @@ module Rx
     # Get a list of all Prescriptions using different api endpoint that returns additional
     # data per rx compared to /gethistoryrx
     #
-    # @return [Common::Collection[PrescriptionDetails]]
+    # @return [Vets::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
       Vets::Collection.fetch(PrescriptionDetails) do
@@ -81,7 +81,7 @@ module Rx
     ##
     # Get documentation for a single prescription
     #
-    # @return [Common::Collection[PrescriptionDocumentation]]
+    # @return [Vets::Collection[PrescriptionDocumentation]]
     #
     def get_rx_documentation(ndc)
       perform(:get, get_path("getrxdoc/#{ndc}"), nil, get_headers(token_headers)).body
@@ -125,7 +125,7 @@ module Rx
     # Get a list of tracking history for a Prescription
     #
     # @param id [Fixnum] an Rx id
-    # @return [Common::Collection[Tracking]]
+    # @return [Vets::Collection[Tracking]]
     #
     def get_tracking_history_rx(id)
       json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
