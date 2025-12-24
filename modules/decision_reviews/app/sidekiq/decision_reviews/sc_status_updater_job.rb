@@ -41,9 +41,5 @@ module DecisionReviews
     def benefits_intake_service
       @intake_service ||= BenefitsIntake::Service.new
     end
-
-    def enabled?
-      Flipper.enabled? :decision_review_saved_claim_sc_status_updater_job_enabled
-    end
   end
 end

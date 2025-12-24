@@ -8,30 +8,12 @@ RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
   include_context 'engine status updater job context', SavedClaim::NoticeOfDisagreement
 
   describe 'perform' do
-    context 'with flag enabled', :aggregate_failures do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_nod_status_updater_job_enabled)
-                                            .and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
-      end
-
-      include_examples 'engine status updater job with base forms', SavedClaim::NoticeOfDisagreement
-      include_examples 'engine status updater job when forms include evidence', SavedClaim::NoticeOfDisagreement
+    before do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
     end
 
-    context 'with flag disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_nod_status_updater_job_enabled)
-                                            .and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
-      end
-
-      it 'does not query SavedClaim::HigherLevelReview records' do
-        expect(SavedClaim::NoticeOfDisagreement).not_to receive(:where)
-
-        subject.new.perform
-      end
-    end
+    include_examples 'engine status updater job with base forms', SavedClaim::NoticeOfDisagreement
+    include_examples 'engine status updater job when forms include evidence', SavedClaim::NoticeOfDisagreement
   end
 end
