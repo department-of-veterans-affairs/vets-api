@@ -22,6 +22,7 @@ module UnifiedHealthData
                  :dispensed_date,
                  :station_number,
                  :is_refillable,
+                 :is_renewable,
                  :is_trackable,
                  :tracking,
                  :prescription_source,
