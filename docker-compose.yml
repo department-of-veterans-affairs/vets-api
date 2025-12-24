@@ -12,6 +12,7 @@ x-app: &common
     SETTINGS__REDIS__APP_DATA__URL: "redis://redis:6379"
     SETTINGS__REDIS__SIDEKIQ__URL: "redis://redis:6379"
     SETTINGS__REDIS__RAILS_CACHE__URL: "redis://redis:6379"
+    SETTINGS__BETAMOCKS__CACHE_DIR: "../cache"
   image: vets-api:${DOCKER_IMAGE:-latest}
   volumes:
     - "../vets-api-mockdata:/cache"
