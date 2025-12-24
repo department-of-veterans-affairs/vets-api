@@ -9,7 +9,7 @@ module SM
       ##
       # Get a collection of triage team recipients
       #
-      # @return [Common::Collection[TriageTeam]]
+      # @return [Vets::Collection[TriageTeam]]
       #
       def get_triage_teams(user_uuid, use_cache)
         cache_key = "#{user_uuid}-triage-teams"
@@ -26,7 +26,7 @@ module SM
       # with detailed attributes per each team
       # including a total tally of associated and locked teams
       #
-      # @return [Common::Collection[AllTriageTeams]]
+      # @return [Vets::Collection[AllTriageTeams]]
       #
       def get_all_triage_teams(user_uuid, use_cache)
         cache_key = "#{user_uuid}-all-triage-teams"

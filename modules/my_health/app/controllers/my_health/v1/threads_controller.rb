@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'unique_user_events'
+require 'vets/collection'
 
 module MyHealth
   module V1
@@ -47,9 +48,7 @@ module MyHealth
         error = e.try(:errors).try(:first)
         if error&.status.to_i == 400 && error.detail == 'No messages in the requested folder'
           log_exception_to_rails(error, 'info')
-          return Common::Collection.new(
-            MessageThread, data: []
-          )
+          return Vets::Collection.new([], MessageThread)
         end
         log_exception_to_rails(e)
         StatsD.increment("#{STATSD_KEY_PREFIX}.fail")

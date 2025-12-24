@@ -46,7 +46,7 @@ class AccreditedOrganization < ApplicationRecord
     accredited_individuals.pluck(:registration_number)
   end
 
-  # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
+  # This method needs to exist on the model so [Vets::Collection] doesn't blow up when trying to paginate
   def self.max_per_page
     AccreditedRepresentation::Constants::MAX_PER_PAGE
   end

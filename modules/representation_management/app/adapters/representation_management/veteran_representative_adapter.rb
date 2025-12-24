@@ -74,7 +74,7 @@ module RepresentationManagement
       AccreditedIndividual.model_name
     end
 
-    # Support pagination in Common::Collection
+    # Support pagination in Vets::Collection
     def self.max_per_page
       AccreditedRepresentation::Constants::MAX_PER_PAGE
     end
