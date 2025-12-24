@@ -3,11 +3,15 @@
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'logging/helper/parameter_filter'
+require 'common/pdf_processor'
 
 module SimpleFormsApi
   module V1
     class ScannedFormUploadsController < ApplicationController
       include Logging::Helper::ParameterFilter
+
+      before_action :validate_file_presence!, only: %i[upload_scanned_form upload_supporting_documents]
+
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -28,12 +32,12 @@ module SimpleFormsApi
 
         attachment.file_attacher.attach(params['file'], validate: false)
 
-        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
+        processor = Common::PdfProcessor.new(attachment, password: params['password'])
         processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
-      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
-             SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+      rescue Common::PdfProcessor::ConversionError, 
+             Common::PdfProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
       end
 
@@ -51,18 +55,27 @@ module SimpleFormsApi
 
         attachment.file_attacher.attach(uploaded_file, validate: false)
 
-        processor = SimpleFormsApi::ScannedFormProcessor.new(attachment, password: params['password'])
+        processor = Common::PdfProcessor.new(attachment, password: params['password'])
         processed_attachment = processor.process!
 
         render json: PersistentAttachmentVAFormSerializer.new(processed_attachment)
-      rescue SimpleFormsApi::ScannedFormProcessor::ConversionError,
-             SimpleFormsApi::ScannedFormProcessor::ValidationError => e
+      rescue Common::PdfProcessor::ConversionError,
+             Common::PdfProcessor::ValidationError => e
         render json: { errors: e.errors }, status: :unprocessable_entity
       rescue SimpleFormsApi::ScannedFormProcessor::PersistenceError => e
         render json: { errors: e.errors }, status: :internal_server_error
       end
 
       private
+
+      def validate_file_presence!
+        return if params['file'].present?
+
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'No file provided. Please select a file to upload.',
+          source: self.class.name
+        )
+      end
 
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
