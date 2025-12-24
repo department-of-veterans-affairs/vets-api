@@ -47,7 +47,6 @@ module VetsApi
         settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
 
         settings['betamocks']['cache_dir'] = '../cache'
-        updated_yaml = settings.to_yaml
 
         File.open('settings_path', 'a') do |file|
           file.puts settings.to_yaml.sub(/^---\n/, '')
