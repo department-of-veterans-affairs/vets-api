@@ -176,7 +176,7 @@ RSpec.describe Vye::DGIB::Response do
         expect(response.status).to eq(200)
         expect(response.claimant_id).to eq(600_010_259)
         expect(response.delimiting_date).to eq('2022-02-09')
-        expect(response.verified_details).to eq(["['verifiedd1', 'verifiedd2', 'verifiedd3']"])
+        expect(response.verified_details).to eq([{ 'field' => 'enrollment_status', 'value' => 'enrolled' }])
         expect(response.payment_on_hold).to be(false)
       end
 
