@@ -356,4 +356,67 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
       end
     end
   end
+
+  describe 'endpoint version routing' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
+    end
+
+    context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_claims_api_v3_upgrade)
+          .and_return(true)
+      end
+
+      it 'uses v3 endpoint for create_claim' do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/claims_v3/200_create_claim', match_requests_on: %i[method path]) do
+            post('/travel_pay/v0/complex_claims', params:, as: :json)
+
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+          end
+        end
+      end
+
+      it 'uses v3 endpoint for submit_claim' do
+        VCR.use_cassette('travel_pay/claims_v3/200_submit_claim', match_requests_on: %i[method path]) do
+          patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+        end
+      end
+    end
+
+    context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:travel_pay_claims_api_v3_upgrade)
+          .and_return(false)
+      end
+
+      it 'uses v2 endpoint for create_claim' do
+        VCR.use_cassette('travel_pay/submit/200_find_or_create_appt', match_requests_on: %i[method path]) do
+          VCR.use_cassette('travel_pay/submit/200_create_claim', match_requests_on: %i[method path]) do
+            post('/travel_pay/v0/complex_claims', params:, as: :json)
+
+            expect(response).to have_http_status(:created)
+            expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+          end
+        end
+      end
+
+      it 'uses v2 endpoint for submit_claim' do
+        VCR.use_cassette('travel_pay/submit/200_submit_claim', match_requests_on: %i[method path]) do
+          patch("/travel_pay/v0/complex_claims/#{claim_id}/submit")
+
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['claimId']).to eq(claim_id)
+        end
+      end
+    end
+  end
 end

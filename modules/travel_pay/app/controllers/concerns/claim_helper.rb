@@ -13,6 +13,12 @@ module ClaimHelper
   private
 
   def claims_service
-    @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
+    @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user, version_map)
+  end
+
+  # Controllers that need to specify version maps for their clients
+  # will override this
+  def version_map
+    nil
   end
 end

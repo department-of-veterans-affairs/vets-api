@@ -5,9 +5,10 @@ module TravelPay
     include ExpenseNormalizer
     include IdValidation
 
-    def initialize(auth_manager, user)
+    def initialize(auth_manager, user, version_map = nil)
       @auth_manager = auth_manager
       @user = user
+      @version_map = version_map
     end
 
     DEFAULT_PAGE_SIZE = 50
@@ -61,7 +62,6 @@ module TravelPay
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
-
       documents = get_document_summaries(veis_token, btsss_token, claim_id)
 
       claim = claim_response.body['data']
@@ -266,11 +266,11 @@ module TravelPay
     end
 
     def client
-      TravelPay::ClaimsClient.new
+      TravelPay::ClaimsClient.new(@version_map)
     end
 
     def documents_client
-      TravelPay::DocumentsClient.new
+      TravelPay::DocumentsClient.new(@version_map)
     end
   end
 end

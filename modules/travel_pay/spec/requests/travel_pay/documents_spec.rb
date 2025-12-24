@@ -255,6 +255,48 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     end
   end
 
+  describe 'endpoint version routing' do
+    context 'show (get_document_binary)' do
+      let(:headers) { { 'Authorization' => 'Bearer vagov_token' } }
+
+      context 'when travel_pay_claims_api_v3_upgrade is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(true)
+        end
+
+        it 'uses v3 endpoint for get_document_binary' do
+          VCR.use_cassette('travel_pay/documents_v3/get_binary_success', match_requests_on: %i[method path]) do
+            get(doc_path, headers:)
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).not_to be_empty
+            expect(response.headers['Content-Type']).to eq('application/pdf')
+          end
+        end
+      end
+
+      context 'when travel_pay_claims_api_v3_upgrade is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:travel_pay_claims_api_v3_upgrade)
+            .and_return(false)
+        end
+
+        it 'uses v2 endpoint for get_document_binary' do
+          VCR.use_cassette('travel_pay/documents/get/success_pdf', match_requests_on: %i[method path]) do
+            get(doc_path, headers:)
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).not_to be_empty
+            expect(response.headers['Content-Type']).to eq('application/pdf')
+          end
+        end
+      end
+    end
+  end
+
   def doc_path(doc_id = nil)
     "/travel_pay/v0/claims/#{claim_id}/documents/#{doc_id || '123e4567-e89b-12d3-a456-426614174000'}"
   end

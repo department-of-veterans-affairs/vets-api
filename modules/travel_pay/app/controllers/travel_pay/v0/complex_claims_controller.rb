@@ -8,6 +8,17 @@ module TravelPay
       include ClaimHelper
       include IdValidation
 
+      def version_map
+        should_upgrade = Flipper.enabled?(:travel_pay_claims_api_v3_upgrade)
+        {
+          get_claims: should_upgrade ? 'v3' : 'v2',
+          get_claim_by_id: should_upgrade ? 'v3' : 'v2',
+          get_claims_by_date: should_upgrade ? 'v3' : 'v2',
+          create_claim: should_upgrade ? 'v3' : 'v2',
+          submit_claim: should_upgrade ? 'v3' : 'v2'
+        }
+      end
+
       rescue_from Common::Exceptions::BadRequest, with: :render_bad_request
 
       before_action :check_feature_flag
