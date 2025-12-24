@@ -15,6 +15,7 @@ RSpec.describe UniqueUserEvents::Service do
       allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:record_event)
       allow(described_class).to receive(:increment_statsd_counter)
+      allow(StatsD).to receive(:increment)
       allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
     end
 
@@ -40,6 +41,15 @@ RSpec.describe UniqueUserEvents::Service do
           expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
           expect(described_class).to have_received(:increment_statsd_counter).with(event_name)
           expect(Rails.logger).to have_received(:info).with('UUM: New event logged', { user_id:, event_name: })
+        end
+
+        it 'increments events_to_log counter with correct count' do
+          described_class.log_event(user:, event_name:)
+
+          expect(StatsD).to have_received(:increment).with(
+            'uum.unique_user_metrics.events_to_log',
+            tags: ['count:1']
+          )
         end
       end
 
@@ -87,6 +97,15 @@ RSpec.describe UniqueUserEvents::Service do
         described_class.log_event(user:, event_name: oh_event_name)
 
         expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).with(user:, event_name: oh_event_name)
+      end
+
+      it 'increments events_to_log counter with total count including OH events' do
+        described_class.log_event(user:, event_name: oh_event_name)
+
+        expect(StatsD).to have_received(:increment).with(
+          'uum.unique_user_metrics.events_to_log',
+          tags: ['count:2']
+        )
       end
     end
 

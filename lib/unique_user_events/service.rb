@@ -101,6 +101,9 @@ module UniqueUserEvents
       oh_events = OracleHealth.generate_events(user:, event_name:)
       events.concat(oh_events)
 
+      # Track the number of events to be logged
+      StatsD.increment("#{STATSD_KEY_PREFIX}.events_to_log", tags: ["count:#{events.size}"])
+
       events
     end
 
