@@ -10,6 +10,7 @@ module VetsApi
       def run
         puts "\nDocker Setup (This will take a while)... "
         configuring_clamav_antivirus
+        configuring_betamocks
         docker_build
         setup_db
         setup_parallel_spec
@@ -36,6 +37,21 @@ module VetsApi
                                              updated_yaml.match(/clamav:.*?(?=\n\w|\Z)/m).to_s)
 
         File.write(settings_path, updated_content)
+        puts 'Done'
+      end
+
+      def configuring_betamocks
+        print 'Configuring betamocks in local settings...'
+        settings_path = 'config/settings.local.yml'
+        settings_file = File.read(settings_path)
+        settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
+
+        settings['betamocks']['cache_dir'] = '../cache'
+        updated_yaml = settings.to_yaml
+
+        File.open('settings_path', 'a') do |file|
+          file.puts settings.to_yaml.sub(/^---\n/, '')
+        end
         puts 'Done'
       end
 
