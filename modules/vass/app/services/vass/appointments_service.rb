@@ -82,7 +82,8 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue Vass::Errors::VassApiError, Vass::Errors::ServiceError,
+           Common::Exceptions::BackendServiceException => e
       handle_error(e, 'get_availability')
     end
 
@@ -124,7 +125,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'save_appointment')
     end
 
@@ -145,7 +146,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'cancel_appointment')
     end
 
@@ -166,7 +167,7 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointment')
     end
 
@@ -187,28 +188,48 @@ module Vass
       )
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_appointments')
     end
 
     ##
-    # Retrieves veteran information.
+    # Retrieves veteran information by veteran ID (UUID).
     #
-    # @param veteran_id [String] Veteran ID in VASS system
+    # This method can be called without EDIPI - the VASS API returns EDIPI in the response.
+    # Used for OTC flow where we only have the UUID from the welcome email.
     #
-    # @return [Hash] Veteran data including name, contact info
+    # @param veteran_id [String] Veteran ID (UUID) in VASS system
     #
-    # @example
-    #   service.get_veteran_info(veteran_id: 'vet-123')
+    # @return [Hash] Veteran data including firstName, lastName, dateOfBirth, edipi, notificationEmail
+    #
+    # @raise [Vass::Errors::VassApiError] if VASS API call fails
+    #
+    # @example Basic usage
+    #   service.get_veteran_info(veteran_id: 'da1e1a40-1e63-f011-bec2-001dd80351ea')
     #
     def get_veteran_info(veteran_id:)
-      response = client.get_veteran(
-        edipi:,
-        veteran_id:
-      )
+      response = client.get_veteran(veteran_id:)
+      veteran_data = parse_response(response)
 
-      parse_response(response)
-    rescue Vass::ServiceException => e
+      # Validate we have the required data structure
+      unless veteran_data && veteran_data['success'] && veteran_data['data']
+        raise Vass::Errors::VassApiError,
+              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
+      end
+
+      # Extract and add contact info for OTC flow
+      contact_method, contact_value = extract_contact_info(veteran_data)
+      unless contact_method && contact_value
+        raise Vass::Errors::MissingContactInfoError, 'Veteran contact information not found'
+      end
+
+      veteran_data.merge(
+        'contact_method' => contact_method,
+        'contact_value' => contact_value
+      )
+    rescue Vass::Errors::MissingContactInfoError
+      raise
+    rescue => e
       handle_error(e, 'get_veteran_info')
     end
 
@@ -224,7 +245,7 @@ module Vass
       response = client.get_agent_skills
 
       parse_response(response)
-    rescue Vass::ServiceException => e
+    rescue => e
       handle_error(e, 'get_agent_skills')
     end
 
@@ -283,7 +304,7 @@ module Vass
       log_error(error, method_name)
 
       case error
-      when Vass::ServiceException
+      when Common::Exceptions::BackendServiceException
         if error.original_status == 401
           raise Vass::Errors::AuthenticationError, 'Authentication failed'
         elsif error.original_status == 404
@@ -310,6 +331,111 @@ module Vass
         correlation_id:,
         timestamp: Time.current.iso8601
       }.to_json)
+    end
+
+    ##
+    # Validates veteran identity by comparing request data with VASS response.
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @param last_name [String] User-provided last name
+    # @param date_of_birth [String] User-provided date of birth
+    # @return [Boolean] true if identity matches
+    #
+    def validate_veteran_identity(veteran_data, last_name, date_of_birth)
+      return false unless veteran_data && veteran_data['data']
+
+      data = veteran_data['data']
+      last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
+      dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
+
+      last_name_match && dob_match
+    end
+
+    ##
+    # Validates veteran identity and enriches data with contact info.
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @param last_name [String] Veteran's last name for validation
+    # @param date_of_birth [String] Veteran's date of birth for validation
+    # @return [Hash] Enriched veteran data with contact_method and contact_value
+    # @raise [Vass::Errors::VassApiError] if data is invalid
+    # @raise [Vass::Errors::IdentityValidationError] if identity doesn't match
+    # @raise [Vass::Errors::MissingContactInfoError] if no contact info available
+    #
+    def validate_and_enrich_veteran_data(veteran_data, last_name, date_of_birth)
+      unless veteran_data && veteran_data['success'] && veteran_data['data']
+        raise Vass::Errors::VassApiError,
+              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
+      end
+
+      unless validate_veteran_identity(veteran_data, last_name, date_of_birth)
+        raise Vass::Errors::IdentityValidationError, 'Veteran identity could not be verified'
+      end
+
+      contact_method, contact_value = extract_contact_info(veteran_data)
+      unless contact_method && contact_value
+        raise Vass::Errors::MissingContactInfoError, 'Veteran contact information not found'
+      end
+
+      veteran_data.merge(
+        'contact_method' => contact_method,
+        'contact_value' => contact_value
+      )
+    end
+
+    ##
+    # Extracts contact method and value from VASS veteran data.
+    #
+    # Currently only supports email (SMS not supported for OTC flow).
+    #
+    # @param veteran_data [Hash] Veteran data from VASS API
+    # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]
+    #
+    def extract_contact_info(veteran_data)
+      return [nil, nil] unless veteran_data && veteran_data['data']
+
+      data = veteran_data['data']
+      email = data['notificationEmail']
+
+      if email.present?
+        ['email', email]
+      else
+        [nil, nil]
+      end
+    end
+
+    ##
+    # Normalizes name for comparison (uppercase, strip whitespace).
+    #
+    # @param name [String, nil] Name to normalize
+    # @return [String] Normalized name
+    #
+    def normalize_name(name)
+      name.to_s.upcase.strip
+    end
+
+    ##
+    # Normalizes date from VASS API format (M/D/YYYY) to Date object for comparison.
+    #
+    # Attempts to parse using the expected VASS format (M/D/YYYY) first,
+    # falling back to Date.parse for other formats. Logs a warning when
+    # fallback is used to help identify data quality issues.
+    #
+    # @param date [String] Date string from VASS API (e.g., "1/15/1990")
+    # @return [Date] Parsed date object
+    #
+    def normalize_vass_date(date)
+      Date.strptime(date, '%m/%d/%Y')
+    rescue ArgumentError, TypeError
+      Rails.logger.warn({
+        service: 'vass_appointments_service',
+        action: 'date_format_fallback',
+        message: 'VASS API date not in expected M/D/YYYY format, using Date.parse fallback',
+        date_format: date.class.name,
+        correlation_id:,
+        timestamp: Time.current.iso8601
+      }.to_json)
+      Date.parse(date)
     end
   end
 end
