@@ -3,6 +3,7 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
+  include RepresentationManagement::Geocodable
   # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.
