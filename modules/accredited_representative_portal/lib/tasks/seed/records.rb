@@ -105,6 +105,16 @@ module AccreditedRepresentativePortal
           name: 'Department of Veterans Fake Data',
           poa: 'GWI',
           can_accept_digital_poa_requests: true
+        },
+        {
+          name: 'Connecticut Department of Veterans Affairs',
+          poa: '008',
+          can_accept_digital_poa_requests: true
+        },
+        {
+          name: "Maine Veterans' Services",
+          poa: '002',
+          can_accept_digital_poa_requests: true
         }
       ].freeze
 
@@ -114,7 +124,7 @@ module AccreditedRepresentativePortal
           last_name: 'Representative',
           representative_id: '10000',
           user_types: ['veteran_service_officer'],
-          poa_codes: %w[YHZ SVS],
+          poa_codes: %w[YHZ SVS 008],
           email: 'vets.gov.user+0@gmail.com'
         },
         {
