@@ -185,7 +185,19 @@ module UniqueUserEvents
       }
     end
 
-    private_class_method :increment_statsd_counter, :get_all_events_to_log, :log_single_event, :extract_user_id,
+    private_class_method :increment_statsd_counter, :log_single_event,
                          :build_event_result
+
+    # Build buffered result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @return [Hash] Buffered result hash
+    def self.build_buffered_result(event_name)
+      {
+        event_name:,
+        status: 'buffered',
+        new_event: nil # Unknown until processed
+      }
+    end
   end
 end
