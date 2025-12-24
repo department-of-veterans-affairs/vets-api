@@ -961,6 +961,12 @@ GEM
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
+    reek (6.5.0)
+      dry-schema (~> 1.13)
+      logger (~> 1.6)
+      parser (~> 3.3.0)
+      rainbow (>= 2.0, < 4.0)
+      rexml (~> 3.1)
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -1402,6 +1408,7 @@ DEPENDENCIES
   ransack
   redis
   redis-namespace
+  reek
   representation_management!
   request_store
   require_all
