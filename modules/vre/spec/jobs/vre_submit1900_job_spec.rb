@@ -55,7 +55,7 @@ describe VRE::VRESubmit1900Job do
     before do
       allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(Flipper).to receive(:enabled?)
-        .with(:vre_use_new_vfs_notification_library)
+        .with(:vre_use_new_vfs_notification_library, claim)
         .and_return(true)
       allow(Flipper).to receive(:enabled?)
         .with(:vre_track_submissions)

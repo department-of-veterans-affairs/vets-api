@@ -152,7 +152,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
         it 'sends confirmation email' do
           allow(Flipper).to receive(:enabled?)
-            .with(:vre_use_new_vfs_notification_library)
+            .with(:vre_use_new_vfs_notification_library, claim)
             .and_return(false)
           expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             .with('VBMS', 'confirmation_vbms_email_template_id')
@@ -211,7 +211,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'Legacy notification strategy' do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:vre_use_new_vfs_notification_library)
+          .with(:vre_use_new_vfs_notification_library, claim)
           .and_return(false)
       end
 
