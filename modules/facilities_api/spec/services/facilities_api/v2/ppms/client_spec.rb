@@ -201,7 +201,7 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
       end
 
       it 'returns paginated results' do
-        test_params.merge!(pageNumber: 1, pageSize: 10)
+        test_params.merge!(maxResults: 10, pageNumber: 1, pageSize: 10)
 
         expect(client).to receive(:perform).with(:get, path, test_params).and_return(fake_response)
 
@@ -213,7 +213,7 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
         expect(client).to receive(:perform).with(:get, path, test_params).and_return(fake_response)
         client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 60))
 
-        test_params.merge!(pageNumber: 60, pageSize: 1)
+        test_params.merge!(maxResults: 2, pageNumber: 60, pageSize: 1)
         expect(client).to receive(:perform).with(:get, path, test_params).and_return(fake_response)
         client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 1))
       end
