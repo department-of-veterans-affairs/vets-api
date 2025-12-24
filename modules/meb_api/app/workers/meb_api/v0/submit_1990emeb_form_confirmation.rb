@@ -22,7 +22,8 @@ module MebApi
           }
         )
       rescue => e
-        log_exception_to_rails(e)
+        context = 'An error occurred while attempting to use Submit1990emebFormConfirmation'
+        log_exception_to_rails(e, 'error', context)
       end
 
       private
