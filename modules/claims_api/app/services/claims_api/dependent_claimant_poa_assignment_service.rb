@@ -195,11 +195,11 @@ module ClaimsApi
       if first_open_claim.present?
         claim_details(first_open_claim[:benefit_claim_id])
       else
-        open_claims = benefit_claim_web_service.find_bnft_claim_by_clmant_id(
+        first_claim = benefit_claim_web_service.find_bnft_claim_by_clmant_id(
           dependent_participant_id: @dependent_participant_id
-        )
+        )&.dig(:bnft_claim_dto)&.first
 
-        first_claim_id = open_claims.present? ? open_claims[:bnft_claim_dto].first[:bnft_claim_id] : nil
+        first_claim_id = first_claim.present? ? first_claim[:bnft_claim_id] : nil
         first_claim_id.present? ? claim_details(first_claim_id) : {}
       end
     end
