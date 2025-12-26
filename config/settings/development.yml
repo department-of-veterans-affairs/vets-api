@@ -181,7 +181,7 @@ chip:
   api_gtwy_id: 2dcdrrn5zc
   base_path: dev
   mobile_app:
-    password: "12345"
+    password: '12345'
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
     username: testuser
   mock: true
@@ -259,7 +259,7 @@ claims_evidence_api:
 clamav:
   host: 0.0.0.0
   mock: true
-  port: "33100"
+  port: '33100'
 coe:
   prefill: true
 connected_apps_api:
@@ -326,20 +326,20 @@ dgi:
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
     vets:
       mock: false
-      url: ""
+      url: ''
 dhp:
   fitbit:
-    client_id: ""
-    client_secret: ""
-    code_challenge: ""
-    code_verifier: ""
+    client_id: ''
+    client_secret: ''
+    code_challenge: ''
+    code_verifier: ''
     redirect_uri: http://localhost:3000/dhp_connected_devices/fitbit-callback
     scope: heartrate activity nutrition sleep
   mock: false
   s3:
-    aws_access_key_id: ""
-    aws_secret_access_key: ""
-    bucket: ""
+    aws_access_key_id: ''
+    aws_secret_access_key: ''
+    bucket: ''
     region: us-gov-west-1
 directory:
   apikey: fake_apikey
@@ -646,9 +646,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
   broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
-  sasl_mechanisms: "GSSAPI"
+  sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
-  security_protocol: "plaintext"
+  security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
   topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
@@ -684,7 +684,7 @@ lighthouse:
     host: https://sandbox-api.va.gov
     use_mocks: false
   benefits_discovery:
-    host: "https://sandbox.lighthouse.va.gov"
+    host: 'https://sandbox.lighthouse.va.gov'
     x_api_key: ~
     x_app_id: ~
   benefits_documents:
@@ -1031,22 +1031,22 @@ modules_appeals_api:
     uploads_enabled: false
   schema_dir: config/schemas
   slack:
-    api_key: ""
-    appeals_channel_id: ""
+    api_key: ''
+    appeals_channel_id: ''
   status_simulation_enabled: false
   token_validation:
     appeals_status:
-      api_key: ""
+      api_key: ''
     contestable_issues:
-      api_key: ""
+      api_key: ''
     higher_level_reviews:
-      api_key: ""
+      api_key: ''
     legacy_appeals:
-      api_key: ""
+      api_key: ''
     notice_of_disagreements:
-      api_key: ""
+      api_key: ''
     supplemental_claims:
-      api_key: ""
+      api_key: ''
 mvi_hca:
   url: http://example.com
 ogc:
@@ -1383,9 +1383,9 @@ va_profile:
     timeout: 30
 vahb:
   version_requirement:
-    allergies_oracle_health: "3.0.0"
-    labs_oracle_health: "3.0.0"
-    medications_oracle_health: "2.99.99"
+    allergies_oracle_health: '3.0.0'
+    labs_oracle_health: '3.0.0'
+    medications_oracle_health: '2.99.99'
 valid_va_file_number: false
 vanotify:
   callback_url: https://dev-api.va.gov/va_notify/callbacks
@@ -1756,11 +1756,11 @@ vanotify:
       api_key: ~
       email:
         confirmation_lighthouse:
-          template_id: "confirmation_lighthouse_email_template_id"
+          template_id: 'confirmation_lighthouse_email_template_id'
         confirmation_vbms:
-          template_id: "confirmation_vbms_email_template_id"
+          template_id: 'confirmation_vbms_email_template_id"
         error:
-          template_id: "error_email_template_id"
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1816,9 +1816,9 @@ vba_documents:
     enabled: false
     region: region
   slack:
-    api_key: ""
-    channel_id: ""
-    default_alert_email: ""
+    api_key: ''
+    channel_id: ''
+    default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
