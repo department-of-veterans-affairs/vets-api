@@ -4,7 +4,7 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
-require 'simple_forms_api/form_remediation/uploader'
+# require 'simple_forms_api/form_remediation/uploader'
 
 module IncreaseCompensation
   module V0
@@ -16,7 +16,6 @@ module IncreaseCompensation
 
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
-      skip_before_action :verify_authenticity_token
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
@@ -35,7 +34,7 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        form_submission_attempt = get_last_form_submission_attempt(claim.guid)
+        form_submission_attempt = last_form_submission_attempt(claim.guid)
         raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
 
         pdf_url = s3_signed_url(

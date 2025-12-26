@@ -83,10 +83,10 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
       claim = build(:increase_compensation_claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find_by!).and_return(claim)
       mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
-      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
-        .to receive(:get_last_form_submission_attempt).and_return(mock_attempt)
-      allow_any_instance_of(IncreaseCompensation::V0::ClaimsController)
-        .to receive(:get_signed_url).and_return(MOCK_URL)
+      allow_any_instance_of(PdfS3Operations)
+        .to receive(:last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(PdfS3Operations)
+        .to receive(:s3_signed_url).and_return(MOCK_URL)
 
       get '/increase_compensation/v0/claims/:id', params: { id: 'increase_compensation_claim' }
       attributes = JSON.parse(response.body)['data']['attributes']
