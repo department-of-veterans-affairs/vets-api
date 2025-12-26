@@ -5,8 +5,6 @@ module SOB
     class Ch33StatusesController < ApplicationController
       service_tag 'statement-of-benefits'
 
-      skip_before_action :authenticate
-
       def show
         response = service.get_ch33_status
         render json: SOB::Ch33StatusSerializer.new(response)
@@ -15,7 +13,7 @@ module SOB
       private
 
       def service
-        SOB::DGI::Service.new('200')
+        SOB::DGI::Service.new(@current_user&.ssn)
       end
     end
   end
