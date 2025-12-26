@@ -12,6 +12,9 @@ module IncomeAndAssets
   # The module path
   MODULE_PATH = 'modules/income_and_assets'
 
+  # path to the form schema
+  FORM_SCHEMA = "#{MODULE_PATH}/schema/21P-0969.json".freeze
+
   # Path to the PDF
   PDF_PATH = "#{MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 

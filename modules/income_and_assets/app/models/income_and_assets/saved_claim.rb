@@ -12,6 +12,14 @@ module IncomeAndAssets
     # Income and Assets Form ID
     FORM = IncomeAndAssets::FORM_ID
 
+    before_validation :populate_has_property
+
+    # @see ::SavedClaim#form_schema
+    # @see ::VetsJsonSchema::SCHEMAS
+    def form_schema
+      MultiJson.load(File.read(IncomeAndAssets::FORM_SCHEMA))
+    end
+
     # the predefined regional office address
     #
     # @return [Array<String>] the address lines of the regional office
@@ -22,7 +30,6 @@ module IncomeAndAssets
        'Janesville, Wisconsin 53547-5365']
     end
 
-    ##
     # Returns the business line associated with this process
     #
     # @return [String]
@@ -70,13 +77,11 @@ module IncomeAndAssets
       parsed_form.dig('claimantFullName', 'first')
     end
 
-    ##
-    # claim attachment list
+    # claim attachment property list
     #
     # @see PersistentAttachment
     #
     # @return [Array<String>] list of attachments
-    #
     def attachment_keys
       [:files].freeze
     end
@@ -90,22 +95,34 @@ module IncomeAndAssets
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
 
-    ##
     # Generates a PDF from the saved claim data
     #
     # @param file_name [String, nil] Optional name for the output PDF file
     # @param fill_options [Hash] Additional options for PDF generation
-    # @return [String] Path to the generated PDF file
     #
+    # @return [String] Path to the generated PDF file
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
     end
 
-    ##
-    # Class name for notification email
-    # @return [Class]
+    # send an email of email_type for _this_ claim
+    #
+    # @param email_type [Symbol] the type of email to deliver; one defined in Settings
     def send_email(email_type)
       IncomeAndAssets::NotificationEmail.new(id).deliver(email_type)
+    end
+
+    # set the values in the form data for the hasXXX properties
+    def populate_has_property
+      data = parsed_form
+
+      before_property_validation = proc do |data, property, _property_schema, parent|
+        has_prop = "has#{property.upcase_first}"
+        data[has_prop] = data[property].present? if parent['properties'][has_prop].present?
+      end
+      JSONSchemer.schema(form_schema, insert_property_defaults: true, before_property_validation:).validate(data)
+
+      self.form = data.to_json
     end
   end
 end
