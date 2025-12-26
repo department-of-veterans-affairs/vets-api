@@ -46,33 +46,13 @@ describe VAProfile::ContactInformation::V2::Service do
     end
   end
 
-  describe '#get_person when vet360 is null' do
-    let(:verified_user) { build(:user, :loa3, vet360_id: nil) }
+  describe '#get_person when user has no vet360_id' do
+    before { allow(user).to receive(:vet360_id).and_return(nil) }
 
-    context 'when successful' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
-          response = subject.get_person
-          expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::Person)
-        end
-      end
-
-      it 'has a bad address' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
-          response = subject.get_person
-          expect(response.person.addresses[0].bad_address).to be(true)
-        end
-      end
-    end
-
-    context 'when person response has no body data' do
-      it 'returns 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/verified_person_without_data', VCR::MATCH_EVERYTHING) do
-          response = subject.get_person
-          expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::Person)
-        end
+    it 'raises an UnprocessableEntity error' do
+      expect { subject.get_person }.to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
+        expect(error.status_code).to eq(422)
+        expect(error.errors.first.detail).to eq('User does not have a VA Profile ID')
       end
     end
   end
