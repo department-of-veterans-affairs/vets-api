@@ -18,6 +18,7 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
+      MAX_SUMMARY_PAGES = 20
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
@@ -39,6 +40,50 @@ module MedicalCopays
         StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
         Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
         raise
+      end
+
+      def summary(month_count: 6)
+        from = month_count.months.ago.utc
+        page = 1
+        total_amount = 0.to_d
+        count = 0
+
+        loop do
+          break if page > MAX_SUMMARY_PAGES
+
+          raw = invoice_service.list(count: 50, page:)
+          entries = raw['entry'] || []
+          break if entries.empty?
+
+          stop = false
+
+          entries.each do |entry|
+            date_str = entry.dig('resource', 'date')
+            next unless date_str
+
+            invoice_date = Time.iso8601(date_str)
+            if invoice_date < from
+              stop = true
+              break
+            end
+
+            invoice = Lighthouse::HCC::Invoice.new(entry)
+            total_amount += invoice.current_balance.to_d
+            count += 1
+          end
+
+          break if stop
+          page += 1
+        end
+
+        {
+          entries: [],
+          meta: {
+            total_amount_due: total_amount.to_f,
+            total_copays: count,
+            month_window: month_count
+          }
+        }
       end
 
       def get_detail(id:)
