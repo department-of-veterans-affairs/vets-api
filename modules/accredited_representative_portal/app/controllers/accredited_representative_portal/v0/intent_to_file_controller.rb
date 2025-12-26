@@ -10,10 +10,14 @@ module AccreditedRepresentativePortal
       before_action { authorize icn, policy_class: IntentToFilePolicy }
 
       def show
-        parsed_response = service.get_intent_to_file(params[:benefitType])
+        if Flipper.enabled?(:accredited_representative_portal_skip_itf_check)
+          parsed_response = JSON.parse(File.read('../../../../spec/fixtures/intent_to_file/itf_not_found.json'))
+        else
+          parsed_response = service.get_intent_to_file(params[:benefitType])
+        end
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
-          raise NotFound.new(error: parsed_response['errors']&.first&.[]('detail'))
+          raise Common::Exceptions::RecordNotFound.new(parsed_response['errors']&.first&.[]('detail'))
         else
           render json: parsed_response, status: :ok
         end

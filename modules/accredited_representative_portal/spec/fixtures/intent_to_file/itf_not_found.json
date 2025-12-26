@@ -1,0 +1,10 @@
+{
+  "errors": [
+    {
+      "title": "Resource not found",
+      "detail": "No active 'C' intent to file found.",
+      "code": "404",
+      "status": "404"
+    }
+  ]
+}
