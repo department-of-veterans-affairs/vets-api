@@ -18,9 +18,7 @@ module SM
         cache_key = "#{user_uuid}-folders"
         get_cached_or_fetch_data(use_cache, cache_key, Folder) do
           json = perform(:get, path, nil, token_headers).body
-          data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-          Folder.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
-          data
+          Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
         end
       end
 
@@ -92,9 +90,7 @@ module SM
 
             page += 1
           end
-          messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-          Message.set_cached(cache_key, messages.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
-          messages
+          Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
         end
       end
 
