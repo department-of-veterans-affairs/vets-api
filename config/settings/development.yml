@@ -829,7 +829,7 @@ maintenance:
     secret_access_key: ~
   pagerduty_api_token: FAKE
   pagerduty_api_url: https://api.pagerduty.com
-  service_query_prefix: "External: "
+  service_query_prefix: 'External: '
   services:
     1010ez: ~
     1010ezr: ~
@@ -1758,7 +1758,7 @@ vanotify:
         confirmation_lighthouse:
           template_id: 'confirmation_lighthouse_email_template_id'
         confirmation_vbms:
-          template_id: 'confirmation_vbms_email_template_id"
+          template_id: 'confirmation_vbms_email_template_id'
         error:
           template_id: 'error_email_template_id'
   status_callback:
