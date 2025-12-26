@@ -39,14 +39,10 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "201": {
             "description": "Notice of Disagreement created",
@@ -74,7 +70,6 @@
                                   "birthDate": "1969-12-31",
                                   "homeless": true,
                                   "phone": {
-                                    "areaCode": "555",
                                     "phoneNumber": "8001111"
                                   },
                                   "email": "jdoe@example.com",
@@ -356,7 +351,6 @@
                           "birthDate": "1969-12-31",
                           "homeless": true,
                           "phone": {
-                            "areaCode": "555",
                             "phoneNumber": "8001111"
                           },
                           "email": "jdoe@example.com",
@@ -534,9 +528,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -660,9 +652,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "description": "Returns a watermarked copy of a Notice of Disagreement PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Notice of Disagreement has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Notice of Disagreement has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n\nThe 'icn' parameter is required when accessing this endpoint using an OAuth token with the 'representative/NoticeOfDisagreements.read' or 'system/NoticeOfDisagreements.read' scopes.\nRequests made with the 'veteran/NoticeOfDisagreements.read' scope may omit the 'icn' parameter.\n",
@@ -854,9 +844,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -933,8 +921,7 @@
                                           "minLength": 1,
                                           "maxLength": 255
                                         },
-                                        {
-                                        },
+                                        {},
                                         {
                                           "$ref": "nonBlankString.json"
                                         }
@@ -1029,8 +1016,7 @@
                                         {
                                           "$ref": "nonBlankString.json"
                                         },
-                                        {
-                                        }
+                                        {}
                                       ]
                                     },
                                     "middleInitial": {
@@ -1398,7 +1384,6 @@
                             }
                           },
                           "required": [
-                            "areaCode",
                             "phoneNumber"
                           ]
                         }
@@ -1512,6 +1497,7 @@
                             "America/Coral_Harbour",
                             "America/Cordoba",
                             "America/Costa_Rica",
+                            "America/Coyhaique",
                             "America/Creston",
                             "America/Cuiaba",
                             "America/Curacao",
@@ -1991,19 +1977,6 @@
                             "ROC",
                             "ROK",
                             "Singapore",
-                            "SystemV/AST4",
-                            "SystemV/AST4ADT",
-                            "SystemV/CST6",
-                            "SystemV/CST6CDT",
-                            "SystemV/EST5",
-                            "SystemV/EST5EDT",
-                            "SystemV/HST10",
-                            "SystemV/MST7",
-                            "SystemV/MST7MDT",
-                            "SystemV/PST8",
-                            "SystemV/PST8PDT",
-                            "SystemV/YST9",
-                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2114,14 +2087,10 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Info about a single Notice of Disagreement",
@@ -2276,7 +2245,6 @@
                           "birthDate": "1969-12-31",
                           "homeless": true,
                           "phone": {
-                            "areaCode": "555",
                             "phoneNumber": "8001111"
                           },
                           "email": "jdoe@example.com",
@@ -2454,14 +2422,10 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "201": {
             "description": "Location created",
@@ -2477,6 +2441,7 @@
                       "detail": null,
                       "location": "http://path.to.upload/location/uuid",
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "NoticeOfDisagreement",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"
@@ -2673,9 +2638,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -2776,9 +2739,7 @@
             ]
           },
           {
-            "bearer_token": [
-
-            ]
+            "bearer_token": []
           }
         ],
         "parameters": [
@@ -2808,6 +2769,7 @@
                       "detail": null,
                       "location": null,
                       "appealId": "00000000-1111-2222-3333-444444444444",
+                      "finalStatus": false,
                       "appealType": "NoticeOfDisagreement",
                       "createDate": "2020-01-02T03:04:05.067Z",
                       "updateDate": "2020-01-02T03:04:05.067Z"
@@ -3768,6 +3730,11 @@
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
+                  },
+                  "finalStatus": {
+                    "description": "Indicates whether the status of the submission is final. Submissions with a finalStatus of true will no longer update to a new status.",
+                    "type": "boolean",
+                    "example": false
                   }
                 }
               }
@@ -3871,7 +3838,6 @@
           }
         },
         "required": [
-          "areaCode",
           "phoneNumber"
         ]
       },
@@ -3984,6 +3950,7 @@
           "America/Coral_Harbour",
           "America/Cordoba",
           "America/Costa_Rica",
+          "America/Coyhaique",
           "America/Creston",
           "America/Cuiaba",
           "America/Curacao",
@@ -4463,19 +4430,6 @@
           "ROC",
           "ROK",
           "Singapore",
-          "SystemV/AST4",
-          "SystemV/AST4ADT",
-          "SystemV/CST6",
-          "SystemV/CST6CDT",
-          "SystemV/EST5",
-          "SystemV/EST5EDT",
-          "SystemV/HST10",
-          "SystemV/MST7",
-          "SystemV/MST7MDT",
-          "SystemV/PST8",
-          "SystemV/PST8PDT",
-          "SystemV/YST9",
-          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",
