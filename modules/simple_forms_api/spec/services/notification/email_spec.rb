@@ -104,6 +104,127 @@ describe SimpleFormsApi::Notification::Email do
       end
     end
 
+    describe '#email_args' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_10210',
+          confirmation_number: 'confirmation_number', date_submitted: }
+      end
+
+      context 'when simple_forms_email_delivery_callback flipper is enabled' do
+        before do
+          Flipper.enable(:simple_forms_email_delivery_callback)
+        end
+
+        after do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        %i[confirmation error received].each do |notification_type|
+          context "with #{notification_type} notification" do
+            subject { described_class.new(config, notification_type:) }
+
+            it 'includes callback_klass in options' do
+              api_key, options = subject.__send__(:email_args)
+
+              expect(api_key).to eq(Settings.vanotify.services.va_gov.api_key)
+              expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+            end
+
+            it 'includes callback_metadata with all required fields' do
+              _, options = subject.__send__(:email_args)
+
+              expect(options[:callback_metadata]).to include(
+                notification_type: notification_type.to_s,
+                form_number: 'vba_21_10210',
+                confirmation_number: 'confirmation_number',
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_21_10210 form submission to Lighthouse'
+                }
+              )
+            end
+
+            it 'converts notification_type to string in callback_metadata' do
+              _, options = subject.__send__(:email_args)
+
+              expect(options[:callback_metadata][:notification_type]).to eq(notification_type.to_s)
+            end
+          end
+        end
+      end
+
+      context 'when simple_forms_email_delivery_callback flipper is disabled' do
+        before do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        %i[confirmation error received].each do |notification_type|
+          context "with #{notification_type} notification" do
+            subject { described_class.new(config, notification_type:) }
+
+            it 'does not include callback_klass in options' do
+              _, options = subject.__send__(:email_args)
+
+              expect(options).not_to have_key(:callback_klass)
+              expect(options[:callback_klass]).to be_nil
+            end
+
+            it 'still includes callback_metadata' do
+              _, options = subject.__send__(:email_args)
+
+              expect(options[:callback_metadata]).to include(
+                notification_type: notification_type.to_s,
+                form_number: 'vba_21_10210',
+                confirmation_number: 'confirmation_number'
+              )
+            end
+          end
+        end
+      end
+
+      context 'with 26-4555 duplicate notification' do
+        subject { described_class.new(config, notification_type: :duplicate) }
+
+        let(:config) do
+          { form_data: data, form_number: 'vba_26_4555', date_submitted: }
+        end
+
+        before do
+          Flipper.enable(:simple_forms_email_delivery_callback)
+        end
+
+        after do
+          Flipper.disable(:simple_forms_email_delivery_callback)
+        end
+
+        it 'includes duplicate notification_type in callback_metadata' do
+          _, options = subject.__send__(:email_args)
+
+          expect(options[:callback_metadata][:notification_type]).to eq('duplicate')
+        end
+      end
+
+      context 'boolean type casting for flipper' do
+        subject { described_class.new(config, notification_type: :confirmation) }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return('true')
+        end
+
+        it 'handles truthy values correctly' do
+          _, options = subject.__send__(:email_args)
+          expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+        end
+      end
+    end
+
     describe '#send' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
@@ -146,7 +267,8 @@ describe SimpleFormsApi::Notification::Email do
             allow(Settings).to receive(:vanotify).and_return(vanotify_settings)
             allow(vanotify_settings).to receive(:services).and_return(vanotify_services)
             allow(vanotify_services).to receive(:va_gov).and_return(va_gov)
-            allow(va_gov).to receive(:template_id).and_return({ template_id_suffix => template_id })
+            allow(va_gov).to receive_messages(template_id: { template_id_suffix => template_id },
+                                              api_key: 'fake_secret')
           end
 
           it 'gets the correct template id' do
@@ -155,7 +277,13 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send
 
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything)
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              a_string_matching(/@/),
+              template_id,
+              a_hash_including('confirmation_number'),
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
+            )
           end
 
           describe 'form 20-10207 point of contact', if: notification_type == :error do
@@ -185,7 +313,9 @@ describe SimpleFormsApi::Notification::Email do
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
                   point_of_contact_email,
                   template_id,
-                  anything
+                  a_hash_including('confirmation_number'),
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -219,7 +349,7 @@ describe SimpleFormsApi::Notification::Email do
             expect(Rails.logger).to have_received(:info).with(
               'Simple Forms - Email job enqueued',
               email_job_id:,
-              confirmation_number: anything
+              confirmation_number: a_string_matching(/\S+/)
             )
           end
         end
@@ -252,7 +382,7 @@ describe SimpleFormsApi::Notification::Email do
 
               expect(VANotify::EmailJob).not_to have_received(:perform_async)
               expect(Rails.logger).to have_received(:error).with('Simple Forms - Error email job failed to enqueue',
-                                                                 confirmation_number: anything)
+                                                                 confirmation_number: a_string_matching(/\S+/))
             end
           end
 
@@ -263,7 +393,7 @@ describe SimpleFormsApi::Notification::Email do
 
               expect(VANotify::EmailJob).not_to have_received(:perform_async)
               expect(Rails.logger).to have_received(:error).with('Simple Forms - Non-error email job failed to enqueue',
-                                                                 confirmation_number: anything)
+                                                                 confirmation_number: a_string_matching(/\S+/))
             end
           end
         end
@@ -319,7 +449,7 @@ describe SimpleFormsApi::Notification::Email do
               {
                 callback_metadata: {
                   form_number: 'vba_21_10210',
-                  notification_type:,
+                  notification_type: notification_type.to_s,
                   confirmation_number:,
                   statsd_tags: {
                     'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
@@ -338,8 +468,14 @@ describe SimpleFormsApi::Notification::Email do
 
             subject.send(at: time)
 
-            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
-                                                                          anything)
+            expect(VANotify::EmailJob).to have_received(:perform_at).with(
+              time,
+              a_string_matching(/@/),
+              a_string_matching(/\S+/),
+              a_hash_including('confirmation_number'),
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
+            )
           end
         end
       end
@@ -379,7 +515,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -401,7 +539,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -426,7 +566,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -438,7 +580,6 @@ describe SimpleFormsApi::Notification::Email do
               data['claimant_type'] = 'non-veteran'
 
               subject = described_class.new(config, notification_type:)
-
               subject.send
 
               expect(VANotify::EmailJob).to have_received(:perform_async).with(
@@ -449,7 +590,9 @@ describe SimpleFormsApi::Notification::Email do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -486,7 +629,9 @@ describe SimpleFormsApi::Notification::Email do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -528,7 +673,9 @@ describe SimpleFormsApi::Notification::Email do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  a_string_matching(/\S+/),
+                  a_hash_including(:callback_metadata)
                 )
               end
             end
@@ -582,7 +729,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -753,7 +902,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -774,7 +925,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -797,7 +950,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -834,7 +989,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -887,7 +1044,9 @@ describe SimpleFormsApi::Notification::Email do
             'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
             'itf_api_expiration_date' => nil
-          }
+          },
+          a_string_matching(/\S+/),
+          a_hash_including(:callback_metadata)
         )
       end
 
@@ -916,7 +1075,9 @@ describe SimpleFormsApi::Notification::Email do
               'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                  '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
               'itf_api_expiration_date' => nil
-            }
+            },
+            a_string_matching(/\S+/),
+            a_hash_including(:callback_metadata)
           )
         end
       end
@@ -958,7 +1119,9 @@ describe SimpleFormsApi::Notification::Email do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => expiration_date
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
 
@@ -986,7 +1149,9 @@ describe SimpleFormsApi::Notification::Email do
                   'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                      '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                   'itf_api_expiration_date' => expiration_date
-                }
+                },
+                a_string_matching(/\S+/),
+                a_hash_including(:callback_metadata)
               )
             end
           end
@@ -1056,7 +1221,9 @@ describe SimpleFormsApi::Notification::Email do
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => lighthouse_updated_at
-          }
+          },
+          a_string_matching(/\S+/),
+          a_hash_including(:callback_metadata)
         )
       end
     end
@@ -1096,7 +1263,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1115,7 +1284,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1136,7 +1307,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1155,7 +1328,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1176,7 +1351,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1195,7 +1372,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1216,7 +1395,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
@@ -1235,7 +1416,9 @@ describe SimpleFormsApi::Notification::Email do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              a_string_matching(/\S+/),
+              a_hash_including(:callback_metadata)
             )
           end
         end
