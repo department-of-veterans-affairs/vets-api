@@ -3,6 +3,22 @@
 module SimpleFormsApi
   class VBA2010206 < BaseForm
     STATS_KEY = 'api.simple_forms_api.20_10206'
+    RECORD_TYPE_TAGS = {
+      'dd214' => 'dd214',
+      'c_file' => 'c-file',
+      'disability_exams' => 'disability-exams',
+      'ompf' => 'ompf',
+      'pension' => 'pension',
+      'treatment' => 'treatment',
+      'other_comp_pen' => 'other-comp-pen',
+      'education' => 'education',
+      'fiduciary' => 'fiduciary',
+      'financial' => 'financial',
+      'home_loan' => 'home-loan',
+      'life_ins' => 'life-ins',
+      'vre' => 'vre',
+      'other' => 'other'
+    }.freeze
 
     def metadata
       {
@@ -65,10 +81,33 @@ module SimpleFormsApi
     def track_user_identity(confirmation_number)
       identity = data['preparer_type']
       StatsD.increment("#{STATS_KEY}.#{identity}")
+      track_record_type_metrics
       Rails.logger.info('Simple forms api - 20-10206 submission user identity', identity:, confirmation_number:)
     end
 
     private
+
+    def track_record_type_metrics
+      record_type_tags.each do |record_type|
+        StatsD.increment("#{STATS_KEY}.record_type", tags: ["record_type:#{record_type}"])
+      end
+    end
+
+    def record_type_tags
+      selections = data['record_selections']
+      return [] unless selections.is_a?(Hash)
+
+      selections.each_with_object([]) do |(selection, selected), tags|
+        next unless active_model_boolean.cast(selected)
+
+        record_type = RECORD_TYPE_TAGS[selection.to_s.downcase]
+        tags << record_type if record_type.present?
+      end
+    end
+
+    def active_model_boolean
+      @active_model_boolean ||= ActiveModel::Type::Boolean.new
+    end
 
     def citizen_ssn
       [
