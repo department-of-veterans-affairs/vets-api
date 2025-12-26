@@ -219,4 +219,16 @@ RSpec.describe DependentsBenefits::Monitor do
       monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
     end
   end
+
+  describe '#track_pension_related_submission' do
+    it 'logs pension-related submission with parent_claim_id' do
+      log = 'Submitted pension-related claim'
+      payload = { parent_claim_id: claim.id, tags: [] }
+
+      expect(monitor).to receive(:track_info_event).with(
+        log, described_class::PENSION_SUBMISSION_STATS_KEY, **payload
+      )
+      monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id: claim.id)
+    end
+  end
 end

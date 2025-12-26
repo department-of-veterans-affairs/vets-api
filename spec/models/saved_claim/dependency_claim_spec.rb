@@ -617,4 +617,65 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
   end
+
+  describe '#pension_related_submission?' do
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(subject.pension_related_submission?).to be(false)
+      end
+    end
+
+    context 'when flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
+      end
+
+      context 'when household income is present' do
+        before do
+          subject.parsed_form['dependents_application']['household_income'] = { 'amount' => 5000 }
+        end
+
+        it 'returns true' do
+          expect(subject.pension_related_submission?).to be(true)
+        end
+      end
+
+      context 'when student income info is present' do
+        before do
+          subject.parsed_form['dependents_application']['student_information'] = [
+            { 'student_networth_information' => { 'savings' => 1000 } }
+          ]
+        end
+
+        it 'returns true' do
+          expect(subject.pension_related_submission?).to be(true)
+        end
+      end
+
+      context 'when neither household nor student income info is present' do
+        before do
+          subject.parsed_form['dependents_application'].delete('household_income')
+          subject.parsed_form['dependents_application'].delete('student_information')
+        end
+
+        it 'returns false' do
+          expect(subject.pension_related_submission?).to be(false)
+        end
+      end
+
+      context 'when student_information is empty array' do
+        before do
+          subject.parsed_form['dependents_application']['student_information'] = []
+        end
+
+        it 'returns false' do
+          expect(subject.pension_related_submission?).to be(false)
+        end
+      end
+    end
+  end
 end

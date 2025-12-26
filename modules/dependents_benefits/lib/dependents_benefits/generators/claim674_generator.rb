@@ -40,8 +40,9 @@ module DependentsBenefits
           'statement_of_truth_certified'
         )
 
+        # Include only the report674 option from selectable686_options
         selectable686_options = dependent_data['dependents_application']&.dig('view:selectable686_options')
-        form_674_top['view:selectable686_options'] = selectable686_options
+        form_674_top['view:selectable686_options'] = selectable686_options.slice('report674')
 
         form_674_nested = dependent_data['dependents_application'].slice(
           'veteran_contact_information',
@@ -53,6 +54,9 @@ module DependentsBenefits
           'days_till_expires',
           'privacy_agreement_accepted'
         ).merge('student_information' => [student_data])
+
+        # Include only the report674 option from selectable686_options
+        form_674_nested['view:selectable686_options'] = form_674_nested['view:selectable686_options'].slice('report674')
 
         form_674_top.merge('dependents_application' => form_674_nested)
       end

@@ -107,11 +107,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_686?
-    submitted_flows = DEPENDENT_CLAIM_FLOWS.map { |flow| parsed_form['view:selectable686_options'].include?(flow) }
-
-    return true if submitted_flows.include?(true)
-
-    false
+    # checking key and value just avoids inconsistencies in the mock data or from FE submission
+    DEPENDENT_CLAIM_FLOWS.any? do |flow|
+      parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]
+    end
   end
 
   def submittable_674?
@@ -260,6 +259,22 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     monitor.track_send_received_email_success(user&.user_account_uuid)
   rescue => e
     monitor.track_send_received_email_failure(e, user&.user_account_uuid)
+  end
+
+  ##
+  # Determine if the submission includes pension-related information
+  #
+  def pension_related_submission?
+    return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension)
+
+    # We can determine pension-related submission by checking if
+    # household income or student income info was asked on the form
+    household_income_present = parsed_form['dependents_application']&.key?('household_income')
+    student_income_present = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+      student&.key?('student_networth_information')
+    end
+
+    !!(household_income_present || student_income_present)
   end
 
   def monitor
