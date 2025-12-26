@@ -8,6 +8,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
   before do
     sign_in(user)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
   end
 
   describe '#index' do

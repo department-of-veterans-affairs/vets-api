@@ -8,6 +8,7 @@ describe TravelPay::ClaimsClient do
   expected_log_prefix = 'travel_pay.claims.response_time'
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
     @stubs = Faraday::Adapter::Test::Stubs.new
 
     @conn = Faraday.new do |c|
@@ -263,6 +264,112 @@ describe TravelPay::ClaimsClient do
         .with(expected_log_prefix,
               kind_of(Numeric),
               tags: ['travel_pay:submit'])
+    end
+  end
+
+  context 'v3 upgrade' do
+    context 'enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(true)
+        allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      end
+
+      it 'upgrades GET /claims endpoint' do
+        @stubs.get('/api/v3/claims') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claims('veis_token', 'btsss_token')
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades GET /claims/:id endpoint' do
+        @stubs.get('/api/v3/claims/123') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claim_by_id('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades GET claims_by_date endpoint' do
+        @stubs.get('/api/v3/claims/search-by-appointment-date?startDate=123&endDate=123') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claims_by_date('veis_token', 'btsss_token', { start_date: 123, end_date: 123 })
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades POST create_claim endpoint' do
+        @stubs.post('/api/v3/claims') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.create_claim('veis_token', 'btsss_token', {})
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'upgrades PATCH submit_claim endpoint' do
+        @stubs.patch('api/v3/claims/123/submit') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.submit_claim('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+    end
+
+    context 'disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+        allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      end
+
+      it 'does not upgrade GET /claims endpoint' do
+        @stubs.get('/api/v2/claims') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claims('veis_token', 'btsss_token')
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade GET /claims/:id endpoint' do
+        @stubs.get('/api/v2/claims/123') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claim_by_id('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade GET claims_by_date endpoint' do
+        @stubs.get('/api/v2/claims/search-by-appointment-date?startDate=123&endDate=123') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.get_claims_by_date('veis_token', 'btsss_token', { start_date: 123, end_date: 123 })
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade POST create_claim endpoint' do
+        @stubs.post('/api/v2/claims') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.create_claim('veis_token', 'btsss_token', {})
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
+
+      it 'does not upgrade PATCH submit_claim endpoint' do
+        @stubs.patch('api/v2/claims/123/submit') { [200, {}, {}] }
+
+        client = TravelPay::ClaimsClient.new
+        client.submit_claim('veis_token', 'btsss_token', 123)
+
+        expect { @stubs.verify_stubbed_calls }.not_to raise_error
+      end
     end
   end
 end

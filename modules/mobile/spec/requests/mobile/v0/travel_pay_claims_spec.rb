@@ -7,6 +7,10 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
   let!(:user) { sis_user }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_api_v3_upgrade).and_return(false)
+  end
+
   describe '#index' do
     context 'happy path' do
       it 'returns claims within the date range' do
