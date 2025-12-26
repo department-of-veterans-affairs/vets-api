@@ -33,8 +33,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
       instance_of(AccreditedRepresentativePortal::RepresentativeUser)
     ).and_return(feature_flag_state)
     allow(Flipper).to receive(:enabled?).with(
-      :accredited_representative_portal_skip_itf_check,
-      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+      :accredited_representative_portal_skip_itf_check
     ).and_return(false)
     allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).with(
       'Derrick', 'Reid', '666468765', '1976-01-16'
