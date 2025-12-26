@@ -207,6 +207,11 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
               state_code: 'VA'
             },
             notification_method: 'EMAIL'
+          },
+          direct_deposit: {
+            direct_deposit_account_number: '********3123',
+            account_type: 'savings',
+            direct_deposit_routing_number: '*******3123'
           }
         },
         relinquished_benefit: {
@@ -222,16 +227,11 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         },
         comments: {
           disagree_with_service_period: false
-        },
-        direct_deposit: {
-          account_number: '********3123',
-          account_type: 'savings',
-          routing_number: '*******3123'
         }
       }
     end
 
-    context 'direct deposit' do
+    context 'with direct deposit' do
       it 'successfully submits with new lighthouse api' do
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
@@ -239,6 +239,120 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
         end
+      end
+
+      it 'proceeds with submission and logs error when DirectDeposit service fails' do
+        direct_deposit_client = instance_double(DirectDeposit::Client)
+
+        allow(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        allow(direct_deposit_client).to receive(:get_payment_info).and_raise(StandardError.new('Service failure'))
+
+        expect(Rails.logger).to receive(:error).with('Lighthouse direct deposit service error: Service failure')
+
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      it 'proceeds with submission and logs warning when DirectDeposit service returns nil' do
+        direct_deposit_client = instance_double(DirectDeposit::Client)
+
+        allow(DirectDeposit::Client).to receive(:new).with(user.icn).and_return(direct_deposit_client)
+        allow(direct_deposit_client).to receive(:get_payment_info).and_return(nil)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'DirectDeposit::Client returned nil response, proceeding without direct deposit info'
+        )
+
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when account number does not contain asterisks' do
+        let(:params_without_asterisks) do
+          claimant_params.deep_dup.tap do |p|
+            p[:education_benefit][:direct_deposit] = {
+              direct_deposit_account_number: '1234567890',
+              account_type: 'checking',
+              direct_deposit_routing_number: '031000503'
+            }
+          end
+        end
+
+        it 'does not call DirectDeposit service (optimization)' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            post '/meb_api/v0/submit_claim', params: params_without_asterisks
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when direct_deposit fields are not present' do
+        let(:params_without_dd) do
+          claimant_params.deep_dup.tap do |p|
+            p[:education_benefit].delete(:direct_deposit)
+          end
+        end
+
+        it 'does not call DirectDeposit service' do
+          expect(DirectDeposit::Client).not_to receive(:new)
+
+          VCR.use_cassette('dgi/submit_claim_lighthouse') do
+            post '/meb_api/v0/submit_claim', params: params_without_dd
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    context 'in development environment' do
+      before do
+        allow(Rails.env).to receive(:development?).and_return(true)
+      end
+
+      it 'skips DirectDeposit call even with asterisks present' do
+        expect(DirectDeposit::Client).not_to receive(:new)
+
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          post '/meb_api/v0/submit_claim', params: claimant_params
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'when an exception occurs in submit_claim' do
+      let(:submission_service) { instance_double(MebApi::DGI::Submission::Service) }
+      let(:error_message) { 'Submission failed' }
+      let(:test_params) do
+        claimant_params.deep_dup.tap do |p|
+          p[:education_benefit].delete(:direct_deposit)
+        end
+      end
+
+      before do
+        allow(MebApi::DGI::Submission::Service).to receive(:new).and_return(submission_service)
+        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+      end
+
+      it 'logs an error with exception class and message' do
+        expect(Rails.logger).to receive(:error)
+          .with("MEB submit_claim failed: StandardError - #{error_message}")
+        expect(Rails.logger).to receive(:error).at_least(:once)
+
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it 're-raises the exception after logging' do
+        allow(Rails.logger).to receive(:error)
+
+        post '/meb_api/v0/submit_claim', params: test_params
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end

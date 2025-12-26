@@ -315,6 +315,31 @@ describe VaNotify::Service do
         end
       end
     end
+
+    context 'when :va_notify_request_level_callbacks flag is enabled' do
+      it 'store service_id when flag is enabled' do
+        VCR.use_cassette('va_notify/success_email') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to eq('22222222-2222-2222-2222-222222222222')
+        end
+      end
+
+      it 'does not store service_id when flag is disabled' do
+        VCR.use_cassette('va_notify/success_email') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+
+          subject.send_email(send_email_parameters)
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+        end
+      end
+    end
   end
 
   describe '#send_sms', test_service: false do
@@ -374,6 +399,39 @@ describe VaNotify::Service do
           )
 
           subject.send_sms(send_sms_parameters)
+        end
+      end
+
+      context 'with :va_notify_request_level_callbacks flag' do
+        before do
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+        end
+
+        it 'stores service_id when flag is enabled' do
+          VCR.use_cassette('va_notify/success_sms') do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+
+            subject.send_sms(send_sms_parameters)
+
+            notification = VANotify::Notification.first
+            expect(notification.service_id).to eq('22222222-2222-2222-2222-222222222222')
+          end
+        end
+
+        it 'does not store service_id when flag is disabled' do
+          VCR.use_cassette('va_notify/success_sms') do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+
+            subject.send_sms(send_sms_parameters)
+
+            notification = VANotify::Notification.first
+            expect(notification.service_id).to be_nil
+          end
         end
       end
     end

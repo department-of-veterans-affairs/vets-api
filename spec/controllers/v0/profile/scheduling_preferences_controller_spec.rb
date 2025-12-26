@@ -36,7 +36,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page,
+        allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences,
                                                   instance_of(User)).and_return(false)
       end
 
@@ -48,7 +48,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
 
     context 'when feature flag is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page,
+        allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences,
                                                   instance_of(User)).and_return(true)
       end
 

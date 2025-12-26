@@ -37,6 +37,7 @@ module DependentsVerification
       # POST creates and validates an instance of `claim_class`
       def create
         claim = claim_class.new(form: form_data_with_ssn_filenumber.to_json)
+        add_va_profile_email_to_claim(claim) if Flipper.enabled?(:lifestage_va_profile_email)
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -110,6 +111,21 @@ module DependentsVerification
         metadata = in_progress_form.metadata
         metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
         in_progress_form.update(metadata:)
+      end
+
+      # Inserts the user's VA profile email into the form data
+      #
+      # @param claim [DependentsVerification::SavedClaim] the claim to update
+      # @return [void]
+      def add_va_profile_email_to_claim(claim)
+        va_profile_email = current_user&.va_profile_email
+        return unless va_profile_email
+
+        form_data_hash = JSON.parse(claim.form)
+        form_data_hash['va_profile_email'] = va_profile_email
+        claim.form = form_data_hash.to_json
+      rescue => e
+        monitor.track_add_va_profile_email_error(claim, current_user, e)
       end
 
       ##

@@ -10,13 +10,18 @@ module Mobile
       attributes :id,
                  :claimNumber,
                  :claimStatus,
-                 :appointmentDateTime,
                  :facilityId,
                  :facilityName,
                  :totalCostRequested,
                  :reimbursementAmount,
                  :createdOn,
                  :modifiedOn
+
+      # BTSSS incorrectly labels local appointment times with 'Z' (UTC) suffix.
+      # Strip 'Z' to prevent timezone confusion in travel pay claims list & details pages in mobile app.
+      attribute :appointmentDateTime do |object|
+        object.appointmentDateTime&.chomp('Z')
+      end
     end
   end
 end

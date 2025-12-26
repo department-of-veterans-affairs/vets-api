@@ -18,6 +18,9 @@ FactoryBot.define do
         }
       }
     end
+
+    expires_at { 60.days.from_now }
+
     trait :with_nested_metadata do
       metadata do
         {
@@ -257,6 +260,7 @@ FactoryBot.define do
     factory :in_progress_526_form do
       user_uuid { SecureRandom.uuid }
       form_id { '21-526EZ' }
+      expires_at { 1.year.from_now }
       metadata do
         {
           version: 1,

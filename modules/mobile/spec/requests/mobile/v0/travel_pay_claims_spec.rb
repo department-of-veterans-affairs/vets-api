@@ -62,6 +62,150 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
           expect(total_count).to be > returned_count
         end
       end
+
+      describe('appointmentDateTime Z suffix handling') do
+        it 'strips the Z from appointmentDateTime in claim summaries' do
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            params = {
+              'start_date' => '2024-01-01T00:00:00',
+              'end_date' => '2024-03-31T23:59:59',
+              'page_number' => 1
+            }
+
+            get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+            expect(response).to have_http_status(:ok)
+
+            json = response.parsed_body
+            claims = json['data']
+
+            expect(claims).not_to be_empty
+
+            claims.each do |claim|
+              claim_attributes = claim['attributes']
+              expect(claim_attributes['appointmentDateTime']).to be_present
+              expect(claim_attributes['appointmentDateTime']).not_to end_with('Z')
+            end
+          end
+        end
+
+        it 'does not modify appointmentDateTime if it does not have a Z' do
+          mock_claims_response = {
+            data: [
+              {
+                'claimId' => '123',
+                'claimNumber' => 'TC123',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-01-01T10:00:00',
+                'facilityName' => 'Test Facility',
+                'totalCostRequested' => 50.0
+              }
+            ],
+            metadata: { 'status' => 200 }
+          }
+
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+          allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claims_by_date_range)
+            .and_return(mock_claims_response)
+
+          params = {
+            'start_date' => '2024-01-01T00:00:00',
+            'end_date' => '2024-03-31T23:59:59',
+            'page_number' => 1
+          }
+
+          get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claims = json['data']
+
+          expect(claims).not_to be_empty
+          claim_attributes = claims.first['attributes']
+          expect(claim_attributes['appointmentDateTime']).to eq('2024-01-01T10:00:00')
+        end
+
+        it 'handles nil appointmentDateTime gracefully' do
+          with_nil_appointment_dates = {
+            data: [
+              {
+                'claimId' => '123',
+                'claimNumber' => 'TC123',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => nil,
+                'facilityName' => 'Test Facility',
+                'totalCostRequested' => 50.0
+              }
+            ],
+            metadata: { 'status' => 200 }
+          }
+
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+          allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claims_by_date_range)
+            .and_return(with_nil_appointment_dates)
+
+          params = {
+            'start_date' => '2024-01-01T00:00:00',
+            'end_date' => '2024-03-31T23:59:59',
+            'page_number' => 1
+          }
+
+          get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claims = json['data']
+
+          expect(claims).not_to be_empty
+          claim_attributes = claims.first['attributes']
+          expect(claim_attributes['appointmentDateTime']).to be_nil
+        end
+      end
+
+      it 'handles empty string appointmentDateTime gracefully' do
+        with_empty_string_appointment_date = {
+          data: [
+            {
+              'claimId' => '123',
+              'claimNumber' => 'TC123',
+              'claimStatus' => 'InProgress',
+              'appointmentDateTime' => '',
+              'facilityName' => 'Test Facility',
+              'totalCostRequested' => 50.0
+            }
+          ],
+          metadata: { 'status' => 200 }
+        }
+
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claims_by_date_range)
+          .and_return(with_empty_string_appointment_date)
+
+        params = {
+          'start_date' => '2024-01-01T00:00:00',
+          'end_date' => '2024-03-31T23:59:59',
+          'page_number' => 1
+        }
+
+        get('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+
+        expect(response).to have_http_status(:ok)
+
+        json = response.parsed_body
+        claims = json['data']
+
+        expect(claims).not_to be_empty
+        claim_attributes = claims.first['attributes']
+        expect(claim_attributes['appointmentDateTime']).to eq('')
+      end
     end
 
     context 'failure paths' do
@@ -167,6 +311,159 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
 
           expect(claim_data).to have_key('documents')
           expect(claim_data['documents']).to be_an(Array)
+        end
+      end
+
+      describe('appointmentDate Z suffix handling') do
+        it 'strips the Z from appointment dates in the response' do
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+          VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+            claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+            get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+            expect(response).to have_http_status(:ok)
+
+            json = response.parsed_body
+            claim_data = json['data']['attributes']
+
+            expect(claim_data['appointmentDate']).to be_present
+            expect(claim_data['appointmentDate']).not_to end_with('Z')
+
+            # Also check nested appointmentDateTime in appointment object
+            appointment = claim_data['appointment']
+            expect(appointment).to be_present
+            expect(appointment['appointmentDateTime']).to be_present
+            expect(appointment['appointmentDateTime']).not_to end_with('Z')
+          end
+        end
+
+        it 'does not modify appointment dates if they do not have a Z' do
+          with_no_z_appointment_dates = {
+            'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            'claimNumber' => 'TC123',
+            'claimName' => 'Test Claim',
+            'claimantFirstName' => 'Test',
+            'claimantLastName' => 'User',
+            'claimStatus' => 'InProgress',
+            'appointmentDate' => '2024-01-01T10:00:00',
+            'facilityName' => 'Test Facility',
+            'totalCostRequested' => 50.0,
+            'reimbursementAmount' => 25.0,
+            'appointment' => {
+              'id' => 'appt-123',
+              'appointmentDateTime' => '2024-01-01T10:00:00',
+              'facilityId' => 'facility-123'
+            },
+            'expenses' => [],
+            'documents' => [],
+            'createdOn' => '2024-01-01T10:00:00',
+            'modifiedOn' => '2024-01-01T10:00:00'
+          }
+
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+          allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+            .and_return(with_no_z_appointment_dates)
+
+          claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claim_data = json['data']['attributes']
+
+          expect(claim_data['appointmentDate']).to eq('2024-01-01T10:00:00')
+
+          appointment = claim_data['appointment']
+          expect(appointment['appointmentDateTime']).to eq('2024-01-01T10:00:00')
+        end
+
+        it 'handles nil appointment dates gracefully' do
+          with_nil_appointment_dates = {
+            'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            'claimNumber' => 'TC123',
+            'claimName' => 'Test Claim',
+            'claimantFirstName' => 'Test',
+            'claimantLastName' => 'User',
+            'claimStatus' => 'InProgress',
+            'appointmentDate' => nil,
+            'facilityName' => 'Test Facility',
+            'totalCostRequested' => 50.0,
+            'reimbursementAmount' => 25.0,
+            'appointment' => {
+              'id' => 'appt-123',
+              'appointmentDateTime' => nil,
+              'facilityId' => 'facility-123'
+            },
+            'expenses' => [],
+            'documents' => [],
+            'createdOn' => '2024-01-01T10:00:00',
+            'modifiedOn' => '2024-01-01T10:00:00'
+          }
+
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+          allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+            .and_return(with_nil_appointment_dates)
+
+          claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claim_data = json['data']['attributes']
+
+          expect(claim_data['appointmentDate']).to be_nil
+
+          appointment = claim_data['appointment']
+          expect(appointment['appointmentDateTime']).to be_nil
+        end
+
+        it 'handles empty string appointment dates gracefully' do
+          with_empty_string_appointment_dates = {
+            'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+            'claimNumber' => 'TC123',
+            'claimName' => 'Test Claim',
+            'claimantFirstName' => 'Test',
+            'claimantLastName' => 'User',
+            'claimStatus' => 'InProgress',
+            'appointmentDate' => '',
+            'facilityName' => 'Test Facility',
+            'totalCostRequested' => 50.0,
+            'reimbursementAmount' => 25.0,
+            'appointment' => {
+              'id' => 'appt-123',
+              'appointmentDateTime' => '',
+              'facilityId' => 'facility-123'
+            },
+            'expenses' => [],
+            'documents' => [],
+            'createdOn' => '2024-01-01T10:00:00',
+            'modifiedOn' => '2024-01-01T10:00:00'
+          }
+
+          allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+            .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+          allow_any_instance_of(TravelPay::ClaimsService).to receive(:get_claim_details)
+            .and_return(with_empty_string_appointment_dates)
+
+          claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          get("/mobile/v0/travel-pay/claims/#{claim_id}", headers: sis_headers)
+
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body
+          claim_data = json['data']['attributes']
+
+          expect(claim_data['appointmentDate']).to eq('')
+
+          appointment = claim_data['appointment']
+          expect(appointment['appointmentDateTime']).to eq('')
         end
       end
 

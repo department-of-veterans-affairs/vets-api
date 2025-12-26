@@ -23,24 +23,30 @@ module VeteranFacingServices
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
+      attr_accessor :saved_claim_id
+
       # @param saved_claim_id [Integer] the claim id for which to send a notification
-      # @param service_name [String] alternative serivce name listed in Settings; default is formatted claim.form_id
-      def initialize(saved_claim_id, service_name: nil)
-        @claim = claim_class.find(saved_claim_id)
+      # @param service_name [String] alternative service name listed in Settings; default is formatted claim.form_id
+      def initialize(saved_claim_id = nil, service_name: nil, service_config: nil)
+        @saved_claim_id = saved_claim_id
         @vanotify_service = service_name
+        @service_config = Config::Options.new(service_config) if service_config
       end
 
       # deliver a notification for _claim_
       # @see VaNotify::Service
       # @see ClaimVANotification
       #
-      # @param email_type [Symbol] one defined in Settings
+      # @param email_type [Symbol] the type of email to deliver; one defined in Settings
+      # @param saved_claim_id [Integer] the claim id; overrides the id provided at initialization
+      # @param personalization [Hash] the fields to populate in the email template; @see #personalization
+      # @param resend [Boolean] if the email should be resent, overrides duplicate_attempt check
       #
       # @return [ClaimVANotification] db record of notification sent
-      def deliver(email_type)
-        @email_type = email_type
-        @email_template_id = valid_attempt?
-        return unless email_template_id
+      def deliver(email_type, saved_claim_id = @saved_claim_id, personalization: nil, resend: false)
+        @saved_claim_id = saved_claim_id
+        @claim = claim_class.find(saved_claim_id) # will raise ActiveRecord::RecordNotFound
+        return unless valid_attempt?(email_type, resend:)
 
         callback_options = { callback_klass:, callback_metadata: }
         notify_client = VaNotify::Service.new(service_config.api_key, callback_options)
@@ -49,7 +55,7 @@ module VeteranFacingServices
           {
             email_address: email,
             template_id: email_template_id,
-            personalisation: personalization
+            personalisation: personalization || self.personalization
           }.compact
         )
 
@@ -76,13 +82,17 @@ module VeteranFacingServices
       # flipper exists and is enabled
       # @param flipper_id [String] the flipper id
       def flipper_enabled?(flipper_id)
-        !flipper_id || (flipper_id && Flipper.enabled?(:"#{flipper_id}"))
+        !flipper_id || (flipper_id && Flipper.enabled?(flipper_id.to_sym))
       end
 
       # check prerequisites before attempting to send the email
-      def valid_attempt?
+      #
+      # @param email_type [Symbol] the type of email to deliver; one defined in Settings
+      # @param resend [Boolean] if the email should be resent, overrides duplicate_attempt check
+      def valid_attempt?(email_type, resend: false)
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
+        @email_type = email_type
         email_config = service_config.email[email_type]
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
@@ -90,11 +100,11 @@ module VeteranFacingServices
         raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Invalid template' unless email_template_id
         raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
 
-        is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
-        monitor.duplicate_attempt(tags:, context:) if already_sent
+        monitor.duplicate_attempt(tags:, context:) if already_sent && !resend
 
-        email_template_id if is_enabled && !already_sent
+        is_enabled = flipper_enabled?(email_config.flipper_id)
+        email_template_id if is_enabled && (!already_sent || resend)
       end
 
       # the monitor for _this_ instance
@@ -123,7 +133,7 @@ module VeteranFacingServices
       # retrieve the email from the _claim_
       # - specific claim models should have an `email` method defined
       def email
-        claim.email
+        claim.try(:email)
       end
 
       # assemble details for personalization in the email
@@ -144,7 +154,7 @@ module VeteranFacingServices
         {
           form_id: claim.form_id,
           claim_id: claim.id,
-          saved_claim_id: claim.id,
+          saved_claim_id:,
           service_name: vanotify_service,
           email_type:,
           email_template_id:

@@ -6,13 +6,7 @@ require 'dependents_benefits/user_data'
 
 RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob, type: :job do
   before do
-    allow(PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
-  end
-
-  # Create a concrete test subclass to test the abstract base class
-  let(:test_job_class) do
-    Class.new(described_class) do
-    end
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
   end
 
   let(:user) { create(:evss_user) }
@@ -21,7 +15,7 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   let(:user_data) { DependentsBenefits::UserData.new(user, saved_claim.parsed_form).get_user_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
-  let(:job) { test_job_class.new }
+  let(:job) { described_class.new }
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
 

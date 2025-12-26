@@ -52,7 +52,7 @@ RSpec.describe 'V0::Form210779',
     end
 
     it 'returns 500 when to_pdf returns error' do
-      allow_any_instance_of(SavedClaim).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
+      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF generation error')
 
       metrics = capture_statsd_calls do
         get("/v0/form210779/download_pdf/#{saved_claim.guid}", headers: {

@@ -88,7 +88,7 @@ module DebtsApi
       end
 
       def email_notifications_enabled?
-        Flipper.enabled?(:digital_dispute_email_notifications) && current_user.email.present?
+        Flipper.enabled?(:digital_dispute_email_notifications, current_user) && current_user.email.present?
       end
 
       def send_submission_email

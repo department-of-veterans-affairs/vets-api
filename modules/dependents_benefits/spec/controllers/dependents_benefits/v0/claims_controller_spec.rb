@@ -5,16 +5,17 @@ require 'rails_helper'
 RSpec.describe DependentsBenefits::V0::ClaimsController do
   routes { DependentsBenefits::Engine.routes }
 
-  let(:user) { create(:evss_user) }
-  let(:test_form) { build(:dependents_claim).parsed_form }
-  let(:bgs_service) { double('BGS::Services') }
-  let(:bgs_people) { double('BGS::People') }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
+
+  let(:user) { create(:evss_user) }
+  let(:test_form) { build(:dependents_claim).parsed_form }
+  let(:bgs_service) { double('BGS::Services') }
+  let(:bgs_people) { double('BGS::People') }
 
   describe '#show' do
     context 'with a valid bgs response' do

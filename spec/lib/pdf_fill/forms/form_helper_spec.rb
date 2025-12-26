@@ -204,4 +204,26 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.address_block(address)).to eq("123 Test St.\nSC")
     end
   end
+
+  describe '#format_radio_yes_no' do
+    it 'returns empty string with nil value' do
+      expect(including_class.new.format_radio_yes_no(nil)).to eq('')
+    end
+
+    it 'returns empty string with blank value' do
+      expect(including_class.new.format_radio_yes_no('')).to eq('')
+    end
+
+    it 'returns Yes for Y' do
+      expect(including_class.new.format_radio_yes_no('Y')).to eq('Yes')
+    end
+
+    it 'returns No for N' do
+      expect(including_class.new.format_radio_yes_no('N')).to eq('No')
+    end
+
+    it 'return NA for NA' do
+      expect(including_class.new.format_radio_yes_no('NA')).to eq('NA')
+    end
+  end
 end

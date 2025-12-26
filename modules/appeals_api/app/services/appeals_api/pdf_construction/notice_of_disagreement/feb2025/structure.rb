@@ -229,7 +229,7 @@ module AppealsApi
           # display attached page notification only if all issues overflow(issues table is empty)
           if form_row_index.zero? && form_data.contestable_issues.length.positive?
             pdf.text_box('See attached page for additional issues',
-                         text_opts.merge({ at: [-4, 221 - (24 * row_index)], width: 465, height: 22, valign: :center }))
+                         text_opts.merge({ at: [-4, 221], width: 465, height: 22, valign: :center }))
           end
         end
 

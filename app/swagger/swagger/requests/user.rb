@@ -118,6 +118,11 @@ module Swagger
                            example: false,
                            description: 'Indicates whether the user\'s facility is ready for the blue ' \
                                         'informational alert about Oracle Health.'
+                  property :user_facility_migrating_to_oh,
+                           type: :boolean,
+                           example: false,
+                           description: 'Indicates whether the user is associated with a facility that is ' \
+                                        'migrating to Oracle Health.'
                 end
                 property :veteran_status, type: :object do
                   key :required, [:status]

@@ -54,134 +54,62 @@ RSpec.describe BGSDependents::Base do
     }
   end
 
-  context 'with va_dependents_v2 turned off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+  describe '#dependent_address' do
+    it 'returns the vet\'s address' do
+      address = base.dependent_address(
+        dependents_application: sample_dependent_application,
+        lives_with_vet: true,
+        alt_address: nil
+      )
+
+      expect(address).to eq(sample_dependent_application['veteran_contact_information']['veteran_address'])
     end
 
-    describe '#dependent_address' do
-      it 'returns the vet\'s address' do
-        address = base.dependent_address(
-          dependents_application: sample_dependent_application,
-          lives_with_vet: true,
-          alt_address: nil
-        )
+    it 'returns the alternative address' do
+      address = base.dependent_address(
+        dependents_application: sample_dependent_application,
+        lives_with_vet: false,
+        alt_address: alternative_address
+      )
 
-        expect(address).to eq(sample_dependent_application['veteran_contact_information']['veteran_address'])
-      end
-
-      it 'returns the alternative address' do
-        address = base.dependent_address(
-          dependents_application: sample_dependent_application,
-          lives_with_vet: false,
-          alt_address: alternative_address
-        )
-
-        expect(address).to eq(alternative_address)
-      end
-
-      context 'it is a foreign address' do
-        TEST_COUNTRIES.each do |abbreviation, bis_value|
-          it "returns #{bis_value} when it gets #{abbreviation} as the country" do
-            address = sample_dependent_application['veteran_contact_information']['veteran_address']
-            address['country_name'] = abbreviation
-            address['international_postal_code'] = '12345'
-            base.adjust_country_name_for!(address:)
-            expect(address['country_name']).to eq(bis_value)
-          end
-        end
-
-        it 'tests TUR when the city is Adana' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'TUR'
-          address['international_postal_code'] = '12345'
-          address['city'] = 'Adana'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Turkey (Adana only)')
-        end
-
-        it 'tests TUR when the city is not Adana' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'TUR'
-          address['international_postal_code'] = '12345'
-          address['city'] = 'Istanbul'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Turkey (except Adana)')
-        end
-
-        it 'tests a country outside of the hash' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'ITA'
-          address['international_postal_code'] = '12345'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Italy')
-        end
-      end
-    end
-  end
-
-  context 'with va_dependents_v2 turned on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      expect(address).to eq(alternative_address)
     end
 
-    describe '#dependent_address' do
-      it 'returns the vet\'s address' do
-        address = base.dependent_address(
-          dependents_application: sample_dependent_application,
-          lives_with_vet: true,
-          alt_address: nil
-        )
-
-        expect(address).to eq(sample_dependent_application['veteran_contact_information']['veteran_address'])
+    context 'it is a foreign address' do
+      TEST_COUNTRIES.each do |abbreviation, bis_value|
+        it "returns #{bis_value} when it gets #{abbreviation} as the country" do
+          address = sample_dependent_application['veteran_contact_information']['veteran_address']
+          address['country_name'] = abbreviation
+          address['international_postal_code'] = '12345'
+          base.adjust_country_name_for!(address:)
+          expect(address['country_name']).to eq(bis_value)
+        end
       end
 
-      it 'returns the alternative address' do
-        address = base.dependent_address(
-          dependents_application: sample_dependent_application,
-          lives_with_vet: false,
-          alt_address: alternative_address
-        )
-
-        expect(address).to eq(alternative_address)
+      it 'tests TUR when the city is Adana' do
+        address = sample_dependent_application['veteran_contact_information']['veteran_address']
+        address['country_name'] = 'TUR'
+        address['international_postal_code'] = '12345'
+        address['city'] = 'Adana'
+        base.adjust_country_name_for!(address:)
+        expect(address['country_name']).to eq('Turkey (Adana only)')
       end
 
-      context 'it is a foreign address' do
-        TEST_COUNTRIES.each do |abbreviation, bis_value|
-          it "returns #{bis_value} when it gets #{abbreviation} as the country" do
-            address = sample_dependent_application['veteran_contact_information']['veteran_address']
-            address['country_name'] = abbreviation
-            address['international_postal_code'] = '12345'
-            base.adjust_country_name_for!(address:)
-            expect(address['country_name']).to eq(bis_value)
-          end
-        end
+      it 'tests TUR when the city is not Adana' do
+        address = sample_dependent_application['veteran_contact_information']['veteran_address']
+        address['country_name'] = 'TUR'
+        address['international_postal_code'] = '12345'
+        address['city'] = 'Istanbul'
+        base.adjust_country_name_for!(address:)
+        expect(address['country_name']).to eq('Turkey (except Adana)')
+      end
 
-        it 'tests TUR when the city is Adana' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'TUR'
-          address['international_postal_code'] = '12345'
-          address['city'] = 'Adana'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Turkey (Adana only)')
-        end
-
-        it 'tests TUR when the city is not Adana' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'TUR'
-          address['international_postal_code'] = '12345'
-          address['city'] = 'Istanbul'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Turkey (except Adana)')
-        end
-
-        it 'tests a country outside of the hash' do
-          address = sample_dependent_application['veteran_contact_information']['veteran_address']
-          address['country_name'] = 'ITA'
-          address['international_postal_code'] = '12345'
-          base.adjust_country_name_for!(address:)
-          expect(address['country_name']).to eq('Italy')
-        end
+      it 'tests a country outside of the hash' do
+        address = sample_dependent_application['veteran_contact_information']['veteran_address']
+        address['country_name'] = 'ITA'
+        address['international_postal_code'] = '12345'
+        base.adjust_country_name_for!(address:)
+        expect(address['country_name']).to eq('Italy')
       end
     end
   end

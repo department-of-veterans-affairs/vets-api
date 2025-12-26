@@ -28,11 +28,9 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
   describe 'POST #create' do
     let(:expense_params) do
       {
-        expense: {
-          purchase_date: 1.day.ago.iso8601,
-          description: 'Test expense description',
-          cost_requested: 25.50
-        }
+        purchase_date: 1.day.ago.iso8601,
+        description: 'Test expense description',
+        cost_requested: 25.50
       }
     end
 
@@ -49,6 +47,52 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
           expect(response_body).to have_key('expenseType')
           expect(response_body).to have_key('description')
         end
+      end
+
+      it 'transforms receipt parameters before making request' do
+        test_claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+
+        vets_api_params = {
+          'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'expense_type' => 'parking',
+          'purchase_date' => '2024-10-02',
+          'description' => 'Parking fee',
+          'cost_requested' => 10.00,
+          'receipt' => {
+            'file_name' => 'its_a_me',
+            'length' => 'mario',
+            'content_type' => 'lets_a_go',
+            'file_data' => 'luigi'
+          }
+        }
+
+        expected_request_body = {
+          'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          # Gets formatted in the model
+          'dateIncurred' => '2024-10-02T00:00:00Z',
+          'description' => 'Parking fee',
+          'costRequested' => 10.00,
+          'expenseType' => 'parking',
+          'expenseReceipt' => {
+            'fileName' => 'its_a_me',
+            'length' => 'mario',
+            'contentType' => 'lets_a_go',
+            'fileData' => 'luigi'
+          }
+        }
+
+        expenses_client = instance_double(TravelPay::ExpensesClient)
+        allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+        expect(expenses_client).to receive(:add_expense)
+          .with(anything, anything, 'parking', expected_request_body)
+          .and_return({ 'id' => 1234 })
+
+        # allow_any_instance_of(TravelPay::ExpensesService).to receive(:client).and_return(expenses_client)
+
+        post "/travel_pay/v0/claims/#{test_claim_id}/expenses/parking",
+             params: vets_api_params,
+             headers: { 'Authorization' => 'Bearer vagov_token' }
       end
     end
 
@@ -118,19 +162,17 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       let(:receipt_hash) do
         {
           'content_type' => 'application/pdf',
-          'content_length' => '1446',
+          'length' => '1446',
+          'file_name' => 'test.pdf',
           'file_data' => Base64.strict_encode64(Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures',
-                                                                'documents', 'test.pdf').read),
-          'file_type' => 'pdf'
+                                                                'documents', 'test.pdf').read)
         }
       end
       let(:expense_params_with_receipt) do
         {
-          expense: {
-            purchase_date: 1.day.ago.iso8601,
-            description: 'Parking with receipt',
-            cost_requested: 15.00
-          },
+          purchase_date: 1.day.ago.iso8601,
+          description: 'Parking with receipt',
+          cost_requested: 15.00,
           receipt: receipt_hash
         }
       end
@@ -156,10 +198,10 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
         # Verify receipt structure after the request
         expect(received_params).not_to be_nil
         expect(received_params['receipt']).to be_present
-        expect(received_params['receipt']['content_type']).to eq('application/pdf')
-        expect(received_params['receipt']['file_type']).to eq('pdf')
-        expect(received_params['receipt']['file_data']).to be_present
-        expect(received_params['receipt']['content_length']).to eq('1446')
+        expect(received_params['receipt']['contentType']).to eq('application/pdf')
+        expect(received_params['receipt']['fileData']).to be_present
+        expect(received_params['receipt']['length']).to eq('1446')
+        expect(received_params['receipt']['fileName']).to eq('test.pdf')
       end
 
       it 'excludes receipt from body when not provided' do
@@ -210,11 +252,9 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
   describe 'PATCH #update' do
     let(:expense_params) do
       {
-        expense: {
-          purchase_date: '2025-09-14T21:02:39.000',
-          description: 'Test expense description',
-          cost_requested: 25.50
-        }
+        purchase_date: '2025-09-14T21:02:39.000',
+        description: 'Test expense description',
+        cost_requested: 25.50
       }
     end
 
@@ -235,10 +275,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     context 'when expense validation fails' do
       let(:invalid_expense_params) do
         {
-          expense: {
-            description: 'Test expense description'
-            # Missing required fields: purchase_date, cost_requested
-          }
+          description: 'Test expense description'
+          # Missing required fields: purchase_date, cost_requested
         }
       end
 
@@ -270,8 +308,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
     context 'when request body is empty' do
       it 'returns bad request' do
-        patch expense_path('other'), params: { expense: {} }
-        expect(response).to have_http_status(:bad_request)
+        patch expense_path('other'), params: {}
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 

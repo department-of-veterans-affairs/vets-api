@@ -159,6 +159,39 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         expect(result).to be_nil
       end
     end
+
+    context 'when initial validation raises ADDRVAL108 but retry succeeds' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      it 'returns validated attributes after retrying' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        expect(mock_validation_service).to receive(:candidate).ordered.and_return(valid_api_response)
+
+        result = service_with_mock.validate_address(valid_address_hash)
+        expect(result).to be_a(Hash)
+        expect(result[:address_line1]).to eq('123 Main St')
+        expect(result[:city]).to eq('Brooklyn')
+      end
+    end
   end
 
   describe '#build_validation_address' do
@@ -186,6 +219,30 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       expect(result).to be_a(VAProfile::Models::ValidationAddress)
       expect(result.address_line2).to be_nil
       expect(result.address_line3).to be_nil
+    end
+
+    context 'when RepresentationManagement::AddressPreprocessor is available' do
+      it 'uses the cleaned address values from the preprocessor' do
+        cleaned_address = valid_address_hash.merge(
+          'address_line1' => 'PO Box 123',
+          'address_line2' => nil
+        )
+
+        allow(RepresentationManagement::AddressPreprocessor)
+          .to receive(:clean)
+          .with(valid_address_hash)
+          .and_return(cleaned_address)
+
+        result = service.build_validation_address(valid_address_hash)
+
+        expect(RepresentationManagement::AddressPreprocessor).to have_received(:clean).with(valid_address_hash)
+        expect(result).to be_a(VAProfile::Models::ValidationAddress)
+        expect(result.address_line1).to eq('PO Box 123')
+        expect(result.address_line2).to be_nil
+        expect(result.city).to eq('Brooklyn')
+        expect(result.state_code).to eq('NY')
+        expect(result.zip_code).to eq('11249')
+      end
     end
   end
 
@@ -274,6 +331,69 @@ RSpec.describe RepresentationManagement::AddressValidationService do
         expect(result).to be_nil
       end
     end
+
+    context 'when initial validation raises CandidateAddressNotFound (ADDRVAL108) and retry succeeds' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      it 'retries after ADDRVAL108 and returns the retry response' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        expect(mock_validation_service).to receive(:candidate).ordered.and_return(valid_api_response)
+        result = service_with_mock.get_best_address_candidate(valid_address_hash)
+        expect(result).to eq(valid_api_response)
+      end
+    end
+
+    context 'when initial validation raises ADDRVAL108 and all retries still fail' do
+      let(:candidate_not_found_exception) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          {
+            detail: {
+              'messages' => [
+                {
+                  'code' => 'ADDRVAL108',
+                  'key' => 'CandidateAddressNotFound',
+                  'text' => 'No Candidate Address Found',
+                  'severity' => 'INFO'
+                }
+              ]
+            },
+            code: 'VET360_AV_ERROR'
+          },
+          400,
+          nil
+        )
+      end
+
+      it 'returns nil when no valid candidate can be found after ADDRVAL108 retries' do
+        expect(mock_validation_service).to receive(:candidate).ordered.and_raise(candidate_not_found_exception)
+        3.times do
+          expect(mock_validation_service).to receive(:candidate).ordered.and_return(zero_coordinate_response)
+        end
+
+        result = service_with_mock.get_best_address_candidate(valid_address_hash)
+        expect(result).to be_nil
+      end
+    end
   end
 
   describe '#retry_validation' do
@@ -301,6 +421,49 @@ RSpec.describe RepresentationManagement::AddressValidationService do
       it 'stops after one API call' do
         expect(mock_validation_service).to receive(:candidate).once
         service_with_mock.retry_validation(po_box_address)
+      end
+    end
+
+    context 'when a retry attempt raises BackendServiceException' do
+      let(:po_box_address) do
+        {
+          'address_line1' => '123 Main St',
+          'address_line2' => 'PO Box 456',
+          'address_line3' => 'Suite 789',
+          'city' => 'Brooklyn',
+          'state_code' => 'NY',
+          'zip_code' => '11249'
+        }
+      end
+
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          'VET360_AV_ERROR',
+          { detail: { 'messages' => [{ 'code' => 'ADDRVAL999', 'text' => 'Some backend error' }] } },
+          500,
+          nil
+        )
+      end
+
+      before do
+        allow(service_with_mock).to receive(:modified_validation) do |_address_hash, attempt_number|
+          raise backend_error if attempt_number == 1
+
+          valid_api_response
+        end
+      end
+
+      it 'logs the error and continues to subsequent retry attempts' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(/Address validation retry attempt 1[\s\S]*failed:/)
+        )
+        result = service_with_mock.retry_validation(po_box_address)
+
+        # We should have tried again after the exception
+        expect(service_with_mock).to have_received(:modified_validation).with(po_box_address, 1).once
+        # And ultimately return the successful response
+        expect(service_with_mock).to have_received(:modified_validation).with(po_box_address, 2).once
+        expect(result).to eq(valid_api_response)
       end
     end
 

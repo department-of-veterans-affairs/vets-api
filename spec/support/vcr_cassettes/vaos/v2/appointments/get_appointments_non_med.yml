@@ -54,11 +54,15 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"data":[{"id":"159472","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"phone","status":"proposed","created":"2021-09-01T00:00:00Z","serviceType":"socialWork","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"socialWork"}]}],"serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"RESEARCH",
-        "display":"RESEARCH"}],"text":"RESEARCH"}],
-        "patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2021-09-01T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true},{"id":"159473","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"clinic","status":"proposed","created":"2021-09-01T00:00:00Z","serviceType":"covid","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"primaryCare"}]}],"serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR",
-        "display":"REGULAR"}],"text":"REGULAR"}],
-        "patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2021-09-01T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true}]}'
+      string: |-
+        {"data":[
+          {"id":"159472","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"phone","status":"proposed","created":"2021-09-01T00:00:00Z","serviceType":"socialWork","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"socialWork"}]}],
+            "serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"RESEARCH","display":"RESEARCH"}],"text":"RESEARCH"}],"patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2021-09-01T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true},
+          {"id":"159473","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"clinic","status":"proposed","created":"2021-09-01T00:00:00Z","serviceType":"covid","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"covid"}]}],
+            "serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2021-09-01T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true},
+          {"id":"159473","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"clinic","status":"proposed","created":"2021-09-01T00:00:00Z","serviceType":"primaryCare","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"primaryCare"}]}],
+            "serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2021-09-01T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true}
+        ]}
   recorded_at: Thu, 04 Nov 2021 20:02:42 GMT
 - request:
     method: get

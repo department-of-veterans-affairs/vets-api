@@ -90,7 +90,7 @@ module VAOS
             reason_code_hash[segments[0].strip] = segments[1].strip
           # User comments may contain colons so valid comments may consist of >=2
           # segments. We take the string after the first colon as the comments value.
-          elsif segments[0].strip == 'comments' && segments.count > 1
+          elsif segments[0] && segments[0].strip == 'comments' && segments.count > 1
             reason_code_hash['comments'] = kvp.partition(':')[2].strip
           end
         end

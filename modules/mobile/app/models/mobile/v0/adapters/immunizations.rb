@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/veterans_health/utils/vaccine_group_name_utils'
+
 module Mobile
   module V0
     module Adapters
@@ -52,15 +54,7 @@ module Mobile
         end
 
         def group_name(vaccine_codes)
-          filtered_codes = vaccine_codes[:coding].select { |v| v[:display]&.include?('VACCINE GROUP: ') }
-
-          if filtered_codes.empty?
-            group_name = vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
-          else
-            group_name = filtered_codes.dig(0, :display)
-            group_name&.slice!('VACCINE GROUP: ')
-          end
-          group_name.presence
+          Lighthouse::VeteransHealth::Utils::VaccineGroupNameUtils.extract_group_name(vaccine_codes)
         end
 
         def date(immunization)
@@ -71,6 +65,8 @@ module Mobile
         end
 
         def cvx_code(vaccine_code)
+          return nil if vaccine_code.nil?
+
           code = vaccine_code.dig(:coding, 0, :code)
           StatsD.increment('mobile.immunizations.cvx_code_missing') if code.blank?
 

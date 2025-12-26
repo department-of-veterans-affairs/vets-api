@@ -13,7 +13,7 @@ module TravelPay
     #
     # @return [Array<Symbol>] list of permitted parameter names
     def self.permitted_params
-      %i[purchase_date trip_type]
+      %i[purchase_date trip_type description]
     end
 
     # Returns the expense type for mileage expenses
@@ -31,7 +31,8 @@ module TravelPay
       params = {
         'expense_type' => expense_type,
         'purchase_date' => format_date(purchase_date),
-        'trip_type' => trip_type
+        'trip_type' => trip_type,
+        'description' => description
       }
       params['claim_id'] = claim_id if claim_id.present?
       params

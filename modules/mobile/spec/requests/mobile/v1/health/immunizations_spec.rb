@@ -408,14 +408,14 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
         end
 
         context '2 vaccine codes exists' do
-          it 'returns second coding display' do
+          it 'returns first CVX coding display' do
             elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2023-03-13T09:59:25Z' }
             expect(elem['attributes']).to eq(
               { 'cvxCode' => 140,
                 'date' => '2023-03-13T09:59:25Z',
                 'doseNumber' => 'Series 1',
                 'doseSeries' => 'Series 1',
-                'groupName' => 'FLU',
+                'groupName' => 'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE',
                 'manufacturer' => nil,
                 'note' => 'Sample Immunization Note.',
                 'reaction' => 'Other',

@@ -30,13 +30,12 @@ module VRE
       threshold_hours = 24 unless threshold_hours.positive?
       submissions = user_account.form_submissions.where(form_type: [FORM_TYPE, FORM_TYPE_V2],
                                                         created_at: threshold_hours.hours.ago..)
-
+      submissions_data = submissions.pluck(:id, :created_at).map { |id, created_at| { id:, created_at: } }
       submissions_count = submissions.count
       duplicates_detected = submissions_count > 1
-      log_payload = { user_account_id: user_account.id,
-                      submission_count: submissions_count,
-                      duplicates_detected:,
-                      threshold_hours: }
+
+      log_payload = { user_account_id: user_account.id, submissions_count:,
+                      duplicates_detected:, threshold_hours:, submissions_data: }
 
       log_message = 'VRE::VRESubmit1900Job - Duplicate Submission Check'
 

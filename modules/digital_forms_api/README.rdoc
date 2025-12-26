@@ -1,0 +1,10 @@
+= DigitalFormsApi
+TODO: Short description and motivation.
+
+== Installation
+Ensure the following line is in the root project's Gemfile:
+
+  gem 'digital_forms_api', path: 'modules/digital_forms_api'
+
+== License
+This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

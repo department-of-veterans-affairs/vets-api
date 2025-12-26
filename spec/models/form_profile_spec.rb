@@ -186,7 +186,7 @@ RSpec.describe FormProfile, type: :model do
         'veteranSsnLastFour' => '1863',
         'veteranVaFileNumberLastFour' => '1863',
         'isInReceiptOfPension' => -1,
-        'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+        'netWorthLimit' => 163_699
       },
       'veteranInformation' => {
         'fullName' => {
@@ -1092,9 +1092,7 @@ RSpec.describe FormProfile, type: :model do
   describe '#initialize_va_profile_prefill_military_information' do
     context 'when va profile is down in production' do
       it 'logs exception and returns empty hash' do
-        expect(form_profile).to receive(:log_exception_to_sentry).with(
-          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :va_profile_prefill_military_information
-        )
+        expect(form_profile).to receive(:log_exception_to_rails)
         expect(form_profile.send(:initialize_va_profile_prefill_military_information)).to eq({})
       end
     end
@@ -1437,10 +1435,7 @@ RSpec.describe FormProfile, type: :model do
       it 'sends a BackendServiceException to Sentry and returns and empty hash' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
                          allow_playback_repeats: true, match_requests_on: %i[method uri]) do
-          expect(form_profile).to receive(:log_exception_to_sentry).with(
-            instance_of(Common::Exceptions::BackendServiceException),
-            {}, prefill: :va_profile_prefill_military_information
-          )
+          expect(form_profile).to receive(:log_exception_to_rails)
           expect(form_profile.send(:initialize_va_profile_prefill_military_information)).to eq({})
         end
       end
@@ -1664,7 +1659,7 @@ RSpec.describe FormProfile, type: :model do
                 'veteranSsnLastFour' => '1863',
                 'veteranVaFileNumberLastFour' => '1863',
                 'isInReceiptOfPension' => -1,
-                'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+                'netWorthLimit' => 163_699
               },
               'veteranInformation' => {
                 'fullName' => {
@@ -1762,7 +1757,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
             end
@@ -1958,7 +1953,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
             end

@@ -681,29 +681,6 @@ allow(Flipper).to receive(:enabled?).with(:feature_name).and_return(true)
 
 ### Prescriptions Feature Flags
 
-**`:mhv_medications_new_policy`**
-- Enables new authorization policy for prescriptions access
-- Checks for `patient` or `champ_va` account types instead of Premium/Advanced
-- User-specific flag
-
-**Usage Pattern:**
-```ruby
-def access?
-  if Flipper.enabled?(:mhv_medications_new_policy, user)
-    user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
-  else
-    default_access_check
-  end
-end
-```
-
-**In Tests:**
-```ruby
-# ALWAYS stub, never enable/disable
-allow(Flipper).to receive(:enabled?).with(:mhv_medications_new_policy, user).and_return(true)
-```
-
----
 
 ## 🔐 Authentication & Authorization
 
@@ -713,28 +690,19 @@ The `MHVPrescriptionsPolicy` controls access to Prescriptions features using a S
 
 ```ruby
 MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
-  RX_ACCOUNT_TYPES = %w[Premium Advanced].freeze
+  RX_ACCESS_LOG_MESSAGE = 'RX ACCESS DENIED'
 
   def access?
-    if Flipper.enabled?(:mhv_medications_new_policy, user)
-      user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
-    else
-      default_access_check
-    end
+    return true if user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
+
+    log_access_denied(RX_ACCESS_LOG_MESSAGE)
+    false
   end
 
   private
 
   def mhv_user_account
     user.mhv_user_account(from_cache_only: false)
-  end
-
-  def default_access_check
-    service_name = user.identity.sign_in[:service_name]
-    access = RX_ACCOUNT_TYPES.include?(user.mhv_account_type) &&
-             (user.va_patient? || service_name == SignIn::Constants::Auth::MHV)
-    log_access_denied('RX ACCESS DENIED') unless access
-    access
   end
 
   def log_access_denied(message)
@@ -749,11 +717,6 @@ end
 
 **Access Requirements:**
 
-**Legacy Policy (default):**
-1. **MHV Account Type:** User must have Premium or Advanced account type
-2. **VA Patient Status OR MHV Sign-in:** User must be VA patient OR signed in via MHV
-
-**New Policy (with `:mhv_medications_new_policy` flag):**
 1. **LOA3:** User must be LOA3 (identity verified)
 2. **Account Type:** User must have `patient` or `champ_va` account type
 

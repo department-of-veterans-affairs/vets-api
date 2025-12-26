@@ -10,7 +10,7 @@ RSpec.describe EducationBenefitsClaimSerializer do
   let(:attributes) { data['attributes'] }
 
   it 'includes id' do
-    expect(data['id']).to eq(education_benefits_claim.id.to_s)
+    expect(data['id']).to eq(education_benefits_claim.token)
   end
 
   %w[form regional_office confirmation_number].each do |attr|

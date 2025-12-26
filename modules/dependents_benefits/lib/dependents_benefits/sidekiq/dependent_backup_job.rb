@@ -92,8 +92,6 @@ module DependentsBenefits::Sidekiq
           # update parent claim group status - overwrite failure since we're in backup job
           # the parent group is marked as processing to indicate it hasn't reached VBMS yet
           mark_parent_group_processing
-          # notify user of acceptance by the service - final success will be sent after VBMS is reached
-          notification_email.send_submitted_notification
         end
       end
     rescue => e

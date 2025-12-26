@@ -10,7 +10,6 @@ module BGSV2
       @vnp_participant_id = vnp_participant_id
       @dependents_application = payload['dependents_application']
       @student = student
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     def create

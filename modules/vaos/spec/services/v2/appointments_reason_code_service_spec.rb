@@ -130,7 +130,9 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       ['comments:text', { 'comments' => 'text' }],
       [' comments : text ', { 'comments' => 'text' }],
       ['comments:key:value', { 'comments' => 'key:value' }],
-      [' comments : key : value ', { 'comments' => 'key : value' }]
+      [' comments : key : value ', { 'comments' => 'key : value' }],
+      ['|comments:value ', { 'comments' => 'value' }],
+      ['key:value|comments:text ', { 'key' => 'value', 'comments' => 'text' }]
     ].each do |input, output|
       it "#{input} returns #{output}" do
         expect(subject.send(:parse_reason_code_text, input)).to eq(output)

@@ -5,7 +5,8 @@ http_interactions:
     uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
     body:
       encoding: UTF-8
-      string: '{"appId":"<APPID>","appToken":"<APPTOKEN>","subject":"Proxy Client","userType":"SYSTEM"}'
+      string: '{"appId":"<MHV_UHD_APP_ID>","appToken":"<MHV_UHD_APP_TOKEN>","subject":"Proxy
+        Client","userType":"SYSTEM"}'
     headers:
       User-Agent:
       - "<FARADAY_VERSION>"
@@ -18,18 +19,20 @@ http_interactions:
   response:
     status:
       code: 200
-      message: OK
+      message: ''
     headers:
       Date:
-      - Mon, 15 Sep 2025 21:36:47 GMT
+      - Wed, 17 Dec 2025 16:50:34 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
+      Connection:
+      - keep-alive
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1910213016", dtSInfo;desc="0"
+      - dtRpid;desc="-1054531285", dtSInfo;desc="0"
       Vary:
       - Access-Control-Request-Headers
       - Access-Control-Request-Method
@@ -45,26 +48,26 @@ http_interactions:
       - no-cache
       Expires:
       - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
       X-Frame-Options:
       - DENY
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: '{"id":702,"name":"VA.gov SCDF Proxy Client","permissions":["system/Practitioner.read","system/Condition.read","system/MedicationDispense.read","system/Appointment.read","system/ServiceRequest.read","Patient","system/Immunization.read","system/Person.read","system/MedicationRequest.read","system/Location.read","system/Procedure.read","System","system/DiagnosticReport.read","system/AllergyIntolerance.read","system/Patient.read","system/Organization.read","system/RelatedPerson.read","system/DocumentReference.read","PHR-RW","system/Observation.read","system/Binary.read","system/Encounter.read"]}'
-  recorded_at: Mon, 15 Sep 2025 21:36:45 GMT
+  recorded_at: Wed, 17 Dec 2025 16:50:34 GMT
 - request:
     method: post
     uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications/rx/refill"
     body:
       encoding: UTF-8
-      string: '{"patientId":"1000123456V123456","orders":[{"orderId":"15220389459","stationNumber":"556"},{"orderId":"0000000000001","stationNumber":"570"}]}'
+      string: '{"patientId":"<ICN>","orders":[{"orderId":"20848650695","stationNumber":"668"},{"orderId":"0000000000001","stationNumber":"570"}]}'
     headers:
       User-Agent:
       - "<FARADAY_VERSION>"
       Authorization: Bearer <TOKEN>
       X-Api-Key:
-      - <X_API_KEY>
+      - "<MHV_UHD_X_API_KEY>"
       Content-Type:
       - application/json
       Accept-Encoding:
@@ -77,41 +80,35 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 15 Sep 2025 21:36:54 GMT
+      - Wed, 17 Dec 2025 16:51:03 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '197'
-      X-Amzn-Requestid:
-      - fb035be6-0a52-4e57-9c86-580e0344ee88
-      X-Xss-Protection:
-      - '0'
-      X-Frame-Options:
-      - DENY
-      X-Oneagent-Js-Injection:
-      - 'true'
-      X-Amzn-Remapped-Connection:
+      - '312'
+      Connection:
       - keep-alive
+      X-Amzn-Requestid:
+      - 31444629-e940-4feb-a203-1acd1fbbec2e
       X-Amz-Apigw-Id:
-      - Q9oFjFyovHMFtkA=
+      - VvfWLForPHMFq6g=
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      Expires:
-      - '0'
-      Server-Timing:
-      - dtRpid;desc="1320091453", dtSInfo;desc="0"
-      X-Content-Type-Options:
-      - nosniff
       Pragma:
       - no-cache
-      X-Amzn-Remapped-Date:
-      - Mon, 15 Sep 2025 21:36:54 GMT
+      Expires:
+      - '0'
       Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains
+      X-Frame-Options:
+      - DENY
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
     body:
-      encoding: ASCII-8BIT
-      string: '[{"success":true,"orderId":"15220389459","stationNumber":"556","message":"Already
-        in Queue"},{"success":false,"orderId":"0000000000001","stationNumber":"570","message":"Prescription
+      encoding: UTF-8
+      string: '[{"success":true,"order":{"orderId":"20848650695","stationNumber":"668","sourceSystem":"NP_API","pharmacy":"PUGET
+        SOUND HEALTH CARE SYSTEM"},"message":"Refill Submitted"},{"success":false,"order":{"orderId":"0000000000001","stationNumber":"570","sourceSystem":"NP_API","pharmacy":null},"message":"Prescription
         is not Found"}]'
-  recorded_at: Mon, 15 Sep 2025 21:36:52 GMT
+  recorded_at: Wed, 17 Dec 2025 16:51:03 GMT
 recorded_with: VCR 6.3.1

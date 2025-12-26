@@ -16,6 +16,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+    allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: true))
     Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
   end
 
@@ -153,6 +154,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
     context 'when user does not have mhv access' do
       let!(:user) { sis_user }
+
+      before do
+        allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: false))
+      end
 
       it 'returns a 403 forbidden response' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do

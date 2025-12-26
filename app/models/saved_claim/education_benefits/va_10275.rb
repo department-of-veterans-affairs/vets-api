@@ -4,8 +4,6 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10275')
 
   def after_submit(_user)
-    return unless Flipper.enabled?(:form22_10275_submission_email)
-
     email_template = Settings.vanotify.services.va_gov.template_id.form10275_submission_email
     email_params = {
       agreement_type: construct_agreement_type,

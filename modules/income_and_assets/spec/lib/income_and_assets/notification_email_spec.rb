@@ -30,6 +30,10 @@ RSpec.describe IncomeAndAssets::NotificationEmail do
     context 'date_received fallback logic' do
       subject { described_class.new(saved_claim.id) }
 
+      before do
+        subject.instance_variable_set(:@claim, saved_claim)
+      end
+
       it 'uses lighthouse_updated_at when available' do
         lighthouse_date = Time.current
 

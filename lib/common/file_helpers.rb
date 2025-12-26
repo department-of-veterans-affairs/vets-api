@@ -26,10 +26,13 @@ module Common
 
       # Create the directory if it doesn't exist
       FileUtils.mkdir_p(clamav_directory)
-
       file_path = "clamav_tmp/#{file_name}"
 
+      raise 'Cannot write to temporary directory. Check permissions.' unless File.writable?(clamav_directory)
+
       File.binwrite(file_path, file_body)
+
+      raise "Failed to create temp file at #{file_name}" unless File.exist?(file_path)
 
       file_path
     end

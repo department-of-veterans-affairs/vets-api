@@ -37,6 +37,7 @@ require 'va_profile/contact_information/v2/configuration'
 require 'va_profile/communication/configuration'
 require 'va_profile/demographics/configuration'
 require 'va_profile/military_personnel/configuration'
+require 'va_profile/person_settings/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
@@ -75,11 +76,13 @@ Rails.application.reloader.to_prepare do
     VAProfile::Communication::Configuration.instance.breakers_service,
     VAProfile::Demographics::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
+    VAProfile::PersonSettings::Configuration.instance.breakers_service,
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
     SearchGsa::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
+    SOB::DGI::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,

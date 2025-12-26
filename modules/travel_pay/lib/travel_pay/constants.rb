@@ -6,7 +6,7 @@ module TravelPay
     # TravelPay::Constants::BASE_EXPENSE_PATHS[:meal]
     BASE_EXPENSE_PATHS = {
       airtravel: 'api/v1/expenses/airtravel',
-      common_carrier: 'api/v1/expenses/commoncarrier',
+      commoncarrier: 'api/v1/expenses/commoncarrier',
       lodging: 'api/v1/expenses/lodging',
       meal: 'api/v1/expenses/meal',
       mileage: 'api/v2/expenses/mileage',
@@ -19,7 +19,7 @@ module TravelPay
     # TravelPay::Constants::EXPENSE_TYPES[:parking]
     EXPENSE_TYPES = {
       airtravel: 'airtravel',
-      common_carrier: 'commoncarrier',
+      commoncarrier: 'commoncarrier',
       lodging: 'lodging',
       meal: 'meal',
       mileage: 'mileage',
@@ -39,8 +39,8 @@ module TravelPay
     # Usage:
     # TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS[:privately_owned_vehicle_not_available]
     COMMON_CARRIER_EXPLANATIONS = {
-      privately_owned_vehicle_not_available: 'Privately Owned Vehicle Not Available',
-      medically_indicated: 'Medically Indicated',
+      privately_owned_vehicle_not_available: 'PrivatelyOwnedVehicleNotAvailable',
+      medically_indicated: 'MedicallyIndicated',
       other: 'Other',
       unspecified: 'Unspecified'
     }.freeze

@@ -110,22 +110,105 @@ RSpec.describe SimpleFormsApi::VBA2010206 do
   end
 
   describe '#track_user_identity' do
-    let(:data) { { 'preparer_type' => 'veteran' } }
-
     before do
       allow(StatsD).to receive(:increment)
       allow(Rails.logger).to receive(:info)
     end
 
-    it 'tracks user identity and logs information' do
-      described_class.new(data).track_user_identity('ABC123')
+    context 'when tracking the submitter identity' do
+      let(:data) { { 'preparer_type' => 'veteran' } }
 
-      expect(StatsD).to have_received(:increment).with('api.simple_forms_api.20_10206.veteran')
-      expect(Rails.logger).to have_received(:info).with(
-        'Simple forms api - 20-10206 submission user identity',
-        identity: 'veteran',
-        confirmation_number: 'ABC123'
-      )
+      it 'tracks user identity and logs information' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).to have_received(:increment).with('api.simple_forms_api.20_10206.veteran')
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - 20-10206 submission user identity',
+          identity: 'veteran',
+          confirmation_number: 'ABC123'
+        )
+      end
+    end
+
+    context 'when record selections are provided' do
+      let(:data) do
+        {
+          'preparer_type' => 'veteran',
+          'record_selections' => {
+            'DD214' => true,
+            'c_file' => false,
+            'financial' => true
+          }
+        }
+      end
+
+      it 'increments statsd for each selected record type' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: ['record_type:dd214']
+        )
+        expect(StatsD).to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: ['record_type:financial']
+        )
+        expect(StatsD).not_to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: ['record_type:c-file']
+        )
+      end
+    end
+
+    context 'when record selections are missing' do
+      let(:data) { { 'preparer_type' => 'veteran', 'record_selections' => nil } }
+
+      it 'does not increment record type metrics' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).not_to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: anything
+        )
+      end
+    end
+
+    context 'when record selections are empty' do
+      let(:data) { { 'preparer_type' => 'veteran', 'record_selections' => {} } }
+
+      it 'does not increment record type metrics' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).not_to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: anything
+        )
+      end
+    end
+
+    context 'when record selections contain unknown keys' do
+      let(:data) do
+        {
+          'preparer_type' => 'veteran',
+          'record_selections' => {
+            'unknown_key' => true,
+            'dd214' => true
+          }
+        }
+      end
+
+      it 'only tracks the known record types' do
+        described_class.new(data).track_user_identity('ABC123')
+
+        expect(StatsD).to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: ['record_type:dd214']
+        )
+        expect(StatsD).not_to have_received(:increment).with(
+          'api.simple_forms_api.20_10206.record_type',
+          tags: ['record_type:unknown_key']
+        )
+      end
     end
   end
 end

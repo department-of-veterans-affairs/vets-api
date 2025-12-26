@@ -1,0 +1,34 @@
+{
+  "resCaseId": 123456,
+  "isTransferedToCWNRS": true,
+  "externalStatus": {
+    "isDiscontinued": false,
+    "discontinuedReason": null,
+    "stateList": [
+      {
+        "stepCode": "APPL",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "ELGLDET",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "INTAKE",
+        "status": "ACTIVE"
+      },
+      {
+        "stepCode": "ENTLDET",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
+      }
+    ]
+  }
+}

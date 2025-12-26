@@ -5,6 +5,7 @@ module Ccra
   # to the CCRA service.
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
+    include VAOS::CommunityCareConstants
 
     STATSD_KEY_PREFIX = 'api.ccra'
 

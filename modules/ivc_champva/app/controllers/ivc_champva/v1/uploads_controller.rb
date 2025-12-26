@@ -11,6 +11,8 @@ module IvcChampva
     class UploadsController < ApplicationController
       skip_after_action :set_csrf_header
 
+      include ActionView::Helpers::NumberHelper
+
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
         '10-10D-EXTENDED' => 'vha_10_10d',
@@ -317,8 +319,18 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
+          Rails.logger.info "submit_supporting_documents called for form #{params[:form_id]}"
+
           unlocked = unlock_file(params['file'], params['password'])
           attachment.file = params['password'] ? unlocked : params['file']
+
+          # pre-validation logging to help debug issues
+          Rails.logger.info "submit_supporting_documents attachment.file class: #{attachment.file.class}"
+          Rails.logger.info "submit_supporting_documents attachment.file present: #{attachment.file.present?}"
+          Rails.logger.info(
+            "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
+          )
+
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save

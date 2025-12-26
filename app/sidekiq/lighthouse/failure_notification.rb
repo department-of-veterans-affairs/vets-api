@@ -42,6 +42,5 @@ class Lighthouse::FailureNotification
     ::Rails.logger.error('Lighthouse::FailureNotification email error',
                          { message: e.message })
     log_exception_to_sentry(e)
-    log_exception_to_rails(e)
   end
 end

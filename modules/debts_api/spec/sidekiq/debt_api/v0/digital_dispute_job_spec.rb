@@ -37,8 +37,8 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
           .and_return(service)
 
         form_double = instance_double(InProgressForm, destroy: true)
-        expect(InProgressForm).to receive(:form_for_user)
-          .with('DISPUTE-DEBT', anything)
+        expect(InProgressForm).to receive(:find_by)
+          .with(form_id: 'DISPUTE-DEBT', user_uuid: submission.user_uuid)
           .and_return(form_double)
 
         expect(submission).to receive(:register_success)
@@ -69,8 +69,8 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
           .with(have_attributes(participant_id: user.participant_id, ssn: user.ssn), submission)
           .and_return(service)
 
-        expect(InProgressForm).to receive(:form_for_user)
-          .with('DISPUTE-DEBT', anything)
+        expect(InProgressForm).to receive(:find_by)
+          .with(form_id: 'DISPUTE-DEBT', user_uuid: submission.user_uuid)
           .and_return(nil)
 
         expect(submission).to receive(:register_success)

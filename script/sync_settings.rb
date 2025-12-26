@@ -10,6 +10,7 @@ require 'optparse'
 class SettingsSync
   FORWARD_PROXY_PATTERN = /fwdproxy-(\w+)\.vfs\.va\.gov:(\d+)/
   SETTINGS_LOCAL_PATH = File.expand_path('../config/settings.local.yml', __dir__)
+  TEST_SETTINGS_LOCAL_PATH = File.expand_path('../config/settings/test.local.yml', __dir__)
   DEVOPS_PATH = File.expand_path('../../devops', __dir__)
   SSM_PARAMETERS_SCRIPT = File.join(DEVOPS_PATH, 'utilities/ssm-parameters.sh')
   SSM_PORTFORWARDING_SCRIPT = File.join(DEVOPS_PATH, 'utilities/ssm-portforwarding.sh')
@@ -309,12 +310,45 @@ class SettingsSync
 
     # Ensure directory exists
     FileUtils.mkdir_p(File.dirname(SETTINGS_LOCAL_PATH))
+    FileUtils.mkdir_p(File.dirname(TEST_SETTINGS_LOCAL_PATH))
 
     # Write YAML with nice formatting
     yaml_content = "---\n#{settings.to_yaml.lines[1..].join}"
 
     File.write(SETTINGS_LOCAL_PATH, yaml_content)
     puts "\nSettings saved to #{SETTINGS_LOCAL_PATH}"
+
+    # Also save to test environment settings
+    save_test_settings(settings)
+  end
+
+  def save_test_settings(settings)
+    # Load existing test settings if present
+    test_settings = if File.exist?(TEST_SETTINGS_LOCAL_PATH)
+                      YAML.safe_load_file(TEST_SETTINGS_LOCAL_PATH, permitted_classes: [Symbol]) || {}
+                    else
+                      {}
+                    end
+
+    # Deep merge the new settings into test settings
+    deep_merge!(test_settings, settings)
+
+    # Write YAML with nice formatting
+    yaml_content = "---\n#{test_settings.to_yaml.lines[1..].join}"
+
+    File.write(TEST_SETTINGS_LOCAL_PATH, yaml_content)
+    puts "Settings also saved to #{TEST_SETTINGS_LOCAL_PATH}"
+  end
+
+  def deep_merge!(target, source)
+    source.each do |key, value|
+      if value.is_a?(Hash) && target[key].is_a?(Hash)
+        deep_merge!(target[key], value)
+      else
+        target[key] = value
+      end
+    end
+    target
   end
 
   def start_forward_proxy_tunnels

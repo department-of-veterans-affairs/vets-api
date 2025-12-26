@@ -49,10 +49,6 @@ RSpec.describe Logging::BaseMonitor do
   end
 
   describe '#submit_event' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:logging_data_scrubber).and_return(true)
-    end
-
     it 'calls track_request with the correct arguments' do
       allow(base_monitor).to receive(:track_request)
       base_monitor.send(:submit_event, 'info', 'Test message', 'test.stats.key',

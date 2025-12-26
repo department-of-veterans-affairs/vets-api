@@ -80,6 +80,7 @@ module PdfFill
         format_file_number(form_data)
         format_previously_applied(form_data)
         format_organization_info(form_data)
+        format_signature(form_data)
 
         form_data
       end
@@ -121,6 +122,15 @@ module PdfFill
           #{form_data['organizationName']}
           #{combine_full_address_extras(form_data['organizationAddress'])}
         ORGINFO
+      end
+
+      def format_signature(form_data)
+        date_signed = begin
+          Date.parse(form_data['dateSigned']).strftime('%m/%d/%Y')
+        rescue
+          form_data['dateSigned']
+        end
+        form_data['dateSigned'] = date_signed
       end
     end
   end
