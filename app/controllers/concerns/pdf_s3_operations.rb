@@ -66,7 +66,7 @@ module PdfS3Operations
       {}
     )
     hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-    overflow = hash_converter.extras_generator
-    overflow.text? ? '_final' : ''
+    hash_converter.extras_generator.text? ? '_final' : ''
+    # overflow.text? ? '_final' : ''
   end
 end
