@@ -51,8 +51,13 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   private
 
   def get_gi_bill_status
-    service = BenefitsEducation::Service.new(@user.icn)
-    service.get_gi_bill_status
+    if Flipper.enabled?(:sob_claimant_service)
+      service = SOB::DGI::Service.new(@user.ssn)
+      service.get_ch33_status
+    else
+      service = BenefitsEducation::Service.new(@user.icn)
+      service.get_gi_bill_status
+    end
   rescue => e
     Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
     {}
