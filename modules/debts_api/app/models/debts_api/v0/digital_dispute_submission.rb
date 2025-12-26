@@ -118,7 +118,7 @@ module DebtsApi
 
       def send_success_email
         StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
-        user = User.find_by(uuid: user_uuid)
+        user = User.find(user_uuid)
         return if user&.email.blank?
 
         cache_key = Sidekiq::AttrPackage.create(email: user.email, first_name: user.first_name)
@@ -138,7 +138,7 @@ module DebtsApi
 
       def send_failure_email
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        user = User.find_by(uuid: user_uuid)
+        user = User.find(user_uuid)
         return if user&.email.blank?
 
         cache_key = Sidekiq::AttrPackage.create(
