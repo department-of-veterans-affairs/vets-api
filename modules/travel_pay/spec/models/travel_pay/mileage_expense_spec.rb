@@ -107,12 +107,11 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
   describe '.permitted_params' do
     it 'returns mileage-specific permitted parameters' do
       params = described_class.permitted_params
-      expect(params).to eq(%i[purchase_date trip_type])
+      expect(params).to eq(%i[purchase_date trip_type description])
     end
 
-    it 'does not include description or cost_requested' do
+    it 'does not include cost_requested or receipt' do
       params = described_class.permitted_params
-      expect(params).not_to include(:description)
       expect(params).not_to include(:cost_requested)
       expect(params).not_to include(:receipt)
     end
@@ -162,10 +161,9 @@ RSpec.describe TravelPay::MileageExpense, type: :model do
       expect(params).not_to have_key('claim_id')
     end
 
-    it 'does not include description or cost_requested' do
+    it 'does include description' do
       params = subject.to_service_params
-      expect(params).not_to have_key('description')
-      expect(params).not_to have_key('cost_requested')
+      expect(params).to have_key('description')
     end
   end
 end
