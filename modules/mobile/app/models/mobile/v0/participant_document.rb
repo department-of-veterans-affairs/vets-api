@@ -4,7 +4,7 @@ require 'common/models/resource'
 
 module Mobile
   module V0
-    class ClaimLetterDocument < Common::Resource
+    class ParticipantDocument < Common::Resource
       attribute :id, Types::String
       attribute :doc_type, Types::String
       attribute :type_description, Types::String
