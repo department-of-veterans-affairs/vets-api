@@ -66,4 +66,40 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
       end
     end
   end
+
+  describe 'summary' do
+    let(:service) { instance_double(MedicalCopays::LighthouseIntegration::Service) }
+
+    before do
+      allow(MedicalCopays::LighthouseIntegration::Service)
+        .to receive(:new)
+              .with(current_user.icn)
+              .and_return(service)
+    end
+
+    it 'returns summarized copay data with default month window' do
+      allow(service).to receive(:summary).with(month_count: 6).and_return(
+        {
+          entries: [],
+          meta: {
+            total_amount_due: 125.50,
+            total_copays: 3,
+            month_window: 6
+          }
+        }
+      )
+
+      get '/v1/medical_copays/summary'
+      expect(response).to have_http_status(:ok)
+
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to eq([])
+      expect(body['meta']).to eq(
+                                'total_amount_due' => 125.5,
+                                'total_copays' => 3,
+                                'month_window' => 6
+                              )
+    end
+  end
 end
