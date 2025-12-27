@@ -35,7 +35,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
         'r4/Organization',
         {
           params: { _id: '4-O3d8XK44ejMS' },
-          icn: icn
+          icn:
         }
       ).and_return(faraday_response)
 
