@@ -389,8 +389,12 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       ]
 
       allow(invoice_service).to receive(:list)
-        .with(count: 50, page: 1)
-        .and_return({ 'entry' => entries })
+                                  .with(count: 50, page: 1)
+                                  .and_return({ 'entry' => entries })
+
+      allow(invoice_service).to receive(:list)
+                                  .with(count: 50, page: 2)
+                                  .and_return({ 'entry' => [] })
 
       result = service.summary(month_count: 6)
 
