@@ -51,6 +51,10 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :string,
                          example: 'TEST VAMC'
 
+                property :city,
+                         type: :string,
+                         example: 'Tampa'
+
                 property :externalId,
                          type: :string,
                          example: '675-K3FD983'
