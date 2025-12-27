@@ -55,27 +55,34 @@ module MedicalCopays
           entries = raw['entry'] || []
           break if entries.empty?
 
-          stop = false
-
-          entries.each do |entry|
-            date_str = entry.dig('resource', 'date')
-            next unless date_str
-
-            invoice_date = Time.iso8601(date_str)
-            if invoice_date < from
-              stop = true
-              break
-            end
-
-            invoice = Lighthouse::HCC::Invoice.new(entry)
-            total_amount += invoice.current_balance.to_d
-            count += 1
-          end
+          stop, total_amount, count =
+            process_entries(entries, from, total_amount, count)
 
           break if stop
+
           page += 1
         end
 
+        summary_output(total_amount, count, month_count)
+      end
+
+      def process_entries(entries, from, total_amount, count)
+        entries.each do |entry|
+          date_str = entry.dig('resource', 'date')
+          next unless date_str
+
+          invoice_date = Time.iso8601(date_str)
+          return [true, total_amount, count] if invoice_date < from
+
+          invoice = Lighthouse::HCC::Invoice.new(entry)
+          total_amount += invoice.current_balance.to_d
+          count += 1
+        end
+
+        [false, total_amount, count]
+      end
+
+      def summary_output(total_amount, count, month_count)
         {
           entries: [],
           meta: {
