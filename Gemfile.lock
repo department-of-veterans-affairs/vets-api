@@ -951,7 +951,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.9.0)
-    rdoc (7.0.3)
+    rdoc (6.15.1)
       erb
       psych (>= 4.0.0)
       tsort
@@ -1150,7 +1150,7 @@ GEM
     ssrf_filter (1.2.0)
     staccato (0.5.3)
     statsd-instrument (3.9.10)
-    stringio (3.2.0)
+    stringio (3.1.8)
     strong_migrations (2.5.0)
       activerecord (>= 7.1)
     strscan (3.1.5)
