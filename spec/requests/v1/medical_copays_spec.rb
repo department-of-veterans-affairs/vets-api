@@ -151,8 +151,8 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     before do
       allow(MedicalCopays::LighthouseIntegration::Service)
         .to receive(:new)
-              .with(current_user.icn)
-              .and_return(service)
+        .with(current_user.icn)
+        .and_return(service)
     end
 
     it 'returns summarized copay data with default month window' do
@@ -174,10 +174,10 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
       expect(body['data']).to eq([])
       expect(body['meta']).to eq(
-                                'total_amount_due' => 125.5,
-                                'total_copays' => 3,
-                                'month_window' => 6
-                              )
+        'total_amount_due' => 125.5,
+        'total_copays' => 3,
+        'month_window' => 6
+      )
     end
   end
 end
