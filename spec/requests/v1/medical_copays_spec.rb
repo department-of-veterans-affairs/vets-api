@@ -30,17 +30,17 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         expect(data_element['attributes'].keys)
           .to match_array(
-                %w[
-          url
-          facility
-          city
-          externalId
-          latestBillingRef
-          currentBalance
-          previousBalance
-          previousUnpaidBalance
-        ]
-              )
+            %w[
+              url
+              facility
+              city
+              externalId
+              latestBillingRef
+              currentBalance
+              previousBalance
+              previousUnpaidBalance
+            ]
+          )
       end
     end
 
