@@ -6,6 +6,7 @@ module Lighthouse
       include Vets::Model
       attribute :external_id, String
       attribute :facility, String
+      attribute :city, String
       attribute :latest_billing_ref, String
       attribute :current_balance, Float
       attribute :previous_balance, String
@@ -22,6 +23,7 @@ module Lighthouse
       def assign_attributes
         line_item = @params.dig('resource', 'lineItem')&.first
         @facility = @params.dig('resource', 'issuer', 'display')
+        @city = @params.dig('resource', 'city')
         @latest_billing_ref = line_item
                               &.dig('chargeItemReference', 'reference')
                               &.split('/')
