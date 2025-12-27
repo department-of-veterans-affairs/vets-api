@@ -25,10 +25,7 @@ module Lighthouse
           params = { _id: id }
 
           config.get(endpoint, params:, icn: @icn).body
-        rescue Faraday::TimeoutError,
-          Faraday::ClientError,
-          Faraday::ServerError,
-          Faraday::ParsingError => e
+        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError, Faraday::ParsingError => e
           handle_error(e, endpoint)
         end
 
