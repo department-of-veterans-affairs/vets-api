@@ -19,12 +19,16 @@ module Lighthouse
         end
 
         def read(id)
-          raise ArgumentError, 'no ID passed in for HCCC Invoice read request' if id.blank?
+          raise ArgumentError, 'no ID passed in for HCCC Organization request' if id.blank?
 
-          endpoint = "r4/Organization/#{id}"
+          endpoint = 'r4/Organization'
+          params = { _id: id }
 
-          config.get(endpoint, icn: @icn).body
-        rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError, Faraday::ParsingError => e
+          config.get(endpoint, params:, icn: @icn).body
+        rescue Faraday::TimeoutError,
+          Faraday::ClientError,
+          Faraday::ServerError,
+          Faraday::ParsingError => e
           handle_error(e, endpoint)
         end
 
