@@ -360,23 +360,23 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       ]
 
       allow(invoice_service).to receive(:list)
-                                  .with(count: 50, page: 1)
-                                  .and_return({ 'entry' => entries })
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
 
       allow(invoice_service).to receive(:list)
-                                  .with(count: 50, page: 2)
-                                  .and_return({ 'entry' => [] })
+        .with(count: 50, page: 2)
+        .and_return({ 'entry' => [] })
 
       result = service.summary(month_count: 6)
 
       expect(result).to eq(
-                          entries: [],
-                          meta: {
-                            total_amount_due: 30.75,
-                            total_copays: 2,
-                            month_window: 6
-                          }
-                        )
+        entries: [],
+        meta: {
+          total_amount_due: 30.75,
+          total_copays: 2,
+          month_window: 6
+        }
+      )
     end
 
     it 'stops processing when an invoice is older than the window' do
@@ -389,8 +389,8 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       ]
 
       allow(invoice_service).to receive(:list)
-                                  .with(count: 50, page: 1)
-                                  .and_return({ 'entry' => entries })
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
 
       result = service.summary(month_count: 6)
 
@@ -405,8 +405,8 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       ]
 
       allow(invoice_service).to receive(:list)
-                                  .with(count: 50, page: 1)
-                                  .and_return({ 'entry' => entries })
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
 
       result = service.summary
 
@@ -416,19 +416,19 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
     it 'returns zero totals when no entries are returned' do
       allow(invoice_service).to receive(:list)
-                                  .with(count: 50, page: 1)
-                                  .and_return({ 'entry' => [] })
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => [] })
 
       result = service.summary
 
       expect(result).to eq(
-                          entries: [],
-                          meta: {
-                            total_amount_due: 0.0,
-                            total_copays: 0,
-                            month_window: 6
-                          }
-                        )
+        entries: [],
+        meta: {
+          total_amount_due: 0.0,
+          total_copays: 0,
+          month_window: 6
+        }
+      )
     end
   end
 end
