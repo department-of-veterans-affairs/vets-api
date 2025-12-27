@@ -7,6 +7,7 @@ require 'lighthouse/healthcare_cost_and_coverage/encounter/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication/service'
 require 'lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service'
+require 'lighthouse/healthcare_cost_and_coverage/organization/service'
 require 'concurrent-ruby'
 
 module MedicalCopays
@@ -24,6 +25,13 @@ module MedicalCopays
       def list(count:, page:)
         raw_invoices = invoice_service.list(count:, page:)
         entries = raw_invoices['entry'].map do |entry|
+          org_ref = entry.dig('resource', 'issuer', 'reference')
+
+          org_id  = org_ref&.split('/')&.last
+
+          org_city = retrieve_city(org_id) if org_id
+          entry['resource'].merge!({ 'city' => org_city }) if org_city
+
           Lighthouse::HCC::Invoice.new(entry)
         end
 
@@ -57,6 +65,11 @@ module MedicalCopays
       end
 
       private
+
+      def retrieve_city(org_id)
+        org_data = organization_service.read(org_id)
+        org_data.dig('entry', 0, 'resource', 'address', 0, 'city')
+      end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
         account_future = Concurrent::Promises.future { fetch_account(invoice_data) }
@@ -198,6 +211,10 @@ module MedicalCopays
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def organization_service
+        @organization_service ||= ::Lighthouse::HealthcareCostAndCoverage::Organization::Service.new(@icn)
       end
 
       def invoice_service
