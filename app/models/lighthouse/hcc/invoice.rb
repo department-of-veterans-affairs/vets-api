@@ -32,7 +32,6 @@ module Lighthouse
         @last_credit_debit = line_item&.dig('priceComponent', 0, 'amount', 'value')
 
         @last_updated_at = @params.dig('resource', 'meta', 'lastUpdated')
-        @date = @params.dig('resource', 'date')
 
         @current_balance = calculate_current_balance ? calculate_current_balance.compact.sum : 0.0
         @previous_balance = @params['resource']['totalPriceComponent'].find do |c|
