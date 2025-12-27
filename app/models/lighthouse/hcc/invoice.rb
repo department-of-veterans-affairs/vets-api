@@ -13,7 +13,6 @@ module Lighthouse
       attribute :previous_balance, String
       attribute :previous_unpaid_balance, String
       attribute :last_updated_at, String
-      attribute :date, String
       attribute :last_credit_debit, Float
       attribute :url, String
 
