@@ -9,10 +9,12 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     sign_in_as(current_user)
   end
 
-  describe 'index', skip: 'temporarily skipped' do
+  describe 'index' do
     it 'returns a formatted hash response' do
-      VCR.use_cassette('lighthouse/hcc/invoice_list_success') do
-        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+      VCR.use_cassette(
+        'lighthouse/hcc/medical_copays_index_with_city',
+        record: :new_episodes
+      ) do
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
@@ -20,19 +22,25 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
         copay_summary = meta['copay_summary']
         data_element = response_body['data'].first
 
-        expect(copay_summary.keys).to eq(%w[total_current_balance copay_bill_count last_updated_on])
-        expect(meta.keys).to eq(%w[total page per_page copay_summary])
-        expect(data_element['attributes'].keys).to match_array(
-          %w[
-            url
-            facility
-            externalId
-            latestBillingRef
-            currentBalance
-            previousBalance
-            previousUnpaidBalance
-          ]
-        )
+        expect(copay_summary.keys)
+          .to eq(%w[total_current_balance copay_bill_count last_updated_on])
+
+        expect(meta.keys)
+          .to eq(%w[total page per_page copay_summary])
+
+        expect(data_element['attributes'].keys)
+          .to match_array(
+                %w[
+          url
+          facility
+          city
+          externalId
+          latestBillingRef
+          currentBalance
+          previousBalance
+          previousUnpaidBalance
+        ]
+              )
       end
     end
 
