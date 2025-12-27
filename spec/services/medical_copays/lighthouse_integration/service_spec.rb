@@ -412,6 +412,10 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         .with(count: 50, page: 1)
         .and_return({ 'entry' => entries })
 
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 2)
+        .and_return({ 'entry' => [] })
+
       result = service.summary
 
       expect(result[:meta][:total_amount_due]).to eq(12.0)
