@@ -1,0 +1,40 @@
+require:
+  - './cop/ams_serializer.rb'
+  - './cop/stub_flipper.rb'
+  - './cop/skip_authenticity.rb'
+  - './cop/sidekiq/require_retry.rb'
+  - './cop/sidekiq/require_exhausted_hook.rb'
+
+Cop/AmsSerializer:
+  Enabled: true
+
+Cop/StubFlipper:
+  Enabled: true
+  Include:
+    - 'spec/**/*_spec.rb'
+    - 'modules/*/spec/**/*_spec.rb'
+
+Cop/SkipAuthenticity:
+  Enabled: true
+
+Sidekiq/RequireRetry:
+  Enabled: true
+  Include:
+    - 'app/sidekiq/**/*.rb'
+    - 'app/jobs/**/*.rb'
+    - 'modules/*/app/sidekiq/**/*.rb'
+    - 'modules/*/app/jobs/**/*.rb'
+    - 'modules/*/app/workers/**/*.rb'
+    - 'lib/**/sidekiq/**/*.rb'
+    - 'modules/*/lib/**/sidekiq/**/*.rb'
+
+Sidekiq/RequireExhaustedHook:
+  Enabled: true
+  Include:
+    - 'app/sidekiq/**/*.rb'
+    - 'app/jobs/**/*.rb'
+    - 'modules/*/app/sidekiq/**/*.rb'
+    - 'modules/*/app/jobs/**/*.rb'
+    - 'modules/*/app/workers/**/*.rb'
+    - 'lib/**/sidekiq/**/*.rb'
+    - 'modules/*/lib/**/sidekiq/**/*.rb'

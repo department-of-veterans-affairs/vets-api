@@ -1,9 +1,7 @@
 inherit_from:
   - .rubocop_explicit_enables.yml
   - .rubocop_todo.yml
-
-require:
-  - './lib/rubocop/cops/ams_serializer.rb'
+  - lib/rubocop/.rubocop_custom_cops.yml
 
 plugins:
   - rubocop-rails
@@ -379,9 +377,6 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
-
-Cops/AmsSerializer:
-  Enabled: true
 
 Rails/Exit:
   Exclude:

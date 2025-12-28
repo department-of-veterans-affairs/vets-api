@@ -1,7 +1,26 @@
 # frozen_string_literal: true
 
 module RuboCop
-  module Cops
+  module Cop
+    # Disallows inheriting from ActiveModel::Serializer.
+    #
+    # ActiveModelSerializers (AMS) is not allowed anymore
+    # Use JSONAPI::Serializer instead for serialization
+    #
+    # @example
+    #   # bad
+    #   class UserSerializer < ActiveModel::Serializer
+    #   end
+    #
+    #   # bad
+    #   class UsersSerializer < ActiveModel::Serializer::CollectionSerializer
+    #   end
+    #
+    #   # good
+    #   class UserSerializer
+    #     include JSONAPI::Serializer
+    #   end
+    #
     class AmsSerializer < RuboCop::Cop::Base
       MSG = 'Use JSONAPI::Serializer instead of ActiveModel::Serializer'
 
