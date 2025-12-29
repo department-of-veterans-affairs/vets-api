@@ -85,13 +85,9 @@ module SOB
         end
       end
 
-      def parse_toe(transfers)
-        transferred_days = transfers&.inject(0) do |total, transfer|
-          total + (transfer['transferred_days'] || 0)
-        end
-
-        return if transferred_days.zero?
-
+      def parse_toe(toes)
+        # Default to zero if no TOE present
+        transferred_days = Array(toes).sum { |toe| toe['transferred_days'].to_i }
         @claimant['entitlement_transferred_out'] = parse_months(transferred_days)
       end
 
