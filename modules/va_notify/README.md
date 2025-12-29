@@ -300,7 +300,7 @@ end
 
 [Back to top](#top)
 
-## Secure Email Parameters: VANotify::V2::SendEmail <a name="secure-email-params"></a>
+## Secure Email Parameters: VANotify::V2::QueueEmailJob <a name="secure-email-params"></a>
 
 ### Why Use VANotify::V2::QueueEmailJob
 
