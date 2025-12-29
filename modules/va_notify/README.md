@@ -322,7 +322,7 @@ VANotify::V2::QueueEmailJob.enqueue(
 
 ### Migration Plan
 
-- **New jobs**: Use `VANotify::V2::SendEmail` for all new email flows that include personalisation data.
+- **New jobs**: Use `VANotify::V2::QueueEmailJob` for all new email flows that include personalisation data.
 - **Existing jobs**: We will gradually migrate existing usages of `VANotify::EmailJob` and `VANotify::UserAccountJob` to use `VANotify::V2::QueueEmailJob`.
 
 ### Additional Notes
