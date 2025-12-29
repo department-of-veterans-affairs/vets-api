@@ -12,6 +12,17 @@ module V1
       )
     end
 
+    def summary
+      result = medical_copay_service.summary(
+        month_count: params[:months]&.to_i || 6
+      )
+
+      render json: Lighthouse::HCC::InvoiceSerializer.new(
+        result[:entries],
+        meta: result[:meta]
+      )
+    end
+
     def show
       copay_detail = medical_copay_service.get_detail(id: params[:id])
 
