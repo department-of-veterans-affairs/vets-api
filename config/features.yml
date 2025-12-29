@@ -1058,10 +1058,6 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
-  form22_10275_submission_email:
-    actor_type: user
-    description: Enables form 22-10275 email submission to POE team (VaNotify)
-    enable_in_development: true
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
@@ -1354,9 +1350,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_secure_messaging_no_cache:
-    actor_type: user
-    description: Prevents caching of Secure Messaging data
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1431,6 +1424,10 @@ features:
   mhv_medical_records_ccd_oh:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
+    enable_in_development: true
+  mhv_medical_records_hold_time_messaging_update:
+    actor_type: user
+    description: Enables updated hold time messaging
     enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
@@ -1862,10 +1859,6 @@ features:
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
-    enable_in_development: true
-  show_cdp_one_thing_per_page:
-    actor_type: user
-    description: Enables the Payment History MVP features for development
     enable_in_development: true
   vha_show_payment_history:
     actor_type: user
