@@ -11,9 +11,9 @@ module VRE
     LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
     CONFIRMATION_EMAIL_TEMPLATES = {
       VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
-                                  .email.confirmation_vbms.template_id,
+                                   .email.confirmation_vbms.template_id,
       LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
-                                        .email.confirmation_lighthouse.template_id
+                                         .email.confirmation_lighthouse.template_id
     }.freeze
 
     def initialize(args)
@@ -135,7 +135,8 @@ module VRE
       @sent_to_lighthouse = true
 
       !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-        send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION], user)
+        send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION],
+                                                user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
       raise
