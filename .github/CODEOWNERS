@@ -1563,6 +1563,7 @@ spec/lib/periodic_jobs_spec.rb @department-of-veterans-affairs/govcio-vfep-coder
 spec/lib/persistent_attachments/sanitizer_spec.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/pensions @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 spec/lib/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/lib/res/ch31_form_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-core-veteran-experiences
+spec/lib/rubocop @department-of-veterans-affairs/backend-review-group
 spec/lib/rx @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/lib/rx/client_request_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team
 spec/lib/saml @department-of-veterans-affairs/octo-identity
