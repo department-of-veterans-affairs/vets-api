@@ -4,6 +4,7 @@
 # for payloads sent to VANotify callbacks. These signatures are used to verify the
 # authenticity and integrity of the payloads.
 
+require 'sidekiq/attr_package'
 require 'va_notify/default_callback'
 require 'va_notify/callback_signature_generator'
 
@@ -23,28 +24,42 @@ module VANotify
 
     def create
       notification_id = params[:id]
-      if @notification
+      if Flipper.enabled?(:va_notify_delivery_status_update_job)
+        attr_package_params_cache_key = Sidekiq::AttrPackage.create(
+          **notification_params.to_h.symbolize_keys
+        )
+        VANotify::DeliveryStatusUpdateJob.perform_async(notification_id, attr_package_params_cache_key)
+        Rails.logger.info('va_notify callbacks - Enqueued DeliveryStatusUpdateJob',
+                          { notification_id:, attr_package_params_cache_key: })
+      elsif @notification
         @notification.update(notification_params)
-        Rails.logger.info("va_notify callbacks - Updating notification: #{@notification.id}",
-                          {
-                            notification_id: @notification.id,
-                            source_location: @notification.source_location,
-                            template_id: @notification.template_id,
-                            callback_metadata: @notification.callback_metadata,
-                            status: @notification.status,
-                            status_reason: @notification.status_reason
-                          })
+
+        log_successful_update(@notification)
 
         VANotify::DefaultCallback.new(@notification).call
         VANotify::CustomCallback.new(notification_params.merge(id: notification_id)).call
       else
-        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
+        Rails.logger.info(
+          "va_notify callbacks - Received update for unknown notification #{notification_id}"
+        )
       end
 
       render json: { message: 'success' }, status: :ok
     end
 
     private
+
+    def log_successful_update(notification)
+      Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+                        {
+                          notification_id: notification.id,
+                          source_location: notification.source_location,
+                          template_id: notification.template_id,
+                          callback_metadata: notification.callback_metadata,
+                          status: notification.status,
+                          status_reason: notification.status_reason
+                        })
+    end
 
     def set_notification
       notification_id = params[:id]
