@@ -15,7 +15,7 @@ module BenefitsClaims
           registry[provider_name] = {
             class: provider_class,
             feature_flag: options[:feature_flag],
-            enabled_by_default: options.fetch(:enabled_by_default, false)
+            enabled_by_default: ActiveModel::Type::Boolean.new.cast(options.fetch(:enabled_by_default, false))
           }
         end
 
