@@ -245,7 +245,7 @@ module DebtsApi
                     country_code_fips county_code county_name created_at
                     effective_end_date effective_start_date id province
                     source_date source_system_user state_code transaction_id
-                    updated_at validation_key vet360_id zip_code zip_code_suffix
+                    updated_at override_validation_key vet360_id zip_code zip_code_suffix
                   ]
                 }
               ],

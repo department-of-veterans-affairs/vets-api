@@ -34,7 +34,7 @@ module DebtsApi
       DebtsApi::V0::DigitalDisputeDmcService.new(user, submission).call!
 
       submission.register_success
-      in_progress_form(user)&.destroy
+      in_progress_form(submission.user_uuid)&.destroy
     rescue => e
       Rails.logger.error("DigitalDisputeJob failed for submission_id #{submission_id}: #{e.message}")
       raise e
@@ -42,8 +42,8 @@ module DebtsApi
 
     private
 
-    def in_progress_form(user)
-      InProgressForm.form_for_user('DISPUTE-DEBT', user)
+    def in_progress_form(user_uuid)
+      InProgressForm.find_by(form_id: 'DISPUTE-DEBT', user_uuid:)
     end
   end
 end

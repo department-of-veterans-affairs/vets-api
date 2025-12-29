@@ -53,11 +53,11 @@ module PdfFill
       def generate_extended_form(merged_form_data, hash_converter)
         # extract extra records that don't fit on pdf for later processing
 
-        extra_programs = extract_extra_from_array(merged_form_data['programs'],
+        extra_programs = extract_extra_from_array(merged_form_data['programs'] || [],
                                                   DEFAULT_PROGRAMS_LIMIT)
-        extra_branches = extract_extra_from_array(merged_form_data['branches'],
+        extra_branches = extract_extra_from_array(merged_form_data['branches'] || [],
                                                   DEFAULT_BRANCHES_LIMIT)
-        extra_faculty = extract_extra_from_array(merged_form_data['faculty'],
+        extra_faculty = extract_extra_from_array(merged_form_data['faculty'] || [],
                                                  DEFAULT_FACULTY_LIMIT)
 
         # convert data that will fit naturally onto the pdf
