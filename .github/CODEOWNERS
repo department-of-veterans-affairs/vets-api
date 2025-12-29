@@ -1843,6 +1843,7 @@ spec/rswag/v0/form214192_spec.rb @department-of-veterans-affairs/benefits-optimi
 spec/rswag/v0/form21p530a_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/rswag/v0/shared_schemas @department-of-veterans-affairs/backend-review-group
 spec/rswag_override.rb @department-of-veterans-affairs/backend-review-group
+spec/rubocop_spec_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/scripts/import_va_certs_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/scripts/vcr_inspector @department-of-veterans-affairs/backend-review-group
 spec/scripts/vcr_mcp @department-of-veterans-affairs/backend-review-group
