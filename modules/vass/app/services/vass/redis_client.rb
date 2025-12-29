@@ -417,7 +417,7 @@ module Vass
     # @return [String] Cache key
     #
     def rate_limit_key(identifier)
-      "rate_limit_#{identifier}"
+      "rate_limit_#{identifier.to_s.downcase.strip}"
     end
 
     ##
