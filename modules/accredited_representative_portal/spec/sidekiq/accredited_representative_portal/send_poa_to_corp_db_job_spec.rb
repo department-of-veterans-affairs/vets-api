@@ -10,23 +10,13 @@ module AccreditedRepresentativePortal
     let(:poa_request) { create(:power_of_attorney_request) }
 
     describe '#perform' do
-      context 'when the POA request exists and has not been sent' do
-        it 'calls the SendPoaToCorpDbService with the request and sets sent_to_corpdb_at' do
+      context 'when the POA request exists' do
+        it 'calls the SendPoaToCorpDbService with the request' do
           allow(AccreditedRepresentativePortal::SendPoaToCorpDbService).to receive(:call).with(poa_request)
 
           described_class.new.perform(poa_request.id)
 
           expect(AccreditedRepresentativePortal::SendPoaToCorpDbService).to have_received(:call).with(poa_request)
-          expect(poa_request.reload.sent_to_corpdb_at).not_to be_nil
-        end
-      end
-
-      context 'when the POA request has already been sent' do
-        it 'does not call the service again' do
-          poa_request.update!(sent_to_corpdb_at: Time.current)
-
-          expect(AccreditedRepresentativePortal::SendPoaToCorpDbService).not_to receive(:call)
-          described_class.new.perform(poa_request.id)
         end
       end
 

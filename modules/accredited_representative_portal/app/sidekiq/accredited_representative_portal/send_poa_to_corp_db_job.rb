@@ -8,10 +8,8 @@ module AccreditedRepresentativePortal
     def perform(poa_request_id)
       poa_request = find_poa_request(poa_request_id)
 
-      return if poa_request.sent_to_corpdb?
-
+      # Attempt to send to CorpDB
       send_to_corpdb(poa_request)
-      mark_as_sent(poa_request)
     rescue ActiveRecord::RecordNotFound => e
       log_non_retryable_error(poa_request_id, e)
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -32,14 +30,10 @@ module AccreditedRepresentativePortal
       AccreditedRepresentativePortal::SendPoaToCorpDbService.call(poa_request)
     end
 
-    def mark_as_sent(poa_request)
-      poa_request.update!(sent_to_corpdb_at: Time.current)
-    end
-
     def log_non_retryable_error(poa_request_id, error)
       Rails.logger.error(
         'POA request not found',
-        poa_request_id:,
+        poa_request_id: poa_request_id,
         error: error.message
       )
     end
@@ -47,7 +41,7 @@ module AccreditedRepresentativePortal
     def log_retryable_error(poa_request_id, error)
       Rails.logger.error(
         'Failed to send POA to CorpDB (retrying)',
-        poa_request_id:,
+        poa_request_id: poa_request_id,
         error: error.message
       )
     end
@@ -55,9 +49,10 @@ module AccreditedRepresentativePortal
     def log_unexpected_error(poa_request_id, error)
       Rails.logger.error(
         'Unexpected error sending POA to CorpDB',
-        poa_request_id:,
+        poa_request_id: poa_request_id,
         error: error.message
       )
     end
   end
 end
+

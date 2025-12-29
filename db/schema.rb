@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_29_160000) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -365,7 +365,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_29_160000) do
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
     t.datetime "redacted_at"
-    t.datetime "sent_to_corpdb_at"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
     t.index ["redacted_at"], name: "index_ar_power_of_attorney_requests_on_redacted_at"
   end
