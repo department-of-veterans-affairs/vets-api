@@ -311,7 +311,7 @@ To prevent PII (such as first name and email address) from being exposed in Side
 Instead of calling `VANotify::EmailJob.perform_async` with personalisation data, use:
 
 ```ruby
-VANotify::V2::SendEmail.enqueue(
+VANotify::V2::QueueEmailJob.enqueue(
   "user@example.com",
   "template-id-123",
   { first_name: "Jane", date_submitted: "May 1, 2024" }, # personalisation hash
