@@ -10,6 +10,7 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
 
   let(:claim) { create(:dependents_claim) }
   let(:child_claim) { create(:add_remove_dependents_claim) }
+  let(:student_claim) { create(:student_claim) }
 
   describe '#submissions_succeeded?' do
     it 'returns true when both BGS and Claims Evidence submissions succeeded' do
@@ -111,6 +112,40 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
     end
   end
 
+  describe '#pension_related_submission?' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(child_claim.pension_related_submission?).to be false
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
+      end
+
+      context 'when the claim is pension related' do
+        it 'returns true' do
+          expect(child_claim.pension_related_submission?).to be true
+        end
+      end
+
+      context 'when the claim is not pension related' do
+        before do
+          child_claim.parsed_form['dependents_application'].delete('household_income')
+        end
+
+        it 'returns false' do
+          expect(child_claim.pension_related_submission?).to be false
+        end
+      end
+    end
+  end
+
   describe '#folder_identifier' do
     context 'when ssn is present' do
       before do
@@ -145,6 +180,26 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
 
       it 'includes icn in the folder identifier' do
         expect(claim.folder_identifier).to eq('VETERAN:ICN:ICN123456789')
+      end
+    end
+  end
+
+  describe '#claim_form_type' do
+    context 'when both 686 and 674 forms are submittable' do
+      it 'returns 686c-674' do
+        expect(claim.claim_form_type).to eq('686c-674')
+      end
+    end
+
+    context 'when only 686 form is submittable' do
+      it 'returns 21-686c' do
+        expect(child_claim.claim_form_type).to eq('21-686c')
+      end
+    end
+
+    context 'when only 674 form is submittable' do
+      it 'returns 21-674' do
+        expect(student_claim.claim_form_type).to eq('21-674')
       end
     end
   end
