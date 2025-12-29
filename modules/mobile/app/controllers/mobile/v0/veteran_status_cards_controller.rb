@@ -4,7 +4,7 @@ module Mobile
   module V0
     class VeteranStatusCardsController < ApplicationController
       def show
-        redner json: service.status_card
+        render json: service.status_card
       end
 
       private
