@@ -132,6 +132,10 @@ module DependentsBenefits
             monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
+            if child_claims.any?(&:pension_related_submission?)
+              form_type = parent_claim&.claim_form_type
+              monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id:, form_type:)
+            end
           end
         end
       end
@@ -195,6 +199,13 @@ module DependentsBenefits
     # @return [SavedClaimGroup, nil] The parent claim group record
     def parent_claim_group
       @parent_claim_group ||= SavedClaimGroup.find_by(parent_claim_id:, saved_claim_id: parent_claim_id)
+    end
+
+    # Returns the parent claim
+    #
+    # @return [SavedClaim, nil] The parent SavedClaim record
+    def parent_claim
+      @parent_claim ||= ::SavedClaim.find_by(id: parent_claim_id)
     end
 
     # Marks the parent claim group as succeeded
