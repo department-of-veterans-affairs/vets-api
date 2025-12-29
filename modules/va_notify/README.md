@@ -304,7 +304,7 @@ end
 
 ### Why Use VANotify::V2::QueueEmailJob
 
-To prevent PII (such as first name and email address) from being exposed in Sidekiq job arguments and logs, we are transitioning to using `VANotify::V2::SendEmail`. This job stores personalisation data securely in Redis using `Sidekiq::AttrPackage`, and only passes a reference key to the job. This ensures that PII is not logged or sent to Datadog if a job fails.
+To prevent PII (such as first name and email address) from being exposed in Sidekiq job arguments and logs, we are transitioning to using `VANotify::V2::QueueEmailJob`. This job stores personalisation data securely in Redis using `Sidekiq::AttrPackage`, and only passes a reference key to the job. This ensures that PII is not logged or sent to Datadog if a job fails.
 
 ### Usage
 
