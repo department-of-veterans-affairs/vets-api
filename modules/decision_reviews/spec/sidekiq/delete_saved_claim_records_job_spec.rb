@@ -75,7 +75,7 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
 
       it 'rescues and logs the exception' do
         expect(Rails.logger).to receive(:error).with('DecisionReviews::DeleteSavedClaimRecordsJob perform exception',
-                                                      error_message)
+                                                     error_message)
 
         expect { subject.new.perform }.not_to raise_error
 
