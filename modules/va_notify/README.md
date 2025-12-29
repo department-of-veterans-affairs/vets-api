@@ -331,7 +331,7 @@ VANotify::V2::QueueEmailJob.enqueue(
 - The job will retrieve and delete the personalisation data from Redis when it runs.
 - This pattern is required for any job that handles PII in personalisation.
 
-For more details, see [`app/sidekiq/va_notify/v2/send_email.rb`](app/sidekiq/va_notify/v2/send_email.rb).
+For more details, see [`app/sidekiq/va_notify/v2/queue_email_job.rb`](app/sidekiq/va_notify/v2/queue_email_job.rb).
 
 [Back to top](#top)
 
