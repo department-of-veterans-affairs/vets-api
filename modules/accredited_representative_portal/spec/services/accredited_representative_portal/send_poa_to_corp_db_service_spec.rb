@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
@@ -70,9 +71,10 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
           expect(rep[:poaCode]).to eq(poa_request.power_of_attorney_holder_poa_code)
 
           # Authorizations
-          expect(attributes[:recordConsent]).to eq(true)
-          expect(attributes[:consentAddressChange]).to eq(true)
-          expect(attributes[:consentLimits]).to match_array(parsed_data['authorizations']['recordDisclosureLimitations'])
+          expect(attributes[:recordConsent]).to be(true)
+          expect(attributes[:consentAddressChange]).to be(true)
+          consent_limits = parsed_data['authorizations']['recordDisclosureLimitations']
+          expect(attributes[:consentLimits]).to match_array(consent_limits)
         end
       end
     end
@@ -121,7 +123,7 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
 
           # Consent fields
           auth = payload[:data][:attributes]
-          expect(auth[:consentAddressChange]).to eq(false)
+          expect(auth[:consentAddressChange]).to be(false)
           expect(auth[:consentLimits]).to eq([])
         end
       end

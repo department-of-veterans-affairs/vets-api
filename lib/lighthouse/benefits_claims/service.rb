@@ -75,9 +75,9 @@ module BenefitsClaims
         options
       )
     rescue Faraday::ClientError, Faraday::ServerError => e
-      raise BenefitsClaims::ServiceException.new(e.response.merge(message: 'Lighthouse Error'))
+      raise BenefitsClaims::ServiceException, e.response.merge(message: 'Lighthouse Error')
     end
-    
+
     def get_2122_submission(
       id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {}
     )

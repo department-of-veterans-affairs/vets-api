@@ -44,9 +44,9 @@ module AccreditedRepresentativePortal
             .to receive(:call).and_raise(Faraday::ClientError.new(double(response: { status: 500 })))
           allow(Rails.logger).to receive(:error)
 
-          expect {
+          expect do
             described_class.new.perform(poa_request.id)
-          }.to raise_error(Faraday::ClientError)
+          end.to raise_error(Faraday::ClientError)
 
           expect(Rails.logger).to have_received(:error).with(
             /Failed to send POA to CorpDB/,
@@ -61,9 +61,9 @@ module AccreditedRepresentativePortal
             .to receive(:call).and_raise(StandardError.new('unexpected failure'))
           allow(Rails.logger).to receive(:error)
 
-          expect {
+          expect do
             described_class.new.perform(poa_request.id)
-          }.to raise_error(StandardError, 'unexpected failure')
+          end.to raise_error(StandardError, 'unexpected failure')
 
           expect(Rails.logger).to have_received(:error).with(
             /Unexpected error sending POA to CorpDB/,
@@ -74,5 +74,3 @@ module AccreditedRepresentativePortal
     end
   end
 end
-
-

@@ -13,8 +13,7 @@ module AccreditedRepresentativePortal
     end
 
     def call
-      payload = build_payload
-      @service.submit_power_of_attorney(payload)
+      @service.submit_power_of_attorney(build_payload)
     rescue => e
       log_error(e)
       raise
@@ -23,43 +22,68 @@ module AccreditedRepresentativePortal
     private
 
     def build_payload
-      form_data = @poa_request.power_of_attorney_form.parsed_data
-      veteran = form_data.fetch('veteran')
-      address = veteran.fetch('address')
-      authorizations = form_data.fetch('authorizations', {})
-      phone_digits = (veteran['phone'] || '').gsub(/\D/, '')
-
       {
         data: {
           attributes: {
-            veteran: {
-              serviceNumber: veteran['serviceNumber'],
-              serviceBranch: veteran['serviceBranch'],
-              address: {
-                addressLine1: address['addressLine1'],
-                addressLine2: address['addressLine2'],
-                city: address['city'],
-                stateCode: address['stateCode'],
-                zipCode: address['zipCode'],
-                zipCodeSuffix: address['zipCodeSuffix'],
-                countryCode: address['countryCode'] || 'US'
-              },
-              phone: {
-                areaCode: phone_digits[0, 3],
-                phoneNumber: phone_digits[3, 7]
-              },
-              email: veteran['email'],
-              insuranceNumber: veteran['insuranceNumber']
-            },
-            representative: {
-              poaCode: @poa_request.power_of_attorney_holder_poa_code
-            },
+            veteran: veteran_payload,
+            representative: representative_payload,
             recordConsent: true,
             consentAddressChange: authorizations['addressChange'] == true,
             consentLimits: authorizations['recordDisclosureLimitations'] || []
           }
         }
       }
+    end
+
+    def veteran_payload
+      {
+        serviceNumber: veteran['serviceNumber'],
+        serviceBranch: veteran['serviceBranch'],
+        address: address_payload,
+        phone: phone_payload,
+        email: veteran['email'],
+        insuranceNumber: veteran['insuranceNumber']
+      }
+    end
+
+    def address_payload
+      {
+        addressLine1: address['addressLine1'],
+        addressLine2: address['addressLine2'],
+        city: address['city'],
+        stateCode: address['stateCode'],
+        zipCode: address['zipCode'],
+        zipCodeSuffix: address['zipCodeSuffix'],
+        countryCode: address['countryCode'] || 'US'
+      }
+    end
+
+    def phone_payload
+      digits = (veteran['phone'] || '').gsub(/\D/, '')
+      {
+        areaCode: digits[0, 3],
+        phoneNumber: digits[3, 7]
+      }
+    end
+
+    def representative_payload
+      { poaCode: @poa_request.power_of_attorney_holder_poa_code }
+    end
+
+    def form_data
+      @form_data ||= @poa_request.power_of_attorney_form.parsed_data
+    end
+
+    def veteran
+      @veteran ||= form_data.fetch('veteran')
+    end
+
+    def address
+      @address ||= veteran.fetch('address')
+    end
+
+    def authorizations
+      @authorizations ||= form_data.fetch('authorizations', {})
     end
 
     def log_error(error)
@@ -72,5 +96,3 @@ module AccreditedRepresentativePortal
     end
   end
 end
-
-  

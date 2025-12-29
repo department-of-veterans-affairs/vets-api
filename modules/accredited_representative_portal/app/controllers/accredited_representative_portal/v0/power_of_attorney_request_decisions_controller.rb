@@ -56,7 +56,7 @@ module AccreditedRepresentativePortal
           current_user.user_account_uuid,
           current_user.power_of_attorney_holder_memberships
         ).call
-        
+
         enqueue_send_to_corpdb
         track_decision_durations('accepted')
         render json: {}, status: :ok
