@@ -457,6 +457,170 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe '#submit_power_of_attorney' do
+        let(:attributes) do
+          {
+            "data" => {
+              "attributes" => {
+                "veteran" => {
+                  "serviceNumber" => "123678453",
+                  "serviceBranch" => "ARMY",
+                  "address" => {
+                    "addressLine1" => "2719 Hyperion Ave",
+                    "addressLine2" => "Apt 2",
+                    "city" => "Los Angeles",
+                    "stateCode" => "CA",
+                    "countryCode" => "US",
+                    "zipCode" => "92264",
+                    "zipCodeSuffix" => "0200"
+                  },
+                  "phone" => { "areaCode" => "555", "phoneNumber" => "5551234" },
+                  "email" => "test@test.com",
+                  "insuranceNumber" => "1234567890"
+                },
+                "representative" => { "poaCode" => "067" },
+                "recordConsent" => true,
+                "consentAddressChange" => true,
+                "consentLimits" => %w[DRUG_ABUSE SICKLE_CELL HIV ALCOHOLISM]
+              }
+            }
+          }
+        end
+
+        # Add 'claimant' to expected response to match Lighthouse actual response
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => 'f89cb63d-126e-439a-99ff-c0aca8db6736',
+              'type' => 'power-of-attorney-request',
+              'attributes' => attributes["data"]["attributes"].merge(
+                'claimant' => {
+                  'claimantId' => nil,
+                  'address' => {
+                    'addressLine1' => nil,
+                    'addressLine2' => nil,
+                    'city' => nil,
+                    'stateCode' => nil,
+                    'countryCode' => nil,
+                    'zipCode' => nil,
+                    'zipCodeSuffix' => nil
+                  },
+                  'phone' => { 'areaCode' => nil, 'phoneNumber' => nil },
+                  'email' => nil,
+                  'relationship' => nil
+                }
+              )
+            }
+          }
+        end
+
+        let(:service) { BenefitsClaims::Service.new('1012667145V762142') }
+
+        it 'submits a valid power of attorney request to Lighthouse and returns the expected response' do
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney/201_response',
+            match_requests_on: %i[method uri]
+          ) do
+            response = service.submit_power_of_attorney(
+              attributes,
+              'lh_client_id', 
+              'key_path'
+            )
+
+            body = response.body
+            # ---- STRUCTURE ----
+            expect(body['data']['type']).to eq('power-of-attorney-request')
+            expect(body['data']['id']).to be_present
+
+            # ---- ATTRIBUTES ----
+            expect(body['data']['attributes']).to include(
+              attributes['data']['attributes']
+            )
+            # ---- CLAIMANT (Lighthouse-added) ----
+            expect(body['data']['attributes']['claimant']).to eq(
+              {
+                'claimantId' => nil,
+                'address' => {
+                  'addressLine1' => nil,
+                  'addressLine2' => nil,
+                  'city' => nil,
+                  'stateCode' => nil,
+                  'countryCode' => nil,
+                  'zipCode' => nil,
+                  'zipCodeSuffix' => nil
+                },
+                'phone' => {
+                  'areaCode' => nil,
+                  'phoneNumber' => nil
+                },
+                'email' => nil,
+                'relationship' => nil
+              }
+            )
+          end
+        end
+
+        it 'raises Unauthorized when Lighthouse returns 401' do
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney/401_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect {
+              service.submit_power_of_attorney(
+                attributes,
+                'any_client_id',   # placeholder, not used
+                'any_rsa_key'      # placeholder, not used
+              )
+            }.to raise_error(Common::Exceptions::Unauthorized)
+          end
+        end
+        
+        it 'returns a not_found response when Lighthouse returns 404' do
+          service = BenefitsClaims::Service.new('10126222')
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney/404_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect {
+              service.submit_power_of_attorney(attributes, 'lh_client_id', 'key_path')
+            }.to raise_error(Common::Exceptions::ResourceNotFound)
+          end
+        end 
+        
+        it 'returns a payload_too_large response when Lighthouse returns 413' do
+          oversized_attributes = attributes.deep_dup
+          oversized_attributes['data']['attributes']['veteran']['address']['addressLine1'] = 'x' * 50_000_000
+
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney/413_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect {
+              service.submit_power_of_attorney(
+                oversized_attributes, 
+                'lh_client_id', 
+                'key_path'
+              )
+            }.to raise_error(Common::Exceptions::PayloadTooLarge)
+          end
+        end
+
+        it 'raises UnprocessableEntity when Lighthouse returns 422' do
+          invalid_attributes = attributes.deep_dup
+          invalid_attributes['data']['attributes']['veteran']['serviceNumber'] = nil
+
+          VCR.use_cassette('lighthouse/benefits_claims/submit_power_of_attorney/422_response') do
+            expect {
+              service.submit_power_of_attorney(
+                invalid_attributes,
+                'lh_client_id', 
+                'key_path'
+              )
+            }.to raise_error(Common::Exceptions::UnprocessableEntity)
+          end
+        end
+      end
     end
   end
 end

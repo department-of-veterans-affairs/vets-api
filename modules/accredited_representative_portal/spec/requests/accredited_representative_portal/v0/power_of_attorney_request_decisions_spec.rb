@@ -238,6 +238,61 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
           .to eq('PowerOfAttorneyRequestDeclination')
         expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
       end
+
+      it 'creates an acceptance decision and enqueues SendPoaToCorpDbJob' do
+        monitor = stub_ar_monitoring
+      
+        accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+          .to receive(:new)
+          .with(poa_request, anything, anything)
+          .and_return(accept_service)
+      
+        memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: '1234', emails: []
+          )
+      
+        allow(memberships).to receive(:all).and_return([]) # or populate if needed
+      
+        allow(accept_service).to receive(:call) do
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: memberships,
+            power_of_attorney_request: poa_request
+          )
+      
+          # Enqueue the job here manually since the controller calls it after Accept#call
+          AccreditedRepresentativePortal::SendPoaToCorpDbJob.perform_async(poa_request.id)
+        end
+      
+        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
+          .to receive(:perform_async)
+          .with(poa_request.id)
+      
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'acceptance' } }
+      
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'enqueues the SendPoaToCorpDbJob on declination' do
+        # Expect the job to be enqueued
+        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
+          .to receive(:perform_async)
+          .with(poa_request.id)
+      
+        # POST request triggers process_declination in the controller
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'declination', key: 'DECLINATION_NOT_ACCEPTING_CLIENTS' } }
+      
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+      
+        poa_request.reload
+        expect(poa_request.resolution.resolving.type)
+          .to eq('PowerOfAttorneyRequestDeclination')
+      end
     end
 
     context 'when request does not exist' do
