@@ -1350,9 +1350,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_secure_messaging_no_cache:
-    actor_type: user
-    description: Prevents caching of Secure Messaging data
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1862,10 +1859,6 @@ features:
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
-    enable_in_development: true
-  show_cdp_one_thing_per_page:
-    actor_type: user
-    description: Enables the Payment History MVP features for development
     enable_in_development: true
   vha_show_payment_history:
     actor_type: user
