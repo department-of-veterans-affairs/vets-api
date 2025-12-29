@@ -13,7 +13,8 @@
     - [Why Use Callbacks?](#why-use-callbacks)
     - [Option 1: Default Callback Class](#callbacks-option-1)
     - [Option 2: Custom Callback Class](#callbacks-option-2)
-- [Secure Email Parameters: VANotify::V2::SendEmail](#secure-email-params)
+- [Secure Email Parameters: VANotify::V2::QueueEmailJob](#secure-email-params)
+- ```
 - [Testing](#testing)
 - [Debugging](#debugging)
 - [Contact Us](#contact-us)
