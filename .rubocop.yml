@@ -1,7 +1,7 @@
 inherit_from:
+  - lib/rubocop/.rubocop_custom_cops.yml
   - .rubocop_explicit_enables.yml
   - .rubocop_todo.yml
-  - lib/rubocop/.rubocop_custom_cops.yml
 
 plugins:
   - rubocop-rails
