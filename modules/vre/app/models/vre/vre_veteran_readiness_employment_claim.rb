@@ -7,6 +7,14 @@ module VRE
     include Vets::SharedLogging
 
     FORM = Constants::FORM
+    VBMS_CONFIRMATION = :confirmation_vbms
+    LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
+    CONFIRMATION_EMAIL_TEMPLATES = {
+      VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                  .email.confirmation_vbms.template_id,
+      LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                        .email.confirmation_lighthouse.template_id
+    }.freeze
 
     def initialize(args)
       @sent_to_lighthouse = false
@@ -92,7 +100,7 @@ module VRE
       end
 
       !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-        send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION])
+        send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION], user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
       send_to_lighthouse!(user)
@@ -127,7 +135,7 @@ module VRE
       @sent_to_lighthouse = true
 
       !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-        send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION])
+        send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION], user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
       raise
@@ -140,7 +148,13 @@ module VRE
 
     # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
     # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-    def send_vbms_lighthouse_confirmation_email(service, email_template)
+    def send_vbms_lighthouse_confirmation_email(service, email_template, user)
+      if email.blank?
+        Rails.logger.warn("#{service} confirmation email not sent: parsed form missing email.",
+                          { user_uuid: user&.uuid })
+        return
+      end
+
       VANotify::EmailJob.perform_async(
         email,
         email_template,
@@ -150,23 +164,6 @@ module VRE
         }
       )
       Rails.logger.info("VRE #{service} upload successful. #{service} confirmation email sent.")
-    end
-
-    def send_lighthouse_confirmation_email(user)
-      if user.va_profile_email.blank?
-        Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
-                          { user_uuid: user&.uuid })
-        return
-      end
-
-      ::VANotify::EmailJob.perform_async(
-        user.va_profile_email,
-        Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
-        {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
     end
 
     def process_attachments!
@@ -180,6 +177,10 @@ module VRE
 
     def business_line
       'VRE'
+    end
+
+    def email
+      @email ||= parsed_form['email']
     end
 
     # this failure email is not the ideal way to handle the Notification Emails as
