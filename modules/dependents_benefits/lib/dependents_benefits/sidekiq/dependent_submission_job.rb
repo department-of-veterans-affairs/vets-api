@@ -15,11 +15,6 @@ module DependentsBenefits::Sidekiq
   # - Each child gets separate job that checks sibling status before processing
   # - Uses pessimistic locking to prevent race conditions between siblings
   # - Early exits if any sibling has already failed the claim group
-  #
-  # SUBCLASS REQUIREMENTS:
-  # - MUST implement submit_to_service for BGS/Lighthouse/Fax submission
-  # - MAY override find_or_create_form_submission for service-specific FormSubmission types
-  # - MAY override permanent_failure? for service-specific error classification
   class DependentSubmissionJob
     include ::Sidekiq::Job
 
@@ -67,10 +62,7 @@ module DependentsBenefits::Sidekiq
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
 
-      find_or_create_form_submission
-      create_form_submission_attempt
-
-      @service_response = submit_to_service
+      @service_response = submit_claims_to_service
 
       raise DependentSubmissionError, @service_response&.error unless @service_response&.success?
 
@@ -83,35 +75,61 @@ module DependentsBenefits::Sidekiq
 
     attr_reader :claim_id, :proc_id
 
-    ##
-    # Service-specific submission logic - BGS vs Lighthouse vs Fax
-    # @return [ServiceResponse] Must respond to success? and error methods
-    def submit_to_service
-      raise NotImplementedError, 'Subclasses must implement submit_to_service'
+    # Submit claims to the appropriate service
+    # @abstract Subclasses must implement this method
+    # @return [void]
+    def submit_claims_to_service
+      raise NotImplementedError, 'Subclasses must implement submit_claims_to_service method'
+    end
+
+    # Submit a 686c form to the service
+    # @abstract Subclasses must implement this method
+    # @param claim [SavedClaim] The 686c claim to submit
+    # @return [void]
+    def submit_686c_form(claim)
+      raise NotImplementedError, 'Subclasses must implement submit_686c_form method'
+    end
+
+    # Submit a 674 form to the service
+    # @abstract Subclasses must implement this method
+    # @param claim [SavedClaim] The 674 claim to submit
+    # @return [void]
+    def submit_674_form(claim)
+      raise NotImplementedError, 'Subclasses must implement submit_674_form method'
+    end
+
+    # Check if a submission has already succeeded
+    # @abstract Subclasses must implement this method
+    # @param submission [FormSubmission] The form submission record to check
+    # @return [Boolean] true if submission previously succeeded
+    def submission_previously_succeeded?(submission)
+      raise NotImplementedError, 'Subclasses must implement submission_previously_succeeded?'
     end
 
     # Use .find_or_create to generate/return memoized service-specific form submission record
     # @return [LighthouseFormSubmission, BGSFormSubmission] instance
-    def find_or_create_form_submission
+    def find_or_create_form_submission(claim)
       raise NotImplementedError, 'Subclasses must implement find_or_create_form_submission'
     end
 
     # Generate a new form submission attempt record
     # Each retry gets its own attempt record for debugging
     # @return [LighthouseFormSubmissionAttempt, BGSFormSubmissionAttempt] instance
-    def create_form_submission_attempt
+    def create_form_submission_attempt(submission)
       raise NotImplementedError, 'Subclasses must implement create_form_submission_attempt'
     end
 
-    # Service-specific success logic
-    # Update submission attempt and form submission records
-    def mark_submission_succeeded
-      raise NotImplementedError, 'Subclasses must implement mark_submission_succeeded'
+    # Mark a submission attempt as succeeded
+    # @abstract Subclasses must implement this method
+    # @param submission_attempt [FormSubmissionAttempt] The attempt to mark as succeeded
+    # @return [void]
+    def mark_submission_attempt_succeeded(submission_attempt)
+      raise NotImplementedError, 'Subclasses must implement mark_submission_attempt_succeeded'
     end
 
     # Service-specific failure logic
     # Update submission attempt record only with failure and error details
-    def mark_submission_attempt_failed(exception)
+    def mark_submission_attempt_failed(submission_attempt, exception)
       raise NotImplementedError, 'Subclasses must implement mark_submission_attempt_failed'
     end
 
@@ -121,41 +139,48 @@ module DependentsBenefits::Sidekiq
       raise NotImplementedError, 'Subclasses must implement mark_submission_failed'
     end
 
+    # Returns the child claims for this submission
+    # @return [Array<SavedClaim>] Array of child claim records
+    def child_claims
+      @child_claims ||= claim_processor.collect_child_claims
+    end
+
+    # Submit a single claim to the service
+    # @param claim [SavedClaim] The claim to submit
+    # @return [DependentsBenefits::ServiceResponse] Response indicating success or failure
+    def submit_claim_to_service(claim)
+      submission = find_or_create_form_submission(claim)
+      return DependentsBenefits::ServiceResponse.new(status: true) if submission_previously_succeeded?(submission)
+
+      submission_attempt = create_form_submission_attempt(submission)
+      claim.add_veteran_info(user_data)
+      if claim.form_id == DependentsBenefits::ADD_REMOVE_DEPENDENT
+        raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
+
+        submit_686c_form(claim)
+      elsif claim.form_id == DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
+        raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
+
+        submit_674_form(claim)
+      end
+      mark_submission_attempt_succeeded(submission_attempt)
+      DependentsBenefits::ServiceResponse.new(status: true)
+    rescue => e
+      monitor.track_submission_error("Submission attempt failure in #{self.class}", 'claim.error',
+                                     error: e, parent_claim_id:, saved_claim_id: claim.id)
+      mark_submission_attempt_failed(submission_attempt, e)
+      DependentsBenefits::ServiceResponse.new(status: false, error: e.message)
+    end
+
     # Handles successful job completion with coordinated status updates
-    #
-    # Uses pessimistic locking to atomically update submission records and claim group
-    # statuses. Checks if all sibling submissions succeeded and updates parent group
-    # status accordingly. Sends success notification if all child groups succeeded.
-    # Atomic updates prevent partial state corruption.
-    #
     # @return [void]
     def handle_job_success
-      ActiveRecord::Base.transaction do
-        parent_group.with_lock do
-          mark_submission_succeeded # update attempt and submission records (ie FormSubmission)
-
-          # update current child claim group if all its submissions succeeded
-          mark_current_group_succeeded if all_current_group_submissions_succeeded?
-
-          # if all of the child claim groups succeeded, and the parent claim group hasn't failed
-          if all_child_groups_succeeded? && !parent_group_completed?
-            # update parent claim group status
-            mark_parent_group_succeeded
-            # notify user of overall success/service received submission
-            notification_email.send_received_notification
-          end
-        end
-      end
+      monitor.track_submission_info("Successfully submitted #{self.class} for parent_claim_id #{parent_claim_id}",
+                                    'success', parent_claim_id:)
+      claim_processor.handle_successful_submission
     rescue => e
       monitor.track_submission_error('Error handling job success', 'success_failure', error: e, claim_id:,
                                                                                       parent_claim_id:)
-    end
-
-    # Checks if all child claim groups have succeeded
-    #
-    # @return [Boolean] true if all child claim groups have succeeded status
-    def all_child_groups_succeeded?
-      SavedClaimGroup.child_claims_for(parent_claim_id).all?(&:succeeded?)
     end
 
     # Handles job failure by determining if error is permanent or transient
@@ -171,7 +196,7 @@ module DependentsBenefits::Sidekiq
     # @raise [DependentSubmissionError] for transient failures to trigger retries
     def handle_job_failure(error)
       monitor.track_submission_error("Error submitting #{self.class}", 'error', error:, claim_id:, parent_claim_id:)
-      mark_submission_attempt_failed(error)
+
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
         handle_permanent_failure(claim_id, error)
@@ -193,21 +218,11 @@ module DependentsBenefits::Sidekiq
     # @param exception [Exception] The error that caused the permanent failure
     # @return [void]
     def handle_permanent_failure(claim_id, exception)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception, claim_id:,
-                                                                                          parent_claim_id:)
       # Reset claim_id class variable for if this was called from sidekiq_retries_exhausted
       @claim_id = claim_id
-      ActiveRecord::Base.transaction do
-        parent_group.with_lock do
-          mark_submission_failed(exception)
-          mark_current_group_failed
-
-          unless parent_group_completed?
-            mark_parent_group_failed
-            send_backup_job
-          end
-        end
-      end
+      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception, claim_id:,
+                                                                                          parent_claim_id:)
+      claim_processor.handle_permanent_failure(exception)
     rescue => e
       begin
         notification_email.send_error_notification
@@ -228,13 +243,6 @@ module DependentsBenefits::Sidekiq
       parent_group&.failed?
     end
 
-    # Checks if parent claim group already completed (failed or succeeded)
-    #
-    # @return [Boolean] true if parent group has completed (success or failure status)
-    def parent_group_completed?
-      parent_group&.completed?
-    end
-
     # Determines if an error represents a permanent failure
     #
     # Override in subclasses for service-specific permanent failures
@@ -247,27 +255,6 @@ module DependentsBenefits::Sidekiq
       return false if error.nil?
 
       false # Base: assume all errors are transient
-    end
-
-    # Checks if all submissions for the current claim group succeeded
-    #
-    # @return [Boolean] true if all submission attempts for current claim succeeded
-    def all_current_group_submissions_succeeded?
-      saved_claim.submissions_succeeded?
-    end
-
-    # Marks the current claim group as succeeded
-    #
-    # @return [Boolean] result of the update operation
-    def mark_current_group_succeeded
-      current_group&.update!(status: SavedClaimGroup::STATUSES[:SUCCESS])
-    end
-
-    # Marks the current claim group as failed
-    #
-    # @return [Boolean] result of the update operation
-    def mark_current_group_failed
-      current_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
     # Marks the parent claim group as succeeded
@@ -289,21 +276,6 @@ module DependentsBenefits::Sidekiq
     # @return [Boolean] result of the update operation
     def mark_parent_group_processing
       parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
-    end
-
-    # Enqueues a backup submission job for the parent claim
-    #
-    # @return [String] Sidekiq job ID
-    def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
-    end
-
-    # Returns the claim group for the current claim
-    #
-    # @return [SavedClaimGroup] The claim group record
-    # @raise [ActiveRecord::RecordNotFound] if claim group not found
-    def current_group
-      SavedClaimGroup.by_saved_claim_id(claim_id).first!
     end
 
     # Returns the parent claim group
@@ -333,7 +305,8 @@ module DependentsBenefits::Sidekiq
     #
     # @return [Integer] The parent claim's ID
     def parent_claim_id
-      @parent_claim_id ||= current_group&.parent_claim_id
+      # TODO: Rename claim_id to parent_claim_id throughout for clarity
+      @parent_claim_id ||= @claim_id
     end
 
     # Returns the parsed user data from the parent claim group
@@ -347,7 +320,7 @@ module DependentsBenefits::Sidekiq
     #
     # @return [DependentsBenefits::NotificationEmail] Notification email instance
     def notification_email
-      @notification_email ||= DependentsBenefits::NotificationEmail.new(claim_id)
+      @notification_email ||= DependentsBenefits::NotificationEmail.new(parent_claim_id, generate_user_struct)
     end
 
     # Returns the memoized form submission record
@@ -386,6 +359,12 @@ module DependentsBenefits::Sidekiq
         uuid: info['uuid'],
         common_name: info['common_name']
       )
+    end
+
+    # Returns a memoized instance of the claim processor
+    # @return [DependentsBenefits::ClaimProcessor] Processor for handling claim operations
+    def claim_processor
+      @claim_processor ||= DependentsBenefits::ClaimProcessor.new(parent_claim_id)
     end
   end
 end

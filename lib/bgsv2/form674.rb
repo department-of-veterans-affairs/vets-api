@@ -16,19 +16,20 @@ module BGSV2
   class Form674
     include Vets::SharedLogging
 
-    attr_reader :user, :saved_claim, :proc_id
+    attr_reader :user, :saved_claim, :proc_id, :claim_type_end_product
 
-    def initialize(user, saved_claim, proc_id = nil)
+    def initialize(user, saved_claim, options = {})
       @user = user
       @saved_claim = saved_claim
-      @proc_id = proc_id || vnp_proc_id(saved_claim)
+      @proc_id = options[:proc_id] || vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready'
+      @claim_type_end_product = options[:claim_type_end_product]
     end
 
     def submit(payload)
-      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN', claim_type_end_product:).create
 
       process_relationships(proc_id, veteran, payload)
 

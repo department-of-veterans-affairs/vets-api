@@ -21,6 +21,9 @@ module VaNotify
 
     attr_reader :notify_client, :callback_options, :template_id
 
+    # API keys for email/SMS often differ from keys for push notifications.
+    # Initialize separate service instances with the appropriate API key for each channel type.
+    # Each instance only supports the channels its API key is authorized for.
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @api_key = api_key
@@ -30,8 +33,11 @@ module VaNotify
       handle_error(e)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def send_email(args)
-      Datadog::Tracing.trace('api.vanotify.service.send_email') do
+      Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
+        span.set_tag('template_id', args[:template_id])
+
         @template_id = args[:template_id]
         if Flipper.enabled?(:va_notify_notification_creation)
           response = with_monitoring do
@@ -52,6 +58,7 @@ module VaNotify
         handle_error(e)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def send_sms(args)
       @template_id = args[:template_id]
@@ -150,13 +157,17 @@ module VaNotify
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Lint/NonLocalExitFromIterator
     def create_notification(response)
-      Datadog::Tracing.trace('api.vanotify.service.create_notification') do
+      Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
         if response.nil?
           Rails.logger.error('VANotify - no response')
           return
         end
 
+        span.set_tag('notification_id', response.id)
+
+        service_id = set_service_id(response)
         # when the class is used directly we can pass symbols as keys
         # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
         notification = VANotify::Notification.new(
@@ -165,7 +176,7 @@ module VaNotify
           callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
           callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
           template_id:,
-          service_api_key_path: retrieve_service_api_key_path
+          service_id:
         )
 
         if notification.save
@@ -179,6 +190,7 @@ module VaNotify
       end
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Lint/NonLocalExitFromIterator
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
@@ -219,26 +231,11 @@ module VaNotify
       end
     end
 
-    def retrieve_service_api_key_path
-      if Flipper.enabled?(:va_notify_request_level_callbacks)
-        service_config = Settings.vanotify.services.find do |_service, options|
-          # multiple services may be using same options.api_key
-          api_key_secret_token = extracted_token(options.api_key)
+    def set_service_id(response)
+      return nil unless Flipper.enabled?(:va_notify_request_level_callbacks)
 
-          api_key_secret_token == @notify_client.secret_token
-        end
-
-        if service_config.blank?
-          Rails.logger.error("api key path not found for template #{@template_id}")
-          nil
-        else
-          "Settings.vanotify.services.#{service_config[0]}.api_key"
-        end
-      end
-    end
-
-    def extracted_token(computed_api_key)
-      computed_api_key[(computed_api_key.length - UUID_LENGTH)..computed_api_key.length]
+      parsed_template_uri = response.template['uri']&.split('/')
+      parsed_template_uri[4]
     end
   end
 end
