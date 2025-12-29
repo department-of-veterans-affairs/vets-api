@@ -166,7 +166,7 @@ module TravelPay
         case expense_type.to_sym
         when :airtravel
           TravelPay::FlightExpense
-        when :common_carrier
+        when :commoncarrier
           TravelPay::CommonCarrierExpense
         when :lodging
           TravelPay::LodgingExpense
