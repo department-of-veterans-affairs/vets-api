@@ -2,9 +2,7 @@
 
 module NotificationsClientPatch
   def validate_uuids!
-    unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
-      return super
-    end
+    return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
 
     raise ArgumentError, "Invalid service_id format: #{@service_id}" unless valid_uuid?(@service_id)
 
@@ -36,6 +34,6 @@ end
 # prevents a race condition when booting up Rails
 # Speaker.prepend inserts a method signature for validate_uuids! which patches the original version
 Rails.configuration.to_prepare do
-  require "notifications/client"
+  require 'notifications/client'
   Notifications::Client::Speaker.prepend(NotificationsClientPatch)
 end
