@@ -135,7 +135,7 @@ PATH
       sidekiq
     vass (0.0.1)
     vba_documents (1.0.0)
-      aws-sdk-s3 (~> 1)
+      aws-sdk-s3 (>= 1.208.0, < 2)
       sidekiq
     veteran (0.0.1)
     vre (0.1.0)
@@ -296,7 +296,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.19.0)
       msgpack (~> 1.2)
-    brakeman (7.1.2)
+    brakeman (7.1.1)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -386,13 +386,13 @@ GEM
       logger
       msgpack
     datadog-ruby_core_source (3.4.1)
-    date (3.5.1)
-    date (3.5.1-java)
+    date (3.5.0)
+    date (3.5.0-java)
     date_time_precision (0.8.1)
     date_validator (0.12.0)
       activemodel (>= 3)
       activesupport (>= 3)
-    debug (1.11.1)
+    debug (1.11.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
     declarative (0.0.20)
@@ -447,8 +447,8 @@ GEM
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erb (6.0.1)
-    erb (6.0.1-java)
+    erb (6.0.0)
+    erb (6.0.0-java)
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
@@ -640,9 +640,9 @@ GEM
     image_processing (1.14.0)
       mini_magick (>= 4.9.5, < 6)
       ruby-vips (>= 2.0.17, < 3)
-    io-console (0.8.2)
-    io-console (0.8.2-java)
-    irb (1.16.0)
+    io-console (0.8.1)
+    io-console (0.8.1-java)
+    irb (1.15.3)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
@@ -870,10 +870,10 @@ GEM
       byebug (~> 12.0)
       pry (>= 0.13, < 0.16)
     pstore (0.2.0)
-    psych (5.3.1)
+    psych (5.2.6)
       date
       stringio
-    psych (5.3.1-java)
+    psych (5.2.6-java)
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (7.0.0)
@@ -951,7 +951,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.9.0)
-    rdoc (7.0.3)
+    rdoc (6.15.1)
       erb
       psych (>= 4.0.0)
       tsort
@@ -1150,7 +1150,7 @@ GEM
     ssrf_filter (1.2.0)
     staccato (0.5.3)
     statsd-instrument (3.9.10)
-    stringio (3.2.0)
+    stringio (3.1.8)
     strong_migrations (2.5.0)
       activerecord (>= 7.1)
     strscan (3.1.5)
@@ -1263,7 +1263,7 @@ DEPENDENCIES
   awesome_print
   aws-msk-iam-sasl-signer (~> 0.1.1)
   aws-sdk-kms
-  aws-sdk-s3 (~> 1)
+  aws-sdk-s3 (>= 1.208.0, < 2)
   aws-sdk-sns (~> 1)
   banners!
   betamocks!
