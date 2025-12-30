@@ -80,6 +80,8 @@ module BenefitsClaims
 
         # Clear all registered providers (useful for testing)
         def clear!
+          raise 'ProviderRegistry.clear! cannot be called in production' if Rails.env.production?
+
           registry.clear
         end
       end
