@@ -102,7 +102,7 @@ module VRE
       !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
         send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION], user)
     rescue => e
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, message: e.message })
       send_to_lighthouse!(user)
     end
 
