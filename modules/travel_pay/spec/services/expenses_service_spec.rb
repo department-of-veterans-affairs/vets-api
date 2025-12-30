@@ -655,7 +655,7 @@ describe TravelPay::ExpensesService do
     context 'common carrier expense specific fields' do
       it 'converts common carrier-specific fields correctly' do
         params = {
-          'expense_type' => 'common_carrier',
+          'expense_type' => 'commoncarrier',
           'purchase_date' => '2024-11-01',
           'description' => 'Bus fare',
           'cost_requested' => 15.00,
@@ -667,7 +667,7 @@ describe TravelPay::ExpensesService do
         result = build_request_body(params)
 
         expect(result).to eq({
-                               'expenseType' => 'common_carrier',
+                               'expenseType' => 'commoncarrier',
                                'dateIncurred' => '2024-11-01',
                                'description' => 'Bus fare',
                                'costRequested' => 15.00,
