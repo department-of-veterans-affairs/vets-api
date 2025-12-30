@@ -1,0 +1,146 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/claims/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsInN1YiI6IjBvYTE4cDd0YzlxQmlWZzZ1MnA4IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzZGc3Z3VpczJUWURsRmUycDcvdjEvdG9rZW4iLCJpYXQiOjE3NjY2MDQyMzMsImV4cCI6MTc2NjYwNDUzM30.EEcDFdSauGDHbFZO9iCSuMT52P_PbCBvbONTCD9QraOxrkN6HoZEMOkRZNBHX0THJeCUcHvWZHPXHYT10aemW3oKHQQn-1rJWM3nGNCCPGtgILe1r9AxJKVVPQvD5hD07NagW79QkkkzV2BZArZPzT0ZYVbt4f2F53HS2NxPzI_KkZVdKEiE4tKLIooWpN-qllmxD1EfH8y3wTyysSuRUFvkcitP2JsBGgdCRFIiyDcWIauOjpCOXEYlDjJcWDM_fcP0i5LlLRnnU4Tct3EKW5CTxlt7bBPxma2XgtX_Bo-UHbifciNsauuFJtqJ7koxVBBqdYpTgLZj6aL-Qm6-ew&scope=system%2Fclaim.read+system%2Fclaim.write+system%2F526-pdf.override+system%2F526.override
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 24 Dec 2025 19:23:54 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Reset:
+      - '6'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"45e-NsNfi3ZED2kRPfXvfQ9VGWHW7vA:dtagent10323250822043923XVuO"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="1463070067"
+      X-Envoy-Upstream-Service-Time:
+      - '343'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - f032d926-2145-44fd-b342-dc321835505b#2688168
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJSVjRycWxkdUxUVjUyVnBJa1pqRFk0YmpiVXNNamdtVHBtemQzWFUyNnhVIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkIwbWk4R2d6d2x0N3RMS1BLd3RyN05zczU5VnRTbzBGMnFRUm8ySlpHd3ciLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNkZzdndWlzMlRZRGxGZTJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2NsYWltcyIsImlhdCI6MTc2NjYwNDIzNCwiZXhwIjoxNzY2NjA0NTM0LCJjaWQiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsInNjcCI6WyJzeXN0ZW0vNTI2Lm92ZXJyaWRlIiwic3lzdGVtLzUyNi1wZGYub3ZlcnJpZGUiLCJzeXN0ZW0vY2xhaW0ud3JpdGUiLCJzeXN0ZW0vY2xhaW0ucmVhZCJdLCJzdWIiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsImxhYmVsIjoiYWRob2NBcnRodXIifQ.B6UNTlLvFzOrQQVPviUM5jvMcwJaC5JiYw-zHi461LYnRlYh9duFvBPeJDkFUwssCQH8D6D0GyTYgPLKd87fZwHXVQ_jKLAkQBD3_vCUKO_aPp_GRK8Sri6o4qhEBOeJr18VJDBYtdVbiW6pn1YYi8oM5smT1I6Y4va03nw2xEjIVSxUcyUirjm2s07MJUdHpVP3PlQGQBtudWtGYaGQGV4451aL_nkwWrrhpmSqjNqGk8NyvfiSLVi8rbkzufxCiaNmfTZC5nQRdTLI1PYRzI8MLAw6t2Kji8TYCDTIRWbocsyR3tcDr2DLZwqkc981wQoC5aWaw3135nxOOs08Jg","token_type":"Bearer","scope":"system/526.override
+        system/526-pdf.override system/claim.write system/claim.read","expires_in":300,"state":null}'
+  recorded_at: Wed, 24 Dec 2025 19:23:54 GMT
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012667145V762142/power-of-attorney-request"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719
+        Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Wed, 24 Dec 2025 19:23:55 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '834'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Reset:
+      - '5'
+      Etag:
+      - W/"869d7146fbc4e350497c328302b2265f"
+      Location:
+      - "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012667145V762142/power-of-attorney/c5ab49ca-0bd3-4529-8c48-5e277083f9eb"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 63a671e5bc92eeeaa5cd66407343cfec30d6c17a
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - c956a229-abd9-406b-afb1-3963b811ff87
+      X-Runtime:
+      - '0.149038'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 3e0564e5-949d-4674-9b1a-888378211583#2696945
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"c5ab49ca-0bd3-4529-8c48-5e277083f9eb","type":"power-of-attorney-request","attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719
+        Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"claimant":{"claimantId":null,"address":{"addressLine1":null,"addressLine2":null,"city":null,"stateCode":null,"countryCode":null,"zipCode":null,"zipCodeSuffix":null},"phone":{"areaCode":null,"phoneNumber":null},"email":null,"relationship":null},"representative":{"poaCode":"067"},"recordConsent":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"],"consentAddressChange":true}}}'
+  recorded_at: Wed, 24 Dec 2025 19:23:55 GMT
+recorded_with: VCR 6.3.1
