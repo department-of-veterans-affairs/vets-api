@@ -191,7 +191,9 @@ module DecisionReviews
         # as we should only be collecting dates for pre-2005 treatment
         unique_evidence_dates = unique_evidence_dates.first(4)
 
-        merged_attributes['evidenceDates'] = unique_evidence_dates
+        # Only set evidenceDates if we have dates to include
+        # Lighthouse accepts missing evidenceDates key but rejects empty array
+        merged_attributes['evidenceDates'] = unique_evidence_dates unless unique_evidence_dates.empty?
         merged_entry
       end
     end
