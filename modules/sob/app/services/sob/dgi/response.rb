@@ -40,7 +40,7 @@ module SOB
       def normalized_attributes
         @claimant['date_of_birth'] = parse_date(@claimant['date_of_birth'])
         @claimant['regional_processing_office'] = RPO_MAP[@claimant['station']]
-        benefit = @claimant['benefits'].find(&method(:ch33?))
+        benefit = @claimant['benefits'].find { |b| b['benefit_type'] == Service::BENEFIT_TYPE }
         # Guard against case where we have 200 response but empty benefits list
         raise Ch33DataMissing unless benefit
 
@@ -53,10 +53,6 @@ module SOB
 
       def parse_date(date_string)
         date_string&.to_date&.iso8601
-      end
-
-      def ch33?(benefit)
-        benefit['benefit_type'] == Service::BENEFIT_TYPE
       end
 
       def parse_eligibility(eligibilities)
@@ -89,13 +85,9 @@ module SOB
         end
       end
 
-      def parse_toe(transfers)
-        transferred_days = transfers&.inject(0) do |total, transfer|
-          next total unless ch33?(transfer)
-
-          total + (transfer['transferred_days'] || 0)
-        end
-
+      def parse_toe(toes)
+        # Default to zero if no TOE present
+        transferred_days = Array(toes).sum { |toe| toe['transferred_days'].to_i }
         @claimant['entitlement_transferred_out'] = parse_months(transferred_days)
       end
 
