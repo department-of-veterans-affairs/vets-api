@@ -74,10 +74,20 @@ module BenefitsClaims
         lighthouse_rsa_key_path,
         options
       )
+    rescue Faraday::TimeoutError => e
+      handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
-      raise BenefitsClaims::ServiceException.new(
-        e.response.merge(message: 'Lighthouse Error')
-        )
+      handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
+
+      case e.response[:status]
+      when 401 then raise Common::Exceptions::Unauthorized, e.response
+      when 404 then raise Common::Exceptions::ResourceNotFound, e.response
+      when 413 then raise Common::Exceptions::PayloadTooLarge, e.response
+      when 422 then raise Common::Exceptions::UnprocessableEntity, e.response
+      else
+        raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+      end
     end
 
     def get_2122_submission(

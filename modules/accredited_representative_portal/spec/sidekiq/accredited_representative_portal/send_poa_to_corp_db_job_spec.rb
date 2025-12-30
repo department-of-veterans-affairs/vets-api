@@ -24,7 +24,13 @@ module AccreditedRepresentativePortal
         it 'logs an error for RecordNotFound and does not raise' do
           allow(Rails.logger).to receive(:error)
           described_class.new.perform('nonexistent_id')
-          expect(Rails.logger).to have_received(:error).with(/POA request not found/)
+          expect(Rails.logger).to have_received(:error).with(
+            'POA request not found',
+            hash_including(
+              poa_request_id: 'nonexistent_id',
+              error: /Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest/
+            )
+          )
         end
       end
 
