@@ -18,12 +18,6 @@ module Logging
     #   Logging::DataScrubber.scrub(data)
     #   # => ["Call me at [REDACTED]", { credit_card: "[REDACTED]" }]
     #
-    # @example Flipper feature toggle
-    #   # If the :logging_data_scrubber flipper is disabled, data is returned unchanged
-    #   Flipper.disable(:logging_data_scrubber)
-    #   Logging::DataScrubber.scrub({ ssn: "123-45-6789" })
-    #   # => { ssn: "123-45-6789" } (unchanged)
-    #
     module DataScrubber
       # uuid matcher
       UUID_REGEX = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i
@@ -70,6 +64,21 @@ module Logging
         BIRTH_DATE: %r{\b(?:0?[1-9]|1[0-2])[/\-.](?:0?[1-9]|[12][0-9]|3[01])[/\-.](?:19|20)\d{2}\b}
       }.freeze
 
+      # Order matters: most specific patterns first to avoid conflicts
+      PATTERN_ORDER = %i[
+        ICN
+        SSN
+        EMAIL
+        PHONE
+        CREDIT_CARD
+        BIRTH_DATE
+        VA_FILE_NUMBER
+        EDIPI
+        ROUTING_NUMBER
+        PARTICIPANT_ID
+        ZIP_CODE
+      ].freeze
+
       # Patterns that could match UUID segments and need exclusion
       UUID_SENSITIVE_PATTERNS = %i[SSN EDIPI ROUTING_NUMBER PARTICIPANT_ID PHONE CREDIT_CARD ZIP_CODE].freeze
 
@@ -77,15 +86,26 @@ module Logging
       REDACTION = '[REDACTED]'
 
       # protected keys not to be scrubbed
-      SAFE_KEYS = %w[confirmation_number user_account_uuid claim_id form_id tags id response_code
-                     in_progress_form_id submission_id completely_removed removed_keys].freeze
+      SAFE_KEYS = %w[
+        claim_id
+        completely_removed
+        confirmation_number
+        form_id
+        id
+        in_progress_form_id
+        removed_keys
+        response_code
+        saved_claim_id
+        submission_id
+        tags
+        user_account_uuid
+      ].freeze
 
       module_function
 
       # Recursively scrubs PII from any data structure (Hash, Array, String, or other types).
       #
-      # This method serves as the main entry point for data scrubbing. It respects the
-      # :logging_data_scrubber Flipper feature flag - if disabled, data is returned unchanged.
+      # This method serves as the main entry point for data scrubbing.
       #
       # @param data [Object] The data to scrub. Can be a Hash, Array, String, or any other type.
       # @return [Object] A new data structure with PII replaced by '[REDACTED]'.
@@ -101,10 +121,9 @@ module Logging
       #   scrub({ name: "John", contact: ["john@email.com", "555-1234"] })
       #   # => { name: "John", contact: ["[REDACTED]", "[REDACTED]"] }
       #
-      def scrub(data)
-        return data unless Flipper.enabled?(:logging_data_scrubber)
-
-        scrub_value(data)
+      def scrub(data, safe_keys: [])
+        keys_to_skip = SAFE_KEYS + safe_keys.map(&:to_s)
+        scrub_value(data, keys_to_skip)
       rescue => e
         Rails.logger.error("DataScrubber failed: #{e.class} - #{e.message}")
         data # Return original data on failure to avoid blocking logging
@@ -115,18 +134,18 @@ module Logging
       # @param value [Object] The value to scrub
       # @return [Object] The scrubbed value
       # @api private
-      def scrub_value(value)
+      def scrub_value(value, keys_to_skip)
         case value
         when String
           scrub_string(value)
         when Hash
-          # Recursively scrub hash values while preserving keys, except for SAFE_KEYS
+          # Recursively scrub hash values while preserving keys, except for keys_to_skip
           value.each_with_object({}) do |(k, v), result|
-            result[k] = SAFE_KEYS.include?(k.to_s) ? v : scrub_value(v)
+            result[k] = keys_to_skip.include?(k.to_s) ? v : scrub_value(v, keys_to_skip)
           end
         when Array
           # Recursively scrub each array element
-          value.map { |item| scrub_value(item) }
+          value.map { |item| scrub_value(item, keys_to_skip) }
         when NilClass, TrueClass, FalseClass
           # Preserve nil and boolean values as-is
           value
@@ -155,12 +174,8 @@ module Logging
         return message if message.blank?
 
         # Build combined regex pattern from all REGEX patterns
-        # Order matters: most specific patterns first to avoid conflicts
-        pattern_order = %i[ICN SSN EMAIL PHONE CREDIT_CARD BIRTH_DATE VA_FILE_NUMBER EDIPI ROUTING_NUMBER
-                           PARTICIPANT_ID ZIP_CODE]
-
         combined_regex = Regexp.new(
-          pattern_order.map { |key| REGEX[key] }.join('|'),
+          PATTERN_ORDER.map { |key| REGEX[key] }.join('|'),
           Regexp::EXTENDED
         )
 

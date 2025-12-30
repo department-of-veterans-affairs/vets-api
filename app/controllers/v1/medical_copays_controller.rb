@@ -12,6 +12,12 @@ module V1
       )
     end
 
+    def show
+      copay_detail = medical_copay_service.get_detail(id: params[:id])
+
+      render json: Lighthouse::HCC::CopayDetailSerializer.new(copay_detail)
+    end
+
     private
 
     def medical_copay_service

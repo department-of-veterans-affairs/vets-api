@@ -66,5 +66,46 @@ RSpec.describe Form1095B, type: :model do
         expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
+
+    context 'when user has a middle name' do
+      it 'presents name correctly' do
+        expect(subject.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Michael Smith'
+        )
+        expect(subject.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John M Smith'
+        )
+      end
+    end
+
+    context 'when user has no middle name' do
+      it 'presents name correctly' do
+        form_data = JSON.parse(subject.form_data)
+        form_data['middle_name'] = nil
+        subject.form_data = form_data.to_json
+
+        expect(subject.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(subject.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
+
+    context 'when user has an empty middle name' do
+      it 'presents name correctly' do
+        form_data = JSON.parse(subject.form_data)
+        form_data['middle_name'] = ''
+        subject.form_data = form_data.to_json
+
+        expect(subject.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(subject.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
   end
 end

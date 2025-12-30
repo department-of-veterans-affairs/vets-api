@@ -2,12 +2,14 @@
 
 require 'bgs/form686c'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class SubmitForm686cJob < Job
     class Invalid686cClaim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
+    include Vets::SharedLogging
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 

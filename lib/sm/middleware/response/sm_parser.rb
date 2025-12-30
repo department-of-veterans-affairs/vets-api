@@ -15,7 +15,7 @@ module SM
         def on_complete(env)
           return unless env.response_headers['content-type']&.match?(/\bjson/)
 
-          env[:body] = parse(env.body) if env.body.present?
+          env[:body] = parse(env.body) if env.body.present? || env.body == []
         end
 
         private
@@ -56,7 +56,7 @@ module SM
         end
 
         def parsed_threads
-          @parsed_json.is_a?(Array) && @parsed_json.each { |t| return false unless t.key?(:thread_id) }
+          @parsed_json.is_a?(Array) && @parsed_json.all? { |t| t.key?(:thread_id) }
         end
 
         def preferences

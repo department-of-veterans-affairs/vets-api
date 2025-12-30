@@ -4,15 +4,22 @@ require_relative 'exceptions/bgs_errors'
 require 'common/client/concerns/monitoring'
 require 'logging/helper/data_scrubber'
 require 'logging/helper/parameter_filter'
+require 'vets/shared_logging'
 
 module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
 
     include BGSV2::Exceptions::BGSErrors
+    include Vets::SharedLogging
     include Common::Client::Concerns::Monitoring
     include Logging::Helper::DataScrubber
     include Logging::Helper::ParameterFilter
+
+    CLEARED_EPS_STATUS = 'CLR'
+    CANCELED_EPS_STATUS = 'CAN'
+    # Closed End Product Statuses = Cleared, Canceled
+    CLOSED_EPS_STATUSES = [CLEARED_EPS_STATUS, CANCELED_EPS_STATUS].freeze
 
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
@@ -128,6 +135,17 @@ module BGSV2
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(log_and_return(relationship_params.merge(bgs_auth)))
       end
+    end
+
+    # see modules/dependents_benefits/documentation/bgs/ep_code.md
+    def find_active_benefit_claim_type_increments
+      claims = []
+      with_multiple_attempts_enabled do
+        claims = service.benefit_claims.find_claims_details_by_participant_id(participant_id: @user.participant_id)
+      end
+      claims[:bnft_claim_detail].filter_map do |claim|
+        claim[:cp_claim_end_prdct_type_cd] if CLOSED_EPS_STATUSES.exclude?(claim[:status_type_cd])
+      end.uniq
     end
 
     def find_benefit_claim_type_increment(claim_type_cd)

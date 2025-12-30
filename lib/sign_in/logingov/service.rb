@@ -230,8 +230,7 @@ module SignIn
                                                  last_name: attributes[:last_name],
                                                  ssn: attributes[:ssn],
                                                  birth_date: attributes[:birth_date],
-                                                 email: attributes[:csp_email],
-                                                 address: attributes[:address]).perform
+                                                 email: attributes[:csp_email]).perform
       end
     end
   end

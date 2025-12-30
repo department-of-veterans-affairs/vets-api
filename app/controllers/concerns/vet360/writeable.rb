@@ -47,7 +47,10 @@ module Vet360
         params[:validation_key] ||= params[:override_validation_key]
 
         # Ensures the address_pou is valid
-        params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
+        if params[:address_pou] == 'RESIDENCE/CHOICE'
+          params[:address_pou] = 'RESIDENCE'
+          Rails.logger.info('RESIDENCE/CHOICE POU conversion detected')
+        end
       else
         model = "VAProfile::Models::#{type.capitalize}"
       end

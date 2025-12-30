@@ -182,7 +182,7 @@ describe CheckIn::TravelClaimSubmissionJob, type: :worker do
     allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
-                                            station_number:, facility_type: nil)
+                                            station_number:, facility_type: nil, save_token: nil)
 
     allow(StatsD).to receive(:increment)
   end

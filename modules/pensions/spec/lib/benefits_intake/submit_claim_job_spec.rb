@@ -142,7 +142,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
         allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(true)
 
         expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
-        expect(job).to receive(:process_document).with(pdf_path)
+        expect(job).to receive(:process_document).with(pdf_path, :pensions_generated_claim)
 
         result = job.send(:generate_form_pdf)
         expect(result).to eq(pdf_path)
@@ -154,7 +154,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
         allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(false)
 
         expect(claim).to receive(:to_pdf).with(no_args)
-        expect(job).to receive(:process_document).with(pdf_path)
+        expect(job).to receive(:process_document).with(pdf_path, :pensions_generated_claim)
 
         result = job.send(:generate_form_pdf)
         expect(result).to eq(pdf_path)
@@ -202,7 +202,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
-    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamp_pdf_double) { instance_double(Pensions::PDFStamper) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
@@ -210,46 +210,19 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
 
     it 'returns a datestamp pdf path' do
-      run_count = 0
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      allow(datestamp_pdf_double).to receive(:run) {
-        run_count += 1
-        pdf_path
-      }
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, 'test/path')
+      allow(Pensions::PDFStamper).to receive(:new).and_return(stamp_pdf_double)
 
-      expect(new_path).to eq(pdf_path)
-      expect(run_count).to eq(2)
-    end
-
-    it 'requests specific pdf stamps' do
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'VA.GOV',
-        timestamp: claim.created_at,
-        x: 5,
-        y: 5
-      ).and_return(pdf_path)
-
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'FDC Reviewed - VA.gov Submission',
-        timestamp: claim.created_at,
-        x: 429,
-        y: 770,
-        text_only: true
-      ).and_return(pdf_path)
-
+      expect(stamp_pdf_double).to receive(:run).with('test/path', timestamp: claim.created_at).and_return('foo/bar')
       expect(service).to receive(:valid_document?).and_return(pdf_path)
 
-      new_path = job.send(:process_document, 'test/path')
+      new_path = job.send(:process_document, 'test/path', :test)
 
       expect(new_path).to eq(pdf_path)
     end
 
     it 'successfully stamps the generated pdf' do
       expect(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, claim.to_pdf)
+      new_path = job.send(:process_document, claim.to_pdf, :pensions_generated_claim)
       expect(new_path).to eq(pdf_path)
     end
     # process_document

@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'fitbit/client'
+require 'vets/shared_logging'
 
 module DhpConnectedDevices
   module Fitbit
     class FitbitController < ApplicationController
-      include SentryLogging
+      include Vets::SharedLogging
       service_tag 'connected-devices'
       before_action :feature_enabled
       before_action :user_verified
@@ -89,6 +90,8 @@ module DhpConnectedDevices
             icn: @current_user&.icn
           }
         )
+
+        log_exception_to_rails(error)
       end
     end
   end

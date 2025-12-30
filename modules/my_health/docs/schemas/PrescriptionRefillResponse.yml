@@ -1,0 +1,109 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "PrescriptionRefills"
+      id:
+        type: string
+        description: Unique identifier for this refill transaction
+        example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      attributes:
+        type: object
+        required:
+          - failed_station_list
+          - successful_station_list
+          - prescription_list
+          - failed_prescription_ids
+          - errors
+          - info_messages
+        properties:
+          failed_station_list:
+            type: array
+            description: List of station numbers where refills failed
+            items:
+              type: string
+            example: []
+          successful_station_list:
+            type: array
+            description: List of station numbers where refills succeeded
+            items:
+              type: string
+            example: ["989"]
+          last_updated_time:
+            type: string
+            nullable: true
+            format: date-time
+            description: Timestamp of the last update
+            example: "2024-11-19T14:30:00Z"
+          prescription_list:
+            type: array
+            description: List of successfully refilled prescriptions
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Prescription ID
+                  example: "3636691"
+                status:
+                  type: string
+                  description: Refill status
+                  example: "Refill submitted successfully"
+                station_number:
+                  type: string
+                  description: Station number
+                  example: "989"
+            example:
+              - id: "3636691"
+                status: "Refill submitted successfully"
+                station_number: "989"
+          failed_prescription_ids:
+            type: array
+            description: List of prescription IDs that failed to refill
+            items:
+              type: string
+            example: []
+          errors:
+            type: array
+            description: List of errors encountered during refill
+            items:
+              type: object
+              properties:
+                developer_message:
+                  type: string
+                  description: Error message for developers
+                prescription_id:
+                  type: string
+                  description: The prescription ID that failed
+                station_number:
+                  type: string
+                  description: The station number where the error occurred
+            example: []
+          info_messages:
+            type: array
+            description: Information messages about successful refills
+            items:
+              type: object
+              properties:
+                prescription_id:
+                  type: string
+                  description: The prescription ID
+                message:
+                  type: string
+                  description: Success message
+                station_number:
+                  type: string
+                  description: The station number
+            example:
+              - prescription_id: "3636691"
+                message: "Refill submitted successfully"
+                station_number: "989"

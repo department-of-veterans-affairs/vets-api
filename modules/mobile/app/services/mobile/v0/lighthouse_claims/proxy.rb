@@ -78,7 +78,7 @@ module Mobile
           tracked_items = claim.dig('data', 'attributes', 'trackedItems')
           return unless tracked_items
 
-          tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+          tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
           claim
         end
 
