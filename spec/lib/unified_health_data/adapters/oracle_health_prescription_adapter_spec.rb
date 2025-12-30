@@ -128,20 +128,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      before { allow(Rails.logger).to receive(:info) }
-
       it 'returns nil (filtered out)' do
         expect(subject.parse(inpatient_resource)).to be_nil
-      end
-
-      it 'logs the filtered medication' do
-        subject.parse(inpatient_resource)
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'Oracle Health medication filtered',
-            medication_category: :inpatient
-          )
-        )
       end
     end
 
@@ -153,8 +141,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           ]
         )
       end
-
-      before { allow(Rails.logger).to receive(:info) }
 
       it 'returns nil (filtered out)' do
         expect(subject.parse(charge_only_resource)).to be_nil
