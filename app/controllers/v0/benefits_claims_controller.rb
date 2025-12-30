@@ -7,10 +7,10 @@ require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_claims/utilities/helpers'
 require 'lighthouse/benefits_documents/documents_status_polling_service'
 require 'lighthouse/benefits_documents/update_documents_status_service'
-require 'uri'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include InboundRequestLogging
     before_action { authorize :lighthouse, :access? }
     before_action :log_request_origin
     service_tag 'claims-shared'
@@ -114,37 +114,7 @@ module V0
     private
 
     def log_request_origin
-      referer = request.referer
-      referer_host = nil
-      referer_path = nil
-
-      if referer.present?
-        begin
-          uri = URI.parse(referer)
-          referer_host = uri.host
-          referer_path = uri.path
-        rescue URI::InvalidURIError
-        end
-      end
-
-      Rails.logger.info(
-        'Benefits Claims inbound request',
-        {
-          message_type: 'benefits_claims.inbound_request',
-          controller: self.class.name,
-          action: action_name,
-          path: request.path,
-          query_keys: request.query_parameters&.keys,
-          referer_host: referer_host,
-          referer_path: referer_path,
-          user_agent: request.user_agent,
-          remote_ip: request.remote_ip,
-          x_forwarded_for: request.headers['X-Forwarded-For'],
-          x_forwarded_host: request.headers['X-Forwarded-Host'],
-          x_forwarded_proto: request.headers['X-Forwarded-Proto'],
-          request_id: request.request_id
-        }
-      )
+      log_inbound_request(message_type: 'benefits_claims.inbound_request', message: 'Benefits Claims inbound request')
     end
 
     def failed_evidence_submissions
