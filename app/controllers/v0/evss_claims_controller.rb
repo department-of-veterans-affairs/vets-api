@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require 'uri'
+
 module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
     service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
+    before_action :log_request_origin
 
     def index
       claims, synchronized = service.all
@@ -39,6 +42,40 @@ module V0
     end
 
     private
+
+    def log_request_origin
+      referer = request.referer
+      referer_host = nil
+      referer_path = nil
+
+      if referer.present?
+        begin
+          uri = URI.parse(referer)
+          referer_host = uri.host
+          referer_path = uri.path
+        rescue URI::InvalidURIError
+        end
+      end
+
+      Rails.logger.info(
+        'Claim Status inbound request',
+        {
+          message_type: 'cst.inbound_request',
+          controller: self.class.name,
+          action: action_name,
+          path: request.path,
+          query_keys: request.query_parameters&.keys,
+          referer_host: referer_host,
+          referer_path: referer_path,
+          user_agent: request.user_agent,
+          remote_ip: request.remote_ip,
+          x_forwarded_for: request.headers['X-Forwarded-For'],
+          x_forwarded_host: request.headers['X-Forwarded-Host'],
+          x_forwarded_proto: request.headers['X-Forwarded-Proto'],
+          request_id: request.request_id
+        }
+      )
+    end
 
     def skip_sentry_exception_types
       super + [Common::Exceptions::BackendServiceException]
