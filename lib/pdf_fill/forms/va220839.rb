@@ -190,7 +190,7 @@ module PdfFill
       end
 
       def format_schools(form_data)
-        programs = (form_data['yellowRibbonProgramAgreementRequest'] || []).map { |s| convert_school_data(s) }
+        programs = (form_data['yellowRibbonProgramAgreementRequest'] || []).map { |s| convert_unlimited_school_values(s) }
         form_data['usSchools'] = programs.filter { |s| s['currencyType'] == 'USD' }
         form_data['foreignSchools'] = programs.filter { |s| s['currencyType'] != 'USD' }
 
@@ -203,7 +203,7 @@ module PdfFill
                                            end
       end
 
-      def convert_school_data(school_data)
+      def convert_unlimited_school_values(school_data)
         if school_data['maximumNumberofStudents'] >= UNLIMITED_STUDENT_NUMBER
           school_data['maximumNumberofStudents'] = 'Unlimited'
         end
