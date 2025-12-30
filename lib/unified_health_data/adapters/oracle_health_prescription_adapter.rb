@@ -89,6 +89,8 @@ module UnifiedHealthData
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       def log_uncategorized_medication(resource)
+        return unless Flipper.enabled?(:mhv_medications_v2_status_mapping)
+
         Rails.logger.warn(
           message: 'Oracle Health medication uncategorized',
           prescription_id_suffix: resource['id']&.to_s&.last(3) || 'unknown',

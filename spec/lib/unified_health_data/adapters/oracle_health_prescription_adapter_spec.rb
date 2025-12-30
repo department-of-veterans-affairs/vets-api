@@ -165,14 +165,31 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
       end
 
-      it 'logs the uncategorized medication for review' do
-        subject.parse(uncategorized_resource)
-        expect(Rails.logger).to have_received(:warn).with(
-          hash_including(
-            message: 'Oracle Health medication uncategorized',
-            service: 'unified_health_data'
+      context 'when mhv_medications_v2_status_mapping is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(true)
+        end
+
+        it 'logs the uncategorized medication for review' do
+          subject.parse(uncategorized_resource)
+          expect(Rails.logger).to have_received(:warn).with(
+            hash_including(
+              message: 'Oracle Health medication uncategorized',
+              service: 'unified_health_data'
+            )
           )
-        )
+        end
+      end
+
+      context 'when mhv_medications_v2_status_mapping is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(false)
+        end
+
+        it 'does not log the uncategorized medication' do
+          subject.parse(uncategorized_resource)
+          expect(Rails.logger).not_to have_received(:warn)
+        end
       end
     end
   end
