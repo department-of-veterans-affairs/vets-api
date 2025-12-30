@@ -10,9 +10,18 @@ module UnifiedHealthData
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
-      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid/filtered
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
+
+        # Filter out medications that should not be visible to Veterans
+        if should_filter_medication?(resource)
+          log_filtered_medication(resource)
+          return nil
+        end
+
+        # Log uncategorized medications for review
+        log_uncategorized_medication(resource) if categorize_medication(resource) == :uncategorized
 
         UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
@@ -20,7 +29,98 @@ module UnifiedHealthData
         nil
       end
 
+      # Categorizes medication based on Oracle Health specification
+      # Uses reportedBoolean, intent, and category fields to determine medication type
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Symbol] One of the available categories
+      # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/digital-health-modernization/mhv-to-va.gov/medications/requirements/oracle_health_categorization_spec.md
+      def categorize_medication(resource)
+        reported_boolean = resource['reportedBoolean']
+        intent = resource['intent']
+        category_codes = extract_category_codes_normalized(resource)
+
+        # VA Prescription
+        # reportedBoolean=false, intent='order', category=['community', 'discharge']
+        if reported_boolean == false &&
+           intent == 'order' &&
+           category_codes == %w[community discharge]
+          return :va_prescription
+        end
+
+        # Documented/Non-VA Medication
+        # reportedBoolean=true, intent='plan', category=['community', 'patientspecified']
+        if reported_boolean == true &&
+           intent == 'plan' &&
+           category_codes == %w[community patientspecified]
+          return :documented_non_va
+        end
+
+        # Clinic Administered Medication
+        # reportedBoolean=false, intent='order', category=['outpatient']
+        if reported_boolean == false &&
+           intent == 'order' &&
+           category_codes == ['outpatient']
+          return :clinic_administered
+        end
+
+        # Pharmacy Charges (category only check)
+        return :pharmacy_charges if category_codes == ['charge-only']
+
+        # Inpatient Medication (category only check)
+        return :inpatient if category_codes == ['inpatient']
+
+        # Default: Uncategorized
+        :uncategorized
+      end
+
+      # Determines if a medication should be filtered out (hidden from Veterans)
+      # Per specification, Pharmacy Charges and Inpatient Medications are not visible
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] True if medication should be filtered out
+      def should_filter_medication?(resource)
+        category = categorize_medication(resource)
+        %i[pharmacy_charges inpatient].include?(category)
+      end
+
       private
+
+      # Extracts and normalizes category codes for comparison
+      # Returns sorted, lowercased array for case-insensitive exact matching
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Array<String>] Sorted, lowercased category codes
+      def extract_category_codes_normalized(resource)
+        extract_category(resource).map(&:downcase).sort
+      end
+
+      # Logs when a medication is filtered out for monitoring purposes
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      def log_filtered_medication(resource)
+        category = categorize_medication(resource)
+        Rails.logger.info(
+          message: 'Oracle Health medication filtered',
+          prescription_id_suffix: resource['id']&.to_s&.last(3) || 'unknown',
+          medication_category: category,
+          service: 'unified_health_data'
+        )
+      end
+
+      # Logs uncategorized medications for review per specification requirement
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      def log_uncategorized_medication(resource)
+        Rails.logger.warn(
+          message: 'Oracle Health medication uncategorized',
+          prescription_id_suffix: resource['id']&.to_s&.last(3) || 'unknown',
+          reported_boolean: resource['reportedBoolean'],
+          intent: resource['intent'],
+          category_codes: extract_category(resource),
+          service: 'unified_health_data'
+        )
+      end
 
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)

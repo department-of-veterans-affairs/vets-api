@@ -118,6 +118,288 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.cmop_ndc_number).to be_nil
       end
     end
+
+    context 'with inpatient medication (should be filtered)' do
+      let(:inpatient_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+      end
+
+      before { allow(Rails.logger).to receive(:info) }
+
+      it 'returns nil (filtered out)' do
+        expect(subject.parse(inpatient_resource)).to be_nil
+      end
+
+      it 'logs the filtered medication' do
+        subject.parse(inpatient_resource)
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'Oracle Health medication filtered',
+            medication_category: :inpatient
+          )
+        )
+      end
+    end
+
+    context 'with pharmacy charges medication (should be filtered)' do
+      let(:charge_only_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+      end
+
+      before { allow(Rails.logger).to receive(:info) }
+
+      it 'returns nil (filtered out)' do
+        expect(subject.parse(charge_only_resource)).to be_nil
+      end
+    end
+
+    context 'with uncategorized medication' do
+      let(:uncategorized_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'unknown-category' }] }
+          ]
+        )
+      end
+
+      before { allow(Rails.logger).to receive(:warn) }
+
+      it 'returns the prescription (visible but logged)' do
+        result = subject.parse(uncategorized_resource)
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+      end
+
+      it 'logs the uncategorized medication for review' do
+        subject.parse(uncategorized_resource)
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(
+            message: 'Oracle Health medication uncategorized',
+            service: 'unified_health_data'
+          )
+        )
+      end
+    end
+  end
+
+  describe '#categorize_medication' do
+    context 'VA Prescription' do
+      let(:va_prescription_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+      end
+
+      it 'returns :va_prescription' do
+        expect(subject.categorize_medication(va_prescription_resource)).to eq(:va_prescription)
+      end
+
+      it 'is case-insensitive for category codes' do
+        resource = base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'COMMUNITY' }] },
+            { 'coding' => [{ 'code' => 'Discharge' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:va_prescription)
+      end
+    end
+
+    context 'Documented/Non-VA Medication' do
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
+
+      it 'returns :documented_non_va' do
+        expect(subject.categorize_medication(non_va_resource)).to eq(:documented_non_va)
+      end
+    end
+
+    context 'Clinic Administered Medication' do
+      let(:clinic_administered_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns :clinic_administered' do
+        expect(subject.categorize_medication(clinic_administered_resource)).to eq(:clinic_administered)
+      end
+    end
+
+    context 'Pharmacy Charges' do
+      let(:pharmacy_charges_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+      end
+
+      it 'returns :pharmacy_charges' do
+        expect(subject.categorize_medication(pharmacy_charges_resource)).to eq(:pharmacy_charges)
+      end
+
+      it 'ignores reportedBoolean and intent for charge-only' do
+        resource = base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:pharmacy_charges)
+      end
+    end
+
+    context 'Inpatient Medication' do
+      let(:inpatient_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns :inpatient' do
+        expect(subject.categorize_medication(inpatient_resource)).to eq(:inpatient)
+      end
+    end
+
+    context 'Uncategorized' do
+      it 'returns :uncategorized for missing category' do
+        expect(subject.categorize_medication(base_resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized for partial match (wrong intent)' do
+        resource = base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'plan', # Wrong - should be 'order' for VA prescription
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized for partial match (wrong reportedBoolean)' do
+        resource = base_resource.merge(
+          'reportedBoolean' => true, # Wrong - should be false for VA prescription
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized for extra category codes' do
+        resource = base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] },
+            { 'coding' => [{ 'code' => 'extra' }] } # Extra code makes it not match exactly
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized for missing category codes' do
+        resource = base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] }
+            # Missing 'discharge' code
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+    end
+  end
+
+  describe '#should_filter_medication?' do
+    it 'returns true for pharmacy_charges' do
+      resource = base_resource.merge(
+        'category' => [{ 'coding' => [{ 'code' => 'charge-only' }] }]
+      )
+      expect(subject.should_filter_medication?(resource)).to be true
+    end
+
+    it 'returns true for inpatient' do
+      resource = base_resource.merge(
+        'category' => [{ 'coding' => [{ 'code' => 'inpatient' }] }]
+      )
+      expect(subject.should_filter_medication?(resource)).to be true
+    end
+
+    it 'returns false for va_prescription' do
+      resource = base_resource.merge(
+        'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [
+          { 'coding' => [{ 'code' => 'community' }] },
+          { 'coding' => [{ 'code' => 'discharge' }] }
+        ]
+      )
+      expect(subject.should_filter_medication?(resource)).to be false
+    end
+
+    it 'returns false for documented_non_va' do
+      resource = base_resource.merge(
+        'reportedBoolean' => true,
+        'intent' => 'plan',
+        'category' => [
+          { 'coding' => [{ 'code' => 'community' }] },
+          { 'coding' => [{ 'code' => 'patientspecified' }] }
+        ]
+      )
+      expect(subject.should_filter_medication?(resource)).to be false
+    end
+
+    it 'returns false for clinic_administered' do
+      resource = base_resource.merge(
+        'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [{ 'coding' => [{ 'code' => 'outpatient' }] }]
+      )
+      expect(subject.should_filter_medication?(resource)).to be false
+    end
+
+    it 'returns false for uncategorized' do
+      expect(subject.should_filter_medication?(base_resource)).to be false
+    end
   end
 
   describe '#extract_prescription_source' do
