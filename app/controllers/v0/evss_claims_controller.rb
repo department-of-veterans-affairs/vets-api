@@ -43,7 +43,7 @@ module V0
     private
 
     def log_request_origin
-      log_inbound_request(message_type: 'cst.inbound_request', message: 'Claim Status inbound request')
+      log_inbound_request(message_type: 'evss.cst.inbound_request', message: 'Inbound request (EVSS claim status)')
     end
 
     def skip_sentry_exception_types
