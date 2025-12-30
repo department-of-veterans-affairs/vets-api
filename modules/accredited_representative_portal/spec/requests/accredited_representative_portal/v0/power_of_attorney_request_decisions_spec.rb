@@ -240,10 +240,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'creates an acceptance decision and enqueues SendPoaToCorpDbJob' do
-        # Stub monitoring/logging
         stub_ar_monitoring
 
-        # Stub the Accept service
+        # Stub the Accept service so it doesn't call real external APIs
         accept_service = instance_double(
           AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
         )
@@ -252,32 +251,28 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
           .with(poa_request, anything, anything)
           .and_return(accept_service)
 
-        # Prepare memberships object
-        memberships = AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
-          icn: '1234', emails: []
-        )
-        allow(memberships).to receive(:all).and_return([])
-
-        # Stub Accept#call to create the decision but do NOT enqueue the job yet
         allow(accept_service).to receive(:call) do
           AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
             creator_id: test_user.user_account_uuid,
-            power_of_attorney_holder_memberships: memberships,
+            power_of_attorney_holder_memberships: test_user.power_of_attorney_holder_memberships,
             power_of_attorney_request: poa_request
           )
         end
 
-        # Expect the job to be enqueued AFTER the controller action triggers it
-        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
-          .to receive(:perform_async)
-          .with(poa_request.id)
+        # Spy on the Sidekiq job
+        allow(AccreditedRepresentativePortal::SendPoaToCorpDbJob).to receive(:perform_async)
 
-        # Make the request
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
 
-        # Controller should respond OK
         expect(response).to have_http_status(:ok)
+        poa_request.reload
+        expect(poa_request.resolution).to be_present
+        expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
+
+        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
+          .to have_received(:perform_async)
+          .with(poa_request.id)
       end
 
       it 'enqueues the SendPoaToCorpDbJob on declination' do
