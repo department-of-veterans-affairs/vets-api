@@ -58,6 +58,7 @@ jobs:
         with:
           reek_version: gemfile
           reporter: github-pr-review
+          reek_flags: --smell DuplicateMethodCall
           # Note: this is the default anyway but explicitly set to remind us we can change to hard-fail on reek warnings with `any`
           # For now we just want to run in advisory mode to surface architectural smells as comments during review
           # ...but _without_ blocking merges for now
