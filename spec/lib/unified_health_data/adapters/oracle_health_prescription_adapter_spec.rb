@@ -349,56 +349,29 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
-  describe '#should_filter_medication?' do
+  describe '#filtered_category?' do
     it 'returns true for pharmacy_charges' do
-      resource = base_resource.merge(
-        'category' => [{ 'coding' => [{ 'code' => 'charge-only' }] }]
-      )
-      expect(subject.should_filter_medication?(resource)).to be true
+      expect(subject.send(:filtered_category?, :pharmacy_charges)).to be true
     end
 
     it 'returns true for inpatient' do
-      resource = base_resource.merge(
-        'category' => [{ 'coding' => [{ 'code' => 'inpatient' }] }]
-      )
-      expect(subject.should_filter_medication?(resource)).to be true
+      expect(subject.send(:filtered_category?, :inpatient)).to be true
     end
 
     it 'returns false for va_prescription' do
-      resource = base_resource.merge(
-        'reportedBoolean' => false,
-        'intent' => 'order',
-        'category' => [
-          { 'coding' => [{ 'code' => 'community' }] },
-          { 'coding' => [{ 'code' => 'discharge' }] }
-        ]
-      )
-      expect(subject.should_filter_medication?(resource)).to be false
+      expect(subject.send(:filtered_category?, :va_prescription)).to be false
     end
 
     it 'returns false for documented_non_va' do
-      resource = base_resource.merge(
-        'reportedBoolean' => true,
-        'intent' => 'plan',
-        'category' => [
-          { 'coding' => [{ 'code' => 'community' }] },
-          { 'coding' => [{ 'code' => 'patientspecified' }] }
-        ]
-      )
-      expect(subject.should_filter_medication?(resource)).to be false
+      expect(subject.send(:filtered_category?, :documented_non_va)).to be false
     end
 
     it 'returns false for clinic_administered' do
-      resource = base_resource.merge(
-        'reportedBoolean' => false,
-        'intent' => 'order',
-        'category' => [{ 'coding' => [{ 'code' => 'outpatient' }] }]
-      )
-      expect(subject.should_filter_medication?(resource)).to be false
+      expect(subject.send(:filtered_category?, :clinic_administered)).to be false
     end
 
     it 'returns false for uncategorized' do
-      expect(subject.should_filter_medication?(base_resource)).to be false
+      expect(subject.send(:filtered_category?, :uncategorized)).to be false
     end
   end
 

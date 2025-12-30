@@ -14,14 +14,15 @@ module UnifiedHealthData
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
 
+        category = categorize_medication(resource)
+
         # Filter out medications that should not be visible to Veterans
-        if should_filter_medication?(resource)
-          log_filtered_medication(resource)
+        if filtered_category?(category)
           return nil
         end
 
         # Log uncategorized medications for review
-        log_uncategorized_medication(resource) if categorize_medication(resource) == :uncategorized
+        log_uncategorized_medication(resource) if category == :uncategorized
 
         UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
@@ -74,13 +75,12 @@ module UnifiedHealthData
         :uncategorized
       end
 
-      # Determines if a medication should be filtered out (hidden from Veterans)
+      # Determines if a medication category should be filtered out (hidden from Veterans)
       # Per specification, Pharmacy Charges and Inpatient Medications are not visible
       #
-      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param category [Symbol] Medication category from categorize_medication
       # @return [Boolean] True if medication should be filtered out
-      def should_filter_medication?(resource)
-        category = categorize_medication(resource)
+      def filtered_category?(category)
         %i[pharmacy_charges inpatient].include?(category)
       end
 
@@ -93,19 +93,6 @@ module UnifiedHealthData
       # @return [Array<String>] Sorted, lowercased category codes
       def extract_category_codes_normalized(resource)
         extract_category(resource).map(&:downcase).sort
-      end
-
-      # Logs when a medication is filtered out for monitoring purposes
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      def log_filtered_medication(resource)
-        category = categorize_medication(resource)
-        Rails.logger.info(
-          message: 'Oracle Health medication filtered',
-          prescription_id_suffix: resource['id']&.to_s&.last(3) || 'unknown',
-          medication_category: category,
-          service: 'unified_health_data'
-        )
       end
 
       # Logs uncategorized medications for review per specification requirement
