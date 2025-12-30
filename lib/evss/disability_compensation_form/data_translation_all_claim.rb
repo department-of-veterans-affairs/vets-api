@@ -186,8 +186,10 @@ module EVSS
         end
       end
 
-      def get_banking_info
+      def get_banking_info # rubocop:disable Metrics/MethodLength
         return {} unless @user.authorize :lighthouse, :direct_deposit_access?
+
+        monitor = DisabilityCompensation::Loggers::Monitor.new
 
         # Call to Lighthouse Direct Deposit (aka PPIU) data provider
         service = ApiProviderFactory.call(
@@ -198,14 +200,22 @@ module EVSS
           feature_toggle: nil
         )
 
-        response = service.get_payment_information
-
         begin
-          set_account(response)
+          response = service.get_payment_information
+          result = set_account(response)
+
+          if result.present?
+            monitor.track_banking_info_prefilled(@user.uuid)
+          else
+            monitor.track_no_banking_info_on_file(@user.uuid)
+          end
+
+          result
         rescue => e
           method_name = '#get_banking_info'
-          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class}: #{e.message}"
-          raise Common::Exceptions::BadRequest.new(errors: [e.message])
+          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class} (error_class=#{e.class})"
+          monitor.track_banking_info_api_error(@user.uuid, e)
+          raise Common::Exceptions::BadRequest.new(errors: ['Unable to retrieve direct deposit information'])
         end
       end
 
