@@ -23,6 +23,9 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
+    # statsd key for pension-related submissions
+    PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
+
     # allowed logging params
     ALLOWLIST = %w[
       tags
@@ -171,6 +174,17 @@ module Dependents
     def track_pdf_overflow(form_id)
       tags = ["form_id:#{form_id}"]
       metric = 'saved_claim.pdf.overflow'
+      StatsD.increment(metric, tags:)
+    end
+
+    # Tracks a pension-related submission metric to StatsD
+    #
+    # @param form_id [String] The form identifier (e.g., '686C-674-V2')
+    # @param form_type [String] The type of form being submitted (e.g., '21-686c', '21-674', '686c-674')
+    # @return [void]
+    def track_pension_related_submission(form_id:, form_type:)
+      tags = ["form_id:#{form_id}"]
+      metric = "#{PENSION_SUBMISSION_STATS_KEY}.#{form_type}.submitted"
       StatsD.increment(metric, tags:)
     end
 

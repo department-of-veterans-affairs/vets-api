@@ -43,6 +43,8 @@ module RepresentationManagement
     #   - 'city' [String, nil]
     #   - 'state_code' [String, nil]
     #   - 'zip_code' [String, nil]
+    #   - 'zip_code4' [String, nil]
+    #   - 'country_code_iso3' [String, nil]
     # @return [Hash, nil] Validated address attributes ready for AccreditedIndividual.update,
     #   or nil if validation fails
     def validate_address(address_hash)
@@ -62,19 +64,23 @@ module RepresentationManagement
 
     # Builds a VAProfile ValidationAddress object from an address hash
     #
+    # Uses RepresentationManagement::AddressPreprocessor to normalize PO Boxes and suite/room information
+    #
     # @param address_hash [Hash] Address data with string keys
     # @return [VAProfile::Models::ValidationAddress]
     def build_validation_address(address_hash)
+      cleaned = RepresentationManagement::AddressPreprocessor.clean(address_hash)
+
       VAProfile::Models::ValidationAddress.new(
-        address_pou: 'RESIDENCE',
-        address_line1: address_hash['address_line1'],
-        address_line2: address_hash['address_line2'],
-        address_line3: address_hash['address_line3'],
-        city: address_hash['city'],
-        state_code: address_hash['state_code'],
-        zip_code: address_hash['zip_code'],
-        zip_code_suffix: address_hash['zip_code4'],
-        country_code_iso3: address_hash['country_code_iso3']
+        address_pou: cleaned['address_pou'] || address_hash['address_pou'] || 'RESIDENCE',
+        address_line1: cleaned['address_line1'],
+        address_line2: cleaned['address_line2'],
+        address_line3: cleaned['address_line3'],
+        city: cleaned['city'],
+        state_code: cleaned['state_code'],
+        zip_code: cleaned['zip_code'],
+        zip_code_suffix: cleaned['zip_code4'],
+        country_code_iso3: cleaned['country_code_iso3']
       )
     end
 
@@ -90,34 +96,38 @@ module RepresentationManagement
     #
     # This method attempts to validate an address and implements retry logic
     # for cases where validation returns zero coordinates (typically with
-    # P.O. Box addresses mixed with street addresses). It will try different
-    # combinations of address lines to find a valid geocoded address.
+    # P.O. Box addresses mixed with street addresses), invalid responses, or
+    # CandidateAddressNotFound (ADDRVAL108) backend errors.
     #
     # @param address_hash [Hash] Address data with string keys
     # @return [Hash, nil] Best validation response found, or nil if all attempts fail
     def get_best_address_candidate(address_hash)
       candidate_address = build_validation_address(address_hash)
-      original_response = call_validation_api(candidate_address)
 
-      return nil unless address_valid?(original_response)
+      begin
+        original_response = call_validation_api(candidate_address)
+      rescue Common::Exceptions::BackendServiceException => e
+        # For ADDRVAL108 / CandidateAddressNotFound, apply the same retry
+        # logic as Representatives::Update before giving up
+        return handle_candidate_address_not_found(address_hash, e) if candidate_address_not_found_error?(e)
 
-      # If we get zero coordinates, try different address line combinations
-      if lat_long_zero?(original_response)
-        retry_response = retry_validation(address_hash)
-
-        if retriable?(retry_response)
-          nil
-        else
-          retry_response
-        end
-      else
-        original_response
+        # Re-raise for non-retriable backend errors so outer rescue can handle/log
+        raise
       end
+
+      # If the original response is blank, invalid, or has zero coords, attempt retry logic
+      if retriable?(original_response)
+        retry_response = retry_validation(address_hash)
+        return retriable?(retry_response) ? nil : retry_response
+      end
+
+      # If we get here the original response was valid and not retriable (e.g. has non-zero coords)
+      original_response
     end
 
-    # Implements retry logic for addresses that return zero coordinates
+    # Implements retry logic for addresses that return zero coordinates or invalid responses
     #
-    # When address validation returns (0,0) coordinates, this method retries validation
+    # When address validation returns (0,0) coordinates or no usable candidates, this method retries validation
     # using each address line individually. This handles cases where multiple address
     # lines are present and some cannot be geocoded (such as P.O. Boxes mixed with
     # street addresses).
@@ -131,18 +141,18 @@ module RepresentationManagement
     # @return [Hash, nil] First successful validation response, or nil if all retries fail
     def retry_validation(address_hash)
       api_response = nil
+      attempts = %w[address_line1 address_line2 address_line3]
 
-      # Attempt 1: Use address_line1 only
-      api_response = modified_validation(address_hash, 1) if address_hash['address_line1'].present?
+      attempts.each_with_index do |line_key, idx|
+        attempt_number = idx + 1
+        next unless address_hash[line_key].present? && retriable?(api_response)
 
-      # Attempt 2: Use address_line2 as address_line1
-      if retriable?(api_response) && address_hash['address_line2'].present?
-        api_response = modified_validation(address_hash, 2)
-      end
-
-      # Attempt 3: Use address_line3 as address_line1
-      if retriable?(api_response) && address_hash['address_line3'].present?
-        api_response = modified_validation(address_hash, 3)
+        begin
+          api_response = modified_validation(address_hash, attempt_number)
+        rescue Common::Exceptions::BackendServiceException => e
+          Rails.logger.error("Address validation retry attempt #{attempt_number}
+            (using #{line_key}) failed: #{e.message} [retry strategy: single address line]")
+        end
       end
 
       api_response
@@ -222,8 +232,7 @@ module RepresentationManagement
 
       case retry_count
       when 1
-        # Use only the original address_line1
-        # (address_line1 stays as is)
+        # Use only the original address_line1 (as-is)
       when 2
         # Set address_line1 to the original address_line2
         address_attempt['address_line1'] = address_hash['address_line2']
@@ -268,6 +277,32 @@ module RepresentationManagement
         long:,
         location: lat && long ? "POINT(#{long} #{lat})" : nil
       }
+    end
+
+    # Determine if the backend exception represents a candidate address not found scenario
+    #
+    # Mirrors Representatives::Update#candidate_address_not_found_error?
+    #
+    # @param exception [Common::Exceptions::BackendServiceException]
+    # @return [Boolean]
+    def candidate_address_not_found_error?(exception)
+      msg = exception.message
+      msg.include?('CandidateAddressNotFound') || msg.include?('ADDRVAL108')
+    end
+
+    # Handle CandidateAddressNotFound errors (ADDRVAL108) by invoking modified retry logic
+    #
+    # @param address_hash [Hash]
+    # @param exception [Common::Exceptions::BackendServiceException]
+    # @return [Hash, nil]
+    def handle_candidate_address_not_found(address_hash, exception)
+      Rails.logger.error(
+        'VAProfile address validation CandidateAddressNotFound for address: ' \
+        "#{address_hash.slice('city', 'state_code', 'zip_code').inspect}: #{exception.message}, retrying..."
+      )
+
+      retry_response = retry_validation(address_hash)
+      retriable?(retry_response) ? nil : retry_response
     end
   end
 end

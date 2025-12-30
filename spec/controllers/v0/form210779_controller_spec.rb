@@ -115,7 +115,8 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
   describe 'get #download_pdf' do
     let(:claim) { create(:va210779) }
-    let(:temp_file_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
+    let(:filled_pdf_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
+    let(:stamped_pdf_path) { 'tmp/8607c198992feedf899d78f98e5af856.pdf' }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
@@ -137,7 +138,11 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     it 'deletes temporary PDF file after sending' do
-      expect(File).to receive(:delete).with(temp_file_path)
+      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_return(stamped_pdf_path)
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(stamped_pdf_path).and_return(true)
+      allow(File).to receive(:read).with(stamped_pdf_path).and_return('PDF content')
+      expect(File).to receive(:delete).with(stamped_pdf_path).at_least(:once)
       get(:download_pdf, params: { guid: claim.guid })
     end
 
@@ -153,8 +158,11 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     it 'deletes temporary file even when file read fails' do
-      allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
-      expect(File).to receive(:delete).with(temp_file_path)
+      allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_return(stamped_pdf_path)
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(stamped_pdf_path).and_return(true)
+      allow(File).to receive(:read).with(stamped_pdf_path).and_raise(StandardError, 'Read error')
+      expect(File).to receive(:delete).with(stamped_pdf_path).at_least(:once)
 
       get(:download_pdf, params: { guid: claim.guid })
       expect(response).to have_http_status(:internal_server_error)

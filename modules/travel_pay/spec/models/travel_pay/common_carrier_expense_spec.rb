@@ -22,7 +22,8 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
   describe 'constants' do
     it 'uses COMMON_CARRIER_EXPLANATIONS from Constants module' do
       expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values).to eq(['Privately Owned Vehicle Not Available',
-                                                                              'Medically Indicated', 'Other',
+                                                                              'Medically Indicated',
+                                                                              'Other',
                                                                               'Unspecified'])
     end
 

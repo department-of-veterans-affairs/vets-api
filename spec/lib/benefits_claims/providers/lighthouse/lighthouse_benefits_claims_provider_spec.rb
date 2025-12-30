@@ -100,6 +100,8 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
   end
   let(:provider) { described_class.new(current_user) }
 
+  let(:provider) { described_class.new(current_user) }
+
   # Shared examples for verifying comprehensive claim structure
   shared_examples 'preserves comprehensive claim structure' do
     it 'preserves all claim attributes through transformation' do

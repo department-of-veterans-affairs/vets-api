@@ -14,8 +14,6 @@ module ClaimsApi
       end
 
       def map_claim
-        validate_required_fields!
-
         claim_attributes # builds main data
         claim_meta # adds metadata
 
@@ -32,88 +30,60 @@ module ClaimsApi
         special_circumstances
       end
 
+      # serviceInformation is required via the schema
       def service_information
         info = @data[:serviceInformation]
 
-        map_service_periods(info)
-        map_federal_activation_to_reserves(info) if info&.dig(:federalActivation).present?
-        map_reserves_title_ten(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
-        map_confinements(info) if info&.dig(:confinements).present?
+        map_service_periods(info&.dig(:servicePeriods))
+        map_reserves(info[:reservesNationalGuardService]) if info&.dig(:reservesNationalGuardService).present?
+        map_federal_activation_to_reserves(info[:federalActivation]) if info&.dig(:federalActivation).present?
+        map_confinements(info[:confinements]) if info&.dig(:confinements).present?
         map_separation_location if separation_location_code_present?
       end
 
-      def map_service_periods(info)
-        service_periods = info&.dig(:servicePeriods)
-        return if service_periods.blank?
-
+      # servicePeriods are required via the schema
+      def map_service_periods(service_periods)
         @fes_claim[:serviceInformation] = {
           servicePeriods: format_service_periods(service_periods)
-        }
+        }.compact_blank
       end
 
-      def map_federal_activation_to_reserves(info)
-        activation_date = info&.dig(:federalActivation, :activationDate)
-        separation_date = info&.dig(:federalActivation, :anticipatedSeparationDate)
-        terms_of_service = info&.dig(:reservesNationalGuardService, :obligationTermsOfService)
-
-        return if activation_date.blank? && separation_date.blank?
-
-        title_ten = {}
-        title_ten[:title10ActivationDate] = activation_date if activation_date.present?
-        title_ten[:anticipatedSeparationDate] = separation_date if separation_date.present?
-
+      # Nothing is required via the schema
+      def map_reserves(reserves)
+        terms_of_service = reserves&.dig(:obligationTermsOfService)
         begin_date = terms_of_service&.dig(:beginDate)
         end_date = terms_of_service&.dig(:endDate)
+
+        return if begin_date.blank? && end_date.blank?
 
         @fes_claim[:serviceInformation] ||= {}
         @fes_claim[:serviceInformation][:reservesNationalGuardService] = {
           obligationTermOfServiceFromDate: begin_date,
-          obligationTermOfServiceToDate: end_date,
-          title10Activation: title_ten
+          obligationTermOfServiceToDate: end_date
         }.compact_blank
       end
 
-      def map_reserves_title_ten(info)
-        # This handles reserves with existing title10Activation but no federal activation
-        reserves_info = info[:reservesNationalGuardService]
-        return if reserves_info.blank?
+      def map_federal_activation_to_reserves(federal_activation)
+        activation_date = federal_activation&.dig(:activationDate)
+        separation_date = federal_activation&.dig(:anticipatedSeparationDate)
 
-        terms_of_service = reserves_info[:obligationTermsOfService]
-        title_ten_info = reserves_info[:title10Activation]
-
-        return if title_ten_info.blank?
-
-        title_ten = build_title_ten_activation(title_ten_info)
+        return if activation_date.blank? && separation_date.blank?
 
         @fes_claim[:serviceInformation] ||= {}
         @fes_claim[:serviceInformation][:reservesNationalGuardService] ||= {}
-        @fes_claim[:serviceInformation][:reservesNationalGuardService].merge!({
-          obligationTermOfServiceFromDate: terms_of_service&.dig(:beginDate),
-          obligationTermOfServiceToDate: terms_of_service&.dig(:endDate),
-          title10Activation: title_ten
-        }.compact_blank)
+        @fes_claim[:serviceInformation][:reservesNationalGuardService][:title10Activation] = {
+          title10ActivationDate: activation_date,
+          anticipatedSeparationDate: separation_date
+        }.compact_blank
       end
 
-      def build_title_ten_activation(title_ten_info)
-        title_ten = {}
-        if title_ten_info[:title10ActivationDate].present?
-          title_ten[:title10ActivationDate] = title_ten_info[:title10ActivationDate]
-        end
-        if title_ten_info[:anticipatedSeparationDate].present?
-          title_ten[:anticipatedSeparationDate] = title_ten_info[:anticipatedSeparationDate]
-        end
-        title_ten
-      end
+      def map_confinements(confinements)
+        mapped_confinements = format_confinements(confinements)
 
-      def map_confinements(info)
-        confinements = format_confinements(info&.dig(:confinements))
-
-        if confinements.present?
-          @fes_claim[:serviceInformation] ||= {}
-          @fes_claim[:serviceInformation].merge!(
-            { confinements: }
-          )
-        end
+        @fes_claim[:serviceInformation] ||= {}
+        @fes_claim[:serviceInformation].merge!(
+          { confinements: mapped_confinements }.compact_blank
+        )
       end
 
       def map_separation_location
@@ -121,21 +91,20 @@ module ClaimsApi
       end
 
       def current_mailing_address
-        if address_is_military?(veteran_mailing_address)
-          handle_military_address
+        mailing_address = @data.dig(:veteranIdentification, :mailingAddress)
+
+        if address_is_military?(mailing_address)
+          handle_military_address(mailing_address)
         else
-          handle_domestic_or_international_address
+          handle_domestic_or_international_address(mailing_address)
         end
       end
 
-      def handle_military_address
-        addr = veteran_mailing_address || {}
-
-        # Handle both field formats
-        line1 = addr[:addressLine1] || format_address_line(addr[:numberAndStreet], addr[:apartmentOrUnitNumber])
+      def handle_military_address(mailing_address)
+        addr = mailing_address || {}
 
         formatted_addr = {
-          addressLine1: line1,
+          addressLine1: addr[:addressLine1],
           addressLine2: addr[:addressLine2],
           addressLine3: addr[:addressLine3],
           country: addr[:country] || 'USA',
@@ -150,15 +119,12 @@ module ClaimsApi
         @fes_claim[:veteran][:currentMailingAddress] = formatted_addr
       end
 
-      def handle_domestic_or_international_address
-        addr = veteran_mailing_address || {}
+      def handle_domestic_or_international_address(mailing_address)
+        addr = mailing_address || {}
         type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
 
-        # Handle both field formats
-        line1 = addr[:addressLine1] || format_address_line(addr[:numberAndStreet], addr[:apartmentOrUnitNumber])
-
         formatted_addr = {
-          addressLine1: line1,
+          addressLine1: addr[:addressLine1],
           addressLine2: addr[:addressLine2],
           addressLine3: addr[:addressLine3],
           city: addr[:city],
@@ -193,15 +159,11 @@ module ClaimsApi
       end
 
       def build_change_of_address_base(change_data)
-        # Handle both field formats
-        line1 = change_data[:addressLine1] ||
-                format_address_line(change_data[:numberAndStreet], change_data[:apartmentOrUnitNumber])
-
         {
           addressChangeType: change_data[:typeOfAddressChange],
           beginningDate: change_data[:beginningDate] || change_data.dig(:dates, :beginDate),
           endingDate: change_data[:endingDate] || change_data.dig(:dates, :endDate),
-          addressLine1: line1,
+          addressLine1: change_data[:addressLine1],
           addressLine2: change_data[:addressLine2],
           addressLine3: change_data[:addressLine3],
           city: change_data[:city],
@@ -299,18 +261,7 @@ module ClaimsApi
         }
       end
 
-      def format_address_line(street, unit)
-        # Handle both formats:
-        # 1. numberAndStreet + apartmentOrUnitNumber (Claims API format)
-        # 2. addressLine1 already combined (test format)
-        return street if street.present? && unit.nil?
-        return nil if street.blank?
-
-        [street, unit].compact.join(' ')
-      end
-
       def format_service_periods(service_periods)
-        # FES doesn't need date reformatting like EVSS does
         service_periods.map do |sp|
           {
             serviceBranch: sp[:serviceBranch],
@@ -321,7 +272,6 @@ module ClaimsApi
       end
 
       def format_confinements(confinements)
-        # Same as EVSS mapper - rename date fields
         confinements.map do |confinement|
           {
             confinementBeginDate: confinement[:approximateBeginDate],
@@ -348,28 +298,9 @@ module ClaimsApi
         result
       end
 
-      def validate_required_fields!
-        veteran_pid = extract_veteran_participant_id
-
-        if veteran_pid.blank? || veteran_pid == @auto_claim.veteran_icn
-          raise ArgumentError, 'Missing veteranParticipantId - auth_headers do not contain valid participant ID'
-        end
-
-        # Validate other required fields
-        if @data.dig(:serviceInformation, :servicePeriods).blank?
-          raise ArgumentError, 'Missing required serviceInformation.servicePeriods'
-        end
-        raise ArgumentError, 'Missing required disabilities array' if @data[:disabilities].blank?
-
-        raise ArgumentError, 'Missing required veteran mailing address' if veteran_mailing_address.blank?
-      end
-
       def extract_veteran_participant_id
-        # Try auth_headers first, then fall back to other sources
-        # NOTE: veteran_icn is NOT a valid participant ID and would require BGS lookup
         @auto_claim.auth_headers&.dig('va_eauth_pid') ||
-          @auto_claim.auth_headers&.dig('participant_id') ||
-          @auto_claim.veteran_icn # fallback, would need BGS lookup to convert
+          @auto_claim.auth_headers&.dig('participant_id')
       end
 
       def return_separation_location_code
@@ -384,13 +315,6 @@ module ClaimsApi
         @data[:serviceInformation][:servicePeriods]&.max_by do |period|
           Date.parse(period[:activeDutyBeginDate])
         end
-      end
-
-      # Helper to handle both v1 and v2 form data structures
-      def veteran_mailing_address
-        # V2 format: veteranIdentification.mailingAddress
-        # V1 format: veteran.currentMailingAddress
-        @data.dig(:veteranIdentification, :mailingAddress) || @data.dig(:veteran, :currentMailingAddress)
       end
     end
   end
