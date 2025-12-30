@@ -15,6 +15,11 @@ describe MebApi::DGI::Letters::Configuration do
     )
   end
 
+  after do
+    # Clear the memoized connection to prevent state leakage to other tests
+    config.instance_variable_set(:@conn, nil)
+  end
+
   context 'when mock is disabled' do
     let(:mock_enabled) { false }
 

@@ -109,71 +109,16 @@ module Burials
         # @param _options [Hash]
         #
         # @return [Hash]
-        # rubocop:disable Metrics/MethodLength
         def merge_fields(_options = {})
-          expand_signature(@form_data['claimantFullName'])
-          %w[veteranFullName claimantFullName].each do |attr|
-            extract_middle_i(@form_data, attr)
-          end
-
-          %w[veteranDateOfBirth deathDate burialDate claimantDateOfBirth].each do |attr|
-            @form_data[attr] = split_date(@form_data[attr])
-          end
-
           ssn = @form_data['veteranSocialSecurityNumber']
           ['', '2', '3'].each do |suffix|
             @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
-          end
-
-          @form_data['claimantSocialSecurityNumber'] = split_ssn(@form_data['claimantSocialSecurityNumber'])
-
-          relationship_to_veteran = @form_data['relationshipToVeteran']
-          @form_data['relationshipToVeteran'] = {
-            'spouse' => select_checkbox(relationship_to_veteran == 'spouse'),
-            'child' => select_checkbox(relationship_to_veteran == 'child'),
-            'executor' => select_checkbox(relationship_to_veteran == 'executor'),
-            'parent' => select_checkbox(relationship_to_veteran == 'parent'),
-            'funeralDirector' => select_checkbox(relationship_to_veteran == 'funeralDirector'),
-            'otherFamily' => select_checkbox(relationship_to_veteran == 'otherFamily')
-          }
-
-          # special case for transportation being the only option selected.
-          final_resting_place = @form_data.dig('finalRestingPlace', 'location')
-          if final_resting_place.present?
-            @form_data['finalRestingPlace']['location'] = {
-              'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-              'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
-              'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
-              'other' => select_checkbox(final_resting_place == 'other')
-            }
-          end
-
-          @form_data['hasNationalOrFederal'] = select_radio(@form_data['nationalOrFederal'])
-
-          # special case: the UI only has a 'yes' checkbox, so the PDF 'noTransportation' checkbox can never be true.
-          @form_data['hasTransportation'] = select_radio(@form_data['transportationExpenses'])
-
-          split_phone(@form_data, 'claimantPhone')
-
-          split_postal_code(@form_data)
-
-          @form_data['hasGovtContributions'] = select_radio(@form_data['govtContributions'])
-
-          # These are boolean values that are set up as checkboxes in the PDF
-          # instead of radio buttons, so we need to process them differently
-          %w[
-            burialExpenseResponsibility
-            plotExpenseResponsibility
-            processOption
-          ].each do |attr|
-            expand_checkbox_in_place(@form_data, attr)
           end
 
           SECTION_CLASSES.each { |section| section.new.expand(@form_data) }
 
           @form_data
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end

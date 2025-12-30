@@ -2,11 +2,12 @@
 
 require 'lgy/configuration'
 require 'common/client/base'
+require 'vets/shared_logging'
 
 module LGY
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include SentryLogging
+    include Vets::SharedLogging
     configuration LGY::Configuration
     STATSD_KEY_PREFIX = 'api.lgy'
     SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
@@ -48,6 +49,10 @@ module LGY
             get_application_status: get_application.status
           },
           { team: 'vfs-ebenefits' }
+        )
+
+        log_message_to_rails(
+          'Unexpected COE statuses!', :error
         )
         nil
       end
@@ -97,6 +102,10 @@ module LGY
         :error,
         { message: e.message, status: e.status, body: e.body },
         { team: 'vfs-ebenefits' }
+      )
+
+      log_message_to_rails(
+        "COE application submission failed with http status: #{e.status}", :error
       )
       raise e
     end

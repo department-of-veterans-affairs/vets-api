@@ -3,10 +3,12 @@
 require_relative '../models/clinical_notes'
 require_relative '../models/avs'
 require_relative '../models/binary_data'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class ClinicalNotesAdapter
+      include DateNormalizer
       LOINC_CODES = {
         '11506-3' => 'physician_procedure_note',
         '11488-4' => 'consult_result',
@@ -38,12 +40,15 @@ module UnifiedHealthData
         record = note['resource']
         return nil unless record && get_note(record)
 
+        date_value = record['date']
+
         UnifiedHealthData::ClinicalNotes.new({
                                                id: record['id'],
                                                name: get_title(record),
                                                note_type: get_record_type(record),
                                                loinc_codes: get_loinc_codes(record),
-                                               date: record['date'],
+                                               date: date_value,
+                                               sort_date: normalize_date_for_sorting(date_value),
                                                date_signed: get_date_signed(record),
                                                written_by: extract_author(record),
                                                signed_by: extract_authenticator(record),

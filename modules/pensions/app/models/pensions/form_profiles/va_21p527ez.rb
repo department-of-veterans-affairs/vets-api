@@ -22,7 +22,7 @@ module Pensions
     #
     # Overrides FormProfile#initialize_military_information to use Pensions::FormMilitaryInformation instead of
     # FormProfile::FormMilitaryInformation in order to add additional military information fields.
-    # @see lib/pension_21p527ez/pension_military_information.rb PensionFormMilitaryInformation
+    # @see modules/pensions/lib/pensions/military_information.rb Pensions::FormMilitaryInformation
     # @see lib/va_profile/prefill/military_information.rb FormMilitaryInformation
     #
     # @return [FormMilitaryInformation, Hash]

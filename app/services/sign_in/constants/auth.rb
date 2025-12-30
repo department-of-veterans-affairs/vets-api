@@ -10,6 +10,7 @@ module SignIn
       ACR_TRANSLATIONS = [IDME_LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                           IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3',
                           IDME_LOA3_FORCE = 'http://idmanagement.gov/ns/assurance/loa/3_force',
+                          IDME_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2/aal/2',
                           IDME_CLASSIC_LOA3 = 'classic_loa3',
                           IDME_DSLOGON_LOA1 = 'dslogon',
                           IDME_DSLOGON_LOA3 = 'dslogon_loa3',

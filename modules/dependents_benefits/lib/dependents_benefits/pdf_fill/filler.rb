@@ -14,6 +14,7 @@ module DependentsBenefits
     #
     # This module includes methods to register form classes, fill out PDF forms, and handle extra PDF generation.
     module Filler
+      # Exception raised when PDF form processing fails
       class PdfFillerException < StandardError; end
       module_function
 
@@ -41,9 +42,7 @@ module DependentsBenefits
       {
         DependentsBenefits::ADD_REMOVE_DEPENDENT => DependentsBenefits::PdfFill::Va21686c,
         DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL => DependentsBenefits::PdfFill::Va21674
-      }.each do |form_id, form_class|
-        register_form(form_id, form_class)
-      end
+      }.each { |form_id, form_class| register_form(form_id, form_class) }
 
       ##
       # Combines extra pages into the main PDF if necessary.
@@ -169,17 +168,42 @@ module DependentsBenefits
         combine_extras(file_path, hash_converter.extras_generator, form_class)
       end
 
+      ##
+      # Creates a hash converter for transforming form data into PDF field format
+      #
+      # @param _form_id [String] The form ID (unused in base implementation)
+      # @param form_class [Class] The form class containing date format configuration
+      # @param _submit_date [Time] The submission date (unused in base implementation)
+      # @param _fill_options [Hash] Additional fill options (unused in base implementation)
+      # @return [PdfFill::HashConverter] Configured hash converter with extras generator
       def make_hash_converter(_form_id, form_class, _submit_date, _fill_options)
         extras_generator = ::PdfFill::ExtrasGenerator.new
         ::PdfFill::HashConverter.new(form_class.date_strftime, extras_generator)
       end
 
+      ##
+      # Determines if the form should be stamped with e-signature information
+      #
+      # @param _form_id [String] The form ID (unused in base implementation)
+      # @param fill_options [Hash] Options that may include :omit_esign_stamp flag
+      # @param submit_date [Time, nil] The submission timestamp
+      # @return [Boolean] true if form should be stamped, false otherwise
       def should_stamp_form?(_form_id, fill_options, submit_date)
         return false if fill_options[:omit_esign_stamp]
 
         submit_date.present?
       end
 
+      ##
+      # Stamps the PDF with electronic signature information and VA.gov branding
+      #
+      # Adds two text stamps to the PDF:
+      # 1. Electronic signature statement at bottom-left with timestamp
+      # 2. "VA.gov Submission" text at top-right
+      #
+      # @param file_path [String] Path to the PDF file to stamp
+      # @param submit_date [Time] Submission timestamp to include in signature statement
+      # @return [String] Path to the stamped PDF file, or original path if stamping fails
       def stamp_form(file_path, submit_date)
         original_path = file_path
         sig = "Signed electronically and submitted via VA.gov at #{format_timestamp(submit_date)}. " \

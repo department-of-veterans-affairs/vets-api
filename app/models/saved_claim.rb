@@ -47,9 +47,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    unless [SavedClaim::DependencyClaim, DependentsBenefits::SavedClaim].any? { |k| instance_of?(k) }
-      self.form_id = self.class::FORM.upcase
-    end
+    self.form_id = self.class::FORM.upcase unless [SavedClaim::DependencyClaim].any? { |k| instance_of?(k) }
   end
 
   def self.add_form_and_validation(form_id)
@@ -174,6 +172,17 @@ class SavedClaim < ApplicationRecord
 
   def regional_office
     []
+  end
+
+  # Required for Lighthouse Benefits Intake API submission
+  # Subclasses can override to provide alternate metadata if needed
+  def metadata_for_benefits_intake
+    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
+    { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranFullName', 'last'),
+      fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
+      zipCode: address['postalCode'],
+      businessLine: business_line }
   end
 
   private

@@ -242,6 +242,7 @@ RSpec.describe Form1010cg::Auditor do
     it 'records the duration of an event given its start time' do
       start_time = Time.current
       expected_duration = 3
+      allow(Process).to receive(:clock_gettime).and_call_original
       expect(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time + expected_duration }
       expected_context = { context: :process, event: :success, start_time: }
 

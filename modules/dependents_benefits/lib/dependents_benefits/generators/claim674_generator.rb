@@ -3,6 +3,7 @@
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 module DependentsBenefits
+  # Generator module for creating dependent benefit claims
   module Generators
     ##
     # Generator for creating VA Form 21-674 claims from combined 686c-674 form data
@@ -56,6 +57,7 @@ module DependentsBenefits
         form_674_top.merge('dependents_application' => form_674_nested)
       end
 
+      ## Specifies the claim class for VA Form 21-674
       def claim_class
         SchoolAttendanceApproval
       end
