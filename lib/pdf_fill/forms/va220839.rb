@@ -190,7 +190,9 @@ module PdfFill
       end
 
       def format_schools(form_data)
-        programs = (form_data['yellowRibbonProgramAgreementRequest'] || []).map { |s| convert_unlimited_school_values(s) }
+        programs = (form_data['yellowRibbonProgramAgreementRequest'] || []).map do |s|
+          convert_unlimited_school_values(s)
+        end
         form_data['usSchools'] = programs.filter { |s| s['currencyType'] == 'USD' }
         form_data['foreignSchools'] = programs.filter { |s| s['currencyType'] != 'USD' }
 
