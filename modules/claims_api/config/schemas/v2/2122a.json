@@ -108,7 +108,8 @@
             },
             "areaCode": {
               "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
-              "type": "string", "pattern": "^[2-9][0-9]{2}$",
+              "type": "string", 
+              "pattern": "^[2-9][0-9]*$",
               "example": "555"
             },
             "phoneNumber": {
@@ -220,7 +221,8 @@
             },
             "areaCode": {
               "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
-              "type": "string", "pattern": "^[2-9][0-9]{2}$",
+              "type": "string", 
+              "pattern": "^[2-9][0-9]*$",
               "example": "555"
             },
             "phoneNumber": {
