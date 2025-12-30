@@ -56,6 +56,8 @@ module BenefitsClaims
         private :registry
 
         def register(provider_name, provider_class, options = {})
+          validate_provider_class!(provider_class)
+
           registry[provider_name] = {
             class: provider_class,
             feature_flag: options[:feature_flag],
@@ -94,6 +96,15 @@ module BenefitsClaims
           raise 'ProviderRegistry.clear! cannot be called in production' if Rails.env.production?
 
           registry.clear
+        end
+
+        private
+
+        def validate_provider_class!(provider_class)
+          unless provider_class.included_modules.include?(BenefitsClaimsProvider)
+            raise ArgumentError,
+                  "#{provider_class} must include BenefitsClaimsProvider module"
+          end
         end
       end
     end

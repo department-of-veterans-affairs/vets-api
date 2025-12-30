@@ -2,17 +2,19 @@
 
 require 'rails_helper'
 require 'benefits_claims/providers/provider_registry'
+require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
 
 RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
   let(:mock_provider_class) do
     Class.new do
-      attr_reader :user
-
-      def initialize(user)
-        @user = user
-      end
+      include BenefitsClaims::Providers::BenefitsClaimsProvider
     end
   end
+
+  let(:invalid_provider_class) do
+    Class.new
+  end
+
   let(:user) { build(:user, :loa3) }
 
   before do
@@ -49,6 +51,34 @@ RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
 
       expect(described_class.enabled?(:provider1)).to be true
       expect(described_class.enabled?(:provider2)).to be false
+    end
+
+    it 'freezes the config hash to prevent mutation' do
+      described_class.register(:test_provider, mock_provider_class, enabled_by_default: true)
+      config = described_class.get(:test_provider)
+
+      expect(config).to be_frozen
+      expect { config[:enabled_by_default] = false }.to raise_error(FrozenError)
+    end
+
+    context 'provider validation' do
+      it 'accepts a provider class that includes BenefitsClaimsProvider' do
+        expect do
+          described_class.register(:valid_provider, mock_provider_class, enabled_by_default: true)
+        end.not_to raise_error
+      end
+
+      it 'rejects a provider class that does not include BenefitsClaimsProvider' do
+        expect do
+          described_class.register(:invalid_provider, invalid_provider_class, enabled_by_default: true)
+        end.to raise_error(ArgumentError, /must include BenefitsClaimsProvider module/)
+      end
+
+      it 'provides a helpful error message with the class name' do
+        expect do
+          described_class.register(:invalid_provider, invalid_provider_class, enabled_by_default: true)
+        end.to raise_error(ArgumentError, /#{invalid_provider_class}/)
+      end
     end
   end
 
@@ -106,8 +136,13 @@ RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
   end
 
   describe '.enabled_provider_classes' do
-    let(:provider_class_two) { Class.new { def initialize(user); end } }
-    let(:provider_class_three) { Class.new { def initialize(user); end } }
+    let(:provider_class_two) do
+      Class.new { include BenefitsClaims::Providers::BenefitsClaimsProvider }
+    end
+
+    let(:provider_class_three) do
+      Class.new { include BenefitsClaims::Providers::BenefitsClaimsProvider }
+    end
 
     before do
       described_class.register(:provider1, mock_provider_class, enabled_by_default: true)
@@ -154,12 +189,55 @@ RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
     end
   end
 
+  describe '.get' do
+    before do
+      described_class.register(
+        :test_provider,
+        mock_provider_class,
+        feature_flag: 'test_flag',
+        enabled_by_default: true
+      )
+    end
+
+    it 'returns the configuration for a registered provider' do
+      config = described_class.get(:test_provider)
+
+      expect(config).to be_a(Hash)
+      expect(config[:class]).to eq(mock_provider_class)
+      expect(config[:feature_flag]).to eq('test_flag')
+      expect(config[:enabled_by_default]).to be true
+    end
+
+    it 'returns nil for an unregistered provider' do
+      expect(described_class.get(:nonexistent)).to be_nil
+    end
+
+    it 'returns a frozen config hash' do
+      config = described_class.get(:test_provider)
+      expect(config).to be_frozen
+    end
+  end
+
   describe '.clear!' do
     it 'removes all registered providers' do
       described_class.register(:test_provider, mock_provider_class, enabled_by_default: true)
       expect(described_class.enabled_provider_classes).not_to be_empty
 
       described_class.clear!
+      expect(described_class.enabled_provider_classes).to be_empty
+    end
+
+    it 'raises error in production environment' do
+      allow(Rails.env).to receive(:production?).and_return(true)
+
+      expect { described_class.clear! }.to raise_error('ProviderRegistry.clear! cannot be called in production')
+    end
+
+    it 'works in non-production environments' do
+      allow(Rails.env).to receive(:production?).and_return(false)
+
+      described_class.register(:test_provider, mock_provider_class, enabled_by_default: true)
+      expect { described_class.clear! }.not_to raise_error
       expect(described_class.enabled_provider_classes).to be_empty
     end
   end
