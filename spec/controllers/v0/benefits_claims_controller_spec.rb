@@ -2376,8 +2376,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           allow(Rails.logger).to receive(:info)
         end
 
-        # TODO: : What happens if both providers have a claim with the same id?
-
         it 'raises RecordNotFound exception' do
           expect do
             controller.send(:get_claim_from_providers, claim_id)
