@@ -114,6 +114,8 @@ module V0
     private
 
     def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
       log_inbound_request(message_type: 'lh.cst.inbound_request', message: 'Inbound request (Lighthouse claim status)')
     end
 
