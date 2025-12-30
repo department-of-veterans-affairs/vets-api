@@ -3,15 +3,8 @@
 ### https://github.com/troessner/reek
 
 exclude_paths:
-  - vendor/**
-  - .bundle/**
-  - node_modules/**
-  - tmp/**
-  - log/**
   - db/schema.rb
   - db/audit_schema.rb
-  - db/migrate/**
-  - modules/**/db/migrate/**
 
 # new configuration to reduce noise (~1.8k smells)
 detectors:
