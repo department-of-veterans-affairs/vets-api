@@ -53,7 +53,7 @@ class FormProfiles::VA10203 < FormProfile
   private
 
   def get_gi_bill_status
-    if Flipper.enabled?(:sob_claimant_service)
+    if Flipper.enabled?(:form_10203_claimant_service)
       service = SOB::DGI::Service.new(user.ssn)
       service.get_ch33_status
     else
@@ -75,7 +75,7 @@ class FormProfiles::VA10203 < FormProfile
   end
 
   def initialize_school_information(gi_bill_status)
-    return {} if gi_bill_status.blank?
+    return {} if gi_bill_status.blank? || Flipper.enabled?(:form_10203_claimant_service)
 
     most_recent = gi_bill_status.enrollments.max_by(&:begin_date)
 

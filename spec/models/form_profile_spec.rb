@@ -1599,6 +1599,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile and GiBillStatus prefill for 10203' do
         before do
+          allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
           can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {

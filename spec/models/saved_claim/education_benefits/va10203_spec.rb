@@ -9,7 +9,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:sob_claimant_service).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
   end
 
   it_behaves_like 'saved_claim'
@@ -25,17 +25,17 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   describe '#after_submit' do
     context 'when the user is logged in' do
       let(:user) { create(:user) }
-      let(:service) { instance_double(SOB::DGI::Service) }
+      let(:service) { instance_double(BenefitsEducation::Service) }
 
       before do
-        allow(SOB::DGI::Service).to receive(:new).and_return(service)
-        allow(service).to receive(:get_ch33_status).and_return({})
+        allow(BenefitsEducation::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:get_gi_bill_status).and_return({})
       end
 
-      it 'calls get_ch33_status on the service' do
+      it 'calls get_gi_bill_status on the service' do
         instance.after_submit(user)
-        expect(service).to have_received(:get_ch33_status)
-        expect(SOB::DGI::Service).to have_received(:new).with(user.ssn).exactly(1).times
+        expect(service).to have_received(:get_gi_bill_status)
+        expect(BenefitsEducation::Service).to have_received(:new).with(user.icn).exactly(1).times
       end
 
       it 'sets the gi_bill_status instance variable' do
@@ -55,16 +55,16 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         mock_benefits_response = BenefitsEducation::Response.new(response_status, mock_raw_response)
 
         # Override the service mock for this specific test
-        allow(service).to receive(:get_ch33_status).and_return(mock_benefits_response)
+        allow(service).to receive(:get_gi_bill_status).and_return(mock_benefits_response)
 
         instance.after_submit(user)
         expect(instance.instance_variable_get(:@gi_bill_status)).not_to be_nil
       end
 
-      context 'when get_ch33_status raises an error' do
+      context 'when get_gi_bill_status raises an error' do
         before do
           allow(Rails.logger).to receive(:error)
-          allow(service).to receive(:get_ch33_status).and_raise(StandardError)
+          allow(service).to receive(:get_gi_bill_status).and_raise(StandardError)
         end
 
         it 'logs an error' do
@@ -262,7 +262,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
               mock_benefits_response = BenefitsEducation::Response.new(response_status, mock_raw_response)
 
               # Override the service mock for this specific test
-              allow(service).to receive(:get_ch33_status).and_return(mock_benefits_response)
+              allow(service).to receive(:get_gi_bill_status).and_return(mock_benefits_response)
               allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
 
               instance.after_submit(user)
@@ -288,7 +288,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
               mock_benefits_response = BenefitsEducation::Response.new(response_status, mock_raw_response)
 
               # Override the service mock for this specific test
-              allow(service).to receive(:get_ch33_status).and_return(mock_benefits_response)
+              allow(service).to receive(:get_gi_bill_status).and_return(mock_benefits_response)
               allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
 
               instance.after_submit(user)

@@ -51,7 +51,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   private
 
   def get_gi_bill_status
-    if Flipper.enabled?(:sob_claimant_service)
+    if Flipper.enabled?(:form_10203_claimant_service)
       service = SOB::DGI::Service.new(@user.ssn)
       service.get_ch33_status
     else
@@ -64,7 +64,9 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def get_facility_code
-    return {} if @gi_bill_status.blank? || @gi_bill_status.enrollments.blank?
+    return {} if @gi_bill_status.blank? ||
+                 Flipper.enabled?(:form_10203_claimant_service) ||
+                 @gi_bill_status.enrollments.blank?
 
     most_recent = @gi_bill_status.enrollments.max_by(&:begin_date)
 
