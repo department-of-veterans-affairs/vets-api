@@ -60,7 +60,7 @@ module BenefitsClaims
             class: provider_class,
             feature_flag: options[:feature_flag],
             enabled_by_default: ActiveModel::Type::Boolean.new.cast(options.fetch(:enabled_by_default, false))
-          }
+          }.freeze
         end
 
         def enabled_provider_classes(user = nil)
@@ -76,6 +76,17 @@ module BenefitsClaims
           return Flipper.enabled?(config[:feature_flag], user) if config[:feature_flag] && defined?(Flipper)
 
           config[:enabled_by_default]
+        end
+
+        ##
+        # Retrieves the configuration for a specific provider.
+        # Useful for debugging in production environments (e.g., Argo console).
+        #
+        # @example
+        #   config = ProviderRegistry.get(:lighthouse)
+        #   # => { class: LighthouseBenefitsClaimsProvider, feature_flag: '...', enabled_by_default: true }
+        def get(provider_name)
+          config = registry[provider_name]
         end
 
         # Clear all registered providers (useful for testing)
