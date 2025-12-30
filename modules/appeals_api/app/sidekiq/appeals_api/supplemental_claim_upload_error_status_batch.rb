@@ -15,8 +15,6 @@ module AppealsApi
     # Age in days to continue to update the status of HigherLevelReviews with an upstream DOC202 processing error
     DOC202_ERROR_STATUS_UPDATE_LOOKBACK = 14.days
 
-    BATCH_SIZE = 100
-
     def perform
       return unless enabled? && supplemental_claim_ids.present?
 
