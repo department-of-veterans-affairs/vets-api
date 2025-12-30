@@ -3,6 +3,7 @@
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
 
+# rubocop:disable Metrics/ClassLength
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
@@ -17,9 +18,7 @@ module UnifiedHealthData
         category = categorize_medication(resource)
 
         # Filter out medications that should not be visible to Veterans
-        if filtered_category?(category)
-          return nil
-        end
+        return nil if filtered_category?(category)
 
         # Log uncategorized medications for review
         log_uncategorized_medication(resource) if category == :uncategorized
@@ -42,33 +41,24 @@ module UnifiedHealthData
         category_codes = extract_category_codes_normalized(resource)
 
         # VA Prescription
-        # reportedBoolean=false, intent='order', category=['community', 'discharge']
-        if reported_boolean == false &&
-           intent == 'order' &&
-           category_codes == %w[community discharge]
+        if reported_boolean == false && intent == 'order' && category_codes == %w[community discharge]
           return :va_prescription
         end
 
         # Documented/Non-VA Medication
-        # reportedBoolean=true, intent='plan', category=['community', 'patientspecified']
-        if reported_boolean == true &&
-           intent == 'plan' &&
-           category_codes == %w[community patientspecified]
+        if reported_boolean == true && intent == 'plan' && category_codes == %w[community patientspecified]
           return :documented_non_va
         end
 
         # Clinic Administered Medication
-        # reportedBoolean=false, intent='order', category=['outpatient']
-        if reported_boolean == false &&
-           intent == 'order' &&
-           category_codes == ['outpatient']
+        if reported_boolean == false && intent == 'order' && category_codes == ['outpatient']
           return :clinic_administered
         end
 
-        # Pharmacy Charges (category only check)
+        # Pharmacy Charges
         return :pharmacy_charges if category_codes == ['charge-only']
 
-        # Inpatient Medication (category only check)
+        # Inpatient Medication
         return :inpatient if category_codes == ['inpatient']
 
         # Default: Uncategorized
@@ -705,3 +695,4 @@ module UnifiedHealthData
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
