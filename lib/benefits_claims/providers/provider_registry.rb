@@ -88,7 +88,7 @@ module BenefitsClaims
         #   config = ProviderRegistry.get(:lighthouse)
         #   # => { class: LighthouseBenefitsClaimsProvider, feature_flag: '...', enabled_by_default: true }
         def get(provider_name)
-          config = registry[provider_name]
+          registry[provider_name]
         end
 
         # Clear all registered providers (useful for testing)
