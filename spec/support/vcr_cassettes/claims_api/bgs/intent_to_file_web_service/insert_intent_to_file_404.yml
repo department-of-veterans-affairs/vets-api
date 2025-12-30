@@ -25,7 +25,7 @@ http_interactions:
 
           <env:Body>
             <tns:insertIntentToFile><intentToFileDTO>
-        <itfTypeCd>S</itfTypeCd><ptcpntVetId>1234</ptcpntVetId><rcvdDt>2025-02-07T15:21:00+00:00</rcvdDt><signtrInd/><submtrApplcnTypeCd>LH-B</submtrApplcnTypeCd></intentToFileDTO>
+        <itfTypeCd>C</itfTypeCd><ptcpntVetId>1234</ptcpntVetId><rcvdDt>2025-12-19T21:29:28+00:00</rcvdDt><signtrInd/><submtrApplcnTypeCd>LH-B</submtrApplcnTypeCd><ptcpntClmantId></ptcpntClmantId></intentToFileDTO>
         </tns:insertIntentToFile>
           </env:Body>
           </env:Envelope>
@@ -44,15 +44,17 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 404
-      message: Record Not Found
+      code: 500
+      message: Internal Server Error
     headers:
       Date:
-      - Fri, 07 Feb 2025 15:21:01 GMT
+      - Fri, 19 Dec 2025 21:29:28 GMT
       Server:
       - Apache
-      X-Frame-Options:
-      - SAMEORIGIN
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtSInfo;desc=, dtRpid;desc=
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -63,10 +65,10 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS41AAA=</work:WorkContext></env:Header><S:Body><ns0:Fault
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuNS4yMgAA</work:WorkContext></env:Header><S:Body><ns0:Fault
         xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Veteran
         with ID 1234 not found in database</faultstring><detail><ns0:MessageException
         xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><message>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Veteran
         with ID 1234 not found in database</message></ns0:MessageException></detail></ns0:Fault></S:Body></S:Envelope>
-  recorded_at: Fri, 07 Feb 2025 15:21:01 GMT
+  recorded_at: Fri, 19 Dec 2025 21:29:28 GMT
 recorded_with: VCR 6.3.1
