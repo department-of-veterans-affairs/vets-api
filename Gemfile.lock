@@ -466,7 +466,7 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-follow_redirects (0.3.0)
+    faraday-follow_redirects (0.4.0)
       faraday (>= 1, < 3)
     faraday-http-cache (2.5.1)
       faraday (>= 0.8)
@@ -971,9 +971,9 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     require_all (3.0.0)
-    restforce (8.0.0)
+    restforce (8.0.1)
       faraday (>= 1.1.0, < 3.0.0)
-      faraday-follow_redirects (<= 0.3.0, < 1.0.0)
+      faraday-follow_redirects (< 0.6.0)
       faraday-multipart (>= 1.0.0, < 2.0.0)
       faraday-net_http (< 4.0.0)
       hashie (>= 1.2.0, < 6.0)
