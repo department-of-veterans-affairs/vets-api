@@ -124,6 +124,84 @@ module DecisionReviews
         phone_hash.delete('areaCode') if phone_hash.is_a?(Hash)
         req_body_obj
       end
+
+      def validate_and_format_va_treatment_date(date_string)
+        return nil unless date_string.match?(/^\d{4}-\d{2}$/)
+
+        "#{date_string}-01"
+      end
+
+      def format_va_evidence_entries(va_evidence)
+        va_evidence.map do |entry|
+          formatted_entry = {
+            'type' => 'retrievalEvidence',
+            'attributes' => {}
+          }
+
+          evidence_entry = entry.dup
+          formatted_entry['attributes']['locationAndName'] = evidence_entry['treatmentLocation']
+
+          has_treatment_before_2005 = evidence_entry['treatmentBefore2005'] == 'Y'
+
+          if has_treatment_before_2005
+            treatment_date = validate_and_format_va_treatment_date(evidence_entry['treatmentMonthYear'].to_s)
+
+            if treatment_date
+              formatted_entry['attributes']['evidenceDates'] = [{
+                'startDate' => treatment_date,
+                'endDate' => treatment_date
+              }]
+            end
+          end
+
+          formatted_entry['attributes']['noTreatmentDates'] =
+            !has_treatment_before_2005 || treatment_date.nil?
+
+          formatted_entry
+        end
+      end
+
+      def make_issues_list(issues_hash)
+        issues_hash.select { |_key, value| value == true }.keys
+      end
+
+      def format_private_evidence_entries(private_evidence)
+        private_evidence_data = {
+          'providerFacility' => []
+        }
+
+        private_evidence.each_with_index.map do |entry, index|
+          evidence_entry = entry.dup
+
+          private_evidence_data['privacyAgreementAccepted'] = true if index.zero? && evidence_entry['authorization']
+
+          if index.zero? && evidence_entry['lcDetails'].present?
+            private_evidence_data['limitedConsent'] =
+              evidence_entry['lcDetails']
+          end
+
+          facility_data = {
+            'providerFacilityName' => evidence_entry['treatmentLocation'] || '',
+            'providerFacilityAddress' => {
+              'country' => evidence_entry.dig('address', 'country') || '',
+              'street' => evidence_entry.dig('address', 'street') || '',
+              'street2' => evidence_entry.dig('address', 'street2') || '',
+              'city' => evidence_entry.dig('address', 'city') || '',
+              'state' => evidence_entry.dig('address', 'state') || '',
+              'postalCode' => evidence_entry.dig('address', 'postalCode') || ''
+            },
+            'issues' => make_issues_list(evidence_entry['issuesPrivate']),
+            'treatmentDateRange' => [{
+              'from' => evidence_entry['treatmentStart'] || '',
+              'to' => evidence_entry['treatmentEnd'] || ''
+            }]
+          }
+
+          private_evidence_data['providerFacility'] << facility_data
+        end
+
+        private_evidence_data
+      end
     end
   end
 end
