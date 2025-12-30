@@ -777,18 +777,18 @@ RSpec.describe Users::Profile do
       end
     end
 
-    describe '#healthcare_settings_pilot_eligible' do
+    describe '#scheduling_preferences_pilot_eligible' do
       let(:users_profile) { Users::Profile.new(user) }
       let(:visn_service) { instance_double(UserVisnService) }
-      let(:result) { users_profile.send(:healthcare_settings_pilot_eligible) }
+      let(:result) { users_profile.send(:scheduling_preferences_pilot_eligible) }
 
       before do
         allow(UserVisnService).to receive(:new).with(user).and_return(visn_service)
       end
 
-      context 'when profile_health_care_settings_page feature flag is disabled' do
+      context 'when profile_scheduling_preferences feature flag is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
         end
 
         it 'returns false' do
@@ -797,9 +797,9 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when profile_health_care_settings_page feature flag is enabled' do
+      context 'when profile_scheduling_preferences feature flag is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
         end
 
         context 'when user is in pilot VISN' do
@@ -833,14 +833,14 @@ RSpec.describe Users::Profile do
           it 'logs the error and returns false' do
             expect(Rails.logger)
               .to receive(:error)
-              .with("Error checking healthcare settings pilot eligibility: #{error_message}")
+              .with("Error checking scheduling preferences pilot eligibility: #{error_message}")
             expect(result).to be false
           end
         end
       end
     end
 
-    describe 'mpi_profile integration with healthcare_settings_pilot_eligible' do
+    describe 'mpi_profile integration with scheduling_preferences_pilot_eligible' do
       let(:users_profile) { Users::Profile.new(user) }
       let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
 
@@ -860,24 +860,24 @@ RSpec.describe Users::Profile do
         )
       end
 
-      context 'when user is eligible for healthcare settings pilot' do
+      context 'when user is eligible for scheduling preferences pilot' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
           allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
         end
 
-        it 'includes healthcare_settings_pilot_eligible as true in mpi_profile' do
-          expect(mpi_profile_result[:healthcare_settings_pilot_eligible]).to be true
+        it 'includes scheduling_preferences_pilot_eligible as true in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be true
         end
       end
 
-      context 'when user is not eligible for healthcare settings pilot' do
+      context 'when user is not eligible for scheduling preferences pilot' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_health_care_settings_page, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
         end
 
-        it 'includes healthcare_settings_pilot_eligible as false in mpi_profile' do
-          expect(mpi_profile_result[:healthcare_settings_pilot_eligible]).to be false
+        it 'includes scheduling_preferences_pilot_eligible as false in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be false
         end
       end
     end

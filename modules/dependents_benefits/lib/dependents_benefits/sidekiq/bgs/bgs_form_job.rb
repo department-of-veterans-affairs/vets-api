@@ -76,6 +76,8 @@ module DependentsBenefits
 
           # vnp_proc is BGS's way of grouping related form submissions together
           vnp_response = bgs_service.create_proc(proc_state: 'Started')
+          raise 'BGS proc ID generation failed: No proc ID returned' if vnp_response.nil?
+
           @proc_id = vnp_response[:vnp_proc_id]
 
           bgs_service.create_proc_form(@proc_id, ADD_REMOVE_DEPENDENT.downcase) if saved_claim.submittable_686?
