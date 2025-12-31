@@ -1,6 +1,7 @@
 {
   "applicantName": {
     "first": "Jane",
+    "middle": "Chicken",
     "last": "Smith"
   },
   "mailingAddress": {
@@ -11,7 +12,11 @@
     "state": "DC",
     "postalCode": "20001"
   },
+  "emailAddress": "jane@randallware.net",
+  "homePhone": "4018614700",
+  "mobilePhone": "5086773030",
   "vaFileNumber": "123456789",
+  "payeeNumber": "12",
   "hasPreviouslyApplied": true,
   "vaBenefitProgram": "Post-9/11 GI Bill",
   "testName": "SAT",
