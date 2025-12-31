@@ -2,11 +2,13 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
+require_relative 'oracle_health_medication_categorizer_helper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
+      include OracleHealthMedicationCategorizerHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -28,19 +30,6 @@ module UnifiedHealthData
       end
 
       private
-
-      def log_uncategorized_medication(resource)
-        return unless Flipper.enabled?(:mhv_medications_v2_status_mapping)
-
-        Rails.logger.warn(
-          message: 'Oracle Health medication uncategorized',
-          prescription_id_suffix: resource['id']&.to_s&.last(3) || 'unknown',
-          reported_boolean: resource['reportedBoolean'],
-          intent: resource['intent'],
-          category_codes: extract_category(resource),
-          service: 'unified_health_data'
-        )
-      end
 
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
