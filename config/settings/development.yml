@@ -92,8 +92,8 @@ bing:
   key: ~
 bio:
   increase_compensation:
-    bucket: ~
-    region: ~
+    bucket: development-form-submissions
+    region: us-east-1
   medical_expense_reports:
     bucket: ~
     region: ~
@@ -1417,7 +1417,7 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: fake_dv_submitted
-    21_8940: &vanotify_services_increase_compensation
+    21_8940v1: &vanotify_services_increase_compensation
       api_key: ~
       email:
         confirmation:

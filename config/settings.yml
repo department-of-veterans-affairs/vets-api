@@ -1398,7 +1398,7 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
-    21_8940: &vanotify_services_increase_compensation
+    21_8940v1: &vanotify_services_increase_compensation
       api_key: ~
       email:
         confirmation:

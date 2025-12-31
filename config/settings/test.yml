@@ -1416,12 +1416,12 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: fake_dv_submitted
-    21_8940: &vanotify_services_increase_compensation
-      api_key: ~
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: fake_api_key
       email:
         confirmation:
-          flipper_id: false
-          template_id: ~
+          flipper_id: form21-8940_confirmation_email_notification
+          template_id: form21-8940_confirmation_email_template_id
         error:
           flipper_id: increase_compensation_error_email_notification
           template_id: form21-8940_error_email_template_id
