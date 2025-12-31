@@ -3,7 +3,6 @@
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
 
-# rubocop:disable Metrics/ClassLength
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
@@ -18,7 +17,7 @@ module UnifiedHealthData
         category = categorize_medication(resource)
 
         # Filter out medications that should not be visible to Veterans
-        return nil if filtered_category?(category)
+        return nil if %i[pharmacy_charges inpatient].include?(category)
 
         # Log uncategorized medications for review
         log_uncategorized_medication(resource) if category == :uncategorized
@@ -29,61 +28,7 @@ module UnifiedHealthData
         nil
       end
 
-      # Categorizes medication based on Oracle Health specification
-      # Uses reportedBoolean, intent, and category fields to determine medication type
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Symbol] One of the available categories
-      # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/digital-health-modernization/mhv-to-va.gov/medications/requirements/oracle_health_categorization_spec.md
-      def categorize_medication(resource)
-        reported_boolean = resource['reportedBoolean']
-        intent = resource['intent']
-        category_codes = extract_category_codes_normalized(resource)
-
-        # VA Prescription
-        if reported_boolean == false && intent == 'order' && category_codes == %w[community discharge]
-          return :va_prescription
-        end
-
-        # Documented/Non-VA Medication
-        if reported_boolean == true && intent == 'plan' && category_codes == %w[community patientspecified]
-          return :documented_non_va
-        end
-
-        # Clinic Administered Medication
-        if reported_boolean == false && intent == 'order' && category_codes == ['outpatient']
-          return :clinic_administered
-        end
-
-        # Pharmacy Charges
-        return :pharmacy_charges if category_codes == ['charge-only']
-
-        # Inpatient Medication
-        return :inpatient if category_codes == ['inpatient']
-
-        # Default: Uncategorized
-        :uncategorized
-      end
-
-      # Determines if a medication category should be filtered out (hidden from Veterans)
-      # Per specification, Pharmacy Charges and Inpatient Medications are not visible
-      #
-      # @param category [Symbol] Medication category from categorize_medication
-      # @return [Boolean] True if medication should be filtered out
-      def filtered_category?(category)
-        %i[pharmacy_charges inpatient].include?(category)
-      end
-
       private
-
-      # Extracts and normalizes category codes for comparison
-      # Returns sorted, lowercased array for case-insensitive exact matching
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Array<String>] Sorted, lowercased category codes
-      def extract_category_codes_normalized(resource)
-        extract_category(resource).map(&:downcase).sort
-      end
 
       # Logs uncategorized medications for review per specification requirement
       #
@@ -628,26 +573,6 @@ module UnifiedHealthData
         non_va_med?(resource) ? 'NV' : 'VA'
       end
 
-      def extract_category(resource)
-        # Extract category from FHIR MedicationRequest
-        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
-        categories = resource['category'] || []
-        return [] if categories.empty?
-
-        # Category is an array of CodeableConcept objects
-        # We collect all codes from all categories
-        codes = []
-        categories.each do |category|
-          codings = category['coding'] || []
-          codings.each do |coding|
-            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
-            codes << coding['code'] if coding['code'].present?
-          end
-        end
-
-        codes
-      end
-
       def extract_provider_name(resource)
         resource.dig('requester', 'display')
       end
@@ -697,4 +622,3 @@ module UnifiedHealthData
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
