@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 module NotificationsClientPatch
+  # need to overwrite initialize to extract different key lengths
+  def initialize(secret_token = nil, base_url = nil)
+    return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
+
+    @service_id = secret_token[secret_token.length - 73..secret_token.length - 38]
+    # TODO: extract secret_token that is either 36 or 86 characters long
+    @secret_token = secret_token[secret_token.length - 36..secret_token.length]
+    @base_url = base_url || PRODUCTION_BASE_URL
+
+    validate_uuids!
+  end
+
   def validate_uuids!
     return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
 
@@ -34,6 +46,6 @@ end
 # prevents a race condition when booting up Rails
 # Speaker.prepend inserts a method signature for validate_uuids! which patches the original version
 Rails.configuration.to_prepare do
-  require 'notifications/client'
+  require "notifications/client"
   Notifications::Client::Speaker.prepend(NotificationsClientPatch)
 end
