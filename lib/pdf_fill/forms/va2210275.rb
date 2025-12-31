@@ -178,25 +178,8 @@ module PdfFill
 
       def merge_address_helpers
         address = @form_data['mainInstitution'].delete('institutionAddress')
-        format_address(address)
+        normalize_mailing_address(address)
         @form_data['mainInstitution']['mailingAddress'] = combine_full_address_extras(address)
-      end
-
-      def format_address(address)
-        address['country'] = format_country(address)
-        address['state'] = format_state(address)
-      end
-
-      # Unnecessary to include country code in mailing address if domestic
-      def format_country(address)
-        address['country'].in?(%w[USA US]) ? nil : extract_country(address)
-      end
-
-      # Format Mexican state names
-      def format_state(address)
-        return address['state'] unless address['country'].in?(%w[MEX MX])
-
-        address['state'].gsub('-', ' ').titleize
       end
 
       def merge_agreement_type_helpers
@@ -212,7 +195,7 @@ module PdfFill
       def merge_additional_institution_helpers
         @form_data['additionalInstitutions'].each do |institution|
           address = institution['institutionAddress']
-          format_address(address)
+          normalize_mailing_address(address)
           institution['institutionAddress'] = combine_full_address(address)
 
           # flatten nested contact info

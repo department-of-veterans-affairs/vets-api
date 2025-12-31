@@ -33,6 +33,7 @@ require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va220976'
+require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/forms/va212680'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
@@ -103,6 +104,7 @@ module PdfFill
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
+      '22-102752' => PdfFill::Forms::Va2210272,
       '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)

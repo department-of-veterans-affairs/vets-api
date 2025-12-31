@@ -161,6 +161,13 @@ module PdfFill
         }
       end
 
+      def normalize_mailing_address(address)
+        # Unnecessary to include country code in mailing address if domestic
+        address['country'] = address['country'].in?(%w[USA US]) ? nil : extract_country(address)
+        # Format Mexican state names
+        address['state'] = address['state'].gsub('-', ' ').titleize if address['country'].in?(%w[MEX MX])
+      end
+
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting

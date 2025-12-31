@@ -226,4 +226,18 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.format_radio_yes_no('NA')).to eq('NA')
     end
   end
+
+  describe '#normalize_mailing_address' do
+    it 'normalizes address if domestic' do
+      address = { 'country' => 'US', 'state' => 'MT' }
+      including_class.new.normalize_mailing_address(address)
+      expect(address['country']).to be_nil
+    end
+
+    it 'normalizes address if Mexican' do
+      address = { 'country' => 'MEX', 'state' => 'baja-california-norte' }
+      including_class.new.normalize_mailing_address(address)
+      expect(address['state']).to eq('Baja California Norte')
+    end
+  end
 end
