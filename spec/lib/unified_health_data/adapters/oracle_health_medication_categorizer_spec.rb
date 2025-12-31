@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/adapters/oracle_health_medication_categorizer_helper'
+require 'unified_health_data/adapters/oracle_health_medication_categorizer'
 
-describe UnifiedHealthData::Adapters::OracleHealthMedicationCategorizerHelper do
+describe UnifiedHealthData::Adapters::OracleHealthMedicationCategorizer do
   # Create a test class that includes the module
   subject { helper_class.new }
 
   let(:helper_class) do
     Class.new do
-      include UnifiedHealthData::Adapters::OracleHealthMedicationCategorizerHelper
+      include UnifiedHealthData::Adapters::OracleHealthMedicationCategorizer
     end
   end
 

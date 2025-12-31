@@ -4,7 +4,7 @@ module UnifiedHealthData
   module Adapters
     # Medication categorization helpers for FHIR MedicationRequest resources
     # Implements Oracle Health specification for medication type determination
-    module OracleHealthMedicationCategorizerHelper
+    module OracleHealthMedicationCategorizer
       # Extract category codes from FHIR MedicationRequest
       # Returns normalized (lowercase, sorted) codes for consistent comparison
       # @see https://build.fhir.org/valueset-medicationrequest-admin-location.html

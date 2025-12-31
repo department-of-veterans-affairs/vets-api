@@ -2,13 +2,13 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
-require_relative 'oracle_health_medication_categorizer_helper'
+require_relative 'oracle_health_medication_categorizer'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
-      include OracleHealthMedicationCategorizerHelper
+      include OracleHealthMedicationCategorizer
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
