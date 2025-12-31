@@ -90,7 +90,7 @@ module ClaimsApi
         if person[:phone]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              res = create_vnp_phone(person[:phone], vnp_ptcpnt_id)
               @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
             end
           end
@@ -247,7 +247,7 @@ module ClaimsApi
       end
       # rubocop: enable Metrics/MethodLength
 
-      def create_vnp_phone(area_code, phone_number, vnp_ptcpnt_id)
+      def create_vnp_phone(phone_data, vnp_ptcpnt_id)
         ClaimsApi::VnpPtcpntPhoneService
           .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
           .vnp_ptcpnt_phone_create(
@@ -255,7 +255,9 @@ module ClaimsApi
               vnp_proc_id: @vnp_proc_id,
               vnp_ptcpnt_id:,
               phone_type_nm: PHONE_TYPE,
-              phone_nbr: "#{area_code}#{phone_number}",
+              phone_nbr: parse_phone_data(phone_data, 'domestic'),
+              cntry_nbr: phone_data[:countryCode].to_s,
+              frgn_phone_rfrnc_txt: parse_phone_data(phone_data, 'international'),
               efctv_dt: Time.current.iso8601
             }
           )
@@ -282,7 +284,9 @@ module ClaimsApi
               limitation_s_c_a: limitation?('SICKLE_CELL'),
               organization_name: @form_data.dig(@poa_key, :organizationName),
               other_service_branch: @form_data.dig(:veteran, :serviceBranchOther),
-              phone_number: @form_data[:veteran][:phone].present? ? format_phone(@form_data[:veteran][:phone]) : nil,
+              phone_number: parse_phone_data(@form_data.dig(:veteran, :phone), 'domestic'),
+              cntry_nbr: @form_data.dig(:veteran, :phone, :countryCode),
+              frgn_phone_rfrnc_txt: parse_phone_data(@form_data.dig(:veteran, :phone), 'international'),
               poa_code: @form_data.dig(:representative, :poaCode),
               postal_code: @form_data[:veteran][:address][:zipCode],
               proc_id: @vnp_proc_id,
@@ -344,6 +348,21 @@ module ClaimsApi
         res_object_hash.each_with_object({}) do |(key, value), result|
           cleaned_value = value.is_a?(Hash) ? remove_nil_values(value) : value
           result[key] = cleaned_value unless cleaned_value.nil?
+        end
+      end
+
+      def parse_phone_data(phone_data, location_type)
+        return nil if phone_data.blank?
+
+        # is international
+        if phone_data[:countryCode].present? && phone_data[:countryCode] != '1'
+          return ' ' if location_type == 'domestic'
+
+          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".delete(' ')
+        else
+          return nil if location_type == 'international'
+
+          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}"
         end
       end
     end
