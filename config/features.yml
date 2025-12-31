@@ -81,6 +81,11 @@ features:
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
     enable_in_development: true
+  ask_va_ab_release:
+    actor_type: cookie_id
+    description: >
+      Clone of ask_va_canary_release
+    enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
     description: >
