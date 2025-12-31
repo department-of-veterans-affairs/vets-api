@@ -754,6 +754,10 @@ features:
     actor_type: user
     description: enables failure email when explicit failure is detected downstream
     enable_in_development: true
+  efolder_use_lighthouse_benefits_documents_service:
+    actor_type: user
+    description: Enables use of Lighthouse Benefits Documents service for fetching eFolder documents
+    enable_in_development: false
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
@@ -1254,6 +1258,10 @@ features:
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
+  log_claims_request_origin:
+    actor_type: user
+    description: Enables logging of inbound request metadata for claims endpoints to track request origins
+    enable_in_development: true
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
@@ -1350,9 +1358,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_secure_messaging_no_cache:
-    actor_type: user
-    description: Prevents caching of Secure Messaging data
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1862,10 +1867,6 @@ features:
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
-    enable_in_development: true
-  show_cdp_one_thing_per_page:
-    actor_type: user
-    description: Enables the Payment History MVP features for development
     enable_in_development: true
   vha_show_payment_history:
     actor_type: user

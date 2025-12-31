@@ -1,0 +1,7 @@
+applicantName: [identity_information, full_name]
+mailingAddress: [contact_information, address]
+contactInfo:
+  emailAddress: [contact_information, email]
+  homePhone: [contact_information, us_phone]
+  mobilePhone: [contact_information, mobile_phone]
+vaFileNumber: [va_file_number]
