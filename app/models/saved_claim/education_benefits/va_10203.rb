@@ -20,7 +20,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
     send_confirmation_email if Flipper.enabled?(:form21_10203_confirmation_email)
 
-    if @user.present? && FeatureFlipper.send_email?
+    if @user.present? && FeatureFlipper.send_email? && !Flipper.enabled?(:form_10203_claimant_service)
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
 
       authorized = @user.authorize(:evss, :access?)
