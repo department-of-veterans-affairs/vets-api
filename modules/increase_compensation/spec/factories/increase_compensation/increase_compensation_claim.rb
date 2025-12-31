@@ -22,6 +22,7 @@ FactoryBot.define do
           street2: '4B',
           city: 'Cheyenne'
         },
+        emailAddress: 'juan.johnny.rico@example.com',
         doctorsCare: [
           {
             inVANetwork: true,

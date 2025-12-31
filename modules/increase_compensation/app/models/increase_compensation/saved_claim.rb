@@ -16,10 +16,12 @@ module IncreaseCompensation
     #
     # @return [Array<String>] the address lines of the regional office
     def regional_office
-      ['Department of Veterans Affairs',
-       'Evidence Intake Center',
-       'P.O. Box 4444',
-       'Janesville, Wisconsin 53547-4444']
+      [
+        'Department of Veterans Affairs',
+        'Evidence Intake Center',
+        'P.O. Box 4444',
+        'Janesville, Wisconsin 53547-4444'
+      ]
     end
 
     ##
@@ -39,7 +41,7 @@ module IncreaseCompensation
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email']
+      parsed_form['email'] || parsed_form['emailAddress']
     end
 
     # Utility function to retrieve veteran first name from form
