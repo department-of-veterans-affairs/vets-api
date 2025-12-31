@@ -49,15 +49,19 @@
 # - get_claims: Returns an array of claims for the current user
 # - get_claim(id): Returns a single claim by its ID
 #
-module BenefitsClaimsProvider
-  # Retrieves all claims for the current user
-  #
-  # @return [Array<Hash>] Array of claim data transformed to ClaimResponse DTO format
-  def get_claims = raise(NotImplementedError)
+module BenefitsClaims
+  module Providers
+    module BenefitsClaimsProvider
+      # Retrieves all claims for the current user
+      #
+      # @return [Array<Hash>] Array of claim data transformed to ClaimResponse DTO format
+      def get_claims = raise(NotImplementedError)
 
-  # Retrieves a single claim by ID
-  #
-  # @param _id [String] The unique identifier of the claim
-  # @return [Hash] Single claim data transformed to ClaimResponse DTO format
-  def get_claim(_id) = raise(NotImplementedError)
+      # Retrieves a single claim by ID
+      #
+      # @param _id [String] The unique identifier of the claim
+      # @return [Hash] Single claim data transformed to ClaimResponse DTO format
+      def get_claim(_id) = raise(NotImplementedError)
+    end
+  end
 end
