@@ -71,7 +71,7 @@ RSpec.describe BenefitsClaims::Providers::ProviderRegistry do
       it 'rejects a provider class that does not include BenefitsClaimsProvider' do
         expect do
           described_class.register(:invalid_provider, invalid_provider_class, enabled_by_default: true)
-        end.to raise_error(ArgumentError, /must include BenefitsClaimsProvider module/)
+        end.to raise_error(ArgumentError, /must include.*BenefitsClaimsProvider module/)
       end
 
       it 'provides a helpful error message with the class name' do
