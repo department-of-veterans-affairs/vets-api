@@ -19,7 +19,6 @@ module UnifiedHealthData
         # Filter out medications that should not be visible to Veterans
         return nil if %i[pharmacy_charges inpatient].include?(category)
 
-        # Log uncategorized medications for review
         log_uncategorized_medication(resource) if category == :uncategorized
 
         UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
@@ -30,9 +29,6 @@ module UnifiedHealthData
 
       private
 
-      # Logs uncategorized medications for review per specification requirement
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
       def log_uncategorized_medication(resource)
         return unless Flipper.enabled?(:mhv_medications_v2_status_mapping)
 
