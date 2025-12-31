@@ -7,7 +7,7 @@
 #
 # @example Implementing a new claims provider
 #   class MyClaimsProvider
-#     include BenefitsClaimsProvider
+#     include BenefitsClaims::Providers::BenefitsClaimsProvider
 #
 #     def initialize(current_user)
 #       @current_user = current_user

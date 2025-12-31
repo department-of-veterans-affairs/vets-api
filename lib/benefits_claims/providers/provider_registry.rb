@@ -101,9 +101,9 @@ module BenefitsClaims
         private
 
         def validate_provider_class!(provider_class)
-          unless provider_class.included_modules.include?(BenefitsClaimsProvider)
+          unless provider_class.included_modules.include?(BenefitsClaims::Providers::BenefitsClaimsProvider)
             raise ArgumentError,
-                  "#{provider_class} must include BenefitsClaimsProvider module"
+                  "#{provider_class} must include BenefitsClaims::Providers::BenefitsClaimsProvider module"
           end
         end
       end
