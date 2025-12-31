@@ -1398,24 +1398,6 @@ vanotify:
         submitted:
           flipper_id: dv_email_notification
           template_id: <%= ENV['vanotify__services__21_0538__email__submitted__template_id'] %>
-    21_8940v1: &vanotify_services_increase_compensation
-      api_key: ~
-      email:
-        confirmation:
-          flipper_id: false
-          template_id: ~
-        error:
-          flipper_id: increase_compensation_error_email_notification
-          template_id: ~
-        persistent_attachment_error:
-          flipper_id: increase_compensation_persistent_attachment_error_email_notification
-          template_id: ~
-        received:
-          flipper_id: increase_compensation_received_email_notification
-          template_id: ~
-        submitted:
-          flipper_id: increase_compensation_submitted_email_notification
-          template_id: ~
     21_686c_674: &vanotify_services_dependents_benefits
       api_key: <%= ENV['vanotify__services__21_686c_674__api_key'] %>
       email:
@@ -1446,6 +1428,24 @@ vanotify:
         submitted686c_only:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: ~
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: ~
+        error:
+          flipper_id: increase_compensation_error_email_notification
+          template_id: ~
+        persistent_attachment_error:
+          flipper_id: increase_compensation_persistent_attachment_error_email_notification
+          template_id: ~
+        received:
+          flipper_id: increase_compensation_received_email_notification
+          template_id: ~
+        submitted:
+          flipper_id: increase_compensation_submitted_email_notification
+          template_id: ~          
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
