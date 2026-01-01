@@ -45,26 +45,10 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
     end
   end
 
-  context 'when the claims_api_ews_uploads_bd_refactor BD refactor feature flag is enabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:claims_api_ews_uploads_bd_refactor).and_return true
-    end
-
+  context 'uses the EvidenceWaverDocumentService' do
     it 'calls the Benefits Documents upload_document instead of upload' do
-      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
-      subject.new.perform(ews.id)
-    end
-  end
 
-  context 'when the claims_api_ews_uploads_bd_refactor BD refactor feature flag is disabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:claims_api_ews_uploads_bd_refactor).and_return false
-    end
-
-    it 'calls the Benefits Documents upload_document instead of upload' do
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
-      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload_document)
       subject.new.perform(ews.id)
     end
   end
