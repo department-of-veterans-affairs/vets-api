@@ -33,6 +33,7 @@ module V0
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def original_update
       form = InProgressForm.form_for_user(form_id, @current_user) ||
              InProgressForm.new(form_id:, user_uuid: @current_user.uuid)
@@ -45,6 +46,14 @@ module V0
          params[:form_data].present?
         form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
         params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
+      end
+
+      if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
+         (form_id == FormProfiles::VA526ez::FORM_ID) &&
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:new_conditions_workflow] = form_hash['disabilityCompNewConditionsWorkflow'] || false
       end
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
@@ -78,6 +87,12 @@ module V0
           params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
         end
 
+        if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
+           (form_id == FormProfiles::VA526ez::FORM_ID) && params[:metadata].present? && form_data.present?
+          form_hash = form_data.is_a?(String) ? JSON.parse(form_data) : form_data
+          params[:metadata][:new_conditions_workflow] = form_hash['disabilityCompNewConditionsWorkflow'] || false
+        end
+
         ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
         form.update!(form_data:, metadata: params[:metadata], expires_at: form.next_expires_at)
@@ -85,6 +100,7 @@ module V0
         render json: InProgressFormSerializer.new(form)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def form_for_user
       @form_for_user ||= InProgressForm.submission_pending.form_for_user(form_id, @current_user)
