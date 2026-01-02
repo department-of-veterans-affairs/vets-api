@@ -1,0 +1,73 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe BEP::PaymentService do
+  let(:user) { create(:evss_user, :loa3) }
+  let(:person) { BEP::People::Response.new(bep_response) }
+  let(:bep_response) do
+    {
+      file_nbr: file_number,
+      ssn_nbr: ssn_number,
+      ptcpnt_id: participant_id
+    }
+  end
+  let(:file_number) { '796043735' }
+  let(:ssn_number) { '796043735' }
+  let(:participant_id) { '600061742' }
+
+  describe '#payment_history' do
+    it 'returns a user\'s payment history given the user\'s participant id and file number' do
+      VCR.use_cassette('bep/payment_service/payment_history') do
+        service = BEP::PaymentService.new(user)
+        response = service.payment_history(person)
+        expect(response).to include(:payments)
+      end
+    end
+
+    it 'EXCLUDES payments sent to people other than the logged-in user' do
+      VCR.use_cassette('bep/payment_service/payment_history') do
+        service = BEP::PaymentService.new(user)
+        response = service.payment_history(person)
+        beneficiary_ids = response[:payments][:payment].map { |pay| pay[:beneficiary_participant_id] }
+        recipient_ids = response[:payments][:payment].map { |pay| pay[:recipient_participant_id] }
+        expect(beneficiary_ids).to eq(recipient_ids)
+        payee_types = response[:payments][:payment].map { |pay| pay[:payee_type] }
+        expect(payee_types).not_to include('Third Party/Vendor')
+      end
+    end
+
+    it 'prepends CH33 to the hardship payment type' do
+      VCR.use_cassette('bep/payment_service/payment_history') do
+        service = BEP::PaymentService.new(user)
+        response = service.payment_history(person)
+        expect(response[:payments][:payment].last[:payment_type]).to eq('CH 33 Hardship (Manual) C&P')
+      end
+    end
+
+    context 'if there are no results for the user' do
+      let(:file_number) { '000000000' }
+      let(:participant_id) { '000000000' }
+
+      it 'returns an empty result' do
+        VCR.use_cassette('bep/payment_service/no_payment_history') do
+          response = BEP::PaymentService.new(user).payment_history(person)
+          expect(response).to include({ payments: { payment: [] } })
+        end
+      end
+    end
+
+    context 'error' do
+      let(:file_number) { '000000000' }
+      let(:participant_id) { '000000000' }
+
+      it 'logs an error' do
+        response = BEP::PaymentService.new(user)
+        expect_any_instance_of(BEP::PaymentInformationService)
+          .to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
+        expect(Rails.logger).to receive(:error)
+        response.payment_history(person)
+      end
+    end
+  end
+end
