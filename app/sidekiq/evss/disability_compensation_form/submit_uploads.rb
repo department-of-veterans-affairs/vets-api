@@ -24,7 +24,7 @@ module EVSS
         submission = Form526Submission.find(form526_submission_id)
         upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
 
-        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+        guid, upload_data = self.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
 
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
@@ -60,7 +60,7 @@ module EVSS
         # The mailer prevents an upload from failing silently, since we notify the veteran and provide a workaround.
         # The rescue will catch any errors in the sidekiq_retries_exhausted block and mark a "silent failure".
         # This shouldn't happen if an email was sent; there should be no code here to throw an additional exception.
-        # The mailer should be the last thing that can fail.
+        # The mailer should be the last thing that can fail, to prevent sending multiple duplicate emails to the user.
       rescue => e
         cl = caller_locations.first
         call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
