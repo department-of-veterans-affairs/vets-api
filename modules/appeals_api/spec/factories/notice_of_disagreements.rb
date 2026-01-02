@@ -12,6 +12,8 @@ FactoryBot.define do
     board_review_option { 'hearing' } # set manually in the controller
     trait :status_error do
       status { 'error' }
+      code { 'DOC202' }
+      detail { 'Image failed to process' }
     end
     trait :board_review_hearing do
       board_review_option { 'hearing' }
