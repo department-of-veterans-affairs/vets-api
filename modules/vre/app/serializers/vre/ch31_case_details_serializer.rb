@@ -7,7 +7,7 @@ module VRE
     set_id { '' }
 
     attributes :res_case_id,
-               :is_transfered_to_cwnrs,
+               :is_transferred_to_cwnrs,
                :external_status
   end
 end
