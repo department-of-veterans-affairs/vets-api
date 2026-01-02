@@ -99,14 +99,6 @@ module UnifiedHealthData
         parts.join(' ')
       end
 
-      # Checks if MedicationRequest is a non-VA medication
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if non-VA medication
-      def non_va_med?(resource)
-        resource['reportedBoolean'] == true
-      end
-
       # Logs warning for invalid expiration date
       #
       # @param resource [Hash] FHIR MedicationRequest resource
