@@ -18,6 +18,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
            poa_codes: [poa_code])
   end
   let(:feature_flag_state) { true }
+  let(:skip_itf_check_flag) { false }
   let(:veteran_query_params) do
     'veteranFirstName=Derrick&veteranLastName=Reid&veteranSsn=666468765&veteranDateOfBirth=1976-01-16'
   end
@@ -67,10 +68,22 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
     end
 
     context 'ITF not found in Lighthouse' do
-      it 'returns 404' do
+      around do |example|
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
           get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
-          expect(response).to have_http_status(:not_found)
+          example.run
+        end
+      end
+
+      it 'returns 404' do
+        expect(response).to have_http_status(:not_found)
+      end
+
+      context 'itf check skipped' do
+        let(:skip_itf_check_flag) { true }
+
+        it 'returns 200' do
+          expect(response).to have_http_status(:ok)
         end
       end
     end
