@@ -220,12 +220,6 @@ module V0
       end
     end
 
-    def add_evidence_submissions(claim, evidence_submissions)
-      non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-      tracked_items = claim['attributes']['trackedItems']
-      non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
-    end
-
     def filter_duplicate_evidence_submissions(evidence_submissions, claim)
       supporting_documents = claim['attributes']['supportingDocuments'] || []
       received_file_names = supporting_documents.map { |doc| doc['originalFileName'] }.compact
@@ -490,9 +484,11 @@ module V0
       claims.each do |claim|
         claim_id = claim['id'].to_i
         evidence_submissions = evidence_submissions_by_claim[claim_id] || []
+        non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
+        tracked_items = claim['attributes']['trackedItems']
 
         claim['attributes']['evidenceSubmissions'] =
-          add_evidence_submissions(claim, evidence_submissions)
+          non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
       end
     rescue => e
       # Log error but don't fail the request - graceful degradation
