@@ -54,8 +54,18 @@ module UnifiedHealthData
         ndc_coding&.dig('code')
       end
 
+      # Extracts MedicationDispense resources from a MedicationRequest resource
+      #
+      # @param medication_request [Hash] FHIR MedicationRequest resource
+      # @return [Array<Hash>] Array of MedicationDispense resources
+      def medication_dispenses(medication_request)
+        (medication_request['contained'] || []).select do |contained_resource|
+          contained_resource['resourceType'] == 'MedicationDispense'
+        end
+      end
+
       # Finds the most recent MedicationDispense from contained resources
-      # Sorted by whenHandedOver date
+      # Sorted by whenHandedOver or whenPrepared date
       #
       # @param contained_resources [Array<Hash>] Array of FHIR contained resources
       # @return [Hash, nil] Most recent MedicationDispense or nil if none found
@@ -65,18 +75,10 @@ module UnifiedHealthData
         dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
         return nil if dispenses.empty?
 
-        # Sort by whenHandedOver date, most recent first
+        # Sort by whenHandedOver or whenPrepared date, most recent first
         dispenses.max_by do |dispense|
-          when_handed_over = dispense['whenHandedOver']
-          if when_handed_over
-            begin
-              Time.zone.parse(when_handed_over) || Time.zone.at(0)
-            rescue ArgumentError, TypeError
-              Time.zone.at(0)
-            end
-          else
-            Time.zone.at(0)
-          end
+          date = dispense['whenHandedOver'] || dispense['whenPrepared']
+          date ? parse_date_or_epoch(date) : Time.zone.at(0)
         end
       end
 

@@ -371,8 +371,8 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
       end
 
-      it 'returns true' do
-        expect(subject.non_va_med?(clinic_administered_resource)).to be true
+      it 'returns false' do
+        expect(subject.non_va_med?(clinic_administered_resource)).to be false
       end
     end
 

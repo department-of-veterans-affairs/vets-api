@@ -11,23 +11,29 @@ module UnifiedHealthData
     #
     #   Requires these methods from other modules (via include):
     #   - categorize_medication(resource) - From OracleHealthCategorizer
+    #   - medication_dispenses(resource) - From FhirHelpers
     module OracleHealthRenewabilityHelper
       # Determines if a medication is renewable.
       # All gate conditions must pass for renewal eligibility.
+      #
+      # Gate 1: MedicationRequest.status == 'active'
+      # Gate 2: Category is VA Prescription or Clinic Administered
+      # Gate 3: At least one dispense exists
+      # Gate 4: Validity period end date exists
+      # Gate 5: Within 120 days of validity period end
+      # Gate 6: Refills exhausted OR prescription expired
+      # Gate 7: No active processing
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] true if renewable
       def renewable?(resource)
         return false if resource.nil? || !resource.is_a?(Hash)
-
-        # This order must be preserved for short-circuit efficiency
-        return false unless resource['status'] == 'active' # Must be active
-        return false unless renewable_category?(resource) # Must be VA Prescription or Clinic Administered
-        return false unless dispenses?(resource) # Must have at least one dispense
-        return false unless validity_period_end_exists?(resource) # Must have validity period end date
-        return false unless within_renewal_window?(resource) # Must be within 120 days of validity period end
-        return false unless refills_exhausted_or_expired?(resource) # Must have refills exhausted or be expired
-        # Must not have active processing (refill request or in-progress dispense)
+        return false unless resource['status'] == 'active'
+        return false unless renewable_category?(resource)
+        return false if medication_dispenses(resource).empty?
+        return false unless validity_period_end_exists?(resource)
+        return false unless within_renewal_window?(resource)
+        return false unless refills_exhausted_or_expired?(resource)
         return false if active_processing?(resource)
 
         true
@@ -41,16 +47,7 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] true if renewable category
       def renewable_category?(resource)
-        category = categorize_medication(resource)
-        %i[va_prescription clinic_administered].include?(category)
-      end
-
-      # Checks if medication has any dispenses
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] true if at least one dispense exists
-      def dispenses?(resource)
-        medication_dispenses(resource).any?
+        !non_va_med?(resource)
       end
 
       # Checks if validity period end date exists
@@ -109,21 +106,13 @@ module UnifiedHealthData
         end
       end
 
-      def medication_dispenses(resource)
-        (resource['contained'] || []).select do |contained_resource|
-          contained_resource['resourceType'] == 'MedicationDispense'
-        end
-      end
-
       # Checks for pending web/mobile refill request
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] true if refill requested via web/mobile
       def refill_requested_via_web_or_mobile?(resource)
         extensions = resource['extension'] || []
-        extensions.any? do |ext|
-          ext['url']&.include?('refill-request') && ext['valueBoolean'] == true
-        end
+        extensions.any? { |ext| ext['url']&.include?('refill-request') && ext['valueBoolean'] == true }
       end
     end
   end

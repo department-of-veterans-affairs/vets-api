@@ -281,39 +281,6 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
     end
 
-    describe '#dispenses?' do
-      it 'returns true when MedicationDispense resources exist' do
-        expect(subject.send(:dispenses?, base_renewable_resource)).to be true
-      end
-
-      it 'returns true when MedicationDispense mixed with other resource types' do
-        resource = base_renewable_resource.merge(
-          'contained' => [
-            { 'resourceType' => 'Medication', 'id' => 'med-1' },
-            { 'resourceType' => 'MedicationDispense', 'id' => 'dispense-1', 'status' => 'completed' }
-          ]
-        )
-        expect(subject.send(:dispenses?, resource)).to be true
-      end
-
-      it 'returns false when contained is empty' do
-        resource = base_renewable_resource.merge('contained' => [])
-        expect(subject.send(:dispenses?, resource)).to be false
-      end
-
-      it 'returns false when contained is nil' do
-        resource = base_renewable_resource.except('contained')
-        expect(subject.send(:dispenses?, resource)).to be false
-      end
-
-      it 'returns false when no MedicationDispense resources in contained' do
-        resource = base_renewable_resource.merge(
-          'contained' => [{ 'resourceType' => 'Medication', 'id' => 'med-1' }]
-        )
-        expect(subject.send(:dispenses?, resource)).to be false
-      end
-    end
-
     describe '#validity_period_end_exists?' do
       it 'returns true when validityPeriod end exists' do
         expect(subject.send(:validity_period_end_exists?, base_renewable_resource)).to be true
