@@ -61,9 +61,14 @@ module BenefitsDocuments
         statuses = @lighthouse_status_response.dig('data', 'statuses')
 
         if statuses.blank?
-          Rails.logger.warn('Lighthouse::UpdateDocumentsStatusService found no statuses in response', {
-                              response: @lighthouse_status_response # This SHOULD be safe, and shouldnt have PII...
-                            })
+          request_ids_not_found = @lighthouse_status_response.dig('data', 'requestIdsNotFound')
+          Rails.logger.warn(
+            'Lighthouse::UpdateDocumentsStatusService found no statuses in response',
+            {
+              request_ids_not_found_count: request_ids_not_found&.size,
+              has_request_ids_not_found: request_ids_not_found.present?
+            }
+          )
           return
         end
 
