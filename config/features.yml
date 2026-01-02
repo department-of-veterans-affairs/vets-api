@@ -2759,3 +2759,8 @@ features:
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
+  send_poa_to_corpdb:
+    actor_type: user
+    description: Controls whether the SendPoaToCorpDbJob is enqueued for new POA requests
+
+  

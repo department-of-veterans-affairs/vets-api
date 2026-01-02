@@ -84,6 +84,8 @@ module AccreditedRepresentativePortal
       end
 
       def enqueue_send_to_corpdb
+        return unless Flipper.enabled?(:send_poa_to_corpdb)
+
         AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob.perform_async(@poa_request.id)
       end
 
