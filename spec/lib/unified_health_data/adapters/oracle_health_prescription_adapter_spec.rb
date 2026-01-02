@@ -51,20 +51,38 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'with reportedBoolean true' do
-      let(:reported_resource) { base_resource.merge('reportedBoolean' => true) }
+    context 'with documented/non-VA medication' do
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
 
       it 'returns prescription source NV' do
-        result = subject.parse(reported_resource)
-        expect(result.prescription_source).to eq('NV') # Should be marked as NV for filtering
+        result = subject.parse(non_va_resource)
+        expect(result.prescription_source).to eq('NV')
       end
     end
 
-    context 'with reportedBoolean false' do
-      let(:not_reported_resource) { base_resource.merge('reportedBoolean' => false) }
+    context 'with VA prescription' do
+      let(:va_prescription_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+      end
 
-      it 'returns prescription source VA for VA medications' do
-        result = subject.parse(not_reported_resource)
+      it 'returns prescription source VA' do
+        result = subject.parse(va_prescription_resource)
         expect(result.prescription_source).to eq('VA')
       end
     end
@@ -195,10 +213,46 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_prescription_source' do
-    context 'with reportedBoolean nil' do
-      it 'returns VA for default VA medications' do
-        result = subject.send(:extract_prescription_source, base_resource)
+    context 'with VA prescription' do
+      let(:va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+      end
+
+      it 'returns VA for VA prescriptions' do
+        result = subject.send(:extract_prescription_source, va_resource)
         expect(result).to eq('VA')
+      end
+    end
+
+    context 'with documented/non-VA medication' do
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
+
+      it 'returns NV for documented/non-VA medications' do
+        result = subject.send(:extract_prescription_source, non_va_resource)
+        expect(result).to eq('NV')
+      end
+    end
+
+    context 'with uncategorized medication' do
+      it 'returns NV for uncategorized medications' do
+        result = subject.send(:extract_prescription_source, base_resource)
+        expect(result).to eq('NV')
       end
     end
   end
@@ -211,6 +265,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       {
         'status' => 'active',
         'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [
+          { 'coding' => [{ 'code' => 'community' }] },
+          { 'coding' => [{ 'code' => 'discharge' }] }
+        ],
         'dispenseRequest' => {
           'numberOfRepeatsAllowed' => 5,
           'validityPeriod' => {
@@ -234,9 +293,16 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'with non-VA medication (reportedBoolean true)' do
+    context 'with non-VA medication (documented/non-VA)' do
       let(:non_va_resource) do
-        base_refillable_resource.merge('reportedBoolean' => true)
+        base_refillable_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
       end
 
       it 'returns false for non-VA medications' do
@@ -451,6 +517,335 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
   end
 
+  describe '#extract_is_renewable' do
+    # Base renewable resource: active status, VA Prescription classification
+    # (reportedBoolean=false, intent='order', community + discharge categories),
+    # has dispense, zero refills remaining, no active processing, within 120 days
+    let(:base_renewable_resource) do
+      {
+        'status' => 'active',
+        'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [
+          {
+            'coding' => [
+              { 'code' => 'community' }
+            ]
+          },
+          {
+            'coding' => [
+              { 'code' => 'discharge' }
+            ]
+          }
+        ],
+        'dispenseRequest' => {
+          'numberOfRepeatsAllowed' => 1,
+          'validityPeriod' => {
+            'end' => 30.days.ago.utc.iso8601
+          }
+        },
+        'contained' => [
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-1',
+            'status' => 'completed',
+            'whenHandedOver' => '2025-01-15T10:00:00Z'
+          },
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-2',
+            'status' => 'completed',
+            'whenHandedOver' => '2025-01-20T10:00:00Z'
+          }
+        ]
+      }
+    end
+
+    context 'with all conditions met for renewable VA prescription' do
+      it 'returns true' do
+        expect(subject.send(:extract_is_renewable, base_renewable_resource)).to be true
+      end
+    end
+
+    # Gate 1: Status must be active
+    context 'Gate 1: with non-active status' do
+      let(:inactive_resource) do
+        base_renewable_resource.merge('status' => 'completed')
+      end
+
+      it 'returns false when status is not active' do
+        expect(subject.send(:extract_is_renewable, inactive_resource)).to be false
+      end
+    end
+
+    # Gate 2: Must be classified as VA Prescription or Clinic Administered Medication
+    context 'Gate 2: with Documented/Non-VA medication classification' do
+      let(:non_va_resource) do
+        base_renewable_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patient-specified' }] }
+          ]
+        )
+      end
+
+      it 'returns false for Documented/Non-VA medications' do
+        expect(subject.send(:extract_is_renewable, non_va_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with unclassified medication (wrong intent)' do
+      let(:wrong_intent_resource) do
+        base_renewable_resource.merge('intent' => 'plan')
+      end
+
+      it 'returns false when intent is not order' do
+        expect(subject.send(:extract_is_renewable, wrong_intent_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with unclassified medication (missing discharge category for VA Prescription)' do
+      let(:missing_discharge_resource) do
+        base_renewable_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] }
+          ]
+        )
+      end
+
+      it 'returns false when community category without discharge' do
+        expect(subject.send(:extract_is_renewable, missing_discharge_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with Clinic Administered medication (outpatient category)' do
+      let(:clinic_administered_resource) do
+        base_renewable_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns true for Clinic Administered medications' do
+        expect(subject.send(:extract_is_renewable, clinic_administered_resource)).to be true
+      end
+    end
+
+    context 'Gate 2: with inpatient category (unclassified)' do
+      let(:inpatient_resource) do
+        base_renewable_resource.merge(
+          'category' => [
+            {
+              'coding' => [
+                { 'code' => 'inpatient' }
+              ]
+            }
+          ]
+        )
+      end
+
+      it 'returns false for inpatient category' do
+        expect(subject.send(:extract_is_renewable, inpatient_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with no category (unclassified)' do
+      let(:no_category_resource) do
+        base_renewable_resource.merge('category' => [])
+      end
+
+      it 'returns false when category is empty' do
+        expect(subject.send(:extract_is_renewable, no_category_resource)).to be false
+      end
+    end
+
+    context 'Gate 2: with reportedBoolean true but correct VA Prescription categories' do
+      let(:reported_with_va_categories) do
+        base_renewable_resource.merge('reportedBoolean' => true)
+      end
+
+      it 'returns false because reportedBoolean must be false for VA Prescription' do
+        expect(subject.send(:extract_is_renewable, reported_with_va_categories)).to be false
+      end
+    end
+
+    # Gate 3: Must have at least one dispense
+    context 'Gate 3: with no dispenses' do
+      let(:no_dispense_resource) do
+        base_renewable_resource.merge('contained' => [])
+      end
+
+      it 'returns false when no dispenses exist' do
+        expect(subject.send(:extract_is_renewable, no_dispense_resource)).to be false
+      end
+    end
+
+    context 'Gate 3: with nil contained resources' do
+      let(:nil_contained_resource) do
+        base_renewable_resource.except('contained')
+      end
+
+      it 'returns false when contained is nil' do
+        expect(subject.send(:extract_is_renewable, nil_contained_resource)).to be false
+      end
+    end
+
+    # Gate 6: Refills exhausted OR prescription expired
+    # Note: If prescription is expired (validity period ended), it IS renewable even with refills remaining
+    context 'Gate 6: with refills remaining but prescription expired' do
+      let(:refills_remaining_resource) do
+        base_renewable_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 5,
+            'validityPeriod' => {
+              'end' => 30.days.ago.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'returns true when refills remain but prescription is expired' do
+        expect(subject.send(:extract_is_renewable, refills_remaining_resource)).to be true
+      end
+    end
+
+    # Gate 7: No active processing
+    context 'Gate 7: with in-progress dispense' do
+      let(:in_progress_resource) do
+        base_renewable_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'in-progress',
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'returns false when a dispense is in-progress' do
+        expect(subject.send(:extract_is_renewable, in_progress_resource)).to be false
+      end
+    end
+
+    context 'Gate 7: with preparation dispense' do
+      let(:preparation_resource) do
+        base_renewable_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'status' => 'completed',
+              'whenHandedOver' => '2025-01-15T10:00:00Z'
+            },
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'status' => 'preparation',
+              'whenHandedOver' => '2025-01-20T10:00:00Z'
+            }
+          ]
+        )
+      end
+
+      it 'returns false when a dispense is in preparation' do
+        expect(subject.send(:extract_is_renewable, preparation_resource)).to be false
+      end
+    end
+
+    context 'Gate 7: with web/mobile refill request extension' do
+      let(:refill_requested_resource) do
+        base_renewable_resource.merge(
+          'extension' => [
+            {
+              'url' => 'http://example.org/fhir/refill-request',
+              'valueBoolean' => true
+            }
+          ]
+        )
+      end
+
+      it 'returns false when refill requested via web/mobile' do
+        expect(subject.send(:extract_is_renewable, refill_requested_resource)).to be false
+      end
+    end
+
+    # Gate 5: Within 120 days of validity period end
+    context 'Gate 5: expired more than 120 days ago' do
+      let(:old_expired_resource) do
+        base_renewable_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 1,
+            'validityPeriod' => {
+              'end' => 150.days.ago.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'returns false when expired more than 120 days ago' do
+        expect(subject.send(:extract_is_renewable, old_expired_resource)).to be false
+      end
+    end
+
+    context 'Gate 6: expired exactly 120 days ago' do
+      let(:boundary_expired_resource) do
+        # Use 119 days to avoid floating-point precision issues at the boundary
+        base_renewable_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 1,
+            'validityPeriod' => {
+              'end' => 119.days.ago.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'returns true when expired within 120 days (boundary case)' do
+        expect(subject.send(:extract_is_renewable, boundary_expired_resource)).to be true
+      end
+    end
+
+    context 'Gate 6: not yet expired' do
+      let(:not_expired_resource) do
+        base_renewable_resource.merge(
+          'dispenseRequest' => {
+            'numberOfRepeatsAllowed' => 1,
+            'validityPeriod' => {
+              'end' => 30.days.from_now.utc.iso8601
+            }
+          }
+        )
+      end
+
+      it 'returns true when not yet expired' do
+        expect(subject.send(:extract_is_renewable, not_expired_resource)).to be true
+      end
+    end
+
+    context 'Gate 6: with no validity period' do
+      let(:no_validity_resource) do
+        resource = base_renewable_resource.dup
+        resource['dispenseRequest'] = { 'numberOfRepeatsAllowed' => 1 }
+        resource
+      end
+
+      it 'returns false when no validity period exists' do
+        expect(subject.send(:extract_is_renewable, no_validity_resource)).to be false
+      end
+    end
+  end
+
   describe '#extract_station_number' do
     let(:resource_with_station_number) do
       {
@@ -512,272 +907,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns nil' do
         result = subject.send(:extract_station_number, resource_without_dispense)
         expect(result).to be_nil
-      end
-    end
-  end
-
-  describe '#extract_refill_remaining' do
-    context 'with non-VA medication' do
-      let(:non_va_resource) do
-        {
-          'reportedBoolean' => true,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          }
-        }
-      end
-
-      it 'returns 0 for non-VA medications' do
-        result = subject.send(:extract_refill_remaining, non_va_resource)
-        expect(result).to eq(0)
-      end
-    end
-
-    context 'with VA medication and no completed dispenses' do
-      let(:resource_no_dispenses) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          }
-        }
-      end
-
-      it 'returns the full number of repeats allowed' do
-        result = subject.send(:extract_refill_remaining, resource_no_dispenses)
-        expect(result).to eq(5)
-      end
-    end
-
-    context 'with VA medication and one completed dispense (initial fill)' do
-      let(:resource_one_dispense) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'returns the full number of repeats (initial fill does not count against refills)' do
-        result = subject.send(:extract_refill_remaining, resource_one_dispense)
-        expect(result).to eq(5)
-      end
-    end
-
-    context 'with VA medication and multiple completed dispenses' do
-      let(:resource_multiple_dispenses) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-3',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'subtracts refills used (excluding initial fill)' do
-        # 3 completed dispenses = 1 initial + 2 refills used
-        # 5 allowed - 2 used = 3 remaining
-        result = subject.send(:extract_refill_remaining, resource_multiple_dispenses)
-        expect(result).to eq(3)
-      end
-    end
-
-    context 'with VA medication and all refills used' do
-      let(:resource_all_refills_used) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 2
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-3',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'returns 0 when all refills are used' do
-        # 3 completed dispenses = 1 initial + 2 refills used
-        # 2 allowed - 2 used = 0 remaining
-        result = subject.send(:extract_refill_remaining, resource_all_refills_used)
-        expect(result).to eq(0)
-      end
-    end
-
-    context 'with VA medication and over-dispensed (more dispenses than allowed)' do
-      let(:resource_over_dispensed) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 1
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-3',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'returns 0 when more dispenses than allowed' do
-        # 3 completed dispenses = 1 initial + 2 refills used
-        # 1 allowed - 2 used = -1, but should return 0
-        result = subject.send(:extract_refill_remaining, resource_over_dispensed)
-        expect(result).to eq(0)
-      end
-    end
-
-    context 'with mixed dispense statuses' do
-      let(:resource_mixed_statuses) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 5
-          },
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-1',
-              'status' => 'completed'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-2',
-              'status' => 'in-progress'
-            },
-            {
-              'resourceType' => 'MedicationDispense',
-              'id' => 'dispense-3',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'only counts completed dispenses' do
-        # 2 completed dispenses = 1 initial + 1 refill used
-        # 5 allowed - 1 used = 4 remaining
-        result = subject.send(:extract_refill_remaining, resource_mixed_statuses)
-        expect(result).to eq(4)
-      end
-    end
-
-    context 'with no numberOfRepeatsAllowed specified' do
-      let(:resource_no_repeats) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {}
-        }
-      end
-
-      it 'defaults to 0 repeats allowed' do
-        result = subject.send(:extract_refill_remaining, resource_no_repeats)
-        expect(result).to eq(0)
-      end
-    end
-
-    context 'with no dispenseRequest' do
-      let(:resource_no_dispense_request) do
-        {
-          'reportedBoolean' => false
-        }
-      end
-
-      it 'defaults to 0 repeats allowed' do
-        result = subject.send(:extract_refill_remaining, resource_no_dispense_request)
-        expect(result).to eq(0)
-      end
-    end
-
-    context 'with no contained resources' do
-      let(:resource_no_contained) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 3
-          }
-        }
-      end
-
-      it 'returns the full number of repeats allowed' do
-        result = subject.send(:extract_refill_remaining, resource_no_contained)
-        expect(result).to eq(3)
-      end
-    end
-
-    context 'with non-MedicationDispense resources in contained' do
-      let(:resource_no_med_dispenses) do
-        {
-          'reportedBoolean' => false,
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 4
-          },
-          'contained' => [
-            {
-              'resourceType' => 'Encounter',
-              'id' => 'encounter-1'
-            },
-            {
-              'resourceType' => 'Organization',
-              'id' => 'org-1'
-            }
-          ]
-        }
-      end
-
-      it 'returns the full number of repeats allowed when no MedicationDispense resources' do
-        result = subject.send(:extract_refill_remaining, resource_no_med_dispenses)
-        expect(result).to eq(4)
       end
     end
   end
@@ -1445,6 +1574,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       {
         'id' => 'test-123',
         'status' => 'active',
+        'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [
+          { 'coding' => [{ 'code' => 'community' }] },
+          { 'coding' => [{ 'code' => 'discharge' }] }
+        ],
         'dispenseRequest' => {
           'numberOfRepeatsAllowed' => 3,
           'validityPeriod' => { 'end' => 1.year.from_now.utc.iso8601 }
@@ -2183,6 +2318,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         base_resource.merge(
           'status' => 'active',
           'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ],
           'dispenseRequest' => {
             'numberOfRepeatsAllowed' => 3,
             'validityPeriod' => {
@@ -2210,6 +2350,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         base_resource.merge(
           'status' => 'active',
           'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ],
           'dispenseRequest' => {
             'numberOfRepeatsAllowed' => 3,
             'validityPeriod' => {
@@ -2339,6 +2484,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         base_resource.merge(
           'id' => '12345',
           'status' => 'active',
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ],
           'dispenseRequest' => {
             'numberOfRepeatsAllowed' => 3,
             'validityPeriod' => {
@@ -2378,6 +2529,12 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         base_resource.merge(
           'id' => '12345',
           'status' => 'active',
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ],
           'dispenseRequest' => {
             'numberOfRepeatsAllowed' => 3,
             'validityPeriod' => {

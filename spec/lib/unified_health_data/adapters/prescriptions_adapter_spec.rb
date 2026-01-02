@@ -41,6 +41,20 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'id' => '15208365735',
       'status' => 'active',
       'authoredOn' => '2025-01-29T19:41:43Z',
+      'reportedBoolean' => false,
+      'intent' => 'order',
+      'category' => [
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location', 'code' => 'community' }
+          ]
+        },
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medication-request-category', 'code' => 'discharge' }
+          ]
+        }
+      ],
       'requester' => {
         'reference' => 'Practitioner/12345',
         'display' => 'Doe, Jane, MD'

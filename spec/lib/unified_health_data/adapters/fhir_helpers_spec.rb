@@ -163,12 +163,65 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
     end
   end
 
+  describe '#medication_dispenses' do
+    it 'extracts MedicationDispense resources from contained array' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'id' => '1' },
+          { 'resourceType' => 'Task', 'id' => '2' },
+          { 'resourceType' => 'MedicationDispense', 'id' => '3' }
+        ]
+      }
+      result = subject.medication_dispenses(resource)
+      expect(result.length).to eq(2)
+      expect(result.map { |d| d['id'] }).to contain_exactly('1', '3')
+    end
+
+    it 'returns empty array when no MedicationDispense resources exist' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Task', 'id' => '1' },
+          { 'resourceType' => 'Medication', 'id' => '2' }
+        ]
+      }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'returns empty array when contained is nil' do
+      resource = {}
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'returns empty array when contained is empty' do
+      resource = { 'contained' => [] }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'handles resource with no contained key' do
+      resource = { 'id' => '123' }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+  end
+
   describe '#find_most_recent_medication_dispense' do
     it 'returns the most recent dispense by whenHandedOver date' do
       contained_resources = [
         { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '1' },
         { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-06-20T10:00:00Z', 'id' => '2' },
         { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-03-10T10:00:00Z', 'id' => '3' }
+      ]
+      result = subject.find_most_recent_medication_dispense(contained_resources)
+      expect(result['id']).to eq('2')
+    end
+
+    it 'falls back to whenPrepared if whenHandedOver is missing' do
+      contained_resources = [
+        { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-01-15T10:00:00Z', 'id' => '1' },
+        { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-06-20T10:00:00Z', 'id' => '2' }
       ]
       result = subject.find_most_recent_medication_dispense(contained_resources)
       expect(result['id']).to eq('2')
@@ -192,9 +245,18 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       expect(result).to be_nil
     end
 
-    it 'handles dispenses without whenHandedOver (uses epoch)' do
+    it 'handles dispenses without whenHandedOver or whenPrepared (uses epoch)' do
       contained_resources = [
         { 'resourceType' => 'MedicationDispense', 'id' => '1' },
+        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
+      ]
+      result = subject.find_most_recent_medication_dispense(contained_resources)
+      expect(result['id']).to eq('2')
+    end
+
+    it 'handles invalid date formats gracefully' do
+      contained_resources = [
+        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => 'invalid-date', 'id' => '1' },
         { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
       ]
       result = subject.find_most_recent_medication_dispense(contained_resources)
@@ -250,27 +312,6 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       instruction = {}
       result = subject.build_instruction_text(instruction)
       expect(result).to eq('')
-    end
-  end
-
-  describe '#non_va_med?' do
-    it 'returns true when reportedBoolean is true' do
-      resource = { 'reportedBoolean' => true }
-      result = subject.non_va_med?(resource)
-      expect(result).to be true
-    end
-
-    it 'returns false when reportedBoolean is false' do
-      resource = { 'reportedBoolean' => false }
-      result = subject.non_va_med?(resource)
-      expect(result).to be false
-    end
-
-    it 'returns nil when reportedBoolean is not present' do
-      resource = {}
-      result = subject.non_va_med?(resource)
-      # Hash#[] returns nil for missing key, then == true returns false
-      expect(result).to be_falsey
     end
   end
 
