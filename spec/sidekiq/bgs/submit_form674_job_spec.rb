@@ -204,6 +204,43 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       # Call the sidekiq_retries_exhausted callback
       described_class.sidekiq_retries_exhausted_block.call(msg, error)
     end
+
+    it 'monitors errors on retry exhaustion failure' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the initial exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Mock the backup submission to raise an error
+      expect(BGS::SubmitForm674Job).to receive(:send_backup_submission)
+        .and_raise(StandardError.new('Retry exhaustion failed'))
+
+      # Expect the monitor to track the retry exhaustion failure event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job retries exhausted failed...',
+        'worker.submit_674_bgs.retry_exhaustion_failure',
+        hash_including(
+          error: 'Retry exhaustion failed',
+          nested_error: nil,
+          last_error: 'Connection timeout'
+        )
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    end
   end
 end
 

@@ -29,6 +29,10 @@ module BGS
                           'worker.submit_686c_bgs.exhaustion')
 
       BGS::SubmitForm686cV2Job.send_backup_submission(vet_info, saved_claim_id, user_uuid)
+    rescue => e
+      monitor.track_event('error', 'BGS::SubmitForm686cV2Job retries exhausted failed...',
+                          'worker.submit_686c_bgs.retry_exhaustion_failure',
+                          { error: e.message, nested_error: e.cause&.message, last_error: msg['error_message'] })
     end
 
     def perform(user_uuid, saved_claim_id, encrypted_vet_info)
