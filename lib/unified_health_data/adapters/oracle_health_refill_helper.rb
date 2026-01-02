@@ -2,6 +2,34 @@
 
 module UnifiedHealthData
   module Adapters
+    # Helper mixin for Oracle Health (Cerner) medication refill logic.
+    #
+    # This module encapsulates common checks used to determine whether a
+    # MedicationRequest resource is refillable (e.g., expiration, refill
+    # counts, dispense status, and non-VA medication rules).
+    #
+    # Usage:
+    #   - Include this module in a class that works with Oracle Health FHIR
+    #     MedicationRequest resources.
+    #   - The including class is expected to provide several helper methods
+    #     used by this module (see below).
+    #
+    # Required methods on the including class:
+    #   - #non_va_med?(resource) -> Boolean
+    #       Determines whether the given MedicationRequest represents a
+    #       non-VA medication (non-VA medications are never refillable).
+    #   - #extract_expiration_date(resource) -> String, nil
+    #       Returns the prescription expiration date string (or nil if none).
+    #   - #find_most_recent_medication_dispense(contained_resources) -> Hash, nil
+    #       Given the "contained" resources from a MedicationRequest, returns
+    #       the most recent MedicationDispense resource, or nil if none.
+    #   - #log_invalid_expiration_date(resource, expiration_date) -> void
+    #       Logs or records details about an invalid/unparsable expiration date.
+    #
+    # Dependencies:
+    #   - This module is intended to be used alongside other Oracle Health
+    #     FHIR helpers, such as OracleHealthCategorizer and FhirHelpers, which
+    #     may provide the required helper methods listed above.
     module OracleHealthRefillHelper
       # Determines if a medication is refillable based on gate checks
       def refillable?(resource, refill_status)
