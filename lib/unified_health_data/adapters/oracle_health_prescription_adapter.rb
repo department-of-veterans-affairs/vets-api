@@ -4,7 +4,7 @@ require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
-require_relative 'renewability_helper'
+require_relative 'oracle_health_renewability_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -12,7 +12,7 @@ module UnifiedHealthData
       include FhirHelpers
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
-      include RenewabilityHelper
+      include OracleHealthRenewabilityHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -501,6 +501,10 @@ module UnifiedHealthData
 
       def extract_is_refillable(resource, refill_status)
         refillable?(resource, refill_status)
+      end
+
+      def extract_is_renewable(resource)
+        renewable?(resource)
       end
 
       def extract_instructions(resource)
