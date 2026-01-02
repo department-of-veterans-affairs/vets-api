@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
+RSpec.describe IncreaseCompensation::Monitor do
   let(:monitor) { described_class.new }
   let(:claim) { create(:increase_compensation_claim) }
   let(:ipf) { create(:in_progress_form) }
@@ -29,7 +29,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -52,7 +52,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -123,7 +123,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
           claim_id: claim.id,
           form_id: claim.form_id,
           errors: [],
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -273,7 +273,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -302,7 +302,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
             user_account_uuid: current_user.uuid,
             form_id: claim.form_id,
             claim_id: claim.id, # pulled from msg.args
-            message: msg,
+            error: msg,
             tags: monitor.tags
           }
 
@@ -331,7 +331,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
             user_account_uuid: current_user.uuid,
             form_id: nil,
             claim_id: claim.id, # pulled from msg.args
-            message: msg,
+            error: msg,
             tags: monitor.tags
           }
 
@@ -360,7 +360,7 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -378,13 +378,13 @@ RSpec.describe IncreaseCompensation::Monitor, skip: 'TODO after schema built' do
       it 'logs sidekiq job send_submitted_email error' do
         log = "#{message_prefix} send_submitted_email failed"
         payload = {
-          claim_id: claim.id,
-          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
+          claim_id: claim.id,
           confirmation_number: claim.confirmation_number,
-          user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
-          tags: monitor.tags
+          error: monitor_error.message,
+          form_id: claim.form_id,
+          tags: monitor.tags,
+          user_account_uuid: current_user.uuid
         }
 
         expect(monitor).to receive(:track_request).with(

@@ -111,13 +111,14 @@ module IncreaseCompensation
       # @return [Hash]
       def generate_metadata
         form = @claim.parsed_form
+        address = form['claimantAddress'] || form['veteranAddress']
 
         # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          form['veteranAddress']['postalCode'],
+          address['postalCode'],
           self.class.to_s,
           @claim.form_id,
           @claim.business_line
