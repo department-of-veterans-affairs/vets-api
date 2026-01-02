@@ -191,6 +191,36 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
     end
   end
 
+  context 'when response has no statuses' do
+    let(:pending_document_upload) { create(:lighthouse526_document_upload) }
+    let(:uploads) { Lighthouse526DocumentUpload.where(id: pending_document_upload.id) }
+    let(:status_response) { { 'data' => {} } }
+
+    it 'handles missing statuses without error' do
+      expect { described_class.call(uploads, status_response) }.not_to raise_error
+    end
+
+    it 'returns success' do
+      result = described_class.call(uploads, status_response)
+      expect(result).to eq({ success: true })
+    end
+  end
+
+  context 'when response has nil statuses' do
+    let(:pending_document_upload) { create(:lighthouse526_document_upload) }
+    let(:uploads) { Lighthouse526DocumentUpload.where(id: pending_document_upload.id) }
+    let(:status_response) { { 'data' => { 'statuses' => nil } } }
+
+    it 'handles nil statuses without error' do
+      expect { described_class.call(uploads, status_response) }.not_to raise_error
+    end
+
+    it 'returns success' do
+      result = described_class.call(uploads, status_response)
+      expect(result).to eq({ success: true })
+    end
+  end
+
   describe 'logging when Form 0781 document upload fails' do
     let(:form0781_document_upload) { create(:lighthouse526_document_upload, document_type: 'Form 0781') }
     let(:uploads) { Lighthouse526DocumentUpload.where(id: form0781_document_upload.id) }
