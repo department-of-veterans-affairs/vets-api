@@ -1734,9 +1734,9 @@ RSpec.describe Form526Submission do
     let(:form526_submission) { Form526Submission.new(id: 123, form_json:) }
     let(:uploads) do
       [
-        { 'name' => 'file1.pdf', 'size' => 100 },
-        { 'name' => 'file2.pdf', 'size' => 200 },
-        { 'name' => 'file1.pdf', 'size' => 100 } # duplicate
+        { 'name' => 'file1.pdf', 'size' => 100, 'confirmationCode' => 'guid-1' },
+        { 'name' => 'file2.pdf', 'size' => 200, 'confirmationCode' => 'guid-2' },
+        { 'name' => 'file1.pdf', 'size' => 100, 'confirmationCode' => 'guid-3' } # duplicate
       ]
     end
     let(:form_json) do
@@ -1767,9 +1767,9 @@ RSpec.describe Form526Submission do
 
       it 'queues a job for each upload with the correct delay' do
         form526_submission.submit_uploads
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(60, 123, uploads[0])
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(120, 123, uploads[1])
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(180, 123, uploads[2])
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(60, 123, 'guid-1')
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(120, 123, 'guid-2')
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(180, 123, 'guid-3')
       end
 
       it 'sends the delay to StatsD for each upload' do
