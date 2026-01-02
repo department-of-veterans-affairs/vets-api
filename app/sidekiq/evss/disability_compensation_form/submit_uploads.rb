@@ -24,7 +24,7 @@ module EVSS
         submission = Form526Submission.find(form526_submission_id)
         upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
 
-        guid, upload_data = self.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
 
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
@@ -54,6 +54,11 @@ module EVSS
         end
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
+          # Extra protection. Raise here if we dont have the info we need.
+          # This will allow the rescue to catch and log a silent failure.
+          raise 'Cannot send failure email without guid' if guid.nil?
+          raise 'Cannot send failure email without form526_submission_id' if form526_submission_id.nil?
+
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
         # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
