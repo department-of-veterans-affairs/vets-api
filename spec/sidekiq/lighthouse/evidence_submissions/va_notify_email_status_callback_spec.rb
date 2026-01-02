@@ -172,6 +172,18 @@ describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
               job_class: es.job_class }
           )
         end
+
+        it 'updates va_notify_status to FAILED' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.va_notify_status).to eq(BenefitsDocuments::Constants::VANOTIFY_STATUS[:FAILED])
+        end
+
+        it 'does not set delete_date so record is retained for manual intervention' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.delete_date).to be_nil
+        end
       end
 
       context 'other' do
