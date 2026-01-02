@@ -12,10 +12,13 @@ module Lighthouse
 
         case status
         when 'delivered'
-          # success
-          es.update(va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:SUCCESS])
+          # Email successfully delivered - set delete_date for retention policy cleanup
+          es.update(
+            va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:SUCCESS],
+            delete_date: DateTime.current + 60.days
+          )
         when 'permanent-failure'
-          # delivery failed
+          # Email delivery failed - do NOT set delete_date so record is retained for manual intervention
           es.update(va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:FAILED])
         end
 
