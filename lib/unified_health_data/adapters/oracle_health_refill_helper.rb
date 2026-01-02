@@ -2,34 +2,26 @@
 
 module UnifiedHealthData
   module Adapters
-    # Helper mixin for Oracle Health (Cerner) medication refill logic.
+    # Determines refillability for Oracle Health FHIR MedicationRequest resources
+    # Implements gate-check logic for VA prescription refill eligibility
     #
-    # This module encapsulates common checks used to determine whether a
-    # MedicationRequest resource is refillable (e.g., expiration, refill
-    # counts, dispense status, and non-VA medication rules).
+    # This module is designed to be included in OracleHealthPrescriptionAdapter
+    # and has dependencies on methods from the including class and other mixed-in modules:
+    #
+    # Required methods from including class (OracleHealthPrescriptionAdapter):
+    # - extract_expiration_date(resource) - Extracts validityPeriod.end from resource
+    # - find_most_recent_medication_dispense(contained) - Finds most recent dispense
+    # - log_invalid_expiration_date(resource, date) - Logs invalid date errors
+    #
+    # Required methods from other modules (via include):
+    # - categorize_medication(resource) - From OracleHealthCategorizer
+    # - non_va_med?(resource) - From OracleHealthCategorizer
     #
     # Usage:
     #   - Include this module in a class that works with Oracle Health FHIR
     #     MedicationRequest resources.
     #   - The including class is expected to provide several helper methods
-    #     used by this module (see below).
-    #
-    # Required methods on the including class:
-    #   - #non_va_med?(resource) -> Boolean
-    #       Determines whether the given MedicationRequest represents a
-    #       non-VA medication (non-VA medications are never refillable).
-    #   - #extract_expiration_date(resource) -> String, nil
-    #       Returns the prescription expiration date string (or nil if none).
-    #   - #find_most_recent_medication_dispense(contained_resources) -> Hash, nil
-    #       Given the "contained" resources from a MedicationRequest, returns
-    #       the most recent MedicationDispense resource, or nil if none.
-    #   - #log_invalid_expiration_date(resource, expiration_date) -> void
-    #       Logs or records details about an invalid/unparsable expiration date.
-    #
-    # Dependencies:
-    #   - This module is intended to be used alongside other Oracle Health
-    #     FHIR helpers, such as OracleHealthCategorizer and FhirHelpers, which
-    #     may provide the required helper methods listed above.
+    #     used by this module
     module OracleHealthRefillHelper
       # Determines if a medication is refillable based on gate checks
       def refillable?(resource, refill_status)
