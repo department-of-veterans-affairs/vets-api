@@ -1284,6 +1284,80 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      context 'is_renewable attribute' do
+        context 'VistA prescriptions' do
+          it 'passes through isRenewable from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # VistA prescription with isRenewable: true
+              vista_prescription = prescriptions.find { |p| p.prescription_id == '26305871' }
+              expect(vista_prescription.is_renewable).to be true
+
+              # VistA prescription with isRenewable: true (even when discontinued)
+              discontinued_vista = prescriptions.find { |p| p.prescription_id == '26305874' }
+              expect(discontinued_vista.is_renewable).to be true
+            end
+          end
+
+          it 'passes through isRenewable: false from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
+              prescriptions = service.get_prescriptions
+
+              # VistA prescription with isRenewable: false (hold status)
+              hold_prescription = prescriptions.find { |p| p.prescription_id == '25804852' }
+              expect(hold_prescription.is_renewable).to be false
+
+              # VistA prescription with isRenewable: false (expired status)
+              expired_prescription = prescriptions.find { |p| p.prescription_id == '25804855' }
+              expect(expired_prescription.is_renewable).to be false
+            end
+          end
+        end
+
+        context 'Oracle Health prescriptions' do
+          it 'returns false when refills remaining > 0 (Gate 6)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848812135: active, community, 2 refills remaining, has completed dispense
+              prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when no dispenses exist (Gate 3)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848639997: active, 0 refills, but no dispenses in contained array
+              prescription = prescriptions.find { |p| p.prescription_id == '20848639997' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when status is not active (Gate 1)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848863583: status=completed, has dispenses, 0 refills
+              prescription = prescriptions.find { |p| p.prescription_id == '20848863583' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when dispense is in-progress (Gate 7 - no active processing)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20849028695: active, 0 refills, has dispense, but dispense status is 'in-progress'
+              prescription = prescriptions.find { |p| p.prescription_id == '20849028695' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+        end
+      end
+
       context 'facility name extraction integration' do
         it 'uses cache when available and API when cache misses' do
           # Test cache hit scenario
