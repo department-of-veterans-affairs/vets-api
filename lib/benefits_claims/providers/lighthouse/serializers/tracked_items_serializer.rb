@@ -10,6 +10,10 @@ module BenefitsClaims
           end
 
           def self.serialize_item(item)
+            core_fields(item).merge(friendly_fields(item))
+          end
+
+          def self.core_fields(item)
             {
               'id' => item.id,
               'displayName' => item.display_name,
@@ -23,14 +27,19 @@ module BenefitsClaims
               'requestedDate' => item.requested_date,
               'uploadsAllowed' => item.uploads_allowed,
               'uploaded' => item.uploaded,
-              'friendlyName' => item.friendly_name,
-              'friendlyDescription' => item.friendly_description,
               'activityDescription' => item.activity_description,
               'shortDescription' => item.short_description,
               'canUploadFile' => item.can_upload_file,
               'supportAliases' => item.support_aliases,
               'documents' => item.documents,
               'date' => item.date
+            }
+          end
+
+          def self.friendly_fields(item)
+            {
+              'friendlyName' => item.friendly_name,
+              'friendlyDescription' => item.friendly_description
             }
           end
         end

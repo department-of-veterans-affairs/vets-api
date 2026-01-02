@@ -14,6 +14,13 @@ module BenefitsClaims
 
           def self.build_item(item_data)
             BenefitsClaims::Responses::TrackedItem.new(
+              **core_attributes(item_data),
+              **friendly_attributes(item_data)
+            )
+          end
+
+          def self.core_attributes(item_data)
+            {
               id: item_data['id'],
               display_name: item_data['displayName'],
               status: item_data['status'],
@@ -26,15 +33,20 @@ module BenefitsClaims
               requested_date: item_data['requestedDate'],
               uploads_allowed: item_data['uploadsAllowed'],
               uploaded: item_data['uploaded'],
-              friendly_name: item_data['friendlyName'],
-              friendly_description: item_data['friendlyDescription'],
               activity_description: item_data['activityDescription'],
               short_description: item_data['shortDescription'],
               can_upload_file: item_data['canUploadFile'],
               support_aliases: item_data['supportAliases'],
               documents: item_data['documents'],
               date: item_data['date']
-            )
+            }
+          end
+
+          def self.friendly_attributes(item_data)
+            {
+              friendly_name: item_data['friendlyName'],
+              friendly_description: item_data['friendlyDescription']
+            }
           end
         end
       end
