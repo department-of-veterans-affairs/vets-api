@@ -737,6 +737,7 @@ config/initializers/authn_context.rb @department-of-veterans-affairs/octo-identi
 config/initializers/committee.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/backtrace_silencers.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/benefits_intake_submission_status_handlers.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
+config/initializers/benefits_claims_providers.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 config/initializers/betamocks.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/bgs.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/breakers.rb @department-of-veterans-affairs/backend-review-group
