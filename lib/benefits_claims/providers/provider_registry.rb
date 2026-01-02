@@ -88,7 +88,7 @@ module BenefitsClaims
         #   config = ProviderRegistry.get(:lighthouse)
         #   # => { class: LighthouseBenefitsClaimsProvider, feature_flag: '...', enabled_by_default: true }
         def get(provider_name)
-          config = registry[provider_name]
+          registry[provider_name]
         end
 
         # Clear all registered providers (useful for testing)
@@ -101,9 +101,9 @@ module BenefitsClaims
         private
 
         def validate_provider_class!(provider_class)
-          unless provider_class.included_modules.include?(BenefitsClaimsProvider)
+          unless provider_class.included_modules.include?(BenefitsClaims::Providers::BenefitsClaimsProvider)
             raise ArgumentError,
-                  "#{provider_class} must include BenefitsClaimsProvider module"
+                  "#{provider_class} must include BenefitsClaims::Providers::BenefitsClaimsProvider module"
           end
         end
       end
