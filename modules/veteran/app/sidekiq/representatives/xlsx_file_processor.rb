@@ -135,7 +135,7 @@ module Representatives
         email: get_value(row, column_map, email_address_column_name(sheet_name)),
         phone_number: get_value(row, column_map, 'WorkNumber'),
         address: {
-          address_pou: 'RESIDENCE/CHOICE',
+          address_pou: 'RESIDENCE',
           address_line1: get_value(row, column_map, 'WorkAddress1'),
           address_line2: get_value(row, column_map, 'WorkAddress2'),
           address_line3: get_value(row, column_map, 'WorkAddress3'),

@@ -25,7 +25,7 @@ module BenefitsClaims
       #   claims = provider.get_claims # Returns transformed claim data
       #   claim = provider.get_claim('123') # Returns transformed single claim
       class LighthouseBenefitsClaimsProvider
-        include BenefitsClaimsProvider
+        include BenefitsClaims::Providers::BenefitsClaimsProvider
 
         def initialize(user)
           @user = user

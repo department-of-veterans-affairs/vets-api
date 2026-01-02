@@ -4,12 +4,12 @@ require 'rails_helper'
 require 'benefits_claims/providers/benefits_claims/benefits_claims_provider'
 require 'support/benefits_claims/benefits_claims_provider'
 
-RSpec.describe BenefitsClaimsProvider do
+RSpec.describe BenefitsClaims::Providers::BenefitsClaimsProvider do
   subject { test_class.new(current_user) }
 
   let(:test_class) do
     Class.new do
-      include BenefitsClaimsProvider
+      include BenefitsClaims::Providers::BenefitsClaimsProvider
 
       def initialize(_current_user); end
     end

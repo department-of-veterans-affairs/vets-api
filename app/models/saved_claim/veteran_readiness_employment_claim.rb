@@ -181,6 +181,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     log_to_statsd('vbms') do
+      Rails.logger.info('Uploading VRE claim to VBMS', { user_uuid: user&.uuid })
       response = uploader.upload!
 
       if response[:vbms_document_series_ref_id].present?
@@ -296,7 +297,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
-    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
+    Rails.logger.info("VRE #{service} upload successful. #{service} confirmation email sent.")
   end
 
   def send_email(email_type)

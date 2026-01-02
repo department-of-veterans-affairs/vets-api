@@ -118,6 +118,80 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.cmop_ndc_number).to be_nil
       end
     end
+
+    context 'with inpatient medication (should be filtered)' do
+      let(:inpatient_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns nil (filtered out)' do
+        expect(subject.parse(inpatient_resource)).to be_nil
+      end
+    end
+
+    context 'with pharmacy charges medication (should be filtered)' do
+      let(:charge_only_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+      end
+
+      it 'returns nil (filtered out)' do
+        expect(subject.parse(charge_only_resource)).to be_nil
+      end
+    end
+
+    context 'with uncategorized medication' do
+      let(:uncategorized_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'unknown-category' }] }
+          ]
+        )
+      end
+
+      before { allow(Rails.logger).to receive(:warn) }
+
+      it 'returns the prescription (visible but logged)' do
+        result = subject.parse(uncategorized_resource)
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+      end
+
+      context 'when mhv_medications_v2_status_mapping is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(true)
+        end
+
+        it 'logs the uncategorized medication for review' do
+          subject.parse(uncategorized_resource)
+          expect(Rails.logger).to have_received(:warn).with(
+            hash_including(
+              message: 'Oracle Health medication uncategorized',
+              service: 'unified_health_data'
+            )
+          )
+        end
+      end
+
+      context 'when mhv_medications_v2_status_mapping is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(false)
+        end
+
+        it 'does not log the uncategorized medication' do
+          subject.parse(uncategorized_resource)
+          expect(Rails.logger).not_to have_received(:warn)
+        end
+      end
+    end
   end
 
   describe '#extract_prescription_source' do
@@ -1212,139 +1286,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     before do
       allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('Bay Pines VA Healthcare System')
       allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
-    end
-  end
-
-  describe '#extract_category' do
-    context 'with category field containing inpatient code' do
-      let(:resource_with_inpatient_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'inpatient'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with inpatient' do
-        result = subject.send(:extract_category, resource_with_inpatient_category)
-        expect(result).to eq(['inpatient'])
-      end
-    end
-
-    context 'with category field containing outpatient code' do
-      let(:resource_with_outpatient_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'outpatient'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with outpatient' do
-        result = subject.send(:extract_category, resource_with_outpatient_category)
-        expect(result).to eq(['outpatient'])
-      end
-    end
-
-    context 'with category field containing community code' do
-      let(:resource_with_community_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with community' do
-        result = subject.send(:extract_category, resource_with_community_category)
-        expect(result).to eq(['community'])
-      end
-    end
-
-    context 'with multiple category codes' do
-      let(:resource_with_multiple_categories) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'inpatient'
-                }
-              ]
-            },
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with all category codes' do
-        result = subject.send(:extract_category, resource_with_multiple_categories)
-        expect(result).to eq(%w[inpatient community])
-      end
-    end
-
-    context 'with no category field' do
-      it 'returns empty array' do
-        result = subject.send(:extract_category, base_resource)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with empty category array' do
-      let(:resource_with_empty_category) do
-        base_resource.merge('category' => [])
-      end
-
-      it 'returns empty array' do
-        result = subject.send(:extract_category, resource_with_empty_category)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with category but no coding' do
-      let(:resource_with_category_no_coding) do
-        base_resource.merge(
-          'category' => [
-            {
-              'text' => 'Inpatient'
-            }
-          ]
-        )
-      end
-
-      it 'returns empty array' do
-        result = subject.send(:extract_category, resource_with_category_no_coding)
-        expect(result).to eq([])
-      end
     end
   end
 
