@@ -8,7 +8,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   before do
     Sidekiq::Job.clear_all
 
-    Flipper.disable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
     Flipper.disable(:form526_send_document_upload_failure_notification)
   end
 
@@ -38,112 +37,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   end
 
   describe 'perform' do
-    let(:document_data) { double(:document_data, valid?: true) }
-
-    context 'when file_data exists' do
-      it 'calls the documents service api with file body and document data' do
-        VCR.use_cassette('evss/documents/upload_with_errors') do
-          expect(EVSSClaimDocument)
-            .to receive(:new)
-            .with(
-              evss_claim_id: submission.submitted_claim_id,
-              file_name: upload_data.first['name'],
-              tracked_item_id: nil,
-              document_type: upload_data.first['attachmentId']
-            )
-            .and_return(document_data)
-
-          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
-          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
-          described_class.drain
-        end
-      end
-
-      context 'with a timeout' do
-        it 'logs a retryable error and re-raises the original error' do
-          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-            .and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
-          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
-          expect(Form526JobStatus).to receive(:upsert).twice
-          expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
-        end
-      end
-
-      context 'when all retries are exhausted' do
-        let!(:form526_job_status) do
-          create(
-            :form526_job_status,
-            :retryable_error,
-            form526_submission: submission,
-            job_id: 1
-          )
-        end
-
-        context 'when the form526_send_document_upload_failure_notification Flipper is enabled' do
-          before do
-            Flipper.enable(:form526_send_document_upload_failure_notification)
-          end
-
-          it 'enqueues a failure notification mailer to send to the veteran' do
-            subject.within_sidekiq_retries_exhausted_block(
-              {
-                'jid' => form526_job_status.job_id,
-                'args' => [submission.id, attachment.guid]
-              }
-            ) do
-              expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
-                .to receive(:perform_async).with(submission.id, attachment.guid)
-            end
-          end
-        end
-
-        context 'when the form526_send_document_upload_failure_notification Flipper is disabled' do
-          it 'does not enqueue a failure notification mailer to send to the veteran' do
-            subject.within_sidekiq_retries_exhausted_block(
-              {
-                'jid' => form526_job_status.job_id,
-                'args' => [submission.id, attachment.guid]
-              }
-            ) do
-              expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
-                .not_to receive(:perform_async)
-            end
-          end
-        end
-      end
-    end
-
-    context 'when misnamed file_data exists' do
-      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1_actually_jpg.png', 'image/png') }
+    context 'when get_file is nil' do
       let!(:attachment) do
         sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
-        sea.set_file_data!(file)
-        sea.save
+        allow(sea).to receive(:get_file).and_return(nil)
+        sea
       end
-
-      it 'calls the documents service api with file body and document data' do
-        VCR.use_cassette('evss/documents/upload_with_errors') do
-          expect(EVSSClaimDocument)
-            .to receive(:new)
-            .with(
-              evss_claim_id: submission.submitted_claim_id,
-              file_name: 'converted_sm_file1_actually_jpg_png.jpg',
-              tracked_item_id: nil,
-              document_type: upload_data.first['attachmentId']
-            )
-            .and_return(document_data)
-
-          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
-          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
-          described_class.drain
-        end
-      end
-    end
-
-    context 'when get_file is nil' do
-      let(:attachment) { double(:attachment, get_file: nil) }
 
       it 'logs a non_retryable_error' do
+        allow(SupportingEvidenceAttachment).to receive(:find_by).and_return(attachment)
         subject.perform_async(submission.id, upload_data.first['confirmationCode'])
         expect(Form526JobStatus).to receive(:upsert).twice
         expect { described_class.drain }.to raise_error(ArgumentError)
@@ -152,45 +54,41 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   end
 
   describe 'backward compatibility with old calling convention' do
-    let(:document_data) { double(:document_data, valid?: true) }
+    before do
+      # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
+      allow(StatsD).to receive(:increment)
+      Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+    end
+
+    let(:faraday_response) { instance_double(Faraday::Response) }
 
     context 'when called with old format (upload_data hash)' do
-      it 'still works when passed the full upload_data hash' do
-        VCR.use_cassette('evss/documents/upload_with_errors') do
-          expect(EVSSClaimDocument)
-            .to receive(:new)
-            .with(
-              evss_claim_id: submission.submitted_claim_id,
-              file_name: upload_data.first['name'],
-              tracked_item_id: nil,
-              document_type: upload_data.first['attachmentId']
-            )
-            .and_return(document_data)
+      before do
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .and_return(faraday_response)
 
-          # Old format: passing the full upload_data hash
-          subject.perform_async(submission.id, upload_data.first)
-          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
-          described_class.drain
-        end
+        allow(faraday_response).to receive(:body).and_return(
+          {
+            'data' => {
+              'success' => true,
+              'requestId' => Faker::Number.number(digits: 8)
+            }
+          }
+        )
+      end
+
+      it 'still works when passed the full upload_data hash' do
+        # Old format: passing the full upload_data hash
+        subject.perform_async(submission.id, upload_data.first)
+        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+        described_class.drain
       end
 
       it 'still works with an array of upload_data' do
-        VCR.use_cassette('evss/documents/upload_with_errors') do
-          expect(EVSSClaimDocument)
-            .to receive(:new)
-            .with(
-              evss_claim_id: submission.submitted_claim_id,
-              file_name: upload_data.first['name'],
-              tracked_item_id: nil,
-              document_type: upload_data.first['attachmentId']
-            )
-            .and_return(document_data)
-
-          # Old format: passing as an array (how it was originally done)
-          subject.perform_async(submission.id, upload_data)
-          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
-          described_class.drain
-        end
+        # Old format: passing as an array (how it was originally done)
+        subject.perform_async(submission.id, upload_data)
+        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+        described_class.drain
       end
 
       context 'when exhaustion occurs with old format' do
@@ -227,7 +125,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   describe 'When an ApiProvider is used for uploads' do
     before do
-      Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
     end
@@ -371,60 +268,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           end
         end
       end
-
-      # Upload to EVSS
-      context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is disabled' do
-        before do
-          Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
-          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-        end
-
-        let(:evss_claim_document) do
-          EVSSClaimDocument.new(
-            evss_claim_id: submission.submitted_claim_id,
-            document_type: upload_data.first['attachmentId'],
-            file_name: upload_data.first['name']
-          )
-        end
-
-        let(:expected_statsd_metrics_prefix) do
-          'worker.evss.submit_form526_upload.evss_supplemental_document_upload_provider'
-        end
-
-        it 'uploads the document via the EVSS Documents Service' do
-          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-            .with(file.read, evss_claim_document)
-
-          perform_upload
-        end
-
-        it 'logs the upload attempt with the correct job prefix' do
-          expect(StatsD).to receive(:increment).with(
-            "#{expected_statsd_metrics_prefix}.upload_attempt"
-          )
-
-          perform_upload
-        end
-
-        it 'increments the correct StatsD success metric' do
-          expect(StatsD).to receive(:increment).with(
-            "#{expected_statsd_metrics_prefix}.upload_success"
-          )
-
-          perform_upload
-        end
-
-        context 'when an upload raises an EVSS response error' do
-          it 'logs an upload error and re-raises the error' do
-            allow_any_instance_of(EVSS::DocumentsService)
-              .to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
-
-            expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
-
-            expect { perform_upload }.to raise_error(EVSS::ErrorMiddleware::EVSSError)
-          end
-        end
-      end
     end
   end
 
@@ -434,19 +277,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
-        subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
+        subject.within_sidekiq_retries_exhausted_block(
+          {
+            'jid' => form526_job_status.job_id,
+            'args' => [form526_submission.id, attachment.guid]
+          }
+        ) do
+          allow(StatsD).to receive(:increment)
           expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
-          expect(Rails).to receive(:logger).and_call_original
+          allow(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
 
       context 'when the API Provider uploads are enabled' do
-        before do
-          Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-        end
-
         context 'for a Lighthouse upload' do
           it 'logs the job failure' do
             Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
@@ -461,24 +306,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             ) do
               expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:log_uploading_job_failure)
-                .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
-            end
-          end
-        end
-
-        context 'for an EVSS Upload' do
-          it 'logs the job failure' do
-            Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
-
-            subject.within_sidekiq_retries_exhausted_block(
-              {
-                'jid' => form526_job_status.job_id,
-                'error_class' => 'Broken Job Error',
-                'error_message' => 'Your Job Broke',
-                'args' => [form526_submission.id, attachment.guid]
-              }
-            ) do
-              expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
             end
           end
