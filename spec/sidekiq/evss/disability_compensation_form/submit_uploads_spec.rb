@@ -36,6 +36,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     sea
   end
 
+  def stub_flipper(toggle_name, enabled: true)
+    allow(Flipper).to receive(:enabled?).with(toggle_name).and_return(enabled)
+  end
+
   describe 'perform' do
     context 'when get_file is nil' do
       let!(:attachment) do
@@ -65,7 +69,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     before do
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
-      Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+      stub_flipper(:form526_send_document_upload_failure_notification)
     end
 
     let(:faraday_response) { instance_double(Faraday::Response) }
@@ -162,7 +166,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         end
 
         before do
-          Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+          stub_flipper(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
           allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
             .and_return(faraday_response)
@@ -302,7 +306,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       context 'when the API Provider uploads are enabled' do
         context 'for a Lighthouse upload' do
           it 'logs the job failure' do
-            Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+            stub_flipper(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
             subject.within_sidekiq_retries_exhausted_block(
               {
