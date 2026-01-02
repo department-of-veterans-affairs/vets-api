@@ -209,12 +209,12 @@ RSpec.describe V1::SessionsController, type: :controller do
               let(:cookie_action) { :found }
 
               before do
-                cookies.signed[cerner_eligible_cookie] = eligible.to_s
+                cookies[cerner_eligible_cookie] = eligible.to_s
                 allow(Rails.logger).to receive(:info)
               end
 
               context 'when cerner eligible cookie is true' do
-                let(:eligible) { true }
+                let(:eligible) { 'true' }
 
                 it 'logs the cerner eligibility' do
                   call_endpoint
@@ -224,7 +224,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               end
 
               context 'when cerner eligible cookie is false' do
-                let(:eligible) { false }
+                let(:eligible) { 'false' }
 
                 it 'logs the cerner eligibility' do
                   call_endpoint
@@ -875,7 +875,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'when the cerner eligible cookie is present' do
           let(:eligible) { true }
-          let(:previous_value) { true }
+          let(:previous_value) { 'true' }
 
           before do
             cookies[cerner_eligible_cookie] = true
