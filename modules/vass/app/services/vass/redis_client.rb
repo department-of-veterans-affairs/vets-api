@@ -30,23 +30,8 @@ module Vass
     # about forwarding to private OpenStruct methods
 
     ##
-    # Returns the OTC expiry time from settings.
-    #
-    # @return [ActiveSupport::Duration] OTC expiry duration
-    #
-    # rubocop:disable Rails/Delegate
-    def redis_token_expiry
-      @settings.redis_token_expiry
-    end
-
-    def redis_otc_expiry
-      @settings.redis_otc_expiry
-    end
-
-    def redis_session_expiry
-      @settings.redis_session_expiry
-    end
-    # rubocop:enable Rails/Delegate
+    # Delegate expiry settings to @settings
+    delegate :redis_token_expiry, :redis_otc_expiry, :redis_session_expiry, to: :@settings
 
     # ------------ OAuth Token Management ------------
 
