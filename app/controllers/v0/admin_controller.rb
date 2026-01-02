@@ -6,7 +6,7 @@ require 'admin/redis_health_checker'
 module V0
   class AdminController < ApplicationController
     service_tag 'platform-base'
-    skip_before_action :authenticate, only: :status
+    skip_before_action :authenticate, only: %i[status debug_headers]
 
     def status
       app_status = {
@@ -21,6 +21,17 @@ module V0
         }
       }
       render json: app_status
+    end
+
+    def debug_headers
+      render json: {
+        ssl?: request.ssl?,
+        scheme: request.scheme,
+        forwarded_proto: request.headers['X-Forwarded-Proto'],
+        forwarded_scheme: request.headers['X-Forwarded-Scheme'],
+        remote_ip: request.remote_ip,
+        trusted_proxies: Rails.application.config.action_dispatch.trusted_proxies.map(&:to_s)
+      }
     end
   end
 end
