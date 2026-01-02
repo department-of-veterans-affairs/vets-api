@@ -439,27 +439,27 @@ module Vass
     end
 
     ##
-    # Normalizes date from VASS API format (M/D/YYYY) to Date object for comparison.
+    # Normalizes date from VASS API format (M/D/YYYY) to Date object.
     #
-    # Attempts to parse using the expected VASS format (M/D/YYYY) first,
-    # falling back to Date.parse for other formats. Logs a warning when
-    # fallback is used to help identify data quality issues.
+    # Parses the date using the expected VASS format (M/D/YYYY).
+    # Raises ValidationError if the date cannot be parsed.
     #
     # @param date [String] Date string from VASS API (e.g., "1/15/1990")
     # @return [Date] Parsed date object
+    # @raise [Vass::Errors::ValidationError] if date cannot be parsed
     #
     def normalize_vass_date(date)
       Date.strptime(date, '%m/%d/%Y')
     rescue ArgumentError, TypeError
-      Rails.logger.warn({
+      Rails.logger.error({
         service: 'vass_appointments_service',
-        action: 'date_format_fallback',
-        message: 'VASS API date not in expected M/D/YYYY format, using Date.parse fallback',
-        date_format: date.class.name,
+        action: 'date_parse_failed',
+        message: 'Failed to parse date from VASS API',
+        date_value: date,
         correlation_id:,
         timestamp: Time.current.iso8601
       }.to_json)
-      Date.parse(date)
+      raise Vass::Errors::ValidationError, "Invalid date format: #{date}"
     end
   end
 end
