@@ -92,8 +92,8 @@ bing:
   key: ~
 bio:
   increase_compensation:
-    bucket: development-form-submissions
-    region: us-east-1
+    bucket: ~
+    region: ~
   medical_expense_reports:
     bucket: ~
     region: ~
