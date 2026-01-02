@@ -53,7 +53,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             )
             .and_return(document_data)
 
-          subject.perform_async(submission.id, upload_data)
+          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
           expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
           described_class.drain
         end
@@ -63,7 +63,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         it 'logs a retryable error and re-raises the original error' do
           allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
             .and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
-          subject.perform_async(submission.id, upload_data)
+          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         end
@@ -88,7 +88,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             subject.within_sidekiq_retries_exhausted_block(
               {
                 'jid' => form526_job_status.job_id,
-                'args' => [submission.id, upload_data]
+                'args' => [submission.id, attachment.guid]
               }
             ) do
               expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
@@ -102,7 +102,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             subject.within_sidekiq_retries_exhausted_block(
               {
                 'jid' => form526_job_status.job_id,
-                'args' => [submission.id, upload_data]
+                'args' => [submission.id, attachment.guid]
               }
             ) do
               expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
@@ -133,7 +133,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             )
             .and_return(document_data)
 
-          subject.perform_async(submission.id, upload_data)
+          subject.perform_async(submission.id, upload_data.first['confirmationCode'])
           expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
           described_class.drain
         end
@@ -144,7 +144,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let(:attachment) { double(:attachment, get_file: nil) }
 
       it 'logs a non_retryable_error' do
-        subject.perform_async(submission.id, upload_data)
+        subject.perform_async(submission.id, upload_data.first['confirmationCode'])
         expect(Form526JobStatus).to receive(:upsert).twice
         expect { described_class.drain }.to raise_error(ArgumentError)
       end
@@ -160,7 +160,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
     context 'when file_data exists' do
       let(:perform_upload) do
-        subject.perform_async(submission.id, upload_data.first)
+        subject.perform_async(submission.id, upload_data.first['confirmationCode'])
         described_class.drain
       end
 
@@ -372,20 +372,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
         end
 
-        let(:sidekiq_job_exhaustion_errors) do
-          {
-            'jid' => form526_job_status.job_id,
-            'error_class' => 'Broken Job Error',
-            'error_message' => 'Your Job Broke',
-            'args' => [form526_submission.id, upload_data.first]
-          }
-        end
-
         context 'for a Lighthouse upload' do
           it 'logs the job failure' do
             Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
-            subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'error_class' => 'Broken Job Error',
+                'error_message' => 'Your Job Broke',
+                'args' => [form526_submission.id, attachment.guid]
+              }
+            ) do
               expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
@@ -397,7 +395,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           it 'logs the job failure' do
             Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
-            subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'error_class' => 'Broken Job Error',
+                'error_message' => 'Your Job Broke',
+                'args' => [form526_submission.id, attachment.guid]
+              }
+            ) do
               expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
             end
@@ -429,7 +434,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           call_location: instance_of(Logging::CallLocation)
         )
 
-        args = { 'jid' => form526_job_status.job_id, 'args' => [submission.id, upload_data] }
+        args = { 'jid' => form526_job_status.job_id, 'args' => [submission.id, attachment.guid] }
 
         expect do
           subject.within_sidekiq_retries_exhausted_block(args) do

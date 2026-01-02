@@ -19,10 +19,8 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
-        upload_data = msg['args'][1]
+        guid = msg['args'][1]
 
-        # Match existing data check in perform method
-        upload_data = upload_data.first if upload_data.is_a?(Array)
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
         Rails.logger.warn('Submit Form 526 Upload Retries exhausted', log_info)
@@ -47,13 +45,14 @@ module EVSS
 
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
           submission = Form526Submission.find(form526_submission_id)
-
-          provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
-          provider.log_uploading_job_failure(self, error_class, error_message)
+          upload_data = submission.form[Form526Submission::FORM_526_UPLOADS]&.find { |u| u['confirmationCode'] == guid }
+          if upload_data
+            provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
+            provider.log_uploading_job_failure(self, error_class, error_message)
+          end
         end
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
-          guid = upload_data['confirmationCode']
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
         # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
@@ -104,16 +103,20 @@ module EVSS
         )
       end
 
-      # Recursively submits a file in a new instance of this job for each upload in the uploads list
+      # Submits a single supporting evidence attachment for a Form526 submission
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      # @param upload_data [String] Form metadata for attachment, including upload GUID in AWS S3
+      # @param guid [String] The GUID/confirmationCode of the attachment to upload
       #
-      def perform(submission_id, upload_data)
+      def perform(submission_id, guid)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
-        upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
-        guid = upload_data&.dig('confirmationCode')
+        submission = Form526Submission.find(submission_id)
+        upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
+        upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
+
+        raise ArgumentError, "No upload found with guid #{guid}" if upload_data.nil?
+
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           sea = SupportingEvidenceAttachment.find_by(guid:)
           file_body = sea&.get_file&.read
