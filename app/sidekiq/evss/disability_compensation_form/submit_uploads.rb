@@ -21,15 +21,10 @@ module EVSS
         form526_submission_id = msg['args'].first
         guid_or_upload_data = msg['args'][1]
 
-        # Handle both old and new calling conventions
-        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
-          # Old format: upload_data hash was passed (possibly wrapped in array)
-          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
-          guid = upload_data&.dig('confirmationCode')
-        else
-          # New format: guid string was passed
-          guid = guid_or_upload_data
-        end
+        submission = Form526Submission.find(form526_submission_id)
+        upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
+
+        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
 
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
@@ -53,8 +48,6 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-        submission = Form526Submission.find(form526_submission_id)
-        upload_data = submission.form[Form526Submission::FORM_526_UPLOADS]&.find { |u| u['confirmationCode'] == guid }
         if upload_data
           provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
           provider.log_uploading_job_failure(self, error_class, error_message)
@@ -116,7 +109,7 @@ module EVSS
       # @param guid_or_upload_data [String, Hash] Either the attachment GUID or the old upload_data hash
       # @param upload_data_list [Array<Hash>] List of upload_data hashes from the form
       # @return [Array(String, Hash)] The guid string and the upload_data hash
-      def get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+      def self.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
         # Handle both old and new calling conventions
         if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
           # Old format: upload_data hash was passed (possibly wrapped in array)
@@ -145,7 +138,7 @@ module EVSS
         submission = Form526Submission.find(submission_id)
         upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
 
-        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+        guid, upload_data = self.class.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
 
         raise ArgumentError, "No upload found with guid #{guid} for submission #{submission_id}" if upload_data.nil?
 
