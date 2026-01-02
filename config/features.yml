@@ -2348,3 +2348,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  form_10275_release:
+    actor_type: user
+    description: If enabled, show link to digitized form on SCO page
