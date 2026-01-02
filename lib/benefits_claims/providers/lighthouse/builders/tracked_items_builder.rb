@@ -28,6 +28,8 @@ module BenefitsClaims
               uploaded: item_data['uploaded'],
               friendly_name: item_data['friendlyName'],
               friendly_description: item_data['friendlyDescription'],
+              activity_description: item_data['activityDescription'],
+              short_description: item_data['shortDescription'],
               can_upload_file: item_data['canUploadFile'],
               support_aliases: item_data['supportAliases'],
               documents: item_data['documents'],

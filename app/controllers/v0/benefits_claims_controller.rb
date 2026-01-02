@@ -45,7 +45,18 @@ module V0
       evidence_submissions = fetch_evidence_submissions(claim_ids, 'index')
 
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        add_evidence_submissions_to_claims(claims['data'], evidence_submissions, 'index')
+        begin
+          add_evidence_submissions_to_claims(claims['data'], evidence_submissions, 'index')
+        rescue => e
+          # Log error but don't fail the request - graceful degradation
+          ::Rails.logger.error(
+            'BenefitsClaimsController#index Error adding evidence submissions',
+            {
+              claim_ids:,
+              error_class: e.class.name
+            }
+          )
+        end
       end
 
       tap_claims(claims['data'])
@@ -82,7 +93,18 @@ module V0
 
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
         update_evidence_submissions_for_claim(claim['data']['id'], evidence_submissions)
-        add_evidence_submissions_to_claims([claim['data']], evidence_submissions, 'show')
+        begin
+          add_evidence_submissions_to_claims([claim['data']], evidence_submissions, 'show')
+        rescue => e
+          # Log error but don't fail the request - graceful degradation
+          ::Rails.logger.error(
+            'BenefitsClaimsController#show Error adding evidence submissions',
+            {
+              claim_ids: [claim['data']['id']],
+              error_class: e.class.name
+            }
+          )
+        end
       end
 
       # We want to log some details about claim type patterns to track in DataDog

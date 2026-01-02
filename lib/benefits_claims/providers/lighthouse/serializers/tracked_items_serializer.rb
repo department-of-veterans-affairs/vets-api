@@ -25,6 +25,8 @@ module BenefitsClaims
               'uploaded' => item.uploaded,
               'friendlyName' => item.friendly_name,
               'friendlyDescription' => item.friendly_description,
+              'activityDescription' => item.activity_description,
+              'shortDescription' => item.short_description,
               'canUploadFile' => item.can_upload_file,
               'supportAliases' => item.support_aliases,
               'documents' => item.documents,

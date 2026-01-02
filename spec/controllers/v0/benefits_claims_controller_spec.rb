@@ -374,7 +374,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         context 'when adding evidence submissions fails' do
           before do
             create(:bd_lh_evidence_submission_success, claim_id:)
-            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions)
+            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions_to_claims)
               .and_raise(StandardError, 'Error processing evidence')
           end
 
@@ -1016,8 +1016,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           before do
             create(:bd_lh_evidence_submission_success, claim_id:)
 
-            # Mock add_evidence_submissions to raise an error
-            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions)
+            allow_any_instance_of(V0::BenefitsClaimsController).to receive(:add_evidence_submissions_to_claims)
               .and_raise(StandardError, 'Error processing evidence')
           end
 
