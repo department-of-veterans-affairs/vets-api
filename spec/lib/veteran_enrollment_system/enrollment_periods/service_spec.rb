@@ -41,5 +41,25 @@ RSpec.describe VeteranEnrollmentSystem::EnrollmentPeriods::Service do
         end
       end
     end
+
+    context 'when the error response body is a string instead of a hash' do
+      it 'raises the appropriate error with the string message' do
+        response = double('response')
+        allow(response).to receive(:env).and_return(
+          OpenStruct.new(status: 500, body: 'Internal Server Error')
+        )
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(response)
+
+        expect(StatsD).to receive(:increment).with(
+          'api.enrollment_periods.get_enrollment_periods.fail',
+          { tags: ['error:CommonExceptionsExternalServerInternalServerError'] }
+        )
+        expect(StatsD).to receive(:increment).with('api.enrollment_periods.get_enrollment_periods.total')
+        expect { subject.get_enrollment_periods(icn:) }.to \
+          raise_error(Common::Exceptions::ExternalServerInternalServerError) do |error|
+          expect(error.errors.first.detail).to eq('Internal Server Error')
+        end
+      end
+    end
   end
 end
