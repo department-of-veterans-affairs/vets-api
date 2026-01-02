@@ -270,7 +270,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(poa_request.resolution).to be_present
         expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
 
-        expect(AccreditedRepresentativePortal::SendPoaRequestCorpDbJob)
+        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
           .to have_received(:perform_async)
           .with(poa_request.id)
       end

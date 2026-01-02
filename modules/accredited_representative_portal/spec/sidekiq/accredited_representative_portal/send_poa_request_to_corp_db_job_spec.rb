@@ -26,10 +26,11 @@ module AccreditedRepresentativePortal
           allow(Rails.logger).to receive(:error)
           described_class.new.perform('nonexistent_id')
           expect(Rails.logger).to have_received(:error).with(
-            'POA request not found',
+            'POA Request not found',
             hash_including(
               poa_request_id: 'nonexistent_id',
-              error: /Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest/
+              error_class: 'ActiveRecord::RecordNotFound',
+              message: /Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest/
             )
           )
         end
@@ -46,8 +47,12 @@ module AccreditedRepresentativePortal
           end.to raise_error(Faraday::ClientError)
 
           expect(Rails.logger).to have_received(:error).with(
-            /Failed to send POA to CorpDB/,
-            hash_including(:error, :poa_request_id)
+            'Failed to send POA Request to CorpDB (retrying)',
+            hash_including(
+              poa_request_id: poa_request.id,
+              error_class: 'Faraday::ClientError',
+              message: anything
+            )
           )
         end
       end
@@ -63,8 +68,12 @@ module AccreditedRepresentativePortal
           end.to raise_error(StandardError, 'unexpected failure')
 
           expect(Rails.logger).to have_received(:error).with(
-            /Unexpected error sending POA to CorpDB/,
-            hash_including(:error, :poa_request_id)
+            'Unexpected error sending POA Request to CorpDB',
+            hash_including(
+              poa_request_id: poa_request.id,
+              error_class: 'StandardError',
+              message: 'unexpected failure'
+            )
           )
         end
       end
