@@ -42,6 +42,8 @@ FactoryBot.define do
     created_at { DateTime.now.utc - 61.days }
     delete_date { nil }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    va_notify_id { SecureRandom.uuid }
+    va_notify_date { DateTime.now.utc - 61.days }
   end
 
   # FAILED records WITH delete_date should be deleted
