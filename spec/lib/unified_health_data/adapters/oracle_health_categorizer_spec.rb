@@ -371,8 +371,8 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
       end
 
-      it 'returns false' do
-        expect(subject.non_va_med?(clinic_administered_resource)).to be false
+      it 'returns true' do
+        expect(subject.non_va_med?(clinic_administered_resource)).to be true
       end
     end
 
@@ -385,8 +385,8 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
       end
 
-      it 'returns false' do
-        expect(subject.non_va_med?(pharmacy_charges_resource)).to be false
+      it 'returns true' do
+        expect(subject.non_va_med?(pharmacy_charges_resource)).to be true
       end
     end
 
@@ -399,17 +399,17 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
       end
 
-      it 'returns false' do
-        expect(subject.non_va_med?(inpatient_resource)).to be false
+      it 'returns true' do
+        expect(subject.non_va_med?(inpatient_resource)).to be true
       end
     end
 
     context 'when medication is uncategorized' do
-      it 'returns false for resource with no category' do
-        expect(subject.non_va_med?(base_resource)).to be false
+      it 'returns true for resource with no category' do
+        expect(subject.non_va_med?(base_resource)).to be true
       end
 
-      it 'returns false for partial match missing required fields' do
+      it 'returns true for partial match missing required fields' do
         resource = base_resource.merge(
           'reportedBoolean' => true,
           'intent' => 'order', # Wrong intent for documented/non-VA
@@ -418,13 +418,13 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
             { 'coding' => [{ 'code' => 'patientspecified' }] }
           ]
         )
-        expect(subject.non_va_med?(resource)).to be false
+        expect(subject.non_va_med?(resource)).to be true
       end
     end
 
     context 'when resource is nil' do
-      it 'returns false' do
-        expect(subject.non_va_med?(nil)).to be false
+      it 'returns true' do
+        expect(subject.non_va_med?(nil)).to be true
       end
     end
   end

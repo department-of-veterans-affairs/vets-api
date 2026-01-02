@@ -61,9 +61,9 @@ module UnifiedHealthData
       # Checks if MedicationRequest is a non-VA medication
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if non-VA medication (not va_prescription category)
+      # @return [Boolean] True if non-VA medication (anything other than va_prescription category)
       def non_va_med?(resource)
-        categorize_medication(resource) == :documented_non_va
+        categorize_medication(resource) != :va_prescription
       end
 
       def log_uncategorized_medication(resource)

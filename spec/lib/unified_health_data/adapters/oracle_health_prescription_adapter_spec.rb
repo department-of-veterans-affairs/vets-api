@@ -231,7 +231,25 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
-    context 'with non-VA medication (uncategorized defaults to non-VA)' do
+    context 'with documented/non-VA medication' do
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
+
+      it 'returns NV for documented/non-VA medications' do
+        result = subject.send(:extract_prescription_source, non_va_resource)
+        expect(result).to eq('NV')
+      end
+    end
+
+    context 'with uncategorized medication' do
       it 'returns NV for uncategorized medications' do
         result = subject.send(:extract_prescription_source, base_resource)
         expect(result).to eq('NV')
