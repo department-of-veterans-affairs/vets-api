@@ -292,5 +292,37 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
         expect(merged_entry).to eq(expected_result)
       end
     end
+
+    context 'when entries have do not have evidenceDates' do
+      let(:entries) do
+        [
+          {
+            'attributes' => {
+              'locationAndName' => 'VA Medical Center - Boston',
+              'noTreatmentDates' => true
+            }
+          },
+          {
+            'attributes' => {
+              'locationAndName' => 'VA Medical Center - Boston',
+              'noTreatmentDates' => true
+            }
+          }
+        ]
+      end
+
+      let(:expected_result) do
+        {
+          'attributes' => {
+            'locationAndName' => 'VA Medical Center - Boston',
+            'noTreatmentDates' => true
+          }
+        }
+      end
+
+      it 'handles missing evidence dates gracefully' do
+        expect(merged_entry).to eq(expected_result)
+      end
+    end
   end
 end

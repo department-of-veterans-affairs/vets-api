@@ -13,7 +13,7 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
-    attr_reader :parent_claim_id, :child_claims
+    attr_reader :parent_claim_id
 
     # Initializes a new ClaimProcessor
     #
@@ -54,6 +54,13 @@ module DependentsBenefits
 
       monitor.track_processor_info('Successfully enqueued all submission jobs', 'enqueue_success',
                                    parent_claim_id:, jobs_count: jobs_enqueued)
+
+      # Records successful enqueueing by updating claim group status
+      record_enqueue_completion
+
+      # notify user that processing has started
+      notification_email.send_submitted_notification
+
       { data: { jobs_enqueued: }, error: nil }
     rescue => e
       handle_enqueue_failure(e)
@@ -121,10 +128,14 @@ module DependentsBenefits
 
       ActiveRecord::Base.transaction do
         parent_claim_group.with_lock do
-          if child_claims.all?(&:submissions_succeeded?)
+          if child_claims.all?(&:submissions_succeeded?) && !parent_claim_group.completed?
             monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
+            if child_claims.any?(&:pension_related_submission?)
+              form_type = parent_claim&.claim_form_type
+              monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id:, form_type:)
+            end
           end
         end
       end
@@ -190,6 +201,13 @@ module DependentsBenefits
       @parent_claim_group ||= SavedClaimGroup.find_by(parent_claim_id:, saved_claim_id: parent_claim_id)
     end
 
+    # Returns the parent claim
+    #
+    # @return [SavedClaim, nil] The parent SavedClaim record
+    def parent_claim
+      @parent_claim ||= ::SavedClaim.find_by(id: parent_claim_id)
+    end
+
     # Marks the parent claim group as succeeded
     #
     # @return [Boolean] result of the update operation
@@ -202,6 +220,12 @@ module DependentsBenefits
     # @return [Boolean] result of the update operation
     def mark_parent_claim_group_failed
       parent_claim_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
+    end
+
+    # Collects a memoized list of child claims
+    # @return [Array<DependentClaim>]
+    def child_claims
+      @child_claims ||= collect_child_claims
     end
   end
 end

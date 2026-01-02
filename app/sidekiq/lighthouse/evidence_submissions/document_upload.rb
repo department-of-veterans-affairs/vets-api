@@ -87,8 +87,6 @@ module Lighthouse
 
         ::Rails.logger.info("#{name} exhaustion handler email queued")
       rescue => e
-        ::Rails.logger.error("#{name} exhaustion handler email error",
-                             { message: e.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to Lighthouse'])
         log_exception_to_sentry(e)
       end
