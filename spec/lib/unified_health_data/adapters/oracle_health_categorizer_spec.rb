@@ -371,14 +371,60 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
       end
 
-      it 'returns true' do
-        expect(subject.non_va_med?(clinic_administered_resource)).to be true
+      it 'returns false' do
+        expect(subject.non_va_med?(clinic_administered_resource)).to be false
+      end
+    end
+
+    context 'when medication is pharmacy charges' do
+      let(:pharmacy_charges_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+      end
+
+      it 'returns false' do
+        expect(subject.non_va_med?(pharmacy_charges_resource)).to be false
+      end
+    end
+
+    context 'when medication is inpatient' do
+      let(:inpatient_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns false' do
+        expect(subject.non_va_med?(inpatient_resource)).to be false
       end
     end
 
     context 'when medication is uncategorized' do
-      it 'returns true' do
-        expect(subject.non_va_med?(base_resource)).to be true
+      it 'returns false for resource with no category' do
+        expect(subject.non_va_med?(base_resource)).to be false
+      end
+
+      it 'returns false for partial match missing required fields' do
+        resource = base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'order', # Wrong intent for documented/non-VA
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+        expect(subject.non_va_med?(resource)).to be false
+      end
+    end
+
+    context 'when resource is nil' do
+      it 'returns false' do
+        expect(subject.non_va_med?(nil)).to be false
       end
     end
   end

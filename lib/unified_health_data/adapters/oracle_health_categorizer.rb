@@ -36,6 +36,8 @@ module UnifiedHealthData
       # @return [Symbol] One of the available categories
       # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/digital-health-modernization/mhv-to-va.gov/medications/requirements/oracle_health_categorization_spec.md
       def categorize_medication(resource)
+        return :uncategorized if resource.nil?
+
         reported_boolean = resource['reportedBoolean']
         intent = resource['intent']
         categories = extract_category(resource)
@@ -57,13 +59,11 @@ module UnifiedHealthData
       end
 
       # Checks if MedicationRequest is a non-VA medication
-      # Non-VA medications are those NOT categorized as VA Prescription (Outpatient Medication)
-      # VA Prescription = community + discharge category codes
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] True if non-VA medication (not va_prescription category)
       def non_va_med?(resource)
-        categorize_medication(resource) != :va_prescription
+        categorize_medication(resource) == :documented_non_va
       end
 
       def log_uncategorized_medication(resource)
