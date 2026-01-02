@@ -178,12 +178,7 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       end
 
       context 'when no documents are found to poll' do
-        before do
-          # Mock the scope chain to return no pending documents
-          pending_scope = instance_double(ActiveRecord::Relation, blank?: true, count: 0)
-          allow(Lighthouse526DocumentUpload).to receive(:pending).and_return(pending_scope)
-        end
-
+        # By not creating any pending documents, the real scopes will return an empty collection
         it 'does not call the polling service' do
           expect(polling_service).not_to receive(:call)
           expect(Rails.logger).to receive(:warn)
