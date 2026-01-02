@@ -14,7 +14,9 @@ module Eps
       # @return [Hash] the HTTP headers with correlation ID
       def headers_with_correlation_id
         correlation_id = SecureRandom.uuid
-        Rails.logger.info(message: 'EPS API Call', correlation_id:, request_id: RequestStore.store['request_id'])
+        Rails.logger.info(message: 'EPS API Call', correlation_id:, request_id: RequestStore.store['request_id'],
+                          controller: RequestStore.store['controller_name'],
+                          station_number: user&.va_treatment_facility_ids&.first)
 
         {
           'Authorization' => "Bearer #{token}",

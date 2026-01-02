@@ -1,0 +1,65 @@
+<div class="search-results">
+  <div class="results-header">
+    <h1>🔍 Search Results</h1>
+    <% if @query && !@query.empty? %>
+      <p class="subtitle">Found <%= @cassettes.length %> cassettes matching "<%= @query %>"</p>
+    <% else %>
+      <p class="subtitle">Showing <%= @cassettes.length %> cassettes</p>
+    <% end %>
+  </div>
+
+  <div class="search-box">
+    <form action="/search" method="get" class="search-form">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          name="q" 
+          value="<%= @query %>" 
+          placeholder="Search cassettes..." 
+          class="search-input"
+          autofocus
+        >
+      </div>
+      <button type="submit" class="search-button">SEARCH</button>
+    </form>
+  </div>
+
+  <% if @cassettes.any? %>
+    <div class="results-list">
+      <% @cassettes.each do |cassette| %>
+        <a href="/cassette/<%= cassette[:path] %>" class="result-item">
+          <div class="result-cassette">
+            <div class="mini-cassette">
+              <div class="mini-reel"></div>
+              <div class="mini-reel"></div>
+            </div>
+          </div>
+          <div class="result-info">
+            <div class="result-name">
+              <span class="result-icon">📼</span>
+              <%= cassette[:name] %>
+            </div>
+            <div class="result-path">
+              <code><%= cassette[:path] %></code>
+            </div>
+            <div class="result-meta">
+              <span class="meta-tag">📁 <%= cassette[:service] %></span>
+              <span class="meta-tag">
+                <%= cassette_age_indicator(cassette[:modified_at]) %>
+                <%= format_file_date(cassette[:modified_at]) %>
+              </span>
+            </div>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="no-results">
+      <div class="no-results-icon">🔍</div>
+      <h2>No cassettes found</h2>
+      <p>Try adjusting your search terms or filters</p>
+      <a href="/" class="back-button">← Back to Library</a>
+    </div>
+  <% end %>
+</div>

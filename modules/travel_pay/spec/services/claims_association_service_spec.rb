@@ -91,6 +91,18 @@ describe TravelPay::ClaimAssociationService do
           start: '2021-06-02T16:00:00Z',
           local_start_time: '2021-06-02T16:00:00.000-0400',
           cancellable: false
+        },
+        {
+          id: '32073',
+          kind: 'clinic',
+          status: 'cancelled',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '408',
+          start: '2021-06-02T16:00:00Z',
+          # Below is the REAL data we get in local_start_time if appts fails to convert it
+          local_start_time: 'Unable to convert UTC to local time',
+          cancellable: false
         }
       ]
     end
@@ -128,13 +140,29 @@ describe TravelPay::ClaimAssociationService do
       end
 
       expect(appts_with_claims.count).to eq(appointments.count)
-      appts_with_claims.each do |appt|
+
+      happy_path_claims = appts_with_claims.filter do |appt|
+        appt['travelPayClaim']['metadata']['message'].exclude?('local_start_time')
+      end
+
+      happy_path_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
         expect(appt['travelPayClaim']['metadata']['success']).to be(true)
       end
+
       expect(actual_appts_with_claims.count).to equal(1)
       expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq(expected_uuids[0])
+
+      ## Make sure we can handle invalid `local_start_time`s
+      bad_time_appt = appts_with_claims.find do |appt|
+        appt['travelPayClaim']['metadata']['message'].include?('local_start_time')
+      end
+
+      expect(bad_time_appt).not_to be_nil
+      expect(bad_time_appt['travelPayClaim']['metadata']['status']).to eq(500)
+      expect(bad_time_appt['travelPayClaim']['metadata']['success']).to be(false)
+      expect(bad_time_appt['travelPayClaim']['claim']).to be_nil
     end
 
     it 'returns appointments with error metadata if claims call fails' do
@@ -164,6 +192,43 @@ describe TravelPay::ClaimAssociationService do
       appts_with_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(401)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Unauthorized.')
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
+      end
+    end
+
+    it 'returns error metadata when claims API response is unsuccessful but does not raise' do
+      claims_error_response = Faraday::Response.new(
+        response_body: {
+          'statusCode' => 500,
+          'message' => 'Internal server error.',
+          'success' => false,
+          'data' => nil
+        },
+        status: 500
+      )
+
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_error_response)
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      appts_with_claims = nil
+
+      expect do
+        appts_with_claims = association_service.associate_appointments_to_claims(
+          {
+            'appointments' => appointments,
+            'start_date' => '2024-10-17T09:00:00Z',
+            'end_date' => '2024-12-15T16:45:00Z'
+          }
+        )
+      end.not_to raise_error
+
+      expect(appts_with_claims.count).to eq(appointments.count)
+      expect(appts_with_claims.any? { |appt| appt['travelPayClaim']['claim'].present? }).to be(false)
+      appts_with_claims.each do |appt|
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(500)
+        expect(appt['travelPayClaim']['metadata']['message']).to eq('Internal server error.')
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
       end
     end
@@ -397,6 +462,120 @@ describe TravelPay::ClaimAssociationService do
                                                                        })
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
+    end
+  end
+
+  context 'fetch_claims_by_date' do
+    let(:user) { build(:user) }
+    let(:claims_data_success) do
+      {
+        'statusCode' => 200,
+        'message' => 'Data retrieved successfully.',
+        'success' => true,
+        'data' => [
+          {
+            'id' => 'uuid1',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'InProgress',
+            'appointmentDateTime' => '2024-10-17T09:00:00Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-03-22T21:22:34.465Z',
+            'modifiedOn' => '2024-01-01T16:44:34.465Z'
+          },
+          {
+            'id' => 'uuid2',
+            'claimNumber' => 'TC0000000000002',
+            'claimStatus' => 'Incomplete',
+            'appointmentDateTime' => '2024-11-10T16:45:34.465Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-02-22T21:22:34.465Z',
+            'modifiedOn' => '2024-03-01T00:00:00.0Z'
+          }
+        ]
+      }
+    end
+
+    let(:claims_success_response) do
+      Faraday::Response.new(
+        response_body: claims_data_success,
+        status: 200
+      )
+    end
+
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      allow_any_instance_of(TravelPay::AuthManager)
+        .to receive(:authorize)
+        .and_return(tokens)
+      allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+    end
+
+    it 'successfully fetches claims and returns claims with metadata' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_return(claims_success_response)
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
+
+      expect(result[:error]).to be(false)
+      expect(result[:claims].count).to eq(2)
+      expect(result[:claims][0]['claimStatus']).to eq('In progress')
+      expect(result[:claims][1]['claimStatus']).to eq('Incomplete')
+      expect(result[:metadata]['status']).to eq(200)
+      expect(result[:metadata]['message']).to eq('Data retrieved successfully.')
+      expect(result[:metadata]['success']).to be(true)
+    end
+
+    it 'returns error metadata when claims API fails' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     500,
+                     {
+                       'statusCode' => 500,
+                       'message' => 'Internal server error.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
+
+      expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
+      expect(result[:metadata]['status']).to equal(500)
+      expect(result[:metadata]['message']).to eq('Internal server error.')
+      expect(result[:metadata]['success']).to be(false)
+    end
+
+    it 'handles unknown errors' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(StandardError.new('Unexpected error'))
+
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.fetch_claims_by_date('2024-10-17T09:00:00Z', '2024-12-15T16:45:00Z')
+
+      expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
+      expect(result[:metadata]['status']).to equal(520)
+      expect(result[:metadata]['success']).to be(false)
+      expect(result[:metadata]['message']).to include('Unexpected error')
+    end
+
+    it 'handles invalid date formats' do
+      association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
+      result = association_service.fetch_claims_by_date('invalid_date', '2024-12-15T16:45:00Z')
+
+      expect(result[:error]).to be(true)
+      expect(result[:claims]).to eq([])
+      expect(result[:metadata]['status']).to equal(400)
+      expect(result[:metadata]['success']).to be(false)
     end
   end
 end

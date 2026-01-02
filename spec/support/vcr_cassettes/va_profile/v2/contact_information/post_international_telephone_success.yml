@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/telephones"
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"areaCode":null,"countryCode":"44","internationalIndicator":true,"originatingSourceSystem":"VETSGOV","phoneNumber":"2045675000","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2025-09-02T22:51:48.000Z","sourceSystemUser":"123498767V234859","telephoneId":null,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":false,"voiceMailAcceptableInd":true,"effectiveStartDate":"2025-09-02T22:51:48.000Z","effectiveEndDate":null}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1351191825", dtSInfo;desc="0"
+      - dtRpid;desc="-1707557043", dtSInfo;desc="0"
+      Traceresponse:
+      - 00-68b775046ea48061e6c01534b14e204e-eb2bb29eb83c0577-01
+      X-Dt-Tracestate:
+      - 1ab2cde6-45f502cc@dt
+      Vaprofiletxauditid:
+      - cbd9ecca-a995-4987-8950-1c5f3b0d44cb
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 02 Sep 2025 22:51:48 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"242a35ff-a9fd-4970-9e4f-0efe7fd0c3fa","status":"RECEIVED"}'
+  recorded_at: Tue, 02 Sep 2025 22:51:48 GMT
+recorded_with: VCR 6.3.1

@@ -2,6 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
+require 'unique_user_events'
 
 RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
@@ -23,6 +24,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
   describe 'GET /mobile/v1/health/immunizations' do
     context 'when the expected fields have data' do
       before do
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
           get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
         end
@@ -31,6 +33,16 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
       it 'returns a 200 that matches the expected schema' do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
+      end
+
+      it 'logs unique user events for immunizations/vaccines accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+          ]
+        )
       end
 
       context 'for items that do not have locations' do
@@ -396,14 +408,14 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
         end
 
         context '2 vaccine codes exists' do
-          it 'returns second coding display' do
+          it 'returns first CVX coding display' do
             elem = response.parsed_body['data'].find { |item| item.dig('attributes', 'date') == '2023-03-13T09:59:25Z' }
             expect(elem['attributes']).to eq(
               { 'cvxCode' => 140,
                 'date' => '2023-03-13T09:59:25Z',
                 'doseNumber' => 'Series 1',
                 'doseSeries' => 'Series 1',
-                'groupName' => 'FLU',
+                'groupName' => 'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE',
                 'manufacturer' => nil,
                 'note' => 'Sample Immunization Note.',
                 'reaction' => 'Other',

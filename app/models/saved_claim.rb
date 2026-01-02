@@ -27,10 +27,17 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :claim_va_notifications, dependent: :destroy
+
   has_many :form_submissions, dependent: :nullify
   has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
   has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
   has_many :claims_evidence_api_submissions, class_name: 'ClaimsEvidenceApi::Submission', dependent: :nullify
+
+  has_many :parent_of_groups, class_name: 'SavedClaimGroup', foreign_key: 'parent_claim_id',
+                              dependent: :destroy, inverse_of: :parent
+
+  has_many :child_of_groups, class_name: 'SavedClaimGroup',
+                             dependent: :destroy, inverse_of: :child
 
   belongs_to :user_account, optional: true
 
@@ -83,10 +90,14 @@ class SavedClaim < ApplicationRecord
     errors.add(:form, :invalid_format, message: 'must be a json string') unless form_is_string
   end
 
+  def form_schema
+    VetsJsonSchema::SCHEMAS[self.class::FORM]
+  end
+
   def form_matches_schema
     return unless form_is_string
 
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema = form_schema || VetsJsonSchema::SCHEMAS[self.class::FORM]
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
@@ -121,15 +132,25 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  # the VBMS document type for _this_ claim type
+  # @see modules/claims_evidence_api/documentation/doctypes.json
+  def document_type
+    10 # Unknown
+  end
+
+  # alias for document_type
+  # using `alias_method` causes 'doctype' to always return 10
+  def doctype
+    document_type
+  end
+
   def email
     nil
   end
 
-  ##
-  # insert notifcation after VANotify email send
+  # insert notification after VANotify email send
   #
   # @see ClaimVANotification
-  #
   def insert_notification(email_template_id)
     claim_va_notifications.create!(
       form_type: form_id,
@@ -138,12 +159,10 @@ class SavedClaim < ApplicationRecord
     )
   end
 
-  ##
-  # Find notifcation by args*
+  # Find notification by args*
   #
   # @param email_template_id
   # @see ClaimVANotification
-  #
   def va_notification?(email_template_id)
     claim_va_notifications.find_by(
       form_type: form_id,
@@ -153,6 +172,17 @@ class SavedClaim < ApplicationRecord
 
   def regional_office
     []
+  end
+
+  # Required for Lighthouse Benefits Intake API submission
+  # Subclasses can override to provide alternate metadata if needed
+  def metadata_for_benefits_intake
+    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
+    { veteranFirstName: parsed_form.dig('veteranFullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranFullName', 'last'),
+      fileNumber: parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber'],
+      zipCode: address['postalCode'],
+      businessLine: business_line }
   end
 
   private
@@ -196,7 +226,7 @@ class SavedClaim < ApplicationRecord
   end
 
   def after_create_metrics
-    tags = ["form_id:#{form_id}"]
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
     StatsD.increment('saved_claim.create', tags:)
     if form_start_date
       claim_duration = created_at - form_start_date
@@ -207,11 +237,12 @@ class SavedClaim < ApplicationRecord
   end
 
   def after_destroy_metrics
-    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
+    StatsD.increment('saved_claim.destroy', tags:)
   end
 
   def pdf_overflow_tracking
-    tags = ["form_id:#{form_id}"]
+    tags = ["form_id:#{form_id}", "doctype:#{document_type}"]
 
     form_class = PdfFill::Filler::FORM_CLASSES[form_id]
     unless form_class

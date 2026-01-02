@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/searchMessage/page/1/pageSize/250?requiresOHMessages=1"
+      uri: "<MHV_SM_HOST>/v1/sm/patient/folder/0/searchMessage/page/1/pageSize/250?requiresOHMessages=1"
       body:
         encoding: UTF-8
         string: '{"exactMatch":null,"sender":null,"subject":"THREAD","category":null,"recipient":null,"fromDate":null,"toDate":null,"messageId":null}'

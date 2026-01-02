@@ -10,7 +10,6 @@ FactoryBot.define do
           add_child: true,
           report674: true
         },
-        add_child: true,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {
@@ -143,6 +142,7 @@ FactoryBot.define do
       }.to_json
     }
   end
+
   factory :dependency_claim_674_only, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674' }
 
@@ -151,7 +151,6 @@ FactoryBot.define do
         'view:selectable686_options': {
           report674: true
         },
-        add_child: false,
         privacy_agreementAccepted: true,
         veteran_information: {
           full_name: {
@@ -234,6 +233,8 @@ FactoryBot.define do
 
     form {
       {
+        statement_of_truth_certified: true,
+        statement_of_truth_signature: 'Mark Webb',
         'view:selectable686_options': {
           add_spouse: true,
           add_child: true,
@@ -588,7 +589,7 @@ FactoryBot.define do
             },
             student_income: true,
             ssn: '987654321',
-            is_parent: true,
+            relationship_to_student: 'biological',
             full_name: {
               first: 'test',
               middle: 'middle',
@@ -692,8 +693,7 @@ FactoryBot.define do
           birth_date: '1980-01-01',
           full_name: {
             first: 'Mark',
-            last: 'Webb',
-            middle: nil
+            last: 'Webb'
           },
           ssn: '000000000',
           va_file_number: '000000000'

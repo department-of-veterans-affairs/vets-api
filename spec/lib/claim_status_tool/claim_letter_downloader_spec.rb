@@ -8,21 +8,19 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   let(:current_user) do
     create(:evss_user)
   end
-  let(:allowed_doctypes) { %w[184] }
-
-  before do
-    @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
-  end
 
   describe '#get_letters' do
+    let(:allowed_doctypes) { %w[184] }
+    let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
+
     it 'retrieves letters in descending order according to received_at date' do
-      letters = @downloader.get_letters
+      letters = downloader.get_letters
 
       expect(letters.first[:received_at]).to be >= letters.last[:received_at]
     end
 
     it 'retrieves letters matching only the allowed doc types' do
-      letters = @downloader.get_letters
+      letters = downloader.get_letters
       doc_types = letters.pluck(:doc_type).uniq
 
       expect(doc_types).to match_array(allowed_doctypes)
@@ -30,19 +28,22 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   end
 
   describe '#get_letter' do
+    let(:allowed_doctypes) { %w[184] }
+    let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
+
     it 'retrieves a single letter based on document id' do
-      @downloader.get_letter(doc_id) do |data, mime_type, _disposition, _filename|
+      downloader.get_letter(doc_id) do |data, mime_type, _disposition, _filename|
         expect(data).not_to be_nil
         expect(mime_type).to be('application/pdf')
       end
     end
 
     it 'names a letter with a dashed version of the received_at date' do
-      letters = @downloader.get_letters
+      letters = downloader.get_letters
       expected_letter = letters.find { |l| l[:document_id] == doc_id }
       received_at = expected_letter[:received_at]
 
-      @downloader.get_letter(doc_id) do |data, _mime_type, _disposition, filename|
+      downloader.get_letter(doc_id) do |data, _mime_type, _disposition, filename|
         expect(data).not_to be_nil
         expect(filename).to include(received_at.year.to_s)
         expect(filename).to include(received_at.month.to_s)
@@ -51,20 +52,17 @@ describe ClaimStatusTool::ClaimLetterDownloader do
     end
 
     it 'raises a RecordNotFound exception when it cannot find a document' do
-      expect { @downloader.get_letter('{0}') }.to raise_error(Common::Exceptions::RecordNotFound)
+      expect { downloader.get_letter('{0}') }.to raise_error(Common::Exceptions::RecordNotFound)
     end
   end
 
   describe 'Board Of Appeals Letter functionality' do
     context 'BOA Letters enabled' do
       let(:allowed_doctypes) { %w[27 184] }
-
-      before do
-        @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
-      end
+      let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
 
       it 'only shows BOA letters older than 2 days' do
-        letters = @downloader.get_letters
+        letters = downloader.get_letters
         boa_letters = letters.select { |l| l[:doc_type] == '27' }
         expect(boa_letters.length).to eq(1)
       end
@@ -72,13 +70,10 @@ describe ClaimStatusTool::ClaimLetterDownloader do
 
     context 'BOA Letters disabled' do
       let(:allowed_doctypes) { %w[184] }
-
-      before do
-        @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
-      end
+      let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
 
       it 'does not show BOA letters' do
-        letters = @downloader.get_letters
+        letters = downloader.get_letters
         expect(letters.any? { |l| l[:doc_type] == '27' }).to be false
       end
     end
@@ -103,12 +98,10 @@ describe ClaimStatusTool::ClaimLetterDownloader do
       }
     end
 
-    before do
-      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
-    end
+    let(:downloader) { ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes) }
 
     it 'gives each letter a `display_description` field' do
-      letters = @downloader.get_letters
+      letters = downloader.get_letters
       letters.each do |letter|
         expect(letter[:type_description]).to eq(type_description_map[letter[:doc_type]])
       end

@@ -15,7 +15,7 @@ module Kafka
       monitor = Kafka::Monitor.new
       payload = msg['args'].first
       use_test_topic = msg['args'].second
-      topic = get_topic(use_test_topic:)
+      topic = Kafka.get_topic(use_test_topic:)
       redacted_payload = Kafka.redact_icn(payload)
 
       monitor.track_submission_exhaustion(msg, topic, redacted_payload)

@@ -29,8 +29,7 @@
     "cancellable": false,
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       },
       "vista_status": [
         "CANCELLED BY PATIENT",
@@ -88,8 +87,7 @@
     },
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       },
       "vista_status": [
         "CHECKED OUT",
@@ -210,8 +208,7 @@
     "patient_icn": "1012846043V576341",
     "location_id": "984",
     "minutes_duration": 60,
-    "practitioners": [
-    ],
+    "practitioners": [],
     "created": "2022-01-10T20:49:00Z",
     "requested_periods": [
       {
@@ -245,8 +242,7 @@
     "cancellable": true,
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       }
     },
     "location": {
@@ -1023,8 +1019,7 @@
     "patient_comments": "testing",
     "extension": {
       "cc_location": {
-        "address": {
-        }
+        "address": {}
       }
     }
   },
@@ -1091,5 +1086,141 @@
     "extension": {
       "patient_has_mobile_gfe": true
     }
+  },
+  {
+    "id": "50101",
+    "identifier": [
+      {
+        "system": "http://med.va.gov/fhir/urn/vaos/arsid",
+        "value": "8a487fd67ba6a62d017bc0cc86d80002"
+      }
+    ],
+    "kind": "telehealth",
+    "type": "VA",
+    "location": {
+      "id": "442",
+      "name": "Cheyenne VA Medical Center",
+      "time_zone": {
+        "time_zone_id": "America/Denver"
+      },
+      "physical_address": {
+        "type": "physical",
+        "line": [
+          "2360 East Pershing Boulevard"
+        ],
+        "city": "Cheyenne",
+        "state": "WY",
+        "postal_code": "82001-5356"
+      },
+      "lat": 41.148026,
+      "long": -104.786255,
+      "phone": {
+        "main": "307-778-7550"
+      },
+      "url": null,
+      "code": null
+    },
+    "status": "proposed",
+    "service_type": "PrimaryCare",
+    "patient_icn": "1012845331V153043",
+    "location_id": "983",
+    "reason": "Test_SM test (tele)",
+    "requested_periods": [
+      {
+        "start": "2021-09-08T12:00:00Z",
+        "end": "2021-09-08T23:59:59.999Z"
+      }
+    ],
+    "contact": {
+      "telecom": [
+        {
+          "type": "phone",
+          "value": "9999999992"
+        }
+      ]
+    },
+    "cancellation_reason": {
+      "code": "other"
+    },
+    "cancellable": true,
+    "telehealth": {
+      "url": "http://www.meeting.com"
+    }
+  },
+  {
+    "id": "CERN129377263",
+    "identifier": [
+      {
+        "system": "urn:va.gov:cfa:cerner:appointment",
+        "value": "Appointment/129377263"
+      }
+    ],
+    "kind": "clinic",
+    "type": "VA",
+    "status": "cancelled",
+    "service_type": "foodAndNutrition",
+    "reason_for_appointment": "Routine Follow-up",
+    "reason_code": {
+      "coding": [
+        {
+          "code": "Routine Follow-up"
+        }
+      ]
+    },
+    "patient_icn": "1012845331V153043",
+    "location_id": "442",
+    "location": {
+      "id": "442",
+      "name": "Cheyenne VA Medical Center",
+      "time_zone": {
+        "time_zone_id": "America/Denver"
+      },
+      "physical_address": {
+        "type": "physical",
+        "line": [
+          "2360 East Pershing Boulevard"
+        ],
+        "city": "Cheyenne",
+        "state": "WY",
+        "postal_code": "82001-5356"
+      },
+      "lat": 41.148026,
+      "long": -104.786255,
+      "phone": {
+        "main": "307-778-7550"
+      },
+      "url": null,
+      "code": null
+    },
+    "requested_periods": [
+      {
+        "start": "2025-09-30T20:00:00Z",
+        "end": "2025-09-30T20:30:00Z"
+      }
+    ],
+    "start": "2025-09-30T20:00:00Z",
+    "end": "2025-09-30T20:30:00Z",
+    "cancellable": false,
+    "modality": "vaInPerson",
+    "pending": false,
+    "past": true,
+    "future": false,
+    "show_schedule_link": false,
+    "is_cerner": true,
+    "avs_pdf": [
+      {
+        "appt_id": "12345",
+        "id": "15249638961",
+        "name": "Ambulatory Visit Summary",
+        "loinc_codes": [
+          "4189669",
+          "96345-4"
+        ],
+        "note_type": "ambulatory_patient_summary",
+        "content_type": "application/pdf",
+        "binary": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e"
+      }
+    ],
+    "avs_error": "Unable to retrieve AVS at this time"
   }
 ]

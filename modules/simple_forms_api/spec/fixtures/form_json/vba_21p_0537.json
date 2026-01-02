@@ -1,0 +1,76 @@
+{
+  "formNumber": "21P-0537",
+  "veteran": {
+    "fullName": {
+      "first": "first name",
+      "middle": "middle name",
+      "last": "last name"
+    },
+    "ssn": {
+      "first3": "987",
+      "middle2": "65",
+      "last4": "4321"
+    },
+    "vaFileNumber": ""
+  },
+  "recipient": {
+    "fullName": {
+      "first": "your first",
+      "middle": "your middle",
+      "last": "your last"
+    },
+    "phone": {
+      "daytime": {
+        "areaCode": "123",
+        "prefix": "456",
+        "lineNumber": "7890"
+      },
+      "evening": {
+        "areaCode": "123",
+        "prefix": "456",
+        "lineNumber": "7890"
+      }
+    },
+    "email": "test@test.com",
+    "signature": "your first your middle your last",
+    "signatureDate": {
+      "month": "09",
+      "day": "19",
+      "year": "2025"
+    }
+  },
+  "inReplyReferTo": "987654321",
+  "hasRemarried": true,
+  "remarriage": {
+    "dateOfMarriage": {
+      "month": "01",
+      "day": "20",
+      "year": "2020"
+    },
+    "spouseName": {
+      "first": "test",
+      "middle": "t",
+      "last": "spouse"
+    },
+    "spouseDateOfBirth": {
+      "month": "01",
+      "day": "17",
+      "year": "1978"
+    },
+    "spouseIsVeteran": true,
+    "ageAtMarriage": "50",
+    "spouseSSN": {
+      "first3": "987",
+      "middle2": "65",
+      "last4": "4321"
+    },
+    "spouseVAFileNumber": "",
+    "hasTerminated": false,
+    "terminationDate": {
+      "month": "",
+      "day": "",
+      "year": ""
+    },
+    "terminationReason": ""
+  }
+}

@@ -13,7 +13,7 @@ properties:
     properties:
       type:
         type: string
-        example: "evssLettersBeneficiaryResponses"
+        example: "LettersBeneficiaryResponses"
       id:
         type: string
         example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"

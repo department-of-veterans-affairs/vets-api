@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/person_response'
-require 'va_profile/v2/contact_information/person_response'
-require 'va_profile/contact_information/service'
-require 'va_profile/v2/contact_information/service'
+require 'va_profile/contact_information/v2/person_response'
+require 'va_profile/contact_information/v2/service'
 require 'va_profile/models/address'
-require 'va_profile/models/v3/address'
 require 'va_profile/models/telephone'
-require 'va_profile/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
@@ -30,6 +26,10 @@ module Swagger
                            type: :string,
                            format: 'date-time',
                            example: '2018-04-21T20:09:50Z'
+                  property :confirmation_date,
+                           type: %i[string null],
+                           format: 'date-time',
+                           example: '2018-04-21T20:09:50Z'
                   property :effective_end_date,
                            type: %i[string null],
                            format: 'date-time',
@@ -44,6 +44,10 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                   property :updated_at,
                            type: :string,
+                           format: 'date-time',
+                           example: '2018-04-21T20:09:50Z'
+                  property :verification_date,
+                           type: %i[string null],
                            format: 'date-time',
                            example: '2018-04-21T20:09:50Z'
                 end

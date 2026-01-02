@@ -68,7 +68,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                   required: true,
                   type: :string,
                   example: '1012667145V762142',
-                  description: 'ID of Veteran'
+                  description: 'ID of claimant'
 
         let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
         let(:Authorization) { 'Bearer token' }
@@ -308,7 +308,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
@@ -386,6 +386,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -404,6 +405,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -519,6 +521,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
 
             before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
               make_request(example)
             end
 
@@ -552,6 +555,55 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
               assert_response_matches_metadata(example.metadata)
             end
           end
+
+          context 'when federalActivation is present but obligationTermsOfService is missing' do
+            def make_request(example)
+              allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+
+              with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+                VCR.use_cassette('claims_api/disability_comp') do
+                  VCR.use_cassette('claims_api/evss/submit') do
+                    mock_ccg_for_fine_grained_scope(synchronous_scopes) do
+                      submit_request(example.metadata)
+                    end
+                  end
+                end
+              end
+            end
+            let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+            let(:data) do
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                     'disability_compensation', 'form_526_json_api.json').read
+              temp = JSON.parse(temp)
+              attributes = temp['data']['attributes']
+
+              # Ensure federalActivation is present with proper date
+              attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+
+              # Make sure reservesNationalGuardService exists but with empty obligationTermsOfService
+              # This will cause the validation error in the correct format
+              attributes['serviceInformation']['reservesNationalGuardService']['obligationTermsOfService'] = {}
+
+              temp['data']['attributes'] = attributes
+              temp
+            end
+
+            let(:disability_comp_request) { data }
+
+            before do |example|
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
         end
       end
     end
@@ -579,7 +631,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
@@ -603,6 +655,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           end
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -711,6 +764,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -757,7 +811,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                   required: true,
                   type: :string,
                   example: '1012667145V762142',
-                  description: 'ID of Veteran'
+                  description: 'ID of claimant'
 
         let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
         let(:Authorization) { 'Bearer token' }
@@ -926,7 +980,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Veteran'
+                description: 'ID of claimant'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }

@@ -29,8 +29,6 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
-    get '/claim-letter/documents', to: 'claims_and_appeals#claim_letter_documents_search'
-    post '/claim-letter/documents/:document_id/download', to: 'claims_and_appeals#claim_letter_document_download'
     get '/community-care-providers', to: 'community_care_providers#index'
     get '/debts', to: 'debts#index'
     get '/debts/:id', to: 'debts#show'
@@ -55,6 +53,8 @@ Mobile::Engine.routes.draw do
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
     get '/maintenance_windows', to: 'maintenance_windows#index'
+    resources :medical_copays, only: %i[index show]
+    get '/medical_copays/download/:id', to: 'medical_copays#download'
     get '/messaging/health/folders', to: 'folders#index'
     post '/messaging/health/folders', to: 'folders#create'
     get '/messaging/health/folders/:folder_id/messages', to: 'messages#index'
@@ -87,6 +87,9 @@ Mobile::Engine.routes.draw do
     post '/push/send', to: 'push_notifications#send_notification'
     get '/translations/download', to: 'translations#download'
     post '/travel-pay/claims', to: 'travel_pay_claims#create'
+    get '/travel-pay/claims', to: 'travel_pay_claims#index'
+    get '/travel-pay/claims/:id', to: 'travel_pay_claims#show'
+    get '/travel-pay/claims/:claim_id/documents/:document_id', to: 'travel_pay_claims#download_document'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
@@ -113,8 +116,11 @@ Mobile::Engine.routes.draw do
   end
 
   namespace :v1 do
+    get '/health/allergy-intolerances', to: 'allergy_intolerances#index'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/labs-and-tests', to: 'labs_and_tests#index'
+    get '/health/rx/prescriptions', to: 'prescriptions#index'
+    put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/messaging/health/messages/:id/thread', to: 'messages#thread'
     get '/user', to: 'users#show'
   end

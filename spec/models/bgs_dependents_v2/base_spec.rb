@@ -41,10 +41,6 @@ RSpec.describe BGSDependentsV2::Base do
     }
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-  end
-
   describe '#dependent_address' do
     it 'returns the vet\'s address' do
       address = base.dependent_address(
@@ -101,6 +97,17 @@ RSpec.describe BGSDependentsV2::Base do
         address['international_postal_code'] = '12345'
         base.adjust_country_name_for!(address:)
         expect(address['country']).to eq('Italy')
+      end
+
+      it 'receives nil for state in the address' do
+        address = sample_v2_dependent_application['veteran_contact_information']['veteran_address']
+        address['country'] = 'ITA'
+        address['international_postal_code'] = '12345'
+        address['state'] = 'Tuscany'
+        params = base.create_address_params('1', '1', address)
+        expect(params[:postal_cd]).to be_nil
+        expect(params[:prvnc_nm]).to eq('Tuscany')
+        expect(params[:zip_prefix_nbr]).to be_nil
       end
     end
   end

@@ -1,0 +1,63 @@
+{
+  "veteranInformation": {
+    "fullName": {
+      "first": "Maximilian",
+      "middle": "A",
+      "last": "Wellington-Smythe"
+    },
+    "ssn": "987654321",
+    "vaFileNumber": "123456789",
+    "dateOfBirth": "1975-12-25",
+    "address": {
+      "street": "1234 Veterans Memorial Highway",
+      "street2": "Apartment 567B",
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "US",
+      "postalCode": "94102"
+    }
+  },
+  "employmentInformation": {
+    "employerName": "Global International Multinational Corporation of America, LLC",
+    "employerAddress": {
+      "street": "9876 Corporate Executive Business Park Drive",
+      "street2": "Executive Tower Suite 4200",
+      "city": "New York",
+      "state": "NY",
+      "country": "US",
+      "postalCode": "10001"
+    },
+    "typeOfWorkPerformed": "Senior Executive Director of Strategic Operations and Business Development",
+    "beginningDateOfEmployment": "2010-03-15",
+    "endingDateOfEmployment": "2023-11-30",
+    "amountEarnedLast12MonthsOfEmployment": 250000,
+    "timeLostLast12MonthsOfEmployment": "8 months due to service-connected disability complications requiring extended medical treatment and rehabilitation therapy",
+    "hoursWorkedDaily": 10,
+    "hoursWorkedWeekly": 50,
+    "concessions": "Flexible work schedule provided, remote work options available, ergonomic office equipment furnished, reduced travel requirements implemented",
+    "terminationReason": "Position eliminated due to company-wide restructuring and downsizing following merger with international conglomerate",
+    "dateLastWorked": "2023-11-30",
+    "lastPaymentDate": "2023-12-15",
+    "lastPaymentGrossAmount": 20833.33,
+    "lumpSumPaymentMade": true,
+    "grossAmountPaid": 125000,
+    "datePaid": "2024-01-31"
+  },
+  "militaryDutyStatus": {
+    "currentDutyStatus": "Individual Ready Reserve",
+    "veteranDisabilitiesPreventMilitaryDuties": true
+  },
+  "benefitEntitlementPayments": {
+    "sickRetirementOtherBenefits": true,
+    "typeOfBenefit": "Long-term disability insurance and supplemental income protection plan",
+    "grossMonthlyAmountOfBenefit": 8500,
+    "dateBenefitBegan": "2024-01-01",
+    "dateFirstPaymentIssued": "2024-01-15",
+    "dateBenefitWillStop": "2026-12-31",
+    "remarks": "Benefits provided through employer-sponsored long-term disability insurance policy administered by Third-Party Benefits Administrator Corporation. Payments coordinated with VA compensation."
+  },
+  "certification": {
+    "signature": "Maximilian A. Wellington-Smythe, Jr., HR Director",
+    "certified": true
+  }
+}

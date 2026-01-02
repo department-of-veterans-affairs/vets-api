@@ -16,6 +16,34 @@ describe PdfFill::Forms::FormHelper do
     end
   end
 
+  describe '#split_currency_string' do
+    it 'returns nil' do
+      expect(including_class.new.split_currency_string('')).to be_nil
+    end
+
+    it 'returns ones without cents' do
+      expect(including_class.new.split_currency_string('123')).to eq({ thousands: nil, ones: '123', cents: '00' })
+    end
+
+    it 'returns cents' do
+      expect(including_class.new.split_currency_string('.00')).to eq({ thousands: nil, ones: nil, cents: '00' })
+    end
+
+    it 'returns ones' do
+      expect(including_class.new.split_currency_string('1.23')).to eq({ thousands: nil, ones: '  1', cents: '23' })
+    end
+
+    it 'returns thousands' do
+      expect(including_class.new.split_currency_string('123456.78')).to eq({ thousands: '123', ones: '456',
+                                                                             cents: '78' })
+    end
+
+    it 'returns thousand' do
+      expect(including_class.new.split_currency_string('3456.78')).to eq({ thousands: '  3', ones: '456',
+                                                                           cents: '78' })
+    end
+  end
+
   describe '#extract_middle_i' do
     it 'veteran with no name should return nil' do
       expect(including_class.new.extract_middle_i({}, 'veteranFullName')).to be_nil
@@ -174,6 +202,28 @@ describe PdfFill::Forms::FormHelper do
         'state' => 'SC'
       }
       expect(including_class.new.address_block(address)).to eq("123 Test St.\nSC")
+    end
+  end
+
+  describe '#format_radio_yes_no' do
+    it 'returns empty string with nil value' do
+      expect(including_class.new.format_radio_yes_no(nil)).to eq('')
+    end
+
+    it 'returns empty string with blank value' do
+      expect(including_class.new.format_radio_yes_no('')).to eq('')
+    end
+
+    it 'returns Yes for Y' do
+      expect(including_class.new.format_radio_yes_no('Y')).to eq('Yes')
+    end
+
+    it 'returns No for N' do
+      expect(including_class.new.format_radio_yes_no('N')).to eq('No')
+    end
+
+    it 'return NA for NA' do
+      expect(including_class.new.format_radio_yes_no('NA')).to eq('NA')
     end
   end
 end

@@ -25,14 +25,14 @@ module ClaimsApi
         end
 
         def get_details
-          key = if @error[:key].include?('form526')
+          key = if @error[:key]&.include?('form526')
                   @error[:key][8..].gsub('.', '_')
                 else
-                  @error[:key].gsub('.', '_')
+                  @error[:key]&.gsub('.', '_')
                 end
           err_info = @error[:detail] || @error[:text]
-          if LIGHTHOUSE_ERROR_DICTIONARY[key.to_sym].presence
-            LIGHTHOUSE_ERROR_DICTIONARY[key.to_sym]
+          if LIGHTHOUSE_ERROR_DICTIONARY[key&.to_sym].presence
+            LIGHTHOUSE_ERROR_DICTIONARY[key&.to_sym]
           else
             "The claim could not be established - #{err_info}."
           end

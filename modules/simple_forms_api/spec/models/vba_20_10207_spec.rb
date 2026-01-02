@@ -334,4 +334,211 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       form.add_vsi_flash
     end
   end
+
+  describe '#facility_name' do
+    let(:data) do
+      {
+        'medical_treatments' => [
+          {
+            'facility_name' => 'Test Hospital',
+            'facility_address' => {
+              'street' => '123 Main St',
+              'city' => 'Test City',
+              'state' => 'TS',
+              'postal_code' => '12345',
+              'country' => 'USA'
+            }
+          }
+        ]
+      }
+    end
+
+    it 'returns formatted facility name and address' do
+      result = described_class.new(data).facility_name(1)
+      expect(result).to include('Test Hospital')
+      expect(result).to include('123 Main St')
+    end
+
+    it 'returns nil when facility does not exist' do
+      expect(described_class.new(data).facility_name(2)).to be_nil
+    end
+  end
+
+  describe '#facility_address' do
+    let(:data) do
+      {
+        'medical_treatments' => [
+          {
+            'facility_address' => {
+              'street' => '123 Main St',
+              'city' => 'Test City',
+              'state' => 'TS',
+              'postal_code' => '12345',
+              'country' => 'USA'
+            }
+          }
+        ]
+      }
+    end
+
+    it 'returns formatted address' do
+      result = described_class.new(data).facility_address(1)
+      expect(result).to include('123 Main St')
+      expect(result).to include('Test City, TS')
+      expect(result).to include('12345')
+      expect(result).to include('USA')
+    end
+  end
+
+  describe '#facility_month' do
+    let(:data) do
+      {
+        'medical_treatments' => [
+          { 'start_date' => '2023-05-15' }
+        ]
+      }
+    end
+
+    it 'returns the month from start_date' do
+      expect(described_class.new(data).facility_month(1)).to eq('05')
+    end
+  end
+
+  describe '#facility_day' do
+    let(:data) do
+      {
+        'medical_treatments' => [
+          { 'start_date' => '2023-05-15' }
+        ]
+      }
+    end
+
+    it 'returns the day from start_date' do
+      expect(described_class.new(data).facility_day(1)).to eq('15')
+    end
+  end
+
+  describe '#facility_year' do
+    let(:data) do
+      {
+        'medical_treatments' => [
+          { 'start_date' => '2023-05-15' }
+        ]
+      }
+    end
+
+    it 'returns the year from start_date' do
+      expect(described_class.new(data).facility_year(1)).to eq('2023')
+    end
+  end
+
+  describe '#words_to_remove' do
+    let(:data) do
+      {
+        'veteran_id' => { 'ssn' => '123456789' },
+        'veteran_date_of_birth' => '1990-01-01',
+        'veteran_mailing_address' => { 'postal_code' => '12345-6789' },
+        'veteran_phone' => '555-123-4567',
+        'non_veteran_date_of_birth' => '1990-02-02',
+        'non_veteran_ssn' => { 'ssn' => '987654321' },
+        'non_veteran_phone' => '555-987-6543'
+      }
+    end
+
+    it 'returns array of words to remove' do
+      result = described_class.new(data).words_to_remove
+      expect(result).to be_an(Array)
+      expect(result).to include('123', '45', '6789')
+    end
+  end
+
+  describe '#metadata' do
+    let(:data) do
+      {
+        'veteran_full_name' => { 'first' => 'John', 'last' => 'Doe' },
+        'veteran_id' => { 'ssn' => '123456789' },
+        'veteran_mailing_address' => { 'postal_code' => '12345' },
+        'form_number' => '20-10207'
+      }
+    end
+
+    it 'returns metadata hash' do
+      result = described_class.new(data).metadata
+      expect(result['veteranFirstName']).to eq('John')
+      expect(result['veteranLastName']).to eq('Doe')
+      expect(result['fileNumber']).to eq('123456789')
+      expect(result['zipCode']).to eq('12345')
+      expect(result['source']).to eq('VA Platform Digital Forms')
+      expect(result['docType']).to eq('20-10207')
+      expect(result['businessLine']).to eq('CMP')
+    end
+  end
+
+  describe '#desired_stamps' do
+    let(:data) do
+      {
+        'preparer_type' => 'veteran',
+        'statement_of_truth_signature' => 'John Doe'
+      }
+    end
+
+    it 'returns stamps array for veteran preparer' do
+      result = described_class.new(data).desired_stamps
+      expect(result).to be_an(Array)
+      expect(result.first[:text]).to eq('John Doe')
+      expect(result.first[:page]).to eq(4)
+    end
+
+    it 'returns different coords for power of attorney' do
+      data['preparer_type'] = 'third-party-veteran'
+      data['third_party_type'] = 'power-of-attorney'
+      result = described_class.new(data).desired_stamps
+      expect(result.first[:coords]).to eq([[50, 440]])
+    end
+  end
+
+  describe '#submission_date_stamps' do
+    let(:data) { {} }
+    let(:timestamp) { Time.zone.parse('2023-05-15 10:30:00 UTC') }
+
+    it 'returns submission date stamps' do
+      result = described_class.new(data).submission_date_stamps(timestamp)
+      expect(result).to be_an(Array)
+      expect(result.length).to eq(2)
+      expect(result.first[:text]).to eq('Application Submitted:')
+      expect(result.last[:text]).to include('UTC')
+    end
+  end
+
+  describe '#track_user_identity' do
+    let(:data) do
+      {
+        'preparer_type' => 'veteran',
+        'third_party_type' => 'representative',
+        'living_situation' => { 'HOMELESS' => true, 'NONE' => false },
+        'other_reasons' => { 'ALS' => true, 'VSI_SI' => false }
+      }
+    end
+
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    it 'tracks user identity and logs information' do
+      described_class.new(data).track_user_identity('ABC123')
+
+      expect(StatsD).to have_received(:increment).with('api.simple_forms_api.20_10207.veteran representative')
+      expect(Rails.logger).to have_received(:info).with(
+        'Simple forms api - 20-10207 submission user identity',
+        identity: 'veteran representative',
+        confirmation_number: 'ABC123'
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        'Simple forms api - 20-10207 submission living situations and other reasons for request',
+        living_situations: 'HOMELESS',
+        other_reasons: 'ALS'
+      )
+    end
+  end
 end

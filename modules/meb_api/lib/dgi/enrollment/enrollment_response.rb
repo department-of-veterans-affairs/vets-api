@@ -6,9 +6,9 @@ module MebApi
   module DGI
     module Enrollment
       class Response < MebApi::DGI::Response
-        attribute :enrollment_verifications, Array
+        attribute :enrollment_verifications, Hash, array: true
         attribute :last_certified_through_date, String
-        attribute :payment_on_hold, Boolean
+        attribute :payment_on_hold, Bool
 
         def initialize(response = nil)
           attributes = {

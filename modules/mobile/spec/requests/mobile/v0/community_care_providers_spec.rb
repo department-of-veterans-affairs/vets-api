@@ -10,10 +10,6 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
   let!(:user) { sis_user(icn: '9000682') }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-  end
-
   describe 'GET providers', :aggregate_failures do
     it 'returns 200 with paginated results' do
       VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
@@ -77,12 +73,10 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
       end
 
       context 'when the user has no home address' do
+        let!(:user) { sis_user(vet360_id: nil, icn: nil) }
+
         it 'returns 422 with error message' do
           VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
-            address = user.vet360_contact_info.residential_address
-            address.latitude = nil
-            address.longitude = nil
-
             params = { serviceType: 'podiatry' }
             get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
             assert_schema_conform(422)

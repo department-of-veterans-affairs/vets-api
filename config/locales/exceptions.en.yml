@@ -204,6 +204,12 @@ en:
         title: Bad Gateway
         code: 502
         status: 502
+      prescription_refill_response_mismatch:
+        <<: *defaults
+        title: Prescription Refill Response Mismatch
+        detail: The upstream service returned an incomplete response for prescription refill orders
+        code: 502
+        status: 502
       service_unavailable:
         <<: *defaults
         title: Service Unavailable
@@ -525,6 +531,16 @@ en:
         code: 'SM904'
         detail: 'Message requested could not be found'
         status: 404
+      SM915: # 'No messages in the requested folder'
+        <<: *external_defaults
+        code: 'SM915'
+        detail: 'No messages in the requested folder'
+        status: 400
+      SM98: # 'Oracle Health message send failure'
+        <<: *external_defaults
+        code: 'SM98'
+        detail: 'Oracle Health message send failed'
+        status: 400
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
@@ -742,18 +758,6 @@ en:
         code: 'FORMS_400'
         detail: The Forms service responded with something other than the expected array of forms
         status: 502
-      IHUB_101:
-        <<: *external_defaults
-        title: Error Occurred
-        code: 'IHUB_101'
-        detail: 'General error received from iHub.  Check sentry logs for details.'
-        status: 400
-      IHUB_102:
-        <<: *external_defaults
-        title: User missing ICN
-        code: 'IHUB_102'
-        detail: 'The user does not have an ICN.'
-        status: 502
       MVI_404:
         <<: *external_defaults
         title: Record not found
@@ -802,6 +806,52 @@ en:
         code: 'PPMS_502'
         detail: 'PPMS returned an invalid response'
         status: 502
+      RES_CH31_CASE_DETAILS_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CH31_CASE_DETAILS_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CH31_CASE_DETAILS_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CH31_CASE_DETAILS_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CH31_CASE_DETAILS_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CH31_CASE_DETAILS_500'
+        detail: 'Internal Server Error'
+      RES_CH31_CASE_DETAILS_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CH31_CASE_DETAILS_503'
+        detail: 'Service Unavailable'
+        status: 503
+      RES_CH31_ELIGIBILITY_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CH31_ELIGIBILITY_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CH31_ELIGIBILITY_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CH31_ELIGIBILITY_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CH31_ELIGIBILITY_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CH31_ELIGIBILITY_500'
+        detail: 'Internal Server Error'
+      RES_CH31_ELIGIBILITY_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CH31_ELIGIBILITY_503'
+        detail: 'Service Unavailable'
+        status: 503
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request
@@ -971,6 +1021,36 @@ en:
         code: SHAREPOINT_UNKNOWN
         detail: An unexpected error occurred while communicating with SharePoint
         status: 500
+      SOB_CH33_STATUS_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SOB_CH33_STATUS_400
+        detail: 'Bad Request'
+        status: 400
+      SOB_CH33_STATUS_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: SOB_CH33_STATUS_403
+        detail: 'Forbidden'
+        status: 403
+      SOB_CH33_STATUS_404:
+        <<: *external_defaults
+        title: Not Found
+        code: SOB_CH33_STATUS_404
+        detail: 'Claimant not found'
+        status: 404
+      SOB_CH33_STATUS_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: SOB_CH33_STATUS_500
+        detail: 'Internal Server Error'
+        status: 500
+      SOB_CH33_STATUS_503:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SOB_CH33_STATUS_503
+        detail: 'Bad Gateway'
+        status: 503
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

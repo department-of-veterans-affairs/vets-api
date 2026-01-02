@@ -755,6 +755,12 @@ paths:
           schema:
             type: string
         - in: query
+          required: false
+          name: provider_id
+          description: The provider_id to find appointment slots for. Required if clinic_id not provided.
+          schema:
+            type: string
+        - in: query
           required: true
           name: start
           description: The start date for the query
@@ -1147,6 +1153,9 @@ components:
         showScheduleLink:
           type: boolean
           description: If true then this cancelled appointment can be scheduled via the web tool.
+        isCerner:
+          type: boolean
+          description: Whether this appointment is a Cerner (Oracle Health) appointment.
     AppointmentExtensions:
       type: object
       properties:

@@ -17,35 +17,97 @@ describe SM::Client do
 
   let(:client) { @client }
 
-  describe 'Test new API gateway methods' do
-    let(:config) { SM::Configuration.instance }
-
-    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is true' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(true)
-        allow(Settings.mhv.sm).to receive(:x_api_key).and_return('test-api-key')
-      end
-
-      it 'returns the x-api-key header' do
-        result = client.send(:auth_headers)
-        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
-        allow(client).to receive(:auth_headers).and_return(headers)
-        expect(result).to include('x-api-key' => 'test-api-key')
-        expect(config.x_api_key).to eq('test-api-key')
+  describe '#mobile_client?' do
+    context 'when client is SM::Client' do
+      it 'returns false' do
+        expect(client.mobile_client?).to be false
       end
     end
 
-    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is false' do
+    context 'when client is Mobile::V0::Messaging::Client' do
+      let(:mobile_client) { instance_double(Mobile::V0::Messaging::Client) }
+
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
+        allow(mobile_client).to receive(:instance_of?).with(Mobile::V0::Messaging::Client).and_return(true)
       end
 
-      it 'returns nil for x-api-key' do
-        result = client.send(:auth_headers)
-        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
-        allow(client).to receive(:auth_headers).and_return(headers)
-        expect(result).not_to include('x-api-key')
+      it 'returns true for mobile client instance' do
+        expect(mobile_client.instance_of?(Mobile::V0::Messaging::Client)).to be true
       end
+    end
+  end
+
+  describe '#my_health_client?' do
+    context 'when client is SM::Client' do
+      it 'returns true' do
+        expect(client.my_health_client?).to be true
+      end
+    end
+
+    context 'when client is Mobile::V0::Messaging::Client' do
+      let(:mobile_client) { instance_double(Mobile::V0::Messaging::Client) }
+
+      before do
+        allow(mobile_client).to receive(:instance_of?).with(SM::Client).and_return(false)
+      end
+
+      it 'returns false for mobile client instance' do
+        expect(mobile_client.instance_of?(SM::Client)).to be false
+      end
+    end
+  end
+
+  describe '#oh_pilot_user?' do
+    let(:user) { build(:user, :mhv) }
+
+    before do
+      allow(client).to receive(:current_user).and_return(user)
+    end
+
+    context 'when user has cerner pilot feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, user).and_return(true)
+      end
+
+      it 'returns true' do
+        expect(client.oh_pilot_user?).to be true
+      end
+    end
+
+    context 'when user does not have cerner pilot feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, user).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(client.oh_pilot_user?).to be false
+      end
+    end
+
+    context 'when current_user is nil' do
+      before do
+        allow(client).to receive(:current_user).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(client.oh_pilot_user?).to be false
+      end
+    end
+  end
+
+  describe 'Test new API gateway methods' do
+    let(:config) { SM::Configuration.instance }
+
+    before do
+      allow(Settings.mhv.sm).to receive(:x_api_key).and_return('test-api-key')
+    end
+
+    it 'returns the x-api-key header' do
+      result = client.send(:auth_headers)
+      headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+      allow(client).to receive(:auth_headers).and_return(headers)
+      expect(result).to include('x-api-key' => 'test-api-key')
+      expect(config.x_api_key).to eq('test-api-key')
     end
   end
 end

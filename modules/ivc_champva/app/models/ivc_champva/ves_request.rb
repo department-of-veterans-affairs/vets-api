@@ -97,7 +97,7 @@ module IvcChampva
         @enrolled_in_medicare = params[:enrolled_in_medicare]
         @has_other_insurance = params[:has_other_insurance]
         @relationship_to_sponsor = params[:relationship_to_sponsor]
-        @child_type = params[:child_type]
+        @childtype = params[:child_type]
         @date_of_birth = params[:date_of_birth]
         @address = Address.new(params[:address] || {})
       end

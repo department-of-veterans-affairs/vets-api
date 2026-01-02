@@ -18,7 +18,8 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       remote_ip: item['remote_ip'],
       user_agent: item['user_agent'],
       user_uuid: item['user_uuid'] || 'N/A',
-      source: item['source']
+      source: item['source'],
+      origin: item['class'].underscore
     }
     Thread.current[:sidekiq_context] = {}
 

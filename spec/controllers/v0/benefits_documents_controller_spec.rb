@@ -16,112 +16,95 @@ RSpec.describe V0::BenefitsDocumentsController, type: :controller do
   end
 
   describe '#create' do
-    [true, false].each do |filter_duplicates|
-      context "when benefits_documents_filter_duplicates is #{filter_duplicates}" do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:benefits_documents_filter_duplicates).and_return(filter_duplicates)
+    before do
+      allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
+        .and_return(true)
+    end
+
+    context 'when successful' do
+      before do
+        allow_any_instance_of(BenefitsDocuments::Service)
+          .to receive(:queue_document_upload)
+          .and_return({ jid: 12 })
+      end
+
+      it 'returns a status of 202 and the job ID' do
+        file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
+
+        post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
+
+        expect(response).to have_http_status(:accepted)
+      end
+    end
+
+    context 'when NOT successful' do
+      context 'but the upload is not a duplicate' do
+        it 'returns a 400 when the file parameter is missing' do
+          post(:create, params: { benefits_claim_id: 1, document_type: 'L015' })
+
+          expect(response).to have_http_status(:bad_request)
         end
 
-        [true, false].each do |validate_claimant|
-          context "when benefits_documents_validate_claimant is #{validate_claimant}" do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:benefits_documents_validate_claimant)
-                                                  .and_return(validate_claimant)
-              allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
-                .and_return(true)
-            end
+        it 'returns a 404 when unable to find the associated claim' do
+          allow_any_instance_of(BenefitsDocuments::Service)
+            .to receive(:queue_document_upload)
+            .and_raise(Common::Exceptions::ResourceNotFound)
 
-            context 'when successful' do
-              before do
-                allow_any_instance_of(BenefitsDocuments::Service)
-                  .to receive(:queue_document_upload)
-                  .and_return({ jid: 12 })
-              end
+          file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-              it 'returns a status of 202 and the job ID' do
-                file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
+          post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
 
-                post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
+          expect(response).to have_http_status(:not_found)
+        end
 
-                expect(response).to have_http_status(:accepted)
-              end
-            end
+        it 'returns a 422 when the document metadata is not valid' do
+          file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-            context 'when NOT successful' do
-              context 'but the upload is not a duplicate' do
-                it 'returns a 400 when the file parameter is missing' do
-                  post(:create, params: { benefits_claim_id: 1, document_type: 'L015' })
+          post(:create, params: { file:, benefits_claim_id: 1, document_type: 'BANANA' })
 
-                  expect(response).to have_http_status(:bad_request)
-                end
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
 
-                it 'returns a 404 when unable to find the associated claim' do
-                  allow_any_instance_of(BenefitsDocuments::Service)
-                    .to receive(:queue_document_upload)
-                    .and_raise(Common::Exceptions::ResourceNotFound)
+      context 'and the upload is a duplicate' do
+        before do
+          allow_any_instance_of(BenefitsDocuments::Service).to receive(:presumed_duplicate?).and_return(true)
+        end
 
-                  file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
+        it 'returns a 422' do
+          file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-                  post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
+          post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
 
-                  expect(response).to have_http_status(:not_found)
-                end
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)['errors'].first
+          expect(json_response['title']).to eq('Unprocessable Entity')
+          expect(json_response['code']).to eq('422')
+          expect(json_response['status']).to eq('422')
+          expect(json_response['source']).to eq('BenefitsDocuments::Service')
+          expect(json_response['detail']).to eq('DOC_UPLOAD_DUPLICATE')
+        end
+      end
 
-                it 'returns a 422 when the document metadata is not valid' do
-                  file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
+      context 'and the claimant cannot be validated to upload' do
+        before do
+          allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
+            .and_return(false)
+        end
 
-                  post(:create, params: { file:, benefits_claim_id: 1, document_type: 'BANANA' })
+        it 'returns a 422' do
+          file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
 
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
-              end
+          post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
 
-              context 'and the upload is a duplicate' do
-                before do
-                  allow(Flipper).to receive(:enabled?).with(:benefits_documents_filter_duplicates).and_return(true)
-                  allow_any_instance_of(BenefitsDocuments::Service).to receive(:presumed_duplicate?).and_return(true)
-                end
-
-                it 'returns a 422' do
-                  file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
-
-                  post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
-
-                  expect(response).to have_http_status(:unprocessable_entity)
-                  json_response = JSON.parse(response.body)['errors'].first
-                  expect(json_response['title']).to eq('Unprocessable Entity')
-                  expect(json_response['code']).to eq('422')
-                  expect(json_response['status']).to eq('422')
-                  expect(json_response['source']).to eq('BenefitsDocuments::Service')
-                  expect(json_response['detail']).to eq('DOC_UPLOAD_DUPLICATE')
-                end
-              end
-
-              context 'and the claimant cannot be validated to upload' do
-                before do
-                  allow(Flipper).to receive(:enabled?).with(:benefits_documents_validate_claimant)
-                                                      .and_return(true)
-                  allow_any_instance_of(BenefitsDocuments::Service).to receive(:validate_claimant_can_upload)
-                    .and_return(false)
-                end
-
-                it 'returns a 422' do
-                  file = Rack::Test::UploadedFile.new(Tempfile.new('banana.pdf'))
-
-                  post(:create, params: { file:, benefits_claim_id: 1, document_type: 'L015' })
-
-                  expect(response).to have_http_status(:unprocessable_entity)
-                  json_response = JSON.parse(response.body)['errors'].first
-                  expect(json_response['title']).to eq('Unprocessable Entity')
-                  expect(json_response['code']).to eq('422')
-                  expect(json_response['status']).to eq('422')
-                  expect(json_response['source']).to eq('BenefitsDocuments::Service')
-                  expect(json_response['detail'])
-                    .to eq('DOC_UPLOAD_INVALID_CLAIMANT')
-                end
-              end
-            end
-          end
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)['errors'].first
+          expect(json_response['title']).to eq('Unprocessable Entity')
+          expect(json_response['code']).to eq('422')
+          expect(json_response['status']).to eq('422')
+          expect(json_response['source']).to eq('BenefitsDocuments::Service')
+          expect(json_response['detail'])
+            .to eq('DOC_UPLOAD_INVALID_CLAIMANT')
         end
       end
     end

@@ -11,7 +11,7 @@ RSpec.describe BGSDependentsV2::Divorce do
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'divorce_location' => { 'location' => { 'state' => 'FL', 'city' => 'Tampa' } },
       'reason_marriage_ended' => 'Divorce',
-      'spouse_income' => false
+      'spouse_income' => 'N'
     }
   end
   let(:formatted_params_result) do
@@ -33,17 +33,11 @@ RSpec.describe BGSDependentsV2::Divorce do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
+  describe '#format_info' do
+    it 'formats divorce params for submission' do
+      formatted_info = described_class.new(divorce_info_v2).format_info
 
-    describe '#format_info' do
-      it 'formats divorce params for submission' do
-        formatted_info = described_class.new(divorce_info_v2).format_info
-
-        expect(formatted_info).to eq(formatted_params_result)
-      end
+      expect(formatted_info).to eq(formatted_params_result)
     end
   end
 end

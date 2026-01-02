@@ -5,9 +5,9 @@ class FeatureCleanerJob
 
   def perform
     Rails.logger.info "FeatureCleanerJob Removing: #{removed_features.join(', ')}"
-    removed_features.each do |feature|
-      Flipper.remove(feature)
-    end
+    # removed_features.each do |feature|
+    #   Flipper.remove(feature)
+    # end
   end
 
   private

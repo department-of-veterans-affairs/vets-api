@@ -46,8 +46,6 @@ module Login
       check_id_mismatch(current_user.identity.icn, current_user.mpi_icn, 'User Identity & MPI ICN values conflict')
       check_id_mismatch(current_user.identity.edipi, current_user.edipi_mpi,
                         'User Identity & MPI EDIPI values conflict')
-      check_id_mismatch(current_user.identity.mhv_credential_uuid, current_user.mpi_mhv_correlation_id,
-                        'User Identity & MPI MHV Correlation ID values conflict')
     end
 
     def check_id_mismatch(identity_value, mpi_value, error_message)

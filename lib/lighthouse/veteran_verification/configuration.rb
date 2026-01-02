@@ -7,7 +7,7 @@ require 'lighthouse/auth/client_credentials/service'
 
 module VeteranVerification
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.veteran_verification.timeout || 20
+    self.read_timeout = Settings.lighthouse.veteran_verification.timeout || 30
 
     API_SCOPES = %w[disability_rating.read veteran_status.read].freeze
     VETERAN_VERIFICATION_PATH = 'services/veteran_verification/v2'

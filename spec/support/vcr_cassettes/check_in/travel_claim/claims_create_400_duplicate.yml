@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "https://dev.integration.d365.va.gov/eis/api/btsss/travelclaim/api/v3/claims"
+    body:
+      encoding: UTF-8
+      string: '{"appointmentId":"appt-123"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_veis_token_123
+      X-BTSSS-Token:
+      - fake_btsss_token_456
+      X-Correlation-ID:
+      - 5b59879e-9e22-47d9-a9f8-baede230dd48
+      Ocp-Apim-Subscription-Key:
+      - fake_subscription_key
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Wed, 28 Aug 2025 19:41:15 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "correlationId": "5b59879e-9e22-47d9-a9f8-baede230dd48",
+        "timeStamp": "2025-08-28T19:41:15.0806564Z",
+        "statusCode": 400,
+        "message": "Validation failed: A claim has already been created for this appointment.",
+        "success": false,
+        "data": null
+      }'
+  recorded_at: Wed, 28 Aug 2025 19:41:15 GMT

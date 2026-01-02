@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'va_profile/models/address'
+
 module FormEngine
-  class Address < VAProfile::Models::V3::Address
+  class Address < VAProfile::Models::Address
     def initialize(params)
       super(params)
 

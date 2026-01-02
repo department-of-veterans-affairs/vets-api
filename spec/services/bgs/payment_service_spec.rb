@@ -65,7 +65,7 @@ RSpec.describe BGS::PaymentService do
         response = BGS::PaymentService.new(user)
         expect_any_instance_of(BGS::PaymentInformationService)
           .to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
-        expect(response).to receive(:log_exception_to_sentry)
+        expect(Rails.logger).to receive(:error)
         response.payment_history(person)
       end
     end

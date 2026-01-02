@@ -16,6 +16,7 @@ properties:
       - Benefit Summary Letter
       - Dependent Benefit Summary Letter
       - Benefit Verification Letter
+      - Certificate of Eligibility for Home Loan Letter
   letterType:
     type: string
     enum:
@@ -29,3 +30,12 @@ properties:
       - benefit_summary_dependent
       - benefit_verification
       - certificate_of_eligibility
+      - certificate_of_eligibility_home_loan
+  referenceNumber:
+    type: string
+    description: Only for COE home loan letters
+    example: "123456789"
+  coeStatus:
+    type: string
+    description: Only for COE home loan letters
+    example: "ELIGIBLE"

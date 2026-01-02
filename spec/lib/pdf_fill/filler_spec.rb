@@ -4,16 +4,19 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
+# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
+# than it is.
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
   describe '#combine_extras' do
     subject do
-      described_class.combine_extras(old_file_path, extras_generator)
+      described_class.combine_extras(old_file_path, extras_generator, form_class)
     end
 
     let(:extras_generator) { double }
     let(:old_file_path) { 'tmp/pdfs/file_path.pdf' }
+    let(:form_class) { PdfFill::Forms::Va210781v2 }
 
     context 'when extras_generator doesnt have text' do
       it 'returns the old_file_path' do
@@ -31,11 +34,7 @@ describe PdfFill::Filler, type: :model do
       it 'generates extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
-        expect(described_class::PDF_FORMS).to receive(:cat).once.with(
-          old_file_path,
-          'extras.pdf',
-          file_path
-        )
+        expect(described_class).to receive(:merge_pdfs).once.with(old_file_path, 'extras.pdf', file_path)
         expect(File).to receive(:delete).once.with('extras.pdf')
         expect(File).to receive(:delete).once.with(old_file_path)
 
@@ -44,30 +43,121 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # NOTE: 21P-0969 is one of the only forms that uses data types that are supported by HexaPDF currently
+  describe '#fill_form_with_hexapdf' do
+    it_behaves_like 'a form filler', {
+      form_id: IncomeAndAssets::FORM_ID,
+      factory: :income_and_assets_claim,
+      use_vets_json_schema: true,
+      input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      fill_options: { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
+    }
+  end
+
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
+    before do
+      # We are not testing the pdftk wrapper here, we are testing the fill_form method
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields) do |_instance, _path|
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper)
+        .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
+          FileUtils.mkdir_p(File.dirname(output))
+
+          # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+          FileUtils
+            .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
+          output
+        end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_instance, _a, _b, output|
+        File.write(output, "%PDF-1.4\n% Fake Combined PDF\n")
+        output
+      end
+
+      allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
+        stamped = file_path.sub('.pdf', '_stamped.pdf')
+
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped)
+
+        stamped
+      end
+
+      allow(File).to receive(:delete) # prevent accidental file deletion in tests
+    end
+
     [
-      {
-        form_id: '686C-674',
-        factory: :dependency_claim
-      },
-      {
-        form_id: '686C-674-V2',
-        factory: :dependency_claim_v2
-      }
+      { form_id: '686C-674', factory: :dependency_claim },
+      { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
     ].each do |options|
       it_behaves_like 'a form filler', options
     end
   end
 
+  # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
+    # performance tweaks to speed up tests. Timestamping the methods in filler.rb
+    # identified these as being the bottlenecks
+    before do
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields).and_return(
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      )
+
+      # Stub Pdftk fill_form to avoid real PDF generation
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, _template, output, *_args|
+        FileUtils.mkdir_p(File.dirname(output))
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
+        output
+      end
+
+      # Make stamp_form fast by stubbing out PDFUtilities::DatestampPdf
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |_instance, *_args|
+        # Return a unique tmp file each time to mimic real stamping
+        stamped_path = "tmp/pdfs/fake_stamped_#{SecureRandom.uuid}.pdf"
+        FileUtils.mkdir_p(File.dirname(stamped_path))
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped_path)
+
+        stamped_path
+      end
+
+      # Stub PDF concatenation to skip real pdftk
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_, a, b, output|
+        # Simulate a combined PDF
+        FileUtils.mkdir_p(File.dirname(output))
+        File.write(output, "%PDF-1.4\n% Fake combined PDF of #{File.basename(a)} + #{File.basename(b)}\n%%EOF")
+        output
+      end
+    end
+
+    def overflow_file_suffix(extras_redesign, show_jumplinks)
+      return '_extras.pdf' unless extras_redesign
+
+      show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
+    end
+
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
-       22-10216 22-10215 22-10215a].each do |form_id|
+       22-10216 22-10215 22-10215a 22-1919 22-10275].each do |form_id|
       context "form #{form_id}" do
-        form_types = %w[simple kitchen_sink overflow].product([false])
-        form_types << ['overflow', true] if form_id == '21-0781V2'
-        form_types.each do |type, extras_redesign|
-          context "with #{type} test data with extras_redesign #{extras_redesign}" do
+        form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
+        form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
+        form_types.each do |type, extras_redesign, show_jumplinks|
+          context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
@@ -86,13 +176,14 @@ describe PdfFill::Filler, type: :model do
 
               expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
+                                                              { extras_redesign:, student:, show_jumplinks: })
 
               fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+                fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
@@ -130,6 +221,7 @@ describe PdfFill::Filler, type: :model do
       it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
+        allow(extras_generator).to receive(:use_hexapdf).and_return(false)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
@@ -152,7 +244,35 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  describe '#should_stamp_form?' do
+    subject { described_class.should_stamp_form?(form_id, fill_options, submit_date) }
+
+    let(:form_id) { '21-0781V2' }
+    let(:fill_options) { { extras_redesign: true } }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+
+    context 'when not given the extras_redesign fill option' do
+      let(:fill_options) { {} }
+
+      it { is_expected.to be(false) }
+
+      context 'when filling out a non-redesigned dependent form' do
+        let(:form_id) { '686C-674' }
+
+        it { is_expected.to be(true) }
+      end
+    end
+
+    context 'when given the omit_esign_stamp fill option' do
+      let(:fill_options) { { omit_esign_stamp: true, extras_redesign: true } }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#stamp_form' do
+    subject { described_class.stamp_form(file_path, submit_date) }
+
     let(:file_path) { 'tmp/test.pdf' }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
     let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
@@ -188,8 +308,7 @@ describe PdfFill::Filler, type: :model do
 
       expect(File).to receive(:delete).with(stamped_path)
 
-      result = described_class.stamp_form(file_path, submit_date)
-      expect(result).to eq(final_path)
+      expect(subject).to eq(final_path)
     end
 
     context 'when an error occurs' do
@@ -199,12 +318,10 @@ describe PdfFill::Filler, type: :model do
       end
 
       it 'logs the error and returns the original file path' do
-        result = described_class.stamp_form(file_path, submit_date)
-
+        expect(subject).to eq(file_path)
         expect(Rails.logger).to have_received(:error).with(
           "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
         )
-        expect(result).to eq(file_path)
       end
     end
   end

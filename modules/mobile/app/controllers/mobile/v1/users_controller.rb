@@ -3,7 +3,6 @@
 module Mobile
   module V1
     class UsersController < ApplicationController
-      after_action :pre_cache_resources, only: :show
       after_action :handle_vet360_id, only: :show
 
       def show
@@ -20,12 +19,8 @@ module Mobile
         }
       end
 
-      def pre_cache_resources
-        Mobile::V0::PreCacheClaimsAndAppealsJob.perform_async(@current_user.uuid)
-      end
-
       def user_accessible_services
-        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user)
+        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user, request)
       end
 
       def handle_vet360_id

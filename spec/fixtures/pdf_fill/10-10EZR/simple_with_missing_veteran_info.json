@@ -1,0 +1,13 @@
+{
+  "privacyAgreementAccepted": true,
+  "veteranFullName": null,
+  "veteranSocialSecurityNumber": null,
+  "veteranDateOfBirth": null,
+  "gender": null,
+  "veteranAddress": {
+    "street": "321 Elm St",
+    "city": "Houston",
+    "country": "USA"
+  },
+  "isMedicaidEligible": true
+}

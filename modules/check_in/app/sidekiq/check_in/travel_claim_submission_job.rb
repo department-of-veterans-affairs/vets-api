@@ -22,6 +22,14 @@ module CheckIn
 
     def submit_claim(opts = {})
       uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
+
+      self.class.log_with_context(:info, 'Travel claim job validation', {
+                                    uuid_present: uuid.present?,
+                                    appointment_date_present: appointment_date.present?,
+                                    facility_type:,
+                                    service: 'travel_claim_debug'
+                                  })
+
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
       claims_resp = TravelClaim::Service.build(check_in: check_in_session,

@@ -4,9 +4,15 @@ require 'rails_helper'
 
 RSpec.describe SignIn::UserLoader do
   describe '#perform' do
-    subject { SignIn::UserLoader.new(access_token:, request_ip:).perform }
+    subject { SignIn::UserLoader.new(access_token:, request_ip:, cookies:).perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
+    let(:cookies) do
+      hash = {}
+      def hash.permanent = self
+      hash
+    end
+
     let!(:user) do
       create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn, session_handle: user_session_handle,
                            needs_accepted_terms_of_use:)
@@ -62,6 +68,17 @@ RSpec.describe SignIn::UserLoader do
 
         before do
           stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, deceased_date:, id_theft_flag:, vha_facility_ids:))
+        end
+
+        context 'and user is not verified' do
+          let(:user_icn) { nil }
+          let(:user_account) { create(:user_account, icn: user_icn) }
+          let(:user_verification) { create(:idme_user_verification, user_account:) }
+          let(:expected_loa) { { current: SignIn::Constants::Auth::LOA_ONE, highest: SignIn::Constants::Auth::LOA_ONE } }
+
+          it 'reloads user object with an loa of one' do
+            expect(subject.loa).to eq(expected_loa)
+          end
         end
 
         context 'and user is authenticated with dslogon' do
@@ -168,6 +185,13 @@ RSpec.describe SignIn::UserLoader do
             subject
             expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user_icn, :sis)
           end
+        end
+
+        it 'sets the cerner eligibility cookie correctly' do
+          user = subject
+          expect(cookies['CERNER_ELIGIBLE']).to eq(
+            { value: user.cerner_eligible?, domain: IdentitySettings.sign_in.info_cookie_domain }
+          )
         end
       end
     end

@@ -4,17 +4,13 @@ require 'rails_helper'
 require 'lighthouse/benefits_education/service'
 
 RSpec.describe BenefitsEducation::Service do
-  before(:all) do
-    icn = '1012667145V762142'
-    # icn retrieved from
-    # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
-    @service = BenefitsEducation::Service.new(icn)
-  end
+  let(:icn) { '1012667145V762142' }
+  let(:service) { BenefitsEducation::Service.new(icn) }
 
   # Veteran's ICN is now considered PII - do not include it
   # in the output of `inspect`
   it 'does not display icn when calling `inspect`' do
-    service_inspect = @service.inspect
+    service_inspect = service.inspect
     expect(service_inspect).not_to include('icn')
   end
 
@@ -32,12 +28,12 @@ RSpec.describe BenefitsEducation::Service do
           # these values are results of a request to get sandbox access:
           # https://developer.va.gov/explore/api/education-benefits
           VCR.use_cassette('lighthouse/benefits_education/200_response') do
-            response = @service.get_gi_bill_status
+            response = service.get_gi_bill_status
 
             # assertions that the data returned will match our test user
-            expect(response['first_name']).to eq('Tamara')
-            expect(response['last_name']).to eq('Ellis')
-            expect(response['date_of_birth']).to start_with('1967-06-19')
+            expect(response.first_name).to eq('Tamara')
+            expect(response.last_name).to eq('Ellis')
+            expect(response.date_of_birth).to start_with('1967-06-19')
           end
         end
       end

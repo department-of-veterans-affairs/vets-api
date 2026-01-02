@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
+  # performance tweak
+  before do
+    allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
@@ -44,6 +49,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+  let(:vanotify) { double(send_email: true) }
 
   context 'success' do
     before do
@@ -56,7 +62,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         .with(hash_including(user_struct.to_h.stringify_keys))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.not_to raise_error
     end
 
@@ -65,52 +71,39 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info)
       end.not_to raise_error
     end
 
-    context 'with separate emails by form' do
-      it 'sends confirmation email for combined forms' do
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
-        expect(OpenStruct).to receive(:new)
-          .with(hash_including('icn' => vet_info['veteran_information']['icn']))
-          .and_return(user_struct)
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_received686c674',
-          { 'confirmation_number' => dependency_claim.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686c674',
-                                 email_type: :received686c674,
-                                 form_id: '686C-674',
-                                 saved_claim_id: dependency_claim.id,
-                                 service_name: 'dependents' } }
-        )
+    it 'sends confirmation email for combined forms' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
 
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-      end
-    end
+      callback_options = {
+        callback_klass: 'Dependents::NotificationCallback',
+        callback_metadata: { email_template_id: 'fake_received686c674',
+                             email_type: :received686c674,
+                             form_id: '686C-674',
+                             claim_id: dependency_claim.id,
+                             saved_claim_id: dependency_claim.id,
+                             service_name: 'dependents' }
+      }
 
-    context 'without separate emails by form' do
-      it 'sends confirmation email' do
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(false)
-        expect(OpenStruct).to receive(:new)
-          .with(hash_including('icn' => vet_info['veteran_information']['icn']))
-          .and_return(user_struct)
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
-        )
+      personalization = { 'confirmation_number' => dependency_claim.confirmation_number,
+                          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                          'first_name' => 'WESLEY' }
 
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-      end
+      expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: user.va_profile_email,
+          template_id: 'fake_received686c674',
+          personalisation: personalization
+        }.compact
+      )
+
+      subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 
@@ -129,7 +122,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
     end
 
@@ -141,58 +134,75 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(Sidekiq::JobRetry::Skip)
     end
   end
 
   context '674 only' do
-    context 'with separate emails by form' do
-      it 'sends confirmation email for 674 only' do
-        expect(BGS::Form674).to receive(:new).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
-        expect(OpenStruct).to receive(:new)
-          .with(hash_including('icn' => vet_info['veteran_information']['icn']))
-          .and_return(user_struct)
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_received674',
-          { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received674',
-                                 email_type: :received674,
-                                 form_id: '686C-674',
-                                 saved_claim_id: dependency_claim_674_only.id,
-                                 service_name: 'dependents' } }
-        )
+    it 'sends confirmation email for 674 only' do
+      expect(BGS::Form674).to receive(:new).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
 
-        subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
-      end
+      callback_options = {
+        callback_klass: 'Dependents::NotificationCallback',
+        callback_metadata: { email_template_id: 'fake_received674',
+                             email_type: :received674,
+                             form_id: '686C-674',
+                             claim_id: dependency_claim_674_only.id,
+                             saved_claim_id: dependency_claim_674_only.id,
+                             service_name: 'dependents' }
+      }
+
+      personalization = { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
+                          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                          'first_name' => 'WESLEY' }
+
+      expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: user.va_profile_email,
+          template_id: 'fake_received674',
+          personalisation: personalization
+        }.compact
+      )
+
+      subject.perform(user.uuid, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
     end
+  end
 
-    context 'without separate emails by form' do
-      it 'sends confirmation email' do
-        expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-        expect(client_stub).to receive(:submit).once
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(false)
-        expect(OpenStruct).to receive(:new)
-          .with(hash_including('icn' => vet_info['veteran_information']['icn']))
-          .and_return(user_struct)
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
-        )
+  context 'sidekiq_retries_exhausted' do
+    it 'tracks exhaustion event and sends backup submission' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
 
-        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-      end
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Expect the backup submission to be called
+      expect(BGS::SubmitForm674Job).to receive(:send_backup_submission).with(
+        encrypted_user_struct,
+        vet_info,
+        dependency_claim.id,
+        user.uuid
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
     end
   end
 end

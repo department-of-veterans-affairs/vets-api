@@ -65,6 +65,13 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       claim.add_claimant_info(user_object)
       expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
     end
+
+    it 'handles blank form' do
+      claim.form = nil
+      expect(Rails.logger).to receive(:info)
+        .with('VRE claim form is blank, skipping adding veteran info', { user_uuid: user.uuid })
+      expect(claim.add_claimant_info(user)).to be_nil
+    end
   end
 
   describe '#send_to_vre' do
@@ -111,7 +118,8 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
-          expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+          allow(Flipper).to receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(false)
+          expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
 
           claim.send_to_vre(user_object)
         end
@@ -132,14 +140,33 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
+        allow(Flipper).to receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(false)
+
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-        expect(claim).to receive(:send_lighthouse_confirmation_email)
+        expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VRE::VeteranReadinessEmploymentMailer).to receive(:build).with(
           user_object.participant_id, 'VRE.VBAPIT@va.gov', true
         ).and_call_original
         subject
+      end
+    end
+  end
+
+  describe '#send_failure_email' do
+    context 'when email is nil' do
+      it 'only logs a warning' do
+        expect(Rails.logger).to receive(:warn)
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        claim.send_failure_email('')
+      end
+    end
+
+    context 'when email is present' do
+      it 'logs error and sends email' do
+        expect(VANotify::EmailJob).to receive(:perform_async)
+        claim.send_failure_email('test@example.com')
       end
     end
   end
@@ -150,37 +177,67 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     end
   end
 
-  describe '#send_vbms_confirmation_email' do
-    subject { claim.send_vbms_confirmation_email(user) }
+  describe '#send_vbms_lighthouse_confirmation_email' do
+    context 'when sending to VBMS' do
+      it 'calls the VA notify email job' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          claim.email,
+          'ch31_vbms_fake_template_id',
+          {
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
+          }
+        )
 
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_vbms_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
-      )
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id', user_object)
+      end
+    end
 
-      subject
+    context 'when sending to Lighthouse' do
+      it 'calls the VA notify email job' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          claim.email,
+          'ch31_central_mail_fake_template_id',
+          {
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
+          }
+        )
+
+        claim.send_vbms_lighthouse_confirmation_email('Lighthouse', 'ch31_central_mail_fake_template_id', user_object)
+      end
+    end
+
+    context 'when email is missing' do
+      it 'logs a warning' do
+        claim.parsed_form['email'] = nil
+        expect(Rails.logger).to receive(:warn).with(
+          'VBMS confirmation email not sent: parsed form missing email.',
+          { user_uuid: user_object.uuid }
+        )
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id', user_object)
+      end
     end
   end
 
-  describe '#send_lighthouse_confirmation_email' do
-    subject { claim.send_lighthouse_confirmation_email(user) }
-
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_central_mail_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
+  describe '#process_attachments!' do
+    it 'processes attachments successfully' do
+      allow(claim).to receive_messages(
+        attachment_keys: ['some_key'],
+        open_struct_form: OpenStruct.new(some_key: [OpenStruct.new(confirmationCode: '123')])
       )
+      allow(PersistentAttachment).to receive(:where).and_return(double(find_each: true))
+      allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).and_return(true)
+      expect(claim.process_attachments!).to be_truthy
+    end
+  end
 
-      subject
+  describe '#upload_to_vbms' do
+    it 'updates form with VBMS document id' do
+      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
+        .and_return({ vbms_document_series_ref_id: '123' })
+      claim.upload_to_vbms(user: build(:user))
+      expect(claim.parsed_form['documentId']).to eq('123')
     end
   end
 end

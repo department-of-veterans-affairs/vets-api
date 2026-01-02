@@ -17,7 +17,7 @@
     "view:completed_dependent": false,
     "view:completed_household_child": false,
     "report_divorce": {
-      "spouse_income": true,
+      "spouse_income": "Y",
       "date": "2023-11-03",
       "divorce_location": {
         "location": {
@@ -45,7 +45,7 @@
       "date": "2024-02-01"
     },
     "does_live_with_spouse": {
-      "spouse_income": true,
+      "spouse_income": "Y",
       "current_spouse_reason_for_separation": "Other",
       "other": "other reasons",
       "address": {
@@ -177,7 +177,7 @@
     ],
     "children_to_add": [
       {
-        "income_in_last_year": true,
+        "income_in_last_year": "Y",
         "marriage_end_date": "2023-07-03",
         "marriage_end_reason": "Other",
         "marriage_end_description": "other reason",
@@ -213,7 +213,7 @@
         "school_age_in_school": false
       },
       {
-        "income_in_last_year": false,
+        "income_in_last_year": "N",
         "marriage_end_reason": "annulment",
         "marriage_end_description": "description of annulment",
         "does_child_live_with_you": true,
@@ -254,7 +254,7 @@
         "school_age_in_school": false
       },
       {
-        "income_in_last_year": false,
+        "income_in_last_year": "N",
         "marriage_end_reason": "annulment",
         "marriage_end_description": "description of annulment",
         "does_child_live_with_you": true,
@@ -274,7 +274,7 @@
         "school_age_in_school": false
       },
       {
-        "income_in_last_year": true,
+        "income_in_last_year": "Y",
         "marriage_end_reason": "annulment",
         "marriage_end_description": "description of annulment",
         "does_child_live_with_you": true,
@@ -288,7 +288,7 @@
         "school_age_in_school": false
       },
       {
-        "income_in_last_year": false,
+        "income_in_last_year": "N",
         "marriage_end_reason": "annulment",
         "marriage_end_description": "description of annulment",
         "does_child_live_with_you": true,
@@ -351,9 +351,9 @@
         "state": "ME",
         "postal_code": "04102"
       },
-      "student_income": true,
+      "student_income": "Y",
       "ssn": "987654321",
-      "is_parent": true,
+      "relationship_to_student": "biological",
       "full_name": {
         "first": "test",
         "middle": "middle",
@@ -406,7 +406,7 @@
     ],
     "deaths": [
       {
-        "deceased_dependent_income": true,
+        "deceased_dependent_income": "Y",
         "dependent_death_location": { "location": { "city": "new orleans", "state": "LA" } },
         "dependent_death_date": "2024-03-02",
         "dependent_type": "DEPENDENT_PARENT",
@@ -415,7 +415,7 @@
         "birth_date": "1960-01-01"
       },
       {
-        "deceased_dependent_income": false,
+        "deceased_dependent_income": "N",
         "dependent_death_location": { "location": { "city": "denver", "state": "CO" } },
         "dependent_death_date": "2023-10-03",
         "dependent_type": "SPOUSE",
@@ -425,14 +425,14 @@
       }
     ],
     "child_marriage": [{
-      "dependent_income": false,
+      "dependent_income": "N",
       "date_married": "2023-06-03",
       "full_name": { "first": "child", "middle": "middle", "last": "married" },
       "ssn": "987654321",
       "birth_date": "2008-04-05"
     }],
     "child_stopped_attending_school": [{
-      "dependent_income": false,
+      "dependent_income": "N",
       "date_child_left_school": "2023-04-03",
       "full_name": { "first": "removing", "middle": "middle", "last": "child" },
       "ssn": "987654321",

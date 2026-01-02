@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module V0
   module Preneeds
     class BurialFormsController < PreneedsController
-      include SentryLogging
+      include Vets::SharedLogging
 
       FORM = '40-10007'
 

@@ -93,7 +93,7 @@
     },
     "/v0/appeal/{id}": {
       "get": {
-        "description": "Returns info on all user's claims and appeals for mobile overview page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current",
+        "description": "Returns info on all user's claims and appeals for the mobile overview page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current",
         "parameters": [
           {
             "description": "Appeal Id",
@@ -3510,139 +3510,6 @@
         "summary": "/v0/efolder/documents/{documentId}/download"
       }
     },
-    "/v0/claim-letter/documents": {
-      "get": {
-        "description": "Returns the user's list of documents from lighthouse",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimLetterDocuments"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/401"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/claim-letter/documents"
-      }
-    },
-    "/v0/claim-letter/documents/{document_id}/download": {
-      "post": {
-        "description": "returns requested document",
-        "parameters": [
-          {
-            "description": "File name of the document to be returned.",
-            "in": "query",
-            "name": "file_name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "ID of the document to be returned.",
-            "in": "path",
-            "name": "document_id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "format": "binary",
-                  "type": "string"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/claim-letter/documents/{documentId}/download"
-      }
-    },
     "/v0/enrollment-status": {
       "get": {
         "description": "Returns the user's VA enrollment status.",
@@ -4086,6 +3953,74 @@
           }
         },
         "summary": "/v0/health/allergy-intolerances"
+      }
+    },
+    "/v1/health/allergy-intolerances": {
+      "get": {
+        "description": "Retrieves a Unified Health Data list of the user's known allergies related to medication, food, or other substances\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page[number]",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page. Defaults to 10.",
+            "example": 10,
+            "in": "query",
+            "name": "page[size]",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllergyIntolerancesV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "summary": "/v1/health/allergy-intolerances"
       }
     },
     "/v0/health/labs-and-tests": {
@@ -4907,6 +4842,145 @@
         "summary": "/v0/maintenance_windows"
       }
     },
+    "/v0/medical_copays": {
+      "get": {
+        "description": "Returns a list of medical copay balances for the current user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopays"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays"
+      }
+    },
+    "/v0/medical_copays/{id}": {
+      "get": {
+        "description": "Returns medical copay information for a specified copay ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalCopay"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/{id}"
+      }
+    },
+    "/v0/medical_copays/download/{id}": {
+      "get": {
+        "description": "Retrieves the statement PDF for the given ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "ok"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/medical_copays/download/{id}"
+      }
+    },
     "/v0/messaging/health/folders": {
       "get": {
         "description": "List available secure messaging folders",
@@ -5096,6 +5170,58 @@
           }
         ],
         "summary": "/v0/messaging/health/folders/{id}"
+      },
+      "delete": {
+        "description": "Delete a secure messaging folder",
+        "parameters": [
+          {
+            "description": "The folder ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/folders/{id}"
       }
     },
     "/v0/messaging/health/folders/{id}/messages": {
@@ -5121,24 +5247,6 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "description": "The page number requested",
-            "example": 1,
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "The number of records to return per page. Defaults to 100",
-            "example": 10,
-            "in": "query",
-            "name": "perPage",
-            "schema": {
-              "type": "integer"
             }
           },
           {
@@ -5445,6 +5553,71 @@
           }
         ],
         "summary": "/v0/messaging/health/message_drafts/{id}"
+      },
+      "patch": {
+        "description": "Update an existing draft message (alias for PUT)",
+        "parameters": [
+          {
+            "description": "The id of the draft that is to be updated",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "body": "the updated message"
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/message_drafts/{id}"
       }
     },
     "/v0/messaging/health/message_drafts/{reply_id}/replydraft": {
@@ -5519,7 +5692,7 @@
       }
     },
     "/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}": {
-      "post": {
+      "put": {
         "description": "Edit a draft message that was a reply to an existing message",
         "parameters": [
           {
@@ -5911,7 +6084,9 @@
           }
         ],
         "summary": "/v0/messaging/health/messages/{id}"
-      },
+      }
+    },
+    "/v0/messaging/health/messages/{id}/move": {
       "patch": {
         "description": "Moves a secure message to a specified folder",
         "parameters": [
@@ -5927,7 +6102,7 @@
           {
             "description": "The id of the folder that the message is to be moved to",
             "in": "query",
-            "name": "folder_id,",
+            "name": "folder_id",
             "required": true,
             "schema": {
               "type": "string"
@@ -7014,6 +7189,104 @@
       }
     },
     "/v0/travel-pay/claims": {
+      "get": {
+        "description": "Retrieve travel pay claims for a user within a specified date range.",
+        "parameters": [
+          {
+            "description": "The start date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-01-01T00:00:00",
+            "in": "query",
+            "name": "start_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The end date for the range of claims in ISO 8601 date-time format (YYYY-MM-DDTHH:MM:SS)",
+            "example": "2024-03-31T23:59:59",
+            "in": "query",
+            "name": "end_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "The page number requested. Defaults to 1.",
+            "example": 1,
+            "in": "query",
+            "name": "page_number",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "206": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaims"
+                }
+              }
+            },
+            "description": "Partial Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
+      },
       "post": {
         "description": "Submit a mileage-only travel claim.",
         "parameters": [
@@ -7077,6 +7350,159 @@
           }
         ],
         "summary": "/v0/travel-pay/claims"
+      }
+    },
+    "/v0/travel-pay/claims/{id}": {
+      "get": {
+        "description": "Retrieve details for a specific travel pay claim by ID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaimDetails"
+                }
+              }
+            },
+            "description": "Travel pay claim details retrieved successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{id}"
+      }
+    },
+    "/v0/travel-pay/claims/{claim_id}/documents/{document_id}": {
+      "get": {
+        "description": "Download a specific document associated with a travel pay claim.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The unique identifier for the travel pay claim",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "in": "path",
+            "name": "claim_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "description": "The unique identifier for the document to download",
+            "example": "doc1-decision-letter",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "Document downloaded successfully",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Indicates the file should be downloaded with the specified filename",
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=\"DecisionLetter.pdf\""
+                }
+              },
+              "Content-Type": {
+                "description": "The MIME type of the document",
+                "schema": {
+                  "type": "string",
+                  "example": "application/pdf"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims/{claim_id}/documents/{document_id}"
       }
     },
     "/v0/user": {
@@ -8683,6 +9109,246 @@
         ],
         "summary": "/v1/health/immunizations"
       }
+    },
+    "/v1/health/labs-and-tests": {
+      "get": {
+        "description": "Returns a list of lab and test results for given user (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "Start date for filtering lab results (ISO 8601 format)",
+            "in": "query",
+            "name": "startDate",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "description": "End date for filtering lab results (ISO 8601 format)",
+            "in": "query",
+            "name": "endDate",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabsAndTestsV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v1/health/labs-and-tests"
+      }
+    },
+    "/v1/health/rx/prescriptions": {
+      "get": {
+        "description": "Returns a paginated list of prescriptions for given user (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          },
+          {
+            "description": "The page number requested",
+            "in": "query",
+            "name": "page[number]",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The number of records to return per page",
+            "in": "query",
+            "name": "page[size]",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort field for prescriptions",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrescriptionsV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v1/health/rx/prescriptions"
+      }
+    },
+    "/v1/health/rx/prescriptions/refill": {
+      "put": {
+        "description": "Refill prescriptions (v1)",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "id"
+                  ],
+                  "properties": {
+                    "stationNumber": {
+                      "type": "string",
+                      "description": "The station number for the prescription"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The prescription ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Array of orders to refill, each with stationNumber and id",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrescriptionRefillV1"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v1/health/rx/prescriptions/refill"
+      }
     }
   },
   "components": {
@@ -9450,6 +10116,49 @@
           }
         }
       },
+      "AvsPdf": {
+        "type": "object",
+        "properties": {
+          "appt_id": {
+            "type": "string",
+            "example": "12345",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "example": "15249638961",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "example": "Ambulatory Visit Summary",
+            "nullable": true
+          },
+          "loinc_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "4189669"
+            },
+            "nullable": true
+          },
+          "note_type": {
+            "type": "string",
+            "example": "ambulatory_patient_summary",
+            "nullable": true
+          },
+          "content_type": {
+            "type": "string",
+            "example": "application/pdf",
+            "nullable": true
+          },
+          "binary": {
+            "type": "string",
+            "example": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e",
+            "nullable": true
+          }
+        }
+      },
       "Appointment": {
         "type": "object",
         "additionalProperties": false,
@@ -9870,6 +10579,23 @@
                 "type": "boolean",
                 "nullable": true,
                 "example": true
+              },
+              "isCerner": {
+                "type": "boolean",
+                "nullable": true,
+                "example": true
+              },
+              "avsPdf": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AvsPdf"
+                },
+                "nullable": true
+              },
+              "avsError": {
+                "type": "string",
+                "nullable": true,
+                "example": "Error generating AVS PDF"
               }
             }
           }
@@ -12273,6 +12999,18 @@
                   "claimTypeCode": {
                     "type": "string",
                     "example": "020NEW"
+                  },
+                  "claimTypeBase": {
+                    "type": "string",
+                    "description": "Base type of claim",
+                    "example": "compensation claim",
+                    "nullable": true
+                  },
+                  "displayTitle": {
+                    "type": "string",
+                    "description": "Formatted title for display",
+                    "example": "Claim for compensation",
+                    "nullable": true
                   }
                 }
               }
@@ -13796,7 +14534,8 @@
               "displayTitle": {
                 "type": "string",
                 "description": "Formatted title for display in mobile overview list",
-                "example": "disability compensation appeal"
+                "example": "disability compensation appeal",
+                "nullable": true
               },
               "decisionLetterSent": {
                 "type": "boolean",
@@ -13826,6 +14565,12 @@
                 "description": "Type of claim",
                 "nullable": true,
                 "example": "020NEW"
+              },
+              "claimTypeBase": {
+                "type": "string",
+                "description": "Base type of claim",
+                "example": "compensation claim",
+                "nullable": true
               }
             }
           }
@@ -13983,7 +14728,8 @@
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
-                      "example": "disability compensation appeal"
+                      "example": "disability compensation appeal",
+                      "nullable": true
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -14014,6 +14760,12 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": null
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "example": "compensation claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -14182,6 +14934,11 @@
                       "description": "Type of claim",
                       "nullable": true,
                       "example": "020NEW"
+                    },
+                    "claimTypeBase": {
+                      "type": "string",
+                      "description": "Base type of claim",
+                      "nullable": true
                     }
                   }
                 }
@@ -14484,7 +15241,8 @@
                     "amountWithheld",
                     "originalAr",
                     "currentAr",
-                    "debtHistory"
+                    "debtHistory",
+                    "fiscalTransactionData"
                   ],
                   "properties": {
                     "fileNumber": {
@@ -14551,6 +15309,69 @@
                           }
                         }
                       }
+                    },
+                    "fiscalTransactionData": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "debtId": {
+                            "type": "integer"
+                          },
+                          "debtIncreaseAmount": {
+                            "type": "float"
+                          },
+                          "hinesCode": {
+                            "type": "string"
+                          },
+                          "offsetAmount": {
+                            "type": "float"
+                          },
+                          "offsetType": {
+                            "type": "string"
+                          },
+                          "paymentType": {
+                            "type": "string"
+                          },
+                          "transactionAdminAmount": {
+                            "type": "float"
+                          },
+                          "transactionCourtAmount": {
+                            "type": "float"
+                          },
+                          "transactionDate": {
+                            "type": "string"
+                          },
+                          "transactionDescription": {
+                            "type": "string"
+                          },
+                          "transactionExplanation": {
+                            "type": "string"
+                          },
+                          "transactionFiscalCode": {
+                            "type": "string"
+                          },
+                          "transactionFiscalSource": {
+                            "type": "string"
+                          },
+                          "transactionFiscalYear": {
+                            "type": "string"
+                          },
+                          "transactionInterestAmount": {
+                            "type": "float"
+                          },
+                          "transactionMarshallAmount": {
+                            "type": "float"
+                          },
+                          "transactionPrincipalAmount": {
+                            "type": "float"
+                          },
+                          "transactionTotalAmount": {
+                            "type": "float"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -14613,7 +15434,8 @@
                   "amountWithheld",
                   "originalAr",
                   "currentAr",
-                  "debtHistory"
+                  "debtHistory",
+                  "fiscalTransactionData"
                 ],
                 "properties": {
                   "fileNumber": {
@@ -14678,6 +15500,69 @@
                         "description": {
                           "type": "string",
                           "example": "Third Demand Letter - Potential Treasury Referral"
+                        }
+                      }
+                    }
+                  },
+                  "fiscalTransactionData": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "debtId": {
+                          "type": "integer"
+                        },
+                        "debtIncreaseAmount": {
+                          "type": "float"
+                        },
+                        "hinesCode": {
+                          "type": "string"
+                        },
+                        "offsetAmount": {
+                          "type": "float"
+                        },
+                        "offsetType": {
+                          "type": "string"
+                        },
+                        "paymentType": {
+                          "type": "string"
+                        },
+                        "transactionAdminAmount": {
+                          "type": "float"
+                        },
+                        "transactionCourtAmount": {
+                          "type": "float"
+                        },
+                        "transactionDate": {
+                          "type": "string"
+                        },
+                        "transactionDescription": {
+                          "type": "string"
+                        },
+                        "transactionExplanation": {
+                          "type": "string"
+                        },
+                        "transactionFiscalCode": {
+                          "type": "string"
+                        },
+                        "transactionFiscalSource": {
+                          "type": "string"
+                        },
+                        "transactionFiscalYear": {
+                          "type": "string"
+                        },
+                        "transactionInterestAmount": {
+                          "type": "float"
+                        },
+                        "transactionMarshallAmount": {
+                          "type": "float"
+                        },
+                        "transactionPrincipalAmount": {
+                          "type": "float"
+                        },
+                        "transactionTotalAmount": {
+                          "type": "float"
                         }
                       }
                     }
@@ -18911,61 +19796,6 @@
           }
         }
       },
-      "ClaimLetterDocuments": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "id",
-                "type",
-                "attributes"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
-                  "description": "document id"
-                },
-                "type": {
-                  "type": "string",
-                  "example": "claim_letter_document"
-                },
-                "attributes": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "docType",
-                    "typeDescription",
-                    "receivedAt"
-                  ],
-                  "properties": {
-                    "docType": {
-                      "type": "string",
-                      "example": 1215
-                    },
-                    "typeDescription": {
-                      "type": "string",
-                      "example": "DMC - Debt Increase Letter"
-                    },
-                    "receivedAt": {
-                      "type": "datetime",
-                      "example": "2024-09-13T178:32:24Z"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
       "EnrollmentStatus": {
         "type": "object",
         "additionalProperties": false,
@@ -19574,6 +20404,154 @@
           }
         }
       },
+      "AllergyIntolerancesV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "attributes"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "allergy"
+                },
+                "id": {
+                  "type": "string",
+                  "example": "2678",
+                  "description": "Upstream identifier"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "name",
+                    "date",
+                    "categories",
+                    "reactions",
+                    "location",
+                    "observedHistoric",
+                    "notes",
+                    "provider"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "nullable": false,
+                      "example": "2678"
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "TRAZODONE"
+                    },
+                    "date": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "2009-03-19T12:24:55Z"
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "medication"
+                      ]
+                    },
+                    "reactions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "Hives",
+                        "Swelling"
+                      ]
+                    },
+                    "location": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "Cheyenne VA Medical Center"
+                    },
+                    "observedHistoric": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "h"
+                    },
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true,
+                      "example": [
+                        "Patient states prior allergic reaction to trazodone."
+                      ]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": "Dr. John Smith"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "LabsAndTests": {
         "type": "object",
         "additionalProperties": false,
@@ -20020,9 +20998,9 @@
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer",
+                "type": "string",
                 "nullable": true,
-                "example": 10
+                "example": "10"
               },
               "expirationDate": {
                 "type": "string",
@@ -20340,7 +21318,8 @@
               "Civil Service Preference Letter",
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
-              "Benefit Verification Letter"
+              "Benefit Verification Letter",
+              "Certificate of Eligibility for Home Loan Letter"
             ]
           },
           "letterType": {
@@ -20355,8 +21334,19 @@
               "benefit_summary",
               "benefit_summary_dependent",
               "benefit_verification",
-              "certificate_of_eligibility"
+              "certificate_of_eligibility",
+              "certificate_of_eligibility_home_loan"
             ]
+          },
+          "referenceNumber": {
+            "type": "string",
+            "description": "Only for COE home loan letters",
+            "example": "123456789"
+          },
+          "coeStatus": {
+            "type": "string",
+            "description": "Only for COE home loan letters",
+            "example": "ELIGIBLE"
           }
         }
       },
@@ -20424,7 +21414,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "example": "evssLettersBeneficiaryResponses"
+                "example": "LettersBeneficiaryResponses"
               },
               "id": {
                 "type": "string",
@@ -20707,7 +21697,6 @@
                     "service": {
                       "type": "string",
                       "enum": [
-                        "evss",
                         "caseflow",
                         "payment_history",
                         "facility_locator",
@@ -20737,6 +21726,589 @@
                     "end_time": {
                       "type": "datetime",
                       "example": "2019-04-20T18:15:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopays": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "pSSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSTotSeqNum": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSFacilityNum": {
+                  "type": "string"
+                },
+                "pSFacPhoneNum": {
+                  "type": "string"
+                },
+                "pSTotStatement": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pSStatementVal": {
+                  "type": "string"
+                },
+                "pSStatementDate": {
+                  "type": "string"
+                },
+                "pSStatementDateOutput": {
+                  "type": "string"
+                },
+                "pSProcessDate": {
+                  "type": "string"
+                },
+                "pSProcessDateOutput": {
+                  "type": "string"
+                },
+                "pHPatientLstNme": {
+                  "type": "string"
+                },
+                "pHPatientFstNme": {
+                  "type": "string"
+                },
+                "pHPatientMidNme": {
+                  "type": "string"
+                },
+                "pHAddress1": {
+                  "type": "string"
+                },
+                "pHAddress2": {
+                  "type": "string"
+                },
+                "pHAddress3": {
+                  "type": "string"
+                },
+                "pHCity": {
+                  "type": "string"
+                },
+                "pHState": {
+                  "type": "string"
+                },
+                "pHZipCde": {
+                  "type": "string"
+                },
+                "pHZipCdeOutput": {
+                  "type": "string"
+                },
+                "pHCtryNme": {
+                  "type": "string"
+                },
+                "pHAmtDue": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHAmtDueOutput": {
+                  "type": "string"
+                },
+                "pHPrevBal": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHPrevBalOutput": {
+                  "type": "string"
+                },
+                "pHTotCharges": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotChargesOutput": {
+                  "type": "string"
+                },
+                "pHTotCredits": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHTotCreditsOutput": {
+                  "type": "string"
+                },
+                "pHNewBalance": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHNewBalanceOutput": {
+                  "type": "string"
+                },
+                "pHSpecialNotes": {
+                  "type": "string"
+                },
+                "pHROParaCdes": {
+                  "type": "string"
+                },
+                "pHNumOfLines": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHDfnNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerStatementNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHCernerPatientId": {
+                  "type": "string"
+                },
+                "pHCernerAccountNumber": {
+                  "type": "string"
+                },
+                "pHIcnNumber": {
+                  "type": "string"
+                },
+                "pHAccountNumber": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "pHLargeFontIndcator": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "station": {
+                  "type": "object",
+                  "description": "Facility information",
+                  "properties": {
+                    "facilitYNum": {
+                      "type": "string"
+                    },
+                    "visNNum": {
+                      "type": "string"
+                    },
+                    "facilitYDesc": {
+                      "type": "string"
+                    },
+                    "cyclENum": {
+                      "type": "string"
+                    },
+                    "remiTToFlag": {
+                      "type": "string"
+                    },
+                    "maiLInsertFlag": {
+                      "type": "string"
+                    },
+                    "staTAddress1": {
+                      "type": "string"
+                    },
+                    "staTAddress2": {
+                      "type": "string"
+                    },
+                    "staTAddress3": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "ziPCde": {
+                      "type": "string"
+                    },
+                    "ziPCdeOutput": {
+                      "type": "string"
+                    },
+                    "baRCde": {
+                      "type": "string"
+                    },
+                    "teLNumFlag": {
+                      "type": "string"
+                    },
+                    "teLNum": {
+                      "type": "string"
+                    },
+                    "teLNum2": {
+                      "type": "string"
+                    },
+                    "contacTInfo": {
+                      "type": "string"
+                    },
+                    "dM2TelNum": {
+                      "type": "string"
+                    },
+                    "contacTInfo2": {
+                      "type": "string"
+                    },
+                    "toPTelNum": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress1": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress2": {
+                      "type": "string"
+                    },
+                    "lbXFedexAddress3": {
+                      "type": "string"
+                    },
+                    "lbXFedexCity": {
+                      "type": "string"
+                    },
+                    "lbXFedexState": {
+                      "type": "string"
+                    },
+                    "lbXFedexZipCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexBarCde": {
+                      "type": "string"
+                    },
+                    "lbXFedexContact": {
+                      "type": "string"
+                    },
+                    "lbXFedexContactTelNum": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "details": {
+                  "type": "array",
+                  "description": "A collection of transactions for a specific medical copay balance",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "pDDatePosted": {
+                        "type": "string"
+                      },
+                      "pDDatePostedOutput": {
+                        "type": "string"
+                      },
+                      "pDTransDesc": {
+                        "type": "string"
+                      },
+                      "pDTransDescOutput": {
+                        "type": "string"
+                      },
+                      "pDTransAmt": {
+                        "type": "integer",
+                        "example": 0
+                      },
+                      "pDTransAmtOutput": {
+                        "type": "string"
+                      },
+                      "pDRefNo": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MedicalCopay": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "station",
+              "details"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "pSSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSTotSeqNum": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSFacilityNum": {
+                "type": "string"
+              },
+              "pSFacPhoneNum": {
+                "type": "string"
+              },
+              "pSTotStatement": {
+                "type": "integer",
+                "example": 0
+              },
+              "pSStatementVal": {
+                "type": "string"
+              },
+              "pSStatementDate": {
+                "type": "string"
+              },
+              "pSStatementDateOutput": {
+                "type": "string"
+              },
+              "pSProcessDate": {
+                "type": "string"
+              },
+              "pSProcessDateOutput": {
+                "type": "string"
+              },
+              "pHPatientLstNme": {
+                "type": "string"
+              },
+              "pHPatientFstNme": {
+                "type": "string"
+              },
+              "pHPatientMidNme": {
+                "type": "string"
+              },
+              "pHAddress1": {
+                "type": "string"
+              },
+              "pHAddress2": {
+                "type": "string"
+              },
+              "pHAddress3": {
+                "type": "string"
+              },
+              "pHCity": {
+                "type": "string"
+              },
+              "pHState": {
+                "type": "string"
+              },
+              "pHZipCde": {
+                "type": "string"
+              },
+              "pHZipCdeOutput": {
+                "type": "string"
+              },
+              "pHCtryNme": {
+                "type": "string"
+              },
+              "pHAmtDue": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHAmtDueOutput": {
+                "type": "string"
+              },
+              "pHPrevBal": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHPrevBalOutput": {
+                "type": "string"
+              },
+              "pHTotCharges": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotChargesOutput": {
+                "type": "string"
+              },
+              "pHTotCredits": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHTotCreditsOutput": {
+                "type": "string"
+              },
+              "pHNewBalance": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHNewBalanceOutput": {
+                "type": "string"
+              },
+              "pHSpecialNotes": {
+                "type": "string"
+              },
+              "pHROParaCdes": {
+                "type": "string"
+              },
+              "pHNumOfLines": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHDfnNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerStatementNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHCernerPatientId": {
+                "type": "string"
+              },
+              "pHCernerAccountNumber": {
+                "type": "string"
+              },
+              "pHIcnNumber": {
+                "type": "string"
+              },
+              "pHAccountNumber": {
+                "type": "integer",
+                "example": 0
+              },
+              "pHLargeFontIndcator": {
+                "type": "integer",
+                "example": 0
+              },
+              "station": {
+                "type": "object",
+                "description": "Facility information",
+                "properties": {
+                  "facilitYNum": {
+                    "type": "string"
+                  },
+                  "visNNum": {
+                    "type": "string"
+                  },
+                  "facilitYDesc": {
+                    "type": "string"
+                  },
+                  "cyclENum": {
+                    "type": "string"
+                  },
+                  "remiTToFlag": {
+                    "type": "string"
+                  },
+                  "maiLInsertFlag": {
+                    "type": "string"
+                  },
+                  "staTAddress1": {
+                    "type": "string"
+                  },
+                  "staTAddress2": {
+                    "type": "string"
+                  },
+                  "staTAddress3": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "ziPCde": {
+                    "type": "string"
+                  },
+                  "ziPCdeOutput": {
+                    "type": "string"
+                  },
+                  "baRCde": {
+                    "type": "string"
+                  },
+                  "teLNumFlag": {
+                    "type": "string"
+                  },
+                  "teLNum": {
+                    "type": "string"
+                  },
+                  "teLNum2": {
+                    "type": "string"
+                  },
+                  "contacTInfo": {
+                    "type": "string"
+                  },
+                  "dM2TelNum": {
+                    "type": "string"
+                  },
+                  "contacTInfo2": {
+                    "type": "string"
+                  },
+                  "toPTelNum": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress1": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress2": {
+                    "type": "string"
+                  },
+                  "lbXFedexAddress3": {
+                    "type": "string"
+                  },
+                  "lbXFedexCity": {
+                    "type": "string"
+                  },
+                  "lbXFedexState": {
+                    "type": "string"
+                  },
+                  "lbXFedexZipCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexBarCde": {
+                    "type": "string"
+                  },
+                  "lbXFedexContact": {
+                    "type": "string"
+                  },
+                  "lbXFedexContactTelNum": {
+                    "type": "string"
+                  }
+                }
+              },
+              "details": {
+                "type": "array",
+                "description": "A collection of transactions for a specific medical copay balance",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "pDDatePosted": {
+                      "type": "string"
+                    },
+                    "pDDatePostedOutput": {
+                      "type": "string"
+                    },
+                    "pDTransDesc": {
+                      "type": "string"
+                    },
+                    "pDTransDescOutput": {
+                      "type": "string"
+                    },
+                    "pDTransAmt": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "pDTransAmtOutput": {
+                      "type": "string"
+                    },
+                    "pDRefNo": {
+                      "type": "string"
                     }
                   }
                 }
@@ -21138,24 +22710,9 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "currentPage",
-                  "perPage",
-                  "totalPages",
                   "totalEntries"
                 ],
                 "properties": {
-                  "currentPage": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "perPage": {
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "totalPages": {
-                    "type": "integer",
-                    "example": 2
-                  },
                   "totalEntries": {
                     "type": "integer",
                     "example": 15
@@ -21733,7 +23290,8 @@
               "recipientName",
               "readReceipt",
               "triageGroupName",
-              "proxySenderName"
+              "proxySenderName",
+              "isOhMessage"
             ],
             "properties": {
               "messageId": {
@@ -21802,6 +23360,10 @@
                 "type": "string",
                 "nullable": true,
                 "example": "SMITH, JOHN"
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "example": true
               }
             }
           },
@@ -21867,10 +23429,10 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "userInTriageTeam?"
+              "userInTriageTeam"
             ],
             "properties": {
-              "userInTriageTeam?": {
+              "userInTriageTeam": {
                 "type": "boolean",
                 "example": true,
                 "description": "This field is only present if the user is in the triage team for this message. This can be used to determine if the user can reply to the message."
@@ -22267,7 +23829,8 @@
                     "relationType",
                     "locationName",
                     "suggestedNameDisplay",
-                    "healthCareSystemName"
+                    "healthCareSystemName",
+                    "ohTriageGroup"
                   ],
                   "properties": {
                     "triageTeamId": {
@@ -22300,6 +23863,10 @@
                     "healthCareSystemName": {
                       "type": "string",
                       "example": "VA Health Care System"
+                    },
+                    "ohTriageGroup": {
+                      "type": "boolean",
+                      "example": true
                     }
                   }
                 }
@@ -22309,7 +23876,8 @@
           "meta": {
             "type": "object",
             "required": [
-              "sort"
+              "sort",
+              "careSystems"
             ],
             "properties": {
               "sort": {
@@ -22339,6 +23907,26 @@
               "friendlyTriageTeamPilotFacilities": {
                 "type": "string",
                 "example": "979,989"
+              },
+              "careSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stationNumber",
+                    "healthCareSystemName"
+                  ],
+                  "properties": {
+                    "stationNumber": {
+                      "type": "string",
+                      "example": "979"
+                    },
+                    "healthCareSystemName": {
+                      "type": "string",
+                      "example": "VAMC Columbus"
+                    }
+                  }
+                }
               }
             }
           }
@@ -23013,54 +24601,6 @@
           }
         }
       },
-      "TravelPaySubmitMileageOnlyClaim": {
-        "description": "Submit a mileage only claim for travel pay reimbursement.",
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "appointmentDateTime",
-          "facilityStationNumber",
-          "facilityName",
-          "appointmentType",
-          "isComplete"
-        ],
-        "properties": {
-          "appointmentDateTime": {
-            "type": "string",
-            "description": "The date and time of the appointment in ISO 8601 format.",
-            "example": "2023-02-23T22:22:52.549Z"
-          },
-          "facilityStationNumber": {
-            "type": "string",
-            "description": "The station number of the VA facility where the appointment is registered.",
-            "example": "983GC"
-          },
-          "facilityName": {
-            "type": "string",
-            "description": "The name of the VA facility where the appointment is registered.",
-            "example": "Cheyenne VA Medical Center"
-          },
-          "appointmentType": {
-            "type": "string",
-            "description": "The type of appointment.",
-            "enum": [
-              "CompensationAndPension",
-              "Other"
-            ],
-            "example": "CompensationAndPension"
-          },
-          "isComplete": {
-            "type": "boolean",
-            "description": "Indicates whether the appointment is complete.",
-            "example": true
-          },
-          "appointmentName": {
-            "type": "string",
-            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
-            "example": "Primary care appointment with Dr. Smith"
-          }
-        }
-      },
       "TravelPayClaimSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -23125,6 +24665,330 @@
           }
         }
       },
+      "TravelPayClaims": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "meta",
+          "data"
+        ],
+        "properties": {
+          "meta": {
+            "type": "object",
+            "required": [
+              "totalRecordCount",
+              "pageNumber",
+              "status"
+            ],
+            "properties": {
+              "totalRecordCount": {
+                "type": "integer",
+                "description": "Total number of claims found. Will be 0 if no claims exist within the specified date range.",
+                "minimum": 0,
+                "example": 25
+              },
+              "pageNumber": {
+                "type": "integer",
+                "example": 1
+              },
+              "status": {
+                "type": "integer",
+                "enum": [
+                  200,
+                  206
+                ],
+                "example": 200
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of travel pay claims. Will be empty if no claims are found within the specified date range.",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/TravelPayClaimSummary"
+            }
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "facilityName",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
+          }
+        }
+      },
+      "TravelPayClaimDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claimStatus",
+          "appointmentDate",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "claimNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "TC0000000000001"
+          },
+          "claimName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Claim created for NOLLE BARAKAT"
+          },
+          "claimantFirstName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Nolle"
+          },
+          "claimantMiddleName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Polite"
+          },
+          "claimantLastName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Barakat"
+          },
+          "claimStatus": {
+            "type": "string",
+            "nullable": false,
+            "example": "Pre approved for payment"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "nullable": false,
+            "example": "2024-01-01T16:45:34.465Z"
+          },
+          "facilityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Cheyenne VA Medical Center"
+          },
+          "totalCostRequested": {
+            "type": "number",
+            "nullable": true,
+            "example": 20
+          },
+          "reimbursementAmount": {
+            "type": "number",
+            "nullable": true,
+            "example": 14.52
+          },
+          "rejectionReason": {
+            "type": "object",
+            "nullable": true,
+            "description": "Rejection reason description",
+            "additionalProperties": false,
+            "properties": {
+              "rejectionReasonId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "rejectionReasonName": {
+                "type": "string",
+                "example": "INCOMPLETE_DOCUMENTATION"
+              },
+              "rejectionReasonTitle": {
+                "type": "string",
+                "example": "Incomplete Documentation"
+              },
+              "rejectionReasonDescription": {
+                "type": "string",
+                "example": "The claim was rejected due to missing required documentation"
+              }
+            }
+          },
+          "decisionLetterReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decision letter reason extracted from decision letter document for denied or partial payment claims",
+            "example": "Mileage approved but parking not eligible per policy. Only travel expenses over 30 miles are reimbursable."
+          },
+          "appointment": {
+            "type": "object",
+            "nullable": false,
+            "description": "Appointment details associated with the claim",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "appointmentSource": {
+                "type": "string",
+                "example": "API"
+              },
+              "appointmentDateTime": {
+                "type": "string",
+                "example": "2024-01-01T16:45:34.465Z"
+              },
+              "appointmentType": {
+                "type": "string",
+                "example": "EnvironmentalHealth"
+              },
+              "facilityId": {
+                "type": "string",
+                "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              },
+              "facilityName": {
+                "type": "string",
+                "example": "Cheyenne VA Medical Center"
+              },
+              "serviceConnectedDisability": {
+                "type": "integer",
+                "example": 30
+              },
+              "appointmentStatus": {
+                "type": "string",
+                "example": "Complete"
+              },
+              "externalAppointmentId": {
+                "type": "string",
+                "example": "12345"
+              },
+              "associatedClaimId": {
+                "type": "string",
+                "example": "uuid1"
+              },
+              "associatedClaimNumber": {
+                "type": "string",
+                "example": "TC0000000000001"
+              },
+              "isCompleted": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of expenses associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "expenseType": {
+                  "type": "string",
+                  "example": "Mileage"
+                },
+                "name": {
+                  "type": "string",
+                  "example": ""
+                },
+                "dateIncurred": {
+                  "type": "string",
+                  "example": "2024-01-01T16:45:34.465Z"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "mileage-expense"
+                },
+                "costRequested": {
+                  "type": "number",
+                  "example": 20
+                },
+                "costSubmitted": {
+                  "type": "number",
+                  "example": 20
+                }
+              }
+            }
+          },
+          "documents": {
+            "type": "array",
+            "nullable": true,
+            "description": "List of documents associated with the claim",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "documentId": {
+                  "type": "string",
+                  "example": "uuid1"
+                },
+                "filename": {
+                  "type": "string",
+                  "example": "DecisionLetter.pdf"
+                },
+                "mimetype": {
+                  "type": "string",
+                  "example": "application/pdf"
+                },
+                "createdon": {
+                  "type": "string",
+                  "example": "2025-03-24T14:00:52.893Z"
+                }
+              }
+            }
+          },
+          "createdOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2025-03-12T20:27:14.088Z"
+          }
+        }
+      },
       "EmailUpdate": {
         "type": "object",
         "additionalProperties": false,
@@ -23140,6 +25004,12 @@
           "emailAddress": {
             "type": "string",
             "example": "person42@example.com"
+          },
+          "confirmationDate": {
+            "type": "string",
+            "example": "2025-01-01T00:00:00Z",
+            "format": "date-time",
+            "description": "Confirmation date should only be provided if the email is 'confirmed' by the user"
           }
         }
       },
@@ -23419,7 +25289,8 @@
         "required": [
           "id",
           "type",
-          "attributes"
+          "attributes",
+          "meta"
         ],
         "properties": {
           "id": {
@@ -23443,6 +25314,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "example": {
+                  "allergiesOracleHealthEnabled": false,
                   "appeals": true,
                   "appointments": true,
                   "claims": true,
@@ -23451,6 +25323,7 @@
                   "directDepositBenefitsUpdate": true,
                   "disabilityRating": true,
                   "genderIdentity": false,
+                  "labsAndTestsEnabled": false,
                   "lettersAndDocuments": true,
                   "militaryServiceHistory": true,
                   "paymentHistory": true,
@@ -23458,8 +25331,36 @@
                   "prescriptions": false,
                   "scheduleAppointments": true,
                   "secureMessaging": false,
-                  "userProfileUpdate": true
+                  "userProfileUpdate": true,
+                  "secureMessagingOracleHealthEnabled": false,
+                  "medicationsOracleHealthEnabled": false
                 }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "isUserAtPretransitionedOhFacility",
+              "isUserFacilityReadyForInfoAlert",
+              "isUserFacilityMigratingToOh"
+            ],
+            "properties": {
+              "isUserAtPretransitionedOhFacility": {
+                "type": "boolean",
+                "example": true,
+                "description": "Indicates whether the user is associated with a facility that is pre-transitioned to Oracle Health."
+              },
+              "isUserFacilityReadyForInfoAlert": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition."
+              },
+              "isUserFacilityMigratingToOh": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user is associated with a facility that is migrating to Oracle Health."
               }
             }
           }
@@ -23651,16 +25552,27 @@
                 "nullable": true,
                 "required": [
                   "id",
-                  "emailAddress"
+                  "emailAddress",
+                  "confirmationDate",
+                  "updatedAt"
                 ],
                 "properties": {
                   "id": {
                     "type": "integer",
                     "example": 157032
                   },
-                  "contactEmail": {
+                  "emailAddress": {
                     "type": "string",
                     "example": "person@example.com"
+                  },
+                  "confirmationDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2018-04-21T20:09:50Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2018-04-21T20:09:50Z"
                   }
                 }
               }
@@ -24401,6 +26313,12 @@
           "emailAddress": {
             "type": "string",
             "example": "person42@example.com"
+          },
+          "confirmationDate": {
+            "type": "string",
+            "example": "2025-01-01T00:00:00Z",
+            "format": "date-time",
+            "description": "Confirmation date should only be provided if the email is 'confirmed' by the user"
           }
         }
       },
@@ -24664,6 +26582,219 @@
                     "type": "integer",
                     "example": 15
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "LabsAndTestsV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "id",
+                "attributes"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "labsAndTests"
+                },
+                "id": {
+                  "type": "string",
+                  "example": "abe3f152-90b0-45cb-8776-4958bad0e0ef",
+                  "description": "Upstream identifier"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "category",
+                    "subject",
+                    "effectiveDateTime",
+                    "issued",
+                    "code",
+                    "status"
+                  ],
+                  "properties": {
+                    "category": {
+                      "type": "string",
+                      "example": "LAB"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "example": "Patient/1234567"
+                    },
+                    "effectiveDateTime": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2021-01-01T00:00:00Z"
+                    },
+                    "issued": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2021-01-01T00:00:00Z"
+                    },
+                    "code": {
+                      "type": "object",
+                      "properties": {
+                        "coding": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "final"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PrescriptionsV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "$ref": "#/components/schemas/PrescriptionRecord"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "integer",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PrescriptionRefillV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "prescriptionId",
+                "status"
+              ],
+              "properties": {
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "success",
+                    "failed"
+                  ],
+                  "example": "success"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Refill request submitted successfully"
                 }
               }
             }

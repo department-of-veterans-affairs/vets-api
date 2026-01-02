@@ -43,7 +43,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.success",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
         expect(Rails.logger).not_to have_received(:error)
       end
@@ -57,7 +57,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
         expect(StatsD).to have_received(:increment).with(
           described_class::STATSD_NOTIFY_SILENT_FAILURE,
@@ -89,7 +89,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
         expect(Rails.logger).to have_received(:error).with(
           'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
@@ -106,7 +106,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
         expect(Rails.logger).to have_received(:error).with(
           'Community Care Appointments: Eps::AppointmentNotificationCallback delivery failed',
@@ -123,7 +123,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.unknown_status",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
         expect(Rails.logger).to have_received(:warn).with(
           'Community Care Appointments: Eps::AppointmentNotificationCallback received unknown status',
@@ -176,7 +176,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
 
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
       end
     end
@@ -215,7 +215,7 @@ RSpec.describe Eps::AppointmentStatusNotificationCallback, type: :service do
         )
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY}.failure",
-          tags: ['Community Care Appointments']
+          tags: ['service:community_care_appointments']
         )
       end
     end

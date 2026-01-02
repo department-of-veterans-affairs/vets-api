@@ -5,6 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
+require 'support/shared_examples_for_mr'
 
 RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   include MedicalRecords::ClientHelpers
@@ -15,12 +16,16 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_allergy).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
+
+  include_examples 'medical records new eligibility check',
+                   '/my_health/v1/medical_records/allergies',
+                   'mr_client/get_a_list_of_allergies'
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
@@ -43,15 +48,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
 
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/allergies' }
 
@@ -68,9 +64,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       VCR.use_cassette('mr_client/get_a_list_of_allergies') do
         get '/my_health/v1/medical_records/allergies'
       end
-
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_a(Array)
+      expect(body['entry'][0]['resource']['resourceType']).to eq('AllergyIntolerance')
+      expect(body['entry'][0]['resource']['category'][0]).to eq('medication')
     end
 
     it 'responds to GET #show' do
@@ -79,7 +78,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       end
 
       expect(response).to be_successful
-      expect(response.body).to be_a(String)
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('AllergyIntolerance')
+      expect(body['code']['coding'][0]['display']).to eq('Ibuprofen')
     end
 
     context 'when the patient is not found' do

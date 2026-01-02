@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require 'mpi/responses/add_parser'
-require 'sentry_logging'
 
 module MPI
   module Services
     class AddPersonResponseCreator
-      include SentryLogging
-
       attr_reader :type, :response, :error
 
       def initialize(type:, response: nil, error: nil)
@@ -41,7 +38,8 @@ module MPI
       end
 
       def create_error_response
-        log_message_to_sentry("MPI #{type} response error", :warn, { error_message: detailed_error&.message })
+        Rails.logger.warn("[MPI][Services][AddPersonResponseCreator] MPI #{type} response error",
+                          error_message: detailed_error&.message)
         Responses::AddPersonResponse.new(status: :server_error, error: detailed_error)
       end
 

@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959a
     ADDITIONAL_PDF_KEY = 'claims'
     ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
+    include StampableLogging
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -19,9 +22,11 @@ module IvcChampva
     end
 
     def metadata
+      name_prefix = Flipper.enabled?(:champva_update_metadata_keys) ? 'sponsor' : 'veteran'
+
       {
-        'veteranFirstName' => @data.dig('applicant_name', 'first'),
-        'veteranLastName' => @data.dig('applicant_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('applicant_name', 'first'),
+        "#{name_prefix}LastName" => @data.dig('applicant_name', 'last'),
         'zipCode' => @data.dig('applicant_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -36,14 +41,43 @@ module IvcChampva
       }.merge(add_resubmission_properties)
     end
 
+    ##
+    # Extracts resubmission-related properties from the submission data
+    # and formats claim/PDI number fields according to the submission type.
+    # @return [Hash] A hash containing all resubmission properties
     def add_resubmission_properties
-      # TODO: When the frontend adds the actual PDI number field, add to this list
-      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type', 'provider_name', 'beginning_date_of_service',
-                  'end_date_of_service', 'medication_name', 'prescription_fill_date')
+      # Extract relevant fields for resubmission
+      @data.slice('claim_status', 'pdi_or_claim_number', 'claim_type',
+                  'provider_name', 'beginning_date_of_service',
+                  'end_date_of_service', 'medication_name',
+                  'prescription_fill_date')
+           .merge(claim_number_fields)
+    end
+
+    ##
+    # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
+    # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
+    # @return [Hash] hash of metadata we want to stamp and an attachment ID to associate with the stamped page
+    def stamp_metadata
+      # Only generate a stamped metadata page for PDI resubmissions when feature flag is enabled
+      if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
+         @data['claim_status'] == 'resubmission' &&
+         @data['pdi_or_claim_number'] == 'PDI number'
+        { metadata: add_resubmission_properties,
+          attachment_id: 'CVA Bene Response' }
+      end
     end
 
     def desired_stamps
-      [{ coords: [250, 105], text: data['statement_of_truth_signature'], page: 0 }]
+      signature = data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
+      [{ coords: [250, 105], text: signature, page: 0 }]
     end
 
     def submission_date_stamps
@@ -84,6 +118,23 @@ module IvcChampva
 
     def respond_to_missing?(_method_name, _include_private = false)
       true
+    end
+
+    private
+
+    ##
+    # Associates the resubmitted submission's identifying_number with the appropriate
+    # metadata key to be processed by Pega.
+    # @return [Hash] hash with the appropriate metadata key populated (empty hash
+    # if no appropriate number present)
+    def claim_number_fields
+      pdi_or_claim = @data['pdi_or_claim_number']
+      identifying_number = @data['identifying_number']
+
+      {
+        'pdi_number' => pdi_or_claim == 'PDI number' ? identifying_number : '',
+        'claim_number' => pdi_or_claim == 'Control number' ? identifying_number : ''
+      }.compact_blank
     end
   end
 end

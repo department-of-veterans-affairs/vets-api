@@ -49,24 +49,24 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:dependents_submitted_email).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:confirmation_number).and_return('')
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 
+      let(:vanotify) { double(send_email: true) }
+
       it 'validates successfully' do
-        expect(VANotify::EmailJob).to receive(:perform_async) do |email, template_id, personalization, secret|
-          expect(email).to_be(user.va_profile_email)
-          expect(template_id).to_be('fake_submitted686c674')
-          expect(personalization).to_have.keys(%w[date_submitted first_name confirmation_number])
-          expect(secret).to_be('fake_secret')
-        end
+        expect(VaNotify::Service).to receive(:new).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user.va_profile_email,
+            template_id: 'fake_submitted686c674',
+            personalisation: hash_including('date_submitted', 'first_name', 'confirmation_number')
+          }.compact
+        )
 
         expect(BGS::DependentService).to receive(:new)
           .with(instance_of(User))
@@ -78,15 +78,13 @@ RSpec.describe V0::DependentsApplicationsController do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
+
         expect(response).to have_http_status(:ok)
       end
     end
 
     context 'with valid params v2' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -101,19 +99,55 @@ RSpec.describe V0::DependentsApplicationsController do
           .with(instance_of(SavedClaim::DependencyClaim))
 
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          post(:create, params: test_form_v2)
+          post(:create, params: test_form_v2, as: :json)
         end
+
         expect(response).to have_http_status(:ok)
+      end
+
+      context 'when claim is pension related' do
+        it 'tracks pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(true)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+          allow(monitor_double).to receive(:track_pension_related_submission)
+
+          expect(monitor_double)
+            .to receive(:track_pension_related_submission)
+            .with(form_id: '686C-674-V2', form_type: '686c-674')
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
+      end
+
+      context 'when claim is not pension related' do
+        it 'does not track pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+
+          expect(monitor_double).not_to receive(:track_pension_related_submission)
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
       end
     end
 
     context 'with v1 submitting with a v2 user' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 

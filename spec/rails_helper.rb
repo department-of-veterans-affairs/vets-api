@@ -15,8 +15,6 @@ require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
 require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
-require 'support/stub_evss_pciu'
-require 'support/va_profile/stub_vet360'
 require 'support/va_profile/stub_vaprofile_user'
 require 'support/factory_bot'
 require 'support/serializer_spec_helper'
@@ -29,11 +27,10 @@ require 'support/mdot_helpers'
 require 'support/financial_status_report_helpers'
 require 'support/poa_stub'
 require 'support/sm_spec_helper'
-require 'support/rx_spec_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
-require 'support/sign_in/service_account_authorization_context'
+require 'support/sign_in'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
@@ -194,7 +191,6 @@ RSpec.configure do |config|
   config.before do |example|
     stub_mpi unless example.metadata[:skip_mvi]
     stub_va_profile unless example.metadata[:skip_va_profile]
-    stub_vet360 unless example.metadata[:skip_vet360]
     stub_vaprofile_user unless example.metadata[:skip_va_profile_user]
     Sidekiq::Job.clear_all
   end

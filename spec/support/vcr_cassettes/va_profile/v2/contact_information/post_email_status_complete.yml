@@ -57,6 +57,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"c7c2bfcf-006d-48d4-be8d-a54e57f64536","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-27T18:51:06.012Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","emailAddressText":"person42@example.com"},"txOutput":[{"txAuditId":"c7c2bfcf-006d-48d4-be8d-a54e57f64536","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06.012Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06.012Z","vaProfileId":1,"emailId":8087,"emailAddressText":"person42@example.com"}]}'
+      string: '{"txAuditId":"c7c2bfcf-006d-48d4-be8d-a54e57f64536","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-27T18:51:06.012Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","emailAddressText":"person42@example.com","confirmationDate":null},"txOutput":[{"txAuditId":"c7c2bfcf-006d-48d4-be8d-a54e57f64536","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06.012Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06.012Z","vaProfileId":1,"emailId":8087,"emailAddressText":"person42@example.com","confirmationDate":null}]}'
   recorded_at: Tue, 27 Aug 2024 17:50:19 GMT
 recorded_with: VCR 6.3.1

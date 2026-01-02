@@ -48,10 +48,11 @@ module SignIn
       params.require(:client_config).permit(:client_id, :authentication, :redirect_uri, :refresh_token_duration,
                                             :access_token_duration, :access_token_audience, :logout_redirect_uri,
                                             :pkce, :terms_of_use_url, :enforced_terms, :shared_sessions, :anti_csrf,
-                                            :description, :json_api_compatibility, certificates: [],
-                                                                                   access_token_attributes: [],
-                                                                                   service_levels: [],
-                                                                                   credential_service_providers: [])
+                                            :description, :json_api_compatibility,
+                                            access_token_attributes: [],
+                                            service_levels: [],
+                                            credential_service_providers: [],
+                                            certs_attributes: %i[id pem _destroy])
     end
 
     def set_client_config

@@ -20,6 +20,7 @@ module SignIn
     class AssertionExpiredError < StandardError; end
     class AssertionMalformedJWTError < StandardError; end
     class AssertionSignatureMismatchError < StandardError; end
+    class AssertionCertificateExpiredError < StandardError; end
     class AttributeMismatchError < StandardError; end
     class ClientAssertionAttributesError < StandardError; end
     class ClientAssertionExpiredError < StandardError; end

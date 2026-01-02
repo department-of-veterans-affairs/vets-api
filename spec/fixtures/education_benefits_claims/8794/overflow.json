@@ -1,0 +1,266 @@
+{
+  "designatingOfficial": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "title": "Designating Official",
+    "emailAddress": "john.doe@example.com",
+    "phoneNumber": "5556071234"
+  },
+  "institutionDetails": {
+    "hasVaFacilityCode": true,
+    "facilityCode": "12345678",
+    "institutionName": "Test University",
+    "institutionAddress": {
+      "country": "USA",
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "postalCode": "12345"
+    }
+  },
+  "primaryOfficialDetails": {
+    "fullName": {
+      "first": "Jane",
+      "middle": "B",
+      "last": "Smith"
+    },
+    "title": "Primary Certifying Official",
+    "emailAddress": "jane.smith@example.com",
+    "phoneNumber": "5556071234"
+  },
+  "primaryOfficialTraining": {
+    "trainingCompletionDate": "2024-03-15",
+    "trainingExempt": true
+  },
+  "primaryOfficialBenefitStatus": {
+    "hasVaEducationBenefits": true
+  },
+  "readOnlyCertifyingOfficial": [
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO1"
+      }
+    },
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO2"
+      }
+    },
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO3"
+      }
+    },
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO4"
+      }
+    },
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO5"
+      }
+    }
+  ],
+  "remarks": "1\n2\n3\n4\n5\n6\n7\n",
+  "statementOfTruthSignature": "John A Doe",
+  "dateSigned": "2024-03-15",
+  "additionalCertifyingOfficials": [
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official0"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official0@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official1"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official1@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "trainingExempt": true,
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official2"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official2@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official3"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official3@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official4"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official4@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official5"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official5@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official6"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official6@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official7"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official7@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official8"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official8@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official9"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official9@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official10"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official10@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official11"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official11@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official12"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official12@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    }
+  ]
+}

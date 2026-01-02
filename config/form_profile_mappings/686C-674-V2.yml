@@ -1,11 +1,24 @@
 veteranInformation:
-  fullName: [identity_information, full_name]
+  fullName:
+    first: [identity_information, full_name, first]
+    last: [identity_information, full_name, last]
+    middle: [identity_information, full_name, middle]
   ssn: [identity_information, ssn]
   birthDate: [identity_information, date_of_birth]
 veteranContactInformation:
-  veteranAddress: [form_address]
+  veteranAddress:
+    country: [form_address, country_name]
+    street: [form_address, address_line1]
+    street2: [form_address, address_line2]
+    street3: [form_address, address_line3]
+    city: [form_address, city]
+    state: [form_address, state_code]
+    postalCode: [form_address, zip_code]
   phoneNumber: [contact_information, us_phone]
   emailAddress: [contact_information, email]
 nonPrefill:
+  dependents: [dependents_information]
   veteranSsnLastFour: [identity_information, ssn_last_four]
   veteranVaFileNumberLastFour: [va_file_number_last_four]
+  isInReceiptOfPension: [is_in_receipt_of_pension]
+  netWorthLimit: [net_worth_limit]

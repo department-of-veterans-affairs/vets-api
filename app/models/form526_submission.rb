@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
-require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
 require 'lighthouse/poll_form526_pdf'
@@ -9,7 +8,6 @@ require 'scopes/form526_submission_state'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
-  include SentryLogging
   include Form526ClaimFastTrackingConcern
   include Form526MPIConcern
   include Scopes::Form526SubmissionState
@@ -138,8 +136,8 @@ class Form526Submission < ApplicationRecord
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
   def submit_with_birls_id_that_hasnt_been_tried_yet!(
-    extra_content_for_sentry: {},
-    silence_errors_and_log_to_sentry: false
+    extra_content_for_logs: {},
+    silence_errors_and_log: false
   )
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
 
@@ -149,15 +147,17 @@ class Form526Submission < ApplicationRecord
     save!
     start_evss_submission_job
   rescue => e
-    # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
+    # 1) why have the 'silence_errors_and_log' option? (why not rethrow the error?)
     # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
     # (exhausted, or non-retryable error). One of the places this method is called is inside a
     # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
-    # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
+    # Sidekiq job instance (so no access to the log_exception method). Also, rethrowing the error
     # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
-    raise unless silence_errors_and_log_to_sentry
+    raise unless silence_errors_and_log
 
-    log_exception_to_sentry e, extra_content_for_sentry
+    Rails.logger.error('Form526Submission#submit_with_birls_id_that_hasnt_been_tried_yet! error',
+                       error: e,
+                       extra_content_for_logs: extra_content_for_logs.merge({ form526_submission_id: id }))
   end
 
   # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
@@ -302,7 +302,7 @@ class Form526Submission < ApplicationRecord
     submit_form_526_job_statuses.presence&.any?(&:success?)
   ensure
     successful = submit_form_526_job_statuses.where(status: 'success').load
-    warn = ->(message) { log_message_to_sentry(message, :warn, { form_526_submission_id: id }) }
+    warn = ->(message) { Rails.logger.warn(message, form_526_submission_id: id) }
     warn.call 'There are multiple successful SubmitForm526 job statuses' if successful.size > 1
     if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
       warn.call "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job"

@@ -16,9 +16,12 @@ module BenefitsClaims
     # #90936 - according to the research done here,
     # the 960 and 290 EP Codes were flagged as a claim groups that
     # should be filtered out before they are sent to VA.gov and Mobile
-    FILTERED_BASE_END_PRODUCT_CODES = %w[960 290].freeze
-
-    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
+    # rubocop:disable Naming/VariableNumber
+    EP_CODE_FILTER_FLAGS = {
+      '960' => :cst_filter_ep_960,
+      '290' => :cst_filter_ep_290
+    }.freeze
+    # rubocop:enable Naming/VariableNumber
 
     def initialize(icn)
       @icn = icn
@@ -32,7 +35,8 @@ module BenefitsClaims
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
-      claims['data'] = filter_by_ep_code(claims['data']) if Flipper.enabled?(:cst_filter_ep_codes)
+      claims['data'] = apply_configured_ep_filters(claims['data'])
+
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -45,8 +49,8 @@ module BenefitsClaims
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
-      override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
-      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
+      override_tracked_items(claim['data'])
+      apply_friendlier_language(claim['data'])
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -289,22 +293,24 @@ module BenefitsClaims
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
     end
 
-    def filter_by_ep_code(items)
-      items.reject { |item| FILTERED_BASE_END_PRODUCT_CODES.include?(item.dig('attributes', 'baseEndProductCode')) }
+    def apply_configured_ep_filters(items)
+      ep_codes_to_filter = EP_CODE_FILTER_FLAGS.select { |_code, flag| Flipper.enabled?(flag) }.keys
+
+      return items if ep_codes_to_filter.empty?
+
+      items.reject { |item| ep_codes_to_filter.include?(item.dig('attributes', 'baseEndProductCode')) }
     end
 
     def override_tracked_items(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-        i['displayName'] = 'Private Medical Record'
-      end
+      tracked_items
+        .select { |i| BenefitsClaims::Constants::FIRST_PARTY_AS_THIRD_PARTY_OVERRIDES.include?(i['displayName']) }
+        .each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+        end
 
-      tracked_items.select { |i| i['displayName'] == 'Proof of service (DD214, etc.)' }.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-      end
       tracked_items
     end
 

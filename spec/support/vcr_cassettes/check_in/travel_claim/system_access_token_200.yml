@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "https://dev.integration.d365.va.gov/eis/api/btsss/travelclaim/api/v4/auth/system-access-token"
+    body:
+      encoding: UTF-8
+      string: '{"secret":"fake_client_secret","icn":"1234567890V123456"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      X-Correlation-ID:
+      - e359e352-10d8-4475-a453-9feec6bb8a10
+      BTSSS-API-Client-Number:
+      - fake_client_number
+      Authorization:
+      - Bearer fake_veis_token_123
+      Ocp-Apim-Subscription-Key:
+      - fake_subscription_key
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 27 Aug 2025 21:54:27 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "data": {
+          "accessToken": "fake_btsss_token_456"
+        }
+      }'
+  recorded_at: Wed, 27 Aug 2025 21:54:27 GMT

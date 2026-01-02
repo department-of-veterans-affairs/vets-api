@@ -17,6 +17,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
     }.deep_stringify_keys
   end
   let(:encrypted_form) { HealthCareApplication::LOCKBOX.encrypt(form.to_json) }
+  let(:google_analytics_client_id) { '123456789' }
   let(:result) do
     {
       formSubmissionId: 123,
@@ -24,6 +25,44 @@ RSpec.describe HCA::SubmissionJob, type: :job do
     }
   end
   let(:hca_service) { double }
+
+  describe '#notify' do
+    subject(:notify) { described_class.new.notify(params) }
+
+    let(:tags) { ["health_care_application_id:#{health_care_application.id}"] }
+    let(:args) do
+      [
+        user_identifier,
+        encrypted_form,
+        health_care_application.id,
+        google_analytics_client_id
+      ]
+    end
+
+    before { allow(StatsD).to receive(:increment) }
+
+    context 'retry_count is not 9' do
+      let(:params) { { 'retry_count' => 5, 'args' => args } }
+
+      it 'does not increment failed_ten_retries statsd' do
+        expect(StatsD).not_to receive(:increment).with('api.1010ez.async.failed_ten_retries', tags:)
+        notify
+      end
+    end
+
+    context 'retry_count is 9' do
+      let(:params) { { 'retry_count' => 9, 'args' => args } }
+
+      it 'increments failed_ten_retries statsd' do
+        expect(StatsD).to receive(:increment).with('api.1010ez.async.failed_ten_retries', tags:)
+        notify
+      end
+    end
+  end
+
+  it 'returns an array of integers from retry_limits_for_notification' do
+    expect(described_class.new.retry_limits_for_notification).to eq([10])
+  end
 
   describe 'when job has failed' do
     let(:msg) do
@@ -56,8 +95,6 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         google_analytics_client_id
       )
     end
-
-    let(:google_analytics_client_id) { '123456789' }
 
     before do
       expect(HCA::Service).to receive(:new).with(user_identifier).once.and_return(hca_service)

@@ -33,7 +33,8 @@ RSpec.describe SignIn::AttributeValidator do
           auto_uplevel:,
           mhv_icn:,
           mhv_credential_uuid:,
-          edipi:
+          edipi:,
+          digest:
         }
       end
       let(:logingov_uuid) { nil }
@@ -69,15 +70,19 @@ RSpec.describe SignIn::AttributeValidator do
       let(:update_profile_response) { 'some-update-profile-response' }
       let(:identifier) { idme_uuid }
       let(:identifier_type) { MPI::Constants::IDME_UUID }
+      let(:mpi_service) { instance_double(MPI::Service) }
+      let(:sign_in_logger) { instance_double(SignIn::Logger) }
+      let(:digest) { 'some-digest-value' }
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
-        allow_any_instance_of(MPI::Service)
-          .to receive(:find_profile_by_identifier)
-          .with(identifier:, identifier_type:)
-          .and_return(find_profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile_response)
-        allow(Rails.logger).to receive(:info)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+        allow(mpi_service).to receive(:find_profile_by_identifier).with(identifier:, identifier_type:)
+                                                                  .and_return(find_profile_response)
+        allow(mpi_service).to receive_messages(add_person_implicit_search: add_person_response,
+                                               update_profile: update_profile_response)
+
+        allow(SignIn::Logger).to receive(:new).and_return(sign_in_logger)
+        allow(sign_in_logger).to receive(:info)
       end
 
       shared_examples 'error response' do
@@ -90,10 +95,8 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         it 'raises the expected error' do
-          expect_any_instance_of(SignIn::Logger).to receive(:info)
-            .with(expected_error_log, expected_error_log_payload)
-
           expect { subject }.to raise_error(expected_error, expected_error_message)
+          expect(sign_in_logger).to have_received(:info).with(expected_error_log, expected_error_log_payload)
         end
 
         it 'adds the expected error code to the raised error' do
@@ -154,12 +157,52 @@ RSpec.describe SignIn::AttributeValidator do
 
           it 'logs the error' do
             subject
-            expect(Rails.logger).to have_received(:info).with(a_string_including(expected_error_log),
-                                                              expected_error_log_payload)
+            expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_error_log),
+                                                                expected_error_log_payload)
           end
 
           it 'does not raise an error' do
             expect { subject }.not_to raise_error
+          end
+        end
+      end
+
+      shared_examples 'mpi call to update correlation record' do
+        context 'and user has an existing UserVerification' do
+          let!(:user_verification) do
+            case service_name
+            when SignIn::Constants::Auth::IDME
+              create(:idme_user_verification, idme_uuid:, credential_attributes_digest:)
+            when SignIn::Constants::Auth::LOGINGOV
+              create(:logingov_user_verification, logingov_uuid:, credential_attributes_digest:)
+            when SignIn::Constants::Auth::MHV
+              create(:mhv_user_verification, mhv_uuid:, backing_idme_uuid: idme_uuid, credential_attributes_digest:)
+            when SignIn::Constants::Auth::DSLOGON
+              create(:dslogon_user_verification, dslogon_uuid: edipi, backing_idme_uuid: idme_uuid,
+                                                 credential_attributes_digest:)
+            end
+          end
+
+          let(:expected_log_payload) do
+            { user_verification_id: user_verification.id }
+          end
+
+          let(:credential_attributes_digest) { 'some-digest-value' }
+
+          context 'and credential attributes have changed' do
+            let(:credential_attributes_digest) { 'some-other-digest-value' }
+
+            it 'makes an mpi call to update correlation record' do
+              subject
+              expect(mpi_service).to have_received(:update_profile)
+            end
+          end
+
+          context 'and credential attributes have not changed' do
+            it 'does not make an mpi call to update correlation record' do
+              subject
+              expect(mpi_service).not_to have_received(:update_profile)
+            end
           end
         end
       end
@@ -200,7 +243,9 @@ RSpec.describe SignIn::AttributeValidator do
 
         shared_examples 'attribute mismatch behavior' do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) { "Attribute mismatch, #{attribute} in credential does not match MPI attribute" }
+          let(:expected_error_message) do
+            "Attribute mismatch, #{attribute} in credential does not match MPI attribute"
+          end
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_params) do
             {
@@ -218,17 +263,14 @@ RSpec.describe SignIn::AttributeValidator do
           end
 
           it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
-                                                                          { errors: expected_error_message,
-                                                                            credential_uuid: csp_id,
-                                                                            type: service_name })
             subject
+            expect(sign_in_logger).to have_received(:info).with(expected_error_log,
+                                                                { errors: expected_error_message,
+                                                                  credential_uuid: csp_id,
+                                                                  type: service_name })
           end
 
-          it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile).with(expected_params)
-            subject
-          end
+          it_behaves_like 'mpi call to update correlation record'
         end
 
         context 'and attribute mismatch is first_name' do
@@ -293,8 +335,38 @@ RSpec.describe SignIn::AttributeValidator do
                 participant_ids:,
                 birth_date:,
                 given_names: [first_name],
-                family_name: last_name)
+                family_name: last_name,
+                sec_id:,
+                full_mvi_ids:)
         end
+
+        shared_examples 'a missing sec_id' do
+          let(:expected_sec_id_log) { 'mpi record missing sec_id' }
+
+          context 'and sec_id identifier is completely missing' do
+            let(:expected_pce_status) { false }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
+          end
+
+          context 'and sec_id identifier is missing due to PCE status' do
+            let(:expected_pce_status) { true }
+            let(:full_mvi_ids) { ['some-sec-id^PN^200PROV^USDVA^PCE'] }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
+          end
+        end
+
         let(:id_theft_flag) { false }
         let(:deceased_date) { nil }
         let(:icn) { 'some-icn' }
@@ -302,6 +374,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:mhv_iens) { ['some-mhv-ien'] }
         let(:participant_ids) { ['some-participant-id'] }
         let(:birls_ids) { ['some-birls-id'] }
+        let(:sec_id) { 'some-sec-id' }
+        let(:full_mvi_ids) { ['some-full-mvi-ids'] }
 
         context 'and mpi record exists for user' do
           it_behaves_like 'mpi attribute validations'
@@ -310,8 +384,14 @@ RSpec.describe SignIn::AttributeValidator do
             let(:auto_uplevel) { true }
 
             it 'does not make an mpi call to update correlation record' do
-              expect_any_instance_of(MPI::Service).not_to receive(:update_profile)
               subject
+              expect(mpi_service).not_to have_received(:update_profile)
+            end
+
+            context 'and mpi record does not have a sec_id' do
+              let(:sec_id) { nil }
+
+              it_behaves_like 'a missing sec_id'
             end
           end
 
@@ -323,10 +403,12 @@ RSpec.describe SignIn::AttributeValidator do
             let(:update_status) { :ok }
 
             it_behaves_like 'mpi versus credential mismatch'
+            it_behaves_like 'mpi call to update correlation record'
 
-            it 'makes an mpi call to update correlation record' do
-              expect_any_instance_of(MPI::Service).to receive(:update_profile)
-              subject
+            context 'and mpi record does not have a sec_id' do
+              let(:sec_id) { nil }
+
+              it_behaves_like 'a missing sec_id'
             end
           end
         end
@@ -354,9 +436,8 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'mpi attribute validations'
 
           it 'makes an mpi call to create a new record' do
-            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).with(expected_params)
-
             subject
+            expect(mpi_service).to have_received(:add_person_implicit_search).with(expected_params)
           end
 
           context 'and mpi add person call is not successful' do
@@ -478,12 +559,12 @@ RSpec.describe SignIn::AttributeValidator do
               let(:expected_error_log) { 'attribute validator error' }
 
               it 'makes a log to rails logger' do
-                expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
-                                                                              { errors: expected_error_message,
-                                                                                credential_uuid: csp_id,
-                                                                                mhv_icn:,
-                                                                                type: service_name })
                 subject
+                expect(sign_in_logger).to have_received(:info).with(expected_error_log,
+                                                                    { errors: expected_error_message,
+                                                                      credential_uuid: csp_id,
+                                                                      mhv_icn:,
+                                                                      type: service_name })
               end
             end
 

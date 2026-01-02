@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
-require 'common/models/attribute_types/httpdate'
+require 'vets/model'
 
 module MHVAC
   ##
@@ -10,21 +9,21 @@ module MHVAC
   # @!attribute user_id
   #   @return [Integer]
   # @!attribute form_signed_date_time
-  #   @return [Common::HTTPDate]
+  #   @return [Vets::Type::HTTPDate]
   # @!attribute form_upgrade_manual_date
-  #   @return [Common::HTTPDate]
+  #   @return [Vets::Type::HTTPDate]
   # @!attribute form_upgrade_online_date
-  #   @return [Common::HTTPDate]
+  #   @return [Vets::Type::HTTPDate]
   # @!attribute terms_version
   #   @return [String]
   #
-  class UpgradeForm < Common::Form
-    include ActiveModel::Validations
+  class UpgradeForm
+    include Vets::Model
 
     attribute :user_id, Integer
-    attribute :form_signed_date_time, Common::HTTPDate
-    attribute :form_upgrade_manual_date, Common::HTTPDate
-    attribute :form_upgrade_online_date, Common::HTTPDate
+    attribute :form_signed_date_time, Vets::Type::HTTPDate
+    attribute :form_upgrade_manual_date, Vets::Type::HTTPDate
+    attribute :form_upgrade_online_date, Vets::Type::HTTPDate
     attribute :terms_version, String
 
     validates :user_id, :terms_version, :form_signed_date_time, presence: true
@@ -39,7 +38,7 @@ module MHVAC
     def mhv_params
       raise Common::Exceptions::ValidationErrors, self unless valid?
 
-      attribute_set.map do |attribute|
+      self.class.attribute_set.map do |attribute|
         value = send(attribute.name)
         [attribute.name, value] unless value.nil?
       end.compact.to_h

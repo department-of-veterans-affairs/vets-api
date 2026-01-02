@@ -71,16 +71,16 @@ module IvcChampva
         def extract_provider_name(text)
           # Look for provider patterns
           provider_patterns = [
-            /provider[:\s]{1,3}([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])/i,
-            /dr\.?\s{1,3}([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])/i,
-            /([A-Za-z][A-Za-z\s,\.]{0,48}[A-Za-z])\s{1,5}(?:npi|claim)/i
+            /provider[:\s]{1,3}([A-Za-z][A-Za-z\s,.]{0,48}[A-Za-z])/i,
+            /dr\.?\s{1,3}([A-Za-z][A-Za-z\s,.]{0,48}[A-Za-z])/i,
+            /([A-Za-z][A-Za-z\s,.]{0,48}[A-Za-z])\s{1,5}(?:npi|claim)/i
           ]
 
           provider_patterns.each do |pattern|
             match = text.match(pattern)
             next unless match
 
-            name = match[1].strip.gsub(/[,\.]+$/, '')
+            name = match[1].strip.gsub(/[,.]+$/, '')
             return name if name.length > 2 && name.length < 50
           end
 

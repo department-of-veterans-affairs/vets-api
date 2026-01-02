@@ -37,4 +37,24 @@ describe ClaimsApi::VnpPtcpntPhoneService do
       end
     end
   end
+
+  describe 'vnp_ptcpnt_phone_find_by_primary_key' do
+    let(:id) do
+      {
+        id: '111642'
+      }
+    end
+
+    it 'responds when sent valid params' do
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/valid_vnp_ptcpnt_phone_find_by_primary_key') do
+        response = subject.vnp_ptcpnt_phone_find_by_primary_key(id:)
+
+        expect(response).to include(
+          {
+            phone_nbr: '5555559876'
+          }
+        )
+      end
+    end
+  end
 end

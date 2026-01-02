@@ -45,6 +45,7 @@ properties:
         type: string
         description: Formatted title for display in mobile overview list
         example: "disability compensation appeal"
+        nullable: true
       decisionLetterSent:
         type: boolean
         description: decision letter will be available from endpoint /v0/claims/decision-letters if true
@@ -69,3 +70,8 @@ properties:
         description: Type of claim
         nullable: true
         example: "020NEW"
+      claimTypeBase:
+        type: string
+        description: Base type of claim
+        example: 'compensation claim'
+        nullable: true

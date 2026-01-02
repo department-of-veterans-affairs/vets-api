@@ -11,27 +11,52 @@ RSpec.describe LighthouseDocument do
       let(:bad_password) { 'bad_pw' }
 
       context 'when provided password is incorrect' do
-        it 'logs a sanitized message to Sentry' do
-          error_message = nil
-          allow_any_instance_of(LighthouseDocument).to receive(:log_message_to_sentry) do |_, message, _level|
-            error_message = message
+        shared_examples 'logs a sanitized error message' do
+          it 'logs a sanitized message without sensitive data' do
+            error_message = nil
+            allow_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_rails) do |_, error, _level|
+              error_message = error.message
+            end
+
+            tempfile = Tempfile.new(['', "-#{file_name}"])
+            file_obj = ActionDispatch::Http::UploadedFile.new(
+              original_filename: file_name,
+              type: 'application/pdf',
+              tempfile:
+            )
+
+            document = LighthouseDocument.new(
+              file_obj:,
+              file_name:,
+              tracked_item_id:,
+              document_type:,
+              password: bad_password
+            )
+
+            expect(document).not_to be_valid
+            expect(error_message).not_to include(file_name)
+            expect(error_message).not_to include(bad_password)
+          end
+        end
+
+        context 'pdftk' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:lighthouse_document_convert_to_unlocked_pdf_use_hexapdf)
+              .and_return(false)
           end
 
-          tempfile = Tempfile.new(['', "-#{file_name}"])
-          file_obj = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
-                                                            tempfile:)
+          it_behaves_like 'logs a sanitized error message'
+        end
 
-          document = LighthouseDocument.new(
-            file_obj:,
-            file_name:,
-            tracked_item_id:,
-            document_type:,
-            password: bad_password
-          )
+        context 'hexapdf' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:lighthouse_document_convert_to_unlocked_pdf_use_hexapdf)
+              .and_return(true)
+          end
 
-          expect(document).not_to be_valid
-          expect(error_message).not_to include(file_name)
-          expect(error_message).not_to include(bad_password)
+          it_behaves_like 'logs a sanitized error message'
         end
       end
     end

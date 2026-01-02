@@ -49,8 +49,8 @@ class FormProfiles::VA10297 < FormProfile
     if raw_account
       VA10297::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
-        account_number: mask(raw_account&.account_number),
-        routing_number: mask(raw_account&.financial_institution_routing_number),
+        account_number: raw_account&.account_number,
+        routing_number: raw_account&.financial_institution_routing_number,
         bank_name: raw_account&.financial_institution_name
       )
     else
@@ -59,9 +59,5 @@ class FormProfiles::VA10297 < FormProfile
   rescue => e
     Rails.logger.error "FormProfiles::VA10297 Failed to retrieve Payment Information data: #{e.message}"
     {}
-  end
-
-  def mask(number)
-    number.gsub(/.(?=.{4})/, '*')
   end
 end

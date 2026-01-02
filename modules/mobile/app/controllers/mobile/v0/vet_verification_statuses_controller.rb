@@ -13,7 +13,7 @@ module Mobile
       private
 
       def service
-        @service ||= Mobile::V0::VeteranVerification::Service.new(@current_user)
+        @service ||= Mobile::V0::VeteranVerification::Service.new
       end
     end
   end

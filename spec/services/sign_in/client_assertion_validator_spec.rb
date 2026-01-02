@@ -6,7 +6,8 @@ RSpec.describe SignIn::ClientAssertionValidator do
   describe '#perform' do
     subject { SignIn::ClientAssertionValidator.new(client_assertion:, client_assertion_type:, client_config:).perform }
 
-    let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
+    let(:private_key) { client_assertion_certificate.private_key }
+    let!(:client_assertion_certificate) { create(:sign_in_certificate) }
     let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
     let(:client_assertion_payload) do
       {
@@ -14,23 +15,23 @@ RSpec.describe SignIn::ClientAssertionValidator do
         aud:,
         sub:,
         jti:,
+        iat:,
         exp:
       }
     end
     let(:iss) { 'some-iss' }
-    let(:aud) { 'some-aud' }
+    let(:aud) { token_route }
     let(:sub) { 'some-sub' }
     let(:jti) { 'some-jti' }
     let(:exp) { 1.month.since.to_i }
+    let(:iat) { Time.current.to_i }
     let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
     let(:client_assertion) { JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm) }
     let(:client_assertion_type) { 'some-client-assertion-type' }
     let(:client_id) { client_config.client_id }
     let(:client_config) { create(:client_config, certs: [client_assertion_certificate]) }
     let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-    let(:client_assertion_certificate) do
-      create(:sign_in_certificate, pem: File.read(certificate_path))
-    end
+    let(:token_route) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
 
     context 'when client assertion type does not equal expected value' do
       let(:client_assertion_type) { 'some-client-assertion-type' }
@@ -81,7 +82,7 @@ RSpec.describe SignIn::ClientAssertionValidator do
         context 'and iss does not equal client id' do
           let(:iss) { 'some-iss' }
           let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-          let(:expected_error_message) { 'Client assertion issuer is not valid' }
+          let(:expected_error_message) { "Invalid issuer. Expected [\"#{client_id}\"], received #{iss}" }
 
           it 'raises client assertion attributes error' do
             expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -94,7 +95,7 @@ RSpec.describe SignIn::ClientAssertionValidator do
           context 'and sub does not equal client id' do
             let(:sub) { 'some-sub' }
             let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-            let(:expected_error_message) { 'Client assertion subject is not valid' }
+            let(:expected_error_message) { "Invalid subject. Expected #{client_id}, received #{sub}" }
 
             it 'raises client assertion attributes error' do
               expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -107,7 +108,7 @@ RSpec.describe SignIn::ClientAssertionValidator do
             context 'and aud does not equal token route' do
               let(:aud) { 'some-aud' }
               let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
-              let(:expected_error_message) { 'Client assertion audience is not valid' }
+              let(:expected_error_message) { "Invalid audience. Expected [\"#{token_route}\"], received #{aud}" }
 
               it 'raises client assertion attributes error' do
                 expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -115,11 +116,19 @@ RSpec.describe SignIn::ClientAssertionValidator do
             end
 
             context 'and aud equals token route' do
-              let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
-
               it 'does not return an error' do
                 expect { subject }.not_to raise_error
               end
+            end
+          end
+
+          context 'and iat is invalid' do
+            let(:iat) { 1.month.from_now.to_i }
+            let(:expected_error) { SignIn::Errors::ClientAssertionAttributesError }
+            let(:expected_error_message) { 'Invalid iat' }
+
+            it 'raises client assertion attributes error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
             end
           end
         end

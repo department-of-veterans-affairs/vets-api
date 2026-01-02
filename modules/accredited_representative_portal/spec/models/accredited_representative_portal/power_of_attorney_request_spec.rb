@@ -85,6 +85,39 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
         end
       end
     end
+
+    describe '.not_withdrawn' do
+      let!(:unresolved_request) { create(:power_of_attorney_request) }
+
+      let!(:withdrawn_request) do
+        create(:power_of_attorney_request).tap do |req|
+          req.mark_replaced!(create(:power_of_attorney_request))
+        end
+      end
+
+      let!(:accepted_request) do
+        create(:power_of_attorney_request, :with_acceptance)
+      end
+
+      let!(:declined_request) do
+        create(:power_of_attorney_request, :with_declination)
+      end
+
+      it 'includes unresolved requests' do
+        result = described_class.not_withdrawn
+        expect(result).to include(unresolved_request)
+      end
+
+      it 'includes resolved requests that are not withdrawals' do
+        result = described_class.not_withdrawn
+        expect(result).to include(accepted_request, declined_request)
+      end
+
+      it 'excludes resolved requests that are withdrawals' do
+        result = described_class.not_withdrawn
+        expect(result).not_to include(withdrawn_request)
+      end
+    end
   end
 
   describe 'redaction' do

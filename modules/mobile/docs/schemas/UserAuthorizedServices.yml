@@ -4,6 +4,7 @@ required:
   - id
   - type
   - attributes
+  - meta
 properties:
   id:
     type: string
@@ -23,6 +24,7 @@ properties:
         type: object
         additionalProperties: false
         example:
+          allergiesOracleHealthEnabled: false
           appeals: true
           appointments: true
           claims: true
@@ -31,6 +33,7 @@ properties:
           directDepositBenefitsUpdate: true
           disabilityRating: true
           genderIdentity: false
+          labsAndTestsEnabled: false
           lettersAndDocuments: true
           militaryServiceHistory: true
           paymentHistory: true
@@ -39,3 +42,25 @@ properties:
           scheduleAppointments: true
           secureMessaging: false
           userProfileUpdate: true
+          secureMessagingOracleHealthEnabled: false
+          medicationsOracleHealthEnabled: false
+  meta:
+    type: object
+    additionalProperties: false
+    required:
+      - isUserAtPretransitionedOhFacility
+      - isUserFacilityReadyForInfoAlert
+      - isUserFacilityMigratingToOh
+    properties:
+      isUserAtPretransitionedOhFacility:
+        type: boolean
+        example: true
+        description: Indicates whether the user is associated with a facility that is pre-transitioned to Oracle Health.
+      isUserFacilityReadyForInfoAlert:
+        type: boolean
+        example: false
+        description: Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition.
+      isUserFacilityMigratingToOh:
+        type: boolean
+        example: false
+        description: Indicates whether the user is associated with a facility that is migrating to Oracle Health.

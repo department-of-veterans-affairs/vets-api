@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestEmailJob
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options retry: 14 # The retry logic here matches VANotify::EmailJob.
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -45,6 +47,8 @@ module AccreditedRepresentativePortal
           },
           { error: :accredited_representative_portal_power_of_attorney_request_email_job }
         )
+
+        log_exception_to_rails(e)
       else
         raise e
       end
@@ -53,21 +57,22 @@ module AccreditedRepresentativePortal
     private
 
     def generate_personalisation(notification)
-      personalisation_klass =
-        case notification.type
-        when 'requested'
-          EmailPersonalisations::Requested
-        when 'declined'
-          EmailPersonalisations::Declined
-        when 'expiring'
-          EmailPersonalisations::Expiring
-        when 'expired'
-          EmailPersonalisations::Expired
-        end
-
-      personalisation_klass.generate(
-        notification
-      )
+      case [notification.type, notification.recipient_type]
+      in ['requested', _recipient_type]
+        EmailPersonalisations::Requested
+      in ['declined', _recipient_type]
+        EmailPersonalisations::Declined
+      in ['expiring', _recipient_type]
+        EmailPersonalisations::Expiring
+      in ['expired', _recipient_type]
+        EmailPersonalisations::Expired
+      in ['enqueue_failed' | 'submission_failed', 'claimant']
+        EmailPersonalisations::FailedClaimant
+      in ['enqueue_failed' | 'submission_failed', 'resolver']
+        EmailPersonalisations::FailedRep
+      else
+        raise "Unsupported notification type=#{notification.type} recipient_type=#{notification.recipient_type}"
+      end.generate(notification)
     end
 
     def email_callback_options(type)

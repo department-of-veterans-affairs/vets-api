@@ -36,6 +36,7 @@ describe Sidekiq::ErrorTag do
       expect($named_tags[:user_agent]).to eq('banana')
       expect($named_tags[:user_uuid]).to eq('N/A')
       expect($named_tags[:source]).to eq('myapp')
+      expect($named_tags[:origin]).to eq('test_job')
     end
   end
   # rubocop:enable Style/GlobalVars

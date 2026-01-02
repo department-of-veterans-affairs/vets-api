@@ -13,7 +13,7 @@ module MebApi
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.claimant_id
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
@@ -35,7 +35,7 @@ module MebApi
 
       def claim_status
         forms_claimant_response = claimant_service.get_claimant_info(@form_type)
-        claimant_id = forms_claimant_response['claimant_id']
+        claimant_id = forms_claimant_response.claimant_id
 
         if claimant_id.present?
           claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
@@ -61,19 +61,7 @@ module MebApi
       end
 
       def submit_claim
-        response_data = nil
-
-        if Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user) && !Rails.env.development?
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-            if response_data.nil?
-              Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
-            end
-          rescue => e
-            Rails.logger.error("BIS service error: #{e}")
-          end
-        end
-
+        response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
@@ -83,6 +71,9 @@ module MebApi
             status: response.status
           }
         }
+      rescue => e
+        Rails.logger.error("MEB Forms submit_claim failed: #{e.class} - #{e.message}")
+        raise
       end
 
       def send_confirmation_email
@@ -138,6 +129,24 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
+      end
+
+      # Fetch unmasked direct deposit if asterisks present. Gracefully handles failures.
+      def fetch_direct_deposit_info
+        return nil if Rails.env.development?
+
+        account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
+        routing_number = params.dig(:form, :direct_deposit, :direct_deposit_routing_number)
+        return nil unless account_number&.include?('*') || routing_number&.include?('*')
+
+        DirectDeposit::Client.new(@current_user&.icn).get_payment_info.tap do |response_data|
+          if response_data.nil?
+            Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+          end
+        end
+      rescue => e
+        Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        nil
       end
     end
   end

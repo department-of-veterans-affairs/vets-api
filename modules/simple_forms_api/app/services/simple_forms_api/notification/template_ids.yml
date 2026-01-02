@@ -32,6 +32,14 @@ vba_21_4142:
   confirmation: form21_4142_confirmation_email
   error: form21_4142_error_email
   received: form21_4142_received_email
+vba_21p_0537:
+  confirmation: form21p_0537_confirmation_email
+  error: form21p_0537_error_email
+  received: form21p_0537_received_email
+vba_21p_601:
+  confirmation: form21p_601_confirmation_email
+  error: form21p_601_error_email
+  received: form21p_601_received_email
 vba_21p_0847:
   confirmation: form21p_0847_confirmation_email
   error: form21p_0847_error_email

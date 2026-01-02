@@ -21,6 +21,7 @@ module V0
       unless gi_bill_feedback.save
         Sentry.set_tags(validation: 'gibft')
 
+        Rails.logger.error("GIBillFeedback failed to create: #{gi_bill_feedback.errors.full_messages.join(', ')}")
         raise Common::Exceptions::ValidationErrors, gi_bill_feedback
       end
 

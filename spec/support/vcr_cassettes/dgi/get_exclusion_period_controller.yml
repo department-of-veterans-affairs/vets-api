@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimants/claimantId
+    uri: <DGI_VETS_URL>claimType/Chapter33/claimants/claimantId
     body:
       encoding: UTF-8
       string: '{"ssn":"796121200"}'
@@ -34,7 +34,7 @@ http_interactions:
   recorded_at: Wed, 09 Feb 2022 12:00:00 GMT
 - request:
     method: get
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/exclusionperiodtypes/600010259
+    uri: <DGI_VETS_URL>claimant/exclusionperiodtypes/600010259
     body:
       encoding: US-ASCII
       string: ''

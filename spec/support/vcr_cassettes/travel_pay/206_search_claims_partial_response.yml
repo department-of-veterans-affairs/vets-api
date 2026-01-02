@@ -71,7 +71,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=1
+    uri: <TRAVEL_PAY_BASE_URL>/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=1
     body:
       encoding: US-ASCII
       string: ''
@@ -122,7 +122,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=2
+    uri: <TRAVEL_PAY_BASE_URL>/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=2
     body:
       encoding: US-ASCII
       string: ''
@@ -173,7 +173,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=3
+    uri: <TRAVEL_PAY_BASE_URL>/api/v2/claims/search-by-appointment-date?start_date=2024-04-01&end_date=2024-04-30&pageNumber=1&pageSize=3
     body:
       encoding: US-ASCII
       string: ''
@@ -342,7 +342,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
-    uri:  https://btsss.gov/api/v2/Auth/access-token
+    uri:  <TRAVEL_PAY_BASE_URL>/api/v2/Auth/access-token
     body:
       encoding: US-ASCII
       string: ''

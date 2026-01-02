@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'jwt'
-
 module ClaimsEvidenceApi
+  # @see https://www.jwt.io/introduction#when-to-use-json-web-tokens
+  #
   # Usage:
   # Prior to use, Settings.claims_evidence_api.jwt_secret must be set.
   # API requests will fail even with a valid token unless on the VA API.
@@ -14,16 +14,26 @@ module ClaimsEvidenceApi
   # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
   # > -- 'Authentication: Bearer [TOKEN]'
   class JwtGenerator
-    # Issuer assigned by Claim Evidence API team
-    ISSUER = 'VAGOV'
-    # VBMS user logged in to the application; if no user interaction needs to be a system user
-    USER_ID = 'VAGOVSYSACCT'
-    # Station for above user
-    STATION_ID = '283'
-    # Number of seconds for which the JWT is valid; should be limited to 15 minutes or less
-    VALIDITY_LENGTH = 15.minutes
     # Algorithm used to encode and decode the JWT
     ALGORITHM = 'HS256'
+
+    # Issuer assigned
+    ISSUER = 'VAGOV'
+
+    # Number of seconds for which the JWT is valid
+    VALIDITY_LENGTH = 900.seconds # == 15.minutes
+
+    # VBMS user logged in to the application; if no user interaction needs to be a system user
+    USER_ID = 'VAGOVSYSACCT'
+
+    # Station for above user
+    STATION_ID = '283'
+
+    # static method
+    # @see #encode_jwt
+    def self.encode_jwt
+      new.encode_jwt
+    end
 
     # Returns a JWT token for use in Bearer auth
     def encode_jwt
@@ -44,26 +54,26 @@ module ClaimsEvidenceApi
         iat: created_time.to_i,
         exp: expiration_time.to_i,
         iss: ISSUER,
-        #  applicationID MUST be the same as the issuer for tracking purposes
+        # applicationID MUST be the same as the issuer for tracking purposes
         applicationID: ISSUER,
         userID: USER_ID,
         stationID: STATION_ID
       }
     end
 
-    # set the token expiration date
-    def expiration_time
-      Time.zone.now + VALIDITY_LENGTH
+    # retrieve the secret from settings
+    def private_key
+      Settings.claims_evidence_api.jwt_secret
     end
 
     # set the token created time
     def created_time
-      Time.zone.now
+      @created_time = Time.zone.now
     end
 
-    # retrieve the secret from settings
-    def private_key
-      Settings.claims_evidence_api.jwt_secret
+    # set the token expiration date
+    def expiration_time
+      @created_time + VALIDITY_LENGTH
     end
   end
 end

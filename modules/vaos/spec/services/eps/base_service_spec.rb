@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::BaseService do
   user_icn = '123456789V123456'
 
-  let(:user) { double('User', account_uuid: '1234', icn: user_icn) }
+  let(:user) { double('User', account_uuid: '1234', icn: user_icn, va_treatment_facility_ids: ['123']) }
   let(:service) { described_class.new(user) }
   let(:config) { instance_double(Eps::Configuration, api_url: 'https://api.wellhive.com', base_path: 'api/v1') }
   let(:request_id) { '123456-abcdef' }
@@ -14,6 +14,7 @@ describe Eps::BaseService do
   before do
     allow(service).to receive(:config).and_return(config)
     RequestStore.store['request_id'] = request_id
+    RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
   end
@@ -72,6 +73,36 @@ describe Eps::BaseService do
                                 'X-Request-ID' => 'test-correlation-id',
                                 'X-Parent-Request-ID' => request_id
                               })
+      end
+    end
+  end
+
+  describe 'sanitization helpers' do
+    describe '#sanitize_response_body' do
+      it 'delegates to VAOS::Anonymizers.anonymize_icns' do
+        body = 'Patient ICN 1234567890V123456 had an error'
+        expect(VAOS::Anonymizers).to receive(:anonymize_icns).with(body).and_call_original
+        service.send(:sanitize_response_body, body)
+      end
+
+      it 'anonymizes ICNs in body' do
+        body = 'Patient ICN 1234567890V123456 had an error'
+        sanitized = service.send(:sanitize_response_body, body)
+        expect(sanitized).not_to include('1234567890V123456')
+        expect(sanitized).to include('441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64')
+      end
+
+      it 'returns nil for nil' do
+        expect(service.send(:sanitize_response_body, nil)).to be_nil
+      end
+
+      it 'handles empty strings' do
+        expect(service.send(:sanitize_response_body, '')).to eq('')
+      end
+
+      it 'handles strings without ICNs' do
+        body = 'No sensitive data here'
+        expect(service.send(:sanitize_response_body, body)).to eq(body)
       end
     end
   end

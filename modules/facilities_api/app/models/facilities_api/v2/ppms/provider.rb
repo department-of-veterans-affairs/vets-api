@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module FacilitiesApi
-  class V2::PPMS::Provider < Common::Base
+  class V2::PPMS::Provider
+    include Vets::Model
+
     attribute :acc_new_patients, String
     attribute :address_city, String
     attribute :address_postal_code, String
@@ -21,14 +23,13 @@ module FacilitiesApi
     attribute :main_phone, String
     attribute :miles, Float
     attribute :name, String
-    attribute :pos_codes, String
+    attribute :pos_codes, String, array: true
     attribute :provider_identifier, String
     attribute :provider_name, String
     attribute :provider_type, String
-    attribute :trainings, Array
+    attribute :trainings, String, array: true, default: -> { [] }
 
     def initialize(attr = {})
-      super(attr)
       new_attr = attr.dup.transform_keys { |k| k.to_s.snakecase.to_sym }
       new_attr[:acc_new_patients] ||= new_attr.delete(:is_accepting_new_patients)
       new_attr[:acc_new_patients] ||= new_attr.delete(:provider_accepting_new_patients)
@@ -42,7 +43,7 @@ module FacilitiesApi
       new_attr[:id] ||= new_attr[:provider_identifier]
       new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
 
-      self.attributes = new_attr
+      super(new_attr)
     end
 
     def set_hexdigest_as_id!

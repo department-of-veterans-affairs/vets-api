@@ -112,11 +112,9 @@ RSpec.describe Session, type: :model do
           expect(subject.errors.messages).to include(:created_at)
         end
 
-        it 'logs info to sentry' do
-          expect(subject).to receive(:log_message_to_sentry).with(
-            'Maximum Session Duration Reached',
-            :info,
-            {},
+        it 'logs info to Rails logger' do
+          expect(Rails.logger).to receive(:info).with(
+            '[Session] Maximum Session Duration Reached',
             session_token: described_class.obscure_token(subject.token)
           )
           subject.save

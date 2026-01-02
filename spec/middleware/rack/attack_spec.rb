@@ -166,6 +166,37 @@ RSpec.describe Rack::Attack do
     end
   end
 
+  describe 'education_benefits_claims/v0/ip' do
+    let(:endpoint) { '/v0/education_benefits_claims/1995' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 15 }
+
+    before do
+      limit.times do
+        post endpoint, nil, headers
+        expect(last_response).not_to have_http_status(:too_many_requests)
+      end
+
+      post endpoint, nil, other_headers
+    end
+
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
+
+      it 'limits requests' do
+        expect(last_response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+      it 'limits requests' do
+        expect(last_response).not_to have_http_status(:too_many_requests)
+      end
+    end
+  end
+
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     before do
       limit.times do

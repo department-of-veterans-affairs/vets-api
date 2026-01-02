@@ -36,7 +36,7 @@ module DecisionReviewV1
 
       # Flip this on to use the 2024 PDF template
       def generate_2024_version?
-        Flipper.enabled?(:decision_review_form4142_use_2024_template)
+        true
       end
 
       # Flip this on to validate the schema of the form data

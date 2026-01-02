@@ -7,12 +7,19 @@ require 'evss/error_middleware'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
+require 'fes_service/base'
+require 'claims_api/v1/disability_compensation_pdf_generator'
+require 'claims_api/v1/disability_compensation_fes_mapper'
+require 'claims_api/v2/error/lighthouse_error_handler' # this will need to move into a version space
 
 module ClaimsApi
   module V1
     module Forms
       class DisabilityCompensationController < ClaimsApi::V1::Forms::Base
-        include ClaimsApi::DisabilityCompensationValidations
+        # Commenting out the below validation inclusion so it is clearer that
+        # we expect validate_form_526_submission_values! to be dynamically
+        # included via the lighthouse_claims_api_v1_enable_FES FF check:
+        # include ClaimsApi::DisabilityCompensationValidations
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
 
@@ -36,7 +43,19 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+          # Choose the appropriate validator module based on FF status - using self.extend
+          # so that if validator (instance) methods call other instance methods within the module
+          # they all have access to the the same instance
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
@@ -78,7 +97,11 @@ module ClaimsApi
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
-            ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+              ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
+            else
+              ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            end
           end
 
           render json: ClaimsApi::AutoEstablishedClaimSerializer.new(auto_claim)
@@ -151,19 +174,20 @@ module ClaimsApi
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
-          validate_form_526_submission_values!
+
+          # rubocop:disable Style/IdenticalConditionalBranches
+          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            extend(ClaimsApi::RevisedDisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          else
+            extend(ClaimsApi::DisabilityCompensationValidations)
+            validate_form_526_submission_values!
+          end
+          # rubocop:enable Style/IdenticalConditionalBranches
+
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
-
-          service =
-            if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-              ClaimsApi::EVSSService::Base.new
-            elsif Flipper.enabled? :form526_legacy
-              EVSS::DisabilityCompensationForm::Service.new(auth_headers)
-            else
-              EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
-            end
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
@@ -173,11 +197,7 @@ module ClaimsApi
             special_issues: special_issues_per_disability
           )
 
-          if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-            service.validate(auto_claim, auto_claim.to_internal)
-          else
-            service.validate_form526(auto_claim.to_internal)
-          end
+          validate_with_service(auto_claim)
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
 
@@ -197,6 +217,8 @@ module ClaimsApi
                             message: "rescuing in validate_form_526, claim_id: #{auto_claim&.id}" \
                                      "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
+        rescue ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException => e
+          render json: { errors: e.errors }, status: e.status_code, source: e.errors[0][:key]
         end
         # rubocop:enable Metrics/MethodLength
 
@@ -259,12 +281,50 @@ module ClaimsApi
           }.to_json
         end
 
+        # Only value required by background jobs that is missing in headers is middle name
+        def veteran_middle_initial
+          target_veteran.middle_name&.first&.upcase || ''
+        end
+
         def format_526_errors(errors)
           errors.map do |error|
             e = error.deep_symbolize_keys
             details = e[:text].presence || e[:detail]
             { status: 422, detail: "#{e[:key]}, #{details}", source: e[:key] }
           end
+        end
+
+        def get_fes_data(auto_claim)
+          v1_fes_mapper_service(auto_claim).map_claim
+        end
+
+        def v1_fes_mapper_service(auto_claim)
+          ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim)
+        end
+
+        def fes_service
+          ClaimsApi::FesService::Base.new
+        end
+
+        def validate_with_service(auto_claim)
+          service = build_validation_service
+
+          if service.is_a?(ClaimsApi::FesService::Base)
+            service.validate(auto_claim,
+                             get_fes_data(auto_claim))
+          elsif service.is_a?(ClaimsApi::EVSSService::Base)
+            service.validate(auto_claim, auto_claim.to_internal)
+          else
+            service.validate_form526(auto_claim.to_internal)
+          end
+        end
+
+        def build_validation_service
+          return ClaimsApi::FesService::Base.new if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          return ClaimsApi::EVSSService::Base.new if Flipper.enabled?(:claims_status_v1_lh_auto_establish_claim_enabled)
+          return EVSS::DisabilityCompensationForm::Service.new(auth_headers) if Flipper.enabled?(:form526_legacy)
+
+          EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
         end
 
         def track_526_validation_errors(errors)

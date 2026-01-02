@@ -14,28 +14,28 @@ module RepresentationManagement
                                                               api_type: 'agent',
                                                               individual_type: 'claims_agent',
                                                               ids_var: :@agent_ids,
-                                                              json_var: :@agent_json_for_address_validation,
+                                                              validation_ids_var: :@agent_ids_for_address_validation,
                                                               validation_description: 'Batching agent address updates from GCLAWS Accreditation API'
                                                             }),
                                    ATTORNEYS => OpenStruct.new({
                                                                  api_type: 'attorney',
                                                                  individual_type: 'attorney',
                                                                  ids_var: :@attorney_ids,
-                                                                 json_var: :@attorney_json_for_address_validation,
+                                                                 validation_ids_var: :@attorney_ids_for_address_validation,
                                                                  validation_description: 'Batching attorney address updates from GCLAWS Accreditation API'
                                                                }),
                                    REPRESENTATIVES => OpenStruct.new({
                                                                        api_type: 'representative',
                                                                        individual_type: 'representative',
                                                                        ids_var: :@representative_ids,
-                                                                       json_var: :@representative_json_for_address_validation,
+                                                                       validation_ids_var: :@representative_ids_for_address_validation,
                                                                        validation_description: 'Batching representative address updates from GCLAWS Accreditation API'
                                                                      }),
                                    VSOS => OpenStruct.new({
                                                             api_type: 'veteran_service_organization',
                                                             individual_type: 'veteran_service_organization',
                                                             ids_var: :@vso_ids,
-                                                            json_var: :@vso_json_for_address_validation,
+                                                            validation_ids_var: :@vso_ids_for_address_validation,
                                                             validation_description: 'Batching VSO address updates from GCLAWS Accreditation API'
                                                           })
                                  }).freeze

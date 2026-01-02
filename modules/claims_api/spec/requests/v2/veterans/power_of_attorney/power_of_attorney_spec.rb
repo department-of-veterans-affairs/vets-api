@@ -43,8 +43,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
             context 'when BGS returns a POA code with an endDate in the past' do
               before do
-                create(:representative, representative_id: '67890', poa_codes: ['074'], first_name: 'Abraham',
-                                        last_name: 'Lincoln')
+                create(:representative, :with_rep_id, poa_codes: ['074'], first_name: 'Abraham',
+                                                      last_name: 'Lincoln')
               end
 
               it 'returns an empty 200 response' do
@@ -65,7 +65,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             context 'when the current poa is not associated with an organization' do
               context 'when there is one unique representative_id' do
                 before do
-                  create(:veteran_representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
+                  create(:veteran_representative, representative_id: '12346', first_name: 'Robert', last_name: 'Lawlaw',
                                                   poa_codes: ['ABC'], phone: '321-654-0987', created_at: Time.zone.now)
                 end
 
@@ -95,7 +95,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
                 context 'when there are multiple unique representative_ids' do
                   before do
-                    create(:veteran_representative, representative_id: '67890', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '55369', poa_codes: ['EDF'])
                     create(:veteran_representative, representative_id: '54321', poa_codes: ['EDF'])
                   end
 

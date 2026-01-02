@@ -11,7 +11,7 @@ module SignIn
     end
 
     def perform
-      translate_acr
+      { acr: translate_acr, acr_comparison: translate_acr_comparison }.compact
     end
 
     private
@@ -31,16 +31,22 @@ module SignIn
       end
     end
 
+    def translate_acr_comparison
+      type == Constants::Auth::IDME && acr == 'min' && !uplevel ? Constants::Auth::IDME_COMPARISON_MINIMUM : nil
+    end
+
     def translate_idme_values
       case acr
       when 'loa1'
         Constants::Auth::IDME_LOA1
       when 'loa3'
         Constants::Auth::IDME_LOA3_FORCE
+      when 'ial2'
+        ial2_enabled? ? Constants::Auth::IDME_IAL2 : invalid_acr!
       when 'min'
         uplevel ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
       else
-        raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
+        invalid_acr!
       end
     end
 
@@ -69,10 +75,18 @@ module SignIn
       when 'ial2'
         Constants::Auth::LOGIN_GOV_IAL2
       when 'min'
-        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL1
+        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL0
       else
         raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
       end
+    end
+
+    def ial2_enabled?
+      Flipper.enabled?(:identity_ial2_enforcement) && Settings.vsp_environment != 'production'
+    end
+
+    def invalid_acr!
+      raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
     end
   end
 end

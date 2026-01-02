@@ -51,6 +51,14 @@ module TravelClaim
     #
     # @return [Hash] response hash
     def submit_claim
+      Rails.logger.info('Travel claim validation', {
+                          uuid_present: check_in.uuid.present?,
+                          icn_present: patient_icn.present?,
+                          appointment_date_present: appointment_date.present?,
+                          facility_type:,
+                          service: 'travel_claim_debug'
+                        })
+
       resp = if token.present?
                client.submit_claim(token:, patient_icn:, appointment_date:)
              else

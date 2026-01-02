@@ -37,7 +37,7 @@ module PDFUtilities
     # @param stamps [Array<Hash>] The set of stamps associated with the ID.
     # => [{text: 'VA.GOV', x: 5, y: 5 }, {text: 'Test', x: 400, y: 700, text_only: true }, ... ]
     def self.register_stamps(identifier, stamps)
-      STAMP_SETS[identifier] = stamps
+      self::STAMP_SETS[identifier] = stamps
     end
 
     # Retrieve a set of stamps; useful if needing to redefine properties based on a set
@@ -46,15 +46,14 @@ module PDFUtilities
     #
     # @return [Array<Hash>] the stamp set or empty array if not registered
     def self.get_stamp_set(identifier)
-      STAMP_SETS[identifier] || []
+      self::STAMP_SETS[identifier] || []
     end
 
     # prepare to datestamp an existing pdf document
     #
-    # @param id [String|Symbol] The ID of the set.
-    # @param stamps [Array<Hash>] The set of stamps to use instead of a predefined set
-    def initialize(id, stamps: nil)
-      @stamps = stamps || PDFStamper.get_stamp_set(id)
+    # @param stamp_set [String|Symbol|Array<Hash>] the identifier for a stamp set or an array of stamps
+    def initialize(stamp_set)
+      @stamps = stamp_set.is_a?(Array) ? stamp_set : self.class.get_stamp_set(stamp_set)
     end
 
     # stamp a generated pdf

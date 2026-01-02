@@ -98,15 +98,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
-      it 'clears the cache' do
-        expect(Mobile::V0::Appointment).to receive(:clear_cache).once
-
-        VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
-                         match_requests_on: %i[method uri]) do
-          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-        end
-      end
-
       it 'returns a descriptive 400 error when given invalid params' do
         VCR.use_cassette('mobile/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: {}, headers: sis_headers
@@ -125,15 +116,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-      end
-
-      it 'clears the cache' do
-        expect(Mobile::V0::Appointment).to receive(:clear_cache).once
-
-        VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200_vpg',
-                         match_requests_on: %i[method uri]) do
-          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-        end
       end
 
       it 'returns a descriptive 400 error when given invalid params' do

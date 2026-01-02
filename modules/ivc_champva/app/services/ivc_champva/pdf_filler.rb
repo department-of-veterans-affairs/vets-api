@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/file_helpers'
+require 'ivc_champva/field_transliterator'
 
 module IvcChampva
   class PdfFiller
@@ -28,6 +29,8 @@ module IvcChampva
 
       if File.exist? stamped_template_path
         begin
+          transliterate_fields(form) if Flipper.enabled?(:champva_foreign_address_fix)
+
           PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
           pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
@@ -54,6 +57,15 @@ module IvcChampva
     end
 
     private
+
+    def transliterate_fields(form)
+      field_patterns = [
+        /street/i, /city/i, /state/i, /country/i, /postal_code/i,
+        /^.*_address$/i, /^.*_address_string$/i, /address$/i
+      ]
+      skip_keys = %w[email_address applicant_email_address]
+      IvcChampva::FieldTransliterator.transliterate_all!(form.data, field_patterns:, skip_keys:)
+    end
 
     def mapped_data
       template = Rails.root.join('modules', 'ivc_champva', 'app', 'form_mappings', "#{form_number}.json.erb").read

@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
+require 'vets/model'
 
 module VAProfile
   module Models
     class GenderIdentity < Base
       include VAProfile::Concerns::Defaultable
+      include Vets::Model
 
       CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {
@@ -23,7 +24,7 @@ module VAProfile
       attribute :code, String
       attribute :name, String
       attribute :source_system_user, String
-      attribute :source_date, Common::ISO8601Time
+      attribute :source_date, Vets::Type::ISO8601Time
 
       validates :code, presence: true
       validates_inclusion_of :code, in: OPTIONS, message: 'invalid code', if: -> { @code.present? }

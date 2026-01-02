@@ -2,6 +2,7 @@
 
 require 'vets/model'
 
+# This class isn't and shouldn't be used
 module Vets
   class Response
     include Vets::Model
