@@ -214,6 +214,60 @@ RSpec.describe Vass::V0::Session, type: :model do
     end
   end
 
+  describe '#validate_and_generate_jwt' do
+    let(:otp_code) { '123456' }
+
+    context 'with valid OTC' do
+      it 'validates OTC, deletes it, and generates JWT' do
+        session = described_class.new(uuid:, otp_code:, redis_client:)
+        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        allow(redis_client).to receive(:delete_otc).with(uuid:)
+
+        jwt_token = session.validate_and_generate_jwt
+
+        expect(jwt_token).to be_a(String)
+        expect(jwt_token).not_to be_empty
+        expect(redis_client).to have_received(:delete_otc).with(uuid:)
+      end
+
+      it 'generates a valid JWT token with correct payload' do
+        session = described_class.new(uuid:, otp_code:, redis_client:)
+        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        allow(redis_client).to receive(:delete_otc).with(uuid:)
+
+        jwt_token = session.validate_and_generate_jwt
+        decoded = JWT.decode(jwt_token, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
+        payload = decoded[0]
+
+        expect(payload['sub']).to eq(uuid)
+        expect(payload['jti']).to be_present
+        expect(payload['iat']).to be_present
+        expect(payload['exp']).to be_present
+      end
+    end
+
+    context 'with invalid OTC' do
+      it 'raises AuthenticationError and does not delete OTC' do
+        session = described_class.new(uuid:, otp_code: 'wrong', redis_client:)
+        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+
+        expect { session.validate_and_generate_jwt }
+          .to raise_error(Vass::Errors::AuthenticationError, 'Invalid OTC')
+        expect(redis_client).not_to have_received(:delete_otc)
+      end
+    end
+
+    context 'with missing OTC' do
+      it 'raises AuthenticationError when OTC not found in Redis' do
+        session = described_class.new(uuid:, otp_code:, redis_client:)
+        allow(redis_client).to receive(:otc).with(uuid:).and_return(nil)
+
+        expect { session.validate_and_generate_jwt }
+          .to raise_error(Vass::Errors::AuthenticationError, 'Invalid OTC')
+      end
+    end
+  end
+
   describe '#generate_session_token' do
     it 'generates a UUID session token' do
       session = described_class.new

@@ -81,6 +81,8 @@ module Vass
         render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
       rescue Vass::Errors::RateLimitError => e
         handle_validation_rate_limit_error(session, e)
+      rescue Vass::Errors::AuthenticationError =>
+        handle_invalid_otc(session)
       rescue *vass_api_exceptions => e
         log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error, error_class: e.class.name)
         render_error_response(
@@ -340,7 +342,8 @@ module Vass
       end
 
       ##
-      # Validates OTC session.
+      # Validates OTC session parameters (but not OTC value).
+      # The actual OTC validation and deletion happens atomically in validate_and_generate_jwt.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] true if valid, false otherwise
@@ -348,7 +351,6 @@ module Vass
       def validate_otc_session(session)
         return handle_invalid_request unless session.valid_for_validation?
         return handle_expired_otc(session) if session.otc_expired?
-        return handle_invalid_otc(session) unless session.valid_otc?
 
         true
       end

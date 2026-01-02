@@ -466,10 +466,11 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(Vass::V0::Session).to receive(:build).and_return(session_model)
         allow(session_model).to receive_messages(
           valid_for_validation?: true,
-          valid_otc?: false,
           otc_expired?: false,
           uuid:
         )
+        allow(session_model).to receive(:validate_and_generate_jwt)
+          .and_raise(Vass::Errors::AuthenticationError, 'Invalid OTC')
         allow(redis_client).to receive(:increment_validation_rate_limit)
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
                                                 validation_attempts_remaining: 2)
