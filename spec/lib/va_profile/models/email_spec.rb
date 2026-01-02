@@ -280,9 +280,13 @@ RSpec.describe VAProfile::Models::Email do
 
   describe '#contact_email_verified?' do
     let(:email) { build(:email) }
+    let(:current_time) { Time.zone.parse('2024-06-15 12:00:00') }
+
+    before { Timecop.freeze(current_time) }
+    after { Timecop.return }
 
     context 'when verification_date is within the last year' do
-      before { email.verification_date = 6.months.ago }
+      before { email.verification_date = current_time - 6.months }
 
       it 'returns true' do
         expect(email.contact_email_verified?).to be true
@@ -290,7 +294,7 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when verification_date is exactly one year ago' do
-      before { email.verification_date = 1.year.ago }
+      before { email.verification_date = current_time - 1.year }
 
       it 'returns false' do
         expect(email.contact_email_verified?).to be false
@@ -298,7 +302,7 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when verification_date is more than one year ago' do
-      before { email.verification_date = 2.years.ago }
+      before { email.verification_date = current_time - 2.years }
 
       it 'returns false' do
         expect(email.contact_email_verified?).to be false
@@ -314,7 +318,7 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when verification_date is very recent' do
-      before { email.verification_date = 1.day.ago }
+      before { email.verification_date = current_time - 1.day }
 
       it 'returns true' do
         expect(email.contact_email_verified?).to be true
@@ -322,7 +326,7 @@ RSpec.describe VAProfile::Models::Email do
     end
 
     context 'when verification_date is just under one year ago' do
-      before { email.verification_date = 11.months.ago }
+      before { email.verification_date = current_time - 11.months }
 
       it 'returns true' do
         expect(email.contact_email_verified?).to be true
