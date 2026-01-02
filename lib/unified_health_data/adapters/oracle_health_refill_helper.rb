@@ -37,7 +37,7 @@ module UnifiedHealthData
         return false unless resource['status'] == 'active' # must be active
         return false unless prescription_not_expired?(resource) # must not be expired
         return false unless extract_refill_remaining(resource).positive? # must have refills remaining
-        return false if find_most_recent_medication_dispense(resource['contained']).nil? # must have dispenses availble
+        return false if find_most_recent_medication_dispense(resource['contained']).nil? # must have dispenses available
         return false if most_recent_dispense_in_progress?(resource) # must not have in-progress dispense
         return false if refill_status == 'submitted' # must not have a pending refill request
 
