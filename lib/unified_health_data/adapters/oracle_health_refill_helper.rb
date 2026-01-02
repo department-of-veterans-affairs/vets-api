@@ -5,13 +5,13 @@ module UnifiedHealthData
     module OracleHealthRefillHelper
       # Determines if a medication is refillable based on gate checks
       def refillable?(resource, refill_status)
-        return false if non_va_med?(resource)
-        return false unless resource['status'] == 'active'
-        return false unless prescription_not_expired?(resource)
-        return false unless extract_refill_remaining(resource).positive?
-        return false if find_most_recent_medication_dispense(resource['contained']).nil?
-        return false if most_recent_dispense_in_progress?(resource)
-        return false if refill_status == 'submitted'
+        return false if non_va_med?(resource) # Non-VA meds are never refillable
+        return false unless resource['status'] == 'active' # must be active
+        return false unless prescription_not_expired?(resource) # must not be expired
+        return false unless extract_refill_remaining(resource).positive? # must have refills remaining
+        return false if find_most_recent_medication_dispense(resource['contained']).nil? # must have dispenses availble
+        return false if most_recent_dispense_in_progress?(resource) # must not have in-progress dispense
+        return false if refill_status == 'submitted' # must not have a pending refill request
 
         true
       end
