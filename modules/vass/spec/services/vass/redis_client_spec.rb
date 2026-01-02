@@ -564,20 +564,20 @@ describe Vass::RedisClient do
       ).to be true
     end
 
-    it 'treats identifiers as case-sensitive' do
+    it 'normalizes identifiers to be case-insensitive' do
       redis_client.increment_rate_limit(identifier: 'TEST-UUID-123')
       redis_client.increment_rate_limit(identifier: 'test-uuid-123')
 
-      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
-      expect(redis_client.rate_limit_count(identifier: 'TEST-UUID-123')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(2)
+      expect(redis_client.rate_limit_count(identifier: 'TEST-UUID-123')).to eq(2)
     end
 
-    it 'preserves whitespace in identifiers' do
+    it 'strips whitespace from identifiers' do
       redis_client.increment_rate_limit(identifier: '  test-uuid-123  ')
       redis_client.increment_rate_limit(identifier: 'test-uuid-123')
 
-      expect(redis_client.rate_limit_count(identifier: '  test-uuid-123  ')).to eq(1)
-      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(1)
+      expect(redis_client.rate_limit_count(identifier: '  test-uuid-123  ')).to eq(2)
+      expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(2)
     end
   end
 end

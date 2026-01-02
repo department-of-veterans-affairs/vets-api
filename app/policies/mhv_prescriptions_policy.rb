@@ -3,28 +3,19 @@
 require 'rx/client'
 
 MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
-  RX_ACCOUNT_TYPES = %w[Premium Advanced].freeze
+  RX_ACCESS_LOG_MESSAGE = 'RX ACCESS DENIED'
 
   def access?
-    if Flipper.enabled?(:mhv_medications_new_policy, user)
-      user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
-    else
-      default_access_check
-    end
+    return true if user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
+
+    log_access_denied(RX_ACCESS_LOG_MESSAGE)
+    false
   end
 
   private
 
   def mhv_user_account
     user.mhv_user_account(from_cache_only: false)
-  end
-
-  def default_access_check
-    service_name = user.identity.sign_in[:service_name]
-    access = RX_ACCOUNT_TYPES.include?(user.mhv_account_type) &&
-             (user.va_patient? || service_name == SignIn::Constants::Auth::MHV)
-    log_access_denied('RX ACCESS DENIED') unless access
-    access
   end
 
   def log_access_denied(message)

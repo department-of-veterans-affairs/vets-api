@@ -1217,6 +1217,8 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  ch_31_case_details:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1783,11 +1785,11 @@ vaos:
 vass:
   api_url: <%= ENV['vass__api_url'] || 'https://api.vass.va.gov' %>
   auth_url: https://login.microsoftonline.us
-  client_id: fake_client_id
-  client_secret: fake_client_secret
-  mock: false
-  rate_limit_expiry: 900
-  rate_limit_max_attempts: 5
+  client_id: <%= ENV['vass__client_id'] %>
+  client_secret: <%= ENV['vass__client_secret'] %>
+  mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540

@@ -58,16 +58,18 @@ describe Vass::AppointmentsService do
 
     context 'when successful' do
       it 'retrieves appointment availability' do
-        VCR.use_cassette('vass/get_availability_success') do
-          result = subject.get_availability(
-            start_date:,
-            end_date:,
-            veteran_id:
-          )
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_availability_success') do
+            result = subject.get_availability(
+              start_date:,
+              end_date:,
+              veteran_id:
+            )
 
-          expect(result['success']).to be true
-          expect(result['data']['availableTimeSlots']).to be_an(Array)
-          expect(result['data']['appointmentDuration']).to eq(30)
+            expect(result['success']).to be true
+            expect(result['data']['availableTimeSlots']).to be_an(Array)
+            expect(result['data']['appointmentDuration']).to eq(30)
+          end
         end
       end
     end
@@ -85,11 +87,13 @@ describe Vass::AppointmentsService do
 
     context 'when successful' do
       it 'creates a new appointment' do
-        VCR.use_cassette('vass/save_appointment_success') do
-          result = subject.save_appointment(appointment_params:)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/save_appointment_success') do
+            result = subject.save_appointment(appointment_params:)
 
-          expect(result['success']).to be true
-          expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['success']).to be true
+            expect(result['data']['appointmentId']).to eq('appt-abc123')
+          end
         end
       end
     end
@@ -98,21 +102,25 @@ describe Vass::AppointmentsService do
   describe '#cancel_appointment' do
     context 'when successful' do
       it 'cancels an appointment' do
-        VCR.use_cassette('vass/cancel_appointment_success') do
-          result = subject.cancel_appointment(appointment_id:)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/cancel_appointment_success') do
+            result = subject.cancel_appointment(appointment_id:)
 
-          expect(result['success']).to be true
-          expect(result['message']).to eq('Appointment cancelled successfully')
+            expect(result['success']).to be true
+            expect(result['message']).to eq('Appointment cancelled successfully')
+          end
         end
       end
     end
 
     context 'when appointment not found' do
       it 'raises NotFoundError' do
-        VCR.use_cassette('vass/get_appointment_404_not_found') do
-          expect do
-            subject.get_appointment(appointment_id: 'nonexistent-id')
-          end.to raise_error(Vass::Errors::NotFoundError)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_appointment_404_not_found') do
+            expect do
+              subject.get_appointment(appointment_id: 'nonexistent-id')
+            end.to raise_error(Vass::Errors::NotFoundError)
+          end
         end
       end
     end
@@ -121,12 +129,14 @@ describe Vass::AppointmentsService do
   describe '#get_appointment' do
     context 'when successful' do
       it 'retrieves a specific appointment' do
-        VCR.use_cassette('vass/get_appointment_success') do
-          result = subject.get_appointment(appointment_id:)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_appointment_success') do
+            result = subject.get_appointment(appointment_id:)
 
-          expect(result['success']).to be true
-          expect(result['data']['appointmentId']).to eq(appointment_id)
-          expect(result['data']['agentNickname']).to eq('Dr. Smith')
+            expect(result['success']).to be true
+            expect(result['data']['appointmentId']).to eq(appointment_id)
+            expect(result['data']['agentNickname']).to eq('Dr. Smith')
+          end
         end
       end
     end
@@ -135,13 +145,15 @@ describe Vass::AppointmentsService do
   describe '#get_appointments' do
     context 'when successful' do
       it 'retrieves all appointments for a veteran' do
-        VCR.use_cassette('vass/get_appointments_success') do
-          result = subject.get_appointments(veteran_id:)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_appointments_success') do
+            result = subject.get_appointments(veteran_id:)
 
-          expect(result['success']).to be true
-          expect(result['data']['veteranId']).to eq(veteran_id)
-          expect(result['data']['appointments']).to be_an(Array)
-          expect(result['data']['appointments'].length).to eq(2)
+            expect(result['success']).to be true
+            expect(result['data']['veteranId']).to eq(veteran_id)
+            expect(result['data']['appointments']).to be_an(Array)
+            expect(result['data']['appointments'].length).to eq(2)
+          end
         end
       end
     end
@@ -164,13 +176,15 @@ describe Vass::AppointmentsService do
 
     context 'when called without validation params' do
       it 'retrieves veteran information' do
-        VCR.use_cassette('vass/get_veteran_success') do
-          result = subject.get_veteran_info(veteran_id:)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_veteran_success') do
+            result = subject.get_veteran_info(veteran_id:)
 
-          expect(result['success']).to be true
-          expect(result['data']['firstName']).to eq('John')
-          expect(result['data']['lastName']).to eq('Doe')
-          expect(result['data']['edipi']).to eq(edipi)
+            expect(result['success']).to be true
+            expect(result['data']['firstName']).to eq('John')
+            expect(result['data']['lastName']).to eq('Doe')
+            expect(result['data']['edipi']).to eq(edipi)
+          end
         end
       end
     end
@@ -255,13 +269,15 @@ describe Vass::AppointmentsService do
   describe '#get_agent_skills' do
     context 'when successful' do
       it 'retrieves available agent skills' do
-        VCR.use_cassette('vass/get_agent_skills_success') do
-          result = subject.get_agent_skills
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_agent_skills_success') do
+            result = subject.get_agent_skills
 
-          expect(result['success']).to be true
-          expect(result['data']['agentSkills']).to be_an(Array)
-          expect(result['data']['agentSkills'].length).to eq(4)
-          expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+            expect(result['success']).to be true
+            expect(result['data']['agentSkills']).to be_an(Array)
+            expect(result['data']['agentSkills'].length).to eq(4)
+            expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+          end
         end
       end
     end
@@ -279,12 +295,14 @@ describe Vass::AppointmentsService do
   describe 'error handling' do
     context 'when server error occurs' do
       it 'raises ServiceError and logs the error' do
-        VCR.use_cassette('vass/get_appointment_500_server_error') do
-          expect(Rails.logger).to receive(:error)
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/get_appointment_500_server_error') do
+            expect(Rails.logger).to receive(:error)
 
-          expect do
-            subject.get_appointment(appointment_id:)
-          end.to raise_error(Vass::Errors::VassApiError)
+            expect do
+              subject.get_appointment(appointment_id:)
+            end.to raise_error(Vass::Errors::VassApiError)
+          end
         end
       end
     end
