@@ -17,7 +17,7 @@ describe ClaimsApi::VnpPtcpntPhoneService do
 
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/vnp_ptcpnt_phone_create') do
         response = subject.vnp_ptcpnt_phone_create(options)
-        
+
         expect(response[:vnp_proc_id]).to eq '29798'
         expect(response[:vnp_ptcpnt_id]).to eq '44693'
         expect(response[:phone_type_nm]).to eq 'Daytime'

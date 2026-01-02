@@ -42,8 +42,8 @@ module ClaimsApi
         vnpPtcpntId: options[:vnp_ptcpnt_id],
         phoneTypeNm: options[:phone_type_nm] || DEFAULT_TYPE,
         phoneNbr: options[:phone_nbr],
-        cntryNbr: options[:cntry_nbr],                       # Country code for international numbers
-        frgnPhoneRfrncTxt: options[:frgn_phone_rfrnc_txt],   # International phone number (max 30 chars)
+        cntryNbr: options[:cntry_nbr],
+        frgnPhoneRfrncTxt: options[:frgn_phone_rfrnc_txt],
         efctvDt: options[:efctv_dt] || Time.current.iso8601
       }
     end
