@@ -58,7 +58,16 @@ module BenefitsDocuments
       private
 
       def update_documents_status
-        @lighthouse_status_response.dig('data', 'statuses').each do |status|
+        statuses = @lighthouse_status_response.dig('data', 'statuses')
+
+        if statuses.blank?
+          Rails.logger.warn('Lighthouse::UpdateDocumentsStatusService found no statuses in response', {
+                              response: @lighthouse_status_response # This SHOULD be safe, and shouldnt have PII...
+                            })
+          return
+        end
+
+        statuses.each do |status|
           update_document_status(status)
         end
       end
