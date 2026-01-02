@@ -151,6 +151,80 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     end
   end
 
+  describe 'backward compatibility with old calling convention' do
+    let(:document_data) { double(:document_data, valid?: true) }
+
+    context 'when called with old format (upload_data hash)' do
+      it 'still works when passed the full upload_data hash' do
+        VCR.use_cassette('evss/documents/upload_with_errors') do
+          expect(EVSSClaimDocument)
+            .to receive(:new)
+            .with(
+              evss_claim_id: submission.submitted_claim_id,
+              file_name: upload_data.first['name'],
+              tracked_item_id: nil,
+              document_type: upload_data.first['attachmentId']
+            )
+            .and_return(document_data)
+
+          # Old format: passing the full upload_data hash
+          subject.perform_async(submission.id, upload_data.first)
+          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
+          described_class.drain
+        end
+      end
+
+      it 'still works with an array of upload_data' do
+        VCR.use_cassette('evss/documents/upload_with_errors') do
+          expect(EVSSClaimDocument)
+            .to receive(:new)
+            .with(
+              evss_claim_id: submission.submitted_claim_id,
+              file_name: upload_data.first['name'],
+              tracked_item_id: nil,
+              document_type: upload_data.first['attachmentId']
+            )
+            .and_return(document_data)
+
+          # Old format: passing as an array (how it was originally done)
+          subject.perform_async(submission.id, upload_data)
+          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
+          described_class.drain
+        end
+      end
+
+      context 'when exhaustion occurs with old format' do
+        before do
+          Flipper.enable(:form526_send_document_upload_failure_notification)
+        end
+
+        it 'enqueues failure notification mailer with old format args' do
+          subject.within_sidekiq_retries_exhausted_block(
+            {
+              'jid' => form526_job_status.job_id,
+              'args' => [submission.id, upload_data.first]
+            }
+          ) do
+            expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+              .to receive(:perform_async).with(submission.id, attachment.guid)
+          end
+        end
+
+        it 'enqueues failure notification mailer with old format args (array format)' do
+          subject.within_sidekiq_retries_exhausted_block(
+            {
+              'jid' => form526_job_status.job_id,
+              'args' => [submission.id, upload_data]
+            }
+          ) do
+            expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+              .to receive(:perform_async).with(submission.id, attachment.guid)
+          end
+        end
+      end
+    end
+  end
+
   describe 'When an ApiProvider is used for uploads' do
     before do
       Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
@@ -159,6 +233,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     end
 
     context 'when file_data exists' do
+      let(:document_data) { double(:document_data, valid?: true) }
       let(:perform_upload) do
         subject.perform_async(submission.id, upload_data.first['confirmationCode'])
         described_class.drain

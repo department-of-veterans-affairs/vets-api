@@ -19,7 +19,17 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
-        guid = msg['args'][1]
+        guid_or_upload_data = msg['args'][1]
+
+        # Handle both old and new calling conventions
+        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
+          # Old format: upload_data hash was passed (possibly wrapped in array)
+          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
+          guid = upload_data&.dig('confirmationCode')
+        else
+          # New format: guid string was passed
+          guid = guid_or_upload_data
+        end
 
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
@@ -105,17 +115,31 @@ module EVSS
 
       # Submits a single supporting evidence attachment for a Form526 submission
       #
-      # @param submission_id [Integer] The {Form526Submission} id
-      # @param guid [String] The GUID/confirmationCode of the attachment to upload
+      # Supports both old and new calling conventions:
+      # - New: perform(submission_id, guid) - guid is the confirmationCode (UUID string)
+      # - Old: perform(submission_id, upload_data) - upload_data is a Hash with attachment metadata
       #
-      def perform(submission_id, guid)
+      # @param submission_id [Integer] The {Form526Submission} id
+      # @param guid_or_upload_data [String, Hash] Either the attachment GUID or the old upload_data hash
+      #
+      def perform(submission_id, guid_or_upload_data)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
         submission = Form526Submission.find(submission_id)
         upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
-        upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
 
-        raise ArgumentError, "No upload found with guid #{guid}" if upload_data.nil?
+        # Handle both old and new calling conventions
+        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
+          # Old format: upload_data hash was passed (possibly wrapped in array)
+          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
+          guid = upload_data&.dig('confirmationCode')
+        else
+          # New format: guid string was passed
+          guid = guid_or_upload_data
+          upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
+        end
+
+        raise ArgumentError, "No upload found with guid #{guid} for submission #{submission_id}" if upload_data.nil?
 
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           sea = SupportingEvidenceAttachment.find_by(guid:)
