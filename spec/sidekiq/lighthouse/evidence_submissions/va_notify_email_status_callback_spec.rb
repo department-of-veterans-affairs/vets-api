@@ -79,6 +79,12 @@ describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
           es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
           expect(es.va_notify_status).to eq(BenefitsDocuments::Constants::VANOTIFY_STATUS[:FAILED])
         end
+
+        it 'does not set delete_date so record is retained for manual intervention' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.delete_date).to be_nil
+        end
       end
 
       context 'delivered' do
@@ -129,6 +135,12 @@ describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
           es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
           expect(es.va_notify_status).to eq(BenefitsDocuments::Constants::VANOTIFY_STATUS[:SUCCESS])
         end
+
+        it 'sets delete_date for retention policy cleanup' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.delete_date).to be_within(1.minute).of(DateTime.current + 60.days)
+        end
       end
 
       context 'temporary-failure' do
@@ -159,6 +171,18 @@ describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
               request_id: es.request_id,
               job_class: es.job_class }
           )
+        end
+
+        it 'updates va_notify_status to FAILED' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.va_notify_status).to eq(BenefitsDocuments::Constants::VANOTIFY_STATUS[:FAILED])
+        end
+
+        it 'does not set delete_date so record is retained for manual intervention' do
+          described_class.call(notification_record)
+          es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
+          expect(es.delete_date).to be_nil
         end
       end
 
