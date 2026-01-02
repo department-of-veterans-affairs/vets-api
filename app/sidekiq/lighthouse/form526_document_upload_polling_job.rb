@@ -55,9 +55,7 @@ module Lighthouse
         return
       end
 
-      documents_to_poll.in_batches(
-        of: POLLED_BATCH_DOCUMENT_COUNT
-      ) do |document_batch|
+      documents_to_poll.in_batches(of: POLLED_BATCH_DOCUMENT_COUNT) do |document_batch|
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
 
         update_document_batch(document_batch, lighthouse_document_request_ids)
