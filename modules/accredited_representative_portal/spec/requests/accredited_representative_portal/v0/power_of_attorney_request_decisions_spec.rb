@@ -239,7 +239,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
       end
 
-      it 'creates an acceptance decision and enqueues SendPoaToCorpDbJob' do
+      it 'creates an acceptance decision and enqueues SendPoaRequestToCorpDbJob' do
         stub_ar_monitoring
 
         # Stub the Accept service so it doesn't call real external APIs
@@ -260,7 +260,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         end
 
         # Spy on the Sidekiq job
-        allow(AccreditedRepresentativePortal::SendPoaToCorpDbJob).to receive(:perform_async)
+        allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).to receive(:perform_async)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
@@ -270,14 +270,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(poa_request.resolution).to be_present
         expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
 
-        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
+        expect(AccreditedRepresentativePortal::SendPoaRequestCorpDbJob)
           .to have_received(:perform_async)
           .with(poa_request.id)
       end
 
-      it 'enqueues the SendPoaToCorpDbJob on declination' do
+      it 'enqueues the SendPoaRequestToCorpDbJob on declination' do
         # Expect the job to be enqueued
-        expect(AccreditedRepresentativePortal::SendPoaToCorpDbJob)
+        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
           .to receive(:perform_async)
           .with(poa_request.id)
 

@@ -66,7 +66,8 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit_power_of_attorney(payload, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def submit_power_of_attorney_request(payload, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
+                                         options = {})
       config.post(
         "#{@icn}/power-of-attorney-request",
         payload,

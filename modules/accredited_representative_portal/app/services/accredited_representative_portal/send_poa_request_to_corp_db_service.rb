@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class SendPoaToCorpDbService
+  class SendPoaRequestToCorpDbService
     def self.call(poa_request)
       new(poa_request).call
     end
@@ -13,7 +13,7 @@ module AccreditedRepresentativePortal
     end
 
     def call
-      @service.submit_power_of_attorney(build_payload)
+      @service.submit_power_of_attorney_request(build_payload)
     rescue => e
       log_error(e)
       raise
@@ -90,8 +90,8 @@ module AccreditedRepresentativePortal
       Rails.logger.error(
         'POA CorpDB send failed',
         poa_request_id: @poa_request.id,
-        error: error.class.name,
-        message: error.message
+        error_class: error.class.name,
+        status: error.respond_to?(:response) ? error.response&.[](:status) : nil
       )
     end
   end

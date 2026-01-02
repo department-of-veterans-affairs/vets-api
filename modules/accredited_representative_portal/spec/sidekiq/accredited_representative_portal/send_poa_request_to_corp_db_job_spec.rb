@@ -6,17 +6,18 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 module AccreditedRepresentativePortal
-  RSpec.describe SendPoaToCorpDbJob, type: :job do
+  RSpec.describe SendPoaRequestToCorpDbJob, type: :job do
     let(:poa_request) { create(:power_of_attorney_request) }
 
     describe '#perform' do
       context 'when the POA request exists' do
-        it 'calls the SendPoaToCorpDbService with the request' do
-          allow(AccreditedRepresentativePortal::SendPoaToCorpDbService).to receive(:call).with(poa_request)
+        it 'calls the SendPoaRequestToCorpDbService with the request' do
+          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService).to receive(:call).with(poa_request)
 
           described_class.new.perform(poa_request.id)
 
-          expect(AccreditedRepresentativePortal::SendPoaToCorpDbService).to have_received(:call).with(poa_request)
+          expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
+            .to have_received(:call).with(poa_request)
         end
       end
 
@@ -36,7 +37,7 @@ module AccreditedRepresentativePortal
 
       context 'when the service raises a Faraday error' do
         it 'logs the error and re-raises for retry' do
-          allow(AccreditedRepresentativePortal::SendPoaToCorpDbService)
+          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
             .to receive(:call).and_raise(Faraday::ClientError.new(double(response: { status: 500 })))
           allow(Rails.logger).to receive(:error)
 
@@ -53,7 +54,7 @@ module AccreditedRepresentativePortal
 
       context 'when the service raises an unexpected error' do
         it 'logs the error and re-raises' do
-          allow(AccreditedRepresentativePortal::SendPoaToCorpDbService)
+          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
             .to receive(:call).and_raise(StandardError.new('unexpected failure'))
           allow(Rails.logger).to receive(:error)
 

@@ -84,7 +84,7 @@ module AccreditedRepresentativePortal
       end
 
       def enqueue_send_to_corpdb
-        AccreditedRepresentativePortal::SendPoaToCorpDbJob.perform_async(@poa_request.id)
+        AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob.perform_async(@poa_request.id)
       end
 
       def track_decision_durations(decision)

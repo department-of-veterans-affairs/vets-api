@@ -458,7 +458,7 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
-      describe '#submit_power_of_attorney' do
+      describe '#submit_power_of_attorney_request' do
         let(:attributes) do
           {
             'data' => {
@@ -519,10 +519,10 @@ RSpec.describe BenefitsClaims::Service do
 
         it 'submits a valid power of attorney request to Lighthouse and returns the expected response' do
           VCR.use_cassette(
-            'lighthouse/benefits_claims/submit_power_of_attorney/201_response',
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/201_response',
             match_requests_on: %i[method uri]
           ) do
-            response = service.submit_power_of_attorney(
+            response = service.submit_power_of_attorney_request(
               attributes,
               'lh_client_id',
               'key_path'
@@ -563,11 +563,11 @@ RSpec.describe BenefitsClaims::Service do
 
         it 'raises Unauthorized when Lighthouse returns 401' do
           VCR.use_cassette(
-            'lighthouse/benefits_claims/submit_power_of_attorney/401_response',
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/401_response',
             match_requests_on: %i[method uri]
           ) do
             expect do
-              service.submit_power_of_attorney(
+              service.submit_power_of_attorney_request(
                 attributes,
                 'any_client_id',   # placeholder, not used
                 'any_rsa_key'      # placeholder, not used
@@ -579,11 +579,11 @@ RSpec.describe BenefitsClaims::Service do
         it 'returns a not_found response when Lighthouse returns 404' do
           service = BenefitsClaims::Service.new('10126222')
           VCR.use_cassette(
-            'lighthouse/benefits_claims/submit_power_of_attorney/404_response',
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/404_response',
             match_requests_on: %i[method uri]
           ) do
             expect do
-              service.submit_power_of_attorney(attributes, 'lh_client_id', 'key_path')
+              service.submit_power_of_attorney_request(attributes, 'lh_client_id', 'key_path')
             end.to raise_error(Common::Exceptions::ResourceNotFound)
           end
         end
@@ -593,11 +593,11 @@ RSpec.describe BenefitsClaims::Service do
           oversized_attributes['data']['attributes']['veteran']['address']['addressLine1'] = 'x' * 50_000_000
 
           VCR.use_cassette(
-            'lighthouse/benefits_claims/submit_power_of_attorney/413_response',
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/413_response',
             match_requests_on: %i[method uri]
           ) do
             expect do
-              service.submit_power_of_attorney(
+              service.submit_power_of_attorney_request(
                 oversized_attributes,
                 'lh_client_id',
                 'key_path'
@@ -610,9 +610,9 @@ RSpec.describe BenefitsClaims::Service do
           invalid_attributes = attributes.deep_dup
           invalid_attributes['data']['attributes']['veteran']['serviceNumber'] = nil
 
-          VCR.use_cassette('lighthouse/benefits_claims/submit_power_of_attorney/422_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/submit_power_of_attorney_request/422_response') do
             expect do
-              service.submit_power_of_attorney(
+              service.submit_power_of_attorney_request(
                 invalid_attributes,
                 'lh_client_id',
                 'key_path'

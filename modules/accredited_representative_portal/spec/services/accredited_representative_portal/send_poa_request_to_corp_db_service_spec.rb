@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
+RSpec.describe AccreditedRepresentativePortal::SendPoaRequestToCorpDbService do
   describe '.call' do
     let(:poa_request) { create(:power_of_attorney_request, :with_veteran_claimant) }
-    let(:service_instance) { instance_double(BenefitsClaims::Service, submit_power_of_attorney: true) }
+    let(:service_instance) { instance_double(BenefitsClaims::Service, submit_power_of_attorney_request: true) }
 
     before do
       allow(BenefitsClaims::Service).to receive(:new).and_return(service_instance)
@@ -44,7 +44,7 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
       it 'submits the correct payload' do
         described_class.call(poa_request)
 
-        expect(service_instance).to have_received(:submit_power_of_attorney) do |payload|
+        expect(service_instance).to have_received(:submit_power_of_attorney_request) do |payload|
           attributes = payload[:data][:attributes]
 
           # Veteran fields
@@ -111,7 +111,7 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
       it 'handles nil optional fields correctly' do
         described_class.call(poa_request)
 
-        expect(service_instance).to have_received(:submit_power_of_attorney) do |payload|
+        expect(service_instance).to have_received(:submit_power_of_attorney_request) do |payload|
           vet = payload[:data][:attributes][:veteran]
 
           # Optional fields
@@ -131,7 +131,7 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaToCorpDbService do
 
     context 'when service raises an error' do
       it 'logs and raises the error' do
-        allow(service_instance).to receive(:submit_power_of_attorney)
+        allow(service_instance).to receive(:submit_power_of_attorney_request)
           .and_raise(Faraday::ClientError.new(double(response: { status: 500 })))
 
         expect(Rails.logger).to receive(:error).with(/POA CorpDB send failed/, hash_including(:poa_request_id))

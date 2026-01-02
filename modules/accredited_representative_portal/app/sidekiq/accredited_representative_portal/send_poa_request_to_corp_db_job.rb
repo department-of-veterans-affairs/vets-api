@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class SendPoaToCorpDbJob
+  class SendPoaRequestToCorpDbJob
     include Sidekiq::Job
     sidekiq_options retry: 5, queue: :default
 
@@ -27,30 +27,33 @@ module AccreditedRepresentativePortal
     end
 
     def send_to_corpdb(poa_request)
-      AccreditedRepresentativePortal::SendPoaToCorpDbService.call(poa_request)
+      AccreditedRepresentativePortal::SendPoaRequestToCorpDbService.call(poa_request)
     end
 
     def log_non_retryable_error(poa_request_id, error)
       Rails.logger.error(
-        'POA request not found',
+        'POA Request not found',
         poa_request_id:,
-        error: error.message
+        error_class: error.class.name,
+        message: error.message
       )
     end
 
     def log_retryable_error(poa_request_id, error)
       Rails.logger.error(
-        'Failed to send POA to CorpDB (retrying)',
+        'Failed to send POA Request to CorpDB (retrying)',
         poa_request_id:,
-        error: error.message
+        error_class: error.class.name,
+        message: error.message
       )
     end
 
     def log_unexpected_error(poa_request_id, error)
       Rails.logger.error(
-        'Unexpected error sending POA to CorpDB',
+        'Unexpected error sending POA Request to CorpDB',
         poa_request_id:,
-        error: error.message
+        error_class: error.class.name,
+        message: error.message
       )
     end
   end
