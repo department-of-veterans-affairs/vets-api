@@ -11,10 +11,10 @@
         "type": { "type": "string" },
         "attributes": {
           "type": "object",
-          "required": ["res_case_id", "is_transfered_to_cwnrs", "external_status"],
+          "required": ["res_case_id", "is_transferred_to_cwnrs", "external_status"],
           "properties": {
             "res_case_id": { "type": ["integer", "null"] },
-            "is_transfered_to_cwnrs": { "type": ["boolean", "null"] },
+            "is_transferred_to_cwnrs": { "type": ["boolean", "null"] },
             "external_status": {
               "type": ["object", "null"],
               "properties": {

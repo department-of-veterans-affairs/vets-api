@@ -2,17 +2,26 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
+require_relative 'oracle_health_medication_categorizer'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
+      include OracleHealthMedicationCategorizer
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
-      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid/filtered
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
+
+        category = categorize_medication(resource)
+
+        # Filter out medications that should not be visible to Veterans
+        return nil if %i[pharmacy_charges inpatient].include?(category)
+
+        log_uncategorized_medication(resource) if category == :uncategorized
 
         UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
@@ -547,26 +556,6 @@ module UnifiedHealthData
 
       def extract_prescription_source(resource)
         non_va_med?(resource) ? 'NV' : 'VA'
-      end
-
-      def extract_category(resource)
-        # Extract category from FHIR MedicationRequest
-        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
-        categories = resource['category'] || []
-        return [] if categories.empty?
-
-        # Category is an array of CodeableConcept objects
-        # We collect all codes from all categories
-        codes = []
-        categories.each do |category|
-          codings = category['coding'] || []
-          codings.each do |coding|
-            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
-            codes << coding['code'] if coding['code'].present?
-          end
-        end
-
-        codes
       end
 
       def extract_provider_name(resource)
