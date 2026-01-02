@@ -51,6 +51,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         expect { described_class.drain }.to raise_error(ArgumentError)
       end
     end
+
+    context 'when an invalid guid is passed' do
+      it 'raises an ArgumentError with a helpful message' do
+        subject.perform_async(submission.id, 'invalid-guid-that-does-not-exist')
+        expect(Form526JobStatus).to receive(:upsert).at_least(:once)
+        expect { described_class.drain }.to raise_error(ArgumentError, /No upload found with guid/)
+      end
+    end
   end
 
   describe 'backward compatibility with old calling convention' do
