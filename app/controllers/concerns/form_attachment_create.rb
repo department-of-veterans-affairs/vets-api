@@ -13,8 +13,16 @@ module FormAttachmentCreate
                       })
 
     validate_file_upload_class!
-    save_attachment_to_cloud!
-    save_attachment_to_db!
+    ActiveRecord::Base.transaction do
+      # Save to get an ID
+      save_attachment_to_db!
+
+      # Upload using the ID
+      save_attachment_to_cloud!
+
+      # Save the file_data JSON that was set by set_file_data!
+      form_attachment.save!
+    end
 
     serialized = serializer_klass.new(form_attachment)
 
