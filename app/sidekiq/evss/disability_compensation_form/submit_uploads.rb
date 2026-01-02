@@ -53,13 +53,11 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-        if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-          submission = Form526Submission.find(form526_submission_id)
-          upload_data = submission.form[Form526Submission::FORM_526_UPLOADS]&.find { |u| u['confirmationCode'] == guid }
-          if upload_data
-            provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
-            provider.log_uploading_job_failure(self, error_class, error_message)
-          end
+        submission = Form526Submission.find(form526_submission_id)
+        upload_data = submission.form[Form526Submission::FORM_526_UPLOADS]&.find { |u| u['confirmationCode'] == guid }
+        if upload_data
+          provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
+          provider.log_uploading_job_failure(self, error_class, error_message)
         end
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
@@ -113,6 +111,25 @@ module EVSS
         )
       end
 
+      # Method to support getting both guid and upload_data from either calling convention
+      #
+      # @param guid_or_upload_data [String, Hash] Either the attachment GUID or the old upload_data hash
+      # @param upload_data_list [Array<Hash>] List of upload_data hashes from the form
+      # @return [Array(String, Hash)] The guid string and the upload_data hash
+      def get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+        # Handle both old and new calling conventions
+        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
+          # Old format: upload_data hash was passed (possibly wrapped in array)
+          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
+          guid = upload_data&.dig('confirmationCode')
+        else
+          # New format: guid string was passed
+          guid = guid_or_upload_data
+          upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
+        end
+        [guid, upload_data]
+      end
+
       # Submits a single supporting evidence attachment for a Form526 submission
       #
       # Supports both old and new calling conventions:
@@ -128,16 +145,7 @@ module EVSS
         submission = Form526Submission.find(submission_id)
         upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
 
-        # Handle both old and new calling conventions
-        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
-          # Old format: upload_data hash was passed (possibly wrapped in array)
-          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
-          guid = upload_data&.dig('confirmationCode')
-        else
-          # New format: guid string was passed
-          guid = guid_or_upload_data
-          upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
-        end
+        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
 
         raise ArgumentError, "No upload found with guid #{guid} for submission #{submission_id}" if upload_data.nil?
 
@@ -150,11 +158,7 @@ module EVSS
           document_data = create_document_data(upload_data, sea.converted_filename)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-            upload_via_api_provider(submission, upload_data, file_body, sea)
-          else
-            EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
-          end
+          upload_via_api_provider(submission, upload_data, file_body, sea)
         end
       rescue => e
         # Can't send a job manually to the dead set.
