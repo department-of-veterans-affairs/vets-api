@@ -86,12 +86,12 @@ module Vass
       end
 
       ##
-      # Validates that the session has required data for OTP validation.
+      # Validates that the session has required data for OTC validation.
       #
       # @return [Boolean] true if valid, false otherwise
       #
       def valid_for_validation?
-        uuid.present? && otp_code.present? && valid_otp_format?
+        uuid.present? && otp_code.present? && valid_otc_format?
       end
 
       ##
@@ -99,17 +99,17 @@ module Vass
       #
       # @return [String] Generated one-time code
       #
-      def generate_otp
-        SecureRandom.random_number(999_999).to_s.rjust(OTP_LENGTH, '0')
+      def generate_otc
+        SecureRandom.random_number(999_999).to_s.rjust(OTC_LENGTH, '0')
       end
 
       ##
-      # Saves the OTP to Redis with expiration.
+      # Saves the OTC to Redis with expiration.
       #
-      # @param code [String] OTP code to save
+      # @param code [String] OTC code to save
       # @return [Boolean] true if saved successfully
       #
-      def save_otp(code)
+      def save_otc(code)
         redis_client.save_otc(uuid:, code:)
       end
 
@@ -139,25 +139,16 @@ module Vass
       end
 
       ##
-      # Alias for backwards compatibility.
-      #
-      # @return [Boolean] true if OTP matches, false otherwise
-      #
-      def valid_otp?
-        valid_otc?
-      end
-
-      ##
-      # Deletes the OTP from Redis after successful validation.
+      # Deletes the OTC from Redis after successful validation.
       #
       # @return [void]
       #
-      def delete_otp
+      def delete_otc
         redis_client.delete_otc(uuid:)
       end
 
       ##
-      # Generates a session token after successful OTP validation.
+      # Generates a session token after successful OTC validation.
       #
       # @return [String] Session token
       #
@@ -166,19 +157,19 @@ module Vass
       end
 
       ##
-      # Returns success response for OTP generation.
+      # Returns success response for OTC generation.
       #
       # @return [Hash] Success response data
       #
       def creation_response
         {
           uuid:,
-          message: 'OTP generated successfully'
+          message: 'OTC generated successfully'
         }
       end
 
       ##
-      # Returns success response for OTP validation.
+      # Returns success response for OTC validation.
       #
       # @param session_token [String] Generated session token
       # @return [Hash] Success response data
@@ -186,7 +177,7 @@ module Vass
       def validation_response(session_token:)
         {
           session_token:,
-          message: 'OTP validated successfully'
+          message: 'OTC validated successfully'
         }
       end
 
@@ -203,14 +194,14 @@ module Vass
       end
 
       ##
-      # Returns error response for invalid OTP.
+      # Returns error response for invalid OTC.
       #
       # @return [Hash] Error response data
       #
-      def invalid_otp_response
+      def invalid_otc_response
         {
           error: true,
-          message: 'Invalid OTP code'
+          message: 'Invalid OTC code'
         }
       end
 
@@ -256,30 +247,21 @@ module Vass
       # @return [String] Generated OTC
       #
       def generate_and_save_otc
-        otc_code = generate_otp
-        save_otp(otc_code)
+        otc_code = generate_otc
+        save_otc(otc_code)
         otc_code
       end
 
       ##
-      # Alias for backwards compatibility.
-      #
-      # @return [String] Generated OTP code
-      #
-      def generate_and_save_otp
-        generate_and_save_otc
-      end
-
-      ##
-      # Validates OTP, deletes it, and generates a session token.
+      # Validates OTC, deletes it, and generates a session token.
       #
       # @return [String] Generated session token
-      # @raise [Vass::Errors::AuthenticationError] if OTP is invalid
+      # @raise [Vass::Errors::AuthenticationError] if OTC is invalid
       #
-      def validate_and_process_otp
-        raise Vass::Errors::AuthenticationError, 'Invalid OTP' unless valid_otp?
+      def validate_and_process_otc
+        raise Vass::Errors::AuthenticationError, 'Invalid OTC' unless valid_otc?
 
-        delete_otp
+        delete_otc
         generate_session_token
       end
 
@@ -336,7 +318,7 @@ module Vass
       def validate_and_generate_jwt
         raise Vass::Errors::AuthenticationError, 'Invalid OTC' unless valid_otc?
 
-        delete_otp
+        delete_otc
         generate_jwt_token
       end
 
@@ -433,11 +415,11 @@ module Vass
       end
 
       ##
-      # Validates OTP code format (6 digits).
+      # Validates OTC code format (6 digits).
       #
       # @return [Boolean] true if valid format
       #
-      def valid_otp_format?
+      def valid_otc_format?
         otp_code.present? && /\A\d{6}\z/.match?(otp_code)
       end
     end

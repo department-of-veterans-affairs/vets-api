@@ -81,7 +81,7 @@ module Vass
         render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
       rescue Vass::Errors::RateLimitError => e
         handle_validation_rate_limit_error(session, e)
-      rescue Vass::Errors::AuthenticationError =>
+      rescue Vass::Errors::AuthenticationError
         handle_invalid_otc(session)
       rescue *vass_api_exceptions => e
         log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error, error_class: e.class.name)
@@ -169,10 +169,10 @@ module Vass
       # @param otc_code [String] OTC code to send
       #
       def send_otc_via_vanotify(session, otc_code)
-        vanotify_service.send_otp(
+        vanotify_service.send_otc(
           contact_method: session.contact_method,
           contact_value: session.contact_value,
-          otp_code: otc_code
+          otc_code:
         )
       end
 

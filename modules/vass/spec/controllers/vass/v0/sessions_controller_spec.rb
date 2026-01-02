@@ -65,7 +65,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
     context 'with valid parameters' do
       before do
         allow(Vass::V0::Session).to receive(:build).and_return(session_model)
-        allow(session_model).to receive(:save_otp)
+        allow(session_model).to receive(:save_otc)
         allow(session_model).to receive_messages(
           valid_for_creation?: true,
           uuid:,
@@ -73,7 +73,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           date_of_birth:,
           contact_value: valid_email,
           contact_method: 'email',
-          generate_otp: otp_code
+          generate_otc: otp_code
         )
         allow(session_model).to receive(:set_contact_from_veteran_data)
         allow(session_model).to receive(:validate_identity_against_veteran_data)
@@ -81,7 +81,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(redis_client).to receive(:increment_rate_limit)
         allow(redis_client).to receive_messages(rate_limit_exceeded?: false, validation_rate_limit_exceeded?: false,
                                                 redis_otc_expiry: 15)
-        allow(vanotify_service).to receive(:send_otp)
+        allow(vanotify_service).to receive(:send_otc)
         allow(appointments_service).to receive(:get_veteran_info).and_return(
           veteran_data.merge('contact_method' => 'email', 'contact_value' => valid_email)
         )
@@ -113,10 +113,10 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
 
       it 'generates and saves OTC, then sends via VANotify' do
         expect(session_model).to receive(:generate_and_save_otc).and_return('123456')
-        expect(vanotify_service).to receive(:send_otp).with(
+        expect(vanotify_service).to receive(:send_otc).with(
           contact_method: 'email',
           contact_value: valid_email,
-          otp_code: '123456'
+          otc_code: '123456'
         )
         post :request_otc, params:, format: :json
       end
@@ -153,7 +153,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'does not generate OTC' do
-        expect(session_model).not_to receive(:generate_otp)
+        expect(session_model).not_to receive(:generate_otc)
         post :request_otc, params:, format: :json
       end
     end
@@ -213,7 +213,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'does not generate OTC' do
-        expect(session_model).not_to receive(:generate_otp)
+        expect(session_model).not_to receive(:generate_otc)
         post :request_otc, params:, format: :json
       end
     end
@@ -253,8 +253,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(json_response['errors'][0]['code']).to eq('invalid_credentials')
       end
 
-      it 'does not generate OTP' do
-        expect(session_model).not_to receive(:generate_otp)
+      it 'does not generate OTC' do
+        expect(session_model).not_to receive(:generate_otc)
         post :request_otc, params:, format: :json
       end
     end
@@ -294,8 +294,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(json_response['errors'].first['detail']).to eq('No contact information available for this veteran.')
       end
 
-      it 'does not generate OTP' do
-        expect(session_model).not_to receive(:generate_otp)
+      it 'does not generate OTC' do
+        expect(session_model).not_to receive(:generate_otc)
         post :request_otc, params:, format: :json
       end
     end
@@ -310,8 +310,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           date_of_birth:,
           contact_value: valid_email,
           contact_method: 'email',
-          generate_otp: otp_code,
-          save_otp: true,
+          generate_otc: otp_code,
+          save_otc: true,
           creation_response: {
             uuid:,
             message: 'OTP generated successfully'
@@ -330,7 +330,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:set_contact_from_veteran_data)
         allow(session_model).to receive(:validate_identity_against_veteran_data)
         allow(session_model).to receive(:generate_and_save_otc).and_return('123456')
-        allow(vanotify_service).to receive(:send_otp).and_raise(
+        allow(vanotify_service).to receive(:send_otc).and_raise(
           VANotify::Error.new(500, 'VANotify service unavailable')
         )
       end
@@ -366,7 +366,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         end
 
         it 'returns bad request for 400 error' do
-          allow(vanotify_service).to receive(:send_otp).and_raise(VANotify::Error.new(400, 'Bad request'))
+          allow(vanotify_service).to receive(:send_otc).and_raise(VANotify::Error.new(400, 'Bad request'))
           post :request_otc, params:, format: :json
           expect(response).to have_http_status(:bad_request)
           json_response = JSON.parse(response.body)
@@ -374,7 +374,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         end
 
         it 'returns too many requests for 429 error' do
-          allow(vanotify_service).to receive(:send_otp).and_raise(VANotify::Error.new(429, 'Rate limit exceeded'))
+          allow(vanotify_service).to receive(:send_otc).and_raise(VANotify::Error.new(429, 'Rate limit exceeded'))
           post :request_otc, params:, format: :json
           expect(response).to have_http_status(:too_many_requests)
           json_response = JSON.parse(response.body)
@@ -382,7 +382,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         end
 
         it 'returns service unavailable for unknown status codes' do
-          allow(vanotify_service).to receive(:send_otp).and_raise(VANotify::Error.new(999, 'Unknown error'))
+          allow(vanotify_service).to receive(:send_otc).and_raise(VANotify::Error.new(999, 'Unknown error'))
           post :request_otc, params:, format: :json
           expect(response).to have_http_status(:service_unavailable)
           json_response = JSON.parse(response.body)
@@ -486,7 +486,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'does not delete the OTC' do
-        expect(session_model).not_to receive(:delete_otp)
+        expect(session_model).not_to receive(:delete_otc)
         post :authenticate_otc, params:, format: :json
       end
 

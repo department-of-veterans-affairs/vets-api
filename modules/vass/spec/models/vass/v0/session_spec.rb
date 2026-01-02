@@ -145,72 +145,72 @@ RSpec.describe Vass::V0::Session, type: :model do
     end
   end
 
-  describe '#generate_otp' do
+  describe '#generate_otc' do
     it 'generates a 6-digit numeric code' do
       session = described_class.new
-      otp = session.generate_otp
-      expect(otp).to match(/^\d{6}$/)
+      otc = session.generate_otc
+      expect(otc).to match(/^\d{6}$/)
     end
 
     it 'pads with leading zeros' do
       session = described_class.new
       allow(SecureRandom).to receive(:random_number).and_return(123)
-      otp = session.generate_otp
-      expect(otp).to eq('000123')
+      otc = session.generate_otc
+      expect(otc).to eq('000123')
     end
   end
 
-  describe '#save_otp' do
-    it 'saves the OTP to Redis' do
+  describe '#save_otc' do
+    it 'saves the OTC to Redis' do
       session = described_class.new(uuid:, redis_client:)
       expect(redis_client).to receive(:save_otc).with(uuid:, code: otp_code)
-      session.save_otp(otp_code)
+      session.save_otc(otp_code)
     end
   end
 
-  describe '#valid_otp?' do
+  describe '#valid_otc?' do
     let(:session) { described_class.new(uuid:, otp_code:, redis_client:) }
 
-    context 'when OTP matches' do
+    context 'when OTC matches' do
       it 'returns true' do
         allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
-        expect(session.valid_otp?).to be true
+        expect(session.valid_otc?).to be true
       end
     end
 
-    context 'when OTP does not match' do
+    context 'when OTC does not match' do
       it 'returns false' do
         allow(redis_client).to receive(:otc).with(uuid:).and_return('999999')
-        expect(session.valid_otp?).to be false
+        expect(session.valid_otc?).to be false
       end
     end
 
-    context 'when OTP is not found in Redis' do
+    context 'when OTC is not found in Redis' do
       it 'returns false' do
         allow(redis_client).to receive(:otc).with(uuid:).and_return(nil)
-        expect(session.valid_otp?).to be false
+        expect(session.valid_otc?).to be false
       end
     end
 
     context 'when session is not valid for validation' do
       it 'returns false' do
         invalid_session = described_class.new(uuid: nil, otp_code: nil, redis_client:)
-        expect(invalid_session.valid_otp?).to be false
+        expect(invalid_session.valid_otc?).to be false
       end
     end
 
     it 'uses constant-time comparison to prevent timing attacks' do
       allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
       expect(ActiveSupport::SecurityUtils).to receive(:secure_compare).with(otp_code, otp_code)
-      session.valid_otp?
+      session.valid_otc?
     end
   end
 
-  describe '#delete_otp' do
-    it 'deletes the OTP from Redis' do
+  describe '#delete_otc' do
+    it 'deletes the OTC from Redis' do
       session = described_class.new(uuid:, redis_client:)
       expect(redis_client).to receive(:delete_otc).with(uuid:)
-      session.delete_otp
+      session.delete_otc
     end
   end
 
@@ -250,6 +250,7 @@ RSpec.describe Vass::V0::Session, type: :model do
       it 'raises AuthenticationError and does not delete OTC' do
         session = described_class.new(uuid:, otp_code: 'wrong', redis_client:)
         allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        allow(redis_client).to receive(:delete_otc)
 
         expect { session.validate_and_generate_jwt }
           .to raise_error(Vass::Errors::AuthenticationError, 'Invalid OTC')
@@ -282,7 +283,7 @@ RSpec.describe Vass::V0::Session, type: :model do
       response = session.creation_response
       expect(response).to eq({
                                uuid:,
-                               message: 'OTP generated successfully'
+                               message: 'OTC generated successfully'
                              })
     end
   end
@@ -294,7 +295,7 @@ RSpec.describe Vass::V0::Session, type: :model do
       response = session.validation_response(session_token: token)
       expect(response).to eq({
                                session_token: token,
-                               message: 'OTP validated successfully'
+                               message: 'OTC validated successfully'
                              })
     end
   end
@@ -310,13 +311,13 @@ RSpec.describe Vass::V0::Session, type: :model do
     end
   end
 
-  describe '#invalid_otp_response' do
+  describe '#invalid_otc_response' do
     it 'returns error response' do
       session = described_class.new
-      response = session.invalid_otp_response
+      response = session.invalid_otc_response
       expect(response).to eq({
                                error: true,
-                               message: 'Invalid OTP code'
+                               message: 'Invalid OTC code'
                              })
     end
   end

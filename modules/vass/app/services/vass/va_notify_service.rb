@@ -9,10 +9,10 @@ module Vass
   #
   # @example Send OTC via email
   #   service = Vass::VANotifyService.build
-  #   service.send_otp(
+  #   service.send_otc(
   #     contact_method: 'email',
   #     contact_value: 'veteran@example.com',
-  #     otp_code: '123456'
+  #     otc_code: '123456'
   #   )
   #
   class VANotifyService
@@ -46,16 +46,16 @@ module Vass
     #
     # @param contact_method [String] Contact method (must be 'email')
     # @param contact_value [String] Email address
-    # @param otp_code [String] OTC code to send
+    # @param otc_code [String] OTC code to send
     #
     # @return [VaNotify::NotificationResponse] Response from VANotify
     # @raise [ArgumentError] if contact_method is invalid
     # @raise [VANotify::Error] if VANotify service fails
     #
-    def send_otp(contact_method:, contact_value:, otp_code:)
+    def send_otc(contact_method:, contact_value:, otc_code:)
       raise ArgumentError, "Invalid contact_method: #{contact_method}. Must be 'email'" unless contact_method == 'email'
 
-      send_email_otp(contact_value, otp_code)
+      send_email_otc(contact_value, otc_code)
     end
 
     private
@@ -64,15 +64,15 @@ module Vass
     # Sends OTC via email.
     #
     # @param email_address [String] Email address
-    # @param otp_code [String] OTC code
+    # @param otc_code [String] OTC code
     #
     # @return [VaNotify::NotificationResponse] Response from VANotify
     #
-    def send_email_otp(email_address, otp_code)
+    def send_email_otc(email_address, otc_code)
       notify_client.send_email(
         email_address:,
         template_id: email_template_id,
-        personalisation: { otp_code: }
+        personalisation: { otc_code: }
       )
     end
 
