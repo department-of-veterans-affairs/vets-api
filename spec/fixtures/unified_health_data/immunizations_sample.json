@@ -1,0 +1,2064 @@
+{
+  "vista": {
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 13,
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "431b45a9-9070-4f8c-8de5-ab9cf9403fce",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90732",
+                "display": "PPSV23 VACC 2 YRS+ SUBQ/IM"
+              }
+            ],
+            "text": "PNEUMOCOCCAL POLYSACCHARIDE PPV23"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-11-26T20:35:00Z",
+          "location": {
+            "reference": "NUCLEAR MED",
+            "display": "NUCLEAR MED"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "LD",
+                "display": "LEFT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650339"
+                },
+                "display": "MCGUIRE,MARCI P"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "series": "SERIES 1"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "2612290b-a456-4996-ad7f-fc7eff5b5ffc",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90619",
+                "display": "MENACWY-TT VACCINE IM"
+              }
+            ],
+            "text": "MENINGOCOCCAL CONJUGATE QUADRIVALENT, MENACWY-TT (MCV4)"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-11-14T03:19:00Z",
+          "location": {
+            "reference": "SIDNEY PRIMARY CARE",
+            "display": "SIDNEY PRIMARY CARE"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "LD",
+                "display": "LEFT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520647991"
+                },
+                "display": "AHMED,MARUF"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "89401d59-1a87-461a-a6ef-80991981d115",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "91322",
+                "display": "SARSCOV2 VAC 50 MCG/0.5ML IM"
+              }
+            ],
+            "text": "COVID-19 (MODERNA), MRNA, LNP-S, PF, 50 MCG/0.5 ML (AGES 12+ YEARS)"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-10-18T20:10:00Z",
+          "location": {
+            "reference": "COVID VACCINE CLIN1",
+            "display": "COVID VACCINE CLIN1"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "RD",
+                "display": "RIGHT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650352"
+                },
+                "display": "BORLAND,VICTORIA A"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "series": "BOOSTER"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "22b6a52f-e596-4728-8025-84469b768c4a",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90662",
+                "display": "IIV NO PRSV INCREASED AG IM"
+              }
+            ],
+            "text": "INFLUENZA, HIGH-DOSE, QUADRIVALENT, PF"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-10-18T20:10:00Z",
+          "location": {
+            "reference": "GREELEY NURSE",
+            "display": "GREELEY NURSE"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "RD",
+                "display": "RIGHT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650352"
+                },
+                "display": "BORLAND,VICTORIA A"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "90482b1b-1032-4884-9404-45c3213fde7d",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90632",
+                "display": "HEPA VACCINE ADULT IM"
+              }
+            ],
+            "text": "HEP A, ADULT"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-10-18T19:30:00Z",
+          "location": {
+            "reference": "GREELEY NURSE",
+            "display": "GREELEY NURSE"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "RD",
+                "display": "RIGHT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650352"
+                },
+                "display": "BORLAND,VICTORIA A"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "6a8877bb-38a2-408c-90bb-00544c6e803c",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90750",
+                "display": "HZV VACC RECOMBINANT IM"
+              }
+            ],
+            "text": "ZOSTER RECOMBINANT"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-08-17T13:10:00Z",
+          "location": {
+            "reference": "GREELEY NURSE",
+            "display": "GREELEY NURSE"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "LD",
+                "display": "LEFT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650352"
+                },
+                "display": "BORLAND,VICTORIA A"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "series": "COMPLETE"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "c648f661-d8a1-4369-b7f1-1ed5c9b5f874",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90715",
+                "display": "TDAP VACCINE 7 YRS/> IM"
+              }
+            ],
+            "text": "TDAP"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2024-03-04T14:00:00Z",
+          "location": {
+            "reference": "GREELEY NURSE",
+            "display": "GREELEY NURSE"
+          },
+          "site": {
+            "coding": [
+              {
+                "code": "RD",
+                "display": "RIGHT DELTOID"
+              }
+            ]
+          },
+          "route": {
+            "coding": [
+              {
+                "code": "IM",
+                "display": "INTRAMUSCULAR"
+              }
+            ]
+          },
+          "performer": [
+            {
+              "actor": {
+                "identifier": {
+                  "value": "520650352"
+                },
+                "display": "BORLAND,VICTORIA A"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "series": "COMPLETE"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "fe54675b-3ffb-4c51-ba10-1ae737603439",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "91316",
+                "display": "SARSCOV2 VAC BVL 10MCG/0.2ML"
+              }
+            ],
+            "text": "COVID-19 (MODERNA), MRNA, LNP-S, BIVALENT, PF, 10 MCG/0.2 ML"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2023-10-20T04:00:00Z",
+          "protocolApplied": [
+            {
+              "series": "BOOSTER"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "4ae85a91-69f4-4835-a77c-edd3a6a0d455",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90673",
+                "display": "RIV3 VACCINE NO PRESERV IM"
+              }
+            ],
+            "text": "INFLUENZA, RECOMBINANT, TRIVALENT, PF"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2023-10-20T04:00:00Z"
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "11c2119b-b5e1-4307-a4c9-af635c168af4",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90672",
+                "display": "LAIV4 VACCINE INTRANASAL"
+              }
+            ],
+            "text": "INFLUENZA, LIVE, QUADRIVALENT, INTRANASAL"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2022-10-02T04:00:00Z",
+          "site": {
+            "coding": [
+              {
+                "code": "LN",
+                "display": "LEFT NARIS"
+              }
+            ]
+          },
+          "protocolApplied": [
+            {
+              "series": "COMPLETE"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "86fadb4b-dd26-4649-81a6-f2ddaf2b46f5",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "91316",
+                "display": "SARSCOV2 VAC BVL 10MCG/0.2ML"
+              }
+            ],
+            "text": "COVID-19 (MODERNA), MRNA, LNP-S, BIVALENT, PF, 10 MCG/0.2 ML"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2022-10-01T04:00:00Z",
+          "site": {
+            "coding": [
+              {
+                "code": "LD",
+                "display": "LEFT DELTOID"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "f35e371f-7951-4fee-bf5a-a36f9430fb3e",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90670",
+                "display": "PCV13 VACCINE IM"
+              }
+            ],
+            "text": "PNEUMOCOCCAL CONJUGATE PCV 13"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "2020-02-22T04:00:00Z",
+          "site": {
+            "coding": [
+              {
+                "code": "RD",
+                "display": "RIGHT DELTOID"
+              }
+            ]
+          },
+          "protocolApplied": [
+            {
+              "series": "COMPLETE"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "ae4d8ff4-e796-4a91-aaf6-8a37343038c5",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "code": "90707",
+                "display": "MMR VACCINE SC"
+              }
+            ],
+            "text": "MMR"
+          },
+          "patient": {
+            "reference": "Patient/24643801"
+          },
+          "occurrenceDateTime": "1992-01-01T04:00:00Z"
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "OperationOutcome",
+          "id": "cf992dd8-93eb-4027-8437-f5b89f06b247",
+          "issue": [
+            {
+              "severity": "information",
+              "code": "informational",
+              "diagnostics": "Success"
+            },
+            {
+              "severity": "information",
+              "code": "informational",
+              "diagnostics": "Overall message outcome"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "b1c3542e-e9bb-4b48-b60c-3dda105ad0ea",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [{ "code": "90632", "display": "HEPA VACCINE ADULT IM" }],
+            "text": "HEP A, ADULT"
+          },
+          "patient": { "reference": "Patient/16701378" },
+          "occurrenceDateTime": "2024-02-28T22:00:00Z",
+          "location": {
+            "reference": "ANTICOAGULATION",
+            "display": "ANTICOAGULATION"
+          },
+          "site": { "coding": [{ "code": "LD", "display": "LEFT DELTOID" }] },
+          "route": { "coding": [{ "code": "IM", "display": "INTRAMUSCULAR" }] },
+          "performer": [
+            {
+              "actor": {
+                "identifier": { "value": "520649683" },
+                "display": "ROLLETT,ADRIAN C"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "cf12b8c4-12b0-4ba1-8076-6655c7b14cd2",
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              { "code": "91302", "display": "SARSCOV2 VAC 5X1010VP/.5MLIM" }
+            ],
+            "text": "COVID-19 (ASTRAZENECA), VECTOR-NR, RS-CHADOX1, PF, 0.5 ML"
+          },
+          "patient": { "reference": "Patient/16701378" },
+          "occurrenceDateTime": "2024-01-30T15:33:00Z",
+          "location": { "reference": "CHY PC VAR2", "display": "CHY PC VAR2" },
+          "site": { "coding": [{ "code": "LD", "display": "LEFT DELTOID" }] },
+          "route": { "coding": [{ "code": "IM", "display": "INTRAMUSCULAR" }] },
+          "performer": [
+            {
+              "actor": {
+                "identifier": { "value": "520649683" },
+                "display": "ROLLETT,ADRIAN C"
+              }
+            }
+          ],
+          "protocolApplied": [{ "series": "PARTIALLY COMPLETE" }]
+        }
+      }
+    ]
+  },
+  "oracle-health": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875183434",
+          "meta": {
+            "versionId": "2",
+            "lastUpdated": "2025-12-10T20:25:15+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: influenza virus vaccine, inactivated</p><p><b>Occurrence</b>: Dec 10, 2025  4:20 P.M. CST</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Administered by</b>: Borland, Victoria A</p><p><b>Ordered by</b>: Borland, Victoria A</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Site</b>: Shoulder, left (deltoid)</p><p><b>Route</b>: IntraMuscular</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875183434-2025121020204500"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "2820755",
+                "display": "influenza virus vaccine, inactivated",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "140",
+                "display": "influenza virus vaccine, inactivated (influenza vaccine (Afluria) [3 yr+] 2025-2026 PF Prefilled Syringe IM suspension)",
+                "userSelected": false
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/ndc",
+                "code": "33332-0025-03",
+                "display": "Afluria PF Prefilled Syringe 2025-2026",
+                "userSelected": true
+              }
+            ],
+            "text": "influenza virus vaccine, inactivated"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": { "reference": "Encounter/322675981" },
+          "occurrenceDateTime": "2025-12-10T16:20:00-06:00",
+          "primarySource": true,
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "manufacturer": { "display": "Seqirus USA Inc" },
+          "lotNumber": "AX5586C",
+          "expirationDate": "2026-06-30",
+          "site": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/97",
+                "code": "577",
+                "display": "Shoulder, left (deltoid)",
+                "userSelected": true
+              },
+              {
+                "system": "http://snomed.info/sct",
+                "code": "16217701000119102",
+                "display": "Structure of left deltoid muscle (body structure)",
+                "userSelected": false
+              }
+            ],
+            "text": "Shoulder, left (deltoid)"
+          },
+          "route": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4001",
+                "code": "318167",
+                "display": "IntraMuscular",
+                "userSelected": true
+              },
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78421000",
+                "display": "Intramuscular route (qualifier value)",
+                "userSelected": false
+              }
+            ],
+            "text": "IntraMuscular"
+          },
+          "doseQuantity": {
+            "value": 0.5,
+            "unit": "mL",
+            "system": "http://unitsofmeasure.org",
+            "code": "mL"
+          },
+          "performer": [
+            {
+              "function": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                    "code": "AP",
+                    "display": "Administering Provider"
+                  }
+                ],
+                "text": "Administering Provider"
+              },
+              "actor": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              }
+            },
+            {
+              "function": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                    "code": "OP",
+                    "display": "Ordering Provider"
+                  }
+                ],
+                "text": "Ordering Provider"
+              },
+              "actor": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              }
+            },
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "note": [
+            {
+              "authorReference": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              },
+              "time": "2025-12-10T14:25:14-06:00",
+              "text": "Added comment \"note\""
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42347925",
+                      "display": "Influenza",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "88",
+                      "display": "influenza virus vaccine, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Influenza"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875183430",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-12-10T20:20:28+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: human papillomavirus vaccine</p><p><b>Occurrence</b>: Dec 10, 2025  2:19 P.M. CST</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Administered by</b>: Borland, Victoria A</p><p><b>Ordered by</b>: Borland, Victoria A</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Site</b>: Shoulder, left (deltoid)</p><p><b>Route</b>: IntraMuscular</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875183430-2025121020202800"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "4145920",
+                "display": "human papillomavirus vaccine",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "165",
+                "display": "human papillomavirus vaccine (human papillomavirus vaccine 9-valent intramuscular suspension)",
+                "userSelected": false
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/ndc",
+                "code": "00006-4121-02",
+                "display": "Gardasil 9",
+                "userSelected": true
+              }
+            ],
+            "text": "human papillomavirus vaccine"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": { "reference": "Encounter/322675981" },
+          "occurrenceDateTime": "2025-12-10T14:19:00-06:00",
+          "primarySource": true,
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "manufacturer": { "display": "Merck & Company Inc" },
+          "lotNumber": "Z005469",
+          "expirationDate": "2026-02-27",
+          "site": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/97",
+                "code": "577",
+                "display": "Shoulder, left (deltoid)",
+                "userSelected": true
+              },
+              {
+                "system": "http://snomed.info/sct",
+                "code": "16217701000119102",
+                "display": "Structure of left deltoid muscle (body structure)",
+                "userSelected": false
+              }
+            ],
+            "text": "Shoulder, left (deltoid)"
+          },
+          "route": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4001",
+                "code": "318167",
+                "display": "IntraMuscular",
+                "userSelected": true
+              },
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78421000",
+                "display": "Intramuscular route (qualifier value)",
+                "userSelected": false
+              }
+            ],
+            "text": "IntraMuscular"
+          },
+          "doseQuantity": {
+            "value": 0.5,
+            "unit": "mL",
+            "system": "http://unitsofmeasure.org",
+            "code": "mL"
+          },
+          "performer": [
+            {
+              "function": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                    "code": "AP",
+                    "display": "Administering Provider"
+                  }
+                ],
+                "text": "Administering Provider"
+              },
+              "actor": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              }
+            },
+            {
+              "function": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                    "code": "OP",
+                    "display": "Ordering Provider"
+                  }
+                ],
+                "text": "Ordering Provider"
+              },
+              "actor": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              }
+            },
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42347973",
+                      "display": "Human Papillomavirus",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "137",
+                      "display": "HPV, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Human Papillomavirus"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875036619",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-26T17:17:12+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: rabies vaccine, unspecified formulation</p><p><b>Occurrence</b>: Apr  4, 2016</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875036619-2025112617171200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "112324605",
+                "display": "rabies vaccine, unspecified formulation",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "90",
+                "display": "rabies vaccine, unspecified formulation",
+                "userSelected": false
+              }
+            ],
+            "text": "rabies vaccine, unspecified formulation"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": {
+            "reference": "Encounter/322675981"
+          },
+          "occurrenceDateTime": "2016-04-04",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "679975",
+                "display": "Immunization Record",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "record",
+                "display": "Written Record",
+                "userSelected": false
+              }
+            ],
+            "text": "Immunization Record"
+          },
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42348045",
+                      "display": "Rabies",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "90",
+                      "display": "rabies vaccine, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Rabies"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875036615",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-26T17:17:12+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: poliovirus vaccine, unspecified</p><p><b>Occurrence</b>: Oct 31, 1990</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875036615-2025112617171200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "112324773",
+                "display": "poliovirus vaccine, unspecified",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "89",
+                "display": "poliovirus vaccine, unspecified formulation",
+                "userSelected": false
+              }
+            ],
+            "text": "poliovirus vaccine, unspecified"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": {
+            "reference": "Encounter/322675981"
+          },
+          "occurrenceDateTime": "1990-10-31",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "679975",
+                "display": "Immunization Record",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "record",
+                "display": "Written Record",
+                "userSelected": false
+              }
+            ],
+            "text": "Immunization Record"
+          },
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42348033",
+                      "display": "Polio",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "89",
+                      "display": "poliovirus vaccine, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Polio"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875036611",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-26T17:17:12+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: influenza virus vaccine, unspecified</p><p><b>Occurrence</b>: Oct  1, 2025</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875036611-2025112617171200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "112324521",
+                "display": "influenza virus vaccine, unspecified",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "88",
+                "display": "influenza virus vaccine, unspecified formulation",
+                "userSelected": false
+              }
+            ],
+            "text": "influenza virus vaccine, unspecified"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": {
+            "reference": "Encounter/322675981"
+          },
+          "occurrenceDateTime": "2025-10-01",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "23287955",
+                "display": "From Patient or their Parent's Recall",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "recall",
+                "display": "Parent/Guardian/Patient Recall",
+                "userSelected": false
+              }
+            ],
+            "text": "From Patient or their Parent's Recall"
+          },
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42347925",
+                      "display": "Influenza",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "88",
+                      "display": "influenza virus vaccine, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Influenza"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20875036607",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-26T17:17:12+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: COVID-19 vaccine(Spikevax 12y+)</p><p><b>Occurrence</b>: Oct  1, 2025</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875036607-2025112617171200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "12636042661",
+                "display": "COVID-19 vaccine(Spikevax 12y+)",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "312",
+                "display": "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 50 mcg/0.5 mL dose",
+                "userSelected": false
+              }
+            ],
+            "text": "COVID-19 vaccine(Spikevax 12y+)"
+          },
+          "patient": {
+            "reference": "Patient/72339199",
+            "display": "SILVA, ALEXANDER RICARDO"
+          },
+          "encounter": {
+            "reference": "Encounter/322675981"
+          },
+          "occurrenceDateTime": "2025-10-01",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "23287955",
+                "display": "From Patient or their Parent's Recall",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "recall",
+                "display": "Parent/Guardian/Patient Recall",
+                "userSelected": false
+              }
+            ],
+            "text": "From Patient or their Parent's Recall"
+          },
+          "location": {
+            "reference": "Location/353977013",
+            "display": "556 JAL IL VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "534543353",
+                      "display": "COVID-19",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "213",
+                      "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "COVID-19"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Patient",
+          "id": "72339199",
+          "meta": {
+            "versionId": "12",
+            "lastUpdated": "2025-11-25T16:12:16.000Z"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Patient</b></p><p><b>Name</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Active</p><p><b>DOB</b>: Mar  1, 1990</p><p><b>Administrative Gender</b>: Male</p><p><b>Marital Status</b>: Single, Never Married</p></div>"
+          },
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+              "extension": [
+                {
+                  "url": "ombCategory",
+                  "valueCoding": {
+                    "system": "urn:oid:2.16.840.1.113883.6.238",
+                    "code": "2054-5",
+                    "display": "Black or African American",
+                    "userSelected": false
+                  }
+                },
+                {
+                  "url": "text",
+                  "valueString": "Black or African American"
+                }
+              ]
+            },
+            {
+              "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+              "extension": [
+                {
+                  "url": "ombCategory",
+                  "valueCoding": {
+                    "system": "urn:oid:2.16.840.1.113883.6.238",
+                    "code": "2186-5",
+                    "display": "Not Hispanic or Latino",
+                    "userSelected": false
+                  }
+                },
+                {
+                  "url": "text",
+                  "valueString": "Not Hispanic or Latino"
+                }
+              ]
+            }
+          ],
+          "identifier": [
+            {
+              "id": "CI-9915612945-0",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "10",
+                    "display": "MRN",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "code": "MR",
+                    "display": "Medical record number",
+                    "userSelected": false
+                  }
+                ],
+                "text": "MRN"
+              },
+              "_system": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                    "valueCode": "unknown"
+                  }
+                ]
+              },
+              "value": "108233264000001",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "108233264000001"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "CI-9915612939-2",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "22",
+                    "display": "DOD ID",
+                    "userSelected": true
+                  }
+                ],
+                "text": "DOD ID"
+              },
+              "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+              "value": "2116901415",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "2116901415"
+                  }
+                ]
+              },
+              "period": {
+                "start": "2025-11-18T17:24:48.000Z"
+              }
+            },
+            {
+              "id": "CI-9915813076-3",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "670843",
+                    "display": "Messaging",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "code": "U",
+                    "display": "Unspecified identifier",
+                    "userSelected": false
+                  }
+                ],
+                "text": "Messaging"
+              },
+              "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+              "value": "1014135410V826374",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "1014135410V826374"
+                  }
+                ]
+              },
+              "period": {
+                "start": "2025-11-25T16:12:15.000Z"
+              }
+            },
+            {
+              "id": "CI-9915813074-4",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "165915171",
+                    "display": "Federated Person Principal",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "code": "AN",
+                    "display": "Account number",
+                    "userSelected": false
+                  }
+                ],
+                "text": "Federated Person Principal"
+              },
+              "system": "urn:oid:2.16.840.1.113883.3.13.6",
+              "value": "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116901415",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "URN:CERNER:IDENTITY-FEDERATION:REALM:F0FDED0D-D00B-4B28-9190-853247FD9F9D:PRINCIPAL:2116901415"
+                  }
+                ]
+              },
+              "period": {
+                "start": "2025-11-25T16:12:15.000Z"
+              }
+            },
+            {
+              "id": "CI-9915612947-5",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "165915179",
+                    "display": "MIllennium Person Identifier",
+                    "userSelected": true
+                  }
+                ],
+                "text": "MIllennium Person Identifier"
+              },
+              "_system": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                    "valueCode": "unknown"
+                  }
+                ]
+              },
+              "value": "5556241",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "5556241"
+                  }
+                ]
+              },
+              "period": {
+                "start": "2025-11-18T17:24:48.000Z"
+              }
+            },
+            {
+              "id": "CI-9915612941-6",
+              "use": "usual",
+              "type": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4",
+                    "code": "246779987",
+                    "display": "Veteran ID",
+                    "userSelected": true
+                  }
+                ],
+                "text": "Veteran ID"
+              },
+              "system": "urn:oid:2.16.840.1.113883.4.349",
+              "value": "1014135410V826374",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/rendered-value",
+                    "valueString": "1014135410V826374"
+                  }
+                ]
+              },
+              "period": {
+                "start": "2025-11-18T17:24:48.000Z"
+              }
+            }
+          ],
+          "active": true,
+          "name": [
+            {
+              "id": "CI-72339199-0",
+              "use": "official",
+              "text": "SILVA, ALEXANDER RICARDO",
+              "family": "SILVA",
+              "given": ["ALEXANDER", "RICARDO"]
+            }
+          ],
+          "telecom": [
+            {
+              "id": "CI-PH-865281445-0",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-TEL-address",
+                  "valueUrl": "+3365521234"
+                }
+              ],
+              "system": "phone",
+              "value": "3365521234",
+              "use": "home",
+              "rank": 1,
+              "period": {
+                "start": "2025-11-18T17:24:48.000Z"
+              }
+            },
+            {
+              "id": "CI-EM-865281447-0",
+              "system": "email",
+              "value": "testingformhv+silva@gmail.com",
+              "use": "home",
+              "rank": 1,
+              "period": {
+                "start": "2025-11-18T17:24:48.000Z"
+              }
+            }
+          ],
+          "gender": "male",
+          "birthDate": "1990-03-01",
+          "address": [
+            {
+              "id": "CI-950673685-0",
+              "text": "LAREADO, TX \nUS",
+              "city": "LAREADO",
+              "state": "TX",
+              "country": "US"
+            },
+            {
+              "id": "CI-950673687-1",
+              "use": "home",
+              "text": "10750 Carolina Pines Dr\nHarrison, OH 45030-4933\nUS",
+              "line": ["10750 Carolina Pines Dr"],
+              "city": "Harrison",
+              "state": "OH",
+              "postalCode": "45030-4933",
+              "country": "US",
+              "period": {
+                "start": "2024-10-16T18:51:17.000Z"
+              }
+            },
+            {
+              "id": "CI-950673689-2",
+              "use": "billing",
+              "text": "10750 Carolina Pines Dr\nHarrison, OH 45030-4933\nUS",
+              "line": ["10750 Carolina Pines Dr"],
+              "city": "Harrison",
+              "state": "OH",
+              "postalCode": "45030-4933",
+              "country": "US",
+              "period": {
+                "start": "2024-10-16T19:22:22.000Z"
+              }
+            }
+          ],
+          "maritalStatus": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/38",
+                "code": "309239",
+                "display": "Single, Never Married",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+                "code": "S",
+                "display": "Never Married",
+                "userSelected": false
+              }
+            ],
+            "text": "Single, Never Married"
+          },
+          "multipleBirthBoolean": false,
+          "communication": [
+            {
+              "language": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/36",
+                    "code": "151",
+                    "display": "English",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "urn:ietf:bcp:47",
+                    "code": "en",
+                    "display": "English",
+                    "userSelected": false
+                  }
+                ],
+                "text": "English"
+              },
+              "preferred": true
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "OperationOutcome",
+          "id": "d69d38d3-c738-496a-b96a-dee0c27cb595",
+          "issue": [
+            {
+              "severity": "information",
+              "code": "informational",
+              "diagnostics": "Success"
+            },
+            {
+              "severity": "information",
+              "code": "informational",
+              "diagnostics": "Overall message outcome"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20874934681",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-04T15:37:01+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: COVID Vaccine - Novavax</p><p><b>Occurrence</b>: Dec 12, 2024</p><p><b>Patient</b>: BEARDEDIPO, VANCE J</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 668 Mann-Grandstaff WA VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20874934681-2025110415370200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "1694491687",
+                "display": "COVID Vaccine - Novavax",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "211",
+                "display": "SARS-COV-2 (COVID-19) vaccine, subunit, recombinant spike protein-nanoparticle+Matrix-M1 Adjuvant, preservative free, 0.5mL dose",
+                "userSelected": false
+              }
+            ],
+            "text": "COVID Vaccine - Novavax"
+          },
+          "patient": {
+            "reference": "Patient/72228720",
+            "display": "BEARDEDIPO, VANCE J"
+          },
+          "encounter": { "reference": "Encounter/322653394" },
+          "occurrenceDateTime": "2024-12-12",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "679978",
+                "display": "Self",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "recall",
+                "display": "Parent/Guardian/Patient Recall",
+                "userSelected": false
+              }
+            ],
+            "text": "Self"
+          },
+          "location": {
+            "reference": "Location/258123539",
+            "display": "668 SPO WA VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/1938077",
+                "display": "668 Mann-Grandstaff WA VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "534543353",
+                      "display": "COVID-19",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "213",
+                      "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "COVID-19"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20874934599",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-04T15:31:19+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: Td(adult) unspecified formulation</p><p><b>Occurrence</b>: Sep 25, 2024</p><p><b>Patient</b>: BEARDEDIPO, VANCE J</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 668 Mann-Grandstaff WA VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20874934599-2025110415311900"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "112325337",
+                "display": "Td(adult) unspecified formulation",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "139",
+                "display": "Td(adult) unspecified formulation",
+                "userSelected": false
+              }
+            ],
+            "text": "Td(adult) unspecified formulation"
+          },
+          "patient": {
+            "reference": "Patient/72228720",
+            "display": "BEARDEDIPO, VANCE J"
+          },
+          "encounter": { "reference": "Encounter/322653394" },
+          "occurrenceDateTime": "2024-09-25",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "679978",
+                "display": "Self",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "recall",
+                "display": "Parent/Guardian/Patient Recall",
+                "userSelected": false
+              }
+            ],
+            "text": "Self"
+          },
+          "location": {
+            "reference": "Location/258123539",
+            "display": "668 SPO WA VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/1938077",
+                "display": "668 Mann-Grandstaff WA VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42348063",
+                      "display": "TD/TDAP",
+                      "userSelected": true
+                    }
+                  ],
+                  "text": "TD/TDAP"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Immunization",
+          "id": "M20874934592",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2025-11-04T15:30:42+00:00"
+          },
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: Influenza A monovalent,ADJUVANTED-2013</p><p><b>Occurrence</b>: Oct  4, 2025</p><p><b>Patient</b>: BEARDEDIPO, VANCE J</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 668 Mann-Grandstaff WA VA Medical Center</p></div>"
+          },
+          "identifier": [
+            {
+              "system": "https://fhir.cerner.com/ceuuid",
+              "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20874934592-2025110415304200"
+            }
+          ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                "code": "112324437",
+                "display": "Influenza A monovalent,ADJUVANTED-2013",
+                "userSelected": true
+              },
+              {
+                "system": "http://hl7.org/fhir/sid/cvx",
+                "code": "160",
+                "display": "Influenza A monovalent (H5N1), adjuvanted, National stockpile 2013",
+                "userSelected": false
+              }
+            ],
+            "text": "Influenza A monovalent,ADJUVANTED-2013"
+          },
+          "patient": {
+            "reference": "Patient/72228720",
+            "display": "BEARDEDIPO, VANCE J"
+          },
+          "encounter": { "reference": "Encounter/322653394" },
+          "occurrenceDateTime": "2025-10-04",
+          "primarySource": false,
+          "reportOrigin": {
+            "coding": [
+              {
+                "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                "code": "679978",
+                "display": "Self",
+                "userSelected": true
+              },
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                "code": "recall",
+                "display": "Parent/Guardian/Patient Recall",
+                "userSelected": false
+              }
+            ],
+            "text": "Self"
+          },
+          "location": {
+            "reference": "Location/258123539",
+            "display": "668 SPO WA VA"
+          },
+          "doseQuantity": {
+            "value": 0.0,
+            "unit": "unknown unit",
+            "system": "http://unitsofmeasure.org",
+            "code": "{unknownunit}"
+          },
+          "performer": [
+            {
+              "actor": {
+                "reference": "Organization/1938077",
+                "display": "668 Mann-Grandstaff WA VA Medical Center"
+              }
+            }
+          ],
+          "protocolApplied": [
+            {
+              "targetDisease": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                      "code": "42347925",
+                      "display": "Influenza",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://hl7.org/fhir/sid/cvx",
+                      "code": "88",
+                      "display": "influenza virus vaccine, unspecified formulation",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Influenza"
+                }
+              ],
+              "doseNumberString": "Unknown"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
