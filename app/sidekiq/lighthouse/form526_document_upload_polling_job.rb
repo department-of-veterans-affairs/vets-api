@@ -50,6 +50,11 @@ module Lighthouse
       documents_to_poll = Lighthouse526DocumentUpload.pending.status_update_required
       StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
 
+      if documents_to_poll.blank?
+        Rails.logger.warn('Lighthouse::Form526DocumentUploadPollingJob found no documents to poll')
+        return
+      end
+
       documents_to_poll.in_batches(
         of: POLLED_BATCH_DOCUMENT_COUNT
       ) do |document_batch|
