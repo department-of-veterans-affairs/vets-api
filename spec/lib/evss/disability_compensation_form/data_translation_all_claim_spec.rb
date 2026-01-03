@@ -2340,4 +2340,151 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
   end
+
+  describe '#get_banking_info' do
+    let(:monitor) { instance_double(DisabilityCompensation::Loggers::Monitor) }
+    let(:service) { double('ppiu_service') }
+
+    before do
+      allow(DisabilityCompensation::Loggers::Monitor).to receive(:new).and_return(monitor)
+      allow(ApiProviderFactory).to receive(:call).and_return(service)
+      allow(monitor).to receive(:track_banking_info_prefilled)
+      allow(monitor).to receive(:track_no_banking_info_on_file)
+      allow(monitor).to receive(:track_banking_info_api_error)
+    end
+
+    context 'when user does not have direct deposit access' do
+      before do
+        allow(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?).and_return(false)
+      end
+
+      it 'returns empty hash without calling API' do
+        expect(service).not_to receive(:get_payment_information)
+        expect(subject.send(:get_banking_info)).to eq({})
+      end
+    end
+
+    context 'when user has direct deposit access' do
+      let(:payment_account) do
+        DisabilityCompensation::ApiProvider::PaymentAccount.new(
+          account_type: 'Checking',
+          account_number: '****5678',
+          financial_institution_routing_number: '123456789',
+          financial_institution_name: 'Test Bank'
+        )
+      end
+
+      before do
+        allow(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?).and_return(true)
+      end
+
+      context 'when banking info is successfully retrieved and valid' do
+        let(:response) do
+          DisabilityCompensation::ApiProvider::PaymentInformationResponse.new(
+            responses: [
+              DisabilityCompensation::ApiProvider::PaymentInformation.new(
+                payment_account:,
+                control_information: {},
+                payment_address: {},
+                payment_type: nil
+              )
+            ]
+          )
+        end
+
+        before do
+          allow(service).to receive(:get_payment_information).and_return(response)
+        end
+
+        it 'returns the banking info' do
+          result = subject.send(:get_banking_info)
+          expect(result).to be_present
+          expect(result['directDeposit']['accountType']).to eq('CHECKING')
+        end
+
+        it 'logs banking info was successfully prefilled' do
+          expect(monitor).to receive(:track_banking_info_prefilled).with(user.uuid)
+          subject.send(:get_banking_info)
+        end
+
+        it 'does not log no banking info on file' do
+          expect(monitor).not_to receive(:track_no_banking_info_on_file)
+          expect(monitor).to receive(:track_banking_info_prefilled)
+          subject.send(:get_banking_info)
+        end
+      end
+
+      context 'when banking info is retrieved but incomplete (missing fields)' do
+        let(:incomplete_payment_account) { DisabilityCompensation::ApiProvider::PaymentAccount.new(account_type: 'Checking') }
+
+        let(:response) do
+          DisabilityCompensation::ApiProvider::PaymentInformationResponse.new(
+            responses: [
+              DisabilityCompensation::ApiProvider::PaymentInformation.new(
+                payment_account: incomplete_payment_account,
+                control_information: {},
+                payment_address: {},
+                payment_type: nil
+              )
+            ]
+          )
+        end
+
+        before do
+          allow(service).to receive(:get_payment_information).and_return(response)
+        end
+
+        it 'returns empty hash when required fields are missing' do
+          expect(subject.send(:get_banking_info)).to eq({})
+        end
+
+        it 'logs no banking info on file when validation fails' do
+          expect(monitor).to receive(:track_no_banking_info_on_file).with(user.uuid)
+          subject.send(:get_banking_info)
+        end
+
+        it 'does not log banking info was prefilled' do
+          expect(monitor).not_to receive(:track_banking_info_prefilled)
+          expect(monitor).to receive(:track_no_banking_info_on_file)
+          subject.send(:get_banking_info)
+        end
+      end
+
+      context 'when API call raises an error' do
+        let(:error_message) { 'Connection timeout to Lighthouse Direct Deposit API' }
+        let(:generic_error_message) { 'Unable to retrieve direct deposit information' }
+
+        before do
+          allow(service).to receive(:get_payment_information).and_raise(StandardError, error_message)
+        end
+
+        it 'logs the API error' do
+          expect(monitor).to receive(:track_banking_info_api_error).with(user.uuid, an_instance_of(StandardError))
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
+
+        it 'logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with(
+            a_string_including('#get_banking_info Failed to retrieve DirectDeposit data')
+          )
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
+
+        it 'raises BadRequest exception' do
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest) do |error|
+            expect(error.errors.first).to eq(generic_error_message)
+          end
+        end
+
+        it 'does not log prefilled or no banking info' do
+          expect(monitor).not_to receive(:track_banking_info_prefilled)
+          expect(monitor).not_to receive(:track_no_banking_info_on_file)
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
+      end
+    end
+  end
 end
