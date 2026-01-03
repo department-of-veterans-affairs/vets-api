@@ -56,7 +56,15 @@ module EvidenceSubmissionManagement
 
     metadata = JSON.parse(evidence_submission.template_metadata)
     personalisation = metadata['personalisation']
-    personalisation.is_a?(Hash) ? personalisation['file_name'] : nil
+    if personalisation.is_a?(Hash) && personalisation['file_name']
+      personalisation['file_name']
+    else
+      ::Rails.logger.warn(
+        '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+        { evidence_submission_id: evidence_submission.id }
+      )
+      nil
+    end
   rescue JSON::ParserError, TypeError
     ::Rails.logger.error(
       '[BenefitsClaimsController] Error parsing evidence submission metadata',
