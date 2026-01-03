@@ -23,11 +23,15 @@ module V0
       'itportfolio:benefits-delivery',
       'dependency:lighthouse'
     ].freeze
-
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+    FEATURE_MULTI_CLAIM_PROVIDER = 'cst_multi_claim_provider'
 
     def index
-      claims = service.get_claims
+      claims = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                 get_claims_from_providers
+               else
+                 service.get_claims
+               end
 
       check_for_birls_id
       check_for_file_number
@@ -38,58 +42,46 @@ module V0
 
       claim_ids = claims['data'].map { |claim| claim['id'] }
       evidence_submissions = fetch_evidence_submissions(claim_ids, 'index')
-
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        add_evidence_submissions_to_claims(claims['data'], evidence_submissions, 'index')
+        safely_add_evidence_submissions(claims['data'], evidence_submissions, 'index', claim_ids)
       end
-
       tap_claims(claims['data'])
-
       report_evidence_submission_metrics('index', evidence_submissions)
-
       render json: claims
     end
 
     def show
-      claim = service.get_claim(params[:id])
+      claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                get_claim_from_providers(params[:id])
+              else
+                service.get_claim(params[:id])
+              end
       update_claim_type_language(claim['data'])
 
-      # Manual status override for certain tracked items
-      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
-      # This should be removed when the items are re-categorized by BGS
-      # We are not doing this in the Lighthouse service because we want web and mobile to have
-      # separate rollouts and testing.
+      # Manual status override for tracked items (see #101447). Remove when items are re-categorized by BGS.
       claim = rename_rv1(claim)
 
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
-      # This should be removed when the items are removed by BGS
+      # See #98364. Remove when items are removed by BGS.
       claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
 
-      # Document uploads to EVSS require a birls_id; This restriction should
-      # be removed when we move to Lighthouse Benefits Documents for document uploads
+      # Document uploads to EVSS require a birls_id. Remove when we move to Lighthouse Benefits Documents.
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
       evidence_submissions = fetch_evidence_submissions(claim['data']['id'], 'show')
 
       if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
         update_evidence_submissions_for_claim(claim['data']['id'], evidence_submissions)
-        add_evidence_submissions_to_claims([claim['data']], evidence_submissions, 'show')
+        safely_add_evidence_submissions([claim['data']], evidence_submissions, 'show', [claim['data']['id']])
       end
 
-      # We want to log some details about claim type patterns to track in DataDog
       log_claim_details(claim['data']['attributes'])
-
       tap_claims([claim['data']])
-
       report_evidence_submission_metrics('show', evidence_submissions)
-
       render json: claim
     end
 
     def submit5103
-      # Log if the user doesn't have a file number
-      # NOTE: We are treating the BIRLS ID as a substitute
-      # for file number here
+      # Log if the user doesn't have a file number (treating BIRLS ID as substitute)
       ::Rails.logger.info('[5103 Submission] No file number') if @current_user.birls_id.nil?
 
       json_payload = request.body.read
@@ -135,6 +127,42 @@ module V0
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
     end
 
+    def configured_providers
+      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
+    end
+
+    def get_claims_from_providers
+      return configured_providers.first.new(@current_user).get_claims if configured_providers.count == 1
+
+      claims_data = []
+      provider_errors = []
+      configured_providers.each do |provider_class|
+        provider = provider_class.new(@current_user)
+        claims_data.concat(provider.get_claims['data'])
+      rescue => e
+        handle_provider_error(provider_class, e, provider_errors)
+      end
+      { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
+    end
+
+    def handle_provider_error(provider_class, error, provider_errors)
+      provider_errors << { provider: provider_class.name, error: error.message }
+      ::Rails.logger.error("Provider #{provider_class.name} failed: #{error.message}")
+      StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
+                       tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
+    end
+
+    def get_claim_from_providers(claim_id)
+      return configured_providers.first.new(@current_user).get_claim(claim_id) if configured_providers.count == 1
+
+      configured_providers.each do |provider_class|
+        return provider_class.new(@current_user).get_claim(claim_id)
+      rescue => e
+        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
+      end
+      raise Common::Exceptions::RecordNotFound, claim_id
+    end
+
     def check_for_birls_id
       ::Rails.logger.info('[BenefitsClaims#index] No birls id') if current_user.birls_id.nil?
     end
@@ -165,7 +193,6 @@ module V0
 
     def update_claim_type_language(claim)
       if Flipper.enabled?(:cst_use_claim_title_generator_web)
-        # Adds displayTitle and claimTypeBase to the claim response object
         BenefitsClaims::TitleGenerator.update_claim_title(claim)
       else
         language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
@@ -173,58 +200,6 @@ module V0
           claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
         end
       end
-    end
-
-    def add_evidence_submissions(claim, evidence_submissions)
-      tracked_items = claim['attributes']['trackedItems']
-
-      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-    end
-
-    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-      non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-
-      filtered_evidence_submissions = []
-      non_duplicate_submissions.each do |es|
-        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
-      end
-
-      filtered_evidence_submissions
-    end
-
-    def filter_duplicate_evidence_submissions(evidence_submissions, claim)
-      supporting_documents = claim['attributes']['supportingDocuments'] || []
-      received_file_names = supporting_documents.map { |doc| doc['originalFileName'] }.compact
-
-      return evidence_submissions if received_file_names.empty?
-
-      evidence_submissions.reject do |evidence_submission|
-        file_name = extract_evidence_submission_file_name(evidence_submission)
-        file_name && received_file_names.include?(file_name)
-      end
-    end
-
-    def extract_evidence_submission_file_name(evidence_submission)
-      return nil if evidence_submission.template_metadata.nil?
-
-      metadata = JSON.parse(evidence_submission.template_metadata)
-      personalisation = metadata['personalisation']
-
-      if personalisation.is_a?(Hash) && personalisation['file_name']
-        personalisation['file_name']
-      else
-        ::Rails.logger.warn(
-          '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
-          { evidence_submission_id: evidence_submission.id }
-        )
-        nil
-      end
-    rescue JSON::ParserError, TypeError
-      ::Rails.logger.error(
-        '[BenefitsClaimsController] Error parsing evidence submission metadata',
-        { evidence_submission_id: evidence_submission.id }
-      )
-      nil
     end
 
     def filter_failed_evidence_submissions
@@ -247,30 +222,6 @@ module V0
       end
 
       filtered_evidence_submissions
-    end
-
-    def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
-      personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-      tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
-        evidence_submission.tracked_item_id,
-        tracked_items
-      )
-      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
-
-      { acknowledgement_date: evidence_submission.acknowledgement_date,
-        claim_id: evidence_submission.claim_id,
-        created_at: evidence_submission.created_at,
-        delete_date: evidence_submission.delete_date,
-        document_type: personalisation['document_type'],
-        failed_date: evidence_submission.failed_date,
-        file_name: personalisation['file_name'],
-        id: evidence_submission.id,
-        lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
-        tracked_item_id: evidence_submission.tracked_item_id,
-        tracked_item_display_name:,
-        tracked_item_friendly_name:,
-        upload_status: evidence_submission.upload_status,
-        va_notify_status: evidence_submission.va_notify_status }
     end
 
     def log_claim_details(claim_info)
@@ -315,36 +266,6 @@ module V0
 
       tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
-    end
-
-    def report_evidence_submission_metrics(endpoint, evidence_submissions)
-      status_counts = evidence_submissions.group(:upload_status).count
-
-      BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
-        count = status_counts[status] || 0
-        next if count.zero?
-
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.#{endpoint}", count, tags: STATSD_TAGS + ["status:#{status}"])
-      end
-    rescue => e
-      ::Rails.logger.error(
-        "BenefitsClaimsController##{endpoint} Error reporting evidence submission upload status metrics: #{e.message}"
-      )
-    end
-
-    def fetch_evidence_submissions(claim_ids, endpoint)
-      EvidenceSubmission.where(claim_id: claim_ids)
-    rescue => e
-      ::Rails.logger.error(
-        "BenefitsClaimsController##{endpoint} Error fetching evidence submissions",
-        {
-          claim_ids: Array(claim_ids),
-          error_message: e.message,
-          error_class: e.class.name,
-          timestamp: Time.now.utc
-        }
-      )
-      EvidenceSubmission.none
     end
 
     def update_evidence_submissions_for_claim(claim_id, evidence_submissions)
@@ -446,33 +367,6 @@ module V0
       )
     end
 
-    def add_evidence_submissions_to_claims(claims, all_evidence_submissions, endpoint)
-      return if claims.empty?
-
-      # Group evidence submissions by claim_id for efficient lookup
-      evidence_submissions_by_claim = all_evidence_submissions.group_by(&:claim_id)
-
-      # Add evidence submissions to each claim
-      claims.each do |claim|
-        claim_id = claim['id'].to_i
-        evidence_submissions = evidence_submissions_by_claim[claim_id] || []
-
-        claim['attributes']['evidenceSubmissions'] =
-          add_evidence_submissions(claim, evidence_submissions)
-      end
-    rescue => e
-      # Log error but don't fail the request - graceful degradation
-      # Frontend already handles missing evidenceSubmissions attribute
-      claim_ids = claims.map { |claim| claim['id'] }
-      ::Rails.logger.error(
-        "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
-        {
-          claim_ids:,
-          error_class: e.class.name
-        }
-      )
-    end
-
     def recently_polled_request_ids?(claim_id, request_ids)
       cache_record = EvidenceSubmissionPollStore.find(claim_id.to_s)
       return false if cache_record.nil?
@@ -506,6 +400,111 @@ module V0
           error_message: e.message
         }
       )
+    end
+
+    def safely_add_evidence_submissions(claims, evidence_submissions, endpoint, claim_ids)
+      add_evidence_submissions_to_claims(claims, evidence_submissions, endpoint)
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
+        { claim_ids:, error_class: e.class.name }
+      )
+    end
+
+    def add_evidence_submissions_to_claims(claims, all_evidence_submissions, endpoint)
+      return if claims.empty?
+
+      evidence_submissions_by_claim = all_evidence_submissions.group_by(&:claim_id)
+      claims.each do |claim|
+        claim_id = claim['id'].to_i
+        evidence_submissions = evidence_submissions_by_claim[claim_id] || []
+        non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
+        tracked_items = claim['attributes']['trackedItems']
+        claim['attributes']['evidenceSubmissions'] =
+          non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
+      end
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
+        { claim_ids: claims.map { |claim| claim['id'] }, error_class: e.class.name }
+      )
+    end
+
+    def filter_duplicate_evidence_submissions(evidence_submissions, claim)
+      received_file_names = (claim['attributes']['supportingDocuments'] || [])
+                            .map { |doc| doc['originalFileName'] }.compact
+      return evidence_submissions if received_file_names.empty?
+
+      evidence_submissions.reject do |es|
+        file_name = extract_evidence_submission_file_name(es)
+        file_name && received_file_names.include?(file_name)
+      end
+    end
+
+    def extract_evidence_submission_file_name(evidence_submission)
+      return nil if evidence_submission.template_metadata.nil?
+
+      personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+      return personalisation['file_name'] if personalisation.is_a?(Hash) && personalisation['file_name']
+
+      ::Rails.logger.warn(
+        '[BenefitsClaimsController] Missing or invalid personalisation in evidence submission metadata',
+        { evidence_submission_id: evidence_submission.id }
+      )
+      nil
+    rescue JSON::ParserError, TypeError
+      ::Rails.logger.error(
+        '[BenefitsClaimsController] Error parsing evidence submission metadata',
+        { evidence_submission_id: evidence_submission.id }
+      )
+      nil
+    end
+
+    def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
+      personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+      tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
+        evidence_submission.tracked_item_id,
+        tracked_items
+      )
+      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
+
+      { acknowledgement_date: evidence_submission.acknowledgement_date,
+        claim_id: evidence_submission.claim_id,
+        created_at: evidence_submission.created_at,
+        delete_date: evidence_submission.delete_date,
+        document_type: personalisation['document_type'],
+        failed_date: evidence_submission.failed_date,
+        file_name: personalisation['file_name'],
+        id: evidence_submission.id,
+        lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
+        tracked_item_id: evidence_submission.tracked_item_id,
+        tracked_item_display_name:,
+        tracked_item_friendly_name:,
+        upload_status: evidence_submission.upload_status,
+        va_notify_status: evidence_submission.va_notify_status }
+    end
+
+    def report_evidence_submission_metrics(endpoint, evidence_submissions)
+      BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
+        count = evidence_submissions.where(upload_status: status).count
+        next if count.zero?
+
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.#{endpoint}", count, tags: STATSD_TAGS + ["status:#{status}"])
+      end
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error reporting evidence submission upload status metrics: #{e.message}"
+      )
+    end
+
+    def fetch_evidence_submissions(claim_ids, endpoint)
+      EvidenceSubmission.where(claim_id: claim_ids)
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error fetching evidence submissions",
+        { claim_ids: Array(claim_ids), error_message: e.message, error_class: e.class.name, timestamp: Time.now.utc }
+      )
+      EvidenceSubmission.none
     end
   end
 end
