@@ -2685,10 +2685,7 @@ features:
     enable_in_development: true
   unique_user_metrics_async_buffering:
     actor_type: user
-    description: >
-      Enables asynchronous batch processing for unique user metrics.
-      When enabled, events are buffered to Redis and processed by a Sidekiq job every 60 seconds.
-      When disabled, events are processed synchronously (legacy behavior).
+    description: Enables asynchronous batch processing for unique user metrics.
     enable_in_development: true
   form_8794_release:
     actor_type: user
