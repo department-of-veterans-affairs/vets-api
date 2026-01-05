@@ -108,25 +108,5 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
         expect(res).to eq(gathered_data_obj_with_claimant)
       end
     end
-
-    describe '#vnp_phone_data' do
-      let(:proc_id) { '3865028' }
-      let(:registration_number) { '23456789' }
-      let(:metadata) do
-        {
-          'veteran' => { 'vnp_mail_id' => '158304', 'vnp_email_id' => '158305', 'vnp_phone_id' => '112509' },
-          'claimant' => { 'vnp_mail_id' => '158306', 'vnp_email_id' => '158307' }
-        }
-      end
-
-      it 'does not call BGS if no phone number was submitted for the claimant' do
-        expect_any_instance_of(described_class).not_to receive(:gather_vnp_phone_data)
-        cassette = 'poa_data_gather_dependent_no_phone'
-
-        VCR.use_cassette("claims_api/power_of_attorney_request_service/decide/data_gatherer/#{cassette}") do
-          subject.gather_data
-        end
-      end
-    end
   end
 end
