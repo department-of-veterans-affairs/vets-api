@@ -25,6 +25,10 @@ module IvcChampva
       verbose_logging = Flipper.enabled?(:champva_missing_status_verbose_logging, @current_user)
       form_count = count_forms(batches)
 
+      if verbose_logging && form_count > 10
+        Rails.logger.info "IVC Forms MissingFormStatusJob - Too many forms to log details (#{form_count} forms)"
+      end
+
       current_time = Time.now.utc
 
       batches.each_value do |batch|
@@ -52,16 +56,12 @@ module IvcChampva
         key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
         StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
 
-        if verbose_logging
-          if form_count <= 10
-            Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
-                                - Elapsed days: #{elapsed_days} \
-                                - File name: #{form.file_name} \
-                                - S3 status: #{form.s3_status} \
-                                - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
-          else
-            Rails.logger.info "IVC Forms MissingFormStatusJob - Too many forms to log details (#{form_count} forms)"
-          end
+        if verbose_logging && form_count <= 10
+          Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
+                              - Elapsed days: #{elapsed_days} \
+                              - File name: #{form.file_name} \
+                              - S3 status: #{form.s3_status} \
+                              - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
         end
       end
     rescue => e
