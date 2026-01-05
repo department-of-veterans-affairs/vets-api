@@ -146,6 +146,105 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             end
           end
         end
+
+        context 'log_started_form_version logging' do
+          it 'returns form data when both startedFormVersion and started_form_version are present' do
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data['startedFormVersion'] = '2022'
+            parsed_form_data['started_form_version'] = '2022'
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq('2022')
+          end
+
+          it 'sets default to 2019 when startedFormVersion is missing from existing IPF' do
+            # Remove startedFormVersion to trigger the set_started_form_version path
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data.delete('startedFormVersion')
+            parsed_form_data.delete('started_form_version')
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            # Request should still succeed and return the form with default 2019 version
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+
+          it 'does not break the response when logging succeeds' do
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data['startedFormVersion'] = '2019'
+            parsed_form_data['started_form_version'] = '2019'
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('formData')
+            expect(json_response).to have_key('metadata')
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+
+          it 'returns startedFormVersion 2022 for prefilled new InProgressForm' do
+            sign_in_as(loa1_user)
+
+            get v0_disability_compensation_in_progress_form_url('21-526EZ'), params: nil
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['formData']['startedFormVersion']).to eq('2022')
+          end
+
+          it 'preserves existing startedFormVersion value when both keys are present' do
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data['startedFormVersion'] = '2019'
+            parsed_form_data['started_form_version'] = '2019'
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            # Should preserve 2019, not override with 2022
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+
+          it 'sets default to 2019 when only startedFormVersion is present (started_form_version missing)' do
+            # Only set camelCase version, not snake_case
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data['startedFormVersion'] = '2022'
+            parsed_form_data.delete('started_form_version')
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            # Due to OR condition in set_started_form_version, it sets to 2019
+            expect(json_response['formData']['startedFormVersion']).to eq('2019')
+          end
+        end
       end
 
       describe '#update' do
