@@ -194,6 +194,7 @@ group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
   # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'reek'
   gem 'web-console', platforms: :ruby
 end
 
