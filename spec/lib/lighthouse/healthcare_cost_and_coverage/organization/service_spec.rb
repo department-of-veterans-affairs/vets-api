@@ -25,8 +25,10 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
 
     before do
       allow(service).to receive(:config).and_return(config)
-      allow(config).to receive(:get).and_return(faraday_response)
-      allow(config).to receive(:base_api_path).and_return('https://sandbox-api.va.gov/services/health-care-costs-coverage/v0')
+      allow(config).to receive_messages(
+        get: faraday_response,
+        base_api_path: 'http://example.test'
+      )
     end
 
     it 'returns a FHIR bundle hash' do

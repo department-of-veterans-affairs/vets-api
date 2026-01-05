@@ -13,6 +13,7 @@ module Lighthouse
 
         def initialize(icn)
           raise ArgumentError, 'no ICN passed in for HCCC request' if icn.blank?
+
           @icn = icn
 
           super()
