@@ -319,8 +319,6 @@ module Veteran
                             previous_count:,
                             new_count:,
                             decrease_percentage:)
-
-      log_message_to_rails("VSO Reloader threshold exceeded for #{rep_type}", :warn)
     end
 
     def save_accreditation_totals
