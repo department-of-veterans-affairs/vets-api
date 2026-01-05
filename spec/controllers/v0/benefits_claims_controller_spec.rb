@@ -36,13 +36,11 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
 
-    # Allow Flipper calls to work normally, but stub our specific flag
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?)
       .with(V0::BenefitsClaimsController::FEATURE_MULTI_CLAIM_PROVIDER, user)
       .and_return(true)
 
-    # Mock provider registry to return Lighthouse provider by default for backward compatibility
     allow(BenefitsClaims::Providers::ProviderRegistry)
       .to receive(:enabled_provider_classes)
       .and_return([BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider])
