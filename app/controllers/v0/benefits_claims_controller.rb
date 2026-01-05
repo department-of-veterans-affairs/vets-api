@@ -132,8 +132,6 @@ module V0
     end
 
     def get_claims_from_providers
-      return configured_providers.first.new(@current_user).get_claims if configured_providers.count == 1
-
       claims_data = []
       provider_errors = []
       configured_providers.each do |provider_class|
@@ -153,8 +151,6 @@ module V0
     end
 
     def get_claim_from_providers(claim_id)
-      return configured_providers.first.new(@current_user).get_claim(claim_id) if configured_providers.count == 1
-
       configured_providers.each do |provider_class|
         return provider_class.new(@current_user).get_claim(claim_id)
       rescue Common::Exceptions::RecordNotFound

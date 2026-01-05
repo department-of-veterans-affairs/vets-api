@@ -2142,7 +2142,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       it 'returns claims from the single provider' do
         result = controller.send(:get_claims_from_providers)
 
-        expect(result).to eq(claims_response)
+        expect(result['data']).to eq(claims_response['data'])
+        expect(result['meta']).to eq({})
         expect(mock_provider).to have_received(:get_claims)
       end
     end
