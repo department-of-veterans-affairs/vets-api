@@ -29,7 +29,7 @@ module UnifiedHealthData
       def renewable?(resource)
         return false if resource.nil? || !resource.is_a?(Hash)
         return false unless resource['status'] == 'active'
-        return false unless renewable_category?(resource)
+        return false if non_va_med?(resource)
         return false if medication_dispenses(resource).empty?
         return false unless validity_period_end_exists?(resource)
         return false unless within_renewal_window?(resource)
@@ -40,16 +40,6 @@ module UnifiedHealthData
       end
 
       private
-
-      # Checks if medication category is renewable
-      # Only VA Prescription and Clinic Administered are renewable
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] true if renewable category
-      def renewable_category?(resource)
-        category = categorize_medication(resource)
-        %i[va_prescription clinic_administered].include?(category)
-      end
 
       # Checks if validity period end date exists
       #

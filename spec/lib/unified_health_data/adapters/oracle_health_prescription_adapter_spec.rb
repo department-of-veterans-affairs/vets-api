@@ -629,8 +629,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
       end
 
-      it 'returns true for Clinic Administered medications' do
-        expect(subject.send(:extract_is_renewable, clinic_administered_resource)).to be true
+      it 'returns false for Clinic Administered medications' do
+        expect(subject.send(:extract_is_renewable, clinic_administered_resource)).to be false
       end
     end
 

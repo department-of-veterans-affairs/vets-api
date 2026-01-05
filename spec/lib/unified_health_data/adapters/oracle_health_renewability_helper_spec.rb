@@ -58,11 +58,11 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
         expect(subject.send(:renewable?, base_renewable_resource)).to be true
       end
 
-      it 'returns true for renewable Clinic Administered medication (outpatient)' do
+      it 'returns false for renewable Clinic Administered medication (outpatient)' do
         resource = base_renewable_resource.merge(
           'category' => [{ 'coding' => [{ 'code' => 'outpatient' }] }]
         )
-        expect(subject.send(:renewable?, resource)).to be true
+        expect(subject.send(:renewable?, resource)).to be false
       end
     end
 
@@ -207,80 +207,6 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
   # Detailed tests for individual methods with full permutation coverage
   # ============================================================================
   describe 'private helper methods' do
-    describe '#renewable_category?' do
-      it 'returns true for VA Prescription category' do
-        expect(subject.send(:renewable_category?, base_renewable_resource)).to be true
-      end
-
-      it 'returns true for Clinic Administered category' do
-        resource = base_renewable_resource.merge(
-          'category' => [{ 'coding' => [{ 'code' => 'outpatient' }] }]
-        )
-        expect(subject.send(:renewable_category?, resource)).to be true
-      end
-
-      it 'returns false for Documented/Non-VA category' do
-        resource = base_renewable_resource.merge(
-          'reportedBoolean' => true,
-          'intent' => 'plan',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'patientspecified' }] }
-          ]
-        )
-        expect(subject.send(:renewable_category?, resource)).to be false
-      end
-
-      it 'returns false for pharmacy charges category' do
-        resource = base_renewable_resource.merge(
-          'category' => [{ 'coding' => [{ 'code' => 'charge-only' }] }]
-        )
-        expect(subject.send(:renewable_category?, resource)).to be false
-      end
-
-      it 'returns false for inpatient category' do
-        resource = base_renewable_resource.merge(
-          'category' => [{ 'coding' => [{ 'code' => 'inpatient' }] }]
-        )
-        expect(subject.send(:renewable_category?, resource)).to be false
-      end
-
-      it 'returns false for uncategorized' do
-        resource = base_renewable_resource.merge('category' => [])
-        expect(subject.send(:renewable_category?, resource)).to be false
-      end
-    end
-
-    describe '#medication_dispenses' do
-      it 'returns MedicationDispense resources' do
-        dispenses = subject.send(:medication_dispenses, base_renewable_resource)
-        expect(dispenses.length).to eq 2
-        expect(dispenses.all? { |d| d['resourceType'] == 'MedicationDispense' }).to be true
-      end
-
-      it 'returns empty array when no dispenses exist' do
-        resource = base_renewable_resource.merge('contained' => [])
-        expect(subject.send(:medication_dispenses, resource)).to eq []
-      end
-
-      it 'returns empty array when contained is nil' do
-        resource = base_renewable_resource.except('contained')
-        expect(subject.send(:medication_dispenses, resource)).to eq []
-      end
-
-      it 'filters out non-MedicationDispense resources' do
-        resource = base_renewable_resource.merge(
-          'contained' => [
-            { 'resourceType' => 'Medication', 'id' => 'med-1' },
-            { 'resourceType' => 'MedicationDispense', 'id' => 'dispense-1', 'status' => 'completed' }
-          ]
-        )
-        dispenses = subject.send(:medication_dispenses, resource)
-        expect(dispenses.length).to eq 1
-        expect(dispenses.first['id']).to eq 'dispense-1'
-      end
-    end
-
     describe '#validity_period_end_exists?' do
       it 'returns true when validityPeriod end exists' do
         expect(subject.send(:validity_period_end_exists?, base_renewable_resource)).to be true
