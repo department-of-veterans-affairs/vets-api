@@ -174,7 +174,7 @@ module MHV
       increment_statsd_counters(inserted_events)
     end
 
-    # Deduplicate events using uniq
+    # Deduplicate events
     #
     # @param events [Array<Hash>] Raw events with possible duplicates
     # @return [Array<Hash>] Unique events (first occurrence wins)
