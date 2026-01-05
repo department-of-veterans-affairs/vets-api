@@ -2389,6 +2389,92 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(Rails.logger).to have_received(:info).twice
         end
       end
+
+      context 'when first provider raises unexpected error but second provider succeeds' do
+        let(:auth_error) { StandardError.new('Authentication failed') }
+
+        before do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claim).with(claim_id).and_raise(auth_error)
+          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+          allow(second_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'returns claim from second provider' do
+          result = controller.send(:get_claim_from_providers, claim_id)
+
+          expect(result).to eq(claim_response)
+          expect(second_provider).to have_received(:get_claim).with(claim_id)
+        end
+
+        it 'logs error about first provider failure at ERROR level' do
+          controller.send(:get_claim_from_providers, claim_id)
+
+          expect(Rails.logger).to have_received(:error)
+            .with(a_string_matching(/Provider MockProvider error fetching claim #{claim_id}.*Authentication failed/))
+        end
+
+        it 'increments StatsD metrics with provider tag' do
+          controller.send(:get_claim_from_providers, claim_id)
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.benefits_claims.get_claim.provider_error',
+                  hash_including(tags: array_including('provider:MockProvider')))
+        end
+      end
+
+      context 'when all providers raise unexpected errors' do
+        let(:auth_error) { StandardError.new('Authentication failed') }
+        let(:network_error) { StandardError.new('Network timeout') }
+
+        before do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claim).with(claim_id).and_raise(auth_error)
+          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
+          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
+          allow(second_provider).to receive(:get_claim).with(claim_id).and_raise(network_error)
+          allow(second_provider_class).to receive(:name).and_return('SecondProvider')
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'raises RecordNotFound exception after trying all providers' do
+          expect do
+            controller.send(:get_claim_from_providers, claim_id)
+          end.to raise_error(Common::Exceptions::RecordNotFound)
+        end
+
+        it 'logs errors for both providers' do
+          begin
+            controller.send(:get_claim_from_providers, claim_id)
+          rescue Common::Exceptions::RecordNotFound
+            # Expected
+          end
+
+          expect(Rails.logger).to have_received(:error)
+            .with(a_string_matching(/Provider MockProvider error fetching claim #{claim_id}.*Authentication failed/))
+          expect(Rails.logger).to have_received(:error)
+            .with(a_string_matching(/Provider SecondProvider error fetching claim #{claim_id}.*Network timeout/))
+        end
+
+        it 'increments StatsD metrics for both providers' do
+          begin
+            controller.send(:get_claim_from_providers, claim_id)
+          rescue Common::Exceptions::RecordNotFound
+            # Expected
+          end
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.benefits_claims.get_claim.provider_error',
+                  hash_including(tags: array_including('provider:MockProvider')))
+          expect(StatsD).to have_received(:increment)
+            .with('api.benefits_claims.get_claim.provider_error',
+                  hash_including(tags: array_including('provider:SecondProvider')))
+        end
+      end
     end
   end
 end

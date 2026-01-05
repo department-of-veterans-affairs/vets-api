@@ -157,8 +157,14 @@ module V0
 
       configured_providers.each do |provider_class|
         return provider_class.new(@current_user).get_claim(claim_id)
+      rescue Common::Exceptions::RecordNotFound
+        # Expected case: this provider doesn't have the claim, try next provider
+        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}")
       rescue => e
-        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
+        # Unexpected error: log at error level and track metrics, then try next provider
+        ::Rails.logger.error("Provider #{provider_class.name} error fetching claim #{claim_id}: #{e.message}")
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.get_claim.provider_error",
+                         tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
       end
       raise Common::Exceptions::RecordNotFound, claim_id
     end
