@@ -45,6 +45,9 @@ module UniqueUserEvents
       # Get all events to be logged (original + OH events)
       events_to_log = get_all_events_to_log(user:, event_name:)
 
+      # Increment StatsD counter for the total number of events to log
+      StatsD.increment("#{STATSD_KEY_PREFIX}.logged_event", events_to_log.size, tags: ["event_name:#{event_name}"])
+
       # Log each event and collect results
       events_to_log.map do |event_name_to_log|
         log_single_event(user_id:, event_name: event_name_to_log)
