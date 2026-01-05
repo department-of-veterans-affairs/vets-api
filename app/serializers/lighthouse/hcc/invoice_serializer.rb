@@ -14,5 +14,6 @@ class Lighthouse::HCC::InvoiceSerializer
              :latest_billing_ref,
              :current_balance,
              :previous_balance,
-             :previous_unpaid_balance
+             :previous_unpaid_balance,
+             :last_updated_at
 end
