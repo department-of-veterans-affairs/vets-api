@@ -363,21 +363,21 @@ module Vass
       ##
       # Normalizes a date string to a Date object for comparison.
       #
-      # @param date_str [String] Date string in various formats
+      # @param date_str [String] Date string in YYYY-MM-DD or M/D/YYYY format
       # @return [Date, nil] Parsed date object or nil if invalid
       #
       def normalize_date(date_str)
         return nil if date_str.blank?
 
-        # Try M/D/YYYY format first (VASS format)
-        Date.strptime(date_str, '%m/%d/%Y')
-      rescue ArgumentError
-        # Fall back to standard date parsing (handles YYYY-MM-DD, etc.)
-        begin
+        # VASS returns M/D/YYYY (e.g., "1/15/1990"), user input is YYYY-MM-DD
+        if date_str.include?('/')
+          parts = date_str.split('/')
+          Date.new(parts[2].to_i, parts[0].to_i, parts[1].to_i)
+        else
           Date.parse(date_str)
-        rescue ArgumentError, TypeError
-          nil
         end
+      rescue ArgumentError, TypeError
+        nil
       end
 
       ##
