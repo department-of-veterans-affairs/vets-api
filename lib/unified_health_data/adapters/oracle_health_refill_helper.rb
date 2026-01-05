@@ -50,12 +50,13 @@ module UnifiedHealthData
       # @return [Boolean] true if not expired
       def prescription_not_expired?(resource)
         expiration_date = extract_expiration_date(resource)
-        return false unless expiration_date
+        return false unless expiration_date # No expiration date = not refillable for safety
 
         begin
           parsed_date = Time.zone.parse(expiration_date)
           return parsed_date&.> Time.zone.now if parsed_date
 
+          # If we get here, parsing returned nil (invalid date)
           log_invalid_expiration_date(resource, expiration_date)
           false
         rescue ArgumentError
@@ -85,10 +86,11 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] True if most recent dispense is in-progress
       def most_recent_dispense_in_progress?(resource)
-        most_recent = find_most_recent_medication_dispense(resource['contained'])
-        return false if most_recent.nil?
+        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
+        return false if most_recent_dispense.nil?
 
-        %w[preparation in-progress on-hold].include?(most_recent['status'])
+        in_progress_statuses = %w[preparation in-progress on-hold]
+        in_progress_statuses.include?(most_recent_dispense['status'])
       end
     end
   end

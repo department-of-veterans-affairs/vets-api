@@ -59,15 +59,11 @@ module UnifiedHealthData
       end
 
       # Checks if MedicationRequest is a non-VA medication
-      # Returns true for anything NOT explicitly categorized as VA Prescription or Clinic Administered
-      # This includes documented_non_va, uncategorized, pharmacy_charges, and inpatient
-      # (Defaults to non-VA for safety when categorization is unclear)
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if non-VA medication
+      # @return [Boolean] True if non-VA medication (anything other than va_prescription category)
       def non_va_med?(resource)
-        category = categorize_medication(resource)
-        %i[va_prescription clinic_administered].exclude?(category)
+        categorize_medication(resource) != :va_prescription
       end
 
       def log_uncategorized_medication(resource)

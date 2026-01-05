@@ -503,10 +503,6 @@ module UnifiedHealthData
         refillable?(resource, refill_status)
       end
 
-      def extract_is_renewable(resource)
-        renewable?(resource)
-      end
-
       def extract_instructions(resource)
         dosage_instructions = resource['dosageInstruction'] || []
         return nil if dosage_instructions.empty?

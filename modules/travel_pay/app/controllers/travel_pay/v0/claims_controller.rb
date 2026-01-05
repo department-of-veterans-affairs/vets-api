@@ -63,8 +63,8 @@ module TravelPay
           Rails.logger.info(message: 'SMOC transaction END')
         rescue ArgumentError => e
           raise Common::Exceptions::BadRequest, detail: e.message
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          raise Common::Exceptions::InternalServerError, exception: e
+        rescue Faraday::Error => e
+          TravelPay::ServiceError.raise_mapped_error(e)
         end
 
         render json: submitted_claim, status: :created
