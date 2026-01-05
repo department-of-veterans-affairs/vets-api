@@ -86,11 +86,10 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] True if most recent dispense is in-progress
       def most_recent_dispense_in_progress?(resource)
-        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
-        return false if most_recent_dispense.nil?
+        most_recent = find_most_recent_medication_dispense(resource)
+        return false if most_recent.nil?
 
-        in_progress_statuses = %w[preparation in-progress on-hold]
-        in_progress_statuses.include?(most_recent_dispense['status'])
+        %w[preparation in-progress on-hold].include?(most_recent['status'])
       end
     end
   end

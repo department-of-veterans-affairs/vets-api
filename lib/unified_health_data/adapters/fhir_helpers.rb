@@ -69,13 +69,10 @@ module UnifiedHealthData
       #
       # @param contained_resources [Array<Hash>] Array of FHIR contained resources
       # @return [Hash, nil] Most recent MedicationDispense or nil if none found
-      def find_most_recent_medication_dispense(contained_resources)
-        return nil unless contained_resources.is_a?(Array)
-
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+      def find_most_recent_medication_dispense(medication_request)
+        dispenses = medication_dispenses(medication_request)
         return nil if dispenses.empty?
 
-        # Sort by whenHandedOver or whenPrepared date, most recent first
         dispenses.max_by do |dispense|
           date = dispense['whenHandedOver'] || dispense['whenPrepared']
           date ? parse_date_or_epoch(date) : Time.zone.at(0)
