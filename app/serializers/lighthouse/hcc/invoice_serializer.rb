@@ -9,6 +9,7 @@ class Lighthouse::HCC::InvoiceSerializer
 
   attributes :url,
              :facility,
+             :facility_id,
              :city,
              :external_id,
              :latest_billing_ref,
