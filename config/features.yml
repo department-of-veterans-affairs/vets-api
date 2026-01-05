@@ -2348,6 +2348,10 @@ features:
   burial_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Burial
+  burial_pdf_form_alignment:
+    actor_type: user
+    description: Align digital form with PDF form
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
