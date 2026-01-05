@@ -174,13 +174,13 @@ module DebtsApi
 
     def send_vha_confirmation_email(_status, options)
       return if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
-      return if options['email'].blank?
+      return if options['cache_key'].blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        options['email'],
+        nil,
         options['template_id'],
-        options['email_personalization_info'],
-        { id_type: 'email', failure_mailer: false }
+        nil,
+        { id_type: 'email', failure_mailer: false, cache_key: options['cache_key'] }
       )
     end
 
@@ -228,12 +228,15 @@ module DebtsApi
       StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated")
       template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
 
+      cache_key = Sidekiq::AttrPackage.create(
+        email: @user.email&.downcase,
+        personalisation: email_personalization_info
+      )
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
         'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
-        'email' => @user.email&.downcase,
-        'email_personalization_info' => email_personalization_info,
+        'cache_key' => cache_key,
         'template_id' => template
       )
       submission_batch.jobs do
