@@ -21,8 +21,12 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
   end
 
   describe '#read' do
+    let(:config) { instance_double(Lighthouse::HealthcareCostAndCoverage::Configuration) }
+
     before do
-      allow(service.send(:config)).to receive(:get).and_return(faraday_response)
+      allow(service).to receive(:config).and_return(config)
+      allow(config).to receive(:get).and_return(faraday_response)
+      allow(config).to receive(:base_api_path).and_return('https://sandbox-api.va.gov/services/health-care-costs-coverage/v0')
     end
 
     it 'returns a FHIR bundle hash' do

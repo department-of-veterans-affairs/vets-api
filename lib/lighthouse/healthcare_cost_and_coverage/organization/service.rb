@@ -12,8 +12,8 @@ module Lighthouse
         STATSD_KEY_PREFIX = 'api.lighthouse.hccc.organization'
 
         def initialize(icn)
-          @icn = icn
           raise ArgumentError, 'no ICN passed in for HCCC request' if icn.blank?
+          @icn = icn
 
           super()
         end
