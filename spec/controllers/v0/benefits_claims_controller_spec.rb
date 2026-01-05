@@ -690,7 +690,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(parsed_body['data'].count).to eq(1)
         expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
         expect(parsed_body['meta']['provider_errors']).to be_present
-        expect(parsed_body['meta']['provider_errors'].first['error']).to eq('Provider failed')
+        expect(parsed_body['meta']['provider_errors'].first['error']).to eq('Provider temporarily unavailable')
       end
 
       it 'logs errors and increments StatsD when provider fails' do
@@ -704,7 +704,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .to receive(:enabled_provider_classes)
           .and_return([failing_provider, mock_provider_class_one])
 
-        expect(Rails.logger).to receive(:error).with(/Provider.*failed/)
+        expect(Rails.logger).to receive(:error).with(
+          /Provider.*failed/,
+          hash_including(error_class: 'StandardError')
+        )
         expect(StatsD).to receive(:increment).with(
           'api.benefits_claims.provider_error',
           hash_including(tags: array_including('provider:'))
@@ -2229,7 +2232,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       it 'logs the error' do
         controller.send(:get_claims_from_providers)
 
-        expect(Rails.logger).to have_received(:error).with("Provider MockProvider failed: #{error_message}")
+        expect(Rails.logger).to have_received(:error).with(
+          'Provider MockProvider failed',
+          hash_including(error_class: 'StandardError')
+        )
       end
 
       it 'increments StatsD metric' do
@@ -2358,8 +2364,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         it 'logs info about first provider not having claim' do
           controller.send(:get_claim_from_providers, claim_id)
 
-          expect(Rails.logger).to have_received(:info)
-            .with(a_string_matching(/Provider MockProvider doesn't have claim #{claim_id}/))
+          expect(Rails.logger).to have_received(:info).with(
+            "Provider MockProvider doesn't have claim",
+            hash_including(error_class: 'Common::Exceptions::RecordNotFound')
+          )
         end
       end
 

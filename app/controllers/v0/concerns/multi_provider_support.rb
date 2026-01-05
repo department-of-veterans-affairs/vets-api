@@ -26,8 +26,13 @@ module V0
       end
 
       def handle_provider_error(provider_class, error, provider_errors)
-        provider_errors << { provider: provider_class.name, error: error.message }
-        ::Rails.logger.error("Provider #{provider_class.name} failed: #{error.message}")
+
+        provider_errors << { provider: provider_class.name, error: 'Provider temporarily unavailable' }
+
+        ::Rails.logger.error(
+          "Provider #{provider_class.name} failed",
+          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
+        )
         StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.provider_error",
                          tags: self.class::STATSD_TAGS + ["provider:#{provider_class.name}"])
       end
@@ -38,7 +43,10 @@ module V0
         configured_providers.each do |provider_class|
           return provider_class.new(@current_user).get_claim(claim_id)
         rescue => e
-          ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
+          ::Rails.logger.info(
+            "Provider #{provider_class.name} doesn't have claim",
+            { error_class: e.class.name }
+          )
         end
         raise Common::Exceptions::RecordNotFound, claim_id
       end
