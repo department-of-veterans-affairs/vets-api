@@ -4,7 +4,9 @@ module IvcChampva
   class VHA1010d2027
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
-    STATS_KEY = 'api.ivc_champva_form.10_10d_2027'
+    STATS_KEY = 'api.ivc_champva_form.10_10d'
+    STATS_KEY_EXTENDED = 'api.ivc_champva_form.10_10d_extended'
+    FORM_VERSION = 'vha_10_10d_2027'
 
     include Virtus.model(nullify_blank: true)
     include Attachments
@@ -76,6 +78,30 @@ module IvcChampva
           font_size: 12
         }
       ]
+    end
+
+    def get_stats_key
+      if @data['form_number'] == '10-10D-EXTENDED'
+        STATS_KEY_EXTENDED
+      else
+        STATS_KEY
+      end
+    end
+
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{get_stats_key}.submission", tags: [
+                         "identity:#{identity}",
+                         "loa:#{current_user_loa}",
+                         "email:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-10D-2027 Submission', identity:,
+                                                                      current_user_loa:,
+                                                                      email_used:,
+                                                                      form_version: FORM_VERSION)
     end
 
     def track_user_identity
