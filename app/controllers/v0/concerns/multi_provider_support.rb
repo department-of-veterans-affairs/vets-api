@@ -44,11 +44,7 @@ module V0
         configured_providers.each do |provider_class|
           return provider_class.new(@current_user).get_claim(claim_id)
         rescue Common::Exceptions::RecordNotFound
-          # Expected case: this provider doesn't have the claim, try next provider
-          ::Rails.logger.info(
-            "Provider #{provider_class.name} doesn't have claim",
-            { error_class: 'Common::Exceptions::RecordNotFound' }
-          )
+          log_claim_not_found(provider_class)
         rescue Common::Exceptions::Unauthorized,
                Common::Exceptions::Forbidden,
                Common::Exceptions::GatewayTimeout,
@@ -56,15 +52,27 @@ module V0
                Common::Exceptions::ResourceNotFound => e
           raise e
         rescue => e
-          # Unexpected error: log and try next provider
-          ::Rails.logger.error(
-            "Provider #{provider_class.name} error fetching claim",
-            { error_class: e.class.name, backtrace: e.backtrace&.first(3) }
-          )
-          StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
-                           tags: self.class::STATSD_TAGS + ["provider:#{provider_class.name}"])
+          handle_get_claim_error(provider_class, e)
         end
         raise Common::Exceptions::RecordNotFound, claim_id
+      end
+
+      def log_claim_not_found(provider_class)
+        # Expected case: this provider doesn't have the claim, try next provider
+        ::Rails.logger.info(
+          "Provider #{provider_class.name} doesn't have claim",
+          { error_class: 'Common::Exceptions::RecordNotFound' }
+        )
+      end
+
+      def handle_get_claim_error(provider_class, error)
+        # Unexpected error: log and try next provider
+        ::Rails.logger.error(
+          "Provider #{provider_class.name} error fetching claim",
+          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
+        )
+        StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
+                         tags: self.class::STATSD_TAGS + ["provider:#{provider_class.name}"])
       end
     end
   end
