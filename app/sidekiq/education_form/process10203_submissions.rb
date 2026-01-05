@@ -160,7 +160,6 @@ module EducationForm
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
       log_exception_to_sentry(exception)
-      log_exception_to_rails(exception)
     end
 
     def log_info(message)

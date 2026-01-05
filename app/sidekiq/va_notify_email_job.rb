@@ -31,7 +31,6 @@ class VANotifyEmailJob
         { args: { template_id:, personalisation: } },
         { error: :va_notify_email_job }
       )
-      log_exception_to_rails(e)
     else
       raise e
     end
