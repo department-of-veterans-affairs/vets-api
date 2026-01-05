@@ -75,11 +75,10 @@ module BenefitsClaims
         lighthouse_rsa_key_path,
         options
       )
-    rescue Faraday::TimeoutError => e
+    rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+      # Log/notify via Lighthouse::ServiceException
       handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
-      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError, Faraday::ServerError => e
-      handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
+      # Re-raise the original exception for upstream handling
       raise
     end
 
