@@ -21,6 +21,7 @@
   "mailingAddress": {
     "country": "USA",
     "street": "123 Maple Ln",
+    "street2": "Unit B",
     "city": "Hamilton",
     "state": "IA",
     "postalCode": "12345"

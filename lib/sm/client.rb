@@ -37,6 +37,29 @@ module SM
                           'mobile.sm'
                         end
 
+    def current_user
+      @current_user ||= User.find(session.user_uuid)
+    end
+
+    def mobile_client?
+      instance_of?(::Mobile::V0::Messaging::Client)
+    end
+
+    def my_health_client?
+      instance_of?(::SM::Client)
+    end
+
+    def client_type_name
+      return 'mobile' if mobile_client?
+      return 'my_health' if my_health_client?
+
+      'unknown'
+    end
+
+    def oh_pilot_user?
+      current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+    end
+
     def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil
       data = model.get_cached(cache_key) if use_cache
@@ -82,8 +105,7 @@ module SM
     end
 
     def append_requires_oh_messages_query(path, param_name = 'requiresOHMessages')
-      current_user = User.find(session.user_uuid)
-      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+      if oh_pilot_user?
         separator = path.include?('?') ? '&' : '?'
         path += "#{separator}#{param_name}=1"
       end

@@ -17,7 +17,7 @@ module TravelClaim
     attr_reader :settings, :check_in, :client_number
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :claims_url, :claims_base_path,
-                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
+                   :subscription_key, :e_subscription_key, :s_subscription_key, :scope, :service_name
 
     ##
     # Builds a Client instance
@@ -53,7 +53,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       raise e
     end
 
@@ -81,7 +80,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -108,7 +106,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -132,7 +129,6 @@ module TravelClaim
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
 
-      log_message_to_rails(e.original_body, :error)
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -184,6 +180,7 @@ module TravelClaim
       {
         client_id:,
         client_secret:,
+        scope:,
         grant_type: GRANT_TYPE
       }
     end

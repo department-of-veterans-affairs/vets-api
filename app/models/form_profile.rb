@@ -98,7 +98,7 @@ class FormProfile
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
-            22-10297 22-0803],
+            22-10297 22-0803 22-10272],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
@@ -161,6 +161,7 @@ class FormProfile
     '22-0994' => ::FormProfiles::VA0994,
     '22-0803' => ::FormProfiles::VA0803,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-10272' => ::FormProfiles::VA10272,
     '22-10297' => ::FormProfiles::VA10297,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
@@ -301,8 +302,6 @@ class FormProfile
 
     military_information_data
   rescue => e
-    log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
-
     log_exception_to_rails(e)
 
     {}

@@ -399,8 +399,10 @@ RSpec.describe V0::InProgressFormsController do
 
         it 'runs the LogEmailDiffJob job' do
           new_form.form_id = '1010ez'
+          allow(HCA::LogEmailDiffJob).to receive(:perform_async)
           new_form.save!
-          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid, user.user_account_uuid)
+          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid,
+                                                                       user.user_account_uuid)
 
           put v0_in_progress_form_url(new_form.form_id), params: {
             formData: new_form.form_data,
@@ -430,6 +432,35 @@ RSpec.describe V0::InProgressFormsController do
             'submission' => { 'status' => false, 'error_message' => false, 'id' => false, 'timestamp' => false,
                               'has_attempted_submit' => false }
           )
+        end
+
+        it 'sets expires_at to 60 days from now for regular forms', run_at: '2017-01-01' do
+          put v0_in_progress_form_url(new_form.form_id), params: {
+            formData: new_form.form_data,
+            metadata: new_form.metadata
+          }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          in_progress_form = InProgressForm.last
+          expect(in_progress_form.expires_at.to_i).to eq(1_488_412_800)
+        end
+
+        it 'preserves existing expires_at for form526 (skippable form)', run_at: '2017-01-01' do
+          form526 = create(:in_progress_526_form, user_uuid: user.uuid, user_account: user.user_account)
+          # Factory sets expires_at to 1 year from now
+          initial_expires_at = form526.expires_at
+
+          put v0_in_progress_form_url(form526.form_id), params: {
+            formData: form526.form_data,
+            metadata: form526.metadata
+          }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          in_progress_form = InProgressForm.find_by(form_id: form526.form_id, user_uuid: user.uuid)
+          # expires_at should be preserved, not updated to current time
+          expect(in_progress_form.expires_at).to eq(initial_expires_at)
         end
 
         it 'can have nil metadata' do
@@ -494,6 +525,37 @@ RSpec.describe V0::InProgressFormsController do
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(form_data)
+        end
+
+        it 'updates expires_at on each update', run_at: '2017-01-01' do
+          # Set initial expires_at to a different time
+          existing_form.update!(expires_at: Time.zone.parse('2017-02-01'))
+          initial_expires_at = existing_form.expires_at
+
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: }
+
+          expect(response).to have_http_status(:ok)
+
+          existing_form.reload
+          # expires_at should be updated to 60 days from 2017-01-01 = 1488412800
+          expect(existing_form.expires_at.to_i).to eq(1_488_412_800)
+          expect(existing_form.expires_at).not_to eq(initial_expires_at)
+        end
+
+        it 'preserves expires_at for form526 on update', run_at: '2017-01-01' do
+          form526 = create(:in_progress_526_form, user_uuid: user.uuid, user_account: user.user_account)
+          # Set a specific expires_at
+          form526.update!(expires_at: Time.zone.parse('2018-06-01'))
+          initial_expires_at = form526.expires_at
+          form_data = { updated: 'data' }.to_json
+
+          put v0_in_progress_form_url(form526.form_id), params: { form_data: }
+
+          expect(response).to have_http_status(:ok)
+
+          form526.reload
+          # expires_at should remain unchanged for form526 (skippable form)
+          expect(form526.expires_at).to eq(initial_expires_at)
         end
 
         context 'has checked \'One or more of my rated conditions that have gotten worse\'' do
