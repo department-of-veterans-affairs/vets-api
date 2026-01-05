@@ -1793,7 +1793,7 @@ vass:
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
-  scope: 1
+  scope: <%= ENV['vass__scope'] %>
   service_name: VASS-API
   subscription_key: fake_subscription_key
   tenant_id: fake_tenant_id
