@@ -10,6 +10,8 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include V0::Concerns::MultiProviderSupport
+
     before_action { authorize :lighthouse, :access? }
     service_tag 'claims-shared'
 
@@ -134,42 +136,6 @@ module V0
 
     def service
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
-    end
-
-    def configured_providers
-      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
-    end
-
-    def get_claims_from_providers
-      return configured_providers.first.new(@current_user).get_claims if configured_providers.count == 1
-
-      claims_data = []
-      provider_errors = []
-      configured_providers.each do |provider_class|
-        provider = provider_class.new(@current_user)
-        claims_data.concat(provider.get_claims['data'])
-      rescue => e
-        handle_provider_error(provider_class, e, provider_errors)
-      end
-      { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
-    end
-
-    def handle_provider_error(provider_class, error, provider_errors)
-      provider_errors << { provider: provider_class.name, error: error.message }
-      ::Rails.logger.error("Provider #{provider_class.name} failed: #{error.message}")
-      StatsD.increment("#{STATSD_METRIC_PREFIX}.provider_error",
-                       tags: STATSD_TAGS + ["provider:#{provider_class.name}"])
-    end
-
-    def get_claim_from_providers(claim_id)
-      return configured_providers.first.new(@current_user).get_claim(claim_id) if configured_providers.count == 1
-
-      configured_providers.each do |provider_class|
-        return provider_class.new(@current_user).get_claim(claim_id)
-      rescue => e
-        ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}: #{e.message}")
-      end
-      raise Common::Exceptions::RecordNotFound, claim_id
     end
 
     def check_for_birls_id
