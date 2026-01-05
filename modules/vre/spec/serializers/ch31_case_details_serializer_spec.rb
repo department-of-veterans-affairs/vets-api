@@ -20,8 +20,8 @@ RSpec.describe VRE::Ch31CaseDetailsSerializer, type: :serializer do
     expect(attributes['res_case_id']).to eq(body['res_case_id'])
   end
 
-  it 'includes :is_transfered_to_cwnrs' do
-    expect(attributes['is_transfered_to_cwnrs']).to eq(body['is_transfered_to_cwnrs'])
+  it 'includes :is_transferred_to_cwnrs' do
+    expect(attributes['is_transferred_to_cwnrs']).to eq(body['is_transferred_to_cwnrs'])
   end
 
   it 'includes :external_status' do

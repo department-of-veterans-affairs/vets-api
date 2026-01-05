@@ -10,8 +10,9 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include InboundRequestLogging
     include V0::Concerns::MultiProviderSupport
-
+    before_action :log_request_origin
     before_action { authorize :lighthouse, :access? }
     service_tag 'claims-shared'
 
@@ -121,6 +122,12 @@ module V0
     end
 
     private
+
+    def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
+      log_inbound_request(message_type: 'lh.cst.inbound_request', message: 'Inbound request (Lighthouse claim status)')
+    end
 
     def failed_evidence_submissions
       @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
