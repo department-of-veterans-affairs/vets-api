@@ -17,7 +17,6 @@ module BenefitsClaims
     class TrackedItem
       include Vets::Model
 
-      # Core fields from Lighthouse API
       attribute :id, Integer
       attribute :display_name, String
       attribute :status, String
