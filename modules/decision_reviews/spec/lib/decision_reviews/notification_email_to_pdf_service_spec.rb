@@ -401,14 +401,14 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
-      expect(File).to have_received(:binwrite).with('tmp/pdfs/dr_email_ABC123.pdf', pdf_binary)
+      expect(File).to have_received(:binwrite).with('tmp/pdfs/sc_form_vagov_error_email_ABC123.pdf', pdf_binary)
     end
 
     it 'returns the file path' do
       service = described_class.new(audit_log, appeal_submission:)
       file_path = service.generate_pdf
 
-      expect(file_path).to eq('tmp/pdfs/dr_email_ABC123.pdf')
+      expect(file_path).to eq('tmp/pdfs/sc_form_vagov_error_email_ABC123.pdf')
     end
 
     context 'with evidence failure' do
@@ -479,7 +479,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
   xdescribe 'integration test - generate actual PDF for inspection' do # rubocop:disable RSpec/PendingWithoutReason
     # Disabled by default - only enable locally for manual PDF inspection
-    # Output saved to: tmp/pdfs/dr_email_*.pdf
+    # Output saved to: tmp/pdfs/sc_form_vagov_error_email_*.pdf
     # Open the file to verify personalized data is correctly stamped
     let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
 
@@ -507,7 +507,7 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
 
   xdescribe 'integration test - generate evidence failure PDF for inspection' do # rubocop:disable RSpec/PendingWithoutReason
     # Disabled by default - only enable locally for manual PDF inspection
-    # Output saved to: tmp/pdfs/dr_email_*.pdf
+    # Output saved to: tmp/pdfs/sc_evidence_vagov_error_email_*.pdf
     # Open the file to verify personalized data is correctly stamped including evidence filename
     let(:reference) { "SC-evidence-#{submitted_appeal_uuid}" }
     let(:evidence_attachment_guid) { SecureRandom.uuid }
