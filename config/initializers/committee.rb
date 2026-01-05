@@ -2,28 +2,55 @@
 
 require 'committee'
 require 'committee/unprocessable_entity_error'
+require 'form21p530a/monitor'
+require 'form214192/monitor'
 
 schema_path = Rails.public_path.join('openapi.json').to_s
 
+##
+# Provides routing for Committee validation errors to form-specific monitors
+#
+module CommitteeErrorRouting
+  # Mapping of path patterns to monitor classes
+  FORM_MONITORS = {
+    %r{^/v0/form21p530a} => Form21p530a::Monitor,
+    %r{^/v0/form214192} => Form214192::Monitor
+  }.freeze
+
+  ##
+  # Routes Committee validation errors to form-specific monitors based on request path
+  #
+  # @param request [Rack::Request] The incoming request
+  # @return [Object, nil] The appropriate monitor instance or nil
+  def self.monitor_for_request(request)
+    FORM_MONITORS.find { |pattern, _| request.path.match?(pattern) }&.last&.new
+  end
+end
+
 ERROR_HANDLER = lambda do |ex, env|
   req = Rack::Request.new(env)
-  Rails.logger.warn(
-    '[Committee] Request validation failed',
-    {
-      path: req.path,
-      method: req.request_method,
-      status: 422,
-      error_class: ex.class.name.demodulize,
-      error_type: ex.is_a?(Committee::InvalidRequest) ? 'request_validation' : 'response_validation'
-    }
-  )
+
+  # Route to form-specific monitor if available
+  monitor = CommitteeErrorRouting.monitor_for_request(req)
+  if monitor && ex.is_a?(Committee::InvalidRequest)
+    monitor.track_request_validation_error(error: ex, request: req)
+  else
+    # Fallback: metric only for paths without form-specific monitors
+    error_type = ex.is_a?(Committee::InvalidRequest) ? 'request_validation' : 'response_validation'
+    tags = [
+      "error_type:#{error_type}",
+      "path:#{req.path}",
+      "source_app:#{req.env['SOURCE_APP'] || 'unknown'}"
+    ]
+    StatsD.increment('api.committee.validation_error', tags:)
+  end
 end
 
 Rails.application.config.middleware.use(
   Committee::Middleware::RequestValidation,
   schema_path:,
   strict_reference_validation: true,
-  raise: false,
+  raise: true,
   error_class: Committee::UnprocessableEntityError,
   error_handler: ERROR_HANDLER
 )
@@ -33,7 +60,7 @@ Rails.application.config.middleware.use(
   schema_path:,
   strict_reference_validation: true,
   validate_success_only: true,
-  raise: false,
+  raise: true,
   error_class: Committee::UnprocessableEntityError,
   error_handler: ERROR_HANDLER
 )
