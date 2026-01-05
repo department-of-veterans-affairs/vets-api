@@ -134,7 +134,6 @@ module V2
                                 },
                                 { external_service: service_name, team: 'check-in' })
 
-        log_exception_to_rails(e)
         raise e
       end
 
@@ -197,7 +196,6 @@ module V2
                                 },
                                 { external_service: service_name, team: 'check-in' })
 
-        log_exception_to_rails(e)
         Faraday::Response.new(response_body: e.original_body, status: e.original_status)
       end
 
