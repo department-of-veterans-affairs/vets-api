@@ -46,7 +46,12 @@ module UniqueUserEvents
       events_to_log = get_all_events_to_log(user:, event_name:)
 
       # Increment StatsD counter for the total number of events to log
-      StatsD.increment("#{STATSD_KEY_PREFIX}.logged_event", events_to_log.size, tags: ["event_name:#{event_name}"])
+      begin
+        StatsD.increment("#{STATSD_KEY_PREFIX}.logged_event", events_to_log.size, tags: ["event_name:#{event_name}"])
+      rescue => e
+        Rails.logger.error('UUM: Failed to increment StatsD logged_event counter', { event_name:, error: e.message })
+        # Don't raise - metrics failure shouldn't break the main flow
+      end
 
       # Log each event and collect results
       events_to_log.map do |event_name_to_log|
