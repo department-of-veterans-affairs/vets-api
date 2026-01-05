@@ -12,6 +12,7 @@ require 'debt_management_center/sharepoint/request'
 require 'debts_api/v0/form5655/send_confirmation_email_job'
 require 'pdf_fill/filler'
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require 'json'
 
 module DebtsApi
@@ -52,12 +53,12 @@ module DebtsApi
     #
     def submit_financial_status_report(form)
       if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
+        cache_key = Sidekiq::AttrPackage.create(email: @user.email, first_name: @user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
             'submission_type' => 'fsr',
-            'email' => @user.email,
-            'first_name' => @user.first_name,
+            'cache_key' => cache_key,
             'user_uuid' => @user.uuid,
             'template_id' => IN_PROGRESS_TEMPLATE_ID
           }
@@ -270,8 +271,12 @@ module DebtsApi
       email = @user.email&.downcase
       return if email.blank?
 
+      cache_key = Sidekiq::AttrPackage.create(
+        email: email,
+        personalisation: email_personalization_info
+      )
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        email, template_id, email_personalization_info, { id_type: 'email' }
+        nil, template_id, nil, { id_type: 'email', cache_key: }
       )
     end
 
