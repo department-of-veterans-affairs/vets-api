@@ -1166,6 +1166,7 @@ spec/concerns/form_attachment_create_spec.rb @department-of-veterans-affairs/bac
 spec/concerns/pdf_filename_generator_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/concerns/retriable_concern_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/config/initializers/committee_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/controllers/concerns/third_party_transaction_logging_spec.rb @department-of-veterans-affairs/backend-review-group
