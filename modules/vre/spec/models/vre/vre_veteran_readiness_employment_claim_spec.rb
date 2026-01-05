@@ -118,7 +118,8 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
-          expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+          allow(Flipper).to receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(false)
+          expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
 
           claim.send_to_vre(user_object)
         end
@@ -139,9 +140,11 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
+        allow(Flipper).to receive(:enabled?).with(:vre_use_new_vfs_notification_library).and_return(false)
+
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-        expect(claim).to receive(:send_lighthouse_confirmation_email)
+        expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VRE::VeteranReadinessEmploymentMailer).to receive(:build).with(
           user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -174,43 +177,46 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     end
   end
 
-  describe '#send_vbms_confirmation_email' do
-    subject { claim.send_vbms_confirmation_email(user) }
+  describe '#send_vbms_lighthouse_confirmation_email' do
+    context 'when sending to VBMS' do
+      it 'calls the VA notify email job' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          claim.email,
+          'ch31_vbms_fake_template_id',
+          {
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
+          }
+        )
 
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_vbms_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
-      )
-
-      subject
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id', user_object)
+      end
     end
 
-    it 'handles missing email for VBMS confirmation' do
-      user_without_va_profile_email = OpenStruct.new(user.to_h.merge(va_profile_email: nil))
-      expect(Rails.logger).to receive(:warn)
-      claim.send_vbms_confirmation_email(user_without_va_profile_email)
+    context 'when sending to Lighthouse' do
+      it 'calls the VA notify email job' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          claim.email,
+          'ch31_central_mail_fake_template_id',
+          {
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => claim.parsed_form['veteranInformation']['fullName']['first']
+          }
+        )
+
+        claim.send_vbms_lighthouse_confirmation_email('Lighthouse', 'ch31_central_mail_fake_template_id', user_object)
+      end
     end
-  end
 
-  describe '#send_lighthouse_confirmation_email' do
-    subject { claim.send_lighthouse_confirmation_email(user) }
-
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_central_mail_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
-      )
-
-      subject
+    context 'when email is missing' do
+      it 'logs a warning' do
+        claim.parsed_form['email'] = nil
+        expect(Rails.logger).to receive(:warn).with(
+          'VBMS confirmation email not sent: parsed form missing email.',
+          { user_uuid: user_object.uuid }
+        )
+        claim.send_vbms_lighthouse_confirmation_email('VBMS', 'ch31_vbms_fake_template_id', user_object)
+      end
     end
   end
 

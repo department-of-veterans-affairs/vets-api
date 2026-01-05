@@ -1218,6 +1218,8 @@ reports:
 res:
   api_key: ~
   base_url: https://fake_url.com
+  ch_31_case_details:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1787,6 +1789,8 @@ vass:
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
   mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
