@@ -2654,6 +2654,9 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  form_10275_release:
+    actor_type: user
+    description: If enabled, show link to digitized form on SCO page
   tsa_safe_travel_letter:
     actor_type: user
     description: Enables displaying TSA Safe Travel Letter on Letters page
@@ -2735,7 +2738,6 @@ features:
     actor_type: user
     description: Updated verbiage for instruction page for 5490
     enable_in_development: true
-
   survivors_benefits_form_enabled:
     actor_type: user
     description: Enables the Medical Expense Reports form (Form 21P-534EZ)
