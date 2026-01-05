@@ -53,7 +53,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       PGDATA: /tmp
-    image: postgis/postgis:14-3.3-alpine
+    image: postgis/postgis:15-3.5-alpine
     ports:
       - 5432:5432
     volumes:

@@ -3,7 +3,7 @@ services:
   redis:
     image: ${ECR_REGISTRY_WITH_SLASH}redis:6.2-alpine
   postgres:
-    image: ${ECR_REGISTRY_WITH_SLASH}postgis/postgis:14-3.3-alpine
+    image: ${ECR_REGISTRY_WITH_SLASH}postgis/postgis:15-3.5-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
