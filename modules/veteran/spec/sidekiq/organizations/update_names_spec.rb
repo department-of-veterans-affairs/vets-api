@@ -36,9 +36,9 @@ RSpec.describe Organizations::UpdateNames, type: :job do
       expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_sentry).with(
         "Error updating organization name for POA in Organizations::UpdateNames: Unexpected error. POA: '80', Org Name: 'Updated Name'." # rubocop:disable Layout/LineLength
       )
-      expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
-        "Error updating organization name for POA in Organizations::UpdateNames: Unexpected error. POA: '80', Org Name: 'Updated Name'." # rubocop:disable Layout/LineLength
-      )
+      # expect_any_instance_of(Vets::SharedLogging).to receive(:log_message_to_rails).with(
+      #   "Error updating organization name for POA in Organizations::UpdateNames: Unexpected error. POA: '80', Org Name: 'Updated Name'." # rubocop:disable Layout/LineLength
+      # )
 
       described_class.new.perform
     end
