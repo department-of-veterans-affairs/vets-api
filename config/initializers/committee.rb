@@ -50,7 +50,7 @@ Rails.application.config.middleware.use(
   Committee::Middleware::RequestValidation,
   schema_path:,
   strict_reference_validation: true,
-  raise: true,
+  raise: false,
   error_class: Committee::UnprocessableEntityError,
   error_handler: ERROR_HANDLER
 )
@@ -60,7 +60,7 @@ Rails.application.config.middleware.use(
   schema_path:,
   strict_reference_validation: true,
   validate_success_only: true,
-  raise: true,
+  raise: false,
   error_class: Committee::UnprocessableEntityError,
   error_handler: ERROR_HANDLER
 )
