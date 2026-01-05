@@ -100,7 +100,7 @@ module Vass
       # @return [String] Generated one-time code
       #
       def generate_otc
-        SecureRandom.random_number(999_999).to_s.rjust(OTC_LENGTH, '0')
+        SecureRandom.random_number(1_000_000).to_s.rjust(OTC_LENGTH, '0')
       end
 
       ##
