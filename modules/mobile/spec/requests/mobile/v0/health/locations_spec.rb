@@ -84,7 +84,8 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
       context 'when lh location has no identifier' do
         before do
-          VCR.use_cassette('mobile/lighthouse_health/get_lh_location_no_identifier', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_lh_location_no_identifier',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
           end
         end
@@ -96,19 +97,19 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
     end
 
     context 'when mhv_vaccine_mobile_return_empty_location_data feature flag is enabled' do
-    before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(true)
-      get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
-    end
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_vaccine_mobile_return_empty_location_data, anything).and_return(true)
+        get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: sis_headers
+      end
 
-    it 'returns a 200' do
-      expect(response).to have_http_status(:ok)
-    end
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns an empty JSON response' do
-      expect(response.parsed_body).to eq({})
+      it 'returns an empty JSON response' do
+        expect(response.parsed_body).to eq({})
+      end
     end
   end
-end
 end
