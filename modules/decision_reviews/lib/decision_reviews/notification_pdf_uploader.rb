@@ -20,14 +20,14 @@ module DecisionReviews
     end
 
     # Generate PDF and upload to VBMS, updating audit_log with results
-    # @return [String] VBMS file_uuid
+    # @return [Hash] Contains :file_uuid and :current_version_uuid from VBMS response
     # @raise [UploadError] if upload fails
     def upload_to_vbms
       pdf_path = generate_pdf
-      file_uuid = upload_pdf(pdf_path)
+      upload_result = upload_pdf(pdf_path)
 
-      update_audit_log_success(file_uuid)
-      file_uuid
+      update_audit_log_success(upload_result[:document_series_id])
+      upload_result
     rescue => e
       update_audit_log_failure(e)
       raise UploadError, "Failed to upload notification PDF: #{e.message}"
@@ -53,14 +53,18 @@ module DecisionReviews
       file_uuid = response.body&.fetch('uuid') do
         raise UploadError, 'Missing uuid in Claims Evidence API response'
       end
+      current_version_uuid = response.body&.dig('currentVersionUuid')&.upcase
 
       Rails.logger.info('DecisionReviews::NotificationPdfUploader uploaded PDF',
                         notification_id: @audit_log.notification_id,
                         reference: @audit_log.reference,
-                        file_uuid:,
+                        document_series_id: file_uuid,
+                        document_id: current_version_uuid,
                         appeal_type: @appeal_submission.type_of_appeal)
 
-      file_uuid
+      # On the VBMS UI, the uuid maps to Document Series ID and currentVersionUuid maps to Document ID
+      # Only Document ID is searchable (and must be upcased)
+      { document_series_id: file_uuid, document_id: current_version_uuid }
     end
 
     def build_folder_identifier
@@ -104,10 +108,10 @@ module DecisionReviews
       raise UploadError, "AppealSubmission not found for reference: #{reference} - #{e.message}"
     end
 
-    def update_audit_log_success(file_uuid)
+    def update_audit_log_success(document_series_id)
       @audit_log.update!(
         pdf_uploaded_at: Time.current,
-        vbms_file_uuid: file_uuid,
+        vbms_file_uuid: document_series_id,
         pdf_upload_error: nil
       )
     end
