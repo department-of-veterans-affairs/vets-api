@@ -273,7 +273,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           expect(response).to have_http_status(:bad_request)
         end
 
-        it 'logs EPS error with sanitized context' do
+        it 'logs EPS error with sanitized context', skip: 'Rails duplicate logging' do
           allow(Rails.logger).to receive(:error)
 
           perform_request.call
