@@ -86,7 +86,6 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :string,
                          format: :'date-time',
                          example: '2012-11-01T04:00:00.000+00:00'
-
               end
             end
           end
