@@ -4,7 +4,7 @@ module MHV
   # Batch processor job for Unique User Metrics (UUM) events
   #
   # This job consumes events from a Redis buffer and batch-inserts them into the database.
-  # It runs every minute via Sidekiq Enterprise periodic jobs and processes events in batches
+  # It runs via Sidekiq Enterprise periodic jobs and processes events in batches
   # to reduce database load and improve API response times.
   #
   # Architecture (Peek-then-Trim Pattern with Loop):
@@ -12,7 +12,7 @@ module MHV
   #
   # Per iteration:
   # 1. PEEK: Read batch of events from Redis list without removing (LRANGE)
-  # 2. Deduplicate in-memory using Set
+  # 2. Deduplicate in-memory
   # 3. Batch check Redis cache for existing events (read_multi)
   # 4. Bulk insert new events (insert_all with unique_by)
   # 5. Batch update cache for inserted events (write_multi)
@@ -28,8 +28,8 @@ module MHV
   class UniqueUserMetricsProcessorJob
     include Sidekiq::Job
 
-    # Prevent duplicate job execution
-    sidekiq_options retry: 3, unique_for: 1.minute
+    # Prevent duplicate job execution (matches 10-minute schedule interval)
+    sidekiq_options retry: 3, unique_for: 10.minutes
 
     # Configuration from Settings (AWS Parameter Store)
     # These must be configured in settings.yml - job will fail fast if missing

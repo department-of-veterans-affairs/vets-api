@@ -3,7 +3,7 @@
 module UniqueUserEvents
   # Redis list buffer for asynchronous event processing
   #
-  # This module provides a Redis list-based buffer for pooling unique user events
+  # This module provides a Redis list-based buffer for queuing unique user events
   # before batch processing by the UniqueUserMetricsProcessorJob. Events are pushed
   # to a Redis list (LPUSH) and atomically popped in batches (RPOP with count).
   #
@@ -78,7 +78,9 @@ module UniqueUserEvents
     def self.trim_batch(count)
       return true if count <= 0
 
-      # LTRIM keeps elements from index 0 to -(count + 1), removing the last `count` elements
+      # LTRIM keeps elements from index 0 to -(count + 1), removing the last `count` elements.
+      # When count >= buffer size, -(count + 1) resolves to before index 0, which empties the list.
+      # This is the desired behavior - we want to remove all processed events.
       redis.ltrim(BUFFER_KEY, 0, -(count + 1))
       true
     rescue => e

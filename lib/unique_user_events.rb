@@ -42,6 +42,8 @@ module UniqueUserEvents
     else
       log_event_sync(user:, event_name:)
     end
+  rescue ArgumentError
+    raise # Re-raise validation errors - these are programming bugs that should fail fast
   rescue => e
     Rails.logger.error("UUM: Failed during log_event - Event: #{event_name}, Error: #{e.message}")
     [Service.build_error_result(event_name)]
