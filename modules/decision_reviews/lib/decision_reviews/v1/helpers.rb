@@ -132,6 +132,8 @@ module DecisionReviews
       end
 
       def format_va_evidence_entries(va_evidence)
+        return if va_evidence.blank?
+
         va_evidence.map do |entry|
           formatted_entry = {
             'type' => 'retrievalEvidence',
@@ -139,7 +141,7 @@ module DecisionReviews
           }
 
           evidence_entry = entry.dup
-          formatted_entry['attributes']['locationAndName'] = evidence_entry['treatmentLocation']
+          formatted_entry['attributes']['locationAndName'] = evidence_entry['vaTreatmentLocation']
 
           has_treatment_before_2005 = evidence_entry['treatmentBefore2005'] == 'Y'
 
@@ -166,6 +168,8 @@ module DecisionReviews
       end
 
       def format_private_evidence_entries(private_evidence)
+        return if private_evidence.blank?
+
         private_evidence_data = {
           'providerFacility' => []
         }
@@ -181,7 +185,7 @@ module DecisionReviews
           end
 
           facility_data = {
-            'providerFacilityName' => evidence_entry['treatmentLocation'] || '',
+            'providerFacilityName' => evidence_entry['privateTreatmentLocation'] || '',
             'providerFacilityAddress' => {
               'country' => evidence_entry.dig('address', 'country') || '',
               'street' => evidence_entry.dig('address', 'street') || '',
