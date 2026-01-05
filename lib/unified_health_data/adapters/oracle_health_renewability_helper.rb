@@ -47,7 +47,8 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR MedicationRequest resource
       # @return [Boolean] true if renewable category
       def renewable_category?(resource)
-        !non_va_med?(resource)
+        category = categorize_medication(resource)
+        %i[va_prescription clinic_administered].include?(category)
       end
 
       # Checks if validity period end date exists

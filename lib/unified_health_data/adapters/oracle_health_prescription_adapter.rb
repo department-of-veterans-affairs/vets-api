@@ -246,7 +246,7 @@ module UnifiedHealthData
       end
 
       def extract_refill_date(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
@@ -452,7 +452,7 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         facility_resolver.resolve_facility_name(dispense)
       end
 
@@ -462,7 +462,7 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense.dig('quantity', 'value') if dispense
 
         nil
@@ -485,7 +485,7 @@ module UnifiedHealthData
       end
 
       def extract_station_number(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         raw_station_number = dispense&.dig('location', 'display')
         return nil unless raw_station_number
 
@@ -501,6 +501,10 @@ module UnifiedHealthData
 
       def extract_is_refillable(resource, refill_status)
         refillable?(resource, refill_status)
+      end
+
+      def extract_is_renewable(resource)
+        renewable?(resource)
       end
 
       def extract_instructions(resource)
