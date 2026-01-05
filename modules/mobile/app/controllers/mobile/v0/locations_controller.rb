@@ -3,12 +3,9 @@
 module Mobile
   module V0
     class LocationsController < ApplicationController
-      def show
-        if Flipper.enabled?(:mhv_vaccine_mobile_return_empty_location_data, @current_user)
-          render json: {}
-          return
-        end
+      before_action :return_empty_response_if_feature_enabled, only: [:show]
 
+      def show
         lh_location = service.get_location(params[:id])
         if lh_location[:identifier].nil?
           raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request'
@@ -30,6 +27,12 @@ module Mobile
 
       def service
         Mobile::V0::LighthouseHealth::Service.new(@current_user)
+      end
+
+      def return_empty_response_if_feature_enabled
+        return unless Flipper.enabled?(:mhv_vaccine_mobile_return_empty_location_data, @current_user)
+
+        render json: {}
       end
     end
   end
