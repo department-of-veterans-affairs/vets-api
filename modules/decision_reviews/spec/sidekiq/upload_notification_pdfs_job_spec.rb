@@ -18,9 +18,29 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:document_series_id2) { "#{SecureRandom.uuid}-vbms-2" }
   let(:document_id1) { SecureRandom.uuid.upcase }
   let(:document_id2) { SecureRandom.uuid.upcase }
-  let(:upload_result1) { { file_uuid: document_series_id1, document_series_id: document_series_id1, document_id: document_id1 } }
-  let(:upload_result2) { { file_uuid: document_series_id2, document_series_id: document_series_id2, document_id: document_id2 } }
-  let(:upload_result_perm) { { file_uuid: "#{SecureRandom.uuid}-vbms-perm", document_series_id: "#{SecureRandom.uuid}-vbms-perm", document_id: SecureRandom.uuid.upcase } }
+  let(:upload_result1) do
+    {
+      file_uuid: document_series_id1,
+      document_series_id: document_series_id1,
+      document_id: document_id1
+    }
+  end
+
+  let(:upload_result2) do
+    {
+      file_uuid: document_series_id2,
+      document_series_id: document_series_id2,
+      document_id: document_id2
+    }
+  end
+
+  let(:upload_result_perm) do
+    {
+      file_uuid: "#{SecureRandom.uuid}-vbms-perm",
+      document_series_id: "#{SecureRandom.uuid}-vbms-perm",
+      document_id: SecureRandom.uuid.upcase
+    }
+  end
 
   let(:audit_log1) do
     DecisionReviewNotificationAuditLog.create!(
@@ -427,7 +447,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
       before do
         # config gem with env_parse_values=true can convert numeric strings to integers
         allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
-          .and_return(20250601)
+          .and_return(20250601) # rubocop:disable Style/NumericLiterals
       end
 
       it 'parses the numeric value as a date string (YYYYMMDD format)' do
