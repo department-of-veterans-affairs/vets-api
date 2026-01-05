@@ -42,9 +42,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
     poa_request.claimant.update!(icn: '1012666183V089914')
     login_as(test_user)
-
-    # Enable feature flag for tests
-    Flipper.enable(:send_poa_to_corpdb, test_user)
   end
 
   def stub_ar_monitoring(controller: 'power_of_attorney_request_decisions', action: 'create')
@@ -148,6 +145,105 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).to receive(:perform_async)
       end
 
+      it 'creates an acceptance decision' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
+        monitor = stub_ar_monitoring
+
+        # Mock the service to handle the acceptance
+        accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+          .to receive(:new)
+          .with(poa_request, anything, anything)
+          .and_return(accept_service)
+
+        memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: '1234', emails: []
+          )
+
+        allow(memberships).to(
+          receive(:all).and_return(
+            [
+              AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+                registration_number: '1234',
+                power_of_attorney_holder:
+                  AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                    poa_code: poa_request.power_of_attorney_holder_poa_code,
+                    type: poa_request.power_of_attorney_holder_type,
+                    can_accept_digital_poa_requests: false,
+                    name: 'Org Name'
+                  )
+              )
+            ]
+          )
+        )
+
+        allow(accept_service).to receive(:call) do
+          # Create the decision directly as a side effect
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: memberships,
+            power_of_attorney_request: poa_request
+          )
+        end
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'acceptance' } }
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+
+        poa_request.reload
+        expect(poa_request.resolution).to be_present
+        expect(poa_request.resolution.resolving.type)
+          .to eq('PowerOfAttorneyRequestAcceptance')
+        expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
+      end
+
+      it 'creates a declination decision with both key and no free-form reason' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+          .to receive(:perform_async)
+        monitor = stub_ar_monitoring
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: {
+               type: 'declination',
+               key: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+             } }
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+
+        poa_request.reload
+        expect(poa_request.resolution.resolving.type)
+          .to eq('PowerOfAttorneyRequestDeclination')
+        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
+      end
+
+      it 'creates a declination decision when no reason param is passed (declination only)' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+          .to receive(:perform_async)
+        monitor = stub_ar_monitoring
+        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: {
+               type: 'declination',
+               key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
+             } }
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+
+        poa_request.reload
+        expect(poa_request.resolution.resolving.type)
+          .to eq('PowerOfAttorneyRequestDeclination')
+        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
+      end
+
       it 'creates an acceptance decision and enqueues SendPoaRequestToCorpDbJob if feature flag enabled' do
         monitor = stub_ar_monitoring
 
@@ -196,6 +292,184 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(response).to have_http_status(:ok)
         expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).not_to have_received(:perform_async)
       end
+    end
+
+    context 'when request does not exist' do
+      it 'returns 404 Not Found' do
+        post '/accredited_representative_portal/v0/power_of_attorney_requests/nonexistent/decision'
+        expect(response).to have_http_status(:not_found)
+        expect(parsed_response['errors']).to include(a_string_including('Record not found'))
+      end
+
+      it 'handles 404 errors correctly' do
+        # Use proper mocking to simulate a 404 error
+        accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+          .to receive(:new)
+          .with(poa_request, anything, anything)
+          .and_return(accept_service)
+
+        allow(accept_service).to receive(:call)
+          .and_raise(
+            AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept::Error.new(
+              'Record not found', :not_found
+            )
+          )
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'acceptance' } }
+
+        expect(response).to have_http_status(:not_found)
+        expect(parsed_response['errors']).to include('Record not found')
+      end
+    end
+
+    context 'when decision already exists' do
+      before do
+        create(
+          :power_of_attorney_request_resolution,
+          :expiration,
+          power_of_attorney_request: poa_request
+        )
+      end
+
+      it 'returns an error' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+          .not_to receive(:perform_async)
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: {
+               type: 'declination',
+               key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
+             } }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to eq(
+          ['Power of attorney request has already been taken']
+        )
+      end
+    end
+  end
+
+  describe 'Full decision cycle' do
+    it 'creates acceptance then rejects a second POST' do
+      # Properly mock the Accept service
+      accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+      allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        .to receive(:new)
+        .with(poa_request, anything, anything)
+        .and_return(accept_service)
+
+      memberships =
+        AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+          icn: '1234', emails: []
+        )
+
+      allow(memberships).to(
+        receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Org Name'
+                )
+            )
+          ]
+        )
+      )
+
+      allow(accept_service).to receive(:call) do
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+          creator_id: test_user.user_account_uuid,
+          power_of_attorney_holder_memberships: memberships,
+          power_of_attorney_request: poa_request
+        )
+      end
+
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response['resolution']).to be_nil
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+           params: { decision: { type: 'acceptance' } }
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response).to eq({})
+
+      poa_request.reload
+      expect(poa_request.resolution.resolving.type)
+        .to eq('PowerOfAttorneyRequestAcceptance')
+
+      resolution = poa_request.resolution
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response['resolution']['id']).to eq(resolution.id)
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+           params: { decision: { type: 'acceptance' } }
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(parsed_response['errors']).to include('Power of attorney request has already been taken')
+    end
+  end
+
+  context 'the server returns with a transient error' do
+    it 'returns a 504 and rolls back all writes' do
+      # Setup to properly test timeout errors with mocking
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.delete_all
+      AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.delete_all
+
+      # Create and inject a service mock that raises a timeout error
+      accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+      allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        .to receive(:new)
+        .with(poa_request, anything, anything)
+        .and_return(accept_service)
+
+      allow(accept_service).to receive(:call)
+        .and_raise(
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept::Error.new(
+            'Connection timed out', :gateway_timeout
+          )
+        )
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+           params: { decision: { type: 'acceptance' } }
+
+      expect(response).to have_http_status(:gateway_timeout)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.all)
+        .to be_empty
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all)
+        .to be_empty
+    end
+  end
+
+  context 'internal server error' do
+    it 'returns 500 and rolls back all writes' do
+      # Setup to properly test internal server errors with mocking
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.delete_all
+      AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.delete_all
+
+      # Create and inject a service mock that raises an internal server error
+      accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+      allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+        .to receive(:new)
+        .with(poa_request, anything, anything)
+        .and_return(accept_service)
+
+      allow(accept_service).to receive(:call)
+        .and_raise(StandardError, 'Internal server error')
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+           params: { decision: { type: 'acceptance' } }
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.all)
+        .to be_empty
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all)
+        .to be_empty
     end
   end
 end

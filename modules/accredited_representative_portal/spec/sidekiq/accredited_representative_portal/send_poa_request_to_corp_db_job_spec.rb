@@ -12,7 +12,8 @@ module AccreditedRepresentativePortal
     describe '#perform' do
       context 'when the POA request exists' do
         it 'calls the SendPoaRequestToCorpDbService with the request' do
-          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService).to receive(:call).with(poa_request)
+          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
+            .to receive(:call).with(poa_request)
 
           described_class.new.perform(poa_request.id)
 
@@ -24,7 +25,9 @@ module AccreditedRepresentativePortal
       context 'when the POA request does not exist' do
         it 'logs an error for RecordNotFound and does not raise' do
           allow(Rails.logger).to receive(:error)
+
           described_class.new.perform('nonexistent_id')
+
           expect(Rails.logger).to have_received(:error).with(
             'POA Request not found',
             hash_including(
@@ -36,10 +39,11 @@ module AccreditedRepresentativePortal
         end
       end
 
-      context 'when the service raises a Faraday error' do
+      context 'when the service raises a Faraday::ClientError' do
         it 'logs the error and re-raises for retry' do
           allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
-            .to receive(:call).and_raise(Faraday::ClientError.new(double(response: { status: 500 })))
+            .to receive(:call)
+            .and_raise(Faraday::ClientError.new(double(response: { status: 500 })))
           allow(Rails.logger).to receive(:error)
 
           expect do
@@ -57,10 +61,33 @@ module AccreditedRepresentativePortal
         end
       end
 
+      context 'when the service raises a Faraday::ServerError' do
+        it 'logs the error and re-raises for retry' do
+          allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
+            .to receive(:call)
+            .and_raise(Faraday::ServerError.new(double(response: { status: 502 })))
+          allow(Rails.logger).to receive(:error)
+
+          expect do
+            described_class.new.perform(poa_request.id)
+          end.to raise_error(Faraday::ServerError)
+
+          expect(Rails.logger).to have_received(:error).with(
+            'Failed to send POA Request to CorpDB (retrying)',
+            hash_including(
+              poa_request_id: poa_request.id,
+              error_class: 'Faraday::ServerError',
+              message: anything
+            )
+          )
+        end
+      end
+
       context 'when the service raises an unexpected error' do
         it 'logs the error and re-raises' do
           allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbService)
-            .to receive(:call).and_raise(StandardError.new('unexpected failure'))
+            .to receive(:call)
+            .and_raise(StandardError.new('unexpected failure'))
           allow(Rails.logger).to receive(:error)
 
           expect do
@@ -76,6 +103,26 @@ module AccreditedRepresentativePortal
             )
           )
         end
+      end
+    end
+
+    describe 'sidekiq retries exhausted' do
+      it 'logs the retries_exhausted message' do
+        allow(Rails.logger).to receive(:error)
+        job = { 'args' => [poa_request.id], 'jid' => 'test-jid' }
+        exception = StandardError.new('boom')
+
+        described_class.sidekiq_retries_exhausted_block.call(job, exception)
+
+        expect(Rails.logger).to have_received(:error).with(
+          'SendPoaRequestToCorpDbJob retries exhausted',
+          hash_including(
+            poa_request_id: poa_request.id,
+            job_id: 'test-jid',
+            error_class: 'StandardError',
+            error_message: 'boom'
+          )
+        )
       end
     end
   end
