@@ -24,6 +24,8 @@ module Vass
     rescue_from Vass::Errors::ServiceError, with: :handle_service_error
     rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
     rescue_from Vass::Errors::RedisError, with: :handle_redis_error
+    rescue_from Vass::Errors::RateLimitError, with: :handle_rate_limit_error
+    rescue_from VANotify::Error, with: :handle_vanotify_error
 
     private
 
@@ -81,6 +83,40 @@ module Vass
       )
     end
 
+    def handle_rate_limit_error(exception)
+      log_safe_error('rate_limit_error', exception.class.name)
+      render_error_response(
+        title: 'Rate Limit Exceeded',
+        detail: 'Too many requests. Please try again later',
+        status: :too_many_requests
+      )
+    end
+
+    def handle_vanotify_error(exception)
+      log_safe_error('vanotify_error', exception.class.name)
+      # Map VANotify status codes to appropriate HTTP statuses
+      status = case exception.status_code
+               when 400
+                 :bad_request
+               when 401, 403
+                 :unauthorized
+               when 404
+                 :not_found
+               when 429
+                 :too_many_requests
+               when 500, 502, 503
+                 :bad_gateway
+               else
+                 :service_unavailable
+               end
+
+      render_error_response(
+        title: 'Notification Service Error',
+        detail: 'Unable to send notification. Please try again later',
+        status:
+      )
+    end
+
     # Logs error information without PHI
     # Only logs: error type, exception class, controller, action, status, timestamp
     def log_safe_error(error_type, exception_class)
@@ -92,6 +128,30 @@ module Vass
         action: action_name,
         timestamp: Time.current.iso8601
       }.to_json)
+    end
+
+    ##
+    # Logs VASS events with optional metadata (no PHI).
+    #
+    # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
+    # @param uuid [String, nil] Session UUID (optional)
+    # @param level [Symbol] Log level (:debug, :info, :warn, :error, :fatal)
+    # @param metadata [Hash] Additional metadata to include
+    #
+    def log_vass_event(action:, uuid: nil, level: :info, **metadata)
+      valid_levels = %i[debug info warn error fatal]
+      level = :info unless valid_levels.include?(level)
+
+      log_data = {
+        service: 'vass',
+        action:,
+        controller: controller_name,
+        timestamp: Time.current.iso8601
+      }
+      log_data[:uuid] = uuid if uuid
+      log_data.merge!(metadata)
+
+      Rails.logger.public_send(level, log_data.to_json)
     end
 
     # Render error response in JSON:API format
