@@ -5,20 +5,19 @@
 exclude_paths:
   - db/schema.rb
   - db/audit_schema.rb
-  - vendor/bundle/**/*
-  # - modules/**/vendor/bundle/**/*
+  - vendor/bundle/**
+  # - modules/*/vendor/bundle/**/*
 
-# new configuration to reduce noise (~1.8k smells)
 detectors:
   # === HIGH SIGNAL / CONFIGURABLE ===
   DuplicateMethodCall:
     max_calls: 5
 
+  # === LOW SIGNAL / DISABLED ===
   NestedIterators:
     max_allowed_nesting: 2
+    enabled: false
 
-  # === LOW SIGNAL / DISABLED ===
-  # Already contemplated by rubocop
   TooManyStatements:
     enabled: false
 
