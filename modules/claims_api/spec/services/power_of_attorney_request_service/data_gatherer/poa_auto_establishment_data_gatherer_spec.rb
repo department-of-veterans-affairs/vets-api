@@ -48,9 +48,15 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
 
   let(:gathered_data_obj_with_claimant) do
     {
-      'addrs_one_txt' => '2719 Hyperion Ave', 'addrs_two_txt' => 'Apt 2', 'city_nm' => 'Los Angeles',
-      'cntry_nm' => 'USA', 'postal_cd' => 'CA', 'zip_prefix_nbr' => '92264', 'zip_first_suffix_nbr' => '0200',
-      'email_addrs_txt' => nil, 'registration_number' => '12345678',
+      'service_number' => '123678453', 'insurance_numbers' => '1234567890', 'claimant_relationship' => 'Spouse',
+      'poa_code' => '083', 'organization_name' => 'DISABLED AMERICAN VETERANS',
+      'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
+      'representative_last_name' => 'Doe', 'representative_title' => nil,
+      'section_7332_auth' => 'true', 'limitation_alcohol' => 'true', 'limitation_drug_abuse' => 'true',
+      'limitation_hiv' => 'true', 'limitation_sca' => 'true', 'change_address_auth' => 'true',
+      'addrs_one_txt' => '2719 Pluto Ave', 'addrs_two_txt' => 'Apt 2', 'city_nm' => 'Los Angeles',
+      'cntry_nm' => 'Vietnam', 'postal_cd' => 'CA', 'zip_prefix_nbr' => '92264', 'zip_first_suffix_nbr' => '0200',
+      'email_addrs_txt' => nil, 'registration_number' => '12345678', 'phone_nbr' => '5555551234',
       'claimant' => { 'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3',
                       'city_nm' => 'Boston', 'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
                       'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil, 'phone_nbr' => '5555559876',
