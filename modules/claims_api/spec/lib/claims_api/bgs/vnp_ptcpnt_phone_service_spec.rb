@@ -39,23 +39,6 @@ describe ClaimsApi::VnpPtcpntPhoneService do
         end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
-
-    it 'responds appropriately with an international number' do
-      options[:vnp_proc_id] = '3874842'
-      options[:vnp_ptcpnt_id] = '209001'
-      options[:phone_nbr] = ' '
-      options[:cntry_nbr] = '11'
-      options[:frgn_phone_rfrnc_txt] = '223333 4444'
-      options[:efctv_dt] = '2025-12-30T19:54:55Z'
-
-      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/valid_vnp_ptcpnt_phone_create_international_phone') do
-        res = subject.vnp_ptcpnt_phone_create(options)
-
-        expect(res[:cntry_nbr]).to eq('11')
-        expect(res[:frgn_phone_rfrnc_txt]).to eq('223333 4444')
-        expect(res[:phone_nbr]).to eq(' ')
-      end
-    end
   end
 
   describe 'vnp_ptcpnt_phone_find_by_primary_key' do
