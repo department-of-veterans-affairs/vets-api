@@ -209,57 +209,68 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
 
   describe '#find_most_recent_medication_dispense' do
     it 'returns the most recent dispense by whenHandedOver date' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-06-20T10:00:00Z', 'id' => '2' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-03-10T10:00:00Z', 'id' => '3' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-06-20T10:00:00Z', 'id' => '2' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-03-10T10:00:00Z', 'id' => '3' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
 
     it 'falls back to whenPrepared if whenHandedOver is missing' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-01-15T10:00:00Z', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-06-20T10:00:00Z', 'id' => '2' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-01-15T10:00:00Z', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-06-20T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
 
     it 'returns nil when no MedicationDispense resources exist' do
-      contained_resources = [
-        { 'resourceType' => 'Task', 'id' => '1' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'Task', 'id' => '1' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result).to be_nil
     end
 
-    it 'returns nil when contained_resources is nil' do
+    it 'returns nil when medication_request is nil' do
       result = subject.find_most_recent_medication_dispense(nil)
       expect(result).to be_nil
     end
 
-    it 'returns nil when contained_resources is empty array' do
-      result = subject.find_most_recent_medication_dispense([])
+    it 'returns nil when contained is empty array' do
+      medication_request = { 'contained' => [] }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result).to be_nil
     end
 
     it 'handles dispenses without whenHandedOver or whenPrepared (uses epoch)' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
 
     it 'handles invalid date formats gracefully' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => 'invalid-date', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => 'invalid-date', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
   end

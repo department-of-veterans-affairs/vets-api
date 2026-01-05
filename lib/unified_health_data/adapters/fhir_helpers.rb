@@ -59,6 +59,8 @@ module UnifiedHealthData
       # @param medication_request [Hash] FHIR MedicationRequest resource
       # @return [Array<Hash>] Array of MedicationDispense resources
       def medication_dispenses(medication_request)
+        return [] if medication_request.nil?
+
         (medication_request['contained'] || []).select do |contained_resource|
           contained_resource['resourceType'] == 'MedicationDispense'
         end
@@ -67,7 +69,7 @@ module UnifiedHealthData
       # Finds the most recent MedicationDispense from contained resources
       # Sorted by whenHandedOver or whenPrepared date
       #
-      # @param contained_resources [Array<Hash>] Array of FHIR contained resources
+      # @param medication_request [Hash] FHIR MedicationRequest resource
       # @return [Hash, nil] Most recent MedicationDispense or nil if none found
       def find_most_recent_medication_dispense(medication_request)
         dispenses = medication_dispenses(medication_request)
