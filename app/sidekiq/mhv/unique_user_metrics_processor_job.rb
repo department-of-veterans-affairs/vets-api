@@ -35,7 +35,6 @@ module MHV
     # These must be configured in settings.yml - job will fail fast if missing
     BATCH_SIZE = Settings.unique_user_metrics&.processor_job&.batch_size
     MAX_ITERATIONS = Settings.unique_user_metrics&.processor_job&.max_iterations
-    MAX_JOB_DURATION_SECONDS = Settings.unique_user_metrics&.processor_job&.max_job_duration_seconds
     MAX_QUEUE_DEPTH = Settings.unique_user_metrics&.processor_job&.max_queue_depth
 
     unless BATCH_SIZE.is_a?(Integer) && BATCH_SIZE.positive?
@@ -43,9 +42,6 @@ module MHV
     end
     unless MAX_ITERATIONS.is_a?(Integer) && MAX_ITERATIONS.positive?
       raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer'
-    end
-    unless MAX_JOB_DURATION_SECONDS.is_a?(Integer) && MAX_JOB_DURATION_SECONDS.positive?
-      raise 'unique_user_metrics.processor_job.max_job_duration_seconds must be a positive integer'
     end
     unless MAX_QUEUE_DEPTH.is_a?(Integer) && MAX_QUEUE_DEPTH.positive?
       raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer'
@@ -64,9 +60,8 @@ module MHV
       total_events_processed = 0
 
       loop do
-        # Check safeguards before each iteration
+        # Check safeguard before each iteration
         break if iterations >= MAX_ITERATIONS
-        break if Time.current - job_start_time > MAX_JOB_DURATION_SECONDS
 
         # PEEK - Read events without removing them from buffer
         events = peek_events_from_buffer
