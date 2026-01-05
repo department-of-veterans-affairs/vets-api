@@ -33,10 +33,6 @@ module TravelClaim
       @facility_type = opts.dig(:params, :facility_type) || ''
       @redis_client = RedisClient.build
       @response = Response
-
-      # Clear cached VEIS token to prevent cross-contamination between facility types
-      # This matches v1 behavior (TravelPayClient#refresh_tokens!)
-      @redis_client.save_token(token: nil)
     end
 
     # Get the auth token. If the token does not already exist in Redis, a call is made to VEIS token

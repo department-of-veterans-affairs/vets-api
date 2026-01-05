@@ -236,12 +236,12 @@ describe TravelPay::ExpensesService do
       expect(result['name']).to eq('Parking')
     end
 
-    it 'overwrites expenseType with name when name is present' do
+    it 'does not overwrite expenseType for non-parking expenses even when name is present' do
       expense_with_name_data = {
         'data' => {
           'id' => expense_id,
           'expenseType' => 'Mileage',
-          'name' => 'Mileage',
+          'name' => 'Mileage Expense',
           'claimId' => SecureRandom.uuid,
           'dateIncurred' => '2024-10-02T14:36:38.043Z',
           'description' => 'Mileage expense'
@@ -257,6 +257,7 @@ describe TravelPay::ExpensesService do
       result = service.get_expense('mileage', expense_id)
 
       expect(result['expenseType']).to eq('Mileage')
+      expect(result['name']).to eq('Mileage Expense')
     end
 
     it 'does not overwrite expenseType when name is blank' do
@@ -654,7 +655,7 @@ describe TravelPay::ExpensesService do
     context 'common carrier expense specific fields' do
       it 'converts common carrier-specific fields correctly' do
         params = {
-          'expense_type' => 'common_carrier',
+          'expense_type' => 'commoncarrier',
           'purchase_date' => '2024-11-01',
           'description' => 'Bus fare',
           'cost_requested' => 15.00,
@@ -666,7 +667,7 @@ describe TravelPay::ExpensesService do
         result = build_request_body(params)
 
         expect(result).to eq({
-                               'expenseType' => 'common_carrier',
+                               'expenseType' => 'commoncarrier',
                                'dateIncurred' => '2024-11-01',
                                'description' => 'Bus fare',
                                'costRequested' => 15.00,

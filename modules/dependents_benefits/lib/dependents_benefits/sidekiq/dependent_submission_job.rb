@@ -15,11 +15,6 @@ module DependentsBenefits::Sidekiq
   # - Each child gets separate job that checks sibling status before processing
   # - Uses pessimistic locking to prevent race conditions between siblings
   # - Early exits if any sibling has already failed the claim group
-  #
-  # SUBCLASS REQUIREMENTS:
-  # - MUST implement submit_to_service for BGS/Lighthouse/Fax submission
-  # - MAY override find_or_create_form_submission for service-specific FormSubmission types
-  # - MAY override permanent_failure? for service-specific error classification
   class DependentSubmissionJob
     include ::Sidekiq::Job
 
@@ -79,23 +74,6 @@ module DependentsBenefits::Sidekiq
     private
 
     attr_reader :claim_id, :proc_id
-
-    ##
-    # Returns the error class to raise for invalid claims
-    #
-    # @abstract Subclasses must implement this method
-    # @return [Class] Error class for invalid claims
-    # @raise [NotImplementedError] if not implemented by subclass
-    def invalid_claim_error_class
-      raise NotImplementedError, 'Subclasses must implement invalid_claim_error_class method'
-    end
-
-    ##
-    # Service-specific submission logic - BGS vs Lighthouse vs Fax
-    # @return [ServiceResponse] Must respond to success? and error methods
-    def submit_to_service
-      raise NotImplementedError, 'Subclasses must implement submit_to_service'
-    end
 
     # Submit claims to the appropriate service
     # @abstract Subclasses must implement this method
@@ -205,13 +183,6 @@ module DependentsBenefits::Sidekiq
                                                                                       parent_claim_id:)
     end
 
-    # Checks if all child claim groups have succeeded
-    #
-    # @return [Boolean] true if all child claim groups have succeeded status
-    def all_child_groups_succeeded?
-      SavedClaimGroup.child_claims_for(parent_claim_id).all?(&:succeeded?)
-    end
-
     # Handles job failure by determining if error is permanent or transient
     #
     # Marks the submission attempt as failed. For permanent failures, skips Sidekiq
@@ -272,13 +243,6 @@ module DependentsBenefits::Sidekiq
       parent_group&.failed?
     end
 
-    # Checks if parent claim group already completed (failed or succeeded)
-    #
-    # @return [Boolean] true if parent group has completed (success or failure status)
-    def parent_group_completed?
-      parent_group&.completed?
-    end
-
     # Determines if an error represents a permanent failure
     #
     # Override in subclasses for service-specific permanent failures
@@ -291,27 +255,6 @@ module DependentsBenefits::Sidekiq
       return false if error.nil?
 
       false # Base: assume all errors are transient
-    end
-
-    # Checks if all submissions for the current claim group succeeded
-    #
-    # @return [Boolean] true if all submission attempts for current claim succeeded
-    def all_current_group_submissions_succeeded?
-      saved_claim.submissions_succeeded?
-    end
-
-    # Marks the current claim group as succeeded
-    #
-    # @return [Boolean] result of the update operation
-    def mark_current_group_succeeded
-      current_group&.update!(status: SavedClaimGroup::STATUSES[:SUCCESS])
-    end
-
-    # Marks the current claim group as failed
-    #
-    # @return [Boolean] result of the update operation
-    def mark_current_group_failed
-      current_group&.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     end
 
     # Marks the parent claim group as succeeded
@@ -333,21 +276,6 @@ module DependentsBenefits::Sidekiq
     # @return [Boolean] result of the update operation
     def mark_parent_group_processing
       parent_group.update!(status: SavedClaimGroup::STATUSES[:PROCESSING])
-    end
-
-    # Enqueues a backup submission job for the parent claim
-    #
-    # @return [String] Sidekiq job ID
-    def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id, proc_id)
-    end
-
-    # Returns the claim group for the current claim
-    #
-    # @return [SavedClaimGroup] The claim group record
-    # @raise [ActiveRecord::RecordNotFound] if claim group not found
-    def current_group
-      SavedClaimGroup.by_saved_claim_id(claim_id).first!
     end
 
     # Returns the parent claim group

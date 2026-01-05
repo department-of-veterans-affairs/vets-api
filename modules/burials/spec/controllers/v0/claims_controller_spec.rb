@@ -4,8 +4,6 @@ require 'rails_helper'
 require 'burials/monitor'
 require 'support/controller_spec_helper'
 require 'bpds/sidekiq/submit_to_bpds_job'
-require 'bpds/monitor'
-require 'bpds/submission'
 
 RSpec.describe Burials::V0::ClaimsController, type: :request do
   let(:monitor) { double('Burials::Monitor') }
@@ -48,6 +46,117 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
       post '/burials/v0/claims', params: { param_name => { form: form.form } }
 
       expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe '#create' do
+    let(:form_data) { JSON.parse(build(:burials_saved_claim).form) }
+    let(:param_name) { :burial_claim }
+
+    context 'when claim is successfully created' do
+      let(:claim) { build(:burials_saved_claim) }
+
+      before do
+        allow(Burials::SavedClaim).to receive(:new).and_return(claim)
+        allow(claim).to receive(:save).and_return(true)
+        allow(claim).to receive(:process_attachments!)
+        allow(Burials::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
+        allow(Flipper).to receive(:enabled?).with(:burial_bpds_service_enabled).and_return(false)
+      end
+
+      it 'creates a claim and enqueues the benefits intake job' do
+        expect(monitor).to receive(:track_create_attempt).with(claim, nil).once
+        expect(monitor).to receive(:track_create_success).with(nil, claim, nil).once
+        expect(Burials::BenefitsIntake::SubmitClaimJob).to receive(:perform_async).with(claim.id).once
+
+        post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']['attributes']['guid']).to eq(claim.guid)
+      end
+
+      it 'processes attachments' do
+        expect(claim).to receive(:process_attachments!).once
+
+        post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+
+        expect(response).to have_http_status(:success)
+      end
+
+      context 'when burial_bpds_service_enabled flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:burial_bpds_service_enabled).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true)
+          allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
+        end
+
+        context 'when user is unauthenticated' do
+          it 'skips BPDS submission' do
+            expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
+
+            post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'when user is LOA3' do
+          let(:user) { create(:user, :loa3) }
+          let(:mpi_profile) { build(:mpi_profile) }
+          let(:mpi_response) { build(:find_profile_response, profile: mpi_profile) }
+          let(:participant_id) { mpi_profile.participant_id }
+          let(:encrypted_payload) { KmsEncrypted::Box.new.encrypt({ participant_id: }.to_json) }
+
+          before do
+            sign_in_as(user)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+              .with(identifier: user.icn, identifier_type: MPI::Constants::ICN)
+              .and_return(mpi_response)
+          end
+
+          it 'submits to BPDS with participant_id from MPI' do
+            expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload)
+
+            post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+
+            expect(response).to have_http_status(:success)
+          end
+        end
+      end
+    end
+
+    context 'when claim validation fails' do
+      let(:claim) { build(:burials_saved_claim) }
+      let(:validation_errors) { ActiveModel::Errors.new(claim) }
+
+      before do
+        allow(Burials::SavedClaim).to receive(:new).and_return(claim)
+        allow(claim).to receive_messages(save: false, errors: validation_errors)
+        validation_errors.add(:base, 'Validation failed')
+      end
+
+      it 'logs validation error and raises exception' do
+        expect(monitor).to receive(:track_create_attempt).with(claim, nil)
+        expect(monitor).to receive(:track_create_validation_error).with(nil, claim, nil)
+        expect(monitor).to receive(:track_create_error).with(nil, claim, nil, kind_of(Common::Exceptions::ValidationErrors))
+
+        post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not process attachments' do
+        expect(claim).not_to receive(:process_attachments!)
+
+        post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+      end
+
+      it 'does not enqueue benefits intake job' do
+        expect(Burials::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
+
+        post '/burials/v0/claims', params: { param_name => { form: form_data.to_json } }
+      end
     end
   end
 

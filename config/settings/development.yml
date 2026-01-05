@@ -90,6 +90,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
+bio:
+  medical_expense_reports:
+    bucket: ~
+    region: ~
+  survivors_benefits:
+    bucket: ~
+    region: ~
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -313,6 +320,7 @@ dgi:
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
   vye:
     jwt:
+      kid: vye
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
@@ -953,6 +961,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
+    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
     pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
@@ -1043,6 +1052,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
+    s3:
+      bucket: fake_bucket
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: false
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
@@ -1204,6 +1218,8 @@ reports:
 res:
   api_key: ~
   base_url: https://fake_url.com
+  ch_31_case_details:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1773,6 +1789,8 @@ vass:
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
   mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
@@ -1936,6 +1954,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: 24
 vetext:
   mock: ~
 vetext_push:
