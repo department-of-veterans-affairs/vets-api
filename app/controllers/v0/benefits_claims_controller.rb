@@ -487,10 +487,9 @@ module V0
     end
 
     def report_evidence_submission_metrics(endpoint, evidence_submissions)
-      BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
-        count = evidence_submissions.where(upload_status: status).count
-        next if count.zero?
+      counts_by_status = evidence_submissions.group(:upload_status).count
 
+      counts_by_status.each do |status, count|
         StatsD.increment("#{STATSD_METRIC_PREFIX}.#{endpoint}", count, tags: STATSD_TAGS + ["status:#{status}"])
       end
     rescue => e
