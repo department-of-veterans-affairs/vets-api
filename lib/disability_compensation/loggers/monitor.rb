@@ -208,7 +208,11 @@ module DisabilityCompensation
         in_progress_camelized = OliveBranch::Transformations.transform(
           in_progress_toxic_exposure, OliveBranch::Transformations.method(:camelize)
         )
-        removed_keys = (in_progress_camelized.keys - (submitted_toxic_exposure&.keys || [])).sort
+        # Filter out view: prefixed keys - these are UI metadata always stripped by the
+        # submit transformer, not actual purge data. Including them causes false positives.
+        in_progress_keys = in_progress_camelized.keys.reject { |k| k.start_with?('view:') }
+        submitted_keys = (submitted_toxic_exposure&.keys || []).reject { |k| k.start_with?('view:') }
+        removed_keys = (in_progress_keys - submitted_keys).sort
         purge_analysis = analyze_purge_reasons(removed_keys, in_progress_camelized, submitted_toxic_exposure)
 
         {
