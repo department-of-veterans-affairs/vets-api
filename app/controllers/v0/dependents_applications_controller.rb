@@ -7,7 +7,7 @@ module V0
     service_tag 'dependent-change'
 
     def show
-      dependents = create_dependent_service.get_dependents
+      dependents = dependent_service.get_dependents
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
@@ -33,9 +33,6 @@ module V0
       end
 
       claim.process_attachments!
-
-      # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
@@ -95,8 +92,8 @@ module V0
       end
     end
 
-    def create_dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(current_user)
+    def dependent_service
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
 
     def dependency_verification_service
