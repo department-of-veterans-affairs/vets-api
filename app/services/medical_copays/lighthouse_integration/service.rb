@@ -30,7 +30,7 @@ module MedicalCopays
           org_id  = org_ref&.split('/')&.last
 
           org_city = retrieve_city(org_id) if org_id
-          entry['resource'].merge!({ 'city' => org_city, 'facility_id' => facility_id }) if org_city
+          entry['resource'].merge!({ 'city' => org_city, 'facility_id' => org_id }) if org_city
 
           Lighthouse::HCC::Invoice.new(entry)
         end
