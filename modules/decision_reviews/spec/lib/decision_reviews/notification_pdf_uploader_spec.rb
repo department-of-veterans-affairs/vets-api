@@ -133,7 +133,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
       uploader = described_class.new(audit_log)
       result = uploader.upload_to_vbms
 
-      expect(result).to eq({ file_uuid: vbms_file_uuid, document_series_id: vbms_file_uuid, document_id: })
+      expect(result).to eq({ document_series_id: vbms_file_uuid, document_id: })
       expect(DecisionReviews::NotificationEmailToPdfService).to have_received(:new)
         .with(audit_log, appeal_submission:)
       expect(pdf_service).to have_received(:generate_pdf)
@@ -348,7 +348,6 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
           uploader = described_class.new(audit_log)
           result = uploader.upload_to_vbms
 
-          expect(result[:file_uuid]).to eq(vbms_file_uuid)
           expect(result[:document_series_id]).to eq(vbms_file_uuid)
           expect(result[:document_id]).to eq(document_id)
         end
