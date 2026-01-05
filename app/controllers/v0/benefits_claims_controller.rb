@@ -127,8 +127,8 @@ module V0
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
     end
 
-    def configured_providers
-      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
+    def configured_providers(user = @current_user)
+      BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(user)
     end
 
     def get_claims_from_providers
