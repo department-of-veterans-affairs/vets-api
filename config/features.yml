@@ -114,6 +114,10 @@ features:
     actor_type: user
     description: Enables the After Visit Summary API.
     enable_in_development: true
+  benefits_claims_lighthouse_provider:
+    actor_type: user
+    description: (multi-claim provider) Enables the Lighthouse provider for benefits claims
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -185,10 +189,6 @@ features:
     actor_type: user
     description: Enables HEIF files as attachments that get converted to .jpg files
     enable_in_development: true
-  hca_insurance_v2_enabled:
-    actor_type: user
-    description: Enables the upgraded insurance section of the Health Care Application
-    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -203,6 +203,9 @@ features:
     actor_type: user
     description: Enables the health facilities import job - should only run daily by default in prod, staging, and sandbox.
     enable_in_development: false
+  ezr_browser_monitoring_enabled:
+    actor_type: user
+    description: Enables browser monitoring for the 10-10EZR application.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -436,6 +439,10 @@ features:
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
+    enable_in_development: true
+  clamav_scan_file_from_other_location:
+    actor_type: user
+    description: When enabled, clamav scans files from other location
     enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
@@ -751,6 +758,10 @@ features:
     actor_type: user
     description: enables failure email when explicit failure is detected downstream
     enable_in_development: true
+  efolder_use_lighthouse_benefits_documents_service:
+    actor_type: user
+    description: Enables use of Lighthouse Benefits Documents service for fetching eFolder documents
+    enable_in_development: false
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
@@ -1055,10 +1066,6 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
-  form22_10275_submission_email:
-    actor_type: user
-    description: Enables form 22-10275 email submission to POE team (VaNotify)
-    enable_in_development: true
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
@@ -1220,7 +1227,7 @@ features:
   identity_ial2_enforcement:
     actor_type: user
     description: Enforces IAL2 for newly verified users
-    enable_in_development: true
+    enable_in_development: false
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
     description: Enable/disable Amazon Kendra for Resources and Support search
@@ -1255,6 +1262,10 @@ features:
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
+  log_claims_request_origin:
+    actor_type: user
+    description: Enables logging of inbound request metadata for claims endpoints to track request origins
+    enable_in_development: true
   log_eligible_benefits:
     actor_type: user
     description: Allows log_eligible_benefits_job.rb to run in background.
@@ -1351,9 +1362,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_secure_messaging_no_cache:
-    actor_type: user
-    description: Prevents caching of Secure Messaging data
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1428,6 +1436,10 @@ features:
   mhv_medical_records_ccd_oh:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
+    enable_in_development: true
+  mhv_medical_records_hold_time_messaging_update:
+    actor_type: user
+    description: Enables updated hold time messaging
     enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
@@ -1859,10 +1871,6 @@ features:
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
-    enable_in_development: true
-  show_cdp_one_thing_per_page:
-    actor_type: user
-    description: Enables the Payment History MVP features for development
     enable_in_development: true
   vha_show_payment_history:
     actor_type: user
@@ -2642,6 +2650,9 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
+  form_10275_release:
+    actor_type: user
+    description: If enabled, show link to digitized form on SCO page
   tsa_safe_travel_letter:
     actor_type: user
     description: Enables displaying TSA Safe Travel Letter on Letters page
@@ -2723,7 +2734,6 @@ features:
     actor_type: user
     description: Updated verbiage for instruction page for 5490
     enable_in_development: true
-
   survivors_benefits_form_enabled:
     actor_type: user
     description: Enables the Medical Expense Reports form (Form 21P-534EZ)
@@ -2746,3 +2756,6 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
+  form_10203_claimant_service:
+    actor_type: user
+    description: If enabled, use the new claimant service for form 22-10203
