@@ -77,7 +77,7 @@ GIT
   revision: 899e4a9fd775dafdf9ffe4b4d8f59b208306b598
   branch: master
   specs:
-    vets_json_schema (25.2.41)
+    vets_json_schema (25.2.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
