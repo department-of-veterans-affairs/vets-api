@@ -137,6 +137,13 @@ module V0
       configured_providers.each do |provider_class|
         provider = provider_class.new(@current_user)
         claims_data.concat(provider.get_claims['data'])
+      rescue Common::Exceptions::Unauthorized,
+             Common::Exceptions::Forbidden,
+             Common::Exceptions::GatewayTimeout,
+             Common::Exceptions::ServiceUnavailable,
+             Common::Exceptions::ResourceNotFound => e
+        # Critical errors that affect the entire request - re-raise immediately
+        raise e
       rescue => e
         handle_provider_error(provider_class, e, provider_errors)
       end
@@ -156,6 +163,13 @@ module V0
       rescue Common::Exceptions::RecordNotFound
         # Expected case: this provider doesn't have the claim, try next provider
         ::Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}")
+      rescue Common::Exceptions::Unauthorized,
+             Common::Exceptions::Forbidden,
+             Common::Exceptions::GatewayTimeout,
+             Common::Exceptions::ServiceUnavailable,
+             Common::Exceptions::ResourceNotFound => e
+        # Critical errors that affect the entire request - re-raise immediately
+        raise e
       rescue => e
         # Unexpected error: log at error level and track metrics, then try next provider
         ::Rails.logger.error("Provider #{provider_class.name} error fetching claim #{claim_id}: #{e.message}")

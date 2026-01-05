@@ -2476,6 +2476,62 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   hash_including(tags: array_including('provider:SecondProvider')))
         end
       end
+
+      context 'when provider raises critical exception' do
+        let(:providers) { [mock_provider_class, second_provider_class] }
+
+        [
+          Common::Exceptions::Unauthorized,
+          Common::Exceptions::Forbidden,
+          Common::Exceptions::GatewayTimeout,
+          Common::Exceptions::ServiceUnavailable,
+          Common::Exceptions::ResourceNotFound
+        ].each do |exception_class|
+          it "re-raises #{exception_class} immediately without trying other providers" do
+            allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+            allow(mock_provider).to receive(:get_claim).with(claim_id).and_raise(exception_class.new)
+            allow(second_provider_class).to receive(:new)
+
+            expect do
+              controller.send(:get_claim_from_providers, claim_id)
+            end.to raise_error(exception_class)
+
+            # Verify second provider was never called
+            expect(second_provider_class).not_to have_received(:new)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#get_claims_from_providers' do
+    let(:mock_provider_class) { double('MockProviderClass', name: 'MockProvider') }
+    let(:mock_provider) { double('MockProvider') }
+
+    before do
+      controller.instance_variable_set(:@current_user, user)
+      allow(BenefitsClaims::Providers::ProviderRegistry)
+        .to receive(:enabled_provider_classes)
+        .and_return([mock_provider_class])
+    end
+
+    context 'when provider raises critical exception' do
+      [
+        Common::Exceptions::Unauthorized,
+        Common::Exceptions::Forbidden,
+        Common::Exceptions::GatewayTimeout,
+        Common::Exceptions::ServiceUnavailable,
+        Common::Exceptions::ResourceNotFound
+      ].each do |exception_class|
+        it "re-raises #{exception_class} immediately" do
+          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+          allow(mock_provider).to receive(:get_claims).and_raise(exception_class.new)
+
+          expect do
+            controller.send(:get_claims_from_providers)
+          end.to raise_error(exception_class)
+        end
+      end
     end
   end
 end
