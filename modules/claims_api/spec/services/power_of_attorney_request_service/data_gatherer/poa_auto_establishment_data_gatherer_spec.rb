@@ -34,7 +34,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
   let(:claimant) { nil }
   let(:gathered_data_obj) do
     {
-      'service_number' => nil, 'insurance_numbers' => nil, 'phone_number' => '5555551234',
+      'service_number' => nil, 'insurance_numbers' => nil, 'phone_nbr' => '5555551234',
       'claimant_relationship' => nil, 'poa_code' => '074', 'organization_name' => 'AMERICAN LEGION',
       'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
       'representative_last_name' => 'Doe', 'representative_title' => nil, 'section_7332_auth' => 'true',
