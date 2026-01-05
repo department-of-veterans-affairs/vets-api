@@ -213,7 +213,7 @@ module EVSS
           result
         rescue => e
           method_name = '#get_banking_info'
-          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class} (error_class=#{e.class})"
+          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class} (error_class=#{e.class})" # rubocop:disable Layout/LineLength
           monitor.track_banking_info_api_error(@user.uuid, e)
           raise Common::Exceptions::BadRequest.new(errors: ['Unable to retrieve direct deposit information'])
         end
