@@ -5,7 +5,7 @@
 exclude_paths:
   - db/schema.rb
   - db/audit_schema.rb
-  # - vendor/bundle/**/*
+  - vendor/bundle/**/*
   # - modules/**/vendor/bundle/**/*
 
 # new configuration to reduce noise (~1.8k smells)
