@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'unified_health_data/adapters/oracle_health_medication_categorizer'
+require 'unified_health_data/adapters/oracle_health_categorizer'
 
-describe UnifiedHealthData::Adapters::OracleHealthMedicationCategorizer do
+describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
   # Create a test class that includes the module
   subject { helper_class.new }
 
   let(:helper_class) do
     Class.new do
-      include UnifiedHealthData::Adapters::OracleHealthMedicationCategorizer
+      include UnifiedHealthData::Adapters::OracleHealthCategorizer
     end
   end
 
@@ -314,6 +314,117 @@ describe UnifiedHealthData::Adapters::OracleHealthMedicationCategorizer do
           ]
         )
         expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+    end
+  end
+
+  describe '#non_va_med?' do
+    let(:base_resource) do
+      {
+        'resourceType' => 'MedicationRequest',
+        'id' => '12345'
+      }
+    end
+
+    context 'when medication is a VA prescription' do
+      let(:va_prescription_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+      end
+
+      it 'returns false' do
+        expect(subject.non_va_med?(va_prescription_resource)).to be false
+      end
+    end
+
+    context 'when medication is documented/non-VA' do
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
+
+      it 'returns true' do
+        expect(subject.non_va_med?(non_va_resource)).to be true
+      end
+    end
+
+    context 'when medication is clinic administered' do
+      let(:clinic_administered_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns true' do
+        expect(subject.non_va_med?(clinic_administered_resource)).to be true
+      end
+    end
+
+    context 'when medication is pharmacy charges' do
+      let(:pharmacy_charges_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'charge-only' }] }
+          ]
+        )
+      end
+
+      it 'returns true' do
+        expect(subject.non_va_med?(pharmacy_charges_resource)).to be true
+      end
+    end
+
+    context 'when medication is inpatient' do
+      let(:inpatient_resource) do
+        base_resource.merge(
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+      end
+
+      it 'returns true' do
+        expect(subject.non_va_med?(inpatient_resource)).to be true
+      end
+    end
+
+    context 'when medication is uncategorized' do
+      it 'returns true for resource with no category' do
+        expect(subject.non_va_med?(base_resource)).to be true
+      end
+
+      it 'returns true for partial match missing required fields' do
+        resource = base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'order', # Wrong intent for documented/non-VA
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+        expect(subject.non_va_med?(resource)).to be true
+      end
+    end
+
+    context 'when resource is nil' do
+      it 'returns true' do
+        expect(subject.non_va_med?(nil)).to be true
       end
     end
   end
