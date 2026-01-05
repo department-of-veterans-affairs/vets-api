@@ -30,6 +30,8 @@ end
 ERROR_HANDLER = lambda do |ex, env|
   req = Rack::Request.new(env)
 
+  log_rails_error(req, ex)
+
   # Route to form-specific monitor if available
   monitor = CommitteeErrorRouting.monitor_for_request(req)
   if monitor && ex.is_a?(Committee::InvalidRequest)
@@ -44,6 +46,19 @@ ERROR_HANDLER = lambda do |ex, env|
     ]
     StatsD.increment('api.committee.validation_error', tags:)
   end
+end
+
+def log_rails_error(req, ex)
+  Rails.logger.warn(
+    '[Committee] Request validation failed',
+    {
+      path: req.path,
+      method: req.request_method,
+      status: 422,
+      error_class: ex.class.name.demodulize,
+      error_type: ex.is_a?(Committee::InvalidRequest) ? 'request_validation' : 'response_validation'
+    }
+  )
 end
 
 Rails.application.config.middleware.use(
