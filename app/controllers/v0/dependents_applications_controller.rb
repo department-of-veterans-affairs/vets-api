@@ -39,11 +39,10 @@ module V0
 
       dependent_service.submit_686c_form(claim)
 
-      monitor.track_create_success(in_progress_form, claim, current_user)
+      log_submitted(in_progress_form, claim)
       claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
-
       render json: SavedClaimSerializer.new(claim)
     rescue => e
       monitor.track_create_error(in_progress_form, claim, current_user, e)
@@ -87,6 +86,13 @@ module V0
       metadata['submission'] ||= {}
       metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
       in_progress_form.update(metadata:)
+    end
+
+    def log_submitted(in_progress_form, claim)
+      monitor.track_create_success(in_progress_form, claim, current_user)
+      if claim.pension_related_submission?
+        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+      end
     end
 
     def create_dependent_service

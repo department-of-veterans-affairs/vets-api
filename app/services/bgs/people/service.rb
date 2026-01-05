@@ -29,13 +29,11 @@ module BGS
           exception = VAFileNumberNotFound.new
           log_exception_to_sentry(exception, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
-          log_exception_to_rails(exception)
         end
         BGS::People::Response.new(raw_response, status: :ok)
       rescue => e
         log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
-        log_exception_to_rails(e)
         BGS::People::Response.new(nil, status: :error)
       end
 

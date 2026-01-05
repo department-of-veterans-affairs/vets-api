@@ -26,8 +26,6 @@ module TestUserDashboard
         return true
       rescue JWT::DecodeError => e
         log_message_to_sentry('Error decoding TUD JWT: ', :error, body: e.message)
-
-        log_message_to_rails('Error decoding TUD JWT: ', :error)
       end
       false
     end

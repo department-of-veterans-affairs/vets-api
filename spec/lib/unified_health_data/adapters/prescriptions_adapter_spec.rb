@@ -626,7 +626,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'includes prescriptions with multiple categories' do
         prescriptions = subject.parse(response_with_multiple_categories)
         expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(%w[outpatient community])
+        expect(prescriptions.first.category).to eq(%w[community outpatient])
       end
     end
 
