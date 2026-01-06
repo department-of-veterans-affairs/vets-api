@@ -63,11 +63,6 @@ benefits_intake_service:
     secret_access_key: ~
   enabled: true
   url: <%= ENV['benefits_intake_service__url'] %>
-betamocks:
-  cache_dir: <%= ENV['betamocks__cache_dir'] %>
-  enabled: <%= ENV['betamocks__enabled'] %>
-  recording: false
-  services_config: config/betamocks/services_config.yml
 bep:
   application: VAgovAPI
   client_station_id: 281
@@ -79,6 +74,11 @@ bep:
   mock_responses: <%= ENV['bep__mock_responses'] %>
   ssl_verify_mode: <%= ENV['bep__ssl_verify_mode'] %>
   url: <%= ENV['bep__url'] %>
+betamocks:
+  cache_dir: <%= ENV['betamocks__cache_dir'] %>
+  enabled: <%= ENV['betamocks__enabled'] %>
+  recording: false
+  services_config: config/betamocks/services_config.yml
 bid:
   awards:
     base_url: <%= ENV['bid__awards__base_url'] %>
