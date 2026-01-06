@@ -231,148 +231,160 @@ module PdfFill
       def merge_fields(_options = {})
         @form_data = @form_data.deep_dup
 
-        # Handle Claimant Personal Information
-        if @form_data['claimantPersonalInformation']
-          person = @form_data['claimantPersonalInformation']
-          
-          # Combine Name
-          if person['fullName']
-            @form_data['claimantPersonalInformation']['fullName'] = combine_full_name(person['fullName'])
-          end
+        merge_claimant_personal_info
+        merge_claimant_address
+        merge_third_party_info
+        merge_organization_info
+        merge_claim_information
+        merge_length_of_release
+        merge_security_info
 
-          # Split SSN
-          if person['ssn']
-            ssn = person['ssn'].delete('-')
-            @form_data['claimantPersonalInformation']['ssn'] = ssn
-            @form_data['ssn2'] = ssn
-            @form_data['ssn3'] = ssn
-          end
-
-          # Format Date of Birth
-          if person['dateOfBirth']
-            @form_data['claimantPersonalInformation']['dateOfBirth'] = format_date(person['dateOfBirth'])
-          end
-        end
-
-        # Handle Claimant Address
-        if @form_data['claimantAddress']
-          addr = @form_data['claimantAddress']
-          # Map profileAddress keys to match simple address structure if needed
-          if addr.key?('addressLine1')
-            mapped_addr = {
-              'street' => addr['addressLine1'],
-              'street2' => addr['addressLine2'],
-              'street3' => addr['addressLine3'],
-              'city' => addr['city'],
-              'state' => addr['stateCode'],
-              'postalCode' => addr['zipCode'],
-              'country' => addr['countryName'] || addr['countryCodeIso3']
-            }
-            @form_data['claimantAddress'] = combine_full_address_extras(mapped_addr)
-          else
-            @form_data['claimantAddress'] = combine_full_address_extras(addr)
-          end
-        end
-
-        # Handle Third Party Person Address
-        if @form_data['thirdPartyPersonAddress']
-          @form_data['thirdPartyPersonAddress'] = combine_full_address_extras(@form_data['thirdPartyPersonAddress'])
-        end
-
-        # Handle Third Party Person Name
-        if @form_data['thirdPartyPersonName']
-          @form_data['thirdPartyPersonName'] = combine_full_name(@form_data['thirdPartyPersonName'])
-        end
-
-        # Handle Organization Address
-        if @form_data['thirdPartyOrganizationInformation']&.key?('organizationAddress')
-          @form_data['thirdPartyOrganizationInformation']['organizationAddress'] = 
-            combine_full_address_extras(@form_data['thirdPartyOrganizationInformation']['organizationAddress'])
-        end
-
-        # Handle Organization Representatives
-        if @form_data['organizationRepresentatives']
-          # Replace the array of objects with array of full name strings
-          @form_data['organizationRepresentatives'] = @form_data['organizationRepresentatives'].map do |rep|
-            combine_full_name(rep['fullName'])
-          end
-        end
-
-        # Handle Claim Information
-        if @form_data['claimInformation']
-          info = @form_data['claimInformation']
-          has_any = false
-
-          %w[statusOfClaim currentBenefit paymentHistory amountOwed minor other].each do |field|
-            if info[field]
-              info[field] = 'X'
-              has_any = true
-            else
-              info[field] = nil
-            end
-          end
-
-          if has_any
-            @form_data['isLimited'] = 'X'
-            @form_data['isNotLimited'] = nil
-          else
-            @form_data['isLimited'] = nil
-            @form_data['isNotLimited'] = 'X'
-          end
-        end
-
-        # Handle Length of Release
-        if @form_data['lengthOfRelease']
-          release = @form_data['lengthOfRelease']
-          if release['lengthOfRelease'] == 'ongoing'
-            @form_data['lengthOfRelease']['isOngoing'] = 'X'
-            @form_data['lengthOfRelease']['isDated'] = nil
-            @form_data['lengthOfRelease']['releaseDate'] = nil
-          elsif release['lengthOfRelease'] == 'date'
-            @form_data['lengthOfRelease']['isOngoing'] = nil
-            @form_data['lengthOfRelease']['isDated'] = 'X'
-            @form_data['lengthOfRelease']['releaseDate'] = format_date(release['date'])
-          end
-        end
-
-        # Handle Security Question
-        if @form_data['securityQuestion']
-          q_key = @form_data['securityQuestion']['question']
-          if q_key == 'create'
-            if @form_data['securityAnswer'] && @form_data['securityAnswer']['securityAnswerCreate']
-              @form_data['securityQuestion']['question'] = @form_data['securityAnswer']['securityAnswerCreate']['question']
-            end
-          else
-            @form_data['securityQuestion']['question'] = SECURITY_QUESTIONS[q_key]
-          end
-        end
-
-        # Handle Security Answer
-        if @form_data['securityAnswer']
-          ans = @form_data['securityAnswer']
-          if ans['securityAnswerText']
-            @form_data['securityAnswer']['answer'] = ans['securityAnswerText']
-          elsif ans['securityAnswerLocation']
-            loc = ans['securityAnswerLocation']
-            @form_data['securityAnswer']['answer'] = "#{loc['city']}, #{loc['state']}"
-          elsif ans['securityAnswerCreate']
-            @form_data['securityAnswer']['answer'] = ans['securityAnswerCreate']['answer']
-          end
-        end
-
-        # Handle Date Signed
-        if @form_data['dateSigned']
-          @form_data['dateSigned'] = format_date(@form_data['dateSigned'])
-        end
+        @form_data['dateSigned'] = format_date(@form_data['dateSigned']) if @form_data['dateSigned']
 
         @form_data
       end
 
       private
 
+      def merge_claimant_personal_info
+        return unless @form_data['claimantPersonalInformation']
+
+        person = @form_data['claimantPersonalInformation']
+
+        if person['fullName']
+          @form_data['claimantPersonalInformation']['fullName'] = combine_full_name(person['fullName'])
+        end
+
+        if person['ssn']
+          ssn = person['ssn'].delete('-')
+          @form_data['claimantPersonalInformation']['ssn'] = ssn
+          @form_data['ssn2'] = ssn
+          @form_data['ssn3'] = ssn
+        end
+
+        return unless person['dateOfBirth']
+
+        @form_data['claimantPersonalInformation']['dateOfBirth'] = format_date(person['dateOfBirth'])
+      end
+
+      def merge_claimant_address
+        return unless @form_data['claimantAddress']
+
+        addr = @form_data['claimantAddress']
+        if addr.key?('addressLine1')
+          mapped_addr = {
+            'street' => addr['addressLine1'],
+            'street2' => addr['addressLine2'],
+            'street3' => addr['addressLine3'],
+            'city' => addr['city'],
+            'state' => addr['stateCode'],
+            'postalCode' => addr['zipCode'],
+            'country' => addr['countryName'] || addr['countryCodeIso3']
+          }
+          @form_data['claimantAddress'] = combine_full_address_extras(mapped_addr)
+        else
+          @form_data['claimantAddress'] = combine_full_address_extras(addr)
+        end
+      end
+
+      def merge_third_party_info
+        if @form_data['thirdPartyPersonAddress']
+          @form_data['thirdPartyPersonAddress'] = combine_full_address_extras(@form_data['thirdPartyPersonAddress'])
+        end
+
+        return unless @form_data['thirdPartyPersonName']
+
+        @form_data['thirdPartyPersonName'] = combine_full_name(@form_data['thirdPartyPersonName'])
+      end
+
+      def merge_organization_info
+        if @form_data['thirdPartyOrganizationInformation']&.key?('organizationAddress')
+          @form_data['thirdPartyOrganizationInformation']['organizationAddress'] =
+            combine_full_address_extras(@form_data['thirdPartyOrganizationInformation']['organizationAddress'])
+        end
+
+        return unless @form_data['organizationRepresentatives']
+
+        @form_data['organizationRepresentatives'] = @form_data['organizationRepresentatives'].map do |rep|
+          combine_full_name(rep['fullName'])
+        end
+      end
+
+      def merge_claim_information
+        return unless @form_data['claimInformation']
+
+        info = @form_data['claimInformation']
+        has_any = false
+
+        %w[statusOfClaim currentBenefit paymentHistory amountOwed minor other].each do |field|
+          if info[field]
+            info[field] = 'X'
+            has_any = true
+          else
+            info[field] = nil
+          end
+        end
+
+        if has_any
+          @form_data['isLimited'] = 'X'
+          @form_data['isNotLimited'] = nil
+        else
+          @form_data['isLimited'] = nil
+          @form_data['isNotLimited'] = 'X'
+        end
+      end
+
+      def merge_length_of_release
+        return unless @form_data['lengthOfRelease']
+
+        release = @form_data['lengthOfRelease']
+        if release['lengthOfRelease'] == 'ongoing'
+          @form_data['lengthOfRelease']['isOngoing'] = 'X'
+          @form_data['lengthOfRelease']['isDated'] = nil
+          @form_data['lengthOfRelease']['releaseDate'] = nil
+        elsif release['lengthOfRelease'] == 'date'
+          @form_data['lengthOfRelease']['isOngoing'] = nil
+          @form_data['lengthOfRelease']['isDated'] = 'X'
+          @form_data['lengthOfRelease']['releaseDate'] = format_date(release['date'])
+        end
+      end
+
+      def merge_security_info
+        merge_security_question
+        merge_security_answer
+      end
+
+      def merge_security_question
+        return unless @form_data['securityQuestion']
+
+        q_key = @form_data['securityQuestion']['question']
+        if q_key == 'create'
+          if @form_data['securityAnswer'] && @form_data['securityAnswer']['securityAnswerCreate']
+            @form_data['securityQuestion']['question'] =
+              @form_data['securityAnswer']['securityAnswerCreate']['question']
+          end
+        else
+          @form_data['securityQuestion']['question'] = SECURITY_QUESTIONS[q_key]
+        end
+      end
+
+      def merge_security_answer
+        return unless @form_data['securityAnswer']
+
+        ans = @form_data['securityAnswer']
+        if ans['securityAnswerText']
+          @form_data['securityAnswer']['answer'] = ans['securityAnswerText']
+        elsif ans['securityAnswerLocation']
+          loc = ans['securityAnswerLocation']
+          @form_data['securityAnswer']['answer'] = "#{loc['city']}, #{loc['state']}"
+        elsif ans['securityAnswerCreate']
+          @form_data['securityAnswer']['answer'] = ans['securityAnswerCreate']['answer']
+        end
+      end
+
       def format_date(date_str)
         return nil if date_str.blank?
-        
+
         Date.parse(date_str).strftime('%m/%d/%Y')
       rescue ArgumentError
         date_str
