@@ -12,8 +12,8 @@ module V0
   class BenefitsClaimsController < ApplicationController
     include InboundRequestLogging
     include V0::Concerns::MultiProviderSupport
-    before_action :log_request_origin
     before_action { authorize :lighthouse, :access? }
+    before_action :log_request_origin
     service_tag 'claims-shared'
 
     STATSD_METRIC_PREFIX = 'api.benefits_claims'

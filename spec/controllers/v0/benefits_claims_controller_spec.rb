@@ -45,6 +45,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     # Mock provider registry to return Lighthouse provider by default for backward compatibility
     allow(BenefitsClaims::Providers::ProviderRegistry)
       .to receive(:enabled_provider_classes)
+      .with(an_instance_of(User))
       .and_return([BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider])
   end
 
@@ -613,6 +614,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     context 'with provider aggregation' do
       let(:mock_provider_class_one) do
         Class.new do
+          def self.name
+            'MockProviderOne'
+          end
+
           def initialize(user)
             @user = user
           end
@@ -633,6 +638,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       let(:mock_provider_class_two) do
         Class.new do
+          def self.name
+            'MockProviderTwo'
+          end
+
           def initialize(user)
             @user = user
           end
@@ -654,6 +663,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       before do
         allow(BenefitsClaims::Providers::ProviderRegistry)
           .to receive(:enabled_provider_classes)
+          .with(an_instance_of(User))
           .and_return([mock_provider_class_one, mock_provider_class_two])
       end
 
@@ -669,6 +679,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'continues processing when one provider fails' do
         failing_provider = Class.new do
+          def self.name
+            'FailingProvider'
+          end
+
           def initialize(user)
             @user = user
           end
@@ -680,6 +694,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         allow(BenefitsClaims::Providers::ProviderRegistry)
           .to receive(:enabled_provider_classes)
+          .with(an_instance_of(User))
           .and_return([mock_provider_class_one, failing_provider])
 
         get(:index)
@@ -689,11 +704,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(parsed_body['data'].count).to eq(1)
         expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
         expect(parsed_body['meta']['provider_errors']).to be_present
+        expect(parsed_body['meta']['provider_errors'].first['provider']).to eq('FailingProvider')
         expect(parsed_body['meta']['provider_errors'].first['error']).to eq('Provider temporarily unavailable')
       end
 
       it 'logs errors and increments StatsD when provider fails' do
         failing_provider = Class.new do
+          def self.name
+            'FailingProvider'
+          end
+
           def initialize(_user)
             raise StandardError, 'Provider initialization failed'
           end
@@ -701,15 +721,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         allow(BenefitsClaims::Providers::ProviderRegistry)
           .to receive(:enabled_provider_classes)
+          .with(an_instance_of(User))
           .and_return([failing_provider, mock_provider_class_one])
 
         expect(Rails.logger).to receive(:error).with(
-          /Provider.*failed/,
+          'Provider FailingProvider failed',
           hash_including(error_class: 'StandardError')
         )
         expect(StatsD).to receive(:increment).with(
           'api.benefits_claims.provider_error',
-          hash_including(tags: array_including('provider:'))
+          hash_including(tags: array_including('provider:FailingProvider'))
         )
 
         get(:index)
@@ -717,12 +738,20 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       it 'returns empty data when multiple providers fail' do
         failing_provider_one = Class.new do
+          def self.name
+            'FailingProviderOne'
+          end
+
           def initialize(_user)
             raise StandardError, 'Provider 1 failed'
           end
         end
 
         failing_provider_two = Class.new do
+          def self.name
+            'FailingProviderTwo'
+          end
+
           def initialize(_user)
             raise StandardError, 'Provider 2 failed'
           end
@@ -730,6 +759,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         allow(BenefitsClaims::Providers::ProviderRegistry)
           .to receive(:enabled_provider_classes)
+          .with(an_instance_of(User))
           .and_return([failing_provider_one, failing_provider_two])
 
         get(:index)
@@ -739,6 +769,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(parsed_body['data']).to be_empty
         expect(parsed_body['meta']['provider_errors']).to be_present
         expect(parsed_body['meta']['provider_errors'].count).to eq(2)
+        expect(parsed_body['meta']['provider_errors'].map { |e| e['provider'] })
+          .to contain_exactly('FailingProviderOne', 'FailingProviderTwo')
       end
     end
   end
@@ -2070,6 +2102,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       controller.instance_variable_set(:@current_user, user)
       allow(BenefitsClaims::Providers::ProviderRegistry)
         .to receive(:enabled_provider_classes)
+        .with(user)
         .and_return(providers)
     end
 
@@ -2227,6 +2260,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       controller.instance_variable_set(:@current_user, user)
       allow(BenefitsClaims::Providers::ProviderRegistry)
         .to receive(:enabled_provider_classes)
+        .with(user)
         .and_return(providers)
     end
 
