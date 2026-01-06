@@ -38,7 +38,7 @@ module Dependents
     #
     # @param claim_id [Integer] the database SavedClaim id
     # @param form_id [String] the form being monitored; 686c-674 or 21-674, etc
-    def initialize(claim_id, form_id = nil)
+    def initialize(claim_id = nil, form_id = nil)
       @claim_id = claim_id
       @claim = claim(claim_id)
       @use_v2 = use_v2
