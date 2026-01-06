@@ -10,19 +10,22 @@ module PdfFill
         'applicantName' => {
           key: 'applicantName',
           question_text: 'APPLICANT\'S NAME (First, Middle Initial, Last Name)',
-          question_num: 1
+          question_num: 1,
+          limit: 54
         },
         'address' => {
           question_num: 2,
           'mailing' => {
             key: 'mailingAddress',
             question_text: 'MAILING ADDRESS (Complete Street Address, City, State and 9-Digit ZIP Code)',
-            question_suffix: 'A'
+            question_suffix: 'A',
+            limit: 340
           },
           'email' => {
             key: 'emailAddress',
             question_text: 'APPLICANT\'S EMAIL ADDRESS',
-            question_suffix: 'B'
+            question_suffix: 'B',
+            limit: 65
           }
         },
         'phone' => {
@@ -32,24 +35,28 @@ module PdfFill
             key: 'homePhone',
             question_text: 'HOME',
             question_num: 3,
-            question_suffix: 'A'
+            question_suffix: 'A',
+            limit: 32
           },
           'mobilePhone' => {
             key: 'mobilePhone',
             question_text: 'MOBILE',
             question_num: 3,
-            question_suffix: 'B'
+            question_suffix: 'B',
+            limit: 46
           }
         },
         'vaFileNumber' => {
           key: 'vaFileNumber',
           question_text: 'VA FILE NUMBER',
-          question_num: 4
+          question_num: 4,
+          limit: 42
         },
         'payeeNumber' => {
           key: 'payeeNumber',
           question_text: 'PAYEE NUMBER (if applicable)',
-          question_num: 5
+          question_num: 5,
+          limit: 42
         },
         'hasPreviouslyApplied' => {
           question_text: 'HAVE YOU PREVIOUSLY APPLIED',
@@ -68,28 +75,33 @@ module PdfFill
           key: 'vaBenefitProgram',
           question_text: 'WHAT EDUCATION BENEFIT(S) HAVE YOU APPLIED FOR PREVIOUSLY?',
           question_num: 6,
-          question_suffix: 'B'
+          question_suffix: 'B',
+          limit: 87
         },
         'testName' => {
           key: 'testName',
           question_text: 'NAME OF TEST',
-          question_num: 7
+          question_num: 7,
+          limit: 87
         },
         'orgNameAndAddress' => {
           key: 'orgNameAndAddress',
           question_text: 'NAME OF ORGANIZATION AWARDING LICENSE OR CERTIFICATION (Include address)',
-          question_num: 8
+          question_num: 8,
+          limit: 340
         },
         'prepCourseName' => {
           key: 'prepCourseName',
           question_text: 'NAME OF COURSE',
-          question_num: 9
+          question_num: 9,
+          limit: 46
         },
         'prepCourseOrgNameAndAddress' => {
           key: 'prepCourseOrgNameAndAddress',
           question_text: 'ORGANIZATION GIVING PREP COURSE (Please include address)',
           question_num: 10,
-          question_suffix: 'A'
+          question_suffix: 'A',
+          limit: 234
         },
         'prepCourseTakenOnline' => {
           question_text: 'TAKEN ONLINE?',
@@ -108,33 +120,39 @@ module PdfFill
           key: 'prepCourseStartDate',
           question_text: 'COURSE START DATE (MM/DD/YYYY)',
           question_num: 11,
-          question_suffix: 'A'
+          question_suffix: 'A',
+          limit: 24
         },
         'prepCourseEndDate' => {
           key: 'prepCourseEndDate',
           question_text: 'COURSE END DATE (MM/DD/YYYY)',
           question_num: 11,
-          question_suffix: 'B'
+          question_suffix: 'B',
+          limit: 23
         },
         'prepCourseCost' => {
           key: 'prepCourseCost',
           question_text: 'ITEMIZE PREP COURSE COST INCLUDING FEES (Attach receipt)',
-          question_num: 12
+          question_num: 12,
+          limit: 524
         },
         'remarks' => {
           key: 'remarks',
           question_text: 'REMARKS',
-          question_num: 14
+          question_num: 14,
+          limit: 3200
         },
         'statementOfTruthSignature' => {
           key: 'statementOfTruthSignature',
           question_text: 'SIGNATURE OF APPLICANT',
-          question_num: 15
+          question_num: 15,
+          limit: 65
         },
         'dateSigned' => {
           key: 'dateSigned',
           question_text: 'DATE SIGNED (MM/DD/YYYY)',
-          question_num: 16
+          question_num: 16,
+          limit: 20
         }
       }.freeze
 
@@ -156,10 +174,10 @@ module PdfFill
         format_phone
       end
 
-      def format_applicant_name(full_name)
+      def format_applicant_name(name)
         # Convert middle name to middle initial if present
-        full_name['middle']&.slice!(1..)
-        @form_data['applicantName'] = combine_full_name(full_name)
+        name['middle'] = "#{name['middle'][0]}." if name['middle']
+        @form_data['applicantName'] = combine_full_name(name)
       end
 
       def format_address(mailing_address)
