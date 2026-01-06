@@ -331,7 +331,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def flipper_id
-    email
+    email || guid
   end
 
   def send_failure_email(email_override = nil)
