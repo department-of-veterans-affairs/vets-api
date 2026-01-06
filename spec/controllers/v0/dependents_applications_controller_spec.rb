@@ -14,7 +14,6 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   let(:service) { instance_double(BGS::DependentService) }
-  let(:service_v2) { instance_double(BGS::DependentV2Service) }
 
   describe '#show' do
     context 'with a valid bgs response' do
@@ -51,11 +50,11 @@ RSpec.describe V0::DependentsApplicationsController do
       end
 
       it 'validates successfully' do
-        expect(BGS::DependentV2Service).to receive(:new)
+        expect(BGS::DependentService).to receive(:new)
           .with(instance_of(User))
-          .and_return(service_v2)
+          .and_return(service)
 
-        expect(service_v2).to receive(:submit_686c_form)
+        expect(service).to receive(:submit_686c_form)
           .with(instance_of(SavedClaim::DependencyClaim))
 
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
