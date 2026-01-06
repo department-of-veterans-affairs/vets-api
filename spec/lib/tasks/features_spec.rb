@@ -12,7 +12,7 @@ RSpec.describe 'features:setup rake task', type: :task do
   let(:task) { Rake::Task['features:setup'] }
 
   # Store original feature state to restore after tests (eager evaluation so it runs before the `before` block)
-  let!(:original_features) { Flipper.features.map { |f| [f.name, f.state] }.to_h }
+  let!(:original_features) { Flipper.features.to_h { |f| [f.name, f.state] } }
 
   before do
     task.reenable
@@ -23,7 +23,7 @@ RSpec.describe 'features:setup rake task', type: :task do
   after do
     # Clean up any test-created features and restore original state
     Flipper.features.each(&:remove)
-    original_features.each do |name, _state|
+    original_features.each_key do |name|
       Flipper.add(name) unless Flipper.exist?(name)
     end
   end
@@ -136,7 +136,8 @@ RSpec.describe 'features:setup rake task', type: :task do
       it 'logs removed features' do
         allow(Rails.logger).to receive(:info).and_call_original
         task.invoke
-        expect(Rails.logger).to have_received(:info).with(/features:setup removed \d+ orphaned features.*orphaned_feature_not_in_config/)
+        expect(Rails.logger).to have_received(:info)
+          .with(/features:setup removed \d+ orphaned features.*orphaned_feature_not_in_config/)
       end
     end
 
