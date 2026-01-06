@@ -86,26 +86,62 @@ class PegaStatusChecker
   end
 
   def process_single_uuid(form_uuid)
+    form_records = get_form_records(form_uuid)
+    return unless form_records
+
+    pega_processable_records = prepare_pega_records(form_records)
+    return unless pega_processable_records
+
+    process_pega_reports(pega_processable_records, form_uuid)
+  end
+
+  def get_form_records(form_uuid)
     form_records = IvcChampvaForm.where(form_uuid:)
 
     if form_records.empty?
       puts "  No local records found for UUID: #{form_uuid}"
-      return
+      return nil
     end
 
-    @total_files_checked += form_records.count
-    puts "  Found #{form_records.count} local record(s)"
+    form_records
+  end
 
-    representative_record = form_records.first
+  def prepare_pega_records(form_records)
+    pega_processable_records = filter_pega_processable_files(form_records)
+
+    @total_files_checked += form_records.count
+    puts "  Found #{pega_processable_records.count} local record(s)"
+
+    if pega_processable_records.empty?
+      puts '  No files sent to Pega for processing'
+      return nil
+    end
+
+    pega_processable_records
+  end
+
+  def process_pega_reports(pega_processable_records, form_uuid)
+    representative_record = pega_processable_records.first
     pega_reports = @pega_api_client.record_has_matching_report(representative_record)
 
     if pega_reports == false || pega_reports.empty?
       puts "  No Pega reports found for UUID: #{form_uuid}"
-      add_unprocessed_files(form_records)
+      add_unprocessed_files(pega_processable_records)
     else
       puts "  Found #{pega_reports.count} Pega report(s)"
-      check_file_counts(form_records, pega_reports, form_uuid)
+      check_file_counts(pega_processable_records, pega_reports, form_uuid)
     end
+  end
+
+  def filter_pega_processable_files(form_records)
+    # Exclude VES JSON files since they're sent to VES, not Pega
+    form_records.reject { |record| ves_json_file?(record.file_name) }
+  end
+
+  def ves_json_file?(file_name)
+    return false if file_name.blank?
+
+    file_name.include?('_ves.json')
   end
 
   def check_file_counts(form_records, pega_reports, form_uuid)

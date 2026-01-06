@@ -57,12 +57,25 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
                       file_name: 'error_file.pdf',
                       created_at: 2.hours.ago)
 
+    # Add a UUID with VES JSON file to test filtering
+    @uuid_with_ves_json = SecureRandom.uuid
+    @record8 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_ves_json,
+                      file_name: 'regular_file.pdf',
+                      s3_status: '[200]',
+                      created_at: 1.hour.ago)
+    @record9 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_ves_json,
+                      file_name: "#{@uuid_with_ves_json}_vha_10_10d_ves.json",
+                      s3_status: '[200]',
+                      created_at: 1.hour.ago)
+
     # Mock the Pega API client
     allow(IvcChampva::PegaApi::Client).to receive(:new).and_return(pega_api_client)
   end
 
   after do
-    [@record1, @record2, @record3, @record4, @record5, @record6, @record7].each(&:destroy)
+    [@record1, @record2, @record3, @record4, @record5, @record6, @record7, @record8, @record9].each(&:destroy)
   end
 
   # Helper method to capture stdout
@@ -224,6 +237,16 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
           mismatch_reports
         when @uuid_with_api_error
           raise IvcChampva::PegaApi::PegaApiError, 'API connection failed'
+        when @uuid_with_ves_json
+          # Return 1 report for the PDF file (VES JSON should be excluded from count)
+          [
+            {
+              'Creation Date' => '2024-12-03T07:04:20.156000',
+              'PEGA Case ID' => 'CASE-VES-001',
+              'Status' => 'Processed',
+              'UUID' => "#{@uuid_with_ves_json[0...-1]}+"
+            }
+          ]
         else
           []
         end
@@ -312,6 +335,20 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
       lines = output.split("\n")
       uuid_line = lines.find { |line| line.match?(/^[0-9a-f-]{36}(,[0-9a-f-]{36})*$/) }
       expect(uuid_line).to eq(@uuid_with_matching_reports)
+    end
+
+    it 'excludes VES JSON files from Pega count comparison' do
+      # Test with UUID that has both regular PDF and VES JSON file
+      ENV['FORM_UUIDS'] = @uuid_with_ves_json
+
+      output = capture_stdout { task.invoke }
+
+      # Should show only Pega-processable records (excluding VES JSON)
+      expect(output).to match(/Found 1 local record\(s\)/)
+      # Should match counts (1 local Pega file vs 1 Pega report)
+      expect(output).to match(/File counts match \(1 local, 1 Pega\)/)
+      # Should be marked as fully processed
+      expect(output).to match(/Found 1 UUIDs with all files processed by Pega/)
     end
   end
 
