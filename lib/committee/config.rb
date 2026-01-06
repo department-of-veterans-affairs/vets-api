@@ -5,7 +5,7 @@ module Committee
   class Config
     ERROR_HANDLER = lambda do |ex, env|
       req = Rack::Request.new(env)
-      Rails.logger.warn(
+      ::Rails.logger.warn(
         '[Committee] Request validation failed',
         {
           path: req.path,
