@@ -15,22 +15,23 @@ module Pensions
         # 10b-d Care Expenses
         'careExpenses' => {
           limit: 3,
+          item_label: 'Care expense',
           first_key: 'childName',
           # (1) Recipient
           'recipients' => {
             key: "Care_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](1)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Recipient',
             question_text: 'CARE EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10.1,
-            question_suffix: '[Care](1)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Child Name',
             question_text: 'CARE EXPENSE CHILD NAME'
           },
@@ -38,8 +39,8 @@ module Pensions
           'provider' => {
             key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
             limit: 70,
-            question_num: 10.1,
-            question_suffix: '[Care](2)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Provider Name',
             question_text: 'CARE EXPENSE PROVIDER NAME'
           },
@@ -47,8 +48,8 @@ module Pensions
             key: "Care_Expenses.Care_Type[#{ITERATOR}]"
           },
           'careTypeOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](2)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Type',
             question_text: 'CARE TYPE'
           },
@@ -62,17 +63,17 @@ module Pensions
             }
           },
           'ratePerHourOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](3)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Rate Per Hour',
             question_text: 'CARE EXPENSE RATE PER HOUR'
           },
           'hoursPerWeek' => {
             limit: 3,
-            question_num: 10.1,
-            question_suffix: '[Care](3)',
-            question_label: 'Hours Per Week Care Received',
-            question_text: 'HOURS PER WEEK CARE RECEIVED',
+            question_num: 10,
+            question_suffix: 'A',
+            question_label: 'Provider Hours Worked Per Week',
+            question_text: 'PROVIDER HOURS WORKED PER WEEK',
             key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
           },
           # (4) Provider Start/End Dates
@@ -101,8 +102,8 @@ module Pensions
             }
           },
           'careDateRangeOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](4)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Date Range Care Received',
             question_text: 'DATE RANGE CARE RECEIVED'
           },
@@ -114,8 +115,8 @@ module Pensions
             key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](5)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Payment Frequency',
             question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
           },
@@ -132,8 +133,8 @@ module Pensions
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10.1,
-            question_suffix: '[Care](6)',
+            question_num: 10,
+            question_suffix: 'A',
             question_label: 'Care Expense Payment Amount',
             question_text: 'CARE EXPENSE PAYMENT AMOUNT'
           }
@@ -141,22 +142,23 @@ module Pensions
         # 10e-j Medical Expenses
         'medicalExpenses' => {
           limit: 6,
+          item_label: 'Medical expense',
           first_key: 'childName',
           # (1) Recipient
           'recipients' => {
             key: "Med_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](1)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Recipient',
             question_text: 'MEDICAL EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10.2,
-            question_suffix: '[Medical](1)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Child Name',
             question_text: 'MEDICAL EXPENSE CHILD NAME'
           },
@@ -164,8 +166,8 @@ module Pensions
           'provider' => {
             key: "Med_Expenses.Paid_To[#{ITERATOR}]",
             limit: 108,
-            question_num: 10.2,
-            question_suffix: '[Medical](2)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Provider Name',
             question_text: 'MEDICAL EXPENSE PROVIDER NAME'
           },
@@ -173,8 +175,8 @@ module Pensions
           'purpose' => {
             key: "Med_Expenses.Purpose[#{ITERATOR}]",
             limit: 108,
-            question_num: 10.2,
-            question_suffix: '[Medical](3)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Purpose',
             question_text: 'MEDICAL EXPENSE PURPOSE'
           },
@@ -191,8 +193,8 @@ module Pensions
             }
           },
           'paymentDateOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](4)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Payment Date',
             question_text: 'MEDICAL EXPENSE PAYMENT DATE'
           },
@@ -201,8 +203,8 @@ module Pensions
             key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](5)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Payment Frequency',
             question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
           },
@@ -220,8 +222,8 @@ module Pensions
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10.2,
-            question_suffix: '[Medical](6)',
+            question_num: 10,
+            question_suffix: 'B',
             question_label: 'Medical Expense Payment Amount',
             question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
           }

@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/v3/service'
 
 module RepresentationManagement
   # This is the second job in a two job process for updating accredited entities.
-  # Processes updates for AccreditedIndividual records based on provided JSON data.
-  # This class is designed to parse AccreditedIndividual data (agents, attorneys, and representatives),
-  # validate addresses using an external service, and update records in the database accordingly.
+  # Processes address validation for AccreditedIndividual records by ID.
+  # This class finds AccreditedIndividual records and calls their validate_address method.
+  # Works for all individual types: agents, attorneys, and representatives.
   # Note: This job only processes individuals. VSOs (AccreditedOrganization records) do not require
   # address validation as the API does not provide address data for organizations.
   class AccreditedIndividualsUpdate
@@ -18,16 +16,14 @@ module RepresentationManagement
 
     def initialize
       @slack_messages = []
-      @reps_update_data = []
     end
 
-    # Processes each AccreditedIndividual's data provided in JSON format.
-    # This method parses the JSON, validates each individual's address, and updates the database records.
+    # Processes address validation for AccreditedIndividuals by ID.
+    # This method finds records by ID and calls validate_address on each one.
     # Works for all individual types: agents, attorneys, and representatives.
-    # @param reps_json [String] JSON string containing an array of AccreditedIndividual data.
-    def perform(reps_json)
-      reps_data = JSON.parse(reps_json)
-      reps_data.each { |rep_data| process_rep_data(rep_data) }
+    # @param record_ids [Array<Integer>] Array of AccreditedIndividual IDs to validate.
+    def perform(record_ids)
+      record_ids.each { |record_id| process_record(record_id) }
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
@@ -37,221 +33,31 @@ module RepresentationManagement
 
     private
 
-    # Processes individual AccreditedIndividual data, validates the address, and updates the record.
-    # If the address validation fails or an error occurs during the update, the error is logged and the process
-    # is halted for the current AccreditedIndividual.
-    # @param rep_data [Hash] The AccreditedIndividual data including id and address.
-    def process_rep_data(rep_data)
-      address_validation_api_response = nil
+    # Processes individual AccreditedIndividual record by ID.
+    # Finds the record and calls validate_address on it.
+    # If the record is not found or validation fails, the error is logged.
+    # @param record_id [Integer] The AccreditedIndividual ID.
+    def process_record(record_id)
+      record = AccreditedIndividual.find_by(id: record_id)
 
-      api_response = get_best_address_candidate(rep_data['address'])
-
-      # don't update the record if there is not a valid address with non-zero lat and long at this point
-      if api_response.nil?
+      if record.nil?
+        log_error("Record not found: #{record_id}", send_to_slack: false)
         return
-      else
-        address_validation_api_response = api_response
       end
 
-      begin
-        update_rep_record(rep_data, address_validation_api_response)
-      rescue Common::Exceptions::BackendServiceException => e
-        log_error("Address validation failed for Rep id: #{rep_data['id']}: #{e.message}")
-        nil
-      rescue => e
-        log_error("Update failed for Rep id: #{rep_data['id']}: #{e.message}")
-        nil
+      unless record.validate_address
+        log_error("Address validation failed for record #{record_id}", send_to_slack: false)
       end
+    rescue => e
+      log_error("Error processing record #{record_id}: #{e.message}", send_to_slack: true)
     end
 
-    # Constructs a validation address object from the provided address data.
-    # @param address [Hash] A hash containing the details of the AccreditedIndividual's address.
-    # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
-    def build_validation_address(address)
-      validation_model = VAProfile::Models::ValidationAddress
-
-      validation_model.new(
-        address_pou: address['address_pou'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city'],
-        state_code: address['state']['state_code'],
-        zip_code: address['zip_code5'],
-        zip_code_suffix: address['zip_code4'],
-        country_code_iso3: address['country_code_iso3']
-      )
-    end
-
-    # Validates the given address using the VAProfile address validation service.
-    # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
-    # @return [Hash] The response from the address validation service.
-    def validate_address(candidate_address)
-      validation_service = VAProfile::AddressValidation::V3::Service.new
-      validation_service.candidate(candidate_address)
-    end
-
-    # Checks if the address validation response is valid.
-    # @param response [Hash] The response from the address validation service.
-    # @return [Boolean] True if the address is valid, false otherwise.
-    def address_valid?(response)
-      response.key?('candidate_addresses') && !response['candidate_addresses'].empty?
-    end
-
-    # Updates the address record based on the rep_data and validation response.
-    # If the record cannot be found, logs an error to Datadog.
-    # @param rep_data [Hash] Original rep_data containing the address and other details.
-    # @param api_response [Hash] The response from the address validation service.
-    def update_rep_record(rep_data, api_response)
-      record = AccreditedIndividual.find(rep_data['id'])
-      record.update(build_address_attributes(rep_data, api_response))
-    end
-
-    # Updates the given record with the new address and other relevant attributes.
-    # @param rep_data [Hash] Original rep_data containing the address and other details.
-    # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(_rep_data, api_response)
-      build_v3_address(api_response['candidate_addresses'].first)
-    end
-
-    # Builds the attributes for the record update from the address, geocode, and metadata.
-    # @param address [Hash] Address details from the validation response.
-    # @param geocode [Hash] Geocode details from the validation response.
-    # @param meta [Hash] Metadata about the address from the validation response.
-    # @return [Hash] The attributes to update the record with.
-    def build_address(address, geocode, meta)
-      {
-        address_type: meta['address_type'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city'],
-        province: address['state_province']['name'],
-        state_code: address['state_province']['code'],
-        zip_code: address['zip_code5'],
-        zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['name'],
-        county_name: address.dig('county', 'name'),
-        county_code: address.dig('county', 'county_fips_code'),
-        lat: geocode['latitude'],
-        long: geocode['longitude'],
-        location: "POINT(#{geocode['longitude']} #{geocode['latitude']})"
-      }
-    end
-
-    def build_v3_address(address)
-      {
-        address_type: address['address_type'],
-        address_line1: address['address_line1'],
-        address_line2: address['address_line2'],
-        address_line3: address['address_line3'],
-        city: address['city_name'],
-        province: address['state']['state_name'],
-        state_code: address['state']['state_code'],
-        zip_code: address['zip_code5'],
-        zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['country_name'],
-        county_name: address.dig('county', 'county_name'),
-        county_code: address.dig('county', 'county_code'),
-        lat: address['geocode']['latitude'],
-        long: address['geocode']['longitude'],
-        location: "POINT(#{address['geocode']['longitude']} #{address['geocode']['latitude']})"
-      }
-    end
-
-    # Logs an error to Datadog and adds an error to the array that will be logged to slack.
-    # @param error [Exception] The error string to be logged.
+    # Logs an error and optionally adds it to the Slack message array.
+    # @param error [String] The error string to be logged.
     def log_error(error, send_to_slack: false)
       message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error}"
       Rails.logger.error(message)
       @slack_messages << "----- #{message}" if send_to_slack
-    end
-
-    # Checks if the latitude and longitude of an address are both set to zero, which are the default values
-    #   for DualAddressError warnings we see with some P.O. Box addresses the validator struggles with
-    # @param candidate_address [Hash] an address hash object returned by [VAProfile::AddressValidation::V3::Service]
-    # @return [Boolean]
-    def lat_long_zero?(candidate_address)
-      address = candidate_address['candidate_addresses']&.first
-      return false if address.blank?
-
-      geocode = address['geocode']
-      return false if geocode.blank?
-
-      geocode['latitude']&.zero? && geocode['longitude']&.zero?
-    end
-
-    # Attempt to get valid address with non-zero coordinates by modifying the OGC address data
-    # @param address [Hash] the OGC address object
-    # @param retry_count [Integer] the current retry attempt which determines how the address object should be modified
-    # @return [Hash] the response from the address validation service
-    def modified_validation(address, retry_count)
-      address_attempt = address.dup
-      case retry_count
-      when 1 # only use the original address_line1
-      when 2 # set address_line1 to the original address_line2
-        address_attempt['address_line1'] = address['address_line2']
-      else # set address_line1 to the original address_line3
-        address_attempt['address_line1'] = address['address_line3']
-      end
-
-      address_attempt['address_line2'] = nil
-      address_attempt['address_line3'] = nil
-
-      validate_address(build_validation_address(address_attempt))
-    end
-
-    # An address validation attempt is retriable if the address is invalid OR the coordinates are zero
-    # @param response [Hash, Nil] the response from the address validation service
-    # @return [Boolean]
-    def retriable?(response)
-      return true if response.blank?
-
-      !address_valid?(response) || lat_long_zero?(response)
-    end
-
-    # Retry address validation
-    # @param rep_address [Hash] the address provided by OGC
-    # @return [Hash, Nil] the response from the address validation service
-    def retry_validation(rep_address)
-      # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
-      #   exist. No need to run the retry if we know it will fail before attempting the api call.
-      api_response = modified_validation(rep_address, 1) if rep_address['address_line1'].present?
-
-      if retriable?(api_response) && rep_address['address_line2'].present?
-        api_response = modified_validation(rep_address, 2)
-      end
-
-      if retriable?(api_response) && rep_address['address_line3'].present?
-        api_response = modified_validation(rep_address, 3)
-      end
-
-      api_response
-    end
-
-    # Get the best address that the address validation api can provide with some retry logic added in
-    # @param rep_address [Hash] the address provided by OGC
-    # @return [Hash, Nil] the response from the address validation service
-    def get_best_address_candidate(rep_address)
-      candidate_address = build_validation_address(rep_address)
-      original_response = validate_address(candidate_address)
-      return nil unless address_valid?(original_response)
-
-      # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
-      #   is typically seen with addresses that mix street addresses with P.O. Boxes
-      if lat_long_zero?(original_response)
-        retry_response = retry_validation(rep_address)
-
-        if retriable?(retry_response)
-          nil
-        else
-          retry_response
-        end
-      else
-        original_response
-      end
     end
 
     def log_to_slack(message)

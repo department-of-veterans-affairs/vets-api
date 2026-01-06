@@ -39,7 +39,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         original_method.call(args[0], random_string)
       end
 
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s,
+                                                              current_loa: 3, form_number:,
                                                               timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
@@ -101,6 +102,33 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    context 'when supporting document submission fails at Lighthouse' do
+      let(:upload_error) do
+        SimpleFormsApi::ScannedFormUploadService::UploadError.new(
+          'Supporting document submission failed',
+          errors: [{ title: 'Submission failed', detail: 'Try again later.' }],
+          http_status: :bad_gateway
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        service_instance = instance_double(SimpleFormsApi::ScannedFormUploadService)
+        allow(SimpleFormsApi::ScannedFormUploadService).to receive(:new).and_return(service_instance)
+        allow(service_instance).to receive(:upload_with_supporting_documents).and_raise(upload_error)
+      end
+
+      it 'returns the error response from the service' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:bad_gateway)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('Submission failed')
+        expect(resp['errors'].first['detail']).to eq('Try again later.')
+      end
+    end
   end
 
   describe '#upload_scanned_form' do
@@ -158,6 +186,69 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+
+    context 'when file parameter is missing' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns a bad request error without processing the upload' do
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params: { form_id: form_number }
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:bad_request)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('File missing')
+      end
+    end
+
+    context 'when file parameter is invalid' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'returns an unprocessable entity error' do
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params: { form_id: form_number, file: 'invalid' }
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to eq('Invalid file')
+      end
+    end
+
+    context 'when the processor cannot persist the attachment' do
+      let(:persistence_error) do
+        SimpleFormsApi::ScannedFormProcessor::PersistenceError.new(
+          'File upload failed',
+          [{ title: 'File upload failed', detail: 'Database unavailable' }]
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        processor_instance = instance_double(SimpleFormsApi::ScannedFormProcessor)
+        allow(SimpleFormsApi::ScannedFormProcessor).to receive(:new).and_return(processor_instance)
+        allow(processor_instance).to receive(:process!).and_raise(persistence_error)
+      end
+
+      it 'renders a 500 error response' do
+        params = { form_id: form_number, file: valid_pdf_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:internal_server_error)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['detail']).to eq('Database unavailable')
       end
     end
 
@@ -303,6 +394,137 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         resp = JSON.parse(response.body)
         expect(resp['errors']).to be_an(Array)
         expect(resp['errors'].first['detail']).to match(/password|locked|encrypted/i)
+      end
+    end
+  end
+
+  describe 'PII/PHI filtering in logs' do
+    let(:fixture_path) do
+      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', '21_0779_upload.json')
+    end
+    let(:params) { JSON.parse(fixture_path.read) }
+    let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+    let(:pdf_stamper) { double(stamp_pdf: nil) }
+    let(:attachment) { double }
+    let(:confirmation_code) { '123456' }
+    let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+    let(:random_string) { 'some-unique-simple-forms-file-seed' }
+    let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                an_instance_of(User)).and_return(false)
+      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+      allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+      allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
+        original_method.call(args[0], random_string)
+      end
+
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+                                                              form_number:, timestamp: anything).and_return(pdf_stamper)
+      allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+      allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
+
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    after do
+      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+      Common::FileHelpers.delete_file_if_exists(metadata_file)
+    end
+
+    describe '#submit' do
+      context 'when upload succeeds' do
+        it 'includes ParameterFilterHelper module in controller' do
+          expect(SimpleFormsApi::V1::ScannedFormUploadsController).to include(Logging::Helper::ParameterFilter)
+        end
+
+        it 'logs with filtered parameters only (no PII)' do
+          post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+          expect(response).to have_http_status(:ok)
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Simple forms api - scanned form uploaded',
+            hash_including(
+              form_number:,
+              status: kind_of(Integer),
+              confirmation_number: kind_of(String),
+              file_size: kind_of(Float)
+            )
+          )
+        end
+
+        it 'logs only safe parameters in upload response' do
+          post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+          expect(response).to have_http_status(:ok)
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Simple forms api - scanned form uploaded',
+            hash_including(
+              form_number: kind_of(String),
+              status: kind_of(Integer),
+              confirmation_number: kind_of(String),
+              file_size: kind_of(Float)
+            )
+          )
+        end
+
+        it 'logs uuid in upload details logging' do
+          post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+          expect(response).to have_http_status(:ok)
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Simple forms api - preparing to upload scanned PDF to benefits intake',
+            hash_including(uuid: kind_of(String))
+          ).at_least(:once)
+        end
+      end
+    end
+
+    describe 'Datadog tracing tags' do
+      it 'tags with form_id only' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    describe 'VA.gov PII/PHI compliance' do
+      it 'uses allowlist approach in upload_response_legacy logging' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:ok)
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - scanned form uploaded',
+          hash_including(
+            form_number: kind_of(String),
+            status: kind_of(Integer),
+            confirmation_number: kind_of(String),
+            file_size: kind_of(Float)
+          )
+        )
+      end
+
+      it 'filters location from upload details logging' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:ok)
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Simple forms api - preparing to upload scanned PDF to benefits intake',
+          hash_including(uuid: kind_of(String))
+        )
+      end
+
+      it 'includes ParameterFilterHelper in controller' do
+        expect(SimpleFormsApi::V1::ScannedFormUploadsController.included_modules).to include(Logging::Helper::ParameterFilter)
       end
     end
   end

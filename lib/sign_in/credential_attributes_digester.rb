@@ -13,11 +13,8 @@ module SignIn
     attribute :ssn, :string
     attribute :birth_date, :string
     attribute :email, :string
-    attribute :address
 
-    validates :credential_uuid, :last_name, :birth_date, presence: true
-
-    validate :address_is_a_hash?, if: -> { address.present? }
+    validates :credential_uuid, :last_name, :birth_date, :email, presence: true
     validate :pepper_present?
 
     def perform
@@ -25,8 +22,8 @@ module SignIn
 
       digest_credential_attributes
     rescue => e
-      Rails.logger.error('[SignIn][CredentialAttributesDigester] Failed to digest user attributes',
-                         message: e.message)
+      Rails.logger.info('[SignIn][CredentialAttributesDigester] Failed to digest user attributes',
+                        message: e.message)
       nil
     end
 
@@ -38,12 +35,6 @@ module SignIn
 
     def pepper
       @pepper ||= IdentitySettings.sign_in.credential_attributes_digester.pepper
-    end
-
-    def address_is_a_hash?
-      return if address.is_a?(Hash)
-
-      errors.add(:address, 'must be a Hash')
     end
 
     def pepper_present?

@@ -26,17 +26,17 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Invoice::Service do
     end
 
     it 'returns a FHIR bundle hash' do
-      result = service.list
+      result = service.list(count: 10)
       expect(result).to eq(response_body)
     end
 
     it 'passes correct params to config.get' do
       expect(service.send(:config)).to receive(:get).with(
         'r4/Invoice',
-        params: { patient: icn, _count: 50 },
+        params: { patient: icn, _count: 50, page: 1 },
         icn:
       ).and_return(faraday_response)
-      service.list
+      service.list(count: 50)
     end
 
     context 'when Faraday::TimeoutError is raised' do
@@ -46,7 +46,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Invoice::Service do
       end
 
       it 'calls handle_error and returns error envelope' do
-        expect(service.list).to eq(:error_envelope)
+        expect(service.list(count: 10)).to eq(:error_envelope)
       end
     end
 
@@ -57,7 +57,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Invoice::Service do
       end
 
       it 'calls handle_error and returns error envelope' do
-        expect(service.list).to eq(:error_envelope)
+        expect(service.list(count: 10)).to eq(:error_envelope)
       end
     end
   end

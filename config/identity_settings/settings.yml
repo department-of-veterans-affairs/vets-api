@@ -71,7 +71,7 @@ session_cookie:
 
 sign_in:
   arp_client_id: arp
-  auto_uplevel: true
+  auto_uplevel: false
   cookies_secure: false
   credential_attributes_digester:
     pepper: ~

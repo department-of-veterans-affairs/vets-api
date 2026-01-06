@@ -18,7 +18,9 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       'prescriptionNumber' => 'RX123',
       'stationNumber' => '660',
       'sig' => 'Take as directed',
-      'cmopDivisionPhone' => '555-1234'
+      'cmopDivisionPhone' => '555-1234',
+      'dialCmopDivisionPhone' => '555-DIAL-TEST',
+      'cmopNdcNumber' => nil
     }
   end
 
@@ -82,6 +84,110 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result.id).to eq('12345')
         expect(result.prescription_name).to eq('Test Medication')
       end
+
+      it 'maps cmopDivisionPhone to cmop_division_phone' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.cmop_division_phone).to eq('555-1234')
+      end
+
+      it 'maps dialCmopDivisionPhone field correctly' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.dial_cmop_division_phone).to eq('555-DIAL-TEST')
+      end
+
+      it 'uses facilityName when facilityApiName is not present' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
+    end
+
+    context 'with facilityApiName field' do
+      let(:medication_with_api_name) do
+        base_vista_medication.merge('facilityApiName' => 'API Facility Name')
+      end
+
+      it 'uses facilityApiName when present' do
+        result = subject.parse(medication_with_api_name)
+
+        expect(result.facility_name).to eq('API Facility Name')
+      end
+
+      it 'falls back to facilityName when facilityApiName is empty string' do
+        medication_with_empty_api_name = base_vista_medication.merge('facilityApiName' => '')
+        result = subject.parse(medication_with_empty_api_name)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
+
+      it 'falls back to facilityName when facilityApiName is nil' do
+        medication_with_nil_api_name = base_vista_medication.merge('facilityApiName' => nil)
+        result = subject.parse(medication_with_nil_api_name)
+
+        expect(result.facility_name).to eq('Test Facility')
+      end
+    end
+
+    context 'with disclaimer field' do
+      let(:medication_with_disclaimer) do
+        base_vista_medication.merge('disclaimer' => 'Test disclaimer text')
+      end
+
+      it 'extracts the disclaimer field' do
+        result = subject.parse(medication_with_disclaimer)
+
+        expect(result.disclaimer).to eq('Test disclaimer text')
+      end
+    end
+
+    context 'without disclaimer field' do
+      it 'sets disclaimer to nil' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disclaimer).to be_nil
+      end
+    end
+
+    context 'with indication for use' do
+      let(:vista_medication_with_indication) do
+        base_vista_medication.merge('indicationForUse' => 'For blood pressure management')
+      end
+
+      it 'extracts the indication for use field' do
+        result = subject.parse(vista_medication_with_indication)
+
+        expect(result.indication_for_use).to eq('For blood pressure management')
+      end
+    end
+
+    context 'without indication for use' do
+      it 'sets indication_for_use to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.indication_for_use).to be_nil
+      end
+    end
+
+    context 'with disp_status field' do
+      let(:vista_medication_with_disp_status) do
+        base_vista_medication.merge('dispStatus' => 'Active: Refill in Process')
+      end
+
+      it 'extracts the disp_status field' do
+        result = subject.parse(vista_medication_with_disp_status)
+
+        expect(result.disp_status).to eq('Active: Refill in Process')
+      end
+    end
+
+    context 'without disp_status field' do
+      it 'sets disp_status to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.disp_status).to be_nil
+      end
     end
 
     context 'when medication includes RFC1123 date fields' do
@@ -126,6 +232,23 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
 
         expect(result).to be_nil
         expect(Rails.logger).to have_received(:error).with('Error parsing VistA prescription: Test error')
+      end
+    end
+
+    context 'with cmopNdcNumber field' do
+      it 'sets cmop_ndc_number to nil when not present in Vista data' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to be_nil
+      end
+
+      it 'maps cmopNdcNumber from Vista data when present' do
+        medication_with_ndc = base_vista_medication.merge('cmopNdcNumber' => '00093721410')
+        result = subject.parse(medication_with_ndc)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.cmop_ndc_number).to eq('00093721410')
       end
     end
   end
@@ -255,6 +378,37 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to eq([])
       end
     end
+
+    context 'with isTrackable field' do
+      it 'uses isTrackable field from Vista data when true' do
+        medication_trackable_no_data = base_vista_medication.merge('isTrackable' => true)
+        result = subject.parse(medication_trackable_no_data)
+        expect(result.is_trackable).to be(true)
+        expect(result.tracking).to eq([])
+      end
+
+      it 'uses isTrackable field from Vista data when false' do
+        medication_not_trackable_with_data = base_vista_medication.merge(
+          'isTrackable' => false,
+          'trackingInfo' => [
+            {
+              'trackingNumber' => '1Z999AA1012345675',
+              'shippedDate' => 'Wed, 07 Sep 2016 00:00:00 EDT',
+              'deliveryService' => 'UPS'
+            }
+          ]
+        )
+        result = subject.parse(medication_not_trackable_with_data)
+        expect(result.is_trackable).to be(false)
+        expect(result.tracking.length).to eq(1)
+      end
+
+      it 'defaults to false when isTrackable is nil' do
+        medication_nil_trackable = base_vista_medication.except('isTrackable')
+        result = subject.parse(medication_nil_trackable)
+        expect(result.is_trackable).to be(false)
+      end
+    end
   end
 
   describe '#format_shipped_date' do
@@ -368,6 +522,167 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       it 'returns empty array for non-array input' do
         result = subject.send(:build_other_prescriptions, 'not-an-array')
         expect(result).to eq([])
+      end
+    end
+  end
+
+  describe '#build_dispenses_information' do
+    context 'with rxRFRecords present' do
+      let(:medication_with_dispenses) do
+        base_vista_medication.merge(
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'dispense-1',
+                'refillStatus' => 'dispensed',
+                'dispensedDate' => 'Sat, 12 Jul 2025 00:00:00 EDT',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'refillSubmitDate' => 'Sun, 13 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB',
+                'prescriptionNumber' => 'RX123456',
+                'cmopDivisionPhone' => '555-1234',
+                'cmopNdcNumber' => '00093-1058-01',
+                'remarks' => 'Test remarks',
+                'dialCmopDivisionPhone' => '5551234',
+                'disclaimer' => 'Test disclaimer'
+              },
+              {
+                'id' => 'dispense-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Salt Lake City VAMC',
+                'sig' => 'Take one tablet by mouth twice daily',
+                'quantity' => 60,
+                'prescriptionName' => 'METFORMIN HCL 500MG TAB'
+              }
+            ]
+          }
+        )
+      end
+
+      it 'returns dispenses information with all fields' do
+        result = subject.send(:build_dispenses_information, medication_with_dispenses)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+
+        first_dispense = result.first
+        expect(first_dispense).to include(
+          status: 'dispensed',
+          dispensed_date: '2025-07-12T04:00:00.000Z',
+          refill_date: '2025-07-14T04:00:00.000Z',
+          refill_submit_date: '2025-07-13T04:00:00.000Z',
+          facility_name: 'Salt Lake City VAMC',
+          instructions: 'Take one tablet by mouth twice daily',
+          quantity: 60,
+          medication_name: 'METFORMIN HCL 500MG TAB',
+          id: 'dispense-1',
+          prescription_number: 'RX123456',
+          cmop_division_phone: '555-1234',
+          cmop_ndc_number: '00093-1058-01',
+          remarks: 'Test remarks',
+          dial_cmop_division_phone: '5551234',
+          disclaimer: 'Test disclaimer'
+        )
+
+        second_dispense = result.second
+        expect(second_dispense).to include(
+          status: 'dispensed',
+          refill_date: '2025-07-15T04:00:00.000Z',
+          facility_name: 'Salt Lake City VAMC',
+          instructions: 'Take one tablet by mouth twice daily',
+          quantity: 60,
+          medication_name: 'METFORMIN HCL 500MG TAB',
+          id: 'dispense-2'
+        )
+        # Verify new fields default to nil when not present
+        expect(second_dispense[:dispensed_date]).to be_nil
+        expect(second_dispense[:refill_submit_date]).to be_nil
+        expect(second_dispense[:prescription_number]).to be_nil
+        expect(second_dispense[:cmop_division_phone]).to be_nil
+        expect(second_dispense[:cmop_ndc_number]).to be_nil
+        expect(second_dispense[:remarks]).to be_nil
+        expect(second_dispense[:dial_cmop_division_phone]).to be_nil
+        expect(second_dispense[:disclaimer]).to be_nil
+      end
+
+      it 'includes dispenses in parsed prescription' do
+        result = subject.parse(medication_with_dispenses)
+        expect(result.dispenses.length).to eq(2)
+        expect(result.dispenses.first[:status]).to eq('dispensed')
+      end
+    end
+
+    context 'with no rxRFRecords' do
+      it 'returns empty array when rxRFRecords is nil' do
+        result = subject.send(:build_dispenses_information, base_vista_medication)
+        expect(result).to eq([])
+      end
+
+      it 'returns empty array when rxRFRecords.rfRecord is empty array' do
+        medication_empty_dispenses = base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => [] })
+        result = subject.send(:build_dispenses_information, medication_empty_dispenses)
+        expect(result).to eq([])
+      end
+
+      it 'includes empty dispenses array in parsed prescription' do
+        result = subject.parse(base_vista_medication)
+        expect(result.dispenses).to eq([])
+      end
+    end
+
+    context 'with invalid rxRFRecords format' do
+      let(:medication_invalid_dispenses) do
+        base_vista_medication.merge('rxRFRecords' => { 'rfRecord' => 'not-an-array' })
+      end
+
+      it 'returns empty array when rfRecord is not an array' do
+        result = subject.send(:build_dispenses_information, medication_invalid_dispenses)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with non-hash elements in rfRecord' do
+      let(:medication_with_invalid_records) do
+        base_vista_medication.merge(
+          'rxRFRecords' => {
+            'rfRecord' => [
+              {
+                'id' => 'valid-1',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Mon, 14 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              },
+              'invalid-string-element',
+              nil,
+              123,
+              {
+                'id' => 'valid-2',
+                'refillStatus' => 'dispensed',
+                'refillDate' => 'Tue, 15 Jul 2025 00:00:00 EDT',
+                'facilityName' => 'Test Facility',
+                'sig' => 'Take as directed',
+                'quantity' => 30,
+                'prescriptionName' => 'Test Med'
+              }
+            ]
+          }
+        )
+      end
+
+      it 'filters out non-hash elements and only returns valid dispenses' do
+        result = subject.send(:build_dispenses_information, medication_with_invalid_records)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first[:id]).to eq('valid-1')
+        expect(result.second[:id]).to eq('valid-2')
       end
     end
   end

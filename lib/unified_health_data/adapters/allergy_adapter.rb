@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative '../models/allergy'
+require_relative 'date_normalizer'
 
 module UnifiedHealthData
   module Adapters
     class AllergyAdapter
+      include DateNormalizer
       FHIR_RESOURCE_TYPES = {
         BUNDLE: 'Bundle',
         DIAGNOSTIC_REPORT: 'DiagnosticReport',
@@ -29,12 +31,14 @@ module UnifiedHealthData
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
+        date_value = resource['onsetDateTime'] || resource['recordedDate'] || nil
 
         UnifiedHealthData::Allergy.new(
           id: resource['id'],
           name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
           # VistA samples have neither; OH has both but each are different
-          date: resource['onsetDateTime'] || resource['recordedDate'] || nil,
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
           categories: resource['category'] || [],
           reactions: extract_reactions(resource),
           location: extract_location(resource), # No contained array or location names in samples

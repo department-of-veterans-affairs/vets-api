@@ -23,6 +23,9 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
+    # statsd key for pension-related submissions
+    PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
+
     # allowed logging params
     ALLOWLIST = %w[
       tags
@@ -65,7 +68,7 @@ module Dependents
     end
 
     def claim(claim_id)
-      SavedClaim::DependencyClaim.find(claim_id)
+      SavedClaim::DependencyClaim.find(claim_id) unless claim_id.nil?
     rescue => e
       Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
       nil
@@ -174,12 +177,27 @@ module Dependents
       StatsD.increment(metric, tags:)
     end
 
+    # Tracks a pension-related submission metric to StatsD
+    #
+    # @param form_id [String] The form identifier (e.g., '686C-674-V2')
+    # @param form_type [String] The type of form being submitted (e.g., '21-686c', '21-674', '686c-674')
+    # @return [void]
+    def track_pension_related_submission(form_id:, form_type:)
+      tags = ["form_id:#{form_id}"]
+      metric = "#{PENSION_SUBMISSION_STATS_KEY}.#{form_type}.submitted"
+      StatsD.increment(metric, tags:)
+    end
+
     def track_event(level, message, stats_key, payload = {})
       payload = default_payload.merge(payload)
       submit_event(level, message, stats_key, **payload)
     rescue => e
       Rails.logger.error('Dependents::Monitor#track_event error',
                          level:, message:, stats_key:, payload:, error: e.message)
+    end
+
+    def claim_stats_key
+      CLAIM_STATS_KEY
     end
   end
 end

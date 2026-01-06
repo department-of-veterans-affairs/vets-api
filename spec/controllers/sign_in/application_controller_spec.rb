@@ -58,6 +58,8 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'access_token_auth' => 'sign_in/application#access_token_auth'
       get 'test_logging' => 'sign_in/application#test_logging'
     end
+
+    allow(Rails.logger).to receive(:warn)
   end
 
   describe '#authentication' do
@@ -94,18 +96,20 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     shared_context 'user fingerprint validation' do
+      let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
+
       context 'user.fingerprint matches request IP' do
-        it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+        it 'passes fingerprint validation and does not warn' do
           expect(subject.request.remote_ip).to eq(user.fingerprint)
+          expect(Rails.logger).not_to have_received(:warn).with(expected_error, anything)
         end
       end
 
       context 'user.fingerprint does not match request IP' do
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+          create(:user, :loa3, uuid: access_token_object.user_uuid,
+                               session_handle: access_token_object.session_handle)
         end
-        let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
         it 'fails fingerprint validation and creates a log' do
@@ -289,7 +293,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'user fingerprint validation' do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
-          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_message_to_sentry).with(:warn)
           expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end

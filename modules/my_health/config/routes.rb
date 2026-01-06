@@ -13,6 +13,15 @@ MyHealth::Engine.routes.draw do
                                     constraints: { format: /(xml|html|pdf)/ },
                                     defaults: { format: 'xml' }
     end
+
+    resources :prescriptions, only: %i[index show], defaults: { format: :json } do
+      post :refill, on: :collection
+      get :list_refillable_prescriptions, on: :collection
+
+      collection do
+        post 'drug_sheets/search', to: 'prescriptions/drug_sheets#search', defaults: { format: :json }
+      end
+    end
   end
 
   namespace :v1 do

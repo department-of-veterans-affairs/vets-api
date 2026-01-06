@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/form1010cg_helpers/test_file_helpers'
 
 describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }
   let(:source_file_path) { "spec/fixtures/files/#{source_file_name}" }
-  let(:source_file) { Rack::Test::UploadedFile.new(source_file_path, 'image/jpg') }
+  let(:source_file) { Form1010cgHelpers::TestFileHelpers.create_test_uploaded_file(source_file_name, 'image/jpg') }
   let(:vcr_options) do
     {
       record: :none,
@@ -130,7 +131,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
           subject.store!(source_file)
 
           expect(subject.filename).to eq('doctors-note.jpg')
-          expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file_name}")
+          expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file.original_filename}")
 
           # Should not versions objects so they can be permanently destroyed
           expect(subject.versions).to eq({})
@@ -147,8 +148,8 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
         expect(subject.file.filename).to eq('doctors-note.jpg')
         expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file_name}")
         expect(subject.versions).to eq({})
-        expect(subject.file.read).to eq(
-          File.read(source_file_path)
+        expect(subject.file.read.force_encoding('BINARY')).to eq(
+          File.read(source_file_path).force_encoding('BINARY')
         )
       end
     end

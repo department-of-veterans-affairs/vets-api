@@ -78,25 +78,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
   end
 
-  def upload_pdf(form_id, doc_type: '148')
-    uploaded_forms ||= []
-    return if uploaded_forms.include? form_id
-
-    processed_pdfs = []
-    if form_id == '21-674-V2'
-      parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
-        processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
-      end
-    else
-      processed_pdfs << process_pdf(to_pdf(form_id:), created_at, form_id)
-    end
-    processed_pdfs.each do |processed_pdf|
-      upload_to_vbms(path: processed_pdf, doc_type:)
-      uploaded_forms << form_id
-      save
-    end
-  end
-
   def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on site',
@@ -126,11 +107,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_686?
-    submitted_flows = DEPENDENT_CLAIM_FLOWS.map { |flow| parsed_form['view:selectable686_options'].include?(flow) }
-
-    return true if submitted_flows.include?(true)
-
-    false
+    # checking key and value just avoids inconsistencies in the mock data or from FE submission
+    DEPENDENT_CLAIM_FLOWS.any? do |flow|
+      parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]
+    end
   end
 
   def submittable_674?
@@ -169,21 +149,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def document_type
     148
-  end
-
-  def upload_to_vbms(path:, doc_type: nil)
-    doc_type ||= document_type
-    uploader = ClaimsApi::VBMSUploader.new(
-      filepath: path,
-      file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type: doc_type.to_s
-    )
-
-    uploader.upload! unless Rails.env.development?
-  rescue
-    # Do not directly expose the error message in case it contains PII (despite PII scrubbing efforts).
-    monitor.track_pdf_upload_error
-    raise StandardError, 'VBMS Upload Error'
   end
 
   def form_matches_schema
@@ -294,6 +259,22 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     monitor.track_send_received_email_success(user&.user_account_uuid)
   rescue => e
     monitor.track_send_received_email_failure(e, user&.user_account_uuid)
+  end
+
+  ##
+  # Determine if the submission includes pension-related information
+  #
+  def pension_related_submission?
+    return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension)
+
+    # We can determine pension-related submission by checking if
+    # household income or student income info was asked on the form
+    household_income_present = parsed_form['dependents_application']&.key?('household_income')
+    student_income_present = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+      student&.key?('student_networth_information')
+    end
+
+    !!(household_income_present || student_income_present)
   end
 
   def monitor

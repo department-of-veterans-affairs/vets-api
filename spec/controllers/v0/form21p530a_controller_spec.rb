@@ -142,6 +142,34 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         post(:create, body: invalid_payload.to_json, as: :json)
       end
     end
+
+    context 'InProgressForm cleanup' do
+      let(:user) { create(:user, :loa3) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21P-530A', user_account: user.user_account) }
+
+      before do
+        sign_in_as(user)
+      end
+
+      it 'deletes the InProgressForm after successful submission' do
+        expect do
+          post(:create, body: valid_payload.to_json, as: :json)
+        end.to change(InProgressForm, :count).by(-1)
+
+        expect(response).to have_http_status(:ok)
+        expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
+      end
+
+      it 'does not delete IPF if submission fails' do
+        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
+
+        expect do
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end.not_to change(InProgressForm, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 
   describe 'POST #download_pdf' do

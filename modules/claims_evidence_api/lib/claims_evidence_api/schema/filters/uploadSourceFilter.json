@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/uploadSourceFilter.json",
+  "description" : "Filters results on uploadSource.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "VBMS-UI",
+      "type" : "string"
+    }
+  },
+  "title" : "Upload Source Filter Request",
+  "type" : "object"
+}

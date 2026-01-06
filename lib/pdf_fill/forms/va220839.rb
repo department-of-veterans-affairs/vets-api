@@ -6,6 +6,9 @@ module PdfFill
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      UNLIMITED_STUDENT_NUMBER = 99_999
+      UNLIMITED_CONTRIBUTION_AMOUNT = 99_999
+
       AGREEMENT_TYPES = {
         'startNewOpenEndedAgreement' => 'New open-ended agreement',
         'modifyExistingAgreement' => 'Modification to existing agreement',
@@ -187,13 +190,31 @@ module PdfFill
       end
 
       def format_schools(form_data)
-        programs = form_data['yellowRibbonProgramAgreementRequest'] || []
+        programs = (form_data['yellowRibbonProgramAgreementRequest'] || []).map do |s|
+          convert_unlimited_school_values(s)
+        end
         form_data['usSchools'] = programs.filter { |s| s['currencyType'] == 'USD' }
         form_data['foreignSchools'] = programs.filter { |s| s['currencyType'] != 'USD' }
 
         form_data['academicYear'] = format_date_range(programs.first['yearRange']) if programs.size.positive?
 
-        form_data['numEligibleStudents'] = programs.sum { |program| program['maximumNumberofStudents'] }
+        form_data['numEligibleStudents'] = if programs.any? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
+                                             'Unlimited'
+                                           else
+                                             programs.sum { |program| program['maximumNumberofStudents'] }
+                                           end
+      end
+
+      def convert_unlimited_school_values(school_data)
+        if school_data['maximumNumberofStudents'] >= UNLIMITED_STUDENT_NUMBER
+          school_data['maximumNumberofStudents'] = 'Unlimited'
+        end
+
+        if school_data['maximumContributionAmount'] >= UNLIMITED_CONTRIBUTION_AMOUNT
+          school_data['maximumContributionAmount'] = 'Unlimited'
+        end
+
+        school_data
       end
     end
   end

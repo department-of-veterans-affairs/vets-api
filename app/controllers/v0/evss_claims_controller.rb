@@ -3,9 +3,11 @@
 module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
+    include InboundRequestLogging
     service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
+    before_action :log_request_origin
 
     def index
       claims, synchronized = service.all
@@ -39,6 +41,12 @@ module V0
     end
 
     private
+
+    def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
+      log_inbound_request(message_type: 'evss.cst.inbound_request', message: 'Inbound request (EVSS claim status)')
+    end
 
     def skip_sentry_exception_types
       super + [Common::Exceptions::BackendServiceException]

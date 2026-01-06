@@ -39,7 +39,8 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   end
 
   describe '#perform' do
-    let(:notification_client) { double('Notifications::Client') }
+    let(:notification_client) { instance_double(Notifications::Client) }
+    let(:va_notify_client) { instance_double(VaNotify::Client) }
 
     context 'with default email template' do
       it 'sends a confirmation email using the direct_deposit template' do
@@ -56,6 +57,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
 
     it 'handles 4xx errors when sending an email' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
+      allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
 
       error = Common::Exceptions::BackendServiceException.new(
         'VANOTIFY_400',
@@ -73,6 +75,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
 
     it 'handles 5xx errors when sending an email' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
+      allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
 
       error = Common::Exceptions::BackendServiceException.new(
         'VANOTIFY_500',

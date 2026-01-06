@@ -1,0 +1,287 @@
+{
+  "submissionReasons": {
+      "initialApplication": true,
+      "approvalOfNewPrograms": false,
+      "reapproval": false,
+      "updateInformation": false,
+      "other": false,
+      "updateInformationText": "lorem ipsum update",
+      "otherText": "lorem ipsum other"
+    },
+  "institutionClassification": "public",
+  "institutionProfile": {
+    "isIHL": true,
+    "ihlDegreeTypes": "dummy degree",
+    "participatesInTitleIV": true,
+    "opeidNumber": "12345678"
+  },
+  "institutionDetails": [
+    {
+      "institutionName": "Test University",
+      "vaFacilityCode": "12345678",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 1",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 2",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 3",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 4",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    },
+    {
+      "institutionName": "Branch 5",
+      "vaFacilityCode": "12345679",
+      "isForeignCountry": false,
+      "physicalAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      },
+      "mailingAddress": {
+        "country": "USA",
+        "street": "456 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "postalCode": "12345"
+      }
+    }
+  ],
+  "website": "https://example.com",
+  "programs": [
+    {
+      "programName": "Physics",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    },
+    {
+      "programName": "Math",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    },
+    {
+      "programName": "English",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    },
+    {
+      "programName": "Politics",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    },
+    {
+      "programName": "Art",
+      "totalProgramLength": "1 year",
+      "weeksPerTerm": 12,
+      "entryRequirements": "test requirement",
+      "creditHours": 10
+    }
+  ],
+  "acknowledgement7": "JH",
+  "acknowledgement8": "JH",
+  "acknowledgement9": "JH",
+  "acknowledgement10a": {
+    "financiallySound": true,
+    "financialSoundnessExplanation": "lorem ipsum financial"
+  },
+  "acknowledgement10b": "JH",
+  "governingBodyAndFaculty": [
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe"
+      },
+      "title": "President"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe1"
+      },
+      "title": "VP1"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe2"
+      },
+      "title": "VP2"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe3"
+      },
+      "title": "VP3"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe4"
+      },
+      "title": "VP4"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe5"
+      },
+      "title": "VP5"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe6"
+      },
+      "title": "VP6"
+    },
+    {
+      "fullName": {
+        "first": "John",
+        "middle": "A",
+        "last": "Doe7"
+      },
+      "title": "VP7"
+    }
+  ],
+  "isMedicalSchool": true,
+  "listedInWDOMS": false,
+  "accreditingAuthorityName": "US Accredits",
+  "programAtLeast32Months": true,
+  "graduatedLast12Months": true,
+  "graduatedClasses": [
+    {
+      "graduationDate": "2025-01-01",
+      "graduatesCount": 15
+    },
+    {
+      "graduationDate": "2025-02-01",
+      "graduatesCount": 16
+    }
+  ],
+  "financialRepresentative": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "email": "doe@example.com"
+  },
+  "schoolCertifyingOfficial": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "email": "doe@example.com"
+  },
+  "authorizingOfficial": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "signature": "John Doe"
+  },
+  "dateSigned": "2025-10-10",
+  "isAuthenticated": true
+}

@@ -2,11 +2,12 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'vets/shared_logging'
 
 module CheckIn
   module VAOS
     class BaseService < Common::Client::Base
-      include SentryLogging
+      include Vets::SharedLogging
       include Common::Client::Concerns::Monitoring
 
       attr_reader :check_in_session, :patient_icn

@@ -13,6 +13,7 @@ RSpec.describe 'Transformation Pega', type: :request do
     Aws.config.update(stub_responses: true)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
   end
 
   after do
@@ -45,6 +46,12 @@ RSpec.describe 'Transformation Pega', type: :request do
       describe '10_10d' do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json')
         data = JSON.parse(fixture_path.read)
+
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_send_ves_to_pega, @current_user)
+            .and_return(false)
+        end
 
         it 'submits the form and verifies the transformed data going to Pega/S3' do
           post '/ivc_champva/v1/forms', params: data

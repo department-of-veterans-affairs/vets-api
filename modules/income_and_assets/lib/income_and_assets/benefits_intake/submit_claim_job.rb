@@ -41,9 +41,8 @@ module IncomeAndAssets
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
-                                                                 omit_esign_stamp: true }))
-        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        @form_path = generate_form_pdf
+        @attachment_paths = generate_attachment_pdfs
         @metadata = generate_metadata
 
         # upload must be performed within 15 minutes of this request
@@ -89,16 +88,25 @@ module IncomeAndAssets
       # @param [String] file_path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path)
-        document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
-        document = PDFUtilities::DatestampPdf.new(document).run(
-          text: 'FDC Reviewed - VA.gov Submission',
-          x: 429,
-          y: 770,
-          text_only: true
-        )
+      def process_document(file_path, stamp_set)
+        document = IncomeAndAssets::PDFStamper.new(stamp_set).run(file_path, timestamp: @claim.created_at)
 
         @intake_service.valid_document?(document:)
+      end
+
+      # Generate form PDF
+      #
+      # @return [String] path to processed PDF document
+      def generate_form_pdf
+        pdf_path = @claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        process_document(pdf_path, :income_and_assets_generated_claim)
+      end
+
+      # Generate the form attachment pdfs
+      #
+      # @return [Array<String>] path to processed PDF document
+      def generate_attachment_pdfs
+        @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :income_and_assets_received_at) }
       end
 
       # Generate form metadata to send in upload to Benefits Intake API
@@ -116,6 +124,7 @@ module IncomeAndAssets
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          nil.to_s, # => '00000'; zipcode is not present on the 0969 form
           self.class.to_s,
           @claim.form_id,
           @claim.business_line

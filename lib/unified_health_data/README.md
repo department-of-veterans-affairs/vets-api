@@ -83,6 +83,7 @@ The prescription adapters map fields from different data sources to a unified mo
 | `is_trackable` | `isTrackable` | `false` (default) | Boolean | Can shipment be tracked |
 | `instructions` | `sig` | `dosageInstruction[0].text` | String | Patient instructions |
 | `facility_phone_number` | `cmopDivisionPhone` | (not available) | String | Pharmacy phone number |
+| `disp_status` | `dispStatus` | (not available) | String | Detailed dispensing status from VistA |
 
 ### Status Mapping (Oracle Health → Mobile API)
 
@@ -102,7 +103,6 @@ The VistA response contains additional fields that are not currently mapped but 
 - `notRefillableDisplayMessage` - User-friendly refill restriction message
 - `providerFirstName`, `providerLastName` - Prescribing provider
 - `divisionName` - VA division name
-- `dispStatus` - Detailed dispensing status
 - `ndc` - National Drug Code
 - `category` - Medication category (e.g., "Rx Medication")
 - `orderableItem` - Orderable item name

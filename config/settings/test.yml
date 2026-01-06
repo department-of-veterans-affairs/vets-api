@@ -89,6 +89,13 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
+bio:
+  medical_expense_reports:
+    bucket: ~
+    region: ~
+  survivors_benefits:
+    bucket: ~
+    region: ~
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -149,6 +156,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
     claims_base_path: EC/ClaimIngestSvc
+    claims_base_path_v2: eis/api/btsss/travelclaim
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: https://dev.integration.d365.va.gov
     client_id: fake_client_id
@@ -164,6 +172,7 @@ check_in:
     tenant_id: fake_template_id
     travel_pay_client_id: fake_travel_pay_client_id
     travel_pay_client_secret: fake_travel_pay_client_secret
+    travel_pay_client_secret_oh: fake_travel_pay_client_secret_oh
     travel_pay_resource: fake_travel_pay_resource
   vaos:
     mock: false
@@ -299,13 +308,18 @@ dgi:
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
   sob:
-    mock: ~
-    url: ~
+    claimants:
+      mock: ~
+      url: https://fake.sob.com
+    jwt:
+      private_key_path: modules/sob/spec/fixtures/test_private_key.pem
+      public_key_path: modules/sob/spec/fixtures/test_public_key.pem
   vets:
     mock: false
     url: https://jenkins.ld.afsp.io:32512/vets-service/v1/
   vye:
     jwt:
+      kid: vye
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
@@ -403,6 +417,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: "EV_TEST_KEY_1234567890"
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -477,6 +493,8 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10275:
+  submission_email: form_10275@example.com
 form_10282:
   sftp:
     host: ~
@@ -593,12 +611,6 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
-ihub:
-  appointments:
-    mock: true
-    timeout: 30
-  in_production: false
-  url: https://qacrmdac.np.crm.vrm.vba.va.gov
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -820,6 +832,7 @@ maintenance:
   services:
     1010ez: ~
     1010ezr: ~
+    accredited_representative_portal: ~
     appeals: P9S4RFU
     arcgis: P45YBFA
     askva: ~
@@ -831,6 +844,7 @@ maintenance:
     coe: PSY4HU1
     community_care_ds: ~
     decision_reviews: ~
+    dgi_claimants: ~
     disability_compensation_form: ~
     dmc: ~
     dslogon: P9DJJAV
@@ -842,6 +856,8 @@ maintenance:
     form107959c: ~
     form107959f1: ~
     form107959f2: ~
+    form21p0537: ~
+    form21p601: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -869,7 +885,6 @@ maintenance:
     travel_pay: ~
     vaos: ~
     vaosWarning: ~
-    vaoswarning: ~
     vapro_contact_info: ~
     vapro_health_care_contacts: ~
     vapro_military_info: ~
@@ -880,6 +895,7 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
+    vre_ch31_eligibility: ~
 mcp:
   notifications:
     batch_size: 100
@@ -906,6 +922,8 @@ mdot:
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
+memorials:
+  prefill: true
 mhv:
   account:
     mock: false
@@ -941,6 +959,10 @@ mhv:
     x_api_key: fake-x-api-key
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
+  oh_facility_checks:
+    facilities_migrating_to_oh: 555, 001
+    facilities_ready_for_info_alert: 612, 555
+    pretransitioned_oh_facilities: 612, 357, 555
   rx:
     app_token: ~
     base_path: mhv-api/patient/v1/
@@ -1029,6 +1051,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: fake_key
+    s3:
+      bucket: fake_bucket
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: false
     url: http://localhost:5000/api/v1/accreditation/applications/form21a
 oidc:
   isolated_audience:
@@ -1190,6 +1217,8 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  ch_31_case_details:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1405,9 +1434,15 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: form686c_only_received_email_template_id
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: form686c_674_submitted_email_template_id
+          template_id: form674_only_submitted_email_template_id
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c674_submitted_email_template_id
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: form686c_only_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1509,6 +1544,8 @@ vanotify:
     benefits_decision_review:
       api_key: fake_secret
       template_id:
+        evidence_recovery_email: fake_evidence_recovery_template_id
+        form_recovery_email: fake_form_recovery_template_id
         higher_level_review_form_error_email: fake_hlr_template_id
         notice_of_disagreement_evidence_error_email: fake_nod_evidence_template_id
         notice_of_disagreement_form_error_email: fake_nod_template_id
@@ -1524,6 +1561,7 @@ vanotify:
         form526_submission_failure_notification_template_id: form526_submission_failure_notification_template_id
     benefits_management_tools:
       api_key: fake_secret
+      push_api_key: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
         evidence_submission_failure_email: fake_template_id
@@ -1635,6 +1673,7 @@ vanotify:
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
+        form10275_submission_email: form10275_submission_email_template_id
         form10297_confirmation_email: form10297_confirmation_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         form1900_action_needed_email: form1900_action_needed_email_template_id
@@ -1669,6 +1708,9 @@ vanotify:
         form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
         form21_4138_error_email: form21_4138_error_email_template_id
         form21_4138_received_email: form21_4138_received_email_template_id
+        form21_4140_confirmation_email: form21_4140_confirmation_email_template_id
+        form21_4140_error_email: form21_4140_error_email_template_id
+        form21_4140_received_email: form21_4140_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1744,6 +1786,21 @@ vaos:
     encryption:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+vass:
+  api_url: <%= ENV['vass__api_url'] %>
+  auth_url: https://login.microsoftonline.us
+  client_id: <%= ENV['vass__client_id'] %>
+  client_secret: <%= ENV['vass__client_secret'] %>
+  mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
+  redis_otc_expiry: 600
+  redis_session_expiry: 7200
+  redis_token_expiry: 3540
+  scope: <%= ENV['vass__scope'] %>
+  service_name: VASS-API
+  subscription_key: <%= ENV['vass__subscription_key'] %>
+  tenant_id: <%= ENV['vass__tenant_id'] %>
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true
@@ -1824,6 +1881,8 @@ veteran_enrollment_system:
     api_key: ~
   ee_summary:
     api_key: ~
+  enrollment_periods:
+    api_key: ~
   form1095b:
     api_key: ~
   host: https://localhost
@@ -1898,6 +1957,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: 24
 vetext:
   mock: ~
 vetext_push:

@@ -8,11 +8,6 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
 
   let!(:user) { sis_user(ssn: '796043735') }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
-  end
-
   describe '#index' do
     it 'returns a list of dependents' do
       expected_data = [
@@ -86,7 +81,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
+        allow_any_instance_of(BGS::DependentService).to receive(:submit_pdf_job)
       end
 
       it 'returns job ids' do
@@ -112,8 +107,6 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
       before do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
-          .and_raise(Common::Exceptions::BackendServiceException)
       end
 
       it 'submits to central service' do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/sftp'
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'sftp_writer/factory'
 
 module EducationForm
@@ -21,7 +21,7 @@ module EducationForm
     end.freeze
     AUTOMATED_DECISIONS_STATES = [nil, 'denied', 'processed'].freeze
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options queue: 'default',
                     unique_for: 30.minutes,
                     retry: 5

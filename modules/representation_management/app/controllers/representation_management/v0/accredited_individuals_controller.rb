@@ -15,12 +15,22 @@ module RepresentationManagement
         search = RepresentationManagement::AccreditedIndividualSearch.new(search_params)
 
         if search.valid?
-          collection = Common::Collection.new(AccreditedIndividual, data: individual_query)
+          # Wrap Veteran::Service::Representative records in adapter if needed
+          if use_veteran_model?
+            data = individual_query.map do |record|
+              RepresentationManagement::VeteranRepresentativeAdapter.new(record)
+            end
+            model_class = RepresentationManagement::VeteranRepresentativeAdapter
+          else
+            data = individual_query
+            model_class = AccreditedIndividual
+          end
+
+          collection = Common::Collection.new(model_class, data:)
           resource = collection.paginate(**pagination_params)
-          data = resource.data
           options = { meta: resource.metadata }
 
-          render json: RepresentationManagement::AccreditedIndividuals::IndividualSerializer.new(data, options)
+          render json: RepresentationManagement::AccreditedIndividuals::IndividualSerializer.new(resource.data, options)
         else
           render json: { errors: search.errors.full_messages }, status: :unprocessable_entity
         end
@@ -29,11 +39,23 @@ module RepresentationManagement
       private
 
       def base_query
-        AccreditedIndividual
-          .includes(:accredited_organizations)
-          .select(select_query_string)
-          .where(individual_type: type_param)
-          .order(sort_query_string)
+        model_class = determine_model_class
+
+        if use_veteran_model?
+          # Veteran::Service::Representative query
+          model_class
+            .includes(:organizations)
+            .select(select_query_string_for_veteran)
+            .where(where_clause_for_veteran_type)
+            .order(sort_query_string_for_veteran)
+        else
+          # AccreditedIndividual query
+          model_class
+            .includes(:accredited_organizations)
+            .select(select_query_string)
+            .where(individual_type: type_param)
+            .order(sort_query_string)
+        end
       end
 
       def distance_query
@@ -46,7 +68,11 @@ module RepresentationManagement
 
       def individual_query
         if search_params[:name]
-          distance_query.find_with_full_name_similar_to(search_params[:name])
+          if use_veteran_model?
+            find_veteran_with_name_similar_to(distance_query)
+          else
+            distance_query.find_with_full_name_similar_to(search_params[:name])
+          end
         else
           distance_query
         end
@@ -128,6 +154,82 @@ module RepresentationManagement
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
+      end
+
+      # Data source determination methods
+
+      def current_data_source_log
+        @current_data_source_log ||=
+          RepresentationManagement::AccreditationDataIngestionLog.most_recent_successful
+      end
+
+      def use_veteran_model?
+        current_data_source_log&.trexler_file?
+      end
+
+      def determine_model_class
+        use_veteran_model? ? Veteran::Service::Representative : AccreditedIndividual
+      end
+
+      # Veteran::Service::Representative specific query methods
+
+      def where_clause_for_veteran_type
+        # Map AccreditedIndividual type_param to Veteran::Service::Representative user_types
+        veteran_type = case type_param
+                       when 'attorney' then 'attorney'
+                       when 'claims_agent' then 'claim_agents'
+                       when 'representative' then 'veteran_service_officer'
+                       else type_param
+                       end
+
+        ['? = ANY(veteran_representatives.user_types)', veteran_type]
+      end
+
+      def select_query_string_for_veteran
+        "veteran_representatives.*, #{distance_query_string_for_veteran}"
+      end
+
+      def distance_query_string_for_veteran
+        ActiveRecord::Base
+          .sanitize_sql_array([
+                                'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ' \
+                                'veteran_representatives.location) as distance',
+                                search_params[:long],
+                                search_params[:lat]
+                              ])
+      end
+
+      def sort_query_string_for_veteran
+        case sort_param
+        when 'first_name_asc' then 'first_name ASC'
+        when 'first_name_desc' then 'first_name DESC'
+        when 'last_name_asc' then 'last_name ASC'
+        when 'last_name_desc' then 'last_name DESC'
+        else
+          distance_asc_string_for_veteran
+        end
+      end
+
+      def distance_asc_string_for_veteran
+        ActiveRecord::Base.sanitize_sql_for_order(
+          [
+            Arel.sql(
+              'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'
+            ),
+            search_params[:long],
+            search_params[:lat]
+          ]
+        )
+      end
+
+      def find_veteran_with_name_similar_to(query)
+        search_phrase = search_params[:name]
+        fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
+
+        wrapped_query = Veteran::Service::Representative.from("(#{query.to_sql}) as veteran_representatives")
+        wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ?',
+                            search_phrase,
+                            fuzzy_search_threshold)
       end
     end
   end

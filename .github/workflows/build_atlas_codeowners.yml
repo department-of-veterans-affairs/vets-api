@@ -14,14 +14,14 @@ jobs:
   copy-codeowners:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Get bot token from Parameter Store
         uses: department-of-veterans-affairs/action-inject-ssm-secrets@latest
         with:
@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v47.0.0 # v46 has a CVE
+        uses: tj-actions/changed-files@v47.0.1 # v46 has a CVE
         with:
           files: |
             .github/CODEOWNERS

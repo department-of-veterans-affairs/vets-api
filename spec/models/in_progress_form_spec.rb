@@ -37,70 +37,6 @@ RSpec.describe InProgressForm, type: :model do
   end
 
   describe '#metadata' do
-    it 'adds the form expiration time and id', run_at: '2017-06-01' do
-      in_progress_form.save
-      expect(in_progress_form.metadata['expiresAt']).to eq(1_501_459_200)
-      expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
-    end
-
-    context 'skips the expiration_date callback wihen skip_exipry_update is true' do
-      it 'adds the form expiration time and id', run_at: '2017-06-01' do
-        in_progress_form.skip_exipry_update = true
-        in_progress_form.save
-        expect(in_progress_form.metadata['expires_at']).not_to eq(1_501_459_200)
-      end
-
-      it 'sets skip_exipry_update to true for pension form if expiration date already exists' do
-        form = create(:in_progress_form, form_id: '21P-527EZ')
-        form.save
-        expect(form.skip_exipry_update).to be true
-      end
-    end
-
-    context 'when the form is 21-526EZ' do
-      before { in_progress_form.form_id = '21-526EZ' }
-
-      it 'adds a later form expiration time and id', run_at: '2017-06-01' do
-        in_progress_form.save
-        expect(in_progress_form.metadata['expiresAt']).to eq(1_527_811_200)
-        expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
-      end
-
-      it 'adds a later form expiration time when a leap year', run_at: '2020-06-01' do
-        in_progress_form.save
-        expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
-      end
-
-      it 'does not update expires_at on save' do
-        # make sure the 526 form does not update the expires_at time when the form is updated
-        disability_form = create(:in_progress_form, form_id: '21-526EZ')
-        disability_prev_time = disability_form.expires_at
-        disability_form.save
-        expect(disability_prev_time == disability_form.expires_at).to be(true)
-
-        # make sure we did not affect the default form/functionality
-        default_form = create(:in_progress_form)
-        default_prev_time = default_form.expires_at
-        default_form.save
-        expect(default_prev_time == default_form.expires_at).to be(false)
-      end
-    end
-
-    context 'when the form is 5655' do
-      before { in_progress_form.form_id = '5655' }
-
-      it 'does not update expires_at on save' do
-        fsr_form = create(:in_progress_form, form_id: '5655')
-        fsr_prev_time = fsr_form.expires_at
-        normal_form = create(:in_progress_form)
-        normy_prev_time = normal_form.expires_at
-        fsr_form.save
-        normal_form.save
-        expect(fsr_prev_time == fsr_form.expires_at).to be true
-        expect(normy_prev_time == normal_form.expires_at).to be false
-      end
-    end
-
     it 'adds the form creation time', run_at: '2023-09-15' do
       in_progress_form.save
       expect(in_progress_form.metadata['createdAt']).to eq(1_694_736_000)
@@ -198,6 +134,47 @@ RSpec.describe InProgressForm, type: :model do
 
         it 'returns InProgressForms for user with given form id' do
           expect(subject).to eq(in_progress_form_user_account)
+        end
+      end
+    end
+
+    context 'with with_lock parameter' do
+      subject { InProgressForm.form_for_user(form_id, user, with_lock: true) }
+
+      context 'when in_progress_form_atomicity flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(true)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form with a lock' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
+        end
+
+        context 'and in progress form does not exist' do
+          it 'returns nil' do
+            expect(InProgressForm).to receive(:lock).and_call_original
+            expect(subject).to be_nil
+          end
+        end
+      end
+
+      context 'when in_progress_form_atomicity flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity, user).and_return(false)
+        end
+
+        context 'and in progress form exists' do
+          let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+          it 'returns the form without a lock' do
+            expect(InProgressForm).not_to receive(:lock)
+            expect(subject).to eq(in_progress_form_user_uuid)
+          end
         end
       end
     end

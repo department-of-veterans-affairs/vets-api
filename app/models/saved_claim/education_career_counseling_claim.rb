@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
-  include SentryLogging
+  include Vets::SharedLogging
   FORM = '28-8832'
 
   def regional_office
@@ -19,6 +21,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     end
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
+
     process_attachments!
   end
 

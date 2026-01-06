@@ -208,17 +208,17 @@ RSpec.describe BGSV2::VnpVeteran do
             user: user_object,
             claim_type: '130DPNEBNADJ'
           )
-          expect(vnp_veteran).not_to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                      include(service: 'bgs'))
           expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                       anything).at_least(:once)
-          expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
           expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
           vnp_veteran.create
         end
       end
 
       context 'User#ssn returns the same invalid ssn' do
-        it 'logs an error to Sentry' do
+        it 'logs an error' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
             vnp_veteran = BGSV2::VnpVeteran.new(
@@ -227,15 +227,11 @@ RSpec.describe BGSV2::VnpVeteran do
               user: user_object,
               claim_type: '130DPNEBNADJ'
             )
+
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                        include(service: 'bgs'))
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
-            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
-            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-              'SSN has 8 digits!',
-              :error,
-              {},
-              { team: 'vfs-ebenefits' }
-            )
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
             vnp_veteran.create
           end
@@ -254,13 +250,9 @@ RSpec.describe BGSV2::VnpVeteran do
             )
             expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
                                                         anything).at_least(:once)
-            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
-            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-              'SSN is redacted!',
-              :error,
-              {},
-              { team: 'vfs-ebenefits' }
-            )
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
+                                                        include(service: 'bgs'))
+            expect(Rails.logger).to receive(:error).with('SSN is redacted!', include(service: 'bgs'))
             expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
             vnp_veteran.create
           end
@@ -339,6 +331,98 @@ RSpec.describe BGSV2::VnpVeteran do
             user: user_object,
             claim_type: '130DPNEBNADJ'
           ).create
+        end
+      end
+    end
+
+    context 'claim_type_end_product parameter' do
+      let(:bgs_service) { BGSV2::Service.new(user_object) }
+      let(:benefit_claims) { double('BenefitClaims') }
+      let(:mock_services) { BGS::Services.new(external_uid: '123', external_key: '123') }
+
+      before do
+        allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+        allow(bgs_service).to receive_messages(create_participant: {}, find_benefit_claim_type_increment: {},
+                                               create_address: {}, get_regional_office_by_zip_code: {},
+                                               find_regional_offices: {}, create_person: {}, create_phone: {})
+        allow(BGS::Services).to receive(:new).and_return(mock_services)
+        allow(mock_services).to receive(:benefit_claims).and_return(benefit_claims)
+        allow(benefit_claims).to receive(:find_claims_details_by_participant_id).and_return(
+          { bnft_claim_detail: [
+            { status_type_cd: 'PEND', cp_claim_end_prdct_type_cd: '130' },
+            { status_type_cd: 'PEND', cp_claim_end_prdct_type_cd: '131' },
+            { status_type_cd: 'CAN', cp_claim_end_prdct_type_cd: '134' },
+            { status_type_cd: 'CLR', cp_claim_end_prdct_type_cd: '136' }
+          ] }
+        )
+      end
+
+      context 'when claim_type_end_product is provided' do
+        it 'uses the provided claim_type_end_product and does not call find_benefit_claim_type_increment' do
+          expect_any_instance_of(BGSV2::Service).not_to receive(:find_benefit_claim_type_increment)
+
+          vnp_veteran = BGSV2::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload_v2,
+            user: user_object,
+            claim_type: '130DPNEBNADJ',
+            claim_type_end_product: '130'
+          ).create
+
+          expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('130')
+        end
+      end
+
+      context 'when claim_type_end_product is not provided' do
+        it 'calls find_benefit_claim_type_increment to determine the end product code' do
+          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+            .with('130DPNEBNADJ')
+            .and_return('139')
+
+          vnp_veteran = BGSV2::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload_v2,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          ).create
+
+          expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('139')
+        end
+      end
+
+      context 'when claim_type_end_product is nil' do
+        it 'calls find_benefit_claim_type_increment to determine the end product code' do
+          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+            .with('130DPNEBNADJ')
+            .and_return('139')
+
+          vnp_veteran = BGSV2::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload_v2,
+            user: user_object,
+            claim_type: '130DPNEBNADJ',
+            claim_type_end_product: nil
+          ).create
+
+          expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('139')
+        end
+      end
+
+      context 'when claim_type_end_product is an empty string' do
+        it 'calls find_benefit_claim_type_increment to determine the end product code' do
+          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+            .with('130DPNEBNADJ')
+            .and_return('139')
+
+          vnp_veteran = BGSV2::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload_v2,
+            user: user_object,
+            claim_type: '130DPNEBNADJ',
+            claim_type_end_product: ''
+          ).create
+
+          expect(vnp_veteran[:benefit_claim_type_end_product]).to eq('139')
         end
       end
     end

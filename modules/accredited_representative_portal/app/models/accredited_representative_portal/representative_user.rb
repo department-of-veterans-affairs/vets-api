@@ -36,6 +36,8 @@ module AccreditedRepresentativePortal
       to: :power_of_attorney_holder_memberships
     )
 
+    delegate :loa3?, to: :user_identity
+
     def representative?
       power_of_attorney_holder_memberships.present?
     end
@@ -53,6 +55,15 @@ module AccreditedRepresentativePortal
 
     def flipper_id
       email&.downcase
+    end
+
+    private
+
+    def user_identity
+      @user_identity ||= UserIdentity.new(
+        uuid:,
+        loa:
+      )
     end
   end
 end
