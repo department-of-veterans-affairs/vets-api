@@ -226,19 +226,22 @@ module DebtsApi
       return unless defined?(Sidekiq::Batch)
 
       StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated")
-      template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
 
-      cache_key = Sidekiq::AttrPackage.create(
-        email: @user.email&.downcase,
-        personalisation: email_personalization_info
-      )
       submission_batch = Sidekiq::Batch.new
-      submission_batch.on(
-        :success,
-        'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
-        'cache_key' => cache_key,
-        'template_id' => template
-      )
+      email = @user.email&.downcase
+      if email.present?
+        template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
+        cache_key = Sidekiq::AttrPackage.create(
+          email:,
+          personalisation: email_personalization_info
+        )
+        submission_batch.on(
+          :success,
+          'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
+          'cache_key' => cache_key,
+          'template_id' => template
+        )
+      end
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
       end
