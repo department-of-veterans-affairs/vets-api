@@ -52,7 +52,11 @@ module VeteranEnrollmentSystem
       private
 
       def raise_error(response, icn)
-        message = response.body&.dig('messages')&.pluck('description')&.join(', ') || response.body
+        message = if response.body.is_a?(Hash)
+                    response.body['messages']&.pluck('description')&.join(', ') || response.body
+                  else
+                    response.body
+                  end
         sanitized_message = message.to_s.gsub(icn, '[REDACTED]')
         raise ERROR_MAP[response.status]&.new(detail: sanitized_message) ||
               Common::Exceptions::BackendServiceException.new(nil, detail: sanitized_message)

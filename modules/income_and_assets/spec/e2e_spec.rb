@@ -73,6 +73,7 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     expect(monitor).to receive(:track_submission_success).and_call_original
     expect(Common::FileHelpers).to receive(:delete_file_if_exists).at_least(1).and_call_original
 
+    # submission process, external api is stubbed - BenefitsIntake::Service methods above
     lh_bi_uuid = IncomeAndAssets::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
@@ -98,6 +99,7 @@ RSpec.describe 'Income and Assets End to End', type: :request do
     expect(email).to receive(:deliver).with(:received).and_call_original
     expect(vanotify).to receive(:send_email)
 
+    # update submission status, external api is stubbed - BenefitsIntake::Service#bulk_status above
     BenefitsIntake::SubmissionStatusJob.new.perform(IncomeAndAssets::FORM_ID)
 
     updated = attempt.reload

@@ -24,8 +24,6 @@ module PagerDuty
       PagerDuty::MaintenanceWindowsUploader.upload_file(file_path)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
-
-      log_exception_to_rails(e)
     end
 
     private
