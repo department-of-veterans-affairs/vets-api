@@ -3,39 +3,53 @@
 require 'pega_api/client'
 
 namespace :ivc_champva do
-  desc 'Check Pega processing status for given form UUIDs'
+  desc 'Check Pega processing status for given form UUIDs (or auto-detect missing statuses if none provided)'
   task check_pega_status: :environment do
     puts '=' * 80
     puts 'IVC CHAMPVA PEGA STATUS CHECK TASK'
     puts '=' * 80
 
-    # Parse environment variables
+    # Parse environment variables or get missing UUIDs automatically
     form_uuids_input = ENV['FORM_UUIDS']
     
     if form_uuids_input.blank?
-      puts 'ERROR: FORM_UUIDS environment variable is required'
-      puts 'Usage: FORM_UUIDS="uuid1,uuid2,uuid3" rake ivc_champva:check_pega_status'
-      raise 'FORM_UUIDS environment variable is required'
+      puts 'No FORM_UUIDS provided - automatically retrieving forms with missing pega_status...'
+      puts 'Getting forms with missing pega_status (ignoring submissions from last minute)...'
+      
+      cleanup_util = IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
+      batches = cleanup_util.get_missing_statuses(silent: true, ignore_last_minute: true)
+      
+      if batches.empty?
+        puts 'No forms found with missing pega_status.'
+        puts 'Task completed - nothing to check!'
+        form_uuids = []
+      else
+        form_uuids = batches.keys
+        puts "Found #{form_uuids.count} form UUIDs with missing pega_status"
+      end
+      
+    else
+      form_uuids = form_uuids_input.split(',').map(&:strip).reject(&:blank?)
+      
+      if form_uuids.empty?
+        puts 'ERROR: No valid form UUIDs provided'
+        raise 'No valid form UUIDs provided'
+      end
+      
+      puts "Form UUIDs: #{form_uuids.count} provided via FORM_UUIDS"
     end
+    # Only proceed if we have UUIDs to process
+    if form_uuids.any?
+      puts '-' * 80
 
-    form_uuids = form_uuids_input.split(',').map(&:strip).reject(&:blank?)
-    
-    if form_uuids.empty?
-      puts 'ERROR: No valid form UUIDs provided'
-      raise 'No valid form UUIDs provided'
-    end
+      # Initialize tracking variables
+      pega_api_client = IvcChampva::PegaApi::Client.new
+      unprocessed_files = []
+      api_errors = []
+      processed_count = 0
+      total_files_checked = 0
 
-    puts "Form UUIDs: #{form_uuids.count} provided"
-    puts '-' * 80
-
-    # Initialize tracking variables
-    pega_api_client = IvcChampva::PegaApi::Client.new
-    unprocessed_files = []
-    api_errors = []
-    processed_count = 0
-    total_files_checked = 0
-
-    form_uuids.each_with_index do |form_uuid, index|
+      form_uuids.each_with_index do |form_uuid, index|
       puts "\n[#{index + 1}/#{form_uuids.count}] Checking UUID: #{form_uuid}"
       
       begin
@@ -158,6 +172,7 @@ namespace :ivc_champva do
       end
     end
 
-    puts "\nTask completed!"
+      puts "\nTask completed!"
+    end
   end
 end

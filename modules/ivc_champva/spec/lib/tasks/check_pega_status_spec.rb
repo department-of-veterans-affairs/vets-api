@@ -75,21 +75,70 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
   end
 
   describe 'with no FORM_UUIDS provided' do
+    let(:cleanup_util) { instance_double(IvcChampva::ProdSupportUtilities::MissingStatusCleanup) }
+
     before do
       ENV.delete('FORM_UUIDS')
+      allow(IvcChampva::ProdSupportUtilities::MissingStatusCleanup).to receive(:new).and_return(cleanup_util)
       task.reenable
     end
 
-    it 'exits with error message' do
-      expect { task.invoke }.to raise_error(RuntimeError, 'FORM_UUIDS environment variable is required')
+    context 'when missing statuses are found' do
+      before do
+        allow(cleanup_util).to receive(:get_missing_statuses).with(silent: true, ignore_last_minute: true).and_return({
+          @uuid_with_matching_reports => [@record1, @record2],
+          @uuid_with_no_reports => [@record3]
+        })
+
+        # Mock API responses for the auto-detected UUIDs
+        allow(pega_api_client).to receive(:record_has_matching_report) do |record|
+          case record.form_uuid
+          when @uuid_with_matching_reports
+            [
+              {
+                'Creation Date' => '2024-12-03T07:04:20.156000',
+                'PEGA Case ID' => 'D-12345',
+                'Status' => 'Processed',
+                'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+              },
+              {
+                'Creation Date' => '2024-12-03T07:04:22.210000',
+                'PEGA Case ID' => 'D-12346',
+                'Status' => 'Processed',
+                'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+              }
+            ]
+          when @uuid_with_no_reports
+            false
+          end
+        end
+      end
+
+      it 'automatically retrieves missing UUIDs and processes them' do
+        output = capture_stdout { task.invoke }
+        expect(output).to match(/No FORM_UUIDS provided - automatically retrieving forms/)
+        expect(output).to match(/Found 2 form UUIDs with missing pega_status/)
+        expect(output).to match(/Total UUIDs processed: 2/)
+      end
+
+      it 'displays auto-detection messages' do
+        output = capture_stdout { task.invoke }
+        expect(output).to match(/Getting forms with missing pega_status \(ignoring submissions from last minute\)/)
+        expect(output).to match(/Found 2 form UUIDs with missing pega_status/)
+      end
     end
 
-    it 'displays usage instructions' do
-      output = capture_stdout do
-        expect { task.invoke }.to raise_error(RuntimeError, 'FORM_UUIDS environment variable is required')
+    context 'when no missing statuses are found' do
+      before do
+        allow(cleanup_util).to receive(:get_missing_statuses).with(silent: true, ignore_last_minute: true).and_return({})
       end
-      expect(output).to match(/ERROR: FORM_UUIDS environment variable is required/)
-      expect(output).to match(/Usage: FORM_UUIDS=/)
+
+      it 'completes early with no work message' do
+        output = capture_stdout { task.invoke }
+        expect(output).to match(/No forms found with missing pega_status/)
+        expect(output).to match(/Task completed - nothing to check!/)
+        expect(output).not_to match(/SUMMARY REPORT/)
+      end
     end
   end
 
@@ -184,7 +233,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
     it 'processes all provided UUIDs' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/Form UUIDs: 5 provided/)
+      expect(output).to match(/Form UUIDs: 5 provided via FORM_UUIDS/)
       expect(output).to match(/Total UUIDs processed: 5/)
     end
 
