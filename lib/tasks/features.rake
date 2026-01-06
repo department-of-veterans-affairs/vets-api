@@ -27,7 +27,7 @@ namespace :features do
       if dry_run
         Rails.logger.info('features:setup running in dry-run mode in production; --force required to make changes')
       else
-        raise 'Running features:setup in production non-interactively requires FORCE=true' unless STDIN.tty?
+        raise 'Running features:setup in production non-interactively requires FORCE=true' unless $stdin.tty?
 
         puts 'You are running features:setup in production. This will modify Flipper features in the database.'
         print 'Type "yes" to proceed: '

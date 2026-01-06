@@ -60,7 +60,7 @@ module Flipper
           should_enable =
             Rails.env.test? ||
             (Rails.env.development? && feature_config['enable_in_development']) ||
-            (Settings.vsp_environment.to_s == 'development' && feature_config['enable_in_development'])
+            (Settings.vsp_environment == 'development' && feature_config['enable_in_development'])
 
           if should_enable
             enabled_features << feature
