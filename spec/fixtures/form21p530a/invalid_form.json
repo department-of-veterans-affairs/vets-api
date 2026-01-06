@@ -1,7 +1,6 @@
 {
   "veteranInformation": {
     "fullName": {
-      "first": "John",
       "last": "Doe",
       "middle": "A"
     },
@@ -10,24 +9,25 @@
     "dateOfDeath": "2024-01-01",
     "placeOfBirth": {
       "city": "Kansas City",
-      "state": "MO"
+      "state": "MO0000000"
     }
   },
   "veteranServicePeriods": {
     "periods": [
       {
         "serviceBranch": "Army",
-        "dateEnteredService": "1968-06-01",
+        "dateEnteredService": "1a",
         "placeEnteredService": "Fort Benning, GA",
         "rankAtSeparation": "Sergeant",
         "dateLeftService": "1972-05-31",
         "placeLeftService": "Fort Hood, TX"
-      }
+      },
+      {}
     ],
     "servedUnderDifferentName": null
   },
   "burialInformation": {
-    "nameOfStateCemeteryOrTribalOrganization": "Missouri State Veterans Cemetery",
+    "nameOfStateCemeteryOrTribalOrganization": "Missouri State Veterans Cemeteryyyyyyyyyy",
     "placeOfBurial": {
       "stateCemeteryOrTribalCemeteryName": "Missouri State Veterans Cemetery",
       "stateCemeteryOrTribalCemeteryLocation": "Higginsville, MO"
@@ -35,21 +35,21 @@
     "dateOfBurial": "2024-01-15",
     "recipientOrganization": {
       "name": "Missouri Veterans Commission",
-      "phoneNumber": "555-123-4567",
+      "phoneNumber": "911555-123-4567",
       "address": {
         "streetAndNumber": "2400 Veterans Memorial Drive",
-        "aptOrUnitNumber": "Suite 100",
+        "aptOrUnitNumber": "Suite 10012312313123123131231",
         "city": "Higginsville",
         "state": "MO",
-        "country": "USA",
-        "postalCode": "64037",
+        "country": "ZZZ",
+        "postalCode": "abc12312312313123123",
         "postalCodeExtension": "1234"
       }
     }
   },
   "certification": {
     "titleOfStateOrTribalOfficial": "Director of Veterans Services",
-    "dateSigned": "2024-01-15"
+    "dateSignded": "2024-01-15"
   },
   "remarks": null
 }
