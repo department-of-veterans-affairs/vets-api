@@ -52,6 +52,11 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
       }
     end
 
+    after do
+      # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
+      CommitteeContext.reset
+    end
+
     context 'with form21p530a path' do
       let(:path) { '/v0/form21p530a/submit' }
       let(:error) { Committee::InvalidRequest.new('validation error') }
@@ -67,6 +72,17 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
           error:,
           request: kind_of(Rack::Request)
         )
+      end
+
+      it 'populates CommitteeContext with controller and action' do
+        monitor_instance = instance_double(Form21p530a::Monitor)
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_request_validation_error)
+
+        error_handler.call(error, env)
+
+        expect(CommitteeContext.controller).to eq('v0/form21p530a')
+        expect(CommitteeContext.action).to eq('create')
       end
     end
 
@@ -208,6 +224,11 @@ end
 
 # Integration tests for Committee validation with StatsdMiddleware
 RSpec.describe 'Committee validation with StatsdMiddleware', type: :request do
+  after do
+    # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
+    CommitteeContext.reset
+  end
+
   context 'when Committee validation fails' do
     let(:invalid_payload) do
       { data: { attributes: { claimant: { first: 'John' } } } }.to_json
@@ -283,6 +304,32 @@ RSpec.describe 'Committee validation with StatsdMiddleware', type: :request do
            headers: { 'Content-Type': 'application/json' }
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'includes controller and action in error response meta for form21p530a' do
+      post '/v0/form21p530a',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json', 'Source-App-Name': '21p-530a-interment-allowance' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors'].first['meta']).to eq(
+        'controller' => 'v0/form21p530a',
+        'action' => 'create'
+      )
+    end
+
+    it 'includes controller and action in error response meta for form214192' do
+      post '/v0/form214192',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors'].first['meta']).to eq(
+        'controller' => 'v0/form214192',
+        'action' => 'create'
+      )
     end
   end
 end

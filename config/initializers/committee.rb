@@ -7,9 +7,10 @@ require 'form214192/monitor'
 
 schema_path = Rails.public_path.join('openapi.json').to_s
 
-##
-# Provides routing for Committee validation errors to form-specific monitors
-#
+class CommitteeContext < ActiveSupport::CurrentAttributes
+  attribute :controller, :action
+end
+
 module CommitteeErrorRouting
   # Mapping of path patterns to monitor classes
   FORM_MONITORS = {
@@ -58,6 +59,9 @@ ERROR_HANDLER = lambda do |ex, env|
 
   # Populate path_parameters so StatsdMiddleware can tag metrics with controller/action
   CommitteeErrorRouting.populate_path_parameters(env)
+  path_params = env['action_dispatch.request.path_parameters'] || {}
+  CommitteeContext.controller = path_params[:controller]
+  CommitteeContext.action = path_params[:action]
 
   log_rails_error(req, ex)
 
