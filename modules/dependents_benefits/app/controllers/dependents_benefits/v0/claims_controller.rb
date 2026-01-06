@@ -22,7 +22,7 @@ module DependentsBenefits
 
       # Returns a list of dependents for the current user
       def show
-        dependents = create_dependent_service.get_dependents
+        dependents = dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
         render json: DependentsSerializer.new(dependents)
       rescue => e
@@ -102,7 +102,7 @@ module DependentsBenefits
       end
 
       # Creates the BGS dependent service for the current user
-      def create_dependent_service
+      def dependent_service
         @dependent_service ||= BGS::DependentService.new(current_user)
       end
 
