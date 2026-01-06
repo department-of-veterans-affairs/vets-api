@@ -275,7 +275,7 @@ module DebtsApi
       return if email.blank?
 
       cache_key = Sidekiq::AttrPackage.create(
-        email: email,
+        email:,
         personalisation: email_personalization_info
       )
       DebtManagementCenter::VANotifyEmailJob.perform_async(
