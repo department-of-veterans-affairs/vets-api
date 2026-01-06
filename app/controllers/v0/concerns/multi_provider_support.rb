@@ -36,7 +36,7 @@ module V0
       end
 
       def handle_provider_error(provider_class, error, provider_errors)
-        provider_errors << { provider: provider_class.name, error: 'Provider temporarily unavailable' }
+        provider_errors << { 'provider' => provider_class.name, 'error' => 'Provider temporarily unavailable' }
 
         ::Rails.logger.error(
           "Provider #{provider_class.name} failed",

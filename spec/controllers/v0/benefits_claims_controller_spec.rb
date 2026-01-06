@@ -2202,8 +2202,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         result = controller.send(:get_claims_from_providers)
 
         expect(result['meta']['provider_errors']).to be_present
-        expect(result['meta']['provider_errors'].first[:provider]).to eq('MockProvider')
-        expect(result['meta']['provider_errors'].first[:error]).to eq(error_message)
+        expect(result['meta']['provider_errors'].first['provider']).to eq('MockProvider')
+        expect(result['meta']['provider_errors'].first['error']).to eq(error_message)
       end
 
       it 'logs the error' do
