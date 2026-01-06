@@ -19,7 +19,8 @@ module MyHealth
           render_not_found_error
         rescue Common::Exceptions::Forbidden
           raise
-        rescue
+        rescue => e
+          Rails.logger.error("DrugSheetsController: Failed to fetch documentation - #{e.class}")
           render_service_unavailable_error
         end
 

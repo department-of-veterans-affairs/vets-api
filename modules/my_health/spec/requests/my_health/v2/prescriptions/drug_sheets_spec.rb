@@ -150,6 +150,13 @@ RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
           expect(json_response['error']['code']).to eq('SERVICE_UNAVAILABLE')
           expect(json_response['error']['message']).to eq('Unable to fetch documentation')
         end
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error)
+            .with('DrugSheetsController: Failed to fetch documentation - StandardError')
+
+          post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
+        end
       end
     end
   end
