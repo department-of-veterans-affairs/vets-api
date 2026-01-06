@@ -6,7 +6,7 @@ module VRE
       include Vets::Model
 
       attribute :res_case_id, Integer
-      attribute :is_transfered_to_cwnrs, Bool
+      attribute :is_transferred_to_cwnrs, Bool
       attribute :external_status, Hash
 
       def initialize(_status, response = nil)

@@ -41,6 +41,20 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'id' => '15208365735',
       'status' => 'active',
       'authoredOn' => '2025-01-29T19:41:43Z',
+      'reportedBoolean' => false,
+      'intent' => 'order',
+      'category' => [
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location', 'code' => 'community' }
+          ]
+        },
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medication-request-category', 'code' => 'discharge' }
+          ]
+        }
+      ],
       'requester' => {
         'reference' => 'Practitioner/12345',
         'display' => 'Doe, Jane, MD'
@@ -626,7 +640,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'includes prescriptions with multiple categories' do
         prescriptions = subject.parse(response_with_multiple_categories)
         expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(%w[outpatient community])
+        expect(prescriptions.first.category).to eq(%w[community outpatient])
       end
     end
 

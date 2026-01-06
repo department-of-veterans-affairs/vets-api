@@ -47,8 +47,6 @@ module EducationForm
       StatsD.increment("worker.education_benefits_claim.applicant_denial_letter.#{region}.22-#{claim.form_type}")
       exception = FormattingError.new("Could not email denial letter for #{claim.confirmation_number}.\n\n#{error}")
       log_exception_to_sentry(exception)
-
-      log_exception_to_rails(exception)
     end
 
     def log_info(message)
