@@ -5,7 +5,8 @@ require 'unified_health_data/adapters/immunization_adapter'
 require 'unified_health_data/models/immunization'
 
 RSpec.describe 'ImmunizationAdapter' do
-  let(:adapter) { UnifiedHealthData::Adapters::ImmunizationAdapter.new }
+  let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
+  let(:adapter) { UnifiedHealthData::Adapters::ImmunizationAdapter.new(user) }
   let(:vaccine_sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'immunizations_sample.json'
@@ -142,7 +143,7 @@ RSpec.describe 'ImmunizationAdapter' do
                 'text' => 'Polio'
               }
             ],
-            'doseNumberString' => '1'
+            'doseNumberString' => 'Unknown'
           }
         ] }
     end
@@ -151,7 +152,8 @@ RSpec.describe 'ImmunizationAdapter' do
       allow(PersonalInformationLog).to receive(:create!)
     end
 
-    it 'returns the vaccineCode.text for name if present' do
+    it 'returns the vaccineCode.text for name if present (and logs names if flipper enabled)' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_uhd_name_logging, user).and_return(true)
       expect(PersonalInformationLog).to receive(:create!)
         .with({
                 error_class: 'UHD Vaccine Group Names',
@@ -164,6 +166,13 @@ RSpec.describe 'ImmunizationAdapter' do
                   service: 'unified_health_data'
                 }
               })
+      expect(adapter.send(:extract_group_name, vaccine_code_default)).to eq('human papillomavirus vaccine')
+    end
+
+    it 'returns the vaccineCode.text for name if present (but does not log names if flipper disabled)' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_vaccine_uhd_name_logging, user).and_return(false)
+      expect(PersonalInformationLog).not_to receive(:create!)
+
       expect(adapter.send(:extract_group_name, vaccine_code_default)).to eq('human papillomavirus vaccine')
     end
 

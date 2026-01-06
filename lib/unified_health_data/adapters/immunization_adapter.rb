@@ -8,6 +8,11 @@ module UnifiedHealthData
     class ImmunizationAdapter
       include DateNormalizer
 
+      def initialize(user)
+        super()
+        @user = user
+      end
+
       def parse(records)
         return [] if records.blank?
 
@@ -110,7 +115,8 @@ module UnifiedHealthData
       # ]
       def extract_group_name(resource)
         # Add logging and list all possible names returned and where they were parsed from
-        log_vaccine_group_names(resource)
+        # Log the vaccine group names if the feature flag is enabled
+        log_vaccine_group_names(resource) if Flipper.enabled?(:mhv_vaccine_uhd_name_logging, @user)
 
         # For now check for vaccineCode.text first,
         resource.dig('vaccineCode', 'text') ||
@@ -148,13 +154,11 @@ module UnifiedHealthData
       end
 
       def cerner_system?(system)
-        # TODO: might we just check that the system includes "cerner"?
-        system.include?('cerner')
-        #   uri = URI.parse(system)
-        #   host = uri.host
-        #   host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
-        # rescue URI::InvalidURIError
-        #   false
+        uri = URI.parse(system)
+        host = uri.host
+        host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
+      rescue URI::InvalidURIError
+        false
       end
 
       def find_ndc_entry(entries)

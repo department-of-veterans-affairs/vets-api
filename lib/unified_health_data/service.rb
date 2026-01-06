@@ -442,7 +442,7 @@ module UnifiedHealthData
     end
 
     def immunization_adapter
-      @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new
+      @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
     end
 
     def logger
