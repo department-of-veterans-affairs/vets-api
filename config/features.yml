@@ -2148,9 +2148,6 @@ features:
   vre_send_icn_to_res:
     actor_type: user
     description: Enables sending ICN to RES service
-  vre_track_submissions:
-    actor_type: user
-    description: In VRE application, create form submission/attempt records
   priority_processing_request_apply_vsi_flash:
     actor_type: user
     description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
