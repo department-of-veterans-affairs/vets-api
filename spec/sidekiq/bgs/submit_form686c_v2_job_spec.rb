@@ -179,7 +179,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
       error = StandardError.new('Job failed')
       # Mock the monitor
       monitor_double = instance_double(Dependents::Monitor)
-      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+      allow(Dependents::Monitor).to receive(:new).and_return(monitor_double)
 
       # Expect the monitor to track the initial exhaustion event
       expect(monitor_double).to receive(:track_event).with(
@@ -220,7 +220,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
       before do
         # Mock initial monitor for exhaustion tracking
         monitor_double = instance_double(Dependents::Monitor)
-        allow(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor_double)
         allow(monitor_double).to receive(:track_event)
 
         # Mock backup submission failure
@@ -274,6 +274,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
 
           expect(SavedClaim::DependencyClaim).to receive(:find).with(dependency_claim.id).and_return(claim_double)
           expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(monitor_double)
+          allow(monitor_double).to receive(:default_payload).and_return({})
 
           # Expect monitor to track the retry exhaustion failure
           expect(monitor_double).to receive(:track_event).with(

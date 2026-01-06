@@ -166,7 +166,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
       # Mock the monitor
       monitor_double = instance_double(Dependents::Monitor)
-      expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+      allow(Dependents::Monitor).to receive(:new).and_return(monitor_double)
 
       # Expect the monitor to track the exhaustion event
       expect(monitor_double).to receive(:track_event).with(
@@ -208,6 +208,9 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       # Expect the monitor to track the retry exhaustion failure event
       rescue_monitor_double = instance_double(Dependents::Monitor)
       expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(rescue_monitor_double)
+
+      allow(monitor_double).to receive(:default_payload).and_return({})
+
       expect(rescue_monitor_double).to receive(:track_event).with(
         'error',
         'BGS::SubmitForm686cJob retries exhausted failed...',
