@@ -32,18 +32,17 @@ module UnifiedHealthData
           cvx_code: extract_cvx_code(vaccine_code),
           date: date_value,
           sort_date: normalize_date_for_sorting(date_value),
-          dose_number: extract_dose_number(protocol_applied), # not sure this is accurate
-          dose_series: extract_dose_series(protocol_applied), # not sure this is accurate
+          dose_number: extract_dose_number(protocol_applied),
+          dose_series: extract_dose_series(protocol_applied),
           group_name:,
           location: extract_location_display(resource),
-          location_id: extract_location_id(resource['location']), #  not sure it's needed
           manufacturer: extract_manufacturer(resource),
           note: extract_note(resource['note']),
           reaction: extract_reaction(resource['reaction']),
           short_description: vaccine_code['text'],
           administration_site: extract_site(resource), # e.g. "left arm"
           lot_number: resource['lotNumber'] || nil,
-          status: resource['status'] || nil # Status of the record ??
+          status: resource['status'] || nil
         )
       end # rubocop:enable Metrics/MethodLength
 
@@ -52,35 +51,33 @@ module UnifiedHealthData
       def extract_cvx_code(vaccine_code)
         return nil if vaccine_code['coding'].blank?
 
-        # OH data has multiple vaccine codes, but we want the one that maps to CVX
-        coding = if vaccine_code['coding'].count > 1
-                   vaccine_code['coding'].find do |code_entry|
-                     code_entry['system'] == 'http://hl7.org/fhir/sid/cvx'
-                   end
-                 else
-                   # VistA data has only one coding entry
-                   vaccine_code['coding'].first
-                 end
+        # If has multiple vaccine codes, we want the one that maps to CVX, otherwise just take the first one
+        coding =
+          vaccine_code['coding'].find do |code_entry|
+            code_entry['system'] == 'http://hl7.org/fhir/sid/cvx'
+          end || vaccine_code['coding'].first
         code = coding && coding['code']
         code.present? ? code.to_i : nil
       end
 
       def extract_dose_number(protocol_applied)
+        # For dose 1 of 3 display
+        # dose_number is the "1"
         return nil if protocol_applied.blank?
 
         series = protocol_applied.first || {}
-        # TODO: not sure "series" will always be accurate
+        # TODO: verify with SCDF team after they investigate
         series['doseNumberPositiveInt'] || series['doseNumberString'] || series['series']
       end
 
       def extract_dose_series(protocol_applied)
+        # For dose 1 of 3 display
+        # dose_series is the "3"
         return nil if protocol_applied.blank?
 
         series = protocol_applied.first || {}
-        series['doseNumberString'] || # this aligns with OH data
-          series['series'] || # this aligns with VistA data
-          series['seriesDosesPositiveInt'] || # this aligns with legacy data
-          series['seriesDosesString'] # this aligns with legacy data
+        series['seriesDosesPositiveInt'] ||
+          series['seriesDosesString']
       end
 
       # VistA has the name of the vaccine in the vaccineCode text:
@@ -108,24 +105,67 @@ module UnifiedHealthData
       #       "text": "Polio"
       #       }
       #     ],
-      #   "doseNumberString": "1",
+      #   "doseNumberString": "Unknown",
       #  }
       # ]
       def extract_group_name(resource)
-        # OH data: find any protocolApplied entry with targetDisease
-        protocol_applied = resource['protocolApplied']
-        if protocol_applied.is_a?(Array)
-          target_disease_text = protocol_applied
-                                .find { |entry| entry['targetDisease'].present? }
-                                &.dig('targetDisease', 0, 'text')
-          return target_disease_text if target_disease_text
-        end
+        # Add logging and list all possible names returned and where they were parsed from
+        log_vaccine_group_names(resource)
 
-        # Otherwise, fall back to vaccineCode.text
-        resource.dig('vaccineCode', 'text')
+        # For now check for vaccineCode.text first,
+        resource.dig('vaccineCode', 'text') ||
+          # else go to fallback methods, based on system priority
+          fallback_group_name(resource.dig('vaccineCode', 'coding'))
       end
 
-      # Are we still only returning for Covid vaccines?
+      def fallback_group_name(coding)
+        return nil if coding.nil?
+
+        find_cvx_entry(coding) ||
+          find_cerner_entry(coding) ||
+          find_ndc_entry(coding) ||
+          find_first_display_entry(coding)
+      end
+
+      def find_cvx_entry(entries)
+        entry = entries.find do |v|
+          system = v[:system] || v['system']
+          display = v[:display] || v['display']
+          system == 'http://hl7.org/fhir/sid/cvx' && display.present?
+        end
+        entry ? (entry[:display] || entry['display']) : nil
+      end
+
+      def find_cerner_entry(entries)
+        entry = entries.find do |v|
+          display = v[:display] || v['display']
+          system = v[:system] || v['system']
+          next false unless display.present? && system.present?
+
+          cerner_system?(system)
+        end
+        entry ? (entry[:display] || entry['display']) : nil
+      end
+
+      def cerner_system?(system)
+        # TODO: might we just check that the system includes "cerner"?
+        system.include?('cerner')
+        #   uri = URI.parse(system)
+        #   host = uri.host
+        #   host == 'fhir.cerner.com' || host&.end_with?('.fhir.cerner.com')
+        # rescue URI::InvalidURIError
+        #   false
+      end
+
+      def find_ndc_entry(entries)
+        entry = entries.find do |v|
+          system = v[:system] || v['system']
+          display = v[:display] || v['display']
+          system == 'http://hl7.org/fhir/sid/ndc' && display.present?
+        end
+        entry ? (entry[:display] || entry['display']) : nil
+      end
+
       def extract_manufacturer(resource)
         return nil if resource['manufacturer'].nil?
 
@@ -135,34 +175,15 @@ module UnifiedHealthData
       def extract_note(notes)
         return nil if notes.blank?
 
-        # TODO: Verify that we only want the first, or if we return all in an array of strings
-        note = notes.first
-        note && note['text'].present? ? note['text'] : nil
+        # Send all note text as a single string for VAHB backward compatibility
+        notes.map { |note| note['text'].presence }.compact.join(',')
       end
 
-      # None of the sample vaccines have reactions so not sure where this will be located
-      # According to slack convo SCDF might not return any reactions?
+      # None of the sample vaccines have reactions so not sure where this will be located, if we get it at all
       def extract_reaction(reactions)
         return nil if reactions.blank?
 
         reactions.map { |r| r.dig('detail', 'display') }.compact.join(',')
-      end
-
-      # This might not be necessary, the location_id is only used to retrieve LH location data
-      def extract_location_id(location)
-        return nil if location.nil?
-
-        # VistA has only the name as a string for reference (same string as the display)
-        # "location": {
-        #    "reference": "GREELEY NURSE",
-        #    "display": "GREELEY NURSE"
-        # },
-        # OH has the reference as "Location/id" + display as a truncated name
-        # "location": {
-        #     "reference": "Location/353977013",
-        #     "display": "556 JAL IL VA"
-        # },
-        location['reference'].split('/').last if location['reference']&.include?('/')
       end
 
       # VistA has only the name as a string for reference (same string as the display)
@@ -200,7 +221,39 @@ module UnifiedHealthData
 
       def extract_site(resource)
         resource.dig('site', 'text') ||
-          resource.dig('site', 'coding')&.first&.dig('display')
+          find_first_display_entry(resource.dig('site', 'coding'))
+      end
+
+      # Logs possible group names for Vaccines to PersonalInformationLog
+      # for secure debugging of parsing mechanism
+      def log_vaccine_group_names(record)
+        data = {
+          vaccine_code_text: record.dig('vaccineCode', 'text'),
+          vaccine_codes_display: record.dig('vaccineCode', 'coding').map { |c| c['display'] },
+          target_disease_text: record.dig('protocolApplied', 0, 'targetDisease', 0, 'text'),
+          service: 'unified_health_data'
+        }
+
+        PersonalInformationLog.create!(
+          error_class: 'UHD Vaccine Group Names',
+          data:
+        )
+      rescue => e
+        # Log any errors in creating the PersonalInformationLog without exposing PII
+        Rails.logger.error(
+          "Error creating PersonalInformationLog for vaccine name issue: #{e.class.name}",
+          { service: 'unified_health_data', backtrace: e.backtrace.first(5) }
+        )
+      end
+
+      def find_first_display_entry(entries)
+        return nil if entries.nil?
+
+        entry = entries.find do |v|
+          display = v[:display] || v['display']
+          display.present?
+        end
+        entry&.dig(:display) || entry&.dig('display')
       end
     end
   end

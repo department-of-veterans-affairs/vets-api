@@ -14,7 +14,6 @@ module UnifiedHealthData
     attribute :dose_series, String
     attribute :group_name, String
     attribute :location, String
-    attribute :location_id, String
     attribute :manufacturer, String
     attribute :note, String
     attribute :reaction, String

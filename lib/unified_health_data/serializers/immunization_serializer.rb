@@ -13,7 +13,6 @@ module UnifiedHealthData
                :dose_series,
                :group_name,
                :location,
-               :location_id,
                :manufacturer,
                :note,
                :reaction,
