@@ -63,7 +63,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
               'detail' => 'wrong number of arguments (given 0, expected 1..2)', 'code' => 'VA900', 'status' => '400' }
           ]
         }
-        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
+        allow_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents).and_raise(BGS::ShareError)
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
 
         assert_schema_conform(400)
@@ -73,7 +73,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
   end
 
   describe '#create' do
-    let(:dependency_claim) { build(:dependency_claim) }
+    let(:dependency_claim) { build(:dependency_claim_v2) }
     let(:test_form) { dependency_claim.parsed_form }
 
     context 'with valid input' do
@@ -81,7 +81,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-        allow_any_instance_of(BGS::DependentService).to receive(:submit_pdf_job)
+        allow_any_instance_of(BGS::DependentV2Service).to receive(:submit_pdf_job)
       end
 
       it 'returns job ids' do
@@ -90,7 +90,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         end
 
         assert_schema_conform(202)
-        submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
+        submit_form_job_id = BGS::SubmitForm686cV2Job.jobs.first['jid']
         expect(response.parsed_body['data'].to_h).to match(
           {
             'id' => UUID_REGEX,
@@ -110,7 +110,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
       end
 
       it 'submits to central service' do
-        expect_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service)
+        expect_any_instance_of(BGS::DependentV2Service).to receive(:submit_to_central_service)
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end

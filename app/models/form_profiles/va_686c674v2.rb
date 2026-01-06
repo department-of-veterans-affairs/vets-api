@@ -162,7 +162,7 @@ class FormProfiles::VA686c674v2 < FormProfile
   end
 
   def dependent_service
-    @dependent_service ||= BGS::DependentService.new(user)
+    @dependent_service ||= BGS::DependentV2Service.new(user)
   end
 
   def pension_award_service
