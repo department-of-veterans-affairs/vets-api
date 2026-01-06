@@ -53,7 +53,7 @@ module Burials
           question_num: 17,
           question_label: 'Name Of National Or Federal Cemetery',
           question_text: 'NAME OF NATIONAL OR FEDERAL CEMETERY',
-          limit: 25
+          limit: 50
         },
         # 18
         'cemetaryLocationQuestionCemetery' => {
