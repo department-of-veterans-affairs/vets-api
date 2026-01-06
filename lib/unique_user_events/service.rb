@@ -140,7 +140,7 @@ module UniqueUserEvents
     # @param user [User] the authenticated User object
     # @return [String] User account UUID
     def self.extract_user_id(user)
-      user.user_account_uuid
+      user.user_account_uuid || user.uuid
     end
 
     # Build event result hash for API response
