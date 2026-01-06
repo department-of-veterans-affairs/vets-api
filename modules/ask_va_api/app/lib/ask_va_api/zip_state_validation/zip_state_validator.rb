@@ -9,42 +9,40 @@ module AskVAApi
       INVALID_ZIP = 'INVALID_ZIP'
 
       class << self
-        def call(zipcode:, state_name:)
-          zip = normalize_zip(zipcode)
-          return invalid_zip_result(zipcode) unless zip
+        def call(zip_code:, state_code:)
+          zip_code_provided = zip_code.to_s.strip
+          state_code_provided = state_code.to_s.strip
 
-          state_code = state_code_from_name(state_name)
-          return state_not_found_result(state_name) unless state_code
+          normalized_zip_code = normalize_zip(zip_code_provided)
+          return invalid_zip_result(zip_code_provided) unless normalized_zip_code
 
-          std_state = StdState.with_postal_name(state_code).first
-          return state_not_found_result(state_name) unless std_state
+          normalized_state_code = normalize_state_code(state_code_provided)
+          return state_not_found_result(state_code_provided) unless normalized_state_code
 
-          zip_exists = StdZipcode.with_zip_code(zip).exists?
-          return zip_not_found_result(zipcode) unless zip_exists
+          state_id = StdState.with_postal_name(normalized_state_code).pick(:id)
+          return state_not_found_result(state_code_provided) unless state_id
 
-          validate_match(zip:, state_code:, std_state:)
+          zip_exists = StdZipcode.with_zip_code(normalized_zip_code).exists?
+          return zip_not_found_result(zip_code_provided) unless zip_exists
+
+          validate_match(zip_code: normalized_zip_code, state_id:, state_code: normalized_state_code)
         end
 
         private
 
-        def normalize_zip(zipcode)
+        def normalize_zip(zip_code)
           # convert full zip to a 5 digit zip
-          basic_zip = zipcode.to_s.strip.split('-').first
-          return nil unless basic_zip.match?(/\A\d{5}\z/)
+          zip_code = zip_code.to_s.strip.split('-').first
+          return nil unless zip_code.match?(/\A\d{5}\z/)
 
-          basic_zip
+          zip_code
         end
 
-        # grab the state code for safer lookup when querying the std_state table
-        def state_code_from_name(state_name)
-          normalized_name = state_name.to_s.strip.downcase
-          return nil if normalized_name.empty?
+        def normalize_state_code(state_code)
+          state_code = state_code.to_s.strip.upcase
+          return nil unless state_code.match?(/\A[A-Z]{2}\z/)
 
-          code_by_lower_name = I18n.t('ask_va_api.states').each_with_object({}) do |(state_code, full_name), acc|
-            acc[full_name.to_s.downcase] = state_code.to_s
-          end
-
-          code_by_lower_name[normalized_name]
+          state_code
         end
 
         def success_result
@@ -59,39 +57,39 @@ module AskVAApi
           )
         end
 
-        def mismatch_result(zip:, state_code:)
+        def mismatch_result(zip_code:, state_code:)
           error_result(
             error_code: ZIP_STATE_MISMATCH,
-            error_message: "Zip Code #{zip} does not belong to state #{state_code}."
+            error_message: "Zip Code #{zip_code} does not belong to state #{state_code}."
           )
         end
 
-        def invalid_zip_result(zipcode)
+        def invalid_zip_result(zip_code)
           error_result(
             error_code: INVALID_ZIP,
-            error_message: "Invalid Zip Code: #{zipcode}."
+            error_message: "Invalid Zip Code: #{zip_code}."
           )
         end
 
-        def state_not_found_result(state_name)
+        def state_not_found_result(state_code)
           error_result(
             error_code: STATE_NOT_FOUND,
-            error_message: "Check State format: #{state_name}."
+            error_message: "Check State format: #{state_code}."
           )
         end
 
-        def zip_not_found_result(zipcode)
+        def zip_not_found_result(zip_code)
           error_result(
             error_code: ZIP_NOT_FOUND,
-            error_message: "Zip not found: #{zipcode}."
+            error_message: "Zip not found: #{zip_code}."
           )
         end
 
-        def validate_match(zip:, state_code:, std_state:)
-          if StdZipcode.for_zip_and_state(zip, std_state.id).exists?
+        def validate_match(zip_code:, state_id:, state_code:)
+          if StdZipcode.for_zip_and_state(zip_code, state_id).exists?
             success_result
           else
-            mismatch_result(zip:, state_code:)
+            mismatch_result(zip_code:, state_code:)
           end
         end
       end

@@ -5,8 +5,8 @@ module AskVAApi
     class ZipStateValidationController < ApplicationController
       def create
         result = ZipStateValidator.call(
-          zipcode: params[:zipcode],
-          state_name: params[:state_name]
+          zip_code: params[:zip_code],
+          state_code: params[:state_code]
         )
 
         render json: {
