@@ -8,7 +8,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   before do
     Sidekiq::Job.clear_all
 
-    Flipper.disable(:form526_send_document_upload_failure_notification)
+    stub_flipper(:form526_send_document_upload_failure_notification, enabled: false)
   end
 
   let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
@@ -105,7 +105,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       context 'when exhaustion occurs with old format' do
         before do
-          Flipper.enable(:form526_send_document_upload_failure_notification)
+          stub_flipper(:form526_send_document_upload_failure_notification)
         end
 
         it 'enqueues failure notification mailer with old format args' do
@@ -325,7 +325,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let!(:failure_email) { EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail }
 
       before do
-        Flipper.enable(:form526_send_document_upload_failure_notification)
+        stub_flipper(:form526_send_document_upload_failure_notification)
         allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
       end
 
