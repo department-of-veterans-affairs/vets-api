@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  clamav:
+    profiles:
+      - clamav
+  web:
+    depends_on:
+      - postgres
+      - redis
+  worker:
+    depends_on:
+      - postgres
+      - redis
