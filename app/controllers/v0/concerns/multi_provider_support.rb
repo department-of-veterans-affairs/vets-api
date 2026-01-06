@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# This concern extracts multi-provider aggregation methods from BenefitsClaimsController
+# to satisfy Metrics/ClassLength linting requirements.
+#
+# Note: This concern is tightly coupled to BenefitsClaimsController and references its
+# STATSD_METRIC_PREFIX and STATSD_TAGS constants. This coupling is intentional as the
+# concern is not designed for reuse in other controllers.
 module V0
   module Concerns
     module MultiProviderSupport
