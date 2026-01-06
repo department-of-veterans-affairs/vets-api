@@ -251,67 +251,6 @@ RSpec.describe UniqueUserEvents::Buffer do
     end
   end
 
-  describe '.pop_batch' do
-    before do
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
-      described_class.push(user_id:, event_name: 'event_3')
-    end
-
-    it 'returns events from the tail (oldest first) and removes them' do
-      events = described_class.pop_batch(2)
-
-      expect(events.length).to eq(2)
-      expect(events[0][:event_name]).to eq('event_1')
-      expect(events[1][:event_name]).to eq('event_2')
-      expect(described_class.pending_count).to eq(1)
-    end
-
-    it 'returns all remaining events when count exceeds buffer size' do
-      events = described_class.pop_batch(100)
-
-      expect(events.length).to eq(3)
-      expect(described_class.pending_count).to eq(0)
-    end
-
-    it 'returns empty array when buffer is empty' do
-      described_class.clear!
-
-      events = described_class.pop_batch(10)
-
-      expect(events).to eq([])
-    end
-
-    it 'returns empty array when count is zero' do
-      events = described_class.pop_batch(0)
-
-      expect(events).to eq([])
-    end
-
-    it 'returns empty array when count is negative' do
-      events = described_class.pop_batch(-5)
-
-      expect(events).to eq([])
-    end
-
-    context 'when Redis fails' do
-      before do
-        allow(redis).to receive(:rpop).and_raise(Redis::ConnectionError, 'Connection refused')
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs error and returns empty array' do
-        events = described_class.pop_batch(10)
-
-        expect(events).to eq([])
-        expect(Rails.logger).to have_received(:error).with(
-          'UUM Buffer: Failed to pop batch',
-          { count: 10, error: 'Connection refused' }
-        )
-      end
-    end
-  end
-
   describe '.pending_count' do
     it 'returns 0 when buffer is empty' do
       expect(described_class.pending_count).to eq(0)

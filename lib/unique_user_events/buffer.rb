@@ -16,8 +16,10 @@ module UniqueUserEvents
   # @example Push an event to the buffer
   #   UniqueUserEvents::Buffer.push(user_id: user.uuid, event_name: 'prescriptions_accessed')
   #
-  # @example Pop a batch of events for processing
-  #   events = UniqueUserEvents::Buffer.pop_batch(500)
+  # @example Peek and trim events for processing
+  #   events = UniqueUserEvents::Buffer.peek_batch(500)
+  #   # ... process events ...
+  #   UniqueUserEvents::Buffer.trim_batch(events.size)
   #
   # @see MHV::UniqueUserMetricsProcessorJob for the batch processor
   module Buffer
@@ -85,33 +87,6 @@ module UniqueUserEvents
     rescue => e
       Rails.logger.error('UUM Buffer: Failed to trim batch', { count:, error: e.message })
       false
-    end
-
-    # Pop a batch of events from the buffer (DEPRECATED)
-    #
-    # @deprecated Use {.peek_batch} + {.trim_batch} pattern instead for safer processing.
-    # Uses Redis RPOP with count (Redis 6.2+) for atomic batch retrieval.
-    # Events are deserialized from JSON and returned as an array of hashes.
-    #
-    # @param count [Integer] Maximum number of events to pop
-    # @return [Array<Hash>] Array of event hashes with :user_id and :event_name keys
-    def self.pop_batch(count)
-      return [] if count <= 0
-
-      # RPOP with count returns array of strings (or nil if empty)
-      raw_events = redis.rpop(BUFFER_KEY, count)
-      return [] if raw_events.nil?
-
-      # Ensure we have an array (single item returns string in some Redis versions)
-      raw_events = [raw_events] unless raw_events.is_a?(Array)
-
-      # Parse JSON and symbolize keys
-      raw_events.filter_map do |raw_event|
-        parse_event(raw_event)
-      end
-    rescue => e
-      Rails.logger.error('UUM Buffer: Failed to pop batch', { count:, error: e.message })
-      []
     end
 
     # Get the number of pending events in the buffer
