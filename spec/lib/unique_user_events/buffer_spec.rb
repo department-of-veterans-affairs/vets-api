@@ -90,7 +90,7 @@ RSpec.describe UniqueUserEvents::Buffer do
 
         expect(Rails.logger).to have_received(:error).with(
           'UUM Buffer: Failed to push event',
-          { user_id:, event_name:, error: 'Connection refused' }
+          { event_name:, error: 'Connection refused' }
         )
       end
     end
