@@ -188,6 +188,34 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
   end
 
+  it 'excludes VES JSON files when comparing document counts with Pega reports' do
+    # Create a batch with mixed file types including VES JSON
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: 'attachment.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_10d_ves.json", pega_status: nil)
+    ]
+
+    # Mock Pega API to return 2 reports (excluding VES JSON)
+    pega_reports = [
+      { 'UUID' => form_uuid, 'Status' => 'Processed' },
+      { 'UUID' => form_uuid, 'Status' => 'Processed' }
+    ]
+
+    allow(job.pega_api_client).to receive(:record_has_matching_report).and_return(pega_reports)
+    allow(job.missing_status_cleanup).to receive(:manually_process_batch)
+
+    # Should return true because 2 Pega-processable files match 2 Pega reports
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be true
+    expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
+
+    # Clean up test data
+    batch.each(&:destroy)
+  end
+
   context 'when send_zsf_notification_to_pega is successful' do
     it 'logs a successful notification send to Pega' do
       job.send_zsf_notification_to_pega(forms[0], 'fake-template')
