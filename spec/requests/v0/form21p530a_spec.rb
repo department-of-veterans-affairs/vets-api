@@ -67,7 +67,7 @@ RSpec.describe 'V0::form21p530a', :focus,
             params: form_data,
             headers: {
               'Content-Type' => 'application/json',
-              # 'X-Key-Inflection' => 'camel',
+              'X-Key-Inflection' => 'camel',
               'HTTP_SOURCE_APP_NAME' => '21p-530a-interment-allowance'
             }
           )
@@ -136,7 +136,7 @@ RSpec.describe 'V0::form21p530a', :focus,
                params: form_data,
                headers: {
                  'Content-Type' => 'application/json',
-                 #  'X-Key-Inflection' => 'camel',
+                 'X-Key-Inflection' => 'camel',
                  'HTTP_SOURCE_APP_NAME' => '21p-530a-interment-allowance'
                })
         end
@@ -144,7 +144,7 @@ RSpec.describe 'V0::form21p530a', :focus,
         expect(metrics.collect(&:source)).to include(
           'api.rack.request:1|c|#controller:,action:,source_app:21p-530a-interment-allowance,status:422'
         )
-        expect(response.content_type).to eq('application/json; charset=utf-8')
+        expect(response.content_type).to eq('application/json')
       end
     end
   end
