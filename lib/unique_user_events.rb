@@ -71,11 +71,11 @@ module UniqueUserEvents
   # Events include Oracle Health variants when applicable.
   #
   # @param user [User] the authenticated User object
-  # @param event_name [String] Name of the event being logged
+  # @param event_name [String] Name of the event being logging
   # @return [Array<Hash>] Array of buffered event results
   def self.log_event_async(user:, event_name:)
     start_time = Time.current
-    Service::EventRegistry.validate_event!(event_name)
+    EventRegistry.validate_event!(event_name)
     user_id = Service.extract_user_id(user)
 
     # Get all events to buffer (original + OH events)
