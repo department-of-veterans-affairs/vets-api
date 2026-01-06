@@ -872,6 +872,10 @@ features:
     actor_type: user
     description: Enables the Digital DMC Dispute Service
     enable_in_development: true
+  error_backtrace:
+    actor_type: user
+    description: When enabled, vets-api returns error_backtrace instead of backtrace in Vets::SharedLogging
+    enable_in_development: true
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
