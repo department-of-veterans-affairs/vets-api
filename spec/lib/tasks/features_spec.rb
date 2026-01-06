@@ -175,7 +175,8 @@ RSpec.describe 'features:setup rake task', type: :task do
         allow(Rails.logger).to receive(:error)
 
         expect { task.invoke }.to raise_error(Psych::SyntaxError)
-        expect(Rails.logger).to have_received(:error).with(/Error processing Flipper features/)
+        expect(Rails.logger).to have_received(:error)
+          .with(%r{Error parsing config/features.yml while processing Flipper features:})
       end
     end
   end

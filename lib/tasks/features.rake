@@ -52,8 +52,8 @@ namespace :features do
       end
 
       if removed_features.any?
-        Rails.logger.info("features:setup removed #{removed_features.count} \
-          orphaned features: #{removed_features.join(', ')}")
+        message = "features:setup removed #{removed_features.count} orphaned features: #{removed_features.join(', ')}"
+        Rails.logger.info(message)
       end
     rescue Psych::SyntaxError => e
       Rails.logger.error "Error parsing config/features.yml while processing Flipper features: #{e.message}"
