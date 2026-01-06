@@ -670,10 +670,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_track_4142_submissions:
-    actor_type: user
-    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
-    enable_in_development: true
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
