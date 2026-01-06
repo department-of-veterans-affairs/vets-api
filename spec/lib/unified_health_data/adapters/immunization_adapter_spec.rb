@@ -79,7 +79,7 @@ RSpec.describe 'ImmunizationAdapter' do
           {
             'system' => 'http://hl7.org/fhir/sid/cvx',
             'code' => '140',
-            'display' => 'influenza virus vaccine, inactivated (influenza vaccine (Afluria) [3 yr+] 2025-2026 PF Prefilled Syringe IM suspension)',
+            'display' => 'influenza vaccine (Afluria) [3 yr+] 2025-2026 PF Prefilled Syringe IM suspension',
             'userSelected' => false
           },
           {
