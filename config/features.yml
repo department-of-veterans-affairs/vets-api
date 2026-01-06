@@ -38,6 +38,9 @@ features:
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
+  accredited_representative_portal_skip_itf_check:
+    actor_type: user
+    description: If enabled, skip existing ITF check in ARP
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -650,22 +653,6 @@ features:
     actor_type: user
     description: Enable using MAY 2024 revision of 200995 Supplemental Claim form when submitting to EMMS for intake
     enable_in_development: false
-  decision_review_saved_claim_hlr_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
-    enable_in_development: true
-  decision_review_saved_claim_nod_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::NoticeOfDisagreements
-    enable_in_development: true
-  decision_review_saved_claim_sc_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
-    enable_in_development: true
-  decision_review_delete_saved_claims_job_enabled:
-    actor_type: user
-    description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
-    enable_in_development: true
   decision_review_delete_secondary_appeal_forms_enabled:
     actor_type: user
     description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
@@ -2345,6 +2332,10 @@ features:
   burial_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Burial
+  burial_pdf_form_alignment:
+    actor_type: user
+    description: Align digital form with PDF form
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
