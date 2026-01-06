@@ -68,7 +68,7 @@ betamocks:
   enabled: true
   recording: false
   services_config: config/betamocks/services_config.yml
-bgs:
+bep:
   application: ~
   client_station_id: ~
   client_username: ~
@@ -197,7 +197,7 @@ claims_api:
         secret_key: "/srv/vets-api/secret/claims_api_bd_secret.key"
     host: https://sandbox-api.va.gov
     use_mocks: false
-  bgs:
+  bep:
     mock_responses: false
   claims_error_reporting:
     environment_name: ~
