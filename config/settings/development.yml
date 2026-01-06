@@ -63,11 +63,6 @@ benefits_intake_service:
     secret_access_key: ~
   enabled: true
   url: ~
-betamocks:
-  cache_dir: "../vets-api-mockdata"
-  enabled: true
-  recording: false
-  services_config: config/betamocks/services_config.yml
 bep:
   application: ~
   client_station_id: ~
@@ -79,6 +74,11 @@ bep:
   mock_responses: ~
   ssl_verify_mode: peer
   url: https://something.fake.va.gov
+betamocks:
+  cache_dir: "../vets-api-mockdata"
+  enabled: true
+  recording: false
+  services_config: config/betamocks/services_config.yml
 bid:
   awards:
     base_url: ~
