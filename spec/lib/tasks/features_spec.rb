@@ -141,9 +141,9 @@ RSpec.describe 'features:setup rake task', type: :task do
       end
 
       it 'logs removed features' do
-        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
         task.invoke
-        expect(Rails.logger).to have_received(:info)
+        expect(Rails.logger).to have_received(:warn)
           .with(/features:setup removed \d+ orphaned features.*orphaned_feature_not_in_config/)
       end
     end

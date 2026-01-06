@@ -15,7 +15,7 @@ module Flipper
         describe '.setup_features' do
           it 'creates a BulkFeatureManager and calls setup' do
             manager_instance = instance_double(described_class)
-            allow(described_class).to receive(:new).with(Flipper).and_return(manager_instance)
+            allow(described_class).to receive(:new).with(Flipper, dry_run: false).and_return(manager_instance)
             allow(manager_instance).to receive_messages(
               setup: nil,
               added_features: [],
@@ -24,7 +24,7 @@ module Flipper
             )
 
             Flipper::Utilities.setup_features
-            expect(described_class).to have_received(:new).with(Flipper)
+            expect(described_class).to have_received(:new).with(Flipper, dry_run: false)
             expect(manager_instance).to have_received(:setup)
           end
         end

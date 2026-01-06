@@ -6,8 +6,9 @@ module Flipper
     class BulkFeatureManager
       attr_reader :added_features, :enabled_features, :removed_features
 
-      def initialize(flipper = Flipper)
+      def initialize(flipper = Flipper, dry_run: false)
         @flipper = flipper
+        @dry_run = dry_run
         @added_features = []
         @enabled_features = []
         @removed_features = []
@@ -22,7 +23,7 @@ module Flipper
 
         # Remove features that are no longer in config/features.yml
         orphaned = @flipper.features.select(&method(:orphaned?))
-        orphaned.each { remove_if_orphaned(_1) }
+        orphaned.each { |f| remove_if_orphaned(f) }
 
         # Log results
         log_results
@@ -52,8 +53,8 @@ module Flipper
 
       def add_if_missing(feature, feature_config)
         unless @flipper.exist?(feature)
-          @flipper.add(feature)
           added_features << feature
+          @flipper.add(feature) unless @dry_run
 
           # Default features to enabled for test and those explicitly set for development
           should_enable =
@@ -62,8 +63,8 @@ module Flipper
             (Settings.vsp_environment.to_s == 'development' && feature_config['enable_in_development'])
 
           if should_enable
-            @flipper.enable(feature)
             enabled_features << feature
+            @flipper.enable(feature) unless @dry_run
           end
         end
       end
@@ -72,8 +73,8 @@ module Flipper
 
       def remove_if_orphaned(feature)
         unless config_feature_names.include?(feature.name)
-          feature.remove
           removed_features << feature.name
+          feature.remove unless @dry_run
         end
       end
 
@@ -90,13 +91,13 @@ module Flipper
 
         if removed_features.any?
           message = "features:setup removed #{removed_features.count} orphaned features: #{removed_features.join(', ')}"
-          Rails.logger.info(message)
+          Rails.logger.warn(message)
         end
       end
     end
 
-    def self.setup_features
-      manager = BulkFeatureManager.new(Flipper)
+    def self.setup_features(flipper = Flipper, dry_run: false)
+      manager = BulkFeatureManager.new(flipper, dry_run:)
       manager.setup
       { added: manager.added_features,
         enabled: manager.enabled_features,
