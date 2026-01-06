@@ -362,7 +362,7 @@ module IvcChampva
 
     def self.validate_email(email)
       validate_presence_and_stringiness(email, 'email address')
-      unless email.match?(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) # rubocop:disable Layout/LineLength
+      unless email.match?(/(([^]<>()\[\\.,;:\s@"]+(\.[^]<>()\[\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) # rubocop:disable Layout/LineLength
         raise ArgumentError, 'email address is invalid. See regex for more detail'
       end
     end
