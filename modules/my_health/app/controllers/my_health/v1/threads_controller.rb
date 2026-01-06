@@ -50,8 +50,9 @@ module MyHealth
           return Common::Collection.new(
             MessageThread, data: []
           )
+        else
+          log_exception_to_rails(e)
         end
-        log_exception_to_rails(e)
         StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
         raise e
       end

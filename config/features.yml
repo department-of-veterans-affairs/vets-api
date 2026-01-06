@@ -38,6 +38,9 @@ features:
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
+  accredited_representative_portal_skip_itf_check:
+    actor_type: user
+    description: If enabled, skip existing ITF check in ARP
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -2345,6 +2348,10 @@ features:
   burial_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Burial
+  burial_pdf_form_alignment:
+    actor_type: user
+    description: Align digital form with PDF form
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
