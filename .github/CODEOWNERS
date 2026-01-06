@@ -23,6 +23,7 @@ app/controllers/concerns/inbound_request_logging.rb @department-of-veterans-affa
 app/controllers/concerns/json_api_pagination_links.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/sentry_controller_logging.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/pdf_filename_generator.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
+app/controllers/concerns/pdf_s3_operations.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bio-huntridge
 app/controllers/concerns/sign_in @department-of-veterans-affairs/octo-identity
 app/controllers/concerns/third_party_transaction_logging.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/traceable.rb @department-of-veterans-affairs/backend-review-group
