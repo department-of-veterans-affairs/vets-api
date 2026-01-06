@@ -48,7 +48,8 @@ module V0
 
       def get_claim_from_providers(claim_id)
         configured_providers.each do |provider_class|
-          return provider_class.new(@current_user).get_claim(claim_id)
+          provider = provider_class.new(@current_user)
+          return provider.get_claim(claim_id)
         rescue Common::Exceptions::RecordNotFound
           log_claim_not_found(provider_class)
         rescue Common::Exceptions::Unauthorized,
