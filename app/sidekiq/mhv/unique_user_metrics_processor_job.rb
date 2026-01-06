@@ -69,6 +69,9 @@ module MHV
       iterations = 0
       total_events_processed = 0
 
+      # Early check for queue backlog - alert immediately if overflow detected
+      check_queue_overflow(UniqueUserEvents::Buffer.pending_count)
+
       loop do
         # Check safeguard before each iteration
         break if iterations >= MAX_ITERATIONS
@@ -158,8 +161,6 @@ module MHV
                            duration_ms:,
                            queue_depth:
                          })
-
-      check_queue_overflow(queue_depth)
     end
 
     # Process a single batch of events
