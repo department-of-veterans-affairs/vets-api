@@ -8,7 +8,7 @@ module UnifiedHealthData
 
     attribute :id, String
     attribute :cvx_code, Integer
-    attribute :date, String # This might be a full ISO string or just the year or year-month or year-month-day
+    attribute :date, String # ISO 8601 datetime string or partial date (e.g., '2024', '2024-11', '2024-11-26')
     attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :dose_number, String
     attribute :dose_series, String
