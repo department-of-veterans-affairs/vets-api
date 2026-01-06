@@ -10,7 +10,7 @@ RSpec.describe PdfFill::Forms::Va21p530a do
   end
 
   it_behaves_like 'a form filler', {
-    form_id: '21P-530A',
+    form_id: '21P-530a',
     factory: :fake_saved_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
@@ -133,11 +133,11 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-123',
-        '21P-530A'
+        '21P-530a'
       )
 
       expect(File.exist?(file_path)).to be true
-      expect(file_path).to include('21P-530A')
+      expect(file_path).to include('21P-530a')
 
       # Verify it's a valid PDF
       pdf_content = File.read(file_path)
@@ -151,7 +151,7 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-name',
-        '21P-530A'
+        '21P-530a'
       )
 
       expect(File.exist?(file_path)).to be true
