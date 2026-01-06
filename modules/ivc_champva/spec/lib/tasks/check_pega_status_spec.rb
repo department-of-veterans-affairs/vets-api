@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Layout/LineLength
 require 'rails_helper'
 
 RSpec.describe 'ivc_champva:check_pega_status', type: :task do
@@ -21,40 +22,40 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     @nonexistent_uuid = SecureRandom.uuid
 
     # Records that should have matching Pega reports (2 files, 2 reports)
-    @record1 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_matching_reports,
-                     file_name: 'matching_file_1.pdf',
-                     created_at: 2.hours.ago)
-    @record2 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_matching_reports,
-                     file_name: 'matching_file_2.pdf',
-                     created_at: 2.hours.ago)
+    @record1 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_matching_reports,
+                      file_name: 'matching_file_1.pdf',
+                      created_at: 2.hours.ago)
+    @record2 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_matching_reports,
+                      file_name: 'matching_file_2.pdf',
+                      created_at: 2.hours.ago)
 
     # Record that should have no Pega reports
-    @record3 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_no_reports,
-                     file_name: 'unprocessed_file.pdf',
-                     created_at: 2.hours.ago)
+    @record3 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_no_reports,
+                      file_name: 'unprocessed_file.pdf',
+                      created_at: 2.hours.ago)
 
     # Records with count mismatch (3 local files, 2 Pega reports)
-    @record4 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_count_mismatch,
-                     file_name: 'mismatch_file_1.pdf',
-                     created_at: 2.hours.ago)
-    @record5 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_count_mismatch,
-                     file_name: 'mismatch_file_2.pdf',
-                     created_at: 2.hours.ago)
-    @record6 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_count_mismatch,
-                     file_name: 'mismatch_file_3.pdf',
-                     created_at: 2.hours.ago)
+    @record4 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_count_mismatch,
+                      file_name: 'mismatch_file_1.pdf',
+                      created_at: 2.hours.ago)
+    @record5 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_count_mismatch,
+                      file_name: 'mismatch_file_2.pdf',
+                      created_at: 2.hours.ago)
+    @record6 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_count_mismatch,
+                      file_name: 'mismatch_file_3.pdf',
+                      created_at: 2.hours.ago)
 
     # Record that will cause API error
-    @record7 = create(:ivc_champva_form, 
-                     form_uuid: @uuid_with_api_error,
-                     file_name: 'error_file.pdf',
-                     created_at: 2.hours.ago)
+    @record7 = create(:ivc_champva_form,
+                      form_uuid: @uuid_with_api_error,
+                      file_name: 'error_file.pdf',
+                      created_at: 2.hours.ago)
 
     # Mock the Pega API client
     allow(IvcChampva::PegaApi::Client).to receive(:new).and_return(pega_api_client)
@@ -87,9 +88,11 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     context 'when missing statuses are found' do
       before do
         allow(cleanup_util).to receive(:get_missing_statuses).with(silent: true, ignore_last_minute: true).and_return({
-          @uuid_with_matching_reports => [@record1, @record2],
-          @uuid_with_no_reports => [@record3]
-        })
+                                                                                                                        @uuid_with_matching_reports => [
+                                                                                                                          @record1, @record2
+                                                                                                                        ],
+                                                                                                                        @uuid_with_no_reports => [@record3]
+                                                                                                                      })
 
         # Mock API responses for the auto-detected UUIDs
         allow(pega_api_client).to receive(:record_has_matching_report) do |record|
@@ -100,13 +103,13 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
                 'Creation Date' => '2024-12-03T07:04:20.156000',
                 'PEGA Case ID' => 'D-12345',
                 'Status' => 'Processed',
-                'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+                'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
               },
               {
                 'Creation Date' => '2024-12-03T07:04:22.210000',
                 'PEGA Case ID' => 'D-12346',
                 'Status' => 'Processed',
-                'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+                'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
               }
             ]
           when @uuid_with_no_reports
@@ -131,7 +134,8 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
     context 'when no missing statuses are found' do
       before do
-        allow(cleanup_util).to receive(:get_missing_statuses).with(silent: true, ignore_last_minute: true).and_return({})
+        allow(cleanup_util).to receive(:get_missing_statuses).with(silent: true,
+                                                                   ignore_last_minute: true).and_return({})
       end
 
       it 'completes early with no work message' do
@@ -172,13 +176,13 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
           'Creation Date' => '2024-12-03T07:04:20.156000',
           'PEGA Case ID' => 'D-12345',
           'Status' => 'Processed',
-          'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+          'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
         },
         {
           'Creation Date' => '2024-12-03T07:04:22.210000',
           'PEGA Case ID' => 'D-12346',
           'Status' => 'Processed',
-          'UUID' => @uuid_with_matching_reports[0...-1] + '+'
+          'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
         }
       ]
     end
@@ -189,13 +193,13 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
           'Creation Date' => '2024-12-03T07:04:20.156000',
           'PEGA Case ID' => 'D-12347',
           'Status' => 'Open',
-          'UUID' => @uuid_with_count_mismatch[0...-1] + '+'
+          'UUID' => "#{@uuid_with_count_mismatch[0...-1]}+"
         },
         {
           'Creation Date' => '2024-12-03T07:04:22.210000',
           'PEGA Case ID' => 'D-12348',
           'Status' => 'Open',
-          'UUID' => @uuid_with_count_mismatch[0...-1] + '+'
+          'UUID' => "#{@uuid_with_count_mismatch[0...-1]}+"
         }
       ]
     end
@@ -221,7 +225,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
         when @uuid_with_api_error
           raise IvcChampva::PegaApi::PegaApiError, 'API connection failed'
         else
-          false
+          []
         end
       end
 
@@ -257,7 +261,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
     it 'handles API errors gracefully' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/Pega API Error: API connection failed/)
+      expect(output).to match(/PegaApiError: API connection failed/)
       expect(output).to match(/API errors encountered: 1/)
     end
 
@@ -275,7 +279,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     it 'generates unprocessed files report' do
       output = capture_stdout { task.invoke }
       expect(output).to match(/UNPROCESSED FILES/)
-      expect(output).to match(/FORM_UUID.*FILE_NAME.*FORM_ID.*CREATED_AT.*ISSUE/)
+      expect(output).to match(/FORM_UUID.*FILE_NAME.*S3_STATUS.*CREATED_AT.*ISSUE/)
       expect(output).to match(/#{@uuid_with_no_reports}.*unprocessed_file\.pdf.*NOT_FOUND/)
       expect(output).to match(/#{@uuid_with_count_mismatch}.*mismatch_file_1\.pdf.*COUNT_MISMATCH/)
     end
@@ -324,19 +328,19 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
       before do
         ENV['FORM_UUIDS'] = @uuid_with_matching_reports
         allow(pega_api_client).to receive(:record_has_matching_report).and_return([
-          {
-            'Creation Date' => '2024-12-03T07:04:20.156000',
-            'PEGA Case ID' => 'D-99999',
-            'Status' => 'Resolved-Complete',
-            'UUID' => @uuid_with_matching_reports[0...-1] + '+'
-          },
-          {
-            'Creation Date' => '2024-12-03T07:04:22.210000',
-            'PEGA Case ID' => 'D-99998',
-            'Status' => 'Resolved-Complete',
-            'UUID' => @uuid_with_matching_reports[0...-1] + '+'
-          }
-        ])
+                                                                                    {
+                                                                                      'Creation Date' => '2024-12-03T07:04:20.156000',
+                                                                                      'PEGA Case ID' => 'D-99999',
+                                                                                      'Status' => 'Resolved-Complete',
+                                                                                      'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
+                                                                                    },
+                                                                                    {
+                                                                                      'Creation Date' => '2024-12-03T07:04:22.210000',
+                                                                                      'PEGA Case ID' => 'D-99998',
+                                                                                      'Status' => 'Resolved-Complete',
+                                                                                      'UUID' => "#{@uuid_with_matching_reports[0...-1]}+"
+                                                                                    }
+                                                                                  ])
       end
 
       it 'shows successful processing' do
@@ -399,7 +403,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
       it 'handles unexpected errors gracefully' do
         output = capture_stdout { task.invoke }
-        expect(output).to match(/Unexpected Error: Unexpected error/)
+        expect(output).to match(/Unexpected error: Unexpected error/)
         expect(output).to match(/API errors encountered: 1/)
       end
 
@@ -411,3 +415,4 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     end
   end
 end
+# rubocop:enable Layout/LineLength
