@@ -24,8 +24,8 @@ describe PdfFill::Forms::Va2210272 do
 
     it 'formats mailing and email address' do
       mailing_address = form_data['mailingAddress']
-      normalized = form.normalize_mailing_address(mailing_address)
-      expect(merged_fields['address']['mailing']).to eq(form.combine_full_address_extras(normalized))
+      form.normalize_mailing_address(mailing_address)
+      expect(merged_fields['address']['mailing']).to eq(form.combine_full_address_extras(mailing_address))
       expect(merged_fields['address']['email']).to eq(form_data['emailAddress'])
     end
 
