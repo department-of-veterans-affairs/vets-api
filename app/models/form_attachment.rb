@@ -14,6 +14,7 @@ class FormAttachment < ApplicationRecord
   before_destroy { |record| record.get_file.delete }
 
   def set_file_data!(file, file_password = nil)
+    Rails.logger.info("Form Attachment file exist? #{File.exist?(file)}") if Flipper.enabled?(:form_attachment_logging)
     attachment_uploader = get_attachment_uploader
     file = unlock_pdf(file, file_password) if File.extname(file).downcase == '.pdf' && file_password.present?
     attachment_uploader.store!(file)
