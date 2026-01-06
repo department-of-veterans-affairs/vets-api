@@ -29,7 +29,6 @@ module Dependents
     # allowed logging params
     ALLOWLIST = %w[
       tags
-      use_v2
     ].freeze
 
     attr_writer :form_id
@@ -41,12 +40,11 @@ module Dependents
     def initialize(claim_id = nil, form_id = nil)
       @claim_id = claim_id
       @claim = claim(claim_id)
-      @use_v2 = use_v2
       @form_id = form_id || @claim&.form_id
 
       super('dependents-application', allowlist: ALLOWLIST)
 
-      @tags += ["service:#{service}", "v2:#{@use_v2}"]
+      @tags += ["service:#{service}"]
     end
 
     def name
@@ -61,12 +59,6 @@ module Dependents
       SUBMISSION_STATS_KEY
     end
 
-    def use_v2
-      return nil unless @claim
-
-      @claim&.use_v2 || @claim&.form_id&.include?('-V2')
-    end
-
     def claim(claim_id)
       SavedClaim::DependencyClaim.find(claim_id) unless claim_id.nil?
     rescue => e
@@ -75,7 +67,7 @@ module Dependents
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: nil, tags: }
+      { service:, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def track_submission_exhaustion(msg, email = nil)
@@ -147,7 +139,6 @@ module Dependents
 
     def track_pdf_upload_error
       metric = "#{CLAIM_STATS_KEY}.upload_pdf.failure"
-      metric = "#{metric}.v2" if @use_v2
       payload = default_payload.merge({ statsd: metric })
 
       track_event('error', 'DependencyClaim error in upload_to_vbms method', metric, payload)
@@ -155,7 +146,6 @@ module Dependents
 
     def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
-      metric = "#{metric}.v2" if @use_v2
       payload = default_payload.merge({ statsd: metric, e:, form_id: })
 
       StatsD.increment(metric, tags:)
@@ -164,7 +154,6 @@ module Dependents
 
     def track_pdf_overflow_tracking_failure(e)
       metric = "#{CLAIM_STATS_KEY}.track_pdf_overflow.failure"
-      metric = "#{metric}.v2" if @use_v2
       payload = default_payload.merge({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)

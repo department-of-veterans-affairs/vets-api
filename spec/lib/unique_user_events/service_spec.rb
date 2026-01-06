@@ -88,6 +88,18 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).with(user:, event_name: oh_event_name)
       end
+
+      it 'increments StatsD counter by the total number of events to log' do
+        allow(StatsD).to receive(:increment)
+
+        described_class.log_event(user:, event_name: oh_event_name)
+
+        expect(StatsD).to have_received(:increment).with(
+          'uum.unique_user_metrics.logged_event',
+          2,
+          tags: ["event_name:#{oh_event_name}"]
+        )
+      end
     end
 
     context 'when an exception occurs' do

@@ -2,13 +2,15 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
-require_relative 'oracle_health_medication_categorizer'
+require_relative 'oracle_health_categorizer'
+require_relative 'oracle_health_refill_helper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
-      include OracleHealthMedicationCategorizer
+      include OracleHealthCategorizer
+      include OracleHealthRefillHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -247,23 +249,6 @@ module UnifiedHealthData
         nil
       end
 
-      def extract_refill_remaining(resource)
-        # non-va meds are never refillable
-        return 0 if non_va_med?(resource)
-
-        repeats_allowed = resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
-        # subtract dispenses in completed status, except for the first fill
-        dispenses_completed = if resource['contained']
-                                resource['contained'].count do |c|
-                                  c['resourceType'] == 'MedicationDispense' && c['status'] == 'completed'
-                                end
-                              else
-                                0
-                              end
-        remaining = repeats_allowed - [dispenses_completed - 1, 0].max
-        remaining.positive? ? remaining : 0
-      end
-
       # Extracts and normalizes MedicationRequest status to VistA-compatible values
       # Checks for successful submitted refills based on Task resources
       #
@@ -442,19 +427,6 @@ module UnifiedHealthData
         end
       end
 
-      # Checks if the most recent MedicationDispense has an in-progress status
-      # In-progress statuses: preparation, in-progress, on-hold
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if most recent dispense is in-progress
-      def most_recent_dispense_in_progress?(resource)
-        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
-        return false if most_recent_dispense.nil?
-
-        in_progress_statuses = %w[preparation in-progress on-hold]
-        in_progress_statuses.include?(most_recent_dispense['status'])
-      end
-
       # Parses validityPeriod.end to UTC Time object for comparison
       #
       # @param resource [Hash] FHIR MedicationRequest resource
@@ -525,17 +497,7 @@ module UnifiedHealthData
       end
 
       def extract_is_refillable(resource, refill_status)
-        refillable = true
-
-        refillable = false if non_va_med?(resource) # non VA meds are never refillable
-        refillable = false unless resource['status'] == 'active' # must be active
-        refillable = false unless prescription_not_expired?(resource) # must not be expired
-        refillable = false unless extract_refill_remaining(resource).positive? # must have refills remaining
-        refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
-        refillable = false if most_recent_dispense_in_progress?(resource) # must not have in-progress dispense
-        refillable = false if refill_status == 'submitted' # must not have pending refill request
-
-        refillable
+        refillable?(resource, refill_status)
       end
 
       def extract_instructions(resource)
@@ -582,23 +544,6 @@ module UnifiedHealthData
         return nil if note_texts.empty?
 
         note_texts.join(' ')
-      end
-
-      def prescription_not_expired?(resource)
-        expiration_date = extract_expiration_date(resource)
-        return false unless expiration_date # No expiration date = not refillable for safety
-
-        begin
-          parsed_date = Time.zone.parse(expiration_date)
-          return parsed_date&.> Time.zone.now if parsed_date
-
-          # If we get here, parsing returned nil (invalid date)
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        rescue ArgumentError
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        end
       end
 
       def facility_resolver
