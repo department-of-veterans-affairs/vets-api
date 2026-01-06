@@ -1964,7 +1964,7 @@ describe UnifiedHealthData::Service, type: :service do
               'cvx_code' => 90_715,
               'date' => '2024-03-04T14:00:00Z',
               'dose_number' => 'COMPLETE',
-              'dose_series' => 'COMPLETE',
+              'dose_series' => nil,
               'group_name' => 'TDAP',
               'location' => 'GREELEY NURSE',
               'manufacturer' => nil,
