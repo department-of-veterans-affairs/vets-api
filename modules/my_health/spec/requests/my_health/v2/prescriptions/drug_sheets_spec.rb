@@ -137,12 +137,18 @@ RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
       end
 
       context 'when client raises an error' do
+        let(:ndc) { '00013264681' }
+        let(:error_message) { 'API Error' }
+        let(:standard_error) { StandardError.new(error_message) }
+
         before do
-          allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation).and_raise(StandardError, 'API Error')
+          allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
+            .and_raise(standard_error)
+          allow(Rails.logger).to receive(:error)
         end
 
         it 'returns service unavailable error' do
-          post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
+          post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: }
 
           expect(response).to have_http_status(:service_unavailable)
           json_response = JSON.parse(response.body)
@@ -151,11 +157,15 @@ RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
           expect(json_response['error']['message']).to eq('Unable to fetch documentation')
         end
 
-        it 'logs the error' do
-          expect(Rails.logger).to receive(:error)
-            .with('DrugSheetsController: Failed to fetch documentation - StandardError')
+        it 'logs the error with NDC context, exception class, message, and backtrace' do
+          post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: }
 
-          post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: '00013264681' }
+          expect(Rails.logger).to have_received(:error).with(
+            a_string_matching(/DrugSheetsController: Failed to fetch documentation for NDC #{ndc}/)
+              .and(matching(/StandardError/))
+              .and(matching(/#{error_message}/))
+              .and(matching(/\.rb:\d+/)) # Backtrace line format (file.rb:line_number)
+          )
         end
       end
     end

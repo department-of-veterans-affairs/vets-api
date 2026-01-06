@@ -20,7 +20,10 @@ module MyHealth
         rescue Common::Exceptions::Forbidden
           raise
         rescue => e
-          Rails.logger.error("DrugSheetsController: Failed to fetch documentation - #{e.class}")
+          Rails.logger.error(
+            "DrugSheetsController: Failed to fetch documentation for NDC #{ndc} - " \
+            "#{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
+          )
           render_service_unavailable_error
         end
 
