@@ -158,7 +158,7 @@ describe SimpleFormsApi::Notification::Email do
 
       context 'when simple_forms_email_delivery_callback flipper is disabled' do
         before do
-          Flipper.disable(:simple_forms_email_delivery_callback)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(false)
         end
 
         %i[confirmation error received].each do |notification_type|
