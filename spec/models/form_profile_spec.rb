@@ -2425,4 +2425,10 @@ RSpec.describe FormProfile, type: :model do
       expect(FormProfile.load_form_mapping('10-7959C')).to match(mappings)
     end
   end
+
+  describe '.load_form_mapping' do
+    it 'handles uppercase form ID 1330M with lowercase filename' do
+      expect { FormProfile.load_form_mapping('1330M') }.not_to raise_error
+    end
+  end
 end
