@@ -26,22 +26,28 @@ module IvcChampva
 
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
+        next if form.nil? # Return early if form is nil
 
         # Check reporting API to see if this missing status is a false positive
         next if Flipper.enabled?(:champva_enable_pega_report_check, @current_user) && num_docs_match_reports?(batch)
 
-        # Check if we've been missing Pega status for > custom threshold of days:
+        # Check if we've been missing Pega status for > custom thresholds:
         elapsed_days = (current_time - form.created_at).to_i / 1.day
-        threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
-        if elapsed_days >= threshold && !form.email_sent
+        elapsed_minutes = (current_time - form.created_at).to_i / 1.minute
+        failure_email_threshold_days =
+          Settings.vanotify.services.ivc_champva.failure_email_threshold_days.presence&.to_i || 7
+        pega_email_threshold_hours =
+          Settings.vanotify.services.ivc_champva.missing_pega_status_email_threshold_hours.presence&.to_i || 2
+
+        if elapsed_days >= failure_email_threshold_days && !form.email_sent
           template_id = "#{form[:form_number]}-FAILURE"
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
 
           send_failure_email(form, template_id, additional_context)
           send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
-        elsif elapsed_days >= (threshold - 2) && !form.email_sent
+        elsif elapsed_minutes >= (pega_email_threshold_hours * 60) && !form.email_sent
           # TODO: further limit this so we're not sending PEGA an email every time this job runs
-          # Give pega 2-day notice if we intend to email a user.
+          # Alert Pega that there is a missing status
           send_zsf_notification_to_pega(form, 'PEGA-TEAM_MISSING_STATUS')
         end
 
@@ -57,6 +63,16 @@ module IvcChampva
       { email: form.email,
         first_name: form.first_name,
         last_name: form.last_name,
+        form_number: form.form_number,
+        file_count: nil,
+        pega_status: form.pega_status,
+        date_submitted: form.created_at.strftime('%B %d, %Y'),
+        template_id:,
+        form_uuid: form.form_uuid }
+    end
+
+    def construct_email_payload_without_pii(form, template_id)
+      { email: nil,
         form_number: form.form_number,
         file_count: nil,
         pega_status: form.pega_status,
@@ -106,7 +122,7 @@ module IvcChampva
     # @param form_data [hash] hash of form details (see `send_failure_email`)
     # @param form [IvcChampvaForm] form object in question
     def send_zsf_notification_to_pega(form, template_id)
-      form_data = construct_email_payload(form, template_id)
+      form_data = construct_email_payload_without_pii(form, template_id)
       form_data = form_data.merge({
                                     email: Settings.vanotify.services.ivc_champva.pega_inbox_address
                                   })
