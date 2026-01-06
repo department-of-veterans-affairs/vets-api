@@ -58,4 +58,59 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
       end
     end
   end
+
+  describe 'show' do
+    let(:current_user) { build(:user, :loa3, icn: '32000551') }
+
+    it 'returns copay detail for authenticated user' do
+      VCR.use_cassette('lighthouse/hcc/copay_detail_success') do
+        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+
+        get '/v1/medical_copays/4-1abZUKu7LnbcQc'
+
+        expect(response).to have_http_status(:ok)
+
+        response_body = JSON.parse(response.body)
+        data = response_body['data']
+
+        expect(data['type']).to eq('medicalCopayDetails')
+        expect(data['id']).to be_present
+        expect(data['attributes'].keys).to match_array(
+          %w[
+            externalId
+            facility
+            billNumber
+            status
+            statusDescription
+            invoiceDate
+            paymentDueDate
+            accountNumber
+            originalAmount
+            principalBalance
+            interestBalance
+            administrativeCostBalance
+            principalPaid
+            interestPaid
+            administrativeCostPaid
+            lineItems
+            payments
+          ]
+        )
+        expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
+      end
+    end
+
+    it 'handles auth error' do
+      VCR.use_cassette('lighthouse/hcc/auth_error') do
+        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+
+        get '/v1/medical_copays/4-1abZUKu7LnbcQc'
+
+        response_body = JSON.parse(response.body)
+        errors = response_body['errors']
+
+        expect(errors.first.keys).to eq(%w[error error_description status code title detail])
+      end
+    end
+  end
 end

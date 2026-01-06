@@ -60,24 +60,6 @@ module Mobile
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
-      def claim_letter_documents_search
-        response = lighthouse_document_service.claim_letters_search(participant_id: @current_user.participant_id)
-        documents = claim_letter_documents_adapter.parse(response.body)
-        render json: Mobile::V0::ClaimLetterDocumentSerializer.new(documents)
-      end
-
-      def claim_letter_document_download
-        # Backwards Compatibility: Delete {} brackets from document id as the
-        # benefit documents service doesn't support them
-        response = lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id].delete('{}'),
-                                                                     participant_id: @current_user.participant_id)
-        send_data(
-          response.body,
-          type: 'application/pdf',
-          filename: file_name
-        )
-      end
-
       private
 
       def set_params
@@ -92,10 +74,6 @@ module Mobile
       # body payload is in json, which the single doc upload is not (at least in the specs).
       def tracked_item_id
         params[:trackedItemId] || params[:tracked_item_id]
-      end
-
-      def file_name
-        params.require(:file_name)
       end
 
       def prepare_claims_and_appeals
@@ -146,10 +124,6 @@ module Mobile
 
       def appeal_adapter
         Mobile::V0::Adapters::Appeal.new
-      end
-
-      def claim_letter_documents_adapter
-        Mobile::V0::Adapters::ClaimLetterDocuments
       end
 
       def lighthouse_claims_proxy
