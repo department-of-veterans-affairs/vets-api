@@ -25,7 +25,7 @@ module SimpleFormsApi
         Rails.logger.error('SimpleForms EmailDeliveryStatusCallback failure', {
                              error_class: e.class.name,
                              error_message: e.message,
-                             notification_id: event.notification_id
+                             notification_id: event&.notification_id
                            })
         raise e
       end

@@ -51,6 +51,13 @@ module SimpleFormsApi
 
       private
 
+      def vanotify_api_key
+        api_key = Settings.vanotify.services.va_gov.api_key.to_s
+        raise 'VANotify API key not configured' if api_key.blank?
+
+        api_key
+      end
+
       def check_missing_keys(config)
         all_keys = %i[form_data form_number date_submitted]
         all_keys << :confirmation_number if needs_confirmation_number?
@@ -171,10 +178,11 @@ module SimpleFormsApi
         }
 
         if Flipper.enabled?(:simple_forms_email_delivery_callback)
-          options[:callback_klass] = 'SimpleFormsApi::EmailDeliveryStatusCallback'
+          options[:callback_klass] = 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback'
         end
+
         [
-          Settings.vanotify.services.va_gov.api_key, options
+          vanotify_api_key, options
         ]
       end
 

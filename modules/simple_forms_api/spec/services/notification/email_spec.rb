@@ -119,11 +119,7 @@ describe SimpleFormsApi::Notification::Email do
 
       context 'when simple_forms_email_delivery_callback flipper is enabled' do
         before do
-          Flipper.enable(:simple_forms_email_delivery_callback)
-        end
-
-        after do
-          Flipper.disable(:simple_forms_email_delivery_callback)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         %i[confirmation error received].each do |notification_type|
@@ -134,7 +130,7 @@ describe SimpleFormsApi::Notification::Email do
               api_key, options = subject.__send__(:email_args)
 
               expect(api_key).to eq(Settings.vanotify.services.va_gov.api_key)
-              expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+              expect(options[:callback_klass]).to eq('SimpleFormsApi::Notification::EmailDeliveryStatusCallback')
             end
 
             it 'includes callback_metadata with all required fields' do
@@ -197,11 +193,7 @@ describe SimpleFormsApi::Notification::Email do
         end
 
         before do
-          Flipper.enable(:simple_forms_email_delivery_callback)
-        end
-
-        after do
-          Flipper.disable(:simple_forms_email_delivery_callback)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'includes duplicate notification_type in callback_metadata' do
@@ -220,7 +212,7 @@ describe SimpleFormsApi::Notification::Email do
 
         it 'handles truthy values correctly' do
           _, options = subject.__send__(:email_args)
-          expect(options[:callback_klass]).to eq('SimpleFormsApi::EmailDeliveryStatusCallback')
+          expect(options[:callback_klass]).to eq('SimpleFormsApi::Notification::EmailDeliveryStatusCallback')
         end
       end
     end
