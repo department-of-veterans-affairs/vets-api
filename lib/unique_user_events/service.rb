@@ -196,7 +196,7 @@ module UniqueUserEvents
       {
         event_name:,
         status: 'buffered',
-        new_event: nil # Unknown until processed
+        new_event: nil # Intentionally nil; new_event will be determined during later batch processing
       }
     end
   end
