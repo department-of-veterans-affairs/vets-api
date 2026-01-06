@@ -184,13 +184,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     let(:job_error) { StandardError.new('Job failed') }
 
     it 'tracks exhaustion event and sends backup submission' do
+      # Mock the monitor
       monitor_double = instance_double(Dependents::Monitor)
       expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+
+      # Expect the monitor to track the exhaustion event
       expect(monitor_double).to receive(:track_event).with(
         'error',
         'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
         'worker.submit_674_bgs.exhaustion'
       )
+
+      # Expect the backup submission to be called
       expect(BGS::SubmitForm674Job).to receive(:send_backup_submission).with(
         encrypted_user_struct, vet_info, dependency_claim.id, user.uuid
       )
@@ -219,6 +224,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         )
         expect(claim_double).to receive(:send_failure_email).with(user.va_profile_email)
 
+        # Call the sidekiq_retries_exhausted callback
         described_class.sidekiq_retries_exhausted_block.call(base_msg, job_error)
       end
 
