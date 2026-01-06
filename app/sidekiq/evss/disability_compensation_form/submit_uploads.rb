@@ -105,7 +105,7 @@ module EVSS
             supporting_evidence_attachment:
           },
           current_user: user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
+          provider: ApiProviderFactory::API_PROVIDER[:lighthouse]
         )
       end
 

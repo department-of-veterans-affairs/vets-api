@@ -148,7 +148,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         described_class.drain
       end
 
-      context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is enabled' do
+      context 'uploading to Lighthouse' do
         let(:faraday_response) { instance_double(Faraday::Response) }
         let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
         let(:expected_statsd_metrics_prefix) do
@@ -166,8 +166,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         end
 
         before do
-          stub_flipper(:disability_compensation_upload_veteran_evidence_to_lighthouse)
-
           allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
             .and_return(faraday_response)
 
@@ -303,23 +301,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
 
-      context 'when the API Provider uploads are enabled' do
-        context 'for a Lighthouse upload' do
-          it 'logs the job failure' do
-            stub_flipper(:disability_compensation_upload_veteran_evidence_to_lighthouse)
-
-            subject.within_sidekiq_retries_exhausted_block(
-              {
-                'jid' => form526_job_status.job_id,
-                'error_class' => 'Broken Job Error',
-                'error_message' => 'Your Job Broke',
-                'args' => [form526_submission.id, attachment.guid]
-              }
-            ) do
-              expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
-                .to receive(:log_uploading_job_failure)
-                .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
-            end
+      context 'logging job failures' do
+        it 'logs the job failure via the Lighthouse provider' do
+          subject.within_sidekiq_retries_exhausted_block(
+            {
+              'jid' => form526_job_status.job_id,
+              'error_class' => 'Broken Job Error',
+              'error_message' => 'Your Job Broke',
+              'args' => [form526_submission.id, attachment.guid]
+            }
+          ) do
+            expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+              .to receive(:log_uploading_job_failure)
+              .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
           end
         end
       end
