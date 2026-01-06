@@ -744,62 +744,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     end
   end
 
-  describe 'FEATURE_MULTI_CLAIM_PROVIDER feature flag' do
-    context 'when feature flag is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(V0::BenefitsClaimsController::FEATURE_MULTI_CLAIM_PROVIDER, user)
-          .and_return(true)
-      end
-
-      it 'returns claims for index using provider registry' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-          get(:index)
-          expect(response).to have_http_status(:ok)
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']).to be_an(Array)
-          expect(parsed_body['data']).not_to be_empty
-        end
-      end
-
-      it 'returns claim for show using provider registry' do
-        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-          get(:show, params: { id: '600383363' })
-          expect(response).to have_http_status(:ok)
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']['id']).to eq('600383363')
-        end
-      end
-    end
-
-    context 'when feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(V0::BenefitsClaimsController::FEATURE_MULTI_CLAIM_PROVIDER, user)
-          .and_return(false)
-      end
-
-      it 'returns claims for index using direct service' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
-          get(:index)
-          expect(response).to have_http_status(:ok)
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']).to be_an(Array)
-          expect(parsed_body['data']).not_to be_empty
-        end
-      end
-
-      it 'returns claim for show using direct service' do
-        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-          get(:show, params: { id: '600383363' })
-          expect(response).to have_http_status(:ok)
-          parsed_body = JSON.parse(response.body)
-          expect(parsed_body['data']['id']).to eq('600383363')
-        end
-      end
-    end
-  end
-
   describe '#show' do
     context 'when successful' do
       before do
