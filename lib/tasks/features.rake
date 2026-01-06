@@ -67,11 +67,5 @@ namespace :features do
     ensure
       conn.execute("SELECT pg_advisory_unlock(#{lock_key})") if locked && conn.adapter_name == 'PostgreSQL'
     end
-  ensure
-    if locked
-      conn.execute <<~SQL.squish
-        SELECT pg_advisory_unlock(#{lock_key})
-      SQL
-    end
   end
 end

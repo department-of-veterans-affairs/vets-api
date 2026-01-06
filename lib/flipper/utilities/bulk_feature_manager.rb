@@ -33,9 +33,6 @@ module Flipper
       rescue ActiveRecord::ConnectionNotEstablished => e
         Rails.logger.error "Database connection error while processing Flipper features: #{e.message}"
         raise e # Re-raise so rake task fails visibly
-      rescue => e
-        Rails.logger.error "Unexpected error processing Flipper features: #{e.message}"
-        raise e # Re-raise so rake task fails visibly
       end
 
       private
