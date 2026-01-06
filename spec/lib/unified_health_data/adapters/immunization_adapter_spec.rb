@@ -270,7 +270,7 @@ RSpec.describe 'ImmunizationAdapter' do
         ]
       }
       expect(adapter.send(:extract_note,
-                          resource['note'])).to eq('Patient is allergic to eggs.,Patient is also allergic to peanuts.')
+                          resource['note'])).to eq('Patient is allergic to eggs., Patient is also allergic to peanuts.')
     end
 
     it 'returns nil if no notes' do

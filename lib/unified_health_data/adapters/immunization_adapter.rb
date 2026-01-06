@@ -176,14 +176,14 @@ module UnifiedHealthData
         return nil if notes.blank?
 
         # Send all note text as a single string for VAHB backward compatibility
-        notes.map { |note| note['text'].presence }.compact.join(',')
+        notes.map { |note| note['text'].presence }.compact.join(', ')
       end
 
       # None of the sample vaccines have reactions so not sure where this will be located, if we get it at all
       def extract_reaction(reactions)
         return nil if reactions.blank?
 
-        reactions.map { |r| r.dig('detail', 'display') }.compact.join(',')
+        reactions.map { |r| r.dig('detail', 'display') }.compact.join(', ')
       end
 
       # VistA has only the name as a string for reference (same string as the display)
