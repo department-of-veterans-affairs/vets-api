@@ -104,7 +104,7 @@ module PdfFill
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
-      '22-102752' => PdfFill::Forms::Va2210272,
+      '22-10272' => PdfFill::Forms::Va2210272,
       '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
