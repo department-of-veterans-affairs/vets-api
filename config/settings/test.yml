@@ -67,7 +67,7 @@ betamocks:
   enabled: true
   recording: false
   services_config: config/betamocks/services_config.yml
-bgs:
+bep:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
@@ -196,7 +196,7 @@ claims_api:
         secret_key: path/to/fake/key.pem
     host: https://staging-api.va.gov
     use_mocks: false
-  bgs:
+  bep:
     mock_responses: false
   claims_error_reporting:
     environment_name: ~
