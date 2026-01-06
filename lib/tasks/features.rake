@@ -53,7 +53,8 @@ namespace :features do
       end
 
       if removed_features.any?
-        Rails.logger.info("features:setup removed #{removed_features.count} orphaned features: #{removed_features.join(', ')}")
+        Rails.logger.info("features:setup removed #{removed_features.count} \
+          orphaned features: #{removed_features.join(', ')}")
       end
     rescue => e
       Rails.logger.error "Error processing Flipper features: #{e.message}"
