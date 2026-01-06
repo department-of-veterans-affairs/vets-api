@@ -110,7 +110,9 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
       end
 
       it 'submits to central service' do
-        expect_any_instance_of(BGS::DependentV2Service).to receive(:submit_to_central_service)
+        expect_any_instance_of(BGS::DependentV2Service).to receive(:submit_to_central_service).with(
+          claim: instance_of(SavedClaim::DependencyClaim), encrypted_vet_info: instance_of(String)
+        )
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
