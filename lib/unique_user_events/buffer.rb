@@ -37,7 +37,6 @@ module UniqueUserEvents
       redis.lpush(BUFFER_KEY, event)
     rescue => e
       Rails.logger.error('UUM Buffer: Failed to push event', {
-                           user_id:,
                            event_name:,
                            error: e.message
                          })

@@ -33,18 +33,28 @@ module MHV
 
     # Configuration from Settings (AWS Parameter Store)
     # These must be configured in settings.yml - job will fail fast if missing
-    BATCH_SIZE = Settings.unique_user_metrics&.processor_job&.batch_size
-    MAX_ITERATIONS = Settings.unique_user_metrics&.processor_job&.max_iterations
-    MAX_QUEUE_DEPTH = Settings.unique_user_metrics&.processor_job&.max_queue_depth
+    # Use explicit .to_i coercion since Settings values may arrive as strings or integers
+    # depending on how Parameter Store delivers them (env_parse_values converts "500" to 500,
+    # but this ensures consistent handling regardless of source type)
+    BATCH_SIZE = begin
+      value = Settings.unique_user_metrics&.processor_job&.batch_size.to_i
+      raise 'unique_user_metrics.processor_job.batch_size must be a positive integer' unless value.positive?
 
-    unless BATCH_SIZE.is_a?(Integer) && BATCH_SIZE.positive?
-      raise 'unique_user_metrics.processor_job.batch_size must be a positive integer'
+      value
     end
-    unless MAX_ITERATIONS.is_a?(Integer) && MAX_ITERATIONS.positive?
-      raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer'
+
+    MAX_ITERATIONS = begin
+      value = Settings.unique_user_metrics&.processor_job&.max_iterations.to_i
+      raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer' unless value.positive?
+
+      value
     end
-    unless MAX_QUEUE_DEPTH.is_a?(Integer) && MAX_QUEUE_DEPTH.positive?
-      raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer'
+
+    MAX_QUEUE_DEPTH = begin
+      value = Settings.unique_user_metrics&.processor_job&.max_queue_depth.to_i
+      raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer' unless value.positive?
+
+      value
     end
 
     # StatsD metrics keys
