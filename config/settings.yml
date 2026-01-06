@@ -1251,10 +1251,6 @@ search_gsa:
   affiliate: va
   mock_search: <%= ENV['search_gsa__mock_search'] %>
   url: <%= ENV['search_gsa__url'] %>
-search_typeahead:
-  api_key: <%= ENV['search_typeahead__api_key'] %>
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: <%= ENV['secret_key_base'] %>
 sentry:
   dsn: <%= ENV['sentry__dsn'] %>

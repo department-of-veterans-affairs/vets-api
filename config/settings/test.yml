@@ -1269,10 +1269,6 @@ search_gsa:
   affiliate: va
   mock_search: false
   url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
-search_typeahead:
-  api_key: TEST_KEY
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
 sentry:
   dsn: ~

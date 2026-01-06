@@ -109,7 +109,6 @@ app/controllers/v0/profile/vet_verification_statuses_controller.rb @department-o
 app/controllers/v0/rated_disabilities_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/search_click_tracking_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/search_controller.rb @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/search_typeahead_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/sign_in_controller.rb @department-of-veterans-affairs/octo-identity
 app/controllers/v0/terms_of_use_agreements_controller.rb @department-of-veterans-affairs/octo-identity
 app/controllers/v0/test_account_user_emails_controller.rb @department-of-veterans-affairs/octo-identity
@@ -585,7 +584,6 @@ app/swagger/swagger/requests/onsite_notifications.rb @department-of-veterans-aff
 app/swagger/swagger/requests/preneeds_claims.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/profile.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/search_click_tracking.rb @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/requests/search_typeahead.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/search.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/sign_in.rb @department-of-veterans-affairs/octo-identity
 app/swagger/swagger/requests/terms_of_use_agreements.rb @department-of-veterans-affairs/octo-identity
@@ -1016,7 +1014,6 @@ lib/saml @department-of-veterans-affairs/octo-identity
 lib/scopes/form526_submission_state.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/search @department-of-veterans-affairs/backend-review-group
 lib/search_gsa @department-of-veterans-affairs/backend-review-group
-lib/search_typeahead @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group
 lib/shrine @department-of-veterans-affairs/backend-review-group
@@ -1571,7 +1568,6 @@ spec/lib/saved_claims_spec_helper.rb @department-of-veterans-affairs/backend-rev
 spec/lib/search @department-of-veterans-affairs/backend-review-group
 spec/lib/search_click_tracking @department-of-veterans-affairs/backend-review-group
 spec/lib/search_gsa @department-of-veterans-affairs/backend-review-group
-spec/lib/search_typeahead @department-of-veterans-affairs/backend-review-group
 spec/lib/sentry @department-of-veterans-affairs/backend-review-group
 spec/lib/sftp_writer @department-of-veterans-affairs/backend-review-group
 spec/lib/sftp_writer/factory_spec.rb @department-of-veterans-affairs/backend-review-group
@@ -1828,7 +1824,6 @@ spec/requests/v0/profile/personal_information_spec.rb @department-of-veterans-af
 spec/requests/v0/profile/service_history_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/search_click_tracking_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/search_spec.rb @department-of-veterans-affairs/backend-review-group
-spec/requests/v0/search_typeahead_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/status_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/test_account_user_emails_spec.rb @department-of-veterans-affairs/octo-identity
 spec/requests/v0/tsa_letter_spec.rb @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
@@ -2309,7 +2304,6 @@ spec/support/vcr_cassettes/s3 @department-of-veterans-affairs/backend-review-gro
 spec/support/vcr_cassettes/saml @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/search @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/search_click_tracking @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/search_typeahead @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/shared @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/sign_in_service @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/slack/slack_bot_notify.yml @department-of-veterans-affairs/octo-identity
