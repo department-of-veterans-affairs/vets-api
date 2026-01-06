@@ -81,9 +81,9 @@ module V0
       # Handle different data structures from different call sites:
       # - From show method: {formData: ..., metadata: ...} with symbol keys
       # - From set_started_form_version: raw form data hash with string keys
-      form_data = data[:formData] || data['formData'] || data[:form_data] || data['form_data'] || data
-      started_form_version = form_data&.dig('startedFormVersion') || form_data&.dig(:startedFormVersion) ||
-                             form_data&.dig('started_form_version') || form_data&.dig(:started_form_version)
+      form_data = data[:formData] || data['formData'] || data
+      started_form_version = form_data&.dig('startedFormVersion') ||
+                             form_data&.dig('started_form_version')
 
       if started_form_version.present?
         Rails.logger.info("Form526 InProgressForm startedFormVersion = #{started_form_version} #{location}")
