@@ -135,7 +135,7 @@ PATH
       sidekiq
     vass (0.0.1)
     vba_documents (1.0.0)
-      aws-sdk-s3 (>= 1.208.0, < 2)
+      aws-sdk-s3 (~> 1)
       sidekiq
     veteran (0.0.1)
     vre (0.1.0)
