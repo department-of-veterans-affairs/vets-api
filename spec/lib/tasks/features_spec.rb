@@ -11,10 +11,21 @@ RSpec.describe 'features:setup rake task', type: :task do
 
   let(:task) { Rake::Task['features:setup'] }
 
+  # Store original feature state to restore after tests (eager evaluation so it runs before the `before` block)
+  let!(:original_features) { Flipper.features.map { |f| [f.name, f.state] }.to_h }
+
   before do
     task.reenable
-    # Clear any existing features
+    # Clear any existing features for test isolation
     Flipper.features.each(&:remove)
+  end
+
+  after do
+    # Clean up any test-created features and restore original state
+    Flipper.features.each(&:remove)
+    original_features.each do |name, _state|
+      Flipper.add(name) unless Flipper.exist?(name)
+    end
   end
 
   describe 'features:setup' do
@@ -45,6 +56,16 @@ RSpec.describe 'features:setup rake task', type: :task do
         task.invoke
         # Should not add duplicates
         expect(Flipper.features.select { |f| f.name == 'this_is_only_a_test' }.count).to eq(1)
+      end
+
+      it 'does not modify state of existing features' do
+        # Feature exists but is disabled
+        expect(Flipper.enabled?('this_is_only_a_test')).to be false
+
+        task.invoke
+
+        # Task should not change existing feature state
+        expect(Flipper.enabled?('this_is_only_a_test')).to be false
       end
 
       it 'logs when no new features are added' do
@@ -82,7 +103,7 @@ RSpec.describe 'features:setup rake task', type: :task do
       context 'when feature has enable_in_development set' do
         let(:feature_name) { 'accredited_representative_portal_frontend' }
 
-        it 'enables features with enable_in_development: true' do
+        it 'enables new features with enable_in_development: true' do
           task.invoke
           expect(Flipper.enabled?(feature_name)).to be true
         end
@@ -128,16 +149,32 @@ RSpec.describe 'features:setup rake task', type: :task do
         expect { task.invoke }.not_to raise_error
       end
 
-      it 'maintains feature state when run multiple times' do
+      it 'does not modify existing feature states on subsequent runs' do
+        # First run creates the feature
         task.invoke
+
+        # Manually change the feature state
         Flipper.enable('this_is_only_a_test')
         expect(Flipper.enabled?('this_is_only_a_test')).to be true
 
+        # Second run should not modify existing feature
         task.reenable
         task.invoke
 
-        # Feature should still be enabled (task doesn't modify existing features)
+        # Feature should still be enabled because task only enables NEW features
         expect(Flipper.enabled?('this_is_only_a_test')).to be true
+      end
+    end
+
+    describe 'error handling' do
+      it 'raises and logs error when config file is invalid' do
+        allow(Rails.root).to receive(:join).with('config', 'features.yml').and_return(
+          double(read: 'invalid: yaml: content: [')
+        )
+        allow(Rails.logger).to receive(:error)
+
+        expect { task.invoke }.to raise_error(Psych::SyntaxError)
+        expect(Rails.logger).to have_received(:error).with(/Error processing Flipper features/)
       end
     end
   end
