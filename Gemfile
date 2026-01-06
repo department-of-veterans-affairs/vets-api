@@ -194,7 +194,6 @@ group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'reek'
   gem 'web-console', platforms: :ruby
 end
 
@@ -235,6 +234,7 @@ group :development, :test do
   gem 'rack-test', '2.2.0', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'reek'
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
