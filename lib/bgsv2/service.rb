@@ -155,7 +155,7 @@ module BGSV2
         pgm_type_cd: 'CPL'
       }
 
-      increment_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
+      increment_params.merge!(user_ssn) if Settings.bep.mock_responses == true
       log_and_return(increment_params)
       with_multiple_attempts_enabled do
         service.share_data.find_benefit_claim_type_increment(**increment_params)
@@ -190,13 +190,13 @@ module BGSV2
     def bgs_auth
       auth_params = {
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_lctn_id: Settings.bep.client_station_id,
         jrn_status_type_cd: 'U',
-        jrn_user_id: Settings.bgs.client_username,
-        jrn_obj_id: Settings.bgs.application
+        jrn_user_id: Settings.bep.client_username,
+        jrn_obj_id: Settings.bep.application
       }
 
-      auth_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
+      auth_params.merge!(user_ssn) if Settings.bep.mock_responses == true
 
       auth_params
     end

@@ -277,8 +277,8 @@ module ClaimsApi
         end
 
         def manage_representative_service
-          ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
-                                                     external_key: Settings.bgs.external_key)
+          ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bep.external_uid,
+                                                     external_key: Settings.bep.external_key)
         end
 
         def find_poa_request!(lighthouse_id)

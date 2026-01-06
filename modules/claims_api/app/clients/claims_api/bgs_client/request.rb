@@ -40,9 +40,9 @@ module ClaimsApi
         headers =
           Envelope::Headers.new(
             ip: client_ip,
-            username: Settings.bgs.client_username,
-            station_id: Settings.bgs.client_station_id,
-            application_name: Settings.bgs.application,
+            username: Settings.bep.client_username,
+            station_id: Settings.bep.client_station_id,
+            application_name: Settings.bep.application,
             external_id: @external_id
           )
 
@@ -61,7 +61,7 @@ module ClaimsApi
             # involved in `BGSClient.healthcheck`? Maybe we truly don't want
             # `breakers` and `timeout` logic to impact our assessment of service
             # health in that context?
-            conn.options.timeout = Settings.bgs.timeout || 120
+            conn.options.timeout = Settings.bep.timeout || 120
             conn.use :breakers
             conn.use WrapError
           end
@@ -72,7 +72,7 @@ module ClaimsApi
           req.headers.merge!(
             'Soapaction' => %("#{@action.name}"),
             'Content-Type' => 'text/xml;charset=UTF-8',
-            'Host' => "#{Settings.bgs.env}.vba.va.gov"
+            'Host' => "#{Settings.bep.env}.vba.va.gov"
           )
         end
       end

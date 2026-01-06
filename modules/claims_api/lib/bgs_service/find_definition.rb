@@ -9,8 +9,8 @@ module ClaimsApi
   #
   module FindDefinition
     def initialize(external_uid:, external_key:)
-      external_uid ||= Settings.bgs.external_uid
-      external_key ||= Settings.bgs.external_key
+      external_uid ||= Settings.bep.external_uid
+      external_key ||= Settings.bep.external_key
 
       @external_id =
         BGSClient::ExternalId.new(
