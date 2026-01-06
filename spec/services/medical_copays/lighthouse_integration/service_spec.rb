@@ -70,4 +70,36 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
     end
   end
+
+  describe '#get_detail' do
+    it 'returns copay detail with populated attributes' do
+      VCR.use_cassette('lighthouse/hcc/copay_detail_success') do
+        allow(Auth::ClientCredentials::JWTGenerator)
+          .to receive(:generate_token).and_return('fake-jwt')
+
+        service = MedicalCopays::LighthouseIntegration::Service.new('32000551')
+        result = service.get_detail(id: '4-1abZUKu7LnbcQc')
+
+        expect(result).to be_a(Lighthouse::HCC::CopayDetail)
+        expect(result.external_id).to be_present
+        expect(result.facility).to be_present
+        expect(result.status).to be_present
+        expect(result.line_items).to be_an(Array)
+        expect(result.payments).to be_an(Array)
+      end
+    end
+
+    it 'raises BadRequest for a 400 from Lighthouse' do
+      VCR.use_cassette('lighthouse/hcc/auth_error') do
+        allow(Auth::ClientCredentials::JWTGenerator)
+          .to receive(:generate_token).and_return('fake-jwt')
+
+        service = MedicalCopays::LighthouseIntegration::Service.new('32000551')
+
+        expect do
+          service.get_detail(id: '4-1abZUKu7LnbcQc')
+        end.to raise_error(Common::Exceptions::BadRequest)
+      end
+    end
+  end
 end
