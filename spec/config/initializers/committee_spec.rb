@@ -220,16 +220,13 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
       end
     end
   end
-end
 
-# Integration tests for Committee validation with StatsdMiddleware
-RSpec.describe 'Committee validation with StatsdMiddleware', type: :request do
-  after do
-    # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
-    CommitteeContext.reset
-  end
+  context 'when Committee validation fails', type: :request do
+    after do
+      # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
+      CommitteeContext.reset
+    end
 
-  context 'when Committee validation fails' do
     let(:invalid_payload) do
       { data: { attributes: { claimant: { first: 'John' } } } }.to_json
     end
@@ -333,4 +330,3 @@ RSpec.describe 'Committee validation with StatsdMiddleware', type: :request do
     end
   end
 end
-
