@@ -22,7 +22,7 @@ module V0
         provider_errors = []
         configured_providers.each do |provider_class|
           provider = provider_class.new(@current_user)
-          claims_data.concat(provider.get_claims['data'] || [])
+          claims_data.concat(provider.get_claims&.dig('data') || [])
         rescue Common::Exceptions::Unauthorized,
                Common::Exceptions::Forbidden,
                Common::Exceptions::GatewayTimeout,
