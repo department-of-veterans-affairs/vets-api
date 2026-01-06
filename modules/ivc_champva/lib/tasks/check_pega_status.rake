@@ -46,8 +46,8 @@ namespace :ivc_champva do
       pega_api_client = IvcChampva::PegaApi::Client.new
       unprocessed_files = []
       api_errors = []
-      processed_count = 0
       total_files_checked = 0
+      fully_processed_uuids = []
 
       form_uuids.each_with_index do |form_uuid, index|
       puts "\n[#{index + 1}/#{form_uuids.count}] Checking UUID: #{form_uuid}"
@@ -69,7 +69,7 @@ namespace :ivc_champva do
         pega_reports = pega_api_client.record_has_matching_report(representative_record)
 
         if pega_reports == false || pega_reports.empty?
-          puts "  ❌ No Pega reports found for UUID: #{form_uuid}"
+          puts "  No Pega reports found for UUID: #{form_uuid}"
           form_records.each do |record|
             unprocessed_files << {
               form_uuid: record.form_uuid,
@@ -79,14 +79,14 @@ namespace :ivc_champva do
             }
           end
         else
-          puts "  ✅ Found #{pega_reports.count} Pega report(s)"
+          puts "  Found #{pega_reports.count} Pega report(s)"
           
           # Check if counts match (same logic as MissingFormStatusJob)
           if form_records.count == pega_reports.count
-            puts "  ✅ File counts match (#{form_records.count} local, #{pega_reports.count} Pega)"
-            processed_count += 1
+            puts "  File counts match (#{form_records.count} local, #{pega_reports.count} Pega)"
+            fully_processed_uuids << form_uuid
           else
-            puts "  ⚠️  File count mismatch (#{form_records.count} local, #{pega_reports.count} Pega)"
+            puts "  File count mismatch (#{form_records.count} local, #{pega_reports.count} Pega)"
             form_records.each do |record|
               unprocessed_files << {
                 form_uuid: record.form_uuid,
@@ -97,13 +97,6 @@ namespace :ivc_champva do
               }
             end
           end
-
-          # Show Pega report details
-          pega_reports.each do |report|
-            status = report['Status'] || 'Unknown'
-            case_id = report['PEGA Case ID'] || 'Unknown'
-            puts "    - Case ID: #{case_id}, Status: #{status}"
-          end
         end
 
       rescue IvcChampva::PegaApi::PegaApiError => e
@@ -113,7 +106,7 @@ namespace :ivc_champva do
           timestamp: Time.current
         }
         api_errors << error_info
-        puts "  ❌ Pega API Error: #{e.message}"
+        puts "  Pega API Error: #{e.message}"
         Rails.logger.error "IVC CHAMPVA check_pega_status - PegaApiError for UUID #{form_uuid}: #{e.message}"
       rescue => e
         error_info = {
@@ -122,7 +115,7 @@ namespace :ivc_champva do
           timestamp: Time.current
         }
         api_errors << error_info
-        puts "  ❌ Unexpected Error: #{e.message}"
+        puts "  Unexpected Error: #{e.message}"
         Rails.logger.error "IVC CHAMPVA check_pega_status - Unexpected error for UUID #{form_uuid}: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
       end
@@ -134,7 +127,7 @@ namespace :ivc_champva do
     puts '=' * 80
     puts "Total UUIDs processed: #{form_uuids.count}"
     puts "Total files checked: #{total_files_checked}"
-    puts "UUIDs with matching Pega reports: #{processed_count}"
+    puts "UUIDs with matching Pega reports: #{fully_processed_uuids.count}"
     puts "UUIDs with unprocessed files: #{unprocessed_files.map { |f| f[:form_uuid] }.uniq.count}"
     puts "API errors encountered: #{api_errors.count}"
 
@@ -170,7 +163,22 @@ namespace :ivc_champva do
         timestamp = error[:timestamp].strftime('%Y-%m-%d %H:%M:%S')
         puts format('%-38s %-20s %s', error[:form_uuid], timestamp, error[:error])
       end
-    end
+      end
+
+      # Output fully processed UUIDs for piping to update_pega_status
+      if fully_processed_uuids.any?
+        puts "\n" + '-' * 80
+        puts 'FULLY PROCESSED UUIDs (ready for status update)'
+        puts '-' * 80
+        puts "Found #{fully_processed_uuids.count} UUIDs with all files processed by Pega"
+        puts "These can be marked as 'Manually Processed' using:"
+        puts "FORM_UUIDS=\"#{fully_processed_uuids.join(',')}\" rake ivc_champva:update_pega_status"
+        puts "\nComma-separated list for FORM_UUIDS variable:"
+        puts '-' * 50
+        puts fully_processed_uuids.join(',')
+      else
+        puts "\nNo UUIDs found with all files fully processed by Pega."
+      end
 
       puts "\nTask completed!"
     end

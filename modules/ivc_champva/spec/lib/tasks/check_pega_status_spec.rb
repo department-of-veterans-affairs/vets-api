@@ -78,7 +78,8 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     let(:cleanup_util) { instance_double(IvcChampva::ProdSupportUtilities::MissingStatusCleanup) }
 
     before do
-      ENV.delete('FORM_UUIDS')
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('FORM_UUIDS').and_return(nil)
       allow(IvcChampva::ProdSupportUtilities::MissingStatusCleanup).to receive(:new).and_return(cleanup_util)
       task.reenable
     end
@@ -239,24 +240,24 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
     it 'identifies UUIDs with matching Pega reports' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/✅ Found 2 Pega report\(s\)/)
-      expect(output).to match(/✅ File counts match \(2 local, 2 Pega\)/)
+      expect(output).to match(/Found 2 Pega report\(s\)/)
+      expect(output).to match(/File counts match \(2 local, 2 Pega\)/)
       expect(output).to match(/UUIDs with matching Pega reports: 1/)
     end
 
     it 'identifies UUIDs with no Pega reports' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/❌ No Pega reports found for UUID: #{@uuid_with_no_reports}/)
+      expect(output).to match(/No Pega reports found for UUID: #{@uuid_with_no_reports}/)
     end
 
     it 'identifies UUIDs with count mismatches' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/⚠️  File count mismatch \(3 local, 2 Pega\)/)
+      expect(output).to match(/File count mismatch \(3 local, 2 Pega\)/)
     end
 
     it 'handles API errors gracefully' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/❌ Pega API Error: API connection failed/)
+      expect(output).to match(/Pega API Error: API connection failed/)
       expect(output).to match(/API errors encountered: 1/)
     end
 
@@ -265,10 +266,10 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
       expect(output).to match(/No local records found for UUID: #{@nonexistent_uuid}/)
     end
 
-    it 'displays Pega report details' do
+    it 'does not display detailed Pega report information' do
       output = capture_stdout { task.invoke }
-      expect(output).to match(/Case ID: D-12345, Status: Processed/)
-      expect(output).to match(/Case ID: D-12346, Status: Processed/)
+      expect(output).not_to match(/Case ID:/)
+      expect(output).not_to match(/Status:/)
     end
 
     it 'generates unprocessed files report' do
@@ -295,6 +296,18 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
     it 'logs API errors to Rails logger' do
       expect(Rails.logger).to receive(:error).with(/PegaApiError for UUID #{@uuid_with_api_error}/)
       capture_stdout { task.invoke }
+    end
+
+    it 'outputs fully processed UUIDs for piping to update_pega_status' do
+      output = capture_stdout { task.invoke }
+      expect(output).to match(/FULLY PROCESSED UUIDs \(ready for status update\)/)
+      expect(output).to match(/Found 1 UUIDs with all files processed by Pega/)
+      expect(output).to match(/FORM_UUIDS="#{@uuid_with_matching_reports}" rake ivc_champva:update_pega_status/)
+      expect(output).to match(/Comma-separated list for FORM_UUIDS variable:/)
+      # Check that only the matching UUID is in the final output line
+      lines = output.split("\n")
+      uuid_line = lines.find { |line| line.match?(/^[0-9a-f-]{36}(,[0-9a-f-]{36})*$/) }
+      expect(uuid_line).to eq(@uuid_with_matching_reports)
     end
   end
 
@@ -328,8 +341,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
       it 'shows successful processing' do
         output = capture_stdout { task.invoke }
-        expect(output).to match(/✅ File counts match/)
-        expect(output).to match(/Case ID: D-99999, Status: Resolved-Complete/)
+        expect(output).to match(/File counts match/)
         expect(output).to match(/UUIDs with matching Pega reports: 1/)
         expect(output).not_to match(/UNPROCESSED FILES/)
       end
@@ -343,10 +355,16 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
       it 'shows unprocessed status' do
         output = capture_stdout { task.invoke }
-        expect(output).to match(/❌ No Pega reports found/)
+        expect(output).to match(/No Pega reports found/)
         expect(output).to match(/UUIDs with matching Pega reports: 0/)
         expect(output).to match(/UNPROCESSED FILES/)
         expect(output).to match(/NOT_FOUND/)
+      end
+
+      it 'shows no fully processed UUIDs message' do
+        output = capture_stdout { task.invoke }
+        expect(output).to match(/No UUIDs found with all files fully processed by Pega/)
+        expect(output).not_to match(/FULLY PROCESSED UUIDs/)
       end
     end
 
@@ -358,7 +376,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
       it 'treats empty array as no reports found' do
         output = capture_stdout { task.invoke }
-        expect(output).to match(/❌ No Pega reports found/)
+        expect(output).to match(/No Pega reports found/)
         expect(output).to match(/UNPROCESSED FILES/)
       end
     end
@@ -381,7 +399,7 @@ RSpec.describe 'ivc_champva:check_pega_status', type: :task do
 
       it 'handles unexpected errors gracefully' do
         output = capture_stdout { task.invoke }
-        expect(output).to match(/❌ Unexpected Error: Unexpected error/)
+        expect(output).to match(/Unexpected Error: Unexpected error/)
         expect(output).to match(/API errors encountered: 1/)
       end
 
