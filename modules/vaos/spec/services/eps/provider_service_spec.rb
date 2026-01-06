@@ -887,14 +887,8 @@ describe Eps::ProviderService do
               {
                 id: 'provider1',
                 specialties: [{ name: 'Cardiology' }],
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: false
-                  }
-                ],
                 features: {
-                  is_digital: true,
+                  is_digital: false,
                   direct_booking: {
                     is_enabled: true
                   }
@@ -906,16 +900,10 @@ describe Eps::ProviderService do
               {
                 id: 'provider2',
                 specialties: [{ name: 'Cardiology' }],
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: true
-                  }
-                ],
                 features: {
-                  is_digital: false,
+                  is_digital: true,
                   direct_booking: {
-                    is_enabled: true
+                    is_enabled: false
                   }
                 },
                 location: {
@@ -988,54 +976,6 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_a(OpenStruct)
           expect(result.id).to eq('provider123')
-        end
-      end
-
-      context 'when provider fails office visit appointment type criteria' do
-        let(:response_body) do
-          {
-            count: 1,
-            provider_services: [
-              self_schedulable_provider(
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: false
-                  }
-                ]
-              )
-            ]
-          }
-        end
-
-        let(:response) do
-          double('Response', status: 200, body: response_body,
-                             response_headers: { 'Content-Type' => 'application/json' })
-        end
-
-        before do
-          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-          allow(Rails.logger).to receive(:error)
-        end
-
-        it 'returns nil, logs error, and increments metric' do
-          expect(StatsD).to receive(:increment).with(
-            'api.vaos.provider_service.no_self_schedulable',
-            tags: ['service:community_care_appointments']
-          )
-          result = service.search_provider_services(npi:, specialty:, address:)
-          expect(result).to be_nil
-          expected_controller_name = 'VAOS::V2::AppointmentsController'
-          expected_station_number = user.va_treatment_facility_ids&.first
-          expect(Rails.logger).to have_received(:error).with(
-            'Community Care Appointments: No self-schedulable providers found for NPI',
-            {
-              controller: expected_controller_name,
-              station_number: expected_station_number,
-              eps_trace_id: nil,
-              user_uuid: 'user-uuid-123'
-            }
-          )
         end
       end
 
@@ -1912,11 +1852,11 @@ describe Eps::ProviderService do
         expect(result).to eq(response)
       end
 
-      it 'calls perform with correct parameters' do
+      it 'calls perform with correct parameters including isSelfSchedulable' do
         expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
           :get,
           '/api/v1/provider-services',
-          { npi: },
+          { npi:, isSelfSchedulable: true },
           headers
         ).and_return(response)
 
@@ -1999,6 +1939,9 @@ describe Eps::ProviderService do
   end
 
   # Helper method to create a self-schedulable provider
+  # Note: appointment_types field is included for API response completeness but
+  # is not used for self-schedulable filtering (handled by EPS API via isSelfSchedulable param).
+  # Self-schedulable filtering now only checks is_digital and direct_booking.is_enabled.
   def self_schedulable_provider(overrides = {})
     {
       id: 'provider123',
