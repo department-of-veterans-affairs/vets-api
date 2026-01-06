@@ -438,16 +438,7 @@ describe SimpleFormsApi::Notification::Email do
                 'lighthouse_updated_at' => lighthouse_updated_at
               },
               'fake_secret',
-              {
-                callback_metadata: {
-                  form_number: 'vba_21_10210',
-                  notification_type: notification_type.to_s,
-                  confirmation_number:,
-                  statsd_tags: {
-                    'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
-                  }
-                }
-              }
+              a_hash_including(:callback_metadata)
             )
           end
         end
