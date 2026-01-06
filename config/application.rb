@@ -8,6 +8,7 @@ require 'active_record/railtie'
 require 'active_storage/engine'
 require 'action_controller/railtie'
 require 'action_mailer/railtie'
+require_relative '../lib/committee/config'
 require_relative '../lib/identity/config/railtie'
 require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/source_app_middleware'
@@ -125,6 +126,24 @@ module VetsAPI
                                    secure: IdentitySettings.session_cookie.secure,
                                    http_only: true
 
+    config.middleware.use(
+      Committee::Middleware::RequestValidation,
+      schema_path: Rails.public_path.join('openapi.json').to_s,
+      strict_reference_validation: true,
+      raise: false,
+      error_class: Committee::UnprocessableEntityError,
+      error_handler: Committee::Config::ERROR_HANDLER
+    )
+
+    config.middleware.use(
+      Committee::Middleware::ResponseValidation,
+      schema_path: Rails.public_path.join('openapi.json').to_s,
+      strict_reference_validation: true,
+      validate_success_only: true,
+      raise: false,
+      error_class: Committee::UnprocessableEntityError,
+      error_handler: Committee::Config::ERROR_HANDLER
+    )
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
     Rails.autoloaders.main.ignore(Rails.root.join('app', 'sidekiq', 'education_form', 'templates', '1990-disclosure'))
