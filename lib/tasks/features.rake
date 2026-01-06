@@ -20,15 +20,14 @@ namespace :features do
           added_features << feature
 
           # Default features to enabled for test and those explicitly set for development
-          if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+          should_enable =
+            Rails.env.test? ||
+            (Rails.env.development? && feature_config['enable_in_development']) ||
+            (Settings.vsp_environment.to_s == 'development' && feature_config['enable_in_development'])
+
+          if should_enable
             Flipper.enable(feature)
             enabled_features << feature
-          end
-
-          # Enable features on dev-api.va.gov if they are set to enable_in_development
-          if Settings.vsp_environment.to_s == 'development' && feature_config['enable_in_development']
-            Flipper.enable(feature)
-            enabled_features << feature unless enabled_features.include?(feature)
           end
         end
       end
@@ -56,8 +55,14 @@ namespace :features do
         Rails.logger.info("features:setup removed #{removed_features.count} \
           orphaned features: #{removed_features.join(', ')}")
       end
-    rescue => e
-      Rails.logger.error "Error processing Flipper features: #{e.message}"
+    rescue Psych::SyntaxError => e
+      Rails.logger.error "Error parsing config/features.yml while processing Flipper features: #{e.message}"
+      raise e # Re-raise so rake task fails visibly
+    rescue ActiveRecord::ConnectionNotEstablished => e
+      Rails.logger.error "Database connection error while processing Flipper features: #{e.message}"
+      raise e # Re-raise so rake task fails visibly
+    rescue StandardError => e
+      Rails.logger.error "Unexpected error processing Flipper features: #{e.message}"
       raise e # Re-raise so rake task fails visibly
     end
   end
