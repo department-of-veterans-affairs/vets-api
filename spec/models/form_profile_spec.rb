@@ -186,7 +186,7 @@ RSpec.describe FormProfile, type: :model do
         'veteranSsnLastFour' => '1863',
         'veteranVaFileNumberLastFour' => '1863',
         'isInReceiptOfPension' => -1,
-        'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+        'netWorthLimit' => 163_699
       },
       'veteranInformation' => {
         'fullName' => {
@@ -1598,33 +1598,66 @@ RSpec.describe FormProfile, type: :model do
       end
 
       context 'with VA Profile and GiBillStatus prefill for 10203' do
-        before do
-          can_prefill_vaprofile(true)
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          v22_10203_expected['remainingEntitlement'] = {
-            'months' => 0,
-            'days' => 10
-          }
-          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
-          v22_10203_expected['schoolCity'] = 'NORFOLK'
-          v22_10203_expected['schoolState'] = 'VA'
-          v22_10203_expected['schoolCountry'] = 'USA'
-        end
+        context 'when form 10203 claimant flipper enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
+            can_prefill_vaprofile(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            v22_10203_expected['remainingEntitlement'] = {
+              'months' => 0,
+              'days' => 0
+            }
+          end
 
-        it 'prefills 10203 with VA Profile and entitlement information' do
-          VCR.use_cassette('va_profile/v2/contact_information/get_address') do
-            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              VCR.use_cassette('form_10203/gi_bill_status_200_response') do
-                VCR.use_cassette('gi_client/gets_the_institution_details') do
-                  VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                                   allow_playback_repeats: true) do
-                    expect(BenefitsEducation::Service).to receive(:new).with(user.icn).and_call_original
+          it 'prefills 10203 with VA Profile and entitlement information' do
+            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                VCR.use_cassette('sob/ch33_status/200') do
+                  VCR.use_cassette('gi_client/gets_the_institution_details') do
+                    expect(SOB::DGI::Service).to receive(:new).with(user.ssn).and_call_original
 
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
                     )['form_data']
                     actual = form_profile.send(:clean!, v22_10203_expected)
                     expect(prefilled_data).to eq(actual)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when form 10203 claimant flipper disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+            can_prefill_vaprofile(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            v22_10203_expected['remainingEntitlement'] = {
+              'months' => 0,
+              'days' => 10
+            }
+            v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+            v22_10203_expected['schoolCity'] = 'NORFOLK'
+            v22_10203_expected['schoolState'] = 'VA'
+            v22_10203_expected['schoolCountry'] = 'USA'
+          end
+
+          it 'prefills 10203 with VA Profile and entitlement information' do
+            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                VCR.use_cassette('form_10203/gi_bill_status_200_response') do
+                  VCR.use_cassette('gi_client/gets_the_institution_details') do
+                    VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                                     allow_playback_repeats: true) do
+                      expect(BenefitsEducation::Service).to receive(:new).with(user.icn).and_call_original
+
+                      prefilled_data = Oj.load(
+                        described_class.for(form_id: '22-10203', user:).prefill.to_json
+                      )['form_data']
+                      actual = form_profile.send(:clean!, v22_10203_expected)
+                      expect(prefilled_data).to eq(actual)
+                    end
                   end
                 end
               end
@@ -1659,7 +1692,7 @@ RSpec.describe FormProfile, type: :model do
                 'veteranSsnLastFour' => '1863',
                 'veteranVaFileNumberLastFour' => '1863',
                 'isInReceiptOfPension' => -1,
-                'netWorthLimit' => 159240 # rubocop:disable Style/NumericLiterals
+                'netWorthLimit' => 163_699
               },
               'veteranInformation' => {
                 'fullName' => {
@@ -1757,7 +1790,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
             end
@@ -1953,7 +1986,7 @@ RSpec.describe FormProfile, type: :model do
                     )
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(159240) # rubocop:disable Style/NumericLiterals
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
             end

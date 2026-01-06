@@ -60,6 +60,8 @@ module MebApi
           end
         end
 
+        # Replace masked account numbers (with asterisks) with actual values from dd_params.
+        # Sets to nil if dd_params unavailable to prevent submitting masked values.
         def update_dd_params(params, dd_params)
           account_number = params.dig(:direct_deposit, :direct_deposit_account_number)
           check_masking = account_number&.include?('*')

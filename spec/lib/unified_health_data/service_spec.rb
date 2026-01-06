@@ -492,6 +492,22 @@ describe UnifiedHealthData::Service, type: :service do
                                   }
                                 ))
         end
+
+        it 'returns vitals sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_vitals_by_date)
+            .and_return(sample_client_response)
+
+          vitals = service.get_vitals.sort
+
+          vitals_with_dates = vitals.select { |v| v.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = vitals_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          vitals_without_dates = vitals.select { |v| v.date.nil? }
+          expect(vitals.last(vitals_without_dates.size)).to eq(vitals_without_dates) if vitals_without_dates.any?
+        end
       end
 
       context 'when data exists for only VistA or OH' do
@@ -1151,7 +1167,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [18g])')
           expect(oracle_prescription.dispensed_date).to be_nil
           expect(oracle_prescription.station_number).to eq('668')
-          expect(oracle_prescription.is_refillable).to be true
+          expect(oracle_prescription.is_refillable).to be false # false because refill_status is 'submitted'
           expect(oracle_prescription.is_trackable).to be false
           expect(oracle_prescription.tracking).to eq([])
           expect(oracle_prescription.prescription_source).to eq('VA')
@@ -1395,21 +1411,14 @@ describe UnifiedHealthData::Service, type: :service do
       it 'submits refill requests and returns success/failure breakdown' do
         VCR.use_cassette('unified_health_data/refill_prescription_success') do
           orders = [
-            { id: '15220389459', stationNumber: '556' },
+            { id: '20848650695', stationNumber: '668' },
             { id: '0000000000001', stationNumber: '570' }
           ]
           result = service.refill_prescription(orders)
 
-          expect(result).to have_key(:success)
-          expect(result).to have_key(:failed)
-
-          expect(result[:success]).to contain_exactly(
-            { id: '15220389459', status: 'Already in Queue', station_number: '556' }
-          )
-
-          expect(result[:failed]).to contain_exactly(
-            { id: '0000000000001', error: 'Prescription is not Found', station_number: '570' }
-          )
+          expect(result[:success]).to eq([{ id: '20848650695', status: 'Refill Submitted', station_number: '668' }])
+          expect(result[:failed]).to eq([{ id: '0000000000001', error: 'Prescription is not Found',
+                                           station_number: '570' }])
         end
       end
 
@@ -1464,13 +1473,14 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with malformed response', :vcr do
-      it 'handles empty response gracefully' do
+    context 'with prescription not found', :vcr do
+      it 'returns failed refill when prescription is not found' do
         VCR.use_cassette('unified_health_data/refill_prescription_empty') do
-          result = service.refill_prescription([{ id: '12345', stationNumber: '570' }])
+          result = service.refill_prescription([{ id: '21431810851', stationNumber: '663' }])
 
           expect(result[:success]).to eq([])
-          expect(result[:failed]).to eq([{ id: '12345', error: 'Service unavailable', station_number: '570' }])
+          expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found',
+                                           station_number: '663' }])
         end
       end
     end

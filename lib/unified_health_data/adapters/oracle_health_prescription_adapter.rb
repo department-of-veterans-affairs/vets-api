@@ -2,17 +2,28 @@
 
 require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
+require_relative 'oracle_health_categorizer'
+require_relative 'oracle_health_refill_helper'
 
 module UnifiedHealthData
   module Adapters
     class OracleHealthPrescriptionAdapter
       include FhirHelpers
+      include OracleHealthCategorizer
+      include OracleHealthRefillHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
-      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid
+      # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid/filtered
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
+
+        category = categorize_medication(resource)
+
+        # Filter out medications that should not be visible to Veterans
+        return nil if %i[pharmacy_charges inpatient].include?(category)
+
+        log_uncategorized_medication(resource) if category == :uncategorized
 
         UnifiedHealthData::Prescription.new(build_prescription_attributes(resource))
       rescue => e
@@ -40,10 +51,11 @@ module UnifiedHealthData
       # This allows refill_metadata to be computed after dispenses_data is available
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
+        refill_status = extract_refill_status(resource, dispenses_data)
         {
           id: resource['id'],
           type: 'Prescription',
-          refill_status: extract_refill_status(resource, dispenses_data),
+          refill_status:,
           refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
@@ -55,7 +67,7 @@ module UnifiedHealthData
           prescription_name: extract_prescription_name(resource),
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource),
+          is_refillable: extract_is_refillable(resource, refill_status),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
@@ -72,7 +84,7 @@ module UnifiedHealthData
         prescription_source = extract_prescription_source(resource)
         {
           instructions: extract_instructions(resource),
-          facility_phone_number: extract_facility_phone_number(resource),
+          facility_phone_number: nil, # Not typically available in standard FHIR MedicationRequest
           cmop_division_phone: nil,
           dial_cmop_division_phone: nil,
           prescription_source:,
@@ -235,23 +247,6 @@ module UnifiedHealthData
         return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
-      end
-
-      def extract_refill_remaining(resource)
-        # non-va meds are never refillable
-        return 0 if non_va_med?(resource)
-
-        repeats_allowed = resource.dig('dispenseRequest', 'numberOfRepeatsAllowed') || 0
-        # subtract dispenses in completed status, except for the first fill
-        dispenses_completed = if resource['contained']
-                                resource['contained'].count do |c|
-                                  c['resourceType'] == 'MedicationDispense' && c['status'] == 'completed'
-                                end
-                              else
-                                0
-                              end
-        remaining = repeats_allowed - [dispenses_completed - 1, 0].max
-        remaining.positive? ? remaining : 0
       end
 
       # Extracts and normalizes MedicationRequest status to VistA-compatible values
@@ -432,19 +427,6 @@ module UnifiedHealthData
         end
       end
 
-      # Checks if the most recent MedicationDispense has an in-progress status
-      # In-progress statuses: preparation, in-progress, on-hold
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] True if most recent dispense is in-progress
-      def most_recent_dispense_in_progress?(resource)
-        most_recent_dispense = find_most_recent_medication_dispense(resource['contained'])
-        return false if most_recent_dispense.nil?
-
-        in_progress_statuses = %w[preparation in-progress on-hold]
-        in_progress_statuses.include?(most_recent_dispense['status'])
-      end
-
       # Parses validityPeriod.end to UTC Time object for comparison
       #
       # @param resource [Hash] FHIR MedicationRequest resource
@@ -514,23 +496,8 @@ module UnifiedHealthData
         end
       end
 
-      def extract_is_refillable(resource)
-        refillable = true
-
-        # non VA meds are never refillable
-        refillable = false if non_va_med?(resource)
-        # must be active
-        refillable = false unless resource['status'] == 'active'
-        # must not be expired
-        refillable = false unless prescription_not_expired?(resource)
-        # must have refills remaining
-        refillable = false unless extract_refill_remaining(resource).positive?
-        # must have at least one dispense record
-        refillable = false if find_most_recent_medication_dispense(resource['contained']).nil?
-        # must not have an in-progress dispense
-        refillable = false if most_recent_dispense_in_progress?(resource)
-
-        refillable
+      def extract_is_refillable(resource, refill_status)
+        refillable?(resource, refill_status)
       end
 
       def extract_instructions(resource)
@@ -549,38 +516,8 @@ module UnifiedHealthData
         build_instruction_text(first_instruction)
       end
 
-      def extract_facility_phone_number(resource)
-        # Try to extract from performer contact info if available
-        performer = resource.dig('dispenseRequest', 'performer')
-        return nil unless performer
-
-        # This might be in an extension or contained Organization resource
-        # For now, return nil as it's not typically in standard FHIR
-        nil
-      end
-
       def extract_prescription_source(resource)
         non_va_med?(resource) ? 'NV' : 'VA'
-      end
-
-      def extract_category(resource)
-        # Extract category from FHIR MedicationRequest
-        # See https://build.fhir.org/valueset-medicationrequest-admin-location.html
-        categories = resource['category'] || []
-        return [] if categories.empty?
-
-        # Category is an array of CodeableConcept objects
-        # We collect all codes from all categories
-        codes = []
-        categories.each do |category|
-          codings = category['coding'] || []
-          codings.each do |coding|
-            # Collect the code value if found (e.g., 'inpatient', 'outpatient', 'community')
-            codes << coding['code'] if coding['code'].present?
-          end
-        end
-
-        codes
       end
 
       def extract_provider_name(resource)
@@ -607,23 +544,6 @@ module UnifiedHealthData
         return nil if note_texts.empty?
 
         note_texts.join(' ')
-      end
-
-      def prescription_not_expired?(resource)
-        expiration_date = extract_expiration_date(resource)
-        return false unless expiration_date # No expiration date = not refillable for safety
-
-        begin
-          parsed_date = Time.zone.parse(expiration_date)
-          return parsed_date&.> Time.zone.now if parsed_date
-
-          # If we get here, parsing returned nil (invalid date)
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        rescue ArgumentError
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        end
       end
 
       def facility_resolver
