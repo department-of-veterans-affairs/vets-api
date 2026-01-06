@@ -98,7 +98,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
       describe '#formatted_686_data' do
         it 'returns all data for 686 submissions' do
@@ -141,7 +141,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: form_674_only_v2.to_json) }
 
       describe '#submittable_686?' do
         it 'returns false if there is no 686 to process' do
@@ -169,7 +169,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: adopted_child_v2.to_json) }
 
       describe '#submittable_674?' do
         it 'returns false if there is no 674 to process' do
@@ -186,7 +186,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   context 'v2 form on and vets json schema enabled' do
-    subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+    subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
@@ -229,7 +229,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   context 'v2 form and vets json schema disabled' do
-    subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+    subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)

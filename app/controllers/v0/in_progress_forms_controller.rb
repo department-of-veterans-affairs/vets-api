@@ -53,7 +53,7 @@ module V0
          params[:metadata].present? &&
          params[:form_data].present?
         form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
-        params[:metadata][:new_conditions_workflow] = form_hash['disabilityCompNewConditionsWorkflow'] || false
+        params[:metadata][:new_conditions_workflow] = form_hash[:disabilityCompNewConditionsWorkflow] || false
       end
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)

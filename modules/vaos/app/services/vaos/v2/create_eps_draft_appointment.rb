@@ -492,8 +492,8 @@ module VAOS
       #
       # Logs the error with structured data and raises a BackendServiceException
       # when the provider has appointment types but none are self-schedulable.
-      # Note: This should theoretically never happen since the provider already passed
-      # self-schedulable filtering in Eps::ProviderService. If it does trigger, it indicates
+      # Note: This should theoretically never happen since the EPS API filters providers
+      # using isSelfSchedulable=true query parameter. If it does trigger, it indicates
       # a data consistency issue. PII logging is already handled by ProviderService.
       #
       # @raise [Common::Exceptions::BackendServiceException] When no self-schedulable types are available

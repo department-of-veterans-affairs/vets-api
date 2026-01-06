@@ -11,7 +11,7 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
   describe 'new conditions workflow state logging' do
     let!(:v2_in_progress_form) do
       ipf = create(:in_progress_form, form_id: '21-526EZ')
-      ipf.update(metadata: { 'new_conditions_workflow' => 'true' })
+      ipf.update(metadata: { 'new_conditions_workflow' => true })
       ipf
     end
 

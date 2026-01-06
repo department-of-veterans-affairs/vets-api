@@ -90,8 +90,6 @@ module DhpConnectedDevices
             icn: @current_user&.icn
           }
         )
-
-        log_exception_to_rails(error)
       end
     end
   end
