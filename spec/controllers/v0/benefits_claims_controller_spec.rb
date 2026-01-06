@@ -663,9 +663,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         expect(parsed_body['data'].count).to eq(2)
-        expect(parsed_body['data'].map do |c|
-          c['id']
-        end).to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
+        expect(parsed_body['data'].map { |claim| claim['id'] })
+          .to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
       end
 
       it 'continues processing when one provider fails' do
