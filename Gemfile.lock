@@ -1263,7 +1263,7 @@ DEPENDENCIES
   awesome_print
   aws-msk-iam-sasl-signer (~> 0.1.1)
   aws-sdk-kms
-  aws-sdk-s3 (>= 1.208.0, < 2)
+  aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
   banners!
   betamocks!
