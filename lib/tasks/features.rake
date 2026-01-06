@@ -3,6 +3,19 @@
 require 'flipper'
 
 namespace :features do
+  desc 'List current Flipper features and their states'
+  task list: :environment do
+    puts 'Current Flipper Features:'
+    Flipper.features.each do |feature|
+      state = if Flipper.enabled?(feature.name)
+                'ENABLED'
+              else
+                'disabled'
+              end
+      puts "- #{feature.name}: #{state}"
+    end
+  end
+
   desc 'Setup Flipper features from config/features.yml (adds missing features, removes orphaned features)'
   task setup: :environment do
     added_features = []
@@ -47,9 +60,12 @@ namespace :features do
         Rails.logger.info('features:setup - no new features to add')
       end
 
-      if enabled_features.any?
-        Rails.logger.info("features:setup enabled #{enabled_features.count} features: #{enabled_features.join(', ')}")
-      end
+      # Moved to separate task above
+      # if enabled_features.any?
+      #   # This seems very noisy in practice, so maybe only log if needed for debugging
+      #   # Maybe we could have a separate task for that?
+      #   Rails.logger.info("features:setup enabled #{enabled_features.count} features: #{enabled_features.join(', ')}")
+      # end
 
       if removed_features.any?
         message = "features:setup removed #{removed_features.count} orphaned features: #{removed_features.join(', ')}"

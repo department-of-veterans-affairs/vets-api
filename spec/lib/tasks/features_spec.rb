@@ -23,8 +23,15 @@ RSpec.describe 'features:setup rake task', type: :task do
   after do
     # Clean up any test-created features and restore original state
     Flipper.features.each(&:remove)
-    original_features.each_key do |name|
-      Flipper.add(name) unless Flipper.exist?(name)
+    original_features.each do |name, state|
+      Flipper.add(name)
+      case state
+      when :on
+        Flipper.enable(name)
+      when :off
+        Flipper.disable(name)
+        # :conditional state would require restoring actors/groups which we don't track
+      end
     end
   end
 
