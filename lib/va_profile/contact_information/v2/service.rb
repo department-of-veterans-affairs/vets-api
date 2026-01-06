@@ -149,7 +149,7 @@ module VAProfile
           # Only store old_email if the email address is actually changing.
           # This prevents sending "email changed" notifications when users
           # are only confirming their existing email address (confirmation_date update).
-          if transaction.received? && old_email.present? && old_email != email.email_address
+          if transaction.received? && old_email.present? && !old_email.casecmp?(email.email_address)
             OldEmail.create(transaction_id: transaction.id,
                             email: old_email)
           end
