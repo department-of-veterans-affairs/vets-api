@@ -52,6 +52,11 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
       }
     end
 
+    after do
+      # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
+      CommitteeContext.reset
+    end
+
     context 'with form21p530a path' do
       let(:path) { '/v0/form21p530a/submit' }
       let(:error) { Committee::InvalidRequest.new('validation error') }
@@ -67,6 +72,19 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
           error:,
           request: kind_of(Rack::Request)
         )
+      end
+
+      it 'populates CommitteeContext with controller and action' do
+        monitor_instance = instance_double(Form21p530a::Monitor)
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor_instance)
+        allow(monitor_instance).to receive(:track_request_validation_error)
+
+        # Use valid route path for this test
+        env['PATH_INFO'] = '/v0/form21p530a'
+        error_handler.call(error, env)
+
+        expect(CommitteeContext.controller).to eq('v0/form21p530a')
+        expect(CommitteeContext.action).to eq('create')
       end
     end
 
@@ -143,6 +161,174 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
 
         error_handler.call(error, env)
       end
+    end
+  end
+
+  describe '.populate_path_parameters' do
+    let(:env) do
+      {
+        'REQUEST_METHOD' => 'POST',
+        'PATH_INFO' => '/v0/form21p530a',
+        'rack.input' => StringIO.new
+      }
+    end
+
+    context 'when path_parameters not already set' do
+      it 'populates controller and action from routes' do
+        described_class.populate_path_parameters(env)
+
+        expect(env['action_dispatch.request.path_parameters']).to include(
+          controller: 'v0/form21p530a',
+          action: 'create'
+        )
+      end
+    end
+
+    context 'when path_parameters already set' do
+      before do
+        env['action_dispatch.request.path_parameters'] = { controller: 'existing', action: 'existing' }
+      end
+
+      it 'does not overwrite existing path_parameters' do
+        described_class.populate_path_parameters(env)
+
+        expect(env['action_dispatch.request.path_parameters']).to eq(
+          controller: 'existing',
+          action: 'existing'
+        )
+      end
+    end
+
+    context 'when route matching fails' do
+      let(:env) do
+        {
+          'REQUEST_METHOD' => 'POST',
+          'PATH_INFO' => '/invalid/route/path',
+          'rack.input' => StringIO.new
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { described_class.populate_path_parameters(env) }.not_to raise_error
+      end
+
+      it 'sets path_parameters to routing_error for unmatched routes' do
+        described_class.populate_path_parameters(env)
+
+        expect(env['action_dispatch.request.path_parameters']).to include(
+          controller: 'application',
+          action: 'routing_error'
+        )
+      end
+    end
+  end
+
+  context 'when Committee validation fails', type: :request do
+    after do
+      # Clear CommitteeContext for test isolation (Rails auto-resets after each request in production)
+      CommitteeContext.reset
+    end
+
+    let(:invalid_payload) do
+      { data: { attributes: { claimant: { first: 'John' } } } }.to_json
+    end
+
+    it 'sends statsd metrics with controller and action tags for form21p530a' do
+      expected_tags = [
+        'controller:v0/form21p530a',
+        'action:create',
+        'source_app:21p-530a-interment-allowance',
+        'status:422'
+      ]
+
+      # Allow the form-specific monitor metrics
+      allow(StatsD).to receive(:increment).and_call_original
+
+      # Expect StatsdMiddleware to be called with controller/action tags
+      expect(StatsD).to receive(:increment)
+        .with(StatsdMiddleware::STATUS_KEY, hash_including(tags: expected_tags))
+        .and_call_original
+
+      post '/v0/form21p530a',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json', 'Source-App-Name': '21p-530a-interment-allowance' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'sends duration metrics with controller and action tags for form21p530a' do
+      expected_tags = [
+        'controller:v0/form21p530a',
+        'action:create',
+        'source_app:21p-530a-interment-allowance'
+      ]
+
+      # Allow all StatsD calls
+      allow(StatsD).to receive(:increment).and_call_original
+      allow(StatsD).to receive(:measure).and_call_original
+      allow(StatsD).to receive(:distribution).and_call_original
+
+      # Expect StatsdMiddleware to be called with controller/action tags
+      expect(StatsD).to receive(:measure)
+        .with(StatsdMiddleware::DURATION_KEY, kind_of(Numeric), hash_including(tags: expected_tags))
+        .and_call_original
+
+      expect(StatsD).to receive(:distribution)
+        .with(StatsdMiddleware::DURATION_DISTRIBUTION_KEY, kind_of(Numeric), hash_including(tags: expected_tags))
+        .and_call_original
+
+      post '/v0/form21p530a',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json', 'Source-App-Name': '21p-530a-interment-allowance' }
+    end
+
+    it 'sends statsd metrics with controller and action tags for form214192' do
+      expected_tags = [
+        'controller:v0/form214192',
+        'action:create',
+        'source_app:not_provided',
+        'status:422'
+      ]
+
+      # Allow the form-specific monitor metrics
+      allow(StatsD).to receive(:increment).and_call_original
+
+      # Expect StatsdMiddleware to be called with controller/action tags
+      expect(StatsD).to receive(:increment)
+        .with(StatsdMiddleware::STATUS_KEY, hash_including(tags: expected_tags))
+        .and_call_original
+
+      post '/v0/form214192',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'includes controller and action in error response meta for form21p530a' do
+      post '/v0/form21p530a',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json', 'Source-App-Name': '21p-530a-interment-allowance' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors'].first['meta']).to eq(
+        'controller' => 'v0/form21p530a',
+        'action' => 'create'
+      )
+    end
+
+    it 'includes controller and action in error response meta for form214192' do
+      post '/v0/form214192',
+           params: invalid_payload,
+           headers: { 'Content-Type': 'application/json' }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors'].first['meta']).to eq(
+        'controller' => 'v0/form214192',
+        'action' => 'create'
+      )
     end
   end
 end
