@@ -103,11 +103,19 @@ RSpec.describe 'features:setup rake task', type: :task do
         Flipper.add('orphaned_feature_not_in_config')
       end
 
-      it 'warns about orphaned features' do
+      it 'removes orphaned features from the database' do
+        expect(Flipper.exist?('orphaned_feature_not_in_config')).to be true
+
         allow(Rails.logger).to receive(:info).and_call_original
-        allow(Rails.logger).to receive(:warn).and_call_original
         task.invoke
-        expect(Rails.logger).to have_received(:warn).with(/consider removing features.*orphaned_feature_not_in_config/i)
+
+        expect(Flipper.exist?('orphaned_feature_not_in_config')).to be false
+      end
+
+      it 'logs removed features' do
+        allow(Rails.logger).to receive(:info).and_call_original
+        task.invoke
+        expect(Rails.logger).to have_received(:info).with(/features:setup removed \d+ orphaned features.*orphaned_feature_not_in_config/)
       end
     end
 

@@ -3,12 +3,15 @@
 require 'flipper'
 
 namespace :features do
-  desc 'Setup Flipper features from config/features.yml'
+  desc 'Setup Flipper features from config/features.yml (adds missing features, removes orphaned features)'
   task setup: :environment do
     features_config = YAML.safe_load(Rails.root.join('config', 'features.yml').read)
+    config_feature_names = features_config['features'].keys
     added_features = []
     enabled_features = []
+    removed_features = []
 
+    # Add missing features
     features_config['features'].each do |feature, feature_config|
       unless Flipper.exist?(feature)
         Flipper.add(feature)
@@ -28,6 +31,15 @@ namespace :features do
       end
     end
 
+    # Remove features that are no longer in config/features.yml
+    Flipper.features.each do |feature|
+      unless config_feature_names.include?(feature.name)
+        feature.remove
+        removed_features << feature.name
+      end
+    end
+
+    # Log results
     if added_features.any?
       Rails.logger.info("features:setup added #{added_features.count} features: #{added_features.join(', ')}")
     else
@@ -38,12 +50,8 @@ namespace :features do
       Rails.logger.info("features:setup enabled #{enabled_features.count} features: #{enabled_features.join(', ')}")
     end
 
-    # Warn about features in database that are not in config
-    removed_features = Flipper.features.collect(&:name) - features_config['features'].keys
     if removed_features.any?
-      Rails.logger.warn(
-        "features:setup - consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
-      )
+      Rails.logger.info("features:setup removed #{removed_features.count} orphaned features: #{removed_features.join(', ')}")
     end
   end
 end
