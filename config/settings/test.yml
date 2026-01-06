@@ -960,6 +960,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
+    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
     pretransitioned_oh_facilities: 612, 357, 555
   rx:
@@ -1216,6 +1217,8 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  ch_31_case_details:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1704,6 +1707,9 @@ vanotify:
         form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
         form21_4138_error_email: form21_4138_error_email_template_id
         form21_4138_received_email: form21_4138_received_email_template_id
+        form21_4140_confirmation_email: form21_4140_confirmation_email_template_id
+        form21_4140_error_email: form21_4140_error_email_template_id
+        form21_4140_received_email: form21_4140_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1785,6 +1791,8 @@ vass:
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
   mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
