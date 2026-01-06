@@ -79,6 +79,8 @@ RSpec.describe CommitteeErrorRouting do # rubocop:disable RSpec/SpecFilePathForm
         allow(Form21p530a::Monitor).to receive(:new).and_return(monitor_instance)
         allow(monitor_instance).to receive(:track_request_validation_error)
 
+        # Use valid route path for this test
+        env['PATH_INFO'] = '/v0/form21p530a'
         error_handler.call(error, env)
 
         expect(CommitteeContext.controller).to eq('v0/form21p530a')
