@@ -834,6 +834,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_4142',
@@ -887,6 +888,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_10210',
@@ -946,6 +948,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21p_0847',
@@ -1000,6 +1003,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_0972',
@@ -1073,6 +1077,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               },
               'fake_secret',
               {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
                 callback_metadata: {
                   notification_type: 'received',
                   form_number: 'vba_21_0966_intent_api',
@@ -1110,6 +1115,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               },
               'fake_secret',
               {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
                 callback_metadata: {
                   notification_type: 'confirmation',
                   form_number: 'vba_21_0966',
@@ -1192,6 +1198,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'confirmation',
                 form_number: 'vba_26_4555',
@@ -1235,6 +1242,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'rejected',
                 form_number: 'vba_26_4555',
@@ -1276,6 +1284,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'duplicate',
                 form_number: 'vba_26_4555',
