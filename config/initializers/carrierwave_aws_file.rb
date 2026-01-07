@@ -10,7 +10,9 @@ Rails.application.config.after_initialize do
               new_file.move_to(path)
             elsif Aws::S3.const_defined?(:TransferManager)
               options = aws_options.write_options(new_file).except(:body)
-              options[:multipart_threshold] = AWSOptions::MULTIPART_THRESHOLD
+              # MULTIPART_TRESHOLD was renamed to MULTIPART_THRESHOLD https://github.com/carrierwaveuploader/carrierwave-aws/commit/1117b0e1ccd2b653717136d846814d9a64aa5d72
+              # MULTIPART_TRESHOLD will have to be renamed when upgrading carrierwave
+              options[:multipart_threshold] = CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
               Aws::S3::TransferManager.new(client: connection.client).upload_file(new_file.path, bucket: bucket.name,
                                                                                                  key: path, **options)
             else
