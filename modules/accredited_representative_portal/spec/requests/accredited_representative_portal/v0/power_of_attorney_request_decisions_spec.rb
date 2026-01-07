@@ -277,26 +277,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
         Flipper.disable(:send_poa_to_corpdb, test_user)
 
-        accept_service = instance_double(
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
-        )
-        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-          .to receive(:new)
-          .with(poa_request, anything, anything)
-          .and_return(accept_service)
-
-        allow(accept_service).to receive(:call)
-
-        allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
-          .to receive(:perform_async)
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
+          .new(poa_request, test_user, {})
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
 
         expect(response).to have_http_status(:ok)
 
-        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
-          .not_to have_received(:perform_async)
+        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).not_to have_received(:perform_async)
       end
     end
 
