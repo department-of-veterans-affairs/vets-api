@@ -241,9 +241,6 @@ features:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
     enable_in_development: true
-  carrierwave_storage_aws_file:
-    actor_type: user
-    description: Enables CarrierWave::Storage::AwsFile patch
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.

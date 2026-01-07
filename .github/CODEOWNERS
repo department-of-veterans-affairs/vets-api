@@ -740,7 +740,7 @@ config/initializers/benefits_claims_providers.rb @department-of-veterans-affairs
 config/initializers/betamocks.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/bgs.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/breakers.rb @department-of-veterans-affairs/backend-review-group
-config/initializers/zz_carrierwave_aws_file.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/carrierwave_aws_file.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/clamav.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/config.rb @department-of-veterans-affairs/backend-review-group
