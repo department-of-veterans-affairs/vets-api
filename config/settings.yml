@@ -70,8 +70,8 @@ bep:
   env: <%= ENV['bep__env'] %>
   external_key: lighthouse-vets-api
   external_uid: lighthouse-vets-api
-  mock_response_location: <%= ENV['bep__mock_response_location'] %>
-  mock_responses: <%= ENV['bep__mock_responses'] %>
+  mock_response_location: ~
+  mock_responses: ~
   ssl_verify_mode: <%= ENV['bep__ssl_verify_mode'] %>
   url: <%= ENV['bep__url'] %>
 betamocks:
