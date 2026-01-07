@@ -568,7 +568,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           .to receive(:error)
           .with(
             'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!',
-            { e: json_error, msg:, v2: false }
+            { e: json_error, msg: }
           )
 
         expect(StatsD)
