@@ -6,6 +6,8 @@ require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 require 'claims_api/v2/power_of_attorney_validation'
 require 'claims_api/dependent_claimant_validation'
+require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 
 module ClaimsApi
   module V2
@@ -138,9 +140,10 @@ module ClaimsApi
                          })
         end
 
-        # This matches the addition in the V1 and used in the dependent assigmment service
+        # This matches the addition in the V1 and used in the dependent assignmment service
         def add_file_number_to_headers(headers)
-          headers.merge!({ file_number: target_veteran.ssn })
+          file_number = check_file_number_exists!
+          headers.merge!({ file_number: })
         end
 
         def validation_success(form_number)
@@ -268,6 +271,42 @@ module ClaimsApi
 
         def claimant_icn
           @claimant_icn ||= form_attributes.dig('claimant', 'claimantId')
+        end
+
+        def find_by_ssn(ssn)
+          if Flipper.enabled? :claims_api_use_person_web_service
+            # rubocop:disable Rails/DynamicFindBy
+            ClaimsApi::PersonWebService.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+          else
+            ClaimsApi::LocalBGS.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+            # rubocop:enable Rails/DynamicFindBy
+          end
+        end
+
+        def check_file_number_exists!
+          ssn = target_veteran.ssn
+
+          begin
+            response = find_by_ssn(ssn)
+            unless response && response[:file_nbr].present?
+              error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
+                              'Please submit an issue at ask.va.gov ' \
+                              'or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+            end
+
+            response[:file_nbr]
+          rescue BGS::ShareError
+            error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
+            claims_v1_logging('poa_find_by_ssn', message: error_message)
+            raise ::Common::Exceptions::FailedDependency
+          end
         end
 
         def disable_jobs?
