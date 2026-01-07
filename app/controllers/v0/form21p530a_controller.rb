@@ -28,7 +28,7 @@ module V0
       parsed_form = JSON.parse(transformed_payload)
 
       source_file_path = with_retries('Generate 21P-530A PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530A')
       end
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)
