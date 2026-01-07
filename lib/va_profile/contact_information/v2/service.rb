@@ -146,7 +146,10 @@ module VAProfile
           response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
 
           transaction = response.transaction
-          if transaction.received? && old_email.present?
+          # Only store old_email if the email address is actually changing.
+          # This prevents sending "email changed" notifications when users
+          # are only confirming their existing email address (confirmation_date update).
+          if transaction.received? && old_email.present? && !old_email.casecmp?(email.email_address)
             OldEmail.create(transaction_id: transaction.id,
                             email: old_email)
           end
