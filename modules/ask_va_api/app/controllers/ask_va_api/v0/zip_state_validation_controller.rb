@@ -3,6 +3,7 @@
 module AskVAApi
   module V0
     class ZipStateValidationController < ApplicationController
+      around_action :handle_exceptions
       skip_before_action :authenticate, only: :create
 
       def create
