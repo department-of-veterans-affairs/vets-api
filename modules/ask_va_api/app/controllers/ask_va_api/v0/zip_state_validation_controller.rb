@@ -8,8 +8,8 @@ module AskVAApi
 
       def create
         result = AskVAApi::ZipStateValidation::ZipStateValidator.call(
-          zip_code: params[:zip_code],
-          state_code: params[:state_code]
+          zip_code: validation_params[:zip_code],
+          state_code: validation_params[:state_code]
         )
 
         render json: {
@@ -17,6 +17,12 @@ module AskVAApi
           error_code: result.error_code,
           error_message: result.error_message
         }
+      end
+
+      private
+
+      def validation_params
+        params.permit(:zip_code, :state_code)
       end
     end
   end
