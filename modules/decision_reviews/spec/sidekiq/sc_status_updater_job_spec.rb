@@ -12,8 +12,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
     context 'when flag is enabled', :aggregate_failures do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
           .with(:decision_review_final_status_polling).and_return(false)
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
@@ -25,22 +23,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
       include_examples 'engine status updater job with base forms', SavedClaim::SupplementalClaim
       include_examples 'engine status updater job when forms include evidence', SavedClaim::SupplementalClaim
-    end
-
-    context 'when flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_track_4142_submissions).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_stuck_records_monitoring).and_return(false)
-      end
-
-      it 'does not query SavedClaim::SupplementalClaim records' do
-        expect(SavedClaim::SupplementalClaim).not_to receive(:where)
-        subject.new.perform
-      end
     end
   end
 
@@ -89,8 +71,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_final_status_polling).and_return(false)
         allow(Flipper).to receive(:enabled?)
@@ -219,8 +199,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       let(:frozen_time) { DateTime.new(2024, 1, 1).utc }
 
       before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?)
@@ -1140,8 +1118,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
           .with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_final_status_polling).and_return(false)
@@ -1342,8 +1318,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
     let(:valid_form_data) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1').to_json }
 
     before do
-      allow(Flipper).to receive(:enabled?)
-                    .with(:decision_review_saved_claim_sc_status_updater_job_enabled).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original

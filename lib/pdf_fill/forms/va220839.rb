@@ -9,12 +9,6 @@ module PdfFill
       UNLIMITED_STUDENT_NUMBER = 99_999
       UNLIMITED_CONTRIBUTION_AMOUNT = 99_999
 
-      AGREEMENT_TYPES = {
-        'startNewOpenEndedAgreement' => 'New open-ended agreement',
-        'modifyExistingAgreement' => 'Modification to existing agreement',
-        'withdrawFromYellowRibbonProgram' => 'Withdrawal of Yellow Ribbon agreement'
-      }.freeze
-
       KEY = {
         'primaryInstitution' => {
           'institutionName' => {
@@ -36,8 +30,14 @@ module PdfFill
             key: "branch_campus_#{ITERATOR}_facility_code"
           }
         },
-        'agreementType' => {
-          key: 'agreement_type'
+        'agreementTypeNew' => {
+          key: 'agreement_type_new'
+        },
+        'agreementTypeExisting' => {
+          key: 'agreement_type_existing'
+        },
+        'agreementTypeWithdrawal' => {
+          key: 'agreement_type_withdrawal'
         },
         'numEligibleStudents' => {
           key: 'num_eligible_students'
@@ -162,11 +162,15 @@ module PdfFill
       def format_date_range(range)
         return '' if range.blank?
 
-        "#{range['from']} to #{range['to']}"
+        # we only need the year portion of the dates
+        "#{range['from'][0..3]} to #{range['to'][0..3]}"
       end
 
       def format_agreement_type(form_data)
-        form_data['agreementType'] = AGREEMENT_TYPES[form_data['agreementType']] || form_data['agreementType']
+        form_data['agreementTypeNew'] = form_data['agreementType'] == 'startNewOpenEndedAgreement' ? 'Yes' : 'Off'
+        form_data['agreementTypeExisting'] = form_data['agreementType'] == 'modifyExistingAgreement' ? 'Yes' : 'Off'
+        form_data['agreementTypeWithdrawal'] =
+          form_data['agreementType'] == 'withdrawFromYellowRibbonProgram' ? 'Yes' : 'Off'
       end
 
       def format_institutions(form_data)
@@ -198,7 +202,9 @@ module PdfFill
 
         form_data['academicYear'] = format_date_range(programs.first['yearRange']) if programs.size.positive?
 
-        form_data['numEligibleStudents'] = if programs.any? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
+        form_data['numEligibleStudents'] = if form_data['agreementType'] == 'withdrawFromYellowRibbonProgram'
+                                             ''
+                                           elsif programs.any? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
                                              'Unlimited'
                                            else
                                              programs.sum { |program| program['maximumNumberofStudents'] }

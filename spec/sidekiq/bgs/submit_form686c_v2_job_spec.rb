@@ -71,7 +71,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
         callback_klass: 'Dependents::NotificationCallback',
         callback_metadata: { email_template_id: 'fake_received686',
                              email_type: :received686,
-                             form_id: '686C-674',
+                             form_id: '686C-674-V2',
                              claim_id: dependency_claim.id,
                              saved_claim_id: dependency_claim.id,
                              service_name: 'dependents' }

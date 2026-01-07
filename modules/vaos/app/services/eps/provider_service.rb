@@ -223,7 +223,7 @@ module Eps
       end
 
       with_monitoring do
-        query_params = { npi: }
+        query_params = { npi:, isSelfSchedulable: true }
         perform(:get, "/#{config.base_path}/provider-services", query_params,
                 request_headers_with_correlation_id)
       end
@@ -250,8 +250,7 @@ module Eps
                                          npi:,
                                          referral_number:,
                                          failure_reason: 'No self-schedulable providers found ' \
-                                                         '(no Office Visit appointment type or ' \
-                                                         'digital/direct booking disabled)'
+                                                         '(digital/direct booking disabled)'
                                        })
         return nil
       end
@@ -299,22 +298,18 @@ module Eps
     # Filters providers to only those that are self-schedulable
     #
     # A provider is self-schedulable if:
-    # 1. Has at least one appointmentType with name "Office Visit" and isSelfSchedulable: true
-    # 2. features.isDigital is true
-    # 3. features.directBooking.isEnabled is true
+    # 1. features.isDigital is true
+    # 2. features.directBooking.isEnabled is true
+    #
+    # Note: The isSelfSchedulable query parameter in fetch_provider_services
+    # handles appointment type filtering at the EPS API level.
     #
     # @param providers [Array] List of providers from EPS response
     # @return [Array] All self-schedulable providers, or empty array if none found
     #
     def filter_self_schedulable(providers)
       providers.select do |provider|
-        appointment_types = provider[:appointment_types] || []
-        has_office_visit = appointment_types.any? do |appt_type|
-          appt_type[:name] == 'Office Visit' && appt_type[:is_self_schedulable] == true
-        end
-
-        has_office_visit &&
-          provider.dig(:features, :is_digital) == true &&
+        provider.dig(:features, :is_digital) == true &&
           provider.dig(:features, :direct_booking, :is_enabled) == true
       end
     end

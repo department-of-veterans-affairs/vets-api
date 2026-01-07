@@ -46,8 +46,6 @@ module V0
     end
 
     def setup_form_submission_tracking(claim, user_account)
-      return nil unless Flipper.enabled?(:vre_track_submissions)
-
       submission = claim.form_submissions.create(
         form_type: claim.form_id,
         user_account:
