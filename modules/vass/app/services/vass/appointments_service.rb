@@ -638,13 +638,16 @@ module Vass
     # @return [Hash] Result with next cohort status and data
     #
     def build_next_cohort_response(cohort)
+      cohort_start_utc = cohort['cohortStartUtc']
+      cohort_end_utc = cohort['cohortEndUtc']
+
       {
         status: :next_cohort,
         data: {
-          message: "Booking opens on #{cohort['cohortStartUtc']}",
+          message: "Booking opens on #{cohort_start_utc}",
           next_cohort: {
-            cohort_start_utc: cohort['cohortStartUtc'],
-            cohort_end_utc: cohort['cohortEndUtc']
+            cohort_start_utc: cohort_start_utc,
+            cohort_end_utc: cohort_end_utc
           }
         }
       }
