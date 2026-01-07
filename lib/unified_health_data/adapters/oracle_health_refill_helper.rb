@@ -15,7 +15,7 @@ module UnifiedHealthData
     # - categorize_medication(resource) - From OracleHealthCategorizer
     # - non_va_med?(resource) - From OracleHealthCategorizer
     # - medication_dispenses(resource) - From FhirHelpers
-    # - find_most_recent_medication_dispense(contained) - From FhirHelpers
+    # - find_most_recent_medication_dispense(medication_request) - From FhirHelpers
     # - log_invalid_expiration_date(resource, date) - From FhirHelpers
     module OracleHealthRefillHelper
       # Determines if a medication is refillable based on gate checks
