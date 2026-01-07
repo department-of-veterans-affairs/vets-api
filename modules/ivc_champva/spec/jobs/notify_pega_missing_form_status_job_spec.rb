@@ -90,6 +90,19 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
     IvcChampva::NotifyPegaMissingFormStatusJob.new.perform
   end
 
+  it 'calls num_docs_match_reports when champva_enable_pega_report_check Flipper flag is enabled' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_notify_pega_missing_form_status_job).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check).and_return(true)
+
+    batch = [forms[0]]
+    missing_form_status_job = instance_double(IvcChampva::MissingFormStatusJob)
+    expect(missing_form_status_job).to receive(:num_docs_match_reports?).with(batch)
+
+    allow(job).to receive_messages(missing_form_status_job:,
+                                   missing_status_cleanup: double(get_missing_statuses: { some_key: batch }))
+    job.perform
+  end
+
   context 'when send_zsf_notification_to_pega is successful' do
     it 'logs a successful notification send to Pega' do
       job.send_zsf_notification_to_pega(forms[0], 'fake-template')

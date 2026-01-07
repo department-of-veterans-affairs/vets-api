@@ -26,7 +26,7 @@ module IvcChampva
         next if form.nil?
 
         # Check reporting API to see if this missing status is a false positive
-        if Flipper.enabled?(:champva_enable_pega_report_check) && IvcChampva::NotifyPegaMissingFormStatusJob.num_docs_match_reports?(batch)
+        if Flipper.enabled?(:champva_enable_pega_report_check) && missing_form_status_job.num_docs_match_reports?(batch)
           next
         end
 
@@ -76,6 +76,10 @@ module IvcChampva
 
     def missing_status_cleanup
       @missing_status_cleanup ||= IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
+    end
+
+    def missing_form_status_job
+      @missing_form_status_job ||= IvcChampva::MissingFormStatusJob.new
     end
   end
 end
