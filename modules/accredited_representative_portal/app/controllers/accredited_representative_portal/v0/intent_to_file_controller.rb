@@ -57,7 +57,7 @@ module AccreditedRepresentativePortal
           render json: parsed_response, status: :created
         end
       rescue ArgumentError => e
-        Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
+        Rails.logger.info('ARP ITF: ArgumentError during ITF creation')
         render json: { error: e.message }, status: :bad_request
       rescue => e
         Rails.logger.error("ARP ITF: ERROR - #{e.class}: #{e.message.truncate(100)}")
