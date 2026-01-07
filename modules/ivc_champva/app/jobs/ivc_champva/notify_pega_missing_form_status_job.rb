@@ -26,7 +26,9 @@ module IvcChampva
         next if form.nil?
 
         # Check reporting API to see if this missing status is a false positive
-        next if Flipper.enabled?(:champva_enable_pega_report_check) && num_docs_match_reports?(batch)
+        if Flipper.enabled?(:champva_enable_pega_report_check) && IvcChampva::NotifyPegaMissingFormStatusJob.num_docs_match_reports?(batch)
+          next
+        end
 
         elapsed_minutes = (current_time - form.created_at).to_i / 1.minute
         pega_email_threshold_hours =
@@ -68,40 +70,12 @@ module IvcChampva
         form_uuid: form.form_uuid }
     end
 
-    ##
-    # Checks PEGA reporting API to see if this batch's form_uuid is associated with an
-    # identical number of records on PEGA's side - If so, sets these records to
-    # "Manually Processed" and returns true. If the numbers differ, returns false.
-    #
-    # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects with common form_uuid
-    #   (representing a single user's submission, including all supporting documents)
-    # @return [boolean] true if PEGA's reporting API has same number of documents for this batch; false otherwise
-    def num_docs_match_reports?(batch)
-      return false if batch.empty?
-
-      matching_reports = pega_api_client.record_has_matching_report(batch.first)
-
-      if batch.count == matching_reports.count
-        missing_status_cleanup.manually_process_batch(batch)
-        true
-      else
-        false
-      end
-    rescue PegaApiError => e
-      Rails.logger.error "IVC Champva Forms - PegaApiError: #{e.message}"
-      false
-    end
-
     def monitor
       @monitor ||= IvcChampva::Monitor.new
     end
 
     def missing_status_cleanup
       @missing_status_cleanup ||= IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
-    end
-
-    def pega_api_client
-      @pega_api_client ||= IvcChampva::PegaApi::Client.new
     end
   end
 end
