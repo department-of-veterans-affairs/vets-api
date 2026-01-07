@@ -57,8 +57,7 @@ module VRE
         claim.send_to_vre(user)
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
-        if submission_tracking_enabled && submission && attempt
-          attempt.succeed
+        if submission && attempt
           Rails.logger.info('VRE::VRESubmit1900Job - Submission Attempt Succeeded',
                             claim_id:, submission_id:, submission_attempt_id: attempt.id,
                             num_attempts: submission.form_submission_attempts.size,
@@ -69,7 +68,7 @@ module VRE
         Rails.logger.warn('VRE::VRESubmit1900Job failed, retrying...',
                           claim_id:, submission_id:, error_class: e.class.name, error_message: e.message)
 
-        attempt.fail if submission_tracking_enabled && submission && attempt
+        attempt.fail if submission && attempt
         raise
       end
     end
@@ -88,12 +87,8 @@ module VRE
 
     private
 
-    def submission_tracking_enabled
-      @submission_tracking_enabled ||= Flipper.enabled?(:vre_track_submissions)
-    end
-
     def setup_submission_tracking(claim_id, submission_id)
-      return [nil, nil] unless submission_tracking_enabled && submission_id
+      return [nil, nil] unless submission_id
 
       begin
         submission = FormSubmission.find(submission_id)
