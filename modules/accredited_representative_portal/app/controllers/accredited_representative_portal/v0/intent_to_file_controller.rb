@@ -39,7 +39,7 @@ module AccreditedRepresentativePortal
         Rails.logger.info('ARP ITF: Created intent to file in Benefits Claims')
 
         if parsed_response['errors'].present?
-          Rails.logger.info("ARP ITF: Error response - #{parsed_response['errors']}")
+          Rails.logger.info("ARP ITF: Error response - error_count: #{parsed_response['errors']&.count}")
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
@@ -60,7 +60,7 @@ module AccreditedRepresentativePortal
         Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
         render json: { error: e.message }, status: :bad_request
       rescue => e
-        Rails.logger.info("ARP ITF: ERROR - #{e}")
+        Rails.logger.error("ARP ITF: ERROR - #{e.class}: #{e.message.truncate(100)}")
         raise
       end
       # rubocop:enable Metrics/MethodLength
