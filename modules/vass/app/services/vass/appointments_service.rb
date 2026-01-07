@@ -496,11 +496,15 @@ module Vass
     #
     def find_current_cohort(appointments)
       now = Time.current
-      appointments.find do |appt|
-        next unless appt['cohortStartUtc'] && appt['cohortEndUtc']
+      time_zone = Time.zone
 
-        cohort_start = Time.zone.parse(appt['cohortStartUtc'])
-        cohort_end = Time.zone.parse(appt['cohortEndUtc'])
+      appointments.find do |appt|
+        cohort_start_utc = appt['cohortStartUtc']
+        cohort_end_utc = appt['cohortEndUtc']
+        next unless cohort_start_utc && cohort_end_utc
+
+        cohort_start = time_zone.parse(cohort_start_utc)
+        cohort_end = time_zone.parse(cohort_end_utc)
         now.between?(cohort_start, cohort_end)
       end
     end
@@ -542,26 +546,18 @@ module Vass
     # @return [Hash] Result with status and available slots data
     #
     def handle_available_cohort(cohort, veteran_id)
-      availability = get_availability(
-        veteran_id:,
-        start_date: cohort['cohortStartUtc'],
-        end_date: cohort['cohortEndUtc']
-      )
-
+      cohort_start_utc = cohort['cohortStartUtc']
+      cohort_end_utc = cohort['cohortEndUtc']
+      availability = get_availability(veteran_id:, start_date: cohort_start_utc, end_date: cohort_end_utc)
       slots = availability.dig('data', 'availableTimeSlots') || []
       filtered_slots = filter_available_slots(slots)
-
-      # If no slots available after filtering, return no slots available error
       return build_no_slots_available_response if filtered_slots.empty?
 
       {
         status: :available_slots,
         data: {
           appointment_id: cohort['appointmentId'],
-          cohort: {
-            cohort_start_utc: cohort['cohortStartUtc'],
-            cohort_end_utc: cohort['cohortEndUtc']
-          },
+          cohort: { cohort_start_utc:, cohort_end_utc: },
           available_slots: filtered_slots
         }
       }
@@ -596,9 +592,10 @@ module Vass
     # @return [Boolean] True if slot is within range
     #
     def slot_within_date_range?(slot, start_range, end_range)
-      return false unless slot['timeStartUTC']
+      time_start_utc = slot['timeStartUTC']
+      return false unless time_start_utc
 
-      slot_time = Time.zone.parse(slot['timeStartUTC'])
+      slot_time = Time.zone.parse(time_start_utc)
       slot_time >= start_range && slot_time <= end_range
     end
 
@@ -623,9 +620,15 @@ module Vass
     # @return [Hash, nil] Next cohort appointment or nil if none found
     #
     def find_next_cohort(appointments)
-      appointments
-        .select { |a| a['cohortStartUtc'] && Time.zone.parse(a['cohortStartUtc']) > Time.current }
-        .min_by { |a| Time.zone.parse(a['cohortStartUtc']) }
+      now = Time.current
+      time_zone = Time.zone
+
+      future_appointments = appointments.select do |a|
+        cohort_start_utc = a['cohortStartUtc']
+        cohort_start_utc && time_zone.parse(cohort_start_utc) > now
+      end
+
+      future_appointments.min_by { |a| time_zone.parse(a['cohortStartUtc']) }
     end
 
     ##
