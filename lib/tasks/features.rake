@@ -25,11 +25,26 @@ namespace :features do
 
     if Rails.env.production? && !force
       if dry_run
-        Rails.logger.info('features:setup running in dry-run mode in production; --force required to make changes')
+        Rails.logger.info('features:setup running in dry-run mode in production')
+        Rails.logger.info('FORCE=true or user confirmation will be required to make changes')
       else
         raise 'Running features:setup in production non-interactively requires FORCE=true' unless $stdin.tty?
 
         puts 'You are running features:setup in production. This will modify Flipper features in the database.'
+        puts 'The following changes will be made:'
+        result = Flipper::Utilities.setup_features(Flipper, dry_run: true)
+        sleep 0.1
+        puts "- Features to be added: #{result[:added].count} (#{result[:added].join(', ')})" if result[:added].any?
+        if result[:enabled].any?
+          puts "- Features to be enabled: #{result[:enabled].count} (#{result[:enabled].join(', ')})"
+        end
+        if result[:removed].any?
+          puts "- Features to be removed: #{result[:removed].count} (#{result[:removed].join(', ')})"
+        end
+        if result[:added].empty? && result[:enabled].empty? && result[:removed].empty?
+          puts 'No changes to be made.'
+          next
+        end
         print 'Type "yes" to proceed: '
         confirm = $stdin.gets&.strip
         unless confirm&.downcase == 'yes'
@@ -62,7 +77,6 @@ namespace :features do
         message += ' dry-run'
         message += " - would add: #{result[:added].count},"
         message += " enable: #{result[:enabled].count}, remove: #{result[:removed].count}"
-        Rails.logger.info(message)
       else
         ActiveRecord::Base.transaction do
           result = Flipper::Utilities.setup_features(Flipper)
@@ -71,7 +85,7 @@ namespace :features do
         message += " - added: #{result[:added].count},"
         message += " enabled: #{result[:enabled].count}, removed: #{result[:removed].count}"
       end
-      Rails.logger.info(message)
+      Rails.logger.warn(message)
     ensure
       conn.execute("SELECT pg_advisory_unlock(#{lock_key})") if locked && is_pg
     end
