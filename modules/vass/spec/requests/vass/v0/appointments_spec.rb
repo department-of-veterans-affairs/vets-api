@@ -7,6 +7,7 @@ RSpec.describe 'Vass::V0::Appointments', type: :request do
   let(:uuid) { 'da1e1a40-1e63-f011-bec2-001dd80351ea' }
   let(:veteran_id) { 'vet-uuid-123' }
   let(:edipi) { '1234567890' }
+  let(:jwt_secret) { 'test-jwt-secret' }
   let(:jwt_token) do
     # Generate a valid JWT token for testing
     payload = {
@@ -15,7 +16,7 @@ RSpec.describe 'Vass::V0::Appointments', type: :request do
       iat: Time.current.to_i,
       jti: SecureRandom.uuid
     }
-    JWT.encode(payload, Rails.application.secret_key_base, 'HS256')
+    JWT.encode(payload, jwt_secret, 'HS256')
   end
 
   before do
@@ -29,6 +30,7 @@ RSpec.describe 'Vass::V0::Appointments', type: :request do
         tenant_id: 'test-tenant-id',
         client_id: 'test-client-id',
         client_secret: 'test-client-secret',
+        jwt_secret:,
         scope: 'https://api.va.gov/.default',
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
