@@ -2759,3 +2759,7 @@ features:
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
+  accredited_representative_portal_delete_benefits_intake:
+    actor_type: user
+    description: If enabled, delete AccreditedRepresentativePortal::SavedClaim::BenefitsIntake records older than 60 days
+
