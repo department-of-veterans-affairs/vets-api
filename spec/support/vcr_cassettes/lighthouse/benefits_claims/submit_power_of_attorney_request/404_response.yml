@@ -2,72 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/claims/system/v1/token"
-    body:
-      encoding: US-ASCII
-      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsInN1YiI6IjBvYTE4cDd0YzlxQmlWZzZ1MnA4IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzZGc3Z3VpczJUWURsRmUycDcvdjEvdG9rZW4iLCJpYXQiOjE3NjY2MDcxMTAsImV4cCI6MTc2NjYwNzQxMH0.m0pEXbENifew2dur46ItxOpG-k0THwbLafNUeoQUUhmRvz1SqFmWAHX0jyJQC7uhwqwkdM9FCiM0tIYijMyZKMrkYI6dqEaTaFOqH2M0QobYAf4e9hzZM704s8s1XQ-jI2oEYELr-uQ-XjLiev5PRqVI6WPgzB5XHG7x8gvl8o-mknuOfFXCL3alaZq3WwRpZfWU8-rArfGw6PAwrZhBud_f8kWhpEtkz60I_18Z7LDT--8ttzfOmonOAIhAepETtnW5opcMsjALlyFrc1Ef0xPIIz2_xVJjAqrkWIford-OavM809Elpo2Ge7kx1WPGVKUjPn1EmH1XLSaxoBFO-g&scope=system%2Fclaim.read+system%2Fclaim.write+system%2F526-pdf.override+system%2F526.override
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/x-www-form-urlencoded
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Wed, 24 Dec 2025 20:11:51 GMT
-      Content-Type:
-      - application/json; charset=utf-8
-      Connection:
-      - keep-alive
-      X-Ratelimit-Remaining-Minute:
-      - '239'
-      X-Ratelimit-Limit-Minute:
-      - '240'
-      Ratelimit-Remaining:
-      - '239'
-      Ratelimit-Limit:
-      - '240'
-      Ratelimit-Reset:
-      - '9'
-      Vary:
-      - Origin
-      Cache-Control:
-      - no-cache, no-store
-      Pragma:
-      - no-cache
-      Etag:
-      - W/"45e-xzeFxbyVqNNr4EA0yINooelKZ00:dtagent10323250822043923XVuO"
-      Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="874160086"
-      X-Envoy-Upstream-Service-Time:
-      - '341'
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-      Access-Control-Allow-Origin:
-      - "*"
-      Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#2700466
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiJSVjRycWxkdUxUVjUyVnBJa1pqRFk0YmpiVXNNamdtVHBtemQzWFUyNnhVIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkJIa0hVck9IdFhQZjYzZzNSR0lXR0NpbkFGNXNwaTJ0YVRYMGZId0IwV1kiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNkZzdndWlzMlRZRGxGZTJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2NsYWltcyIsImlhdCI6MTc2NjYwNzExMSwiZXhwIjoxNzY2NjA3NDExLCJjaWQiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsInNjcCI6WyJzeXN0ZW0vNTI2Lm92ZXJyaWRlIiwic3lzdGVtLzUyNi1wZGYub3ZlcnJpZGUiLCJzeXN0ZW0vY2xhaW0ud3JpdGUiLCJzeXN0ZW0vY2xhaW0ucmVhZCJdLCJzdWIiOiIwb2ExOHA3dGM5cUJpVmc2dTJwOCIsImxhYmVsIjoiYWRob2NBcnRodXIifQ.PDW-RTK3tjBNvEVKd0xaMOVmyVcwW-QaPN6Dh7So6fP-lG5GQtg5YZerjQgdgvher7e_OXL1aFgquflLUMtOrpgWjhAGP3SQ9CkIVX8j3Z37qjr0HCrGEJnaE915hpkqamCUt0bLQDzCziec2r-RDFhuaoJ0Hw0Ry9Do23_Tz4SLHVD2TnM-GExgNEP81d66SKrZbZ2SG-1QztJg8P1Pji0LBvBZWkztJkhlaJLIuXQ8zqVgTBo329uWzAt7wA64NbvHj2Lqz1lX0Njb-wxjeVdiLUTeHMyuvatpr1LwMg2YQqMIzbfmcAJOY4hAcUgv0D6U_SPNswor6lXLxKAh0Q","token_type":"Bearer","scope":"system/526.override
-        system/526-pdf.override system/claim.write system/claim.read","expires_in":300,"state":null}'
-  recorded_at: Wed, 24 Dec 2025 20:11:51 GMT
-- request:
-    method: post
     uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/10126222/power-of-attorney-request"
     body:
       encoding: UTF-8
-      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719
-        Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
+      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719 Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
     headers:
       Accept:
       - application/json
@@ -109,7 +47,6 @@ http_interactions:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
-      - SAMEORIGIN
       X-Git-Sha:
       - 63a671e5bc92eeeaa5cd66407343cfec30d6c17a
       X-Github-Repository:
@@ -132,8 +69,6 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"errors":[{"status":"404","title":"Resource not found","detail":"Unable
-        to locate Veteran''s ID/ICN in Master Person Index (MPI). Please submit an
-        issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."}]}'
+      string: '{"errors":[{"status":"404","title":"Resource not found","detail":"Unable to locate Veteran''s ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."}]}'
   recorded_at: Wed, 24 Dec 2025 20:11:52 GMT
 recorded_with: VCR 6.3.1

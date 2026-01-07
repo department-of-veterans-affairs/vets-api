@@ -277,20 +277,31 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
         Flipper.disable(:send_poa_to_corpdb, test_user)
 
-        allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).to receive(:perform_async)
+        accept_service = instance_double(
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
+        )
 
-        # Stub process_acceptance to just render OK
-        allow_any_instance_of(
-          AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisionsController
-        ).to receive(:process_acceptance) do |controller|
-          controller.render json: {}, status: :ok
+        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+          .to receive(:new)
+          .and_return(accept_service)
+
+        allow(accept_service).to receive(:call) do
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: test_user.power_of_attorney_holder_memberships,
+            power_of_attorney_request: poa_request
+          )
         end
+
+        allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
+          .to receive(:perform_async)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
 
         expect(response).to have_http_status(:ok)
-        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).not_to have_received(:perform_async)
+        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
+          .not_to have_received(:perform_async)
       end
     end
 
