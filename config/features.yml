@@ -605,15 +605,6 @@ features:
   debts_sharepoint_error_logging:
     actor_type: user
     description: Logs Sharepoint error data
-  decision_review_hlr_email:
-    actor_type: user
-    description: Send email notification for successful HLR submission
-  decision_review_nod_email:
-    actor_type: user
-    description: Send email notification for successful NOD submission
-  decision_review_sc_email:
-    actor_type: user
-    description: Send email notification for successful SC submission
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
