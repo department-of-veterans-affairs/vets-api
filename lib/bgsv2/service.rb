@@ -247,7 +247,7 @@ module BGSV2
     end
 
     def log_and_return(params)
-      if Flipper.enabled?(:bgs_param_logging_enabled)
+      if Flipper.enabled?(:bep_param_logging_enabled)
         # using Settings.vsp_environment to determine environment to filter in
         filtered_env = %w[test production].include?(Settings.vsp_environment)
         # Filter sensitive parameters in production or test environment
