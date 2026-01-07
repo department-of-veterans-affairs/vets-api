@@ -18,6 +18,8 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
 
+      class MissingOrganizationIdError < StandardError; end
+
       def initialize(icn)
         @icn = icn
       end
@@ -29,7 +31,10 @@ module MedicalCopays
 
           org_id  = org_ref&.split('/')&.last
 
-          org_city = retrieve_city(org_id) if org_id
+          raise MissingOrganizationIdError,
+            "Missing org_id for invoice entry" if org_id.blank?
+
+          org_city = retrieve_city(org_id)
           entry['resource'].merge!({ 'city' => org_city, 'facility_id' => org_id }) if org_city
 
           Lighthouse::HCC::Invoice.new(entry)
