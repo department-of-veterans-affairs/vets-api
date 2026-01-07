@@ -35,7 +35,7 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
     )
   end
   let(:claims_service) do
-    if Flipper.enabled? :claims_status_v1_bgs_enabled
+    if Flipper.enabled? :claims_status_v1_bep_enabled
       ClaimsApi::EbenefitsBnftClaimStatusWebService
     else
       ClaimsApi::UnsynchronizedEVSSClaimService

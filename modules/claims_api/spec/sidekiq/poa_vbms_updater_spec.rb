@@ -9,7 +9,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   [true, false].each do |flipped|
     before do
       Sidekiq::Job.clear_all
-      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_vbms_updater_uses_local_bgs).and_return(flipped)
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_vbms_updater_uses_local_bep).and_return(flipped)
       @clazz = if flipped
                  ClaimsApi::CorporateUpdateWebService
                else

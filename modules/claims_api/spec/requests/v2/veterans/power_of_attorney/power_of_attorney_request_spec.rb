@@ -144,9 +144,9 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                           'power_of_attorney', 'request_representative', 'valid.json').read
         end
 
-        context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
+        context 'lighthouse_claims_v2_poa_requests_skip_bep disabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(false)
           end
 
           let(:request_body) do
@@ -222,9 +222,9 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
           end
         end
 
-        context 'lighthouse_claims_v2_poa_requests_skip_bgs enabled' do
+        context 'lighthouse_claims_v2_poa_requests_skip_bep enabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(true)
           end
 
           let(:request_body) do

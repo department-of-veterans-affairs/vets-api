@@ -795,7 +795,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     let(:mock_bgs_service) { double('bgs_service', data: mock_data) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bep).and_return(false)
       allow(subject).to receive(:bgs_service).and_return(mock_bgs_service)
     end
 
