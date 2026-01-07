@@ -2765,7 +2765,6 @@ features:
     description: If enabled, use the new claimant service for SOB
   simple_forms_email_delivery_callback:
     actor_type: user
-    enable_in_development: true
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs
