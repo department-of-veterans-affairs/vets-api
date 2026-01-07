@@ -50,7 +50,7 @@ RSpec.describe BGS::DependentService do
 
   before do
     # TODO: Add back user_account_id once the DB migration is done
-    allow(claim).to receive_messages(id: '1234', use_v2: false,
+    allow(claim).to receive_messages(id: '1234',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], form_id: '686C-674', document_type: 148)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)

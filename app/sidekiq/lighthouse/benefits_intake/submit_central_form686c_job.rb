@@ -252,8 +252,7 @@ module Lighthouse
         claim.send_failure_email(email)
       rescue => e
         # If we fail in the above failure events, this is a critical error and silent failure.
-        v2 = false
-        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
+        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg: })
         StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::STATSD_KEY_PREFIX}.silent_failure")
       end
 

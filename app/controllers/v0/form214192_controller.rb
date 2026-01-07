@@ -22,6 +22,7 @@ module V0
         )
         StatsD.increment("#{stats_key}.success")
 
+        clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'forwardable'
+require 'vass/errors'
 
 module Vass
   ##
@@ -112,17 +113,16 @@ module Vass
     ##
     # Retrieves veteran information by veteran ID.
     #
-    # @param edipi [String] Veteran EDIPI
-    # @param veteran_id [String] Veteran ID in VASS system
-    # @return [Faraday::Response] HTTP response containing veteran data
+    # Used in the OTC flow where we only have the UUID from the welcome email.
+    # The VASS API returns EDIPI in the response, so it's not required in the request.
     #
-    def get_veteran(edipi:, veteran_id:)
+    # @param veteran_id [String] Veteran ID (UUID) in VASS system
+    # @return [Faraday::Response] HTTP response containing veteran data including EDIPI
+    #
+    def get_veteran(veteran_id:)
       with_auth do
         with_monitoring do
-          headers = default_headers.merge(
-            'EDIPI' => edipi,
-            'veteranId' => veteran_id
-          )
+          headers = default_headers.merge('veteranId' => veteran_id)
           perform(:get, 'api/GetVeteran', nil, headers)
         end
       end
@@ -217,8 +217,8 @@ module Vass
                              has_body: resp.body.present?,
                              body_keys: resp.body&.keys
                            })
-        raise Common::Exceptions::BackendServiceException.new('VA900',
-                                                              { detail: 'OAuth auth missing access_token' }, 502)
+        raise Vass::ServiceException.new('VA900',
+                                         { detail: 'OAuth auth missing access_token' }, 502)
       end
       token
     end
@@ -234,7 +234,7 @@ module Vass
       @auth_retry_attempted = false
       ensure_oauth_token!
       yield
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue Vass::ServiceException => e
       if e.original_status == 401 && !@auth_retry_attempted
         @auth_retry_attempted = true
         log_auth_retry
@@ -310,6 +310,51 @@ module Vass
       else
         super
       end
+    rescue Common::Exceptions::BackendServiceException,
+           Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout,
+           Timeout::Error,
+           Faraday::TimeoutError,
+           Faraday::ClientError,
+           Faraday::ServerError,
+           Faraday::Error => e
+      handle_error(e)
+    end
+
+    ##
+    # Normalizes all exceptions to config.service_exception for consistent error handling.
+    #
+    # @param error [Exception] The exception to normalize
+    # @raise [Vass::ServiceException] Always raises config.service_exception
+    #
+    def handle_error(error)
+      exception_class = config.service_exception
+      return raise error if error.is_a?(exception_class)
+
+      key, response_values, status, body = normalize_error(error)
+      raise exception_class.new(key, response_values, status, body)
+    end
+
+    def normalize_error(error)
+      case error
+      when Common::Exceptions::BackendServiceException
+        key = error.key || Vass::Errors::ERROR_KEY_VASS_ERROR
+        [key, error.response_values || {}, error.original_status, error.original_body]
+      when Common::Client::Errors::ClientError
+        [Vass::Errors::ERROR_KEY_CLIENT_ERROR, { detail: error.message }, error.status || 502, error.body]
+      when Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError
+        [Vass::Errors::ERROR_KEY_TIMEOUT, { detail: 'Request timeout' }, 504, nil]
+      when Faraday::ClientError, Faraday::ServerError, Faraday::Error
+        response_hash = error.response&.to_hash
+        status = response_hash&.dig(:status) || 502
+        [Vass::Errors::ERROR_KEY_CLIENT_ERROR, { detail: error.message }, status, response_hash&.dig(:body)]
+      else
+        [Vass::Errors::ERROR_KEY_VASS_ERROR, { detail: error.message }, 502, nil]
+      end
     end
   end
+
+  # Mirrors the middleware-defined VASS exception so callers can rely on
+  # BackendServiceException fields (e.g., original_status, original_body).
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
 end

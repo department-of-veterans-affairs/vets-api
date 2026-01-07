@@ -51,7 +51,7 @@ module UnifiedHealthData
     end
 
     def get_ccd(patient_id:, start_date:, end_date:)
-      path = "#{config.base_path}ccd"
+      path = "#{config.base_path}ccd/oracle-health"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date }
       perform(:get, path, params, request_headers)
     end

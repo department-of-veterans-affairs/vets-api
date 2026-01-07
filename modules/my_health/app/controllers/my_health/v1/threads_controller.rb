@@ -44,17 +44,17 @@ module MyHealth
       end
 
       def handle_error(e)
-        error = e.errors.first
-        if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
+        error = e.try(:errors).try(:first)
+        if error&.status.to_i == 400 && error.detail == 'No messages in the requested folder'
           log_exception_to_rails(error, 'info')
-          Common::Collection.new(
+          return Common::Collection.new(
             MessageThread, data: []
           )
         else
           log_exception_to_rails(e)
-          StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
-          raise e
         end
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fail")
+        raise e
       end
     end
   end

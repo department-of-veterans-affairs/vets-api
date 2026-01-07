@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+require 'sidekiq/attr_package'
 
 module DebtManagementCenter
   class VANotifyEmailJob
@@ -38,28 +39,47 @@ module DebtManagementCenter
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
+      cache_key = options['cache_key']
+      identifier, personalisation = retrieve_pii_from_cache(cache_key, identifier, personalisation)
+
+      send_email(identifier, template_id, personalisation, options)
+      cleanup_and_record_success(cache_key, options['failure_mailer'])
+    rescue => e
+      handle_error(e, template_id)
+    end
+
+    private
+
+    def retrieve_pii_from_cache(cache_key, identifier, personalisation)
+      return [identifier, personalisation] unless cache_key
+
+      attributes = Sidekiq::AttrPackage.find(cache_key)
+      return [identifier, personalisation] unless attributes
+
+      [attributes[:email], attributes[:personalisation]]
+    end
+
+    def send_email(identifier, template_id, personalisation, options)
       id_type = options['id_type'] || 'email'
-      use_failure_mailer = options['failure_mailer']
-      notify_client = va_notify_client(use_failure_mailer)
+      notify_client = va_notify_client(options['failure_mailer'])
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+    end
+
+    def cleanup_and_record_success(cache_key, use_failure_mailer)
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
 
       if use_failure_mailer == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
       end
 
       StatsD.increment("#{STATS_KEY}.success")
-    rescue => e
+    end
+
+    def handle_error(error, template_id)
       StatsD.increment("#{STATS_KEY}.failure")
-      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{e.message}")
-      log_exception_to_sentry(
-        e,
-        { args: { template_id: } },
-        { error: :dmc_va_notify_email_job }
-      )
-
-      log_exception_to_rails(e)
-
-      raise e
+      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{error.message}")
+      log_exception_to_sentry(error, { args: { template_id: } }, { error: :dmc_va_notify_email_job })
+      raise error
     end
 
     def email_params(identifier, template_id, personalisation, id_type)

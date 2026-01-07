@@ -43,6 +43,16 @@ module PdfFill
             end
           end
 
+          def sort_programs_by_name(programs)
+            return [] if programs.blank?
+
+            programs.sort_by do |program|
+              program_name = program['programName']
+              # Treat nil or missing programName as empty string for sorting
+              program_name.nil? ? '' : program_name.to_s.downcase
+            end
+          end
+
           private
 
           def format_numeric_fte_value(value)

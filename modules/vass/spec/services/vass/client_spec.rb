@@ -75,7 +75,7 @@ describe Vass::Client do
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
-      result = subject.get_veteran(edipi:, veteran_id:)
+      result = subject.get_veteran(veteran_id:)
       expect(result).to be_present
     end
   end
@@ -192,10 +192,10 @@ describe Vass::Client do
         )
       end
 
-      it 'raises BackendServiceException' do
+      it 'raises Vass::ServiceException' do
         expect do
           subject.send(:ensure_oauth_token!)
-        end.to raise_error(Common::Exceptions::BackendServiceException)
+        end.to raise_error(Vass::ServiceException)
       end
     end
 

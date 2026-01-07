@@ -106,7 +106,7 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
             {
               'first_name' => job_params['first_name'],
               'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
-              'confirmation_number' => digital_dispute_submission.id
+              'confirmation_number' => digital_dispute_submission.guid
             },
             { id_type: 'email' }
           )
@@ -133,6 +133,56 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
           )
 
           described_class.new.perform(job_params)
+        end
+      end
+
+      context 'with PII protection via AttrPackage' do
+        let(:cache_key) { 'test_cache_key_123' }
+        let!(:digital_dispute_submission) do
+          create(:debts_api_digital_dispute_submission, user_uuid: user.uuid, user_account: user.user_account, state: 1)
+        end
+        let(:job_params) do
+          {
+            'submission_type' => 'digital_dispute',
+            'cache_key' => cache_key,
+            'user_uuid' => user.uuid,
+            'template_id' => DebtsApi::V0::DigitalDisputeSubmissionService::CONFIRMATION_TEMPLATE
+          }
+        end
+
+        context 'when cache_key is provided' do
+          before do
+            allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
+              email: user.email,
+              first_name: user.first_name
+            )
+            allow(Sidekiq::AttrPackage).to receive(:delete)
+            allow(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async)
+          end
+
+          it 'retrieves PII from cache and cleans up after' do
+            expect(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
+            expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+
+            described_class.new.perform(job_params)
+          end
+        end
+
+        context 'when cache retrieval fails' do
+          before do
+            allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+            allow(Sidekiq::AttrPackage).to receive(:delete)
+          end
+
+          it 'falls back to args' do
+            job_params_with_fallback = job_params.merge('email' => user.email, 'first_name' => user.first_name)
+
+            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+              user.email, anything, hash_including('first_name' => user.first_name), anything
+            )
+
+            described_class.new.perform(job_params_with_fallback)
+          end
         end
       end
     end
