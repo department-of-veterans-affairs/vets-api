@@ -17,7 +17,7 @@ module UnifiedHealthData
       # All gate conditions must pass for renewal eligibility.
       #
       # Gate 1: MedicationRequest.status == 'active'
-      # Gate 2: Category is VA Prescription or Clinic Administered
+      # Gate 2: Category must be VA Prescription
       # Gate 3: At least one dispense exists
       # Gate 4: Validity period end date exists
       # Gate 5: Within 120 days of validity period end
