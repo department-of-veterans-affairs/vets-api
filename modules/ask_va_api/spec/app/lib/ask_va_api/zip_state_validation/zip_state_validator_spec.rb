@@ -91,5 +91,23 @@ RSpec.describe AskVAApi::ZipStateValidation::ZipStateValidator do
         expect(result.error_code).to eq('ZIP_STATE_MISMATCH')
       end
     end
+
+    context 'when zip_code is nil' do
+      let(:zip_code) { nil }
+
+      it 'returns INVALID_ZIP' do
+        expect(result.valid).to be(false)
+        expect(result.error_code).to eq('INVALID_ZIP')
+      end
+    end
+
+    context 'when state_code is blank' do
+      let(:state_code) { '' }
+
+      it 'returns STATE_NOT_FOUND' do
+        expect(result.valid).to be(false)
+        expect(result.error_code).to eq('STATE_NOT_FOUND')
+      end
+    end
   end
 end
