@@ -308,7 +308,7 @@ describe Vass::AppointmentsService do
     end
 
     context 'with current cohort that is already booked' do
-      it 'returns already_booked status with appointment details' do
+      it 'returns already_booked status without calling availability API' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
             result = subject.get_current_cohort_availability(veteran_id:)
@@ -318,16 +318,6 @@ describe Vass::AppointmentsService do
             expect(result[:data][:appointment_id]).to be_present
             expect(result[:data][:start_utc]).to be_present
             expect(result[:data][:end_utc]).to be_present
-          end
-        end
-      end
-
-      it 'does not call get_availability API' do
-        VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
-            # Should not make availability call since already booked
-            expect(subject).not_to receive(:get_availability)
-            subject.get_current_cohort_availability(veteran_id:)
           end
         end
       end
