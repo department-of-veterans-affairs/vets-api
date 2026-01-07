@@ -4,6 +4,16 @@ module V0
   class DisabilityCompensationInProgressFormsController < InProgressFormsController
     service_tag 'disability-application'
 
+    def update
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:sync_modern0781_flow] = form_hash['sync_modern0781_flow'] || form_hash[:sync_modern0781_flow] || false
+      end
+      super
+    end
+
     def show
       if form_for_user
         # get IPF
