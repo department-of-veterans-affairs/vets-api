@@ -1445,7 +1445,7 @@ vanotify:
           template_id: ~
         submitted:
           flipper_id: increase_compensation_submitted_email_notification
-          template_id: ~          
+          template_id: ~
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:

@@ -5,11 +5,10 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'support/controller_spec_helper'
 
-MOCK_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-
 RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
   let(:monitor) { double('IncreaseCompensation::Monitor') }
   let(:user) { create(:user) }
+  let(:mock_url) { 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }
 
   before do
     sign_in_as(user)
