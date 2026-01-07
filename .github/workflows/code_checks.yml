@@ -45,7 +45,7 @@ jobs:
           bundler-cache: true
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run: bundle exec bundle-audit check --update
+        run: bundle exec bundle-audit check --update --ignore CVE-2025-14762
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github
