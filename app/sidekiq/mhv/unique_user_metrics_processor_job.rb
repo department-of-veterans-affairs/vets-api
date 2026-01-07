@@ -68,6 +68,7 @@ module MHV
       job_start_time = Time.current
       iterations = 0
       total_events_processed = 0
+      total_db_inserts = 0
 
       # Early check for queue backlog - alert immediately if overflow detected
       check_queue_overflow(UniqueUserEvents::Buffer.pending_count)
@@ -83,17 +84,18 @@ module MHV
         iteration_start_time = Time.current
 
         # Process this batch (dedup, cache check, insert, cache write, StatsD)
-        process_events(events, iteration_start_time)
+        inserted_count = process_events(events, iteration_start_time)
 
         # TRIM - Remove events only after successful processing
         trim_processed_events(events.size)
 
         iterations += 1
         total_events_processed += events.size
+        total_db_inserts += inserted_count
       end
 
       # Record aggregate metrics for the entire job run
-      record_job_summary(job_start_time, iterations, total_events_processed)
+      record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
     rescue => e
       handle_job_failure(e, total_events_processed, iterations)
       raise # Re-raise to trigger Sidekiq retry
@@ -144,7 +146,8 @@ module MHV
     # @param job_start_time [Time] When the job started
     # @param iterations [Integer] Number of batch iterations completed
     # @param total_events [Integer] Total events processed across all iterations
-    def record_job_summary(job_start_time, iterations, total_events)
+    # @param total_db_inserts [Integer] Total events inserted to database (new unique events)
+    def record_job_summary(job_start_time, iterations, total_events, total_db_inserts)
       return if iterations.zero? # No work done, skip metrics
 
       duration_ms = ((Time.current - job_start_time) * 1000).round
@@ -152,12 +155,14 @@ module MHV
 
       StatsD.gauge("#{STATSD_PREFIX}.iterations", iterations)
       StatsD.gauge("#{STATSD_PREFIX}.total_events_processed", total_events)
+      StatsD.gauge("#{STATSD_PREFIX}.total_db_inserts", total_db_inserts)
       StatsD.gauge("#{STATSD_PREFIX}.queue_depth", queue_depth)
       StatsD.histogram("#{STATSD_PREFIX}.job_duration_ms", duration_ms)
 
       Rails.logger.debug('UUM Processor: Job completed', {
                            iterations:,
                            total_events_processed: total_events,
+                           total_db_inserts:,
                            duration_ms:,
                            queue_depth:
                          })
@@ -167,13 +172,14 @@ module MHV
     #
     # @param events [Array<Hash>] Raw events from buffer
     # @param iteration_start_time [Time] Iteration start time (unused, kept for signature compatibility)
+    # @return [Integer] Number of events inserted to database
     def process_events(events, _iteration_start_time = nil)
       # Step 1: Deduplicate in-memory
       unique_events = deduplicate_events(events)
 
       # Step 2: Filter out events already in cache
       uncached_events = filter_cached_events(unique_events)
-      return if uncached_events.empty?
+      return 0 if uncached_events.empty?
 
       # Step 3: Bulk insert to database
       inserted_events = bulk_insert_events(uncached_events)
@@ -183,6 +189,9 @@ module MHV
 
       # Step 5: Increment StatsD for new events
       increment_statsd_counters(inserted_events)
+
+      # Return count of inserted events for job-level tracking
+      inserted_events.size
     end
 
     # Deduplicate events

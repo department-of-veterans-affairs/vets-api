@@ -63,11 +63,12 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 1)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.queue_depth', 0)
         expect(StatsD).to have_received(:histogram).with('uum.processor_job.job_duration_ms', kind_of(Numeric))
         expect(Rails.logger).to have_received(:debug).with(
           'UUM Processor: Job completed',
-          hash_including(:iterations, :total_events_processed, :duration_ms, :queue_depth)
+          hash_including(:iterations, :total_events_processed, :total_db_inserts, :duration_ms, :queue_depth)
         )
       end
     end
@@ -99,6 +100,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
       end
     end
 
