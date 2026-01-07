@@ -3,7 +3,7 @@
 module BioHeartApi
   module V1
     class ApplicationController < ::ApplicationController
-      service_tag 'veteran-facing-forms'
+      service_tag 'bio-heart-api'
     end
   end
 end
