@@ -246,9 +246,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily job to clean up IvcChampvaForm records older than 60 days
   mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
-  # Every 15min job that syncs ARP's allowlist
-  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
-
   # Expire stale POA request records every night at 12:30 AM
   mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
 
