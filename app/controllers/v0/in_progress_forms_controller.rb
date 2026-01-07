@@ -40,14 +40,6 @@ module V0
       form.user_account = @current_user.user_account
       form.real_user_uuid = @current_user.uuid
 
-      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
-         (form_id == FormProfiles::VA526ez::FORM_ID) &&
-         params[:metadata].present? &&
-         params[:form_data].present?
-        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
-        params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
-      end
-
       if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
          (form_id == FormProfiles::VA526ez::FORM_ID) &&
          params[:metadata].present? &&
@@ -80,12 +72,6 @@ module V0
 
         form.user_account = @current_user.user_account if @current_user.user_account
         form.real_user_uuid = @current_user.uuid
-
-        if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
-           (form_id == FormProfiles::VA526ez::FORM_ID) && params[:metadata].present? && form_data.present?
-          form_hash = form_data.is_a?(String) ? JSON.parse(form_data) : form_data
-          params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
-        end
 
         if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
            (form_id == FormProfiles::VA526ez::FORM_ID) && params[:metadata].present? && form_data.present?
