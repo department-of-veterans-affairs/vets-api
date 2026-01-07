@@ -14,9 +14,12 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
   end
 
   let(:veteran_id) { 'test-veteran-uuid-123' }
-  let(:secret) { Rails.application.secret_key_base }
+  let(:secret) { 'test-jwt-secret' }
 
   before do
+    allow(Settings).to receive(:vass).and_return(
+      OpenStruct.new(jwt_secret: secret)
+    )
     routes.draw { get 'index' => 'anonymous#index' }
   end
 
@@ -262,8 +265,8 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
   end
 
   describe '#jwt_secret' do
-    it 'returns Rails secret_key_base' do
-      expect(controller.send(:jwt_secret)).to eq(Rails.application.secret_key_base)
+    it 'returns VASS jwt_secret from settings' do
+      expect(controller.send(:jwt_secret)).to eq(Settings.vass.jwt_secret)
     end
   end
 end

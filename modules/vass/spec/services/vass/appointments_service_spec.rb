@@ -24,6 +24,7 @@ describe Vass::AppointmentsService do
         tenant_id: 'test-tenant-id',
         client_id: 'test-client-id',
         client_secret: 'test-client-secret',
+        jwt_secret: 'test-jwt-secret',
         scope: 'https://api.va.gov/.default',
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
