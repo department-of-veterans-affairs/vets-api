@@ -87,6 +87,6 @@ RSpec.describe 'AskVAApi::V0::ZipStateValidation', type: :request do
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
 
-    expect(body['valid']).to eq(true)
+    expect(body['valid']).to be(true)
   end
 end

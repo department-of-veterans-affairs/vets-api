@@ -3,7 +3,6 @@
 module AskVAApi
   module V0
     class ZipStateValidationController < ApplicationController
-
       skip_before_action :authenticate, only: :create
       skip_before_action :verify_authenticity_token, only: :create
 
