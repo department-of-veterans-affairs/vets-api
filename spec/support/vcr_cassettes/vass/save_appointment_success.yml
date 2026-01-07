@@ -1,45 +1,25 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://login.microsoftonline.us/test-tenant-id/oauth2/v2.0/token
-    body:
-      encoding: UTF-8
-      string: client_id=test-client-id&client_secret=test-client-secret&scope=https://api.va.gov/.default&grant_type=client_credentials
-    headers:
-      Content-Type:
-      - application/x-www-form-urlencoded
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/json; charset=utf-8
-    body:
-      encoding: UTF-8
-      string: '{"token_type":"Bearer","expires_in":3599,"access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.test-token"}'
-  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
-- request:
-    method: post
-    uri: https://api.vass.va.gov/api/SaveAppointment
-    body:
-      encoding: UTF-8
-      string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","selectedAgentSkills":["skill-1","skill-2"]}'
-    headers:
-      Content-Type:
-      - application/json
-      Authorization:
-      - Bearer test-token
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/json; charset=utf-8
-    body:
-      encoding: UTF-8
-      string: '{"success":true,"message":"Appointment created successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentId":"appt-abc123"}}'
-  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+  - request:
+      method: post
+      uri: <VASS_API_URL>/api/SaveAppointment
+      body:
+        encoding: UTF-8
+        string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","selectedAgentSkills":["skill-1","skill-2"]}'
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: '{"success":true,"message":"Appointment created successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentId":"appt-abc123"}}'
+    recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
 recorded_with: VCR 6.0.0
