@@ -646,8 +646,8 @@ module Vass
         data: {
           message: "Booking opens on #{cohort_start_utc}",
           next_cohort: {
-            cohort_start_utc: cohort_start_utc,
-            cohort_end_utc: cohort_end_utc
+            cohort_start_utc:,
+            cohort_end_utc:
           }
         }
       }
