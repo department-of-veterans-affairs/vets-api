@@ -23,7 +23,7 @@ module TravelPay
     #
     # @return [String] the expense type
     def expense_type
-      TravelPay::Constants::EXPENSE_TYPES[:common_carrier]
+      TravelPay::Constants::EXPENSE_TYPES[:commoncarrier]
     end
 
     # Returns a hash of parameters formatted for the service layer

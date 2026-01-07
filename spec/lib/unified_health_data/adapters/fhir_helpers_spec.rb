@@ -253,27 +253,6 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
     end
   end
 
-  describe '#non_va_med?' do
-    it 'returns true when reportedBoolean is true' do
-      resource = { 'reportedBoolean' => true }
-      result = subject.non_va_med?(resource)
-      expect(result).to be true
-    end
-
-    it 'returns false when reportedBoolean is false' do
-      resource = { 'reportedBoolean' => false }
-      result = subject.non_va_med?(resource)
-      expect(result).to be false
-    end
-
-    it 'returns nil when reportedBoolean is not present' do
-      resource = {}
-      result = subject.non_va_med?(resource)
-      # Hash#[] returns nil for missing key, then == true returns false
-      expect(result).to be_falsey
-    end
-  end
-
   describe '#log_invalid_expiration_date' do
     before do
       allow(Rails.logger).to receive(:warn)

@@ -287,6 +287,7 @@ database_url: <%= ENV['database_url'] %>
 decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
+  email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
   mock: <%= ENV['decision_review__mock'] %>
   pdf_validation:
     enabled: true
@@ -1202,8 +1203,10 @@ reports:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  ch_31_case_details:
+    mock: <%= ENV['res__ch_31_case_details__mock'] %>
   ch_31_eligibility:
-    mock: <%= ENV['res__ch_31_eligibility__mock']%>
+    mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
@@ -1687,6 +1690,9 @@ vanotify:
         form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
         form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
         form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
+        form21_4140_confirmation_email: <%= ENV['bio__employment_questionnaires__email__submission_in_progress_template_id'] %>
+        form21_4140_error_email: <%= ENV['bio__employment_questionnaires__email__action_needed_template_id'] %>
+        form21_4140_received_email: <%= ENV['bio__employment_questionnaires__email__received_template_id'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
@@ -1768,6 +1774,8 @@ vass:
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
   mock: false
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540

@@ -5,7 +5,7 @@
   },
   "ssn": "123456789",
   "vaFileNumber": "123456789",
-  "mailingAddress" :{
+  "mailingAddress": {
     "street": "123 Test St",
     "street2": "Apt B",
     "city": "Test",
@@ -33,17 +33,39 @@
     "accountNumber": "123456"
   },
   "trainingProviders": {
-    "providers": [{
-      "providerName": "Test University",
-      "providerAddress": {
-        "street": "123 Example Ln",
-        "street2": "Bldg 2",
-        "city": "Test",
-        "state": "TN",
-        "postalCode": "12345",
-        "country": "USA"
+    "providers": [
+      {
+        "providerName": "Test University",
+        "providerAddress": {
+          "street": "123 Example Ln",
+          "street2": "Bldg 2",
+          "city": "Test",
+          "state": "TN",
+          "postalCode": "12345",
+          "country": "USA"
+        }
+      },
+      {
+        "providerName": "Test College",
+        "providerAddress": {
+          "street": "123 Maple Ct",
+          "city": "Tulsa",
+          "state": "OK",
+          "postalCode": "54321",
+          "country": "USA"
+        }
+      },
+      {
+        "providerName": "Test Community College",
+        "providerAddress": {
+          "street": "321 Euclid St",
+          "city": "New York",
+          "state": "NY",
+          "postalCode": "11111",
+          "country": "USA"
+        }
       }
-    }],
+    ],
     "plannedStartDate": "2025-02-02"
   },
   "statementOfTruthSignature": "Test Personage",
