@@ -19,8 +19,13 @@ module ClaimsApi
         def build_data_object
           return {} if @record.blank?
 
+          # Check frgnPhoneRfrncTxt for international numbers
+          # International numbers are stored in frgn_phone_rfrnc_txt instead of phone_nbr
+          phone_number = @record[:frgn_phone_rfrnc_txt].presence || @record[:phone_nbr]
+
+          # When auto establishing the POA record domestic or international numbers get saved to the same field
           {
-            'phone_nbr' => @record[:phone_nbr]
+            'phone_nbr' => phone_number
           }
         end
       end

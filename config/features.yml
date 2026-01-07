@@ -331,6 +331,9 @@ features:
   champva_update_metadata_keys:
     actor_type: user
     description: Enables the use of updated JSON key names in the Pega submission metadata
+  champva_missing_status_verbose_logging:
+    actor_type: user
+    description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1324,6 +1327,14 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
     enable_in_development: false
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_uhd_name_logging:
+    actor_type: user
+    description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
@@ -1374,10 +1385,6 @@ features:
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
-    enable_in_development: true
-  mhv_vaccine_lighthouse_name_logging:
-    actor_type: user
-    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: true
   mhv_secure_messaging_recipient_opt_groups:
     actor_type: user
@@ -2276,12 +2283,6 @@ features:
   disability_compensation_upload_0781_to_lighthouse:
     actor_type: user
     description: If enabled uploads 0781/a forms to Lighthouse Benefits Documents API instead of EVSS
-  disability_compensation_use_api_provider_for_submit_veteran_upload:
-    actor_type: user
-    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Veteran Evidence
-  disability_compensation_upload_veteran_evidence_to_lighthouse:
-    actor_type: user
-    description: If enabled uploads Veteran Evidence to Lighthouse Benefits Documents API instead of EVSS
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications

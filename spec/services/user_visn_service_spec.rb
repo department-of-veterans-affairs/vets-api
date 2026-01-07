@@ -14,7 +14,7 @@ RSpec.describe UserVisnService do
 
   describe 'PILOT_VISNS constant' do
     let(:pilot_visns) do
-      %w[2 15 21]
+      %w[2 15 21 983 200ESR]
     end
 
     it 'contains the expected pilot VISNs' do
