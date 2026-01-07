@@ -128,9 +128,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
-  bgs_param_logging_enabled:
+  bep_param_logging_enabled:
     actor_type: user
-    description: Enables logging of BGS parameters (filtered in production)
+    description: Enables logging of BEP parameters (filtered in production)
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
@@ -182,9 +182,9 @@ features:
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
-  hca_disable_bgs_service:
+  hca_disable_bep_service:
     actor_type: user
-    description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
+    description: Do not call the BEP Service when this is turned on. Instead return 0 for rating.
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -398,25 +398,25 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
-  claims_api_special_issues_updater_uses_local_bgs:
+  claims_api_special_issues_updater_uses_local_bep:
     actor_type: user
-    description: Enables special issues updater to use local_bgs
+    description: Enables special issues updater to use local_bep
     enable_in_development: true
-  claims_api_flash_updater_uses_local_bgs:
+  claims_api_flash_updater_uses_local_bep:
     actor_type: user
-    description: Enables flash updater to use local_bgs
+    description: Enables flash updater to use local_bep
     enable_in_development: true
-  claims_api_poa_vbms_updater_uses_local_bgs:
+  claims_api_poa_vbms_updater_uses_local_bep:
     actor_type: user
-    description: Enables poa vbms updater to use local_bgs
+    description: Enables poa vbms updater to use local_bep
     enable_in_development: true
   claims_api_bd_refactor:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
-  claims_api_ews_updater_enables_local_bgs:
+  claims_api_ews_updater_enables_local_bep:
     actor_type: user
-    description: Uses local_bgs rather than bgs-ext
+    description: Uses local_bep rather than bgs-ext
     enable_in_development: true
   claims_api_ews_uploads_bd_refactor:
     actor_type: user
@@ -426,17 +426,17 @@ features:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
     enable_in_development: true
-  claims_api_526_validations_v1_local_bgs:
+  claims_api_526_validations_v1_local_bep:
     actor_type: user
-    description: Enables the method calls in the v1 526 validations use local_bgs
+    description: Enables the method calls in the v1 526 validations use local_bep
     enable_in_development: true
   claims_api_use_person_web_service:
     actor_type: user
-    description: Uses person web service rather than local bgs
+    description: Uses person web service rather than local bep
     enable_in_development: true
   claims_api_use_update_poa_relationship:
     actor_type: user
-    description: Uses local_bgs rather than bgs-ext
+    description: Uses local_bep rather than bgs-ext
     enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
@@ -464,7 +464,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_hardcode_wsdl:
     actor_type: user
-    description: Use hardcoded namespaces for WSDL calls to BGS
+    description: Use hardcoded namespaces for WSDL calls to BEP
     enable_in_development: true
   cst_show_document_upload_status:
     actor_type: user
@@ -574,9 +574,9 @@ features:
   claims_load_testing:
     actor_type: user
     description: Enables the ability to skip jobs for load testing
-  claims_status_v1_bgs_enabled:
+  claims_status_v1_bep_enabled:
     actor_type: user
-    description: enables calling BGS instead of EVSS for the claims status v1.
+    description: enables calling BEP instead of EVSS for the claims status v1.
   claims_hourly_slack_error_report_enabled:
     actor: user
     description: Enable/disable the running of the hourly slack alert for errored submissions
@@ -777,7 +777,7 @@ features:
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
-    description: enables sending flashes to BGS for disability_compensation submissions.
+    description: enables sending flashes to BEP for disability_compensation submissions.
     enable_in_development: true
   disability_compensation_temp_separation_location_code_string:
     actor_type: user
@@ -1234,9 +1234,9 @@ features:
     actor_type: user
     description: Enable/disable the VA notification emails in V2 POA
     enable_in_development: false
-  lighthouse_claims_v2_poa_requests_skip_bgs:
+  lighthouse_claims_v2_poa_requests_skip_bep:
     actor_type: user
-    description: Enable/disable skipping BGS calls for POA Requests
+    description: Enable/disable skipping BEP calls for POA Requests
     enable_in_development: true
   lighthouse_claims_api_poa_use_bd:
     actor_type: user
@@ -2031,9 +2031,9 @@ features:
   va_dependents_v3:
     actor_type: user
     description: Allows us to toggle v3 of the 686c-674 form.
-  va_dependents_bgs_extra_error_logging:
+  va_dependents_bep_extra_error_logging:
     actor_type: user
-    description: Allows us to toggle extra error logging for BGS in 686C-674
+    description: Allows us to toggle extra error logging for BEP in 686C-674
   va_dependents_browser_monitoring_enabled:
     actor_type: user
     description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
@@ -2174,7 +2174,7 @@ features:
     description: Enables linking between VA.gov account and fitbit account
   payment_history:
     actor_type: user
-    description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
+    description: Allows manual enabling/disabling payment history when BEP is acting up (5 min response times)
     enable_in_development: true
   cdp_payment_history_vba:
     actor_type: user
@@ -2215,9 +2215,9 @@ features:
     actor_type: user
     description: Flag to use contact info call and modal
     enable_in_development: true
-  toe_short_circuit_bgs_failure:
+  toe_short_circuit_bep_failure:
     actor_type: user
-    description: Flag to use begin rescue block for BGS call
+    description: Flag to use begin rescue block for BEP call
     enable_in_development: true
   toe_high_school_info_change:
     actor_type: user
