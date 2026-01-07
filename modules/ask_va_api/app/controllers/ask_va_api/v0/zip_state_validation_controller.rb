@@ -3,8 +3,12 @@
 module AskVAApi
   module V0
     class ZipStateValidationController < ApplicationController
+
+      skip_before_action :authenticate, only: :create
+      skip_before_action :verify_authenticity_token, only: :create
+
       def create
-        result = ZipStateValidator.call(
+        result = AskVAApi::ZipStateValidation::ZipStateValidator.call(
           zip_code: params[:zip_code],
           state_code: params[:state_code]
         )
