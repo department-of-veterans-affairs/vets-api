@@ -65,7 +65,8 @@ module Vass
       return nil unless auth_header
 
       # Expected format: "Bearer <token>"
-      match = auth_header.match(/^Bearer\s+(.+)$/i)
+      # Using \S+ (non-whitespace) instead of .+ to prevent ReDoS vulnerability
+      match = auth_header.match(/^Bearer\s+(\S+)$/i)
       match&.[](1)
     end
 
