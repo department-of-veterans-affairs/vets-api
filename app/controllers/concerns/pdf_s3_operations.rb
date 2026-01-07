@@ -34,11 +34,16 @@ module PdfS3Operations
     FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
   end
 
-  # Returns the URL of an already-created PDF
-  def s3_signed_url(claim, created_at, config:)
+  ## Returns the URL of an already-created PDF
+  #
+  #  @param claim [SavedClaim] the claim to upload
+  #  @param created_at [Date] Date used in S3 bucket
+  #  @param config [Config] SimpleFormsApi::FormRemediation::Configuration::Base needed for s3 settings
+  #  @param form_class [PdfFormBase] the pdf filler class needed for overflow? ex: IncreaseCompensation::PdfFill::Va218940v1
+  def s3_signed_url(claim, created_at, config:, form_class: nil)
     directory = dated_directory_name(claim.form_id, created_at)
     s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-    final = overflow?(claim, created_at)
+    final = overflow?(claim, created_at, form_class)
     s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf") || nil
   rescue => e
     Rails.logger.warn(
@@ -58,11 +63,15 @@ module PdfS3Operations
   end
 
   ## returns a string to append to the filename based on existence of overflow pages.
+  #  @param claim [SavedClaim] the claim to upload
+  #  @param created_at [Date] Date/TimeStamp used in the file name
+  #  @param form_class [PdfFormBase] the pdf filler class ex: IncreaseCompensation::PdfFill::Va218940v1
   #
   # the PDF Filler will append the string "_final" to the end of the file name if the data
   # overflows to addinational pages. because we dont hold on to the url or filename we have
   # to regenerate the pdf to determine if filename has changed.
-  def overflow?(claim, created_at)
+  def overflow?(claim, created_at, form_class:)
+    return '' if form_class.nil?
     merged_form_data = form_class.new(claim.parsed_form).merge_fields({})
     hash_converter = ::PdfFill::Filler.make_hash_converter(
       claim.form_id,

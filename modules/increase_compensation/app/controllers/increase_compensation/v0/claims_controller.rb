@@ -26,10 +26,6 @@ module IncreaseCompensation
         IncreaseCompensation::SavedClaim
       end
 
-      def form_class
-        IncreaseCompensation::PdfFill::Va218940v1
-      end
-
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
@@ -39,7 +35,8 @@ module IncreaseCompensation
         pdf_url = s3_signed_url(
           claim,
           form_submission_attempt.created_at.to_date,
-          config: IncreaseCompensation::ZsfConfig.new
+          config: IncreaseCompensation::ZsfConfig.new,
+          form_class: IncreaseCompensation::PdfFill::Va218940v1
         )
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
