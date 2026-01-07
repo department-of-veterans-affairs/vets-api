@@ -1047,8 +1047,7 @@ describe 'PowerOfAttorney',
                                           phone: '555-555-5555')
             create(:veteran_representative, representative_id: '999999999999',
                                             poa_codes: [organization_poa_code], phone: '555-555-5555')
-            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
-              .to receive(:check_file_number_exists!).and_return('796104437')
+            mock_file_number_check
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -1411,8 +1410,7 @@ describe 'PowerOfAttorney',
                                             first_name: 'Firstname',
                                             last_name: 'Lastname',
                                             phone: '555-555-5555')
-            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
-              .to receive(:check_file_number_exists!).and_return('796104437')
+            mock_file_number_check
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
