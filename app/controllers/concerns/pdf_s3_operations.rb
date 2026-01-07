@@ -43,7 +43,7 @@ module PdfS3Operations
   def s3_signed_url(claim, created_at, config:, form_class: nil)
     directory = dated_directory_name(claim.form_id, created_at)
     s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-    final = overflow?(claim, created_at, form_class)
+    final = overflow?(claim, created_at, form_class:)
     s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf") || nil
   rescue => e
     Rails.logger.warn(
@@ -72,6 +72,7 @@ module PdfS3Operations
   # to regenerate the pdf to determine if filename has changed.
   def overflow?(claim, created_at, form_class:)
     return '' if form_class.nil?
+
     merged_form_data = form_class.new(claim.parsed_form).merge_fields({})
     hash_converter = ::PdfFill::Filler.make_hash_converter(
       claim.form_id,
