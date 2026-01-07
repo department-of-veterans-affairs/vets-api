@@ -331,6 +331,9 @@ features:
   champva_update_metadata_keys:
     actor_type: user
     description: Enables the use of updated JSON key names in the Pega submission metadata
+  champva_missing_status_verbose_logging:
+    actor_type: user
+    description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
