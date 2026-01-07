@@ -22,18 +22,20 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       ]
     end
 
-    before do
-      expect(efolder_service).to receive(:list_tsa_letters).and_return(tsa_letters)
-    end
+    # before do
+    #   expect(efolder_service).to receive(:list_tsa_letters).and_return(tsa_letters)
+    # end
 
     it 'returns the tsa letter metadata' do
-      expected_response = { 'data' =>
-        [{ 'id' => '',
-           'type' => 'tsa_letter',
-           'attributes' => { 'document_id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'doc_type' => '34',
-                             'type_description' => 'Correspondence', 'received_at' => '2024-09-13' } }] }
-      get '/v0/tsa_letter'
-      expect(response.body).to eq(expected_response.to_json)
+      VCR.use_cassette('spec/support/vcr_cassettes/tsa_letters/index_success.yml') do
+        expected_response = { 'data' =>
+          [{ 'id' => '',
+            'type' => 'tsa_letter',
+            'attributes' => { 'document_id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'doc_type' => '34',
+                              'type_description' => 'Correspondence', 'received_at' => '2024-09-13' } }] }
+        get '/v0/tsa_letter'
+        expect(response.body).to eq(expected_response.to_json)
+      end
     end
   end
 

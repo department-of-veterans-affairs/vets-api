@@ -1,15 +1,35 @@
 # frozen_string_literal: true
 
-require 'efolder/service'
+require 'claims_evidence_api/service/search'
 
 module V0
   class TsaLetterController < ApplicationController
     service_tag 'tsa_letter'
 
     def index
-      letters = service.list_tsa_letters
-      render(json: TsaLetterSerializer.new(letters))
+      search_service = ClaimsEvidenceApi::Service::Search.new
+      filters = { subject: ['VETS Safe Travel Outreach Letter'] }
+      folder_identifier = "VETERAN:ICN:#{current_user.icn}"
+      search_service.folder_identifier = folder_identifier
+      response = search_service.find(filters:)
+      binding.pry
+      render(json: response)
     end
+
+    # service = ClaimsEvidenceApi::Service::Search.new
+    # filters = { subject: ['VETS Safe Travel Outreach Letter'] }
+    # folder_identifier = "VETERAN:ICN:#{user icn}"
+    # service.folder_identifier = folder_identifier
+    # start_time = Time.now
+    # response = service.find(filters:)
+    # end_time = Time.now
+    # elapsed = end_time - start_time
+    # puts "Elapsed: #{elapsed}"
+
+    # require 'claims_evidence_api/service/files'
+    # service = ClaimsEvidenceApi::Service::Files.new
+    # uuid = 'c75438b4-47f8-44d3-9e35-798158591456' # pulled from search response
+    # version = '920debba-cc65-479c-ab47-db9b2a5cd95f' # from search response
 
     def show
       send_data(
