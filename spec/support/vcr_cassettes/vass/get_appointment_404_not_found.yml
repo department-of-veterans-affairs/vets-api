@@ -2,59 +2,44 @@
 http_interactions:
 - request:
     method: post
-    uri: "<VASS_AUTH_URL>/test-tenant-id/oauth2/v2.0/token"
-    body:
-      encoding: US-ASCII
-      string: client_id=test-client-id&client_<DMC_TOKEN>=test-client-<DMC_TOKEN>&scope=https%3A%2F%2Fapi.va.gov%2F.default&grant_type=client_credentials
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/x-www-form-urlencoded
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 400
-      message: Bad Request
-    headers:
-      Cache-Control:
-      - no-store, no-cache
-      Pragma:
-      - no-cache
-      Content-Type:
-      - application/json; charset=utf-8
-      Expires:
-      - "-1"
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      X-Content-Type-Options:
-      - nosniff
-      P3p:
-      - CP="DSP CUR OTPi IND OTRi ONL FIN"
-      X-Ms-Request-Id:
-      - dd0952aa-f7d0-43d1-909a-da9d99295f00
-      X-Ms-Ests-Server:
-      - 2.1.22891.5 - USGVA ProdSlices
-      X-Xss-Protection:
-      - '0'
-      Set-Cookie:
-      - fpc=Av-H0HjgtF9OnXsGUDKw2k8; expires=Thu, 05-Feb-2026 23:19:37 GMT; path=/;
-        secure; HttpOnly; SameSite=None
-      - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
-      - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
-      Date:
-      - Tue, 06 Jan 2026 23:19:36 GMT
-      Content-Length:
-      - '527'
+    uri: https://login.microsoftonline.us/test-tenant-id/oauth2/v2.0/token
     body:
       encoding: UTF-8
-      string: '{"error":"invalid_request","error_description":"AADSTS900023: Specified
-        tenant identifier ''test-tenant-id'' is neither a valid DNS name, nor a valid
-        external domain. Trace ID: dd0952aa-f7d0-43d1-909a-da9d99295f00 Correlation
-        ID: 5e80fb48-057e-42df-8780-5ebb443bab75 Timestamp: 2026-01-06 23:19:37Z","error_codes":[900023],"timestamp":"2026-01-06
-        23:19:37Z","trace_id":"dd0952aa-f7d0-43d1-909a-da9d99295f00","correlation_id":"5e80fb48-057e-42df-8780-5ebb443bab75","error_uri":"<VASS_AUTH_URL>/error?code=900023"}'
-  recorded_at: Tue, 06 Jan 2026 23:19:37 GMT
-recorded_with: VCR 6.3.1
+      string: client_id=test-client-id&client_secret=test-client-secret&scope=https://api.va.gov/.default&grant_type=client_credentials
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":3599,"access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.test-token"}'
+  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+- request:
+    method: get
+    uri: https://api.vass.va.gov/api/GetVeteranAppointment
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-token
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '{"success":false,"message":"Appointment not found","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z"}'
+  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+recorded_with: VCR 6.0.0
