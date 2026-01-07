@@ -10,6 +10,7 @@ module Mobile
       FUTURE_DATE = '3000-01-01'
 
       def index
+        immunizations = uhd_enabled? ? uhd_service.get_immunizations : lh_immunizations
         paginated_immunizations, meta = Mobile::PaginationHelper.paginate(list: immunizations,
                                                                           validated_params: pagination_params)
 
@@ -22,7 +23,14 @@ module Mobile
           ]
         )
 
-        render json: Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
+        serialized_immunizations = if uhd_enabled?
+                                     UnifiedHealthData::Serializers::ImmunizationSerializer.new(
+                                       paginated_immunizations, meta
+                                     )
+                                   else
+                                     Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
+                                   end
+        render json: serialized_immunizations
       end
 
       private
@@ -51,7 +59,7 @@ module Mobile
         )
       end
 
-      def immunizations
+      def lh_immunizations
         immunizations = Mobile::V0::Immunization.get_cached(@current_user) if pagination_params[:use_cache]
 
         unless immunizations

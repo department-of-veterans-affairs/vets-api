@@ -1,0 +1,295 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+    body:
+      encoding: UTF-8
+      string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
+    headers:
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-access-token-12345
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+  recorded_at: Wed, 07 Jan 2026 19:00:00 GMT
+- request:
+    method: get
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/immunizations?patientId=123456789V012345&startDate=1900-01-01&endDate=2026-01-07"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer test-access-token-12345
+      X-Api-Key:
+      - test-api-key
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "vista": {
+            "resourceType": "Bundle",
+            "type": "searchset",
+            "total": 2,
+            "entry": [
+              {
+                "resource": {
+                  "resourceType": "Immunization",
+                  "id": "4d4547fb-01f9-4c5e-b0e6-61d805ae6218",
+                  "status": "completed",
+                  "vaccineCode": {
+                    "coding": [
+                      { "code": "90662", "display": "IIV NO PRSV INCREASED AG IM" }
+                    ],
+                    "text": "INFLUENZA, HIGH-DOSE, QUADRIVALENT, PF"
+                  },
+                  "patient": { "reference": "Patient/24643801" },
+                  "occurrenceDateTime": "2025-11-25T17:20:00Z",
+                  "location": {
+                    "reference": "EVENING PRIMARY CARE",
+                    "display": "EVENING PRIMARY CARE"
+                  },
+                  "manufacturer": { "display": "SANOFI PASTEUR" },
+                  "site": { "coding": [{ "code": "LD", "display": "LEFT DELTOID" }] },
+                  "route": { "coding": [{ "code": "IM", "display": "INTRAMUSCULAR" }] },
+                  "performer": [
+                    {
+                      "actor": {
+                        "identifier": { "value": "520650352" },
+                        "display": "BORLAND,VICTORIA A"
+                      }
+                    }
+                  ],
+                  "note": [{ "text": "PATTY TEST" }],
+                  "protocolApplied": [{ "series": "BOOSTER" }]
+                }
+              },
+              {
+                "resource": {
+                  "resourceType": "Immunization",
+                  "id": "cde96bc7-fcc0-4bee-bcc0-c7f99515a83f",
+                  "status": "completed",
+                  "vaccineCode": {
+                    "coding": [
+                      { "code": "90750", "display": "HZV VACC RECOMBINANT IM" }
+                    ],
+                    "text": "ZOSTER RECOMBINANT"
+                  },
+                  "patient": { "reference": "Patient/24643801" },
+                  "occurrenceDateTime": "2025-12-12T18:00:00Z",
+                  "location": { "reference": "TEST", "display": "TEST" },
+                  "manufacturer": { "display": "GLAXOSMITHKLINE" },
+                  "site": { "coding": [{ "code": "RD", "display": "RIGHT DELTOID" }] },
+                  "route": { "coding": [{ "code": "IM", "display": "INTRAMUSCULAR" }] },
+                  "performer": [
+                    {
+                      "actor": {
+                        "identifier": { "value": "520650339" },
+                        "display": "MCGUIRE,MARCI P"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "oracle-health": {
+            "resourceType": "Bundle",
+            "type": "collection",
+            "entry": [
+              {
+                "resource": {
+                  "resourceType": "Immunization",
+                  "id": "M20875183430",
+                  "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-12-10T20:20:28+00:00"
+                  },
+                  "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: human papillomavirus vaccine</p><p><b>Occurrence</b>: Dec 10, 2025  2:19 P.M. CST</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Administered by</b>: Borland, Victoria A</p><p><b>Ordered by</b>: Borland, Victoria A</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Site</b>: Shoulder, left (deltoid)</p><p><b>Route</b>: IntraMuscular</p></div>"
+                  },
+                  "identifier": [
+                    {
+                      "system": "https://fhir.cerner.com/ceuuid",
+                      "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875183430-2025121020202800"
+                    }
+                  ],
+                  "status": "completed",
+                  "vaccineCode": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                        "code": "4145920",
+                        "display": "human papillomavirus vaccine",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://hl7.org/fhir/sid/cvx",
+                        "code": "165",
+                        "display": "human papillomavirus vaccine (human papillomavirus vaccine 9-valent intramuscular suspension)",
+                        "userSelected": false
+                      },
+                      {
+                        "system": "http://hl7.org/fhir/sid/ndc",
+                        "code": "00006-4121-02",
+                        "display": "Gardasil 9",
+                        "userSelected": true
+                      }
+                    ],
+                    "text": "human papillomavirus vaccine"
+                  },
+                  "patient": {
+                    "reference": "Patient/72339199",
+                    "display": "SILVA, ALEXANDER RICARDO"
+                  },
+                  "encounter": { "reference": "Encounter/322675981" },
+                  "occurrenceDateTime": "2025-12-10T14:19:00-06:00",
+                  "primarySource": true,
+                  "location": {
+                    "reference": "Location/353977013",
+                    "display": "556 JAL IL VA"
+                  },
+                  "manufacturer": { "display": "Merck & Company Inc" },
+                  "lotNumber": "Z005469",
+                  "expirationDate": "2026-02-27",
+                  "site": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/97",
+                        "code": "577",
+                        "display": "Shoulder, left (deltoid)",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "16217701000119102",
+                        "display": "Structure of left deltoid muscle (body structure)",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "Shoulder, left (deltoid)"
+                  },
+                  "route": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4001",
+                        "code": "318167",
+                        "display": "IntraMuscular",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "78421000",
+                        "display": "Intramuscular route (qualifier value)",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "IntraMuscular"
+                  },
+                  "doseQuantity": {
+                    "value": 0.5,
+                    "unit": "mL",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mL"
+                  },
+                  "performer": [
+                    {
+                      "function": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                            "code": "AP",
+                            "display": "Administering Provider"
+                          }
+                        ],
+                        "text": "Administering Provider"
+                      },
+                      "actor": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                      }
+                    },
+                    {
+                      "function": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0443",
+                            "code": "OP",
+                            "display": "Ordering Provider"
+                          }
+                        ],
+                        "text": "Ordering Provider"
+                      },
+                      "actor": {
+                        "reference": "Practitioner/63662034",
+                        "display": "Borland, Victoria A"
+                      }
+                    },
+                    {
+                      "actor": {
+                        "reference": "Organization/2044131",
+                        "display": "556 Captain James A Lovell IL VA Medical Center"
+                      }
+                    }
+                  ],
+                  "protocolApplied": [
+                    {
+                      "targetDisease": [
+                        {
+                          "coding": [
+                            {
+                              "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                              "code": "42347973",
+                              "display": "Human Papillomavirus",
+                              "userSelected": true
+                            },
+                            {
+                              "system": "http://hl7.org/fhir/sid/cvx",
+                              "code": "137",
+                              "display": "HPV, unspecified formulation",
+                              "userSelected": false
+                            }
+                          ],
+                          "text": "Human Papillomavirus"
+                        }
+                      ],
+                      "doseNumberString": "Unknown"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+  recorded_at: Wed, 07 Jan 2026 19:00:00 GMT
+recorded_with: VCR 6.3.1

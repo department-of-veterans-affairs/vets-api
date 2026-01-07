@@ -6,7 +6,8 @@ require 'unique_user_events'
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
   let(:default_params) { { start_date: '2015-01-01', end_date: '2015-12-31' } }
   let(:path) { '/my_health/v2/medical_records/immunizations' }
-  let(:immunizations_cassette) { 'lighthouse/veterans_health/get_immunizations' }
+  let(:lh_immunizations_cassette) { 'lighthouse/veterans_health/get_immunizations' }
+  let(:uhd_immunizations_cassette) { 'unified_health_data/get_immunizations' }
   let(:current_user) { build(:user, :mhv) }
 
   before do
@@ -14,150 +15,335 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
   end
 
   describe 'GET /my_health/v2/medical_records/immunizations' do
-    context 'happy path' do
+    context 'with Lighthouse data' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                  anything).and_return(false)
+
         allow(UniqueUserEvents).to receive(:log_events)
-        VCR.use_cassette(immunizations_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        VCR.use_cassette(lh_immunizations_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' },
+                    params: default_params
         end
       end
 
-      it 'returns a successful response' do
-        expect(response).to be_successful
-      end
+      context 'happy path' do
+        it 'returns a successful response' do
+          expect(response).to be_successful
+        end
 
-      it 'logs unique user events for immunizations/vaccines accessed' do
-        expect(UniqueUserEvents).to have_received(:log_events).with(
-          user: anything,
-          event_names: [
-            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
-            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
-          ]
-        )
-      end
+        it 'logs unique user events for immunizations/vaccines accessed' do
+          expect(UniqueUserEvents).to have_received(:log_events).with(
+            user: anything,
+            event_names: [
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+            ]
+          )
+        end
 
-      context 'when date parameters are not provided' do
-        before do
-          VCR.use_cassette(immunizations_cassette) do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+        context 'when date parameters are not provided' do
+          before do
+            VCR.use_cassette(lh_immunizations_cassette) do
+              get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+            end
+          end
+
+          it 'returns a successful response' do
+            expect(response).to be_successful
           end
         end
 
-        it 'returns a successful response' do
-          expect(response).to be_successful
+        it 'tracks metrics in StatsD with exact immunization count' do
+          # First make a request to get the actual JSON response
+          VCR.use_cassette(lh_immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          # Get the actual count of immunizations returned
+          json_response = JSON.parse(response.body)
+          actual_count = json_response['data'].length
+
+          # Now test that StatsD receives that exact count
+          expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', actual_count)
+
+          # Make the request again with the mock in place
+          VCR.use_cassette(lh_immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+        end
+
+        it 'includes location information in immunization data' do
+          json_response = JSON.parse(response.body)
+
+          # Verify that immunizations have location data
+          expect(json_response['data']).to be_an(Array)
+          expect(json_response['data']).not_to be_empty
+
+          # Check that each immunization includes location data
+          json_response['data'].each do |immunization|
+            expect(immunization['attributes']).to have_key('location')
+            expect(immunization['attributes']).to have_key('locationId')
+          end
+
+          # Verify the location name for the first immunization
+          expect(json_response['data'][0]['attributes']['location']).to eq('TEST VA FACILITY')
         end
       end
 
-      it 'tracks metrics in StatsD with exact immunization count' do
-        # First make a request to get the actual JSON response
-        VCR.use_cassette(immunizations_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+      context 'error cases' do
+        let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                    anything).and_return(false)
+
+          allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
         end
 
-        # Get the actual count of immunizations returned
-        json_response = JSON.parse(response.body)
-        actual_count = json_response['data'].length
+        context 'with client error' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(false)
 
-        # Now test that StatsD receives that exact count
-        expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', actual_count)
+            allow(mock_client).to receive(:get_immunizations)
+              .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
-        # Make the request again with the mock in place
-        VCR.use_cassette(immunizations_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            # Expect logger to receive error
+            expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns bad_gateway status code' do
+            expect(response).to have_http_status(:bad_gateway)
+          end
+
+          it 'returns formatted error details' do
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('errors')
+            expect(json_response['errors']).to be_an(Array)
+            expect(json_response['errors'].first).to include(
+              'title' => 'FHIR API Error',
+              'detail' => 'FHIR API Error'
+            )
+          end
         end
-      end
 
-      it 'includes location information in immunization data' do
-        json_response = JSON.parse(response.body)
+        context 'with backend service exception' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(false)
 
-        # Verify that immunizations have location data
-        expect(json_response['data']).to be_an(Array)
-        expect(json_response['data']).not_to be_empty
+            allow(mock_client).to receive(:get_immunizations)
+              .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
+                                                                         detail: 'Backend Service Unavailable'))
 
-        # Check that each immunization includes location data
-        json_response['data'].each do |immunization|
-          expect(immunization['attributes']).to have_key('location')
-          expect(immunization['attributes']).to have_key('locationId')
+            # Expect logger to receive error
+            expect(Rails.logger).to receive(:error).with(/Backend service exception/)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns bad_gateway status code' do
+            expect(response).to have_http_status(:bad_gateway)
+          end
+
+          it 'includes error details in the response' do
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('errors')
+          end
         end
 
-        # Verify the location name for the first immunization
-        expect(json_response['data'][0]['attributes']['location']).to eq('TEST VA FACILITY')
+        context 'when response has no entries' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(false)
+
+            empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
+            allow(mock_client).to receive(:get_immunizations)
+              .and_return(OpenStruct.new(body: empty_response))
+
+            # Expect StatsD to receive count of 0
+            expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns a successful response' do
+            expect(response).to be_successful
+          end
+
+          it 'returns an empty data array' do
+            json_response = JSON.parse(response.body)
+            expect(json_response['data']).to eq([])
+          end
+        end
       end
     end
 
-    context 'error cases' do
-      let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
-
+    context 'with UHD data' do
       before do
-        allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
-      end
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                  anything).and_return(true)
 
-      context 'with client error' do
-        before do
-          allow(mock_client).to receive(:get_immunizations)
-            .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
-
-          # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
-
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-        end
-
-        it 'returns bad_gateway status code' do
-          expect(response).to have_http_status(:bad_gateway)
-        end
-
-        it 'returns formatted error details' do
-          json_response = JSON.parse(response.body)
-          expect(json_response).to have_key('errors')
-          expect(json_response['errors']).to be_an(Array)
-          expect(json_response['errors'].first).to include(
-            'title' => 'FHIR API Error',
-            'detail' => 'FHIR API Error'
-          )
+        allow(UniqueUserEvents).to receive(:log_events)
+        VCR.use_cassette(uhd_immunizations_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' },
+                    params: default_params
         end
       end
 
-      context 'with backend service exception' do
-        before do
-          allow(mock_client).to receive(:get_immunizations)
-            .and_raise(Common::Exceptions::BackendServiceException.new('VA900', detail: 'Backend Service Unavailable'))
-
-          # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/Backend service exception/)
-
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-        end
-
-        it 'returns bad_gateway status code' do
-          expect(response).to have_http_status(:bad_gateway)
-        end
-
-        it 'includes error details in the response' do
-          json_response = JSON.parse(response.body)
-          expect(json_response).to have_key('errors')
-        end
-      end
-
-      context 'when response has no entries' do
-        before do
-          empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
-          allow(mock_client).to receive(:get_immunizations)
-            .and_return(OpenStruct.new(body: empty_response))
-
-          # Expect StatsD to receive count of 0
-          expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
-
-          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-        end
-
+      context 'happy path' do
         it 'returns a successful response' do
           expect(response).to be_successful
         end
 
-        it 'returns an empty data array' do
+        it 'logs unique user events for immunizations/vaccines accessed' do
+          expect(UniqueUserEvents).to have_received(:log_events).with(
+            user: anything,
+            event_names: [
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+              UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+            ]
+          )
+        end
+
+        context 'when date parameters are not provided' do
+          before do
+            VCR.use_cassette(uhd_immunizations_cassette) do
+              get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+            end
+          end
+
+          it 'returns a successful response' do
+            expect(response).to be_successful
+          end
+        end
+
+        it 'tracks metrics in StatsD with exact immunization count' do
+          # First make a request to get the actual JSON response
+          VCR.use_cassette(uhd_immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          # Get the actual count of immunizations returned
           json_response = JSON.parse(response.body)
-          expect(json_response['data']).to eq([])
+          actual_count = json_response['data'].length
+
+          # Now test that StatsD receives that exact count
+          expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', actual_count)
+
+          # Make the request again with the mock in place
+          VCR.use_cassette(uhd_immunizations_cassette) do
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+        end
+
+        it 'includes location information in immunization data' do
+          json_response = JSON.parse(response.body)
+
+          # Verify that immunizations have location data
+          expect(json_response['data']).to be_an(Array)
+          expect(json_response['data']).not_to be_empty
+
+          # Check that each immunization includes location data
+          json_response['data'].each do |immunization|
+            expect(immunization['attributes']).to have_key('location')
+          end
+
+          # Verify the location name for the first immunization
+          expect(json_response['data'][0]['attributes']['location']).to eq('TEST VA FACILITY')
+        end
+      end
+
+      context 'error cases' do
+        let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                    anything).and_return(true)
+
+          allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
+        end
+
+        context 'with client error' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(true)
+
+            allow(mock_client).to receive(:get_immunizations)
+              .and_raise(Common::Client::Errors::ClientError.new('UHD API Error', 500))
+
+            # Expect logger to receive error
+            expect(Rails.logger).to receive(:error).with(/immunization records UHD API error/)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns bad_gateway status code' do
+            expect(response).to have_http_status(:bad_gateway)
+          end
+
+          it 'returns formatted error details' do
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('errors')
+            expect(json_response['errors']).to be_an(Array)
+            expect(json_response['errors'].first).to include(
+              'title' => 'UHD API Error',
+              'detail' => 'UHD API Error'
+            )
+          end
+        end
+
+        context 'with backend service exception' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(true)
+
+            allow(mock_client).to receive(:get_immunizations)
+              .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
+                                                                         detail: 'Backend Service Unavailable'))
+
+            # Expect logger to receive error
+            expect(Rails.logger).to receive(:error).with(/Backend service exception/)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns bad_gateway status code' do
+            expect(response).to have_http_status(:bad_gateway)
+          end
+
+          it 'includes error details in the response' do
+            json_response = JSON.parse(response.body)
+            expect(json_response).to have_key('errors')
+          end
+        end
+
+        context 'when response has no entries' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      anything).and_return(true)
+
+            empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
+            allow(mock_client).to receive(:get_immunizations)
+              .and_return(OpenStruct.new(body: empty_response))
+
+            # Expect StatsD to receive count of 0
+            expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
+
+            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+          end
+
+          it 'returns a successful response' do
+            expect(response).to be_successful
+          end
+
+          it 'returns an empty data array' do
+            json_response = JSON.parse(response.body)
+            expect(json_response['data']).to eq([])
+          end
         end
       end
     end
@@ -170,7 +356,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
     context 'happy path' do
       before do
-        VCR.use_cassette(immunizations_cassette) do
+        VCR.use_cassette(lh_immunizations_cassette) do
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
         end
       end
@@ -188,7 +374,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
     context 'when the date parameters are not provided' do
       before do
-        VCR.use_cassette(immunizations_cassette) do
+        VCR.use_cassette(lh_immunizations_cassette) do
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
       end
