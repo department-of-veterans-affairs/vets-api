@@ -19,13 +19,14 @@ module Auth
       # @param [String] rsa_key - RSA key used to encode the authentication JWT
       # @param [String] service_name - name to use when caching access token in Redis (Optional)
       # rubocop:disable Metrics/ParameterLists
-      def initialize(token_url, api_scopes, client_id, aud_claim_url, rsa_key, service_name = nil)
+      def initialize(token_url, api_scopes, client_id, aud_claim_url, rsa_key, service_name = nil, kid = nil)
         @url = token_url
         @scopes = api_scopes
         @client_id = client_id
         @aud = aud_claim_url
         @rsa_key = rsa_key
         @service_name = service_name
+        @kid = kid
 
         @tracker = AccessTokenTracker
         super()
@@ -77,7 +78,7 @@ module Auth
       # @return [String] new JWT token
       #
       def build_assertion
-        Auth::ClientCredentials::JWTGenerator.generate_token(@client_id, @aud, @rsa_key)
+        Auth::ClientCredentials::JWTGenerator.generate_token(@client_id, @aud, @rsa_key, @kid)
       end
 
       ##
