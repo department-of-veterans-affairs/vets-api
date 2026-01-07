@@ -44,7 +44,8 @@ namespace :features do
 
     # Acquire advisory lock only when performing changes (not for dry-run)
     locked = false
-    if !dry_run && conn.adapter_name == 'PostgreSQL'
+    is_pg = %w[PostgreSQL PostGIS].include?(conn.adapter_name)
+    if !dry_run && is_pg
       lock = conn.select_value("SELECT pg_try_advisory_lock(#{lock_key})")
       locked = ['t', true].include?(lock)
       unless locked
@@ -54,18 +55,25 @@ namespace :features do
     end
 
     begin
+      message = 'features:setup'
       if dry_run
         # Simulate changes without modifying DB
         result = Flipper::Utilities.setup_features(Flipper, dry_run: true)
-        Rails.logger.info("features:setup dry-run - would add: #{result[:added].count}, enable: #{result[:enabled].count}, remove: #{result[:removed].count}")
+        message += ' dry-run'
+        message += " - would add: #{result[:added].count},"
+        message += " enable: #{result[:enabled].count}, remove: #{result[:removed].count}"
+        Rails.logger.info(message)
       else
         ActiveRecord::Base.transaction do
           result = Flipper::Utilities.setup_features(Flipper)
         end
-        Rails.logger.info("features:setup completed - added: #{result[:added].count}, enabled: #{result[:enabled].count}, removed: #{result[:removed].count}")
+        message += ' completed'
+        message += " - added: #{result[:added].count},"
+        message += " enabled: #{result[:enabled].count}, removed: #{result[:removed].count}"
       end
+      Rails.logger.info(message)
     ensure
-      conn.execute("SELECT pg_advisory_unlock(#{lock_key})") if locked && conn.adapter_name == 'PostgreSQL'
+      conn.execute("SELECT pg_advisory_unlock(#{lock_key})") if locked && is_pg
     end
   end
 end
