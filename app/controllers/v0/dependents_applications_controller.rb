@@ -17,8 +17,7 @@ module V0
 
     def create
       form = dependent_params.to_json
-      use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
-      claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
+      claim = SavedClaim::DependencyClaim.new(form:)
 
       monitor.track_create_attempt(claim, current_user)
 
@@ -34,8 +33,7 @@ module V0
 
       claim.process_attachments!
 
-      # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+      dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 

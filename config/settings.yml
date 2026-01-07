@@ -1690,6 +1690,9 @@ vanotify:
         form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
         form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
         form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
+        form21_4140_confirmation_email: <%= ENV['bio__employment_questionnaires__email__submission_in_progress_template_id'] %>
+        form21_4140_error_email: <%= ENV['bio__employment_questionnaires__email__action_needed_template_id'] %>
+        form21_4140_received_email: <%= ENV['bio__employment_questionnaires__email__received_template_id'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
