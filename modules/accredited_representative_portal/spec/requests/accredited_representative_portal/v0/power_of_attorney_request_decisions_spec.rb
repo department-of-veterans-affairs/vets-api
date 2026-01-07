@@ -280,18 +280,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         accept_service = instance_double(
           AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
         )
-
         allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
           .to receive(:new)
+          .with(poa_request, anything, anything)
           .and_return(accept_service)
 
-        allow(accept_service).to receive(:call) do
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator_id: test_user.user_account_uuid,
-            power_of_attorney_holder_memberships: test_user.power_of_attorney_holder_memberships,
-            power_of_attorney_request: poa_request
-          )
-        end
+        allow(accept_service).to receive(:call)
 
         allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
           .to receive(:perform_async)
@@ -300,6 +294,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
              params: { decision: { type: 'acceptance' } }
 
         expect(response).to have_http_status(:ok)
+
         expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
           .not_to have_received(:perform_async)
       end
