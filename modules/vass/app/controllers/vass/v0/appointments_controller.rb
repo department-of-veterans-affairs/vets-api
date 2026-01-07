@@ -21,13 +21,8 @@ module Vass
       # Stores appointmentId in Redis for subsequent booking steps.
       #
       def availability
-        correlation_id = permitted_params[:correlation_id] || SecureRandom.uuid
-        log_request('get_availability', correlation_id)
-
-        # Call service layer for business logic
         result = @appointments_service.get_current_cohort_availability(veteran_id: @current_veteran_id)
 
-        # Store appointmentId in Redis for available_slots status only
         if result[:status] == :available_slots
           redis_client.store_booking_session(
             veteran_id: @current_veteran_id,
@@ -35,7 +30,6 @@ module Vass
           )
         end
 
-        # Render based on result status
         render_availability_result(result)
       rescue Vass::Errors::VassApiError => e
         handle_vass_error(e, 'get_availability')
@@ -86,22 +80,6 @@ module Vass
       end
 
       ##
-      # Logs request information without PHI.
-      #
-      # @param action [String] Action name
-      # @param correlation_id [String] Correlation ID for tracing
-      #
-      def log_request(action, correlation_id)
-        Rails.logger.info({
-          service: 'vass',
-          controller: 'appointments',
-          action:,
-          correlation_id:,
-          timestamp: Time.current.iso8601
-        }.to_json)
-      end
-
-      ##
       # Handles VASS API errors.
       #
       # @param error [Vass::Errors::VassApiError] VASS API error
@@ -146,7 +124,6 @@ module Vass
           controller: 'appointments',
           action:,
           error_class: error.class.name,
-          error_message: error.message,
           timestamp: Time.current.iso8601
         }.to_json)
       end
