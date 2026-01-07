@@ -52,5 +52,135 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
       end
     end
+
+    describe 'check_user_exists' do
+      let(:mpi_service) { instance_double(MPI::Service) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+      end
+
+      context 'when user account exists and MPI profile is found' do
+        let!(:user_account) { create(:user_account, icn: icn) }
+        let(:mpi_profile) { build(:mpi_profile, icn: icn, given_names: ['John'], family_name: 'Doe') }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows UserAccount found' do
+          expect { task.invoke(icn) }.to output(/✓ UserAccount found/).to_stdout
+        end
+
+        it 'shows user verification status' do
+          expect { task.invoke(icn) }.to output(/Verified: true/).to_stdout
+        end
+
+        it 'shows MPI profile found' do
+          expect { task.invoke(icn) }.to output(/✓ User found in MPI/).to_stdout
+        end
+
+        it 'shows user name from MPI' do
+          expect { task.invoke(icn) }.to output(/Name: John Doe/).to_stdout
+        end
+      end
+
+      context 'when user account does not exist' do
+        let(:mpi_profile) { build(:mpi_profile, icn: icn) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows UserAccount not found' do
+          expect { task.invoke(icn) }.to output(/✗ UserAccount not found in database/).to_stdout
+        end
+
+        it 'provides helpful message' do
+          expect { task.invoke(icn) }.to output(/User may not have logged in or ICN may be incorrect/).to_stdout
+        end
+
+        it 'still shows MPI profile found' do
+          expect { task.invoke(icn) }.to output(/✓ User found in MPI/).to_stdout
+        end
+      end
+
+      context 'when user account exists but MPI profile is not found' do
+        let!(:user_account) { create(:user_account, icn: icn) }
+        let(:find_profile_response) { create(:find_profile_not_found_response) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows UserAccount found' do
+          expect { task.invoke(icn) }.to output(/✓ UserAccount found/).to_stdout
+        end
+
+        it 'shows MPI profile not found' do
+          expect { task.invoke(icn) }.to output(/✗ User not found in MPI/).to_stdout
+        end
+
+        it 'provides helpful message about MPI' do
+          expect { task.invoke(icn) }.to output(/ICN may be invalid or user may not exist in Master Person Index/).to_stdout
+        end
+      end
+
+      context 'when neither user account nor MPI profile exist' do
+        let(:find_profile_response) { create(:find_profile_not_found_response) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows both not found' do
+          expect { task.invoke(icn) }
+            .to output(/✗ UserAccount not found in database.*✗ User not found in MPI/m).to_stdout
+        end
+      end
+
+      context 'when MPI service raises an error' do
+        let!(:user_account) { create(:user_account, icn: icn) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .and_raise(StandardError.new('Connection timeout'))
+        end
+
+        it 'shows UserAccount found' do
+          expect { task.invoke(icn) }.to output(/✓ UserAccount found/).to_stdout
+        end
+
+        it 'shows error querying MPI' do
+          expect { task.invoke(icn) }.to output(/✗ Error querying MPI: Connection timeout/).to_stdout
+        end
+      end
+
+      context 'when MPI returns server error response' do
+        let!(:user_account) { create(:user_account, icn: icn) }
+        let(:find_profile_response) { create(:find_profile_server_error_response) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows MPI lookup failed' do
+          expect { task.invoke(icn) }.to output(/✗ MPI lookup failed/).to_stdout
+        end
+      end
+    end
   end
 end
