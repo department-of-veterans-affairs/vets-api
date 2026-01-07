@@ -22,7 +22,8 @@ module V0
         provider_errors = []
         configured_providers.each do |provider_class|
           provider = provider_class.new(@current_user)
-          claims_data.concat(provider.get_claims&.dig('data') || [])
+          response = provider.get_claims
+          claims_data.concat(extract_claims_data(provider_class, response))
         rescue Common::Exceptions::Unauthorized,
                Common::Exceptions::Forbidden,
                Common::Exceptions::GatewayTimeout,
@@ -33,6 +34,23 @@ module V0
           handle_provider_error(provider_class, e, provider_errors)
         end
         { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
+      end
+
+      def extract_claims_data(provider_class, response)
+        if response.nil?
+          ::Rails.logger.warn("Provider #{provider_class.name} returned nil from get_claims")
+          return []
+        end
+
+        unless response.is_a?(Hash) && response.key?('data')
+          ::Rails.logger.warn(
+            "Provider #{provider_class.name} returned unexpected structure from get_claims",
+            { response_class: response.class.name, has_data_key: response.is_a?(Hash) && response.key?('data') }
+          )
+          return []
+        end
+
+        response['data'] || []
       end
 
       def handle_provider_error(provider_class, error, provider_errors)

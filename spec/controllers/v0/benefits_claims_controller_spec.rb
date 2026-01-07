@@ -2247,6 +2247,67 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(result['meta']['provider_errors'].length).to eq(2)
       end
     end
+
+    context 'when provider returns unexpected response structure' do
+      let(:providers) { [mock_provider_class] }
+
+      before do
+        allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
+      end
+
+      it 'logs warning when provider returns nil' do
+        allow(mock_provider).to receive(:get_claims).and_return(nil)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Provider MockProvider returned nil from get_claims'
+        )
+
+        result = controller.send(:get_claims_from_providers)
+        expect(result['data']).to eq([])
+      end
+
+      it 'logs warning when provider returns hash without data key' do
+        allow(mock_provider).to receive(:get_claims).and_return({ 'meta' => {} })
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Provider MockProvider returned unexpected structure from get_claims',
+          hash_including(response_class: 'Hash', has_data_key: false)
+        )
+
+        result = controller.send(:get_claims_from_providers)
+        expect(result['data']).to eq([])
+      end
+
+      it 'logs warning when provider returns non-hash' do
+        allow(mock_provider).to receive(:get_claims).and_return('invalid')
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Provider MockProvider returned unexpected structure from get_claims',
+          hash_including(response_class: 'String', has_data_key: false)
+        )
+
+        result = controller.send(:get_claims_from_providers)
+        expect(result['data']).to eq([])
+      end
+
+      it 'does not log when provider returns valid structure with nil data' do
+        allow(mock_provider).to receive(:get_claims).and_return({ 'data' => nil })
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = controller.send(:get_claims_from_providers)
+        expect(result['data']).to eq([])
+      end
+
+      it 'does not log when provider returns valid structure with empty data' do
+        allow(mock_provider).to receive(:get_claims).and_return({ 'data' => [] })
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        result = controller.send(:get_claims_from_providers)
+        expect(result['data']).to eq([])
+      end
+    end
   end
 
   describe '#get_claim_from_providers' do
