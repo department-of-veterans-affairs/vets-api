@@ -8,7 +8,22 @@ module AskVAApi
       STATE_NOT_FOUND = 'STATE_NOT_FOUND'
       INVALID_ZIP = 'INVALID_ZIP'
 
+      # Validates that a given zip code belongs to a given U.S. state.
+
+      # This validator normalizes and verifies a zip/state pair using existing
+      # `std_states` and `std_zipcodes` data and returns a standardized result
+      # object with success or a specific error code.
+
+      # Intended for use by the Ask VA API to ensure zip/state consistency
+      # before downstream processing.
+
       class << self
+        # Performs ZIP/state validation.
+
+        # @param zip_code [String] ZIP code input (supports ZIP+4; normalized internally)
+        # @param state_code [String] Two-letter state code
+        # @return [ZipStateValidationResult] result indicating success or failure,
+        # including an error code and message when invalid
         def call(zip_code:, state_code:)
           normalized_zip_code = normalize_zip(zip_code)
           return invalid_zip_result(zip_code) unless normalized_zip_code
