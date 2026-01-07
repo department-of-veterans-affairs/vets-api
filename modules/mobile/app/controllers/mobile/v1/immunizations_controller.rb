@@ -27,12 +27,20 @@ module Mobile
 
       private
 
+      def uhd_enabled?
+        Flipper.enabled?(:mhv_accelerated_delivery_vaccines_enabled, current_user)
+      end
+
       def immunizations_adapter
         Mobile::V0::Adapters::Immunizations.new
       end
 
       def service
         Mobile::V0::LighthouseHealth::Service.new(@current_user)
+      end
+
+      def uhd_service
+        @uhd_service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
       def pagination_params
