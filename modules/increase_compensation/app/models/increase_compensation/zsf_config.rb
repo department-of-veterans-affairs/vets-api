@@ -7,6 +7,7 @@ module IncreaseCompensation
   # IncreaseCompensation 21-8940v1 S3 Configuration
 
   class ZsfConfig < SimpleFormsApi::FormRemediation::Configuration::Base
+    # ZSF = Zero Silent Failures
     # provides s3 settings to the PDF uploader
     def s3_settings
       Settings.bio.increase_compensation

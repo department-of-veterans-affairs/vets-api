@@ -85,14 +85,14 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
       allow_any_instance_of(PdfS3Operations)
         .to receive(:last_form_submission_attempt).and_return(mock_attempt)
       allow_any_instance_of(PdfS3Operations)
-        .to receive(:s3_signed_url).and_return(MOCK_URL)
+        .to receive(:s3_signed_url).and_return(mock_url)
 
       get '/increase_compensation/v0/claims/:id', params: { id: 'increase_compensation_claim' }
       attributes = JSON.parse(response.body)['data']['attributes']
 
       expect(attributes['guid']).to eq(claim.guid)
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
-      expect(attributes['pdf_url']).to eq(MOCK_URL)
+      expect(attributes['pdf_url']).to eq(mock_url)
       expect(response).to have_http_status(:ok)
     end
   end

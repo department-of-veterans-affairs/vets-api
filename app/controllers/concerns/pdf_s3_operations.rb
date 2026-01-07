@@ -39,7 +39,12 @@ module PdfS3Operations
     directory = dated_directory_name(claim.form_id, created_at)
     s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
     final = overflow?(claim, created_at)
-    s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf")
+    s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf") || nil
+  rescue => e
+    Rails.logger.warn(
+      "[PdfS3Operations] S3 Fetch Signed Url | form #{claim.form_id}", e
+    )
+    nil
   end
 
   # The last submission attempt is used to construct the S3 file path
@@ -67,6 +72,5 @@ module PdfS3Operations
     )
     hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
     hash_converter.extras_generator.text? ? '_final' : ''
-    # overflow.text? ? '_final' : ''
   end
 end

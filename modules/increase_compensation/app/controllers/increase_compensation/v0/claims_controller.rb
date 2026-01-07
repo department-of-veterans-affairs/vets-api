@@ -4,7 +4,6 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
-# require 'simple_forms_api/form_remediation/uploader'
 
 module IncreaseCompensation
   module V0
