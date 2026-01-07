@@ -165,6 +165,19 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
       end
     end
 
+    context 'when count_only is true' do
+      it 'returns only the count of debts' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters') do
+            get '/mobile/v0/debts', params: { count_only: true }, headers: sis_headers
+            assert_schema_conform(200)
+            expect(response.parsed_body).to eq({ 'data' => { 'attributes' => { 'debtsCount' => 5 }, 'type' => 'debts' },
+                                                 'meta' => { 'hasDependentDebts' => false } })
+          end
+        end
+      end
+    end
+
     context 'without a valid file number' do
       it 'returns a bad request error' do
         VCR.use_cassette('bgs/people_service/no_person_data') do
