@@ -5,15 +5,28 @@ module AccreditedRepresentativePortal
     class IntentToFileController < ApplicationController
       INTENT_TO_FILE_TYPES = %w[compensation pension survivor].freeze
 
+      MOCK_ITF_NOT_FOUND = {
+        'errors' => [{
+          'title' => 'Resource not found',
+          'detail' => "No active 'C' intent to file found.",
+          'code' => '404',
+          'status' => '404'
+        }]
+      }.freeze
+
       before_action :check_feature_toggle
       before_action :validate_file_type, only: %i[show create]
       before_action { authorize icn, policy_class: IntentToFilePolicy }
 
       def show
-        parsed_response = service.get_intent_to_file(params[:benefitType])
+        parsed_response = if Flipper.enabled?(:accredited_representative_portal_skip_itf_check)
+                            MOCK_ITF_NOT_FOUND
+                          else
+                            service.get_intent_to_file(params[:benefitType])
+                          end
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
-          raise NotFound.new(error: parsed_response['errors']&.first&.[]('detail'))
+          raise Common::Exceptions::RecordNotFound, parsed_response['errors']&.first&.[]('detail')
         else
           render json: parsed_response, status: :ok
         end

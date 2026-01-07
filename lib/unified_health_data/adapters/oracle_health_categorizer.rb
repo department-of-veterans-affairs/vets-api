@@ -4,7 +4,7 @@ module UnifiedHealthData
   module Adapters
     # Medication categorization helpers for FHIR MedicationRequest resources
     # Implements Oracle Health specification for medication type determination
-    module OracleHealthMedicationCategorizer
+    module OracleHealthCategorizer
       # Extract category codes from FHIR MedicationRequest
       # Returns normalized (lowercase, sorted) codes for consistent comparison
       # @see https://build.fhir.org/valueset-medicationrequest-admin-location.html
@@ -36,6 +36,8 @@ module UnifiedHealthData
       # @return [Symbol] One of the available categories
       # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/digital-health-modernization/mhv-to-va.gov/medications/requirements/oracle_health_categorization_spec.md
       def categorize_medication(resource)
+        return :uncategorized if resource.nil?
+
         reported_boolean = resource['reportedBoolean']
         intent = resource['intent']
         categories = extract_category(resource)
@@ -54,6 +56,14 @@ module UnifiedHealthData
         else
           :uncategorized
         end
+      end
+
+      # Checks if MedicationRequest is a non-VA medication
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] True if non-VA medication (anything other than va_prescription category)
+      def non_va_med?(resource)
+        categorize_medication(resource) != :va_prescription
       end
 
       def log_uncategorized_medication(resource)
