@@ -52,6 +52,24 @@ module CommitteeErrorRouting
     # If route matching fails, log but don't raise
     Rails.logger.debug { "Failed to populate path_parameters for #{env['PATH_INFO']}: #{e.message}" }
   end
+
+  ##
+  # Logs Committee validation errors to Rails logger
+  #
+  # @param req [Rack::Request] The incoming request
+  # @param ex [Committee::ValidationError] The validation error
+  def self.log_rails_error(req, ex)
+    Rails.logger.warn(
+      '[Committee] Request validation failed',
+      {
+        path: req.path,
+        method: req.request_method,
+        status: 422,
+        error_class: ex.class.name.demodulize,
+        error_type: ex.is_a?(Committee::InvalidRequest) ? 'request_validation' : 'response_validation'
+      }
+    )
+  end
 end
 
 ERROR_HANDLER = lambda do |ex, env|
@@ -63,7 +81,7 @@ ERROR_HANDLER = lambda do |ex, env|
   CommitteeContext.controller = path_params[:controller]
   CommitteeContext.action = path_params[:action]
 
-  log_rails_error(req, ex)
+  CommitteeErrorRouting.log_rails_error(req, ex)
 
   # Route to form-specific monitor if available
   monitor = CommitteeErrorRouting.monitor_for_request(req)
@@ -79,19 +97,6 @@ ERROR_HANDLER = lambda do |ex, env|
     ]
     StatsD.increment('api.committee.validation_error', tags:)
   end
-end
-
-def log_rails_error(req, ex)
-  Rails.logger.warn(
-    '[Committee] Request validation failed',
-    {
-      path: req.path,
-      method: req.request_method,
-      status: 422,
-      error_class: ex.class.name.demodulize,
-      error_type: ex.is_a?(Committee::InvalidRequest) ? 'request_validation' : 'response_validation'
-    }
-  )
 end
 
 Rails.application.config.middleware.use(
