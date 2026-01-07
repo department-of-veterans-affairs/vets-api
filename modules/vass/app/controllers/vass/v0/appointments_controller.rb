@@ -87,7 +87,7 @@ module Vass
       #
       def handle_vass_error(error, action)
         log_error(error, action)
-        render_error('vass_api_error', error.message, :bad_gateway)
+        render_error('vass_api_error', 'External service error', :bad_gateway)
       end
 
       ##
