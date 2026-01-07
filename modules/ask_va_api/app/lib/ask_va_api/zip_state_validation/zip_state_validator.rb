@@ -10,8 +10,8 @@ module AskVAApi
 
       class << self
         def call(zip_code:, state_code:)
-          zip_code_provided = zip_code.to_s.strip
-          state_code_provided = state_code.to_s.strip
+          zip_code_provided = zip_code.to_s
+          state_code_provided = state_code.to_s
 
           normalized_zip_code = normalize_zip(zip_code_provided)
           return invalid_zip_result(zip_code_provided) unless normalized_zip_code
