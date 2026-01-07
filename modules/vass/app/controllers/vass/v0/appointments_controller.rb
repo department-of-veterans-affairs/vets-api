@@ -98,7 +98,7 @@ module Vass
       #
       def handle_service_error(error, action)
         log_error(error, action)
-        render_error('service_error', 'Service temporarily unavailable', :service_unavailable)
+        render_error('service_error', 'Unable to process request with appointment service', :service_unavailable)
       end
 
       ##
