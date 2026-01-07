@@ -275,17 +275,52 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
-        Flipper.disable(:send_poa_to_corpdb, test_user)
+        Flipper.disable(:send_poa_to_corpdb)
 
-        AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
-          .new(poa_request, test_user, {})
+        accept_service = instance_double(
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
+        )
+
+        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+          .to receive(:new)
+          .and_return(accept_service)
+
+        memberships =
+          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
+            icn: '1234',
+            emails: []
+          )
+
+        allow(memberships).to receive(:all).and_return(
+          [
+            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
+              registration_number: '1234',
+              power_of_attorney_holder:
+                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
+                  poa_code: poa_request.power_of_attorney_holder_poa_code,
+                  type: poa_request.power_of_attorney_holder_type,
+                  can_accept_digital_poa_requests: false,
+                  name: 'Stub Org'
+                )
+            )
+          ]
+        )
+
+        allow(accept_service).to receive(:call) do
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+            creator_id: test_user.user_account_uuid,
+            power_of_attorney_holder_memberships: memberships,
+            power_of_attorney_request: poa_request
+          )
+        end
+
+        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
+          .not_to receive(:perform_async)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
 
         expect(response).to have_http_status(:ok)
-
-        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).not_to have_received(:perform_async)
       end
     end
 
