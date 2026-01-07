@@ -20,7 +20,7 @@ module DecisionReviews
     end
 
     # Generate PDF and upload to VBMS, updating audit_log with results
-    # @return [Hash] Contains :file_uuid and :current_version_uuid from VBMS response
+    # @return [Hash] Contains :document_series_id and :document_id from VBMS response
     # @raise [UploadError] if upload fails
     def upload_to_vbms
       pdf_path = generate_pdf

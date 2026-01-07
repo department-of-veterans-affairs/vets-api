@@ -61,7 +61,8 @@ module DecisionReviews
       return DEFAULT_CUTOFF_DATE if date_string.blank?
 
       Date.parse(date_string.to_s)
-    rescue Date::Error
+    rescue Date::Error => e
+      Rails.logger.warn('Invalid email_pdf_upload_cutoff_date, using default', error: e.message)
       DEFAULT_CUTOFF_DATE
     end
 

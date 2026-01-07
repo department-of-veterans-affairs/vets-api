@@ -20,7 +20,6 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:document_id2) { SecureRandom.uuid.upcase }
   let(:upload_result1) do
     {
-      file_uuid: document_series_id1,
       document_series_id: document_series_id1,
       document_id: document_id1
     }
@@ -28,7 +27,6 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
 
   let(:upload_result2) do
     {
-      file_uuid: document_series_id2,
       document_series_id: document_series_id2,
       document_id: document_id2
     }
@@ -36,7 +34,6 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
 
   let(:upload_result_perm) do
     {
-      file_uuid: "#{SecureRandom.uuid}-vbms-perm",
       document_series_id: "#{SecureRandom.uuid}-vbms-perm",
       document_id: SecureRandom.uuid.upcase
     }
