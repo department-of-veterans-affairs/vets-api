@@ -1312,13 +1312,17 @@ features:
     actor_type: user
     description: Control fetching OH vitals data
     enable_in_development: false
-  mhv_vaccine_uhd_name_logging:
-    actor_type: user
-    description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
-    enable_in_development: true
   mhv_accelerated_delivery_uhd_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_uhd_name_logging:
+    actor_type: user
+    description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
@@ -1370,10 +1374,6 @@ features:
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
-    enable_in_development: true
-  mhv_vaccine_lighthouse_name_logging:
-    actor_type: user
-    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: true
   mhv_secure_messaging_recipient_opt_groups:
     actor_type: user
