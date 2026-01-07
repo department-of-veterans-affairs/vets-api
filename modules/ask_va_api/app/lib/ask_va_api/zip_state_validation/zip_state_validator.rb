@@ -45,6 +45,7 @@ module AskVAApi
         def normalize_zip(zip_code)
           # convert full zip to a 5 digit zip
           zip_code = zip_code.to_s.strip.split('-').first
+          return nil if zip_code.blank?
           return nil unless zip_code.match?(/\A\d{5}\z/)
 
           zip_code
@@ -52,6 +53,7 @@ module AskVAApi
 
         def normalize_state_code(state_code)
           state_code = state_code.to_s.strip.upcase
+          return nil if state_code.blank?
           return nil unless state_code.match?(/\A[A-Z]{2}\z/)
 
           state_code
