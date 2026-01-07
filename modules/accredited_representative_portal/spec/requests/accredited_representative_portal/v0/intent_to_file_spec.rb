@@ -17,21 +17,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
            representative_id: '357458',
            poa_codes: [poa_code])
   end
-  let(:feature_flag_state) { true }
   let(:veteran_query_params) do
     'veteranFirstName=Derrick&veteranLastName=Reid&veteranSsn=666468765&veteranDateOfBirth=1976-01-16'
   end
 
   before do
+    Flipper.enable :accredited_representative_portal_intent_to_file
+    Flipper.disable :accredited_representative_portal_skip_itf_check
     VCR.configure do |c|
       c.debug_logger = File.open('record.log', 'w')
     end
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
     login_as(test_user)
-    allow(Flipper).to receive(:enabled?).with(
-      :accredited_representative_portal_intent_to_file,
-      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
-    ).and_return(feature_flag_state)
     allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).with(
       'Derrick', 'Reid', '666468765', '1976-01-16'
     ).and_return('123498767V234859')
@@ -48,9 +45,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
     context 'feature flag is off' do
-      let(:feature_flag_state) { false }
-
       it 'returns forbidden' do
+        Flipper.disable :accredited_representative_portal_intent_to_file
         get('/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation')
         expect(response).to have_http_status(:forbidden)
       end
@@ -69,6 +65,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
           get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
           expect(response).to have_http_status(:not_found)
         end
+      end
+    end
+
+    context 'itf check skipped' do
+      it 'returns 404' do
+        Flipper.enable :accredited_representative_portal_skip_itf_check
+        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -105,9 +109,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
     end
 
     context 'feature flag is off' do
-      let(:feature_flag_state) { false }
-
       it 'returns forbidden' do
+        Flipper.disable(:accredited_representative_portal_intent_to_file)
         post('/accredited_representative_portal/v0/intent_to_file', params:)
         expect(response).to have_http_status(:forbidden)
       end
