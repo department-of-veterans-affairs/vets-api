@@ -10,20 +10,17 @@ module AskVAApi
 
       class << self
         def call(zip_code:, state_code:)
-          zip_code_provided = zip_code.to_s
-          state_code_provided = state_code.to_s
+          normalized_zip_code = normalize_zip(zip_code)
+          return invalid_zip_result(zip_code) unless normalized_zip_code
 
-          normalized_zip_code = normalize_zip(zip_code_provided)
-          return invalid_zip_result(zip_code_provided) unless normalized_zip_code
-
-          normalized_state_code = normalize_state_code(state_code_provided)
-          return state_not_found_result(state_code_provided) unless normalized_state_code
+          normalized_state_code = normalize_state_code(state_code)
+          return state_not_found_result(state_code) unless normalized_state_code
 
           state_id = StdState.with_postal_name(normalized_state_code).pick(:id)
-          return state_not_found_result(state_code_provided) unless state_id
+          return state_not_found_result(state_code) unless state_id
 
           zip_exists = StdZipcode.with_zip_code(normalized_zip_code).exists?
-          return zip_not_found_result(zip_code_provided) unless zip_exists
+          return zip_not_found_result(zip_code) unless zip_exists
 
           validate_match(zip_code: normalized_zip_code, state_id:, state_code: normalized_state_code)
         end
