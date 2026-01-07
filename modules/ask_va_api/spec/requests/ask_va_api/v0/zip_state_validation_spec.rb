@@ -89,4 +89,26 @@ RSpec.describe 'AskVAApi::V0::ZipStateValidation', type: :request do
 
     expect(body['valid']).to be(true)
   end
+
+  it 'returns INVALID_ZIP when zip_code is missing' do
+    post path, params: { state_code: 'CA' }, as: :json
+
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+
+    expect(body['valid']).to be(false)
+    expect(body['error_code']).to eq('INVALID_ZIP')
+    expect(body['error_message']).to be_present
+  end
+
+  it 'returns STATE_NOT_FOUND when state_code is missing' do
+    post path, params: { zip_code: '94107' }, as: :json
+
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+
+    expect(body['valid']).to be(false)
+    expect(body['error_code']).to eq('STATE_NOT_FOUND')
+    expect(body['error_message']).to be_present
+  end
 end
