@@ -21,7 +21,7 @@ module V0
     before_action(only: :rating_info) { authorize(:hca_disability_rating, :access?) }
 
     def rating_info
-      if Flipper.enabled?(:hca_disable_bgs_service)
+      if Flipper.enabled?(:hca_disable_bep_service)
         # Return 0 when not calling the actual BGS::Service
         render json: HCARatingInfoSerializer.new({ user_percent_of_disability: 0 })
         return
