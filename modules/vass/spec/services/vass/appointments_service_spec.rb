@@ -59,7 +59,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves appointment availability' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_availability_success') do
+          VCR.use_cassette('vass/appointments/get_availability_success') do
             result = subject.get_availability(
               start_date:,
               end_date:,
@@ -88,7 +88,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'creates a new appointment' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/save_appointment_success') do
+          VCR.use_cassette('vass/appointments/save_appointment_success') do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
@@ -103,7 +103,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'cancels an appointment' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/cancel_appointment_success') do
+          VCR.use_cassette('vass/appointments/cancel_appointment_success') do
             result = subject.cancel_appointment(appointment_id:)
 
             expect(result['success']).to be true
@@ -116,7 +116,7 @@ describe Vass::AppointmentsService do
     context 'when appointment not found' do
       it 'raises NotFoundError' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_appointment_404_not_found') do
+          VCR.use_cassette('vass/appointments/get_appointment_404_not_found') do
             expect do
               subject.get_appointment(appointment_id: 'nonexistent-id')
             end.to raise_error(Vass::Errors::NotFoundError)
@@ -130,7 +130,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves a specific appointment' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_appointment_success') do
+          VCR.use_cassette('vass/appointments/get_appointment_success') do
             result = subject.get_appointment(appointment_id:)
 
             expect(result['success']).to be true
@@ -146,7 +146,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves all appointments for a veteran' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_appointments_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_success') do
             result = subject.get_appointments(veteran_id:)
 
             expect(result['success']).to be true
@@ -283,6 +283,128 @@ describe Vass::AppointmentsService do
     end
   end
 
+  describe '#get_current_cohort_availability' do
+    context 'with current cohort that is unbooked and has available slots' do
+      it 'returns available_slots status with appointment data and filtered slots' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
+            VCR.use_cassette('vass/appointments/get_availability_success') do
+              result = subject.get_current_cohort_availability(veteran_id:)
+
+              expect(result[:status]).to eq(:available_slots)
+              expect(result[:data]).to be_a(Hash)
+              expect(result[:data][:appointment_id]).to be_present
+              expect(result[:data][:available_slots]).to be_an(Array)
+              expect(result[:data][:available_slots]).not_to be_empty
+              # Verify slots have start and end times
+              result[:data][:available_slots].each do |slot|
+                expect(slot['dtStartUtc']).to be_present
+                expect(slot['dtEndUtc']).to be_present
+              end
+            end
+          end
+        end
+      end
+    end
+
+    context 'with current cohort that is already booked' do
+      it 'returns already_booked status with appointment details' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
+            result = subject.get_current_cohort_availability(veteran_id:)
+
+            expect(result[:status]).to eq(:already_booked)
+            expect(result[:data]).to be_a(Hash)
+            expect(result[:data][:appointment_id]).to be_present
+            expect(result[:data][:start_utc]).to be_present
+            expect(result[:data][:end_utc]).to be_present
+          end
+        end
+      end
+
+      it 'does not call get_availability API' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
+            # Should not make availability call since already booked
+            expect(subject).not_to receive(:get_availability)
+            subject.get_current_cohort_availability(veteran_id:)
+          end
+        end
+      end
+    end
+
+    context 'with current cohort but no available slots' do
+      it 'returns no_slots_available status' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
+            VCR.use_cassette('vass/appointments/get_availability_no_slots') do
+              result = subject.get_current_cohort_availability(veteran_id:)
+
+              expect(result[:status]).to eq(:no_slots_available)
+              expect(result[:data]).to be_a(Hash)
+              expect(result[:data][:message]).to eq('No available appointment slots')
+            end
+          end
+        end
+      end
+    end
+
+    context 'with no current cohort but future cohort exists' do
+      it 'returns next_cohort status with future cohort details' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_future_cohort_only') do
+            result = subject.get_current_cohort_availability(veteran_id:)
+
+            expect(result[:status]).to eq(:next_cohort)
+            expect(result[:data]).to be_a(Hash)
+            expect(result[:data][:next_cohort]).to be_a(Hash)
+            expect(result[:data][:next_cohort][:cohort_start_utc]).to be_present
+            expect(result[:data][:next_cohort][:cohort_end_utc]).to be_present
+            expect(result[:data][:message]).to include('Booking opens on')
+          end
+        end
+      end
+    end
+
+    context 'with no cohorts available' do
+      it 'returns no_cohorts status with message' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_no_cohorts') do
+            result = subject.get_current_cohort_availability(veteran_id:)
+
+            expect(result[:status]).to eq(:no_cohorts)
+            expect(result[:data]).to be_a(Hash)
+            expect(result[:data][:message]).to eq('Current date outside of appointment cohort date ranges')
+          end
+        end
+      end
+    end
+
+    context 'when VASS API returns an error' do
+      it 'raises ServiceError' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_api_error') do
+            expect do
+              subject.get_current_cohort_availability(veteran_id:)
+            end.to raise_error(Vass::Errors::ServiceError)
+          end
+        end
+      end
+
+      it 'logs the error' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointments_api_error') do
+            expect(Rails.logger).to receive(:error).at_least(:once)
+
+            expect do
+              subject.get_current_cohort_availability(veteran_id:)
+            end.to raise_error(Vass::Errors::ServiceError)
+          end
+        end
+      end
+    end
+  end
+
   describe '#whoami' do
     it 'is not yet implemented' do
       expect { subject.whoami }.to raise_error(
@@ -296,7 +418,7 @@ describe Vass::AppointmentsService do
     context 'when server error occurs' do
       it 'raises ServiceError and logs the error' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_appointment_500_server_error') do
+          VCR.use_cassette('vass/appointments/get_appointment_500_server_error') do
             expect(Rails.logger).to receive(:error)
 
             expect do
