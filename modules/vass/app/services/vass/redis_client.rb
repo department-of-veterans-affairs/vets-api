@@ -151,6 +151,66 @@ module Vass
       end
     end
 
+    # ------------ Booking Session Management ------------
+
+    ##
+    # Stores appointment booking session data during multi-step booking flow.
+    # Used to track appointmentId and selected slot across API calls.
+    #
+    # @param veteran_id [String] Veteran ID (UUID)
+    # @param data [Hash] Booking session data
+    #   - appointment_id [String] Cohort appointment ID
+    #   - time_start_utc [String, nil] Selected slot start time (added in step 3)
+    #   - time_end_utc [String, nil] Selected slot end time (added in step 3)
+    # @return [Boolean] true if write succeeds
+    #
+    def store_booking_session(veteran_id:, data:)
+      Rails.cache.write(
+        booking_session_key(veteran_id),
+        data,
+        namespace: 'vass-booking-cache',
+        expires_in: 3600 # 1 hour, same as veteran metadata
+      )
+    end
+
+    ##
+    # Retrieves appointment booking session data.
+    #
+    # @param veteran_id [String] Veteran ID (UUID)
+    # @return [Hash] Booking session data or empty hash if not found
+    #
+    def get_booking_session(veteran_id:)
+      Rails.cache.read(
+        booking_session_key(veteran_id),
+        namespace: 'vass-booking-cache'
+      ) || {}
+    end
+
+    ##
+    # Updates appointment booking session data (merges with existing).
+    #
+    # @param veteran_id [String] Veteran ID (UUID)
+    # @param data [Hash] Additional data to merge
+    # @return [Boolean] true if write succeeds
+    #
+    def update_booking_session(veteran_id:, data:)
+      current_data = get_booking_session(veteran_id:)
+      store_booking_session(veteran_id:, data: current_data.merge(data))
+    end
+
+    ##
+    # Deletes appointment booking session data (after successful save or cancellation).
+    #
+    # @param veteran_id [String] Veteran ID (UUID)
+    # @return [void]
+    #
+    def delete_booking_session(veteran_id:)
+      Rails.cache.delete(
+        booking_session_key(veteran_id),
+        namespace: 'vass-booking-cache'
+      )
+    end
+
     # ------------ Session Management ------------
 
     ##
@@ -383,6 +443,16 @@ module Vass
     #
     def veteran_metadata_key(uuid)
       "veteran_metadata_#{uuid}"
+    end
+
+    ##
+    # Generates a cache key for booking session storage.
+    #
+    # @param veteran_id [String] Veteran ID (UUID)
+    # @return [String] Cache key
+    #
+    def booking_session_key(veteran_id)
+      "booking_session_#{veteran_id}"
     end
 
     ##
