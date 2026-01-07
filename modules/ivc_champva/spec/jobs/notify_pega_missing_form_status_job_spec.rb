@@ -36,6 +36,7 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
   it 'does not run the job when it is disabled in settings' do
     allow(Flipper).to receive(:enabled?).with(:champva_enable_notify_pega_missing_form_status_job).and_return(false)
 
+    expect(Time).not_to receive(:now)
     expect(IvcChampva::NotifyPegaMissingFormStatusJob.new.perform).to be_nil
   end
 
