@@ -43,7 +43,10 @@ module V0
         end
 
         unless response.is_a?(Hash) && response.key?('data')
-          ::Rails.logger.warn(
+          ::Rails.logger.error(
+    "Provider #{provider_class.name} failed",
+    { provider: provider_class.name, error_class: error.class.name, ... }  # Add provider key
+
             "Provider #{provider_class.name} returned unexpected structure from get_claims",
             { response_class: response.class.name, has_data_key: response.is_a?(Hash) && response.key?('data') }
           )
