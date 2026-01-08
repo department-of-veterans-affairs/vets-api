@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
@@ -199,6 +200,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    def get_immunizations
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_immunizations_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        immunization_adapter.parse(combined_records)
       end
     end
 
@@ -424,6 +439,10 @@ module UnifiedHealthData
 
     def vitals_adapter
       @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
+    end
+
+    def immunization_adapter
+      @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
     end
 
     def logger

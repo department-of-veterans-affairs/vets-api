@@ -57,6 +57,7 @@ module Lighthouse
 
       def record_email_send_success(upload, response)
         # Update evidence_submissions table record with the va_notify_id and va_notify_date
+        # Note: delete_date is set in VANotifyEmailStatusCallback when delivery is confirmed
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)

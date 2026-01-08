@@ -225,7 +225,7 @@ RSpec.describe ApplicationController, type: :controller do
         # Expect the final Rails.logger.error call with message and hash arguments
         expect(Rails.logger).to receive(:error).with(
           a_string_including('BackendServiceException'),
-          hash_including(:title, :detail, :code, :status, :backtrace)
+          hash_including(:title, :detail, :code, :status, :error_backtrace)
         )
         subject.log_exception_to_rails(ex, 'error')
       end
@@ -240,7 +240,7 @@ RSpec.describe ApplicationController, type: :controller do
         # Should still log the exception message and backtrace even with empty errors
         expect(Rails.logger).to receive(:error).with(
           a_string_including('BackendServiceException'),
-          hash_including(:backtrace)
+          hash_including(:error_backtrace)
         )
         # Should not raise
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
@@ -256,7 +256,7 @@ RSpec.describe ApplicationController, type: :controller do
         # Should filter out nil and empty values, keeping only valid attributes
         expect(Rails.logger).to receive(:error).with(
           a_string_including('BackendServiceException'),
-          hash_including(:title, :status, :backtrace)
+          hash_including(:title, :status, :error_backtrace)
         )
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end
@@ -271,7 +271,7 @@ RSpec.describe ApplicationController, type: :controller do
         # Should still log with just backtrace when all attributes are nil/empty
         expect(Rails.logger).to receive(:error).with(
           a_string_including('BackendServiceException'),
-          hash_including(:backtrace)
+          hash_including(:error_backtrace)
         )
         expect { subject.log_exception_to_rails(ex, 'error') }.not_to raise_error
       end

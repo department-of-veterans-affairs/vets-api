@@ -114,16 +114,25 @@ describe VAProfile::ContactInformation::V2::Service do
     end
 
     context 'when successful' do
-      it 'creates an old_email record' do
+      it 'creates an old_email record when email is changing' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.va_profile_email
-            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+          # Stub old email to be different from submitted email to simulate email change
+          allow(user).to receive(:va_profile_email).and_return('old_email@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
-            response = subject.put_email(email)
-            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
-          end
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id).email).to eq('old_email@example.com')
+        end
+      end
+
+      it 'does not create an old_email record when confirming existing email' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          # User's current email matches the email being submitted (confirmation only)
+          allow(user).to receive(:va_profile_email).and_return('person43@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id)).to be_nil
         end
       end
 
@@ -150,15 +159,25 @@ describe VAProfile::ContactInformation::V2::Service do
     before { allow(user).to receive(:vet360_id).and_return(nil) }
 
     context 'when successful' do
-      it 'creates an old_email record' do
+      it 'creates an old_email record when email is changing' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.va_profile_email
-            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
-            response = subject.put_email(email)
-            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
-          end
+          # Stub old email to be different from submitted email to simulate email change
+          allow(user).to receive(:va_profile_email).and_return('old_email@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id).email).to eq('old_email@example.com')
+        end
+      end
+
+      it 'does not create an old_email record when confirming existing email' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
+          # User's current email matches the email being submitted (confirmation only)
+          allow(user).to receive(:va_profile_email).and_return('person43@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id)).to be_nil
         end
       end
 
