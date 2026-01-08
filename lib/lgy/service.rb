@@ -50,10 +50,6 @@ module LGY
           },
           { team: 'vfs-ebenefits' }
         )
-
-        log_message_to_rails(
-          'Unexpected COE statuses!', :error
-        )
         nil
       end
     end
@@ -104,9 +100,6 @@ module LGY
         { team: 'vfs-ebenefits' }
       )
 
-      log_message_to_rails(
-        "COE application submission failed with http status: #{e.status}", :error
-      )
       raise e
     end
 
