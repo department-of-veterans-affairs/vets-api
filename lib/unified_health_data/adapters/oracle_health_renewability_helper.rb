@@ -75,7 +75,7 @@ module UnifiedHealthData
         expired || refills_remaining.zero?
       end
 
-      # Note: prescription_expired? is now provided by FhirHelpers module
+      # NOTE: prescription_expired? is now provided by FhirHelpers module
       # It checks if the validity period end date is in the past
 
       # Checks for active processing (web/mobile refill or in-progress dispense)

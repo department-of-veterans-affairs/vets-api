@@ -287,7 +287,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
     end
 
-    # Note: prescription_expired? is now defined in FhirHelpers and shared across modules.
+    # NOTE: prescription_expired? is now defined in FhirHelpers and shared across modules.
     # These tests verify the method works correctly in the context of the renewability helper.
     describe '#prescription_expired?' do
       it 'returns true when validity period end is in the past' do
