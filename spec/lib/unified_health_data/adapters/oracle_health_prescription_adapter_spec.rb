@@ -6,6 +6,8 @@ require 'unified_health_data/adapters/oracle_health_prescription_adapter'
 require 'lighthouse/facilities/v1/client'
 
 describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.new }
 
   let(:base_resource) do
@@ -799,20 +801,19 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     end
 
     context 'Gate 6: expired exactly 120 days ago' do
-      let(:boundary_expired_resource) do
-        # Use 119 days to avoid floating-point precision issues at the boundary
-        base_renewable_resource.merge(
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 1,
-            'validityPeriod' => {
-              'end' => 119.days.ago.utc.iso8601
-            }
-          }
-        )
-      end
-
       it 'returns true when expired within 120 days (boundary case)' do
-        expect(subject.send(:extract_is_renewable, boundary_expired_resource)).to be true
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was exactly 120 days ago at the same time of day
+          # 2026-01-08 12:00 - 120 days = 2025-09-10 12:00
+          expiration_date = Time.zone.parse('2025-09-10 12:00:00 UTC').iso8601
+          resource = base_renewable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 1,
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
+          expect(subject.send(:extract_is_renewable, resource)).to be true
+        end
       end
     end
 
@@ -1595,14 +1596,18 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'when MedicationRequest status is active' do
       it 'returns "discontinued" when expired more than 120 days ago' do
-        resource = status_test_resource.merge(
-          'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
-          }
-        )
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was 121 days ago at midnight (beyond the 120-day window)
+          expiration_date = Time.zone.parse('2025-09-09 00:00:00 UTC').iso8601
+          resource = status_test_resource.merge(
+            'dispenseRequest' => {
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
 
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('discontinued')
+          result = subject.send(:normalize_to_legacy_vista_status, resource)
+          expect(result).to eq('discontinued')
+        end
       end
 
       it 'returns "expired" when no refills remaining' do
@@ -1714,27 +1719,35 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
     context 'when MedicationRequest status is completed' do
       it 'returns "discontinued" when expired more than 120 days ago' do
-        resource = status_test_resource.merge(
-          'status' => 'completed',
-          'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
-          }
-        )
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was 121 days ago at midnight (beyond the 120-day window)
+          expiration_date = Time.zone.parse('2025-09-09 00:00:00 UTC').iso8601
+          resource = status_test_resource.merge(
+            'status' => 'completed',
+            'dispenseRequest' => {
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
 
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('discontinued')
+          result = subject.send(:normalize_to_legacy_vista_status, resource)
+          expect(result).to eq('discontinued')
+        end
       end
 
       it 'returns "expired" when expired less than 120 days ago' do
-        resource = status_test_resource.merge(
-          'status' => 'completed',
-          'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 60.days.ago.utc.iso8601 }
-          }
-        )
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was 60 days ago (within the 120-day window)
+          expiration_date = Time.zone.parse('2025-11-09 00:00:00 UTC').iso8601
+          resource = status_test_resource.merge(
+            'status' => 'completed',
+            'dispenseRequest' => {
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
 
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('expired')
+          result = subject.send(:normalize_to_legacy_vista_status, resource)
+          expect(result).to eq('expired')
+        end
       end
 
       it 'returns "discontinued" when there is no validityPeriod.end date' do

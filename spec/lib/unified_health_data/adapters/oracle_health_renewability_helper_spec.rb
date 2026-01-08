@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'unified_health_data/adapters/oracle_health_prescription_adapter'
 
 RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter.new }
 
   # Base renewable resource: active status, VA Prescription classification
@@ -124,13 +126,17 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
 
     describe 'Gate 5: Within 120 days of validity period end' do
       it 'returns false when expired more than 120 days ago' do
-        resource = base_renewable_resource.merge(
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 1,
-            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
-          }
-        )
-        expect(subject.send(:renewable?, resource)).to be false
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was 121 days ago
+          expiration_date = Time.zone.parse('2025-09-09 00:00:00 UTC').iso8601
+          resource = base_renewable_resource.merge(
+            'dispenseRequest' => {
+              'numberOfRepeatsAllowed' => 1,
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
+          expect(subject.send(:renewable?, resource)).to be false
+        end
       end
     end
 
@@ -236,23 +242,32 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
 
       it 'returns true at exactly 120 days (boundary condition)' do
-        resource = base_renewable_resource.merge(
-          'dispenseRequest' => {
-            # Use 119 days instead of 120 to avoid boundary flakiness due to time-of-day
-            # precision issues; this effectively tests the 120-day window boundary.
-            'validityPeriod' => { 'end' => 119.days.ago.utc.iso8601 }
-          }
-        )
-        expect(subject.send(:within_renewal_window?, resource)).to be true
+        # Freeze time to ensure precise boundary testing
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was exactly 120 days ago at the same time of day
+          # 2026-01-08 12:00 - 120 days = 2025-09-10 12:00
+          expiration_date = Time.zone.parse('2025-09-10 12:00:00 UTC').iso8601
+          resource = base_renewable_resource.merge(
+            'dispenseRequest' => {
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
+          expect(subject.send(:within_renewal_window?, resource)).to be true
+        end
       end
 
       it 'returns false when expired more than 120 days ago' do
-        resource = base_renewable_resource.merge(
-          'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 121.days.ago.utc.iso8601 }
-          }
-        )
-        expect(subject.send(:within_renewal_window?, resource)).to be false
+        # Freeze time to ensure precise boundary testing
+        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
+          # Expiration was 121 days ago
+          expiration_date = Time.zone.parse('2025-09-09 00:00:00 UTC').iso8601
+          resource = base_renewable_resource.merge(
+            'dispenseRequest' => {
+              'validityPeriod' => { 'end' => expiration_date }
+            }
+          )
+          expect(subject.send(:within_renewal_window?, resource)).to be false
+        end
       end
 
       it 'returns true when prescription has not yet expired (future date)' do
