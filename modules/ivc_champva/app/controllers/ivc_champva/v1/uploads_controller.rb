@@ -793,12 +793,12 @@ module IvcChampva
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
 
+        form.track_user_identity
+        form.track_current_user_loa(@current_user)
+        form.track_email_usage
+
         if Flipper.enabled?(:champva_update_datadog_tracking, @current_user) && form.respond_to?(:track_submission)
           form.track_submission(@current_user)
-        else
-          form.track_user_identity
-          form.track_current_user_loa(@current_user)
-          form.track_email_usage
         end
 
         attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)

@@ -89,22 +89,6 @@ module IvcChampva
       end
     end
 
-    def track_submission(current_user)
-      identity = data['certifier_role']
-      current_user_loa = current_user&.loa&.[](:current) || 0
-      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
-      StatsD.increment("#{get_stats_key}.submission", tags: [
-                         "identity:#{identity}",
-                         "loa:#{current_user_loa}",
-                         "email:#{email_used}",
-                         "form_version:#{FORM_VERSION}"
-                       ])
-      Rails.logger.info('IVC ChampVA Forms - 10-10D-2027 Submission', identity:,
-                                                                      current_user_loa:,
-                                                                      email_used:,
-                                                                      form_version: FORM_VERSION)
-    end
-
     def track_user_identity
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")
@@ -121,6 +105,22 @@ module IvcChampva
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.#{email_used}")
       Rails.logger.info('IVC ChampVA Forms - 10-10D Email Used', email_used:)
+    end
+
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{get_stats_key}.submission", tags: [
+                         "identity:#{identity}",
+                         "loa:#{current_user_loa}",
+                         "email:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Submission', identity:,
+                                                                 current_user_loa:,
+                                                                 email_used:,
+                                                                 form_version: FORM_VERSION)
     end
 
     def method_missing(_, *args)
