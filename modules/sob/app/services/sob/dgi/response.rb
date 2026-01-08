@@ -21,6 +21,7 @@ module SOB
       attribute :used_entitlement, Entitlement
       attribute :remaining_entitlement, Entitlement
       attribute :entitlement_transferred_out, Entitlement
+      attribute :enrollments, Enrollment, array: true
 
       def initialize(_status, response = nil)
         @claimant = response&.body&.dig('claimant')

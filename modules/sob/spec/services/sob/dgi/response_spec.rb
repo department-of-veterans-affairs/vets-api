@@ -35,7 +35,8 @@ RSpec.describe SOB::DGI::Response do
       'entitlement_transferred_out' => {
         'months' => 14,
         'days' => 10
-      }
+      },
+      'enrollments' => nil
     }
   end
 
