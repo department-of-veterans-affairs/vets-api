@@ -50,9 +50,12 @@ class Form526NewConditionsStateSnapshotJob
     InProgressForm.where(form_id: '21-526EZ').where("metadata->>'new_conditions_workflow' = 'true'").pluck(:id)
   end
 
-  # V1 forms - those WITHOUT new_conditions_workflow metadata key
+  # V1 forms - those where new_conditions_workflow is not 'true' (includes legacy forms without the key)
   def v1_in_progress_forms
-    InProgressForm.where(form_id: '21-526EZ').where.not("metadata::jsonb ? 'new_conditions_workflow'").pluck(:id)
+    InProgressForm.where(form_id: '21-526EZ')
+                  .where("metadata->>'new_conditions_workflow' IS NULL OR " \
+                         "metadata->>'new_conditions_workflow' != 'true'")
+                  .pluck(:id)
   end
 
   # Total 526 in-progress forms (regardless of workflow version)

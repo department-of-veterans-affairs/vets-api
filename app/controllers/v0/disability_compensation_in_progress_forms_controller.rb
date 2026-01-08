@@ -25,6 +25,14 @@ module V0
         params[:metadata][:sync_modern0781_flow] =
           form_hash['sync_modern0781_flow'] || form_hash[:sync_modern0781_flow] || false
       end
+
+      if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:new_conditions_workflow] =
+          form_hash['disabilityCompNewConditionsWorkflow'] || form_hash[:disabilityCompNewConditionsWorkflow] || false
+      end
       super
     end
 

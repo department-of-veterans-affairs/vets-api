@@ -19,6 +19,12 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
       create(:in_progress_form, form_id: '21-526EZ')
     end
 
+    let!(:v1_form_with_false) do
+      ipf = create(:in_progress_form, form_id: '21-526EZ')
+      ipf.update(metadata: { 'new_conditions_workflow' => false })
+      ipf
+    end
+
     let!(:other_form) do
       create(:in_progress_form, form_id: '22-1990')
     end
@@ -49,8 +55,8 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
           prefix = described_class::STATSD_PREFIX
 
           expect(StatsD).to receive(:gauge).with("#{prefix}.v2_in_progress_forms_count", 1)
-          expect(StatsD).to receive(:gauge).with("#{prefix}.v1_in_progress_forms_count", 1)
-          expect(StatsD).to receive(:gauge).with("#{prefix}.total_in_progress_forms_count", 2)
+          expect(StatsD).to receive(:gauge).with("#{prefix}.v1_in_progress_forms_count", 2)
+          expect(StatsD).to receive(:gauge).with("#{prefix}.total_in_progress_forms_count", 3)
 
           described_class.new.perform
         end
@@ -93,11 +99,12 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_new_conditions_stats_job).and_return(true)
       end
 
-      it 'returns only 526 forms without new_conditions_workflow metadata' do
+      it 'returns 526 forms where new_conditions_workflow is not true' do
         job = described_class.new
         result = job.send(:v1_in_progress_forms)
 
         expect(result).to include(v1_in_progress_form.id)
+        expect(result).to include(v1_form_with_false.id)
         expect(result).not_to include(v2_in_progress_form.id)
         expect(result).not_to include(other_form.id)
       end
@@ -114,6 +121,7 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
 
         expect(result).to include(v2_in_progress_form.id)
         expect(result).to include(v1_in_progress_form.id)
+        expect(result).to include(v1_form_with_false.id)
         expect(result).not_to include(other_form.id)
       end
     end
