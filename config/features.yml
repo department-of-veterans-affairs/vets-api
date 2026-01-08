@@ -2247,6 +2247,12 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
+  form526_error_handling:
+    actor_type: user
+    description: Toggles Form526 error handling. When enabled,e.status_code errors will not be raised
+  form526_raise_e:
+    actor_type: user
+    description: When enabled, Form526 jobs will raise e
   virtual_agent_show_ai_disclaimer:
     actor_type: user
     description: Enables a disclaimer for ai generated content - managed by virtual agent team
