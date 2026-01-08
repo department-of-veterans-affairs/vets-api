@@ -8,14 +8,8 @@ module V0
 
     def create
       if claim.save
-        Rails.logger.info "Submitting VR&E claim via #{modular_api_enabled ? 'modular' : 'legacy'} VRE API"
-
-        if modular_api_enabled
-          submission_id = setup_form_submission_tracking(claim, user_account)
-          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
-        else
-          VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
-        end
+        submission_id = setup_form_submission_tracking(claim, user_account)
+        VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
         # FIXME: revert to this with issue CVE-2253
         # clear_saved_form(claim.form_id)
@@ -33,10 +27,6 @@ module V0
 
     private
 
-    def modular_api_enabled
-      @modular_api_enabled ||= Flipper.enabled?(:vre_modular_api)
-    end
-
     def user_account
       @user_account ||= UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
     end
@@ -46,8 +36,6 @@ module V0
     end
 
     def setup_form_submission_tracking(claim, user_account)
-      return nil unless Flipper.enabled?(:vre_track_submissions)
-
       submission = claim.form_submissions.create(
         form_type: claim.form_id,
         user_account:

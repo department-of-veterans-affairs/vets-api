@@ -580,4 +580,207 @@ describe Vass::RedisClient do
       expect(redis_client.rate_limit_count(identifier: 'test-uuid-123')).to eq(2)
     end
   end
+
+  # ------------ Booking Session Tests ------------
+
+  describe '#store_booking_session' do
+    let(:veteran_id) { 'vet-booking-123' }
+    let(:booking_data) do
+      {
+        appointment_id: 'cohort-abc',
+        time_start_utc: '2026-01-10T10:00:00Z',
+        time_end_utc: '2026-01-10T10:30:00Z'
+      }
+    end
+
+    it 'stores booking session data in cache' do
+      result = redis_client.store_booking_session(veteran_id:, data: booking_data)
+
+      expect(result).to be true
+
+      cached_data = redis_client.get_booking_session(veteran_id:)
+      expect(cached_data[:appointment_id]).to eq('cohort-abc')
+      expect(cached_data[:time_start_utc]).to eq('2026-01-10T10:00:00Z')
+      expect(cached_data[:time_end_utc]).to eq('2026-01-10T10:30:00Z')
+    end
+
+    it 'uses 1 hour expiration' do
+      redis_client.store_booking_session(veteran_id:, data: booking_data)
+
+      expect(redis_client.get_booking_session(veteran_id:)).not_to be_empty
+
+      Timecop.travel(3601.seconds.from_now) do
+        expect(redis_client.get_booking_session(veteran_id:)).to be_empty
+      end
+    end
+
+    it 'overwrites existing booking session' do
+      redis_client.store_booking_session(
+        veteran_id:,
+        data: { appointment_id: 'old-id' }
+      )
+      redis_client.store_booking_session(
+        veteran_id:,
+        data: { appointment_id: 'new-id' }
+      )
+
+      cached_data = redis_client.get_booking_session(veteran_id:)
+      expect(cached_data[:appointment_id]).to eq('new-id')
+    end
+  end
+
+  describe '#get_booking_session' do
+    let(:veteran_id) { 'vet-get-session' }
+
+    context 'when session does not exist' do
+      it 'returns empty hash' do
+        expect(redis_client.get_booking_session(veteran_id:)).to eq({})
+      end
+    end
+
+    context 'when session exists' do
+      before do
+        redis_client.store_booking_session(
+          veteran_id:,
+          data: { appointment_id: 'cohort-xyz', time_start_utc: '2026-01-15T14:00:00Z' }
+        )
+      end
+
+      it 'returns session data' do
+        result = redis_client.get_booking_session(veteran_id:)
+
+        expect(result).to be_a(Hash)
+        expect(result[:appointment_id]).to eq('cohort-xyz')
+        expect(result[:time_start_utc]).to eq('2026-01-15T14:00:00Z')
+      end
+    end
+
+    context 'when session has expired' do
+      before do
+        redis_client.store_booking_session(
+          veteran_id:,
+          data: { appointment_id: 'expired' }
+        )
+
+        Timecop.travel(3601.seconds.from_now) do
+          @result = redis_client.get_booking_session(veteran_id:)
+        end
+      end
+
+      it 'returns empty hash' do
+        expect(@result).to eq({})
+      end
+    end
+  end
+
+  describe '#update_booking_session' do
+    let(:veteran_id) { 'vet-update-session' }
+
+    context 'when session does not exist' do
+      it 'creates new session with provided data' do
+        redis_client.update_booking_session(
+          veteran_id:,
+          data: { appointment_id: 'new-cohort' }
+        )
+
+        result = redis_client.get_booking_session(veteran_id:)
+        expect(result[:appointment_id]).to eq('new-cohort')
+      end
+    end
+
+    context 'when session exists' do
+      before do
+        redis_client.store_booking_session(
+          veteran_id:,
+          data: { appointment_id: 'cohort-123', step: 1 }
+        )
+      end
+
+      it 'merges new data with existing data' do
+        redis_client.update_booking_session(
+          veteran_id:,
+          data: { time_start_utc: '2026-01-20T09:00:00Z', step: 2 }
+        )
+
+        result = redis_client.get_booking_session(veteran_id:)
+        expect(result[:appointment_id]).to eq('cohort-123')
+        expect(result[:time_start_utc]).to eq('2026-01-20T09:00:00Z')
+        expect(result[:step]).to eq(2)
+      end
+
+      it 'overwrites existing keys' do
+        redis_client.update_booking_session(
+          veteran_id:,
+          data: { appointment_id: 'updated-cohort' }
+        )
+
+        result = redis_client.get_booking_session(veteran_id:)
+        expect(result[:appointment_id]).to eq('updated-cohort')
+        expect(result[:step]).to eq(1)
+      end
+    end
+  end
+
+  describe '#delete_booking_session' do
+    let(:veteran_id) { 'vet-delete-session' }
+
+    before do
+      redis_client.store_booking_session(
+        veteran_id:,
+        data: { appointment_id: 'to-be-deleted' }
+      )
+    end
+
+    it 'removes booking session from cache' do
+      expect(redis_client.get_booking_session(veteran_id:)).not_to be_empty
+
+      redis_client.delete_booking_session(veteran_id:)
+
+      expect(redis_client.get_booking_session(veteran_id:)).to be_empty
+    end
+
+    it 'does not error when deleting non-existent session' do
+      expect do
+        redis_client.delete_booking_session(veteran_id: 'nonexistent-vet')
+      end.not_to raise_error
+    end
+  end
+
+  describe 'booking session isolation' do
+    let(:veteran_id1) { 'vet-1' }
+    let(:veteran_id2) { 'vet-2' }
+
+    it 'stores sessions separately for different veterans' do
+      redis_client.store_booking_session(
+        veteran_id: veteran_id1,
+        data: { appointment_id: 'cohort-1' }
+      )
+      redis_client.store_booking_session(
+        veteran_id: veteran_id2,
+        data: { appointment_id: 'cohort-2' }
+      )
+
+      session1 = redis_client.get_booking_session(veteran_id: veteran_id1)
+      session2 = redis_client.get_booking_session(veteran_id: veteran_id2)
+
+      expect(session1[:appointment_id]).to eq('cohort-1')
+      expect(session2[:appointment_id]).to eq('cohort-2')
+    end
+
+    it 'deletes session for one veteran without affecting others' do
+      redis_client.store_booking_session(
+        veteran_id: veteran_id1,
+        data: { appointment_id: 'cohort-1' }
+      )
+      redis_client.store_booking_session(
+        veteran_id: veteran_id2,
+        data: { appointment_id: 'cohort-2' }
+      )
+
+      redis_client.delete_booking_session(veteran_id: veteran_id1)
+
+      expect(redis_client.get_booking_session(veteran_id: veteran_id1)).to be_empty
+      expect(redis_client.get_booking_session(veteran_id: veteran_id2)).not_to be_empty
+    end
+  end
 end

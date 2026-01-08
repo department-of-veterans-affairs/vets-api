@@ -57,15 +57,12 @@ describe VRE::VRESubmit1900Job do
       allow(Flipper).to receive(:enabled?)
         .with(:vre_use_new_vfs_notification_library, claim)
         .and_return(true)
-      allow(Flipper).to receive(:enabled?)
-        .with(:vre_track_submissions)
-        .and_return(false)
     end
 
     it 'sends a failure email to user' do
       notification_email = double('notification_email')
       expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
-      expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
+      expect(notification_email).to receive(:deliver).with(:error)
 
       VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
         exhaustion_msg['args'] = [claim.id, encrypted_user]
@@ -78,9 +75,6 @@ describe VRE::VRESubmit1900Job do
     let(:form_type) { SavedClaim::VeteranReadinessEmploymentClaim::FORM }
 
     before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:vre_track_submissions)
-        .and_return(true)
       allow(StatsD).to receive(:increment)
     end
 

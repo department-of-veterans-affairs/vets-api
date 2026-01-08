@@ -32,15 +32,17 @@ module ClaimsApi
         def gather_poa_data
           data = gather_read_all_veteran_representative_data
           vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
+          vnp_find_phone_data = gather_vnp_phone_data('veteran')
 
           data.merge!(vnp_find_addrs_data)
+          data.merge!(vnp_find_phone_data)
 
           data.merge!('registration_number' => @registration_number.to_s)
           if @claimant.present?
             claimant_addr_data = gather_vnp_addrs_data('claimant')
 
             if @metadata['claimant'].key?('vnp_phone_id')
-              claimant_phone_data = gather_vnp_phone_data
+              claimant_phone_data = gather_vnp_phone_data('claimant')
               claimant_addr_data.merge!(claimant_phone_data)
             end
 
@@ -82,11 +84,13 @@ module ClaimsApi
           ).call
         end
 
-        def gather_vnp_phone_data
-          primary_key = @metadata.dig('claimant', 'vnp_phone_id')
+        # key is 'veteran' or 'claimant'
+        def gather_vnp_phone_data(key)
+          ptcpnt_id = key == 'veteran' ? @veteran.participant_id : @claimant&.participant_id
+          primary_key = @metadata.dig(key, 'vnp_phone_id')
 
           res = ClaimsApi::VnpPtcpntPhoneService
-                .new(external_uid: @claimant.participant_id, external_key: @claimant.participant_id)
+                .new(external_uid: ptcpnt_id, external_key: ptcpnt_id)
                 .vnp_ptcpnt_phone_find_by_primary_key(id: primary_key)
 
           ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::VnpPtcpntPhoneFindByPrimaryKeyDataGatherer.new(
