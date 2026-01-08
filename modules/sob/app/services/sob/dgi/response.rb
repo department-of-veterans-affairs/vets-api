@@ -48,6 +48,7 @@ module SOB
         parse_eligibility(benefit['eligibility_results'])
         parse_entitlement(benefit['entitlement_results'])
         parse_toe(benefit['entitlement_transfer_out'])
+        @claimant['enrollments'] = benefit['enrollments']
 
         @claimant
       end
