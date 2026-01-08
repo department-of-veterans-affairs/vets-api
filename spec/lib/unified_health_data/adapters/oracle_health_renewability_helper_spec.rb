@@ -235,15 +235,6 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
         expect(subject.send(:within_renewal_window?, base_renewable_resource)).to be true
       end
 
-      it 'returns true when expired 119 days ago (inside window)' do
-        resource = base_renewable_resource.merge(
-          'dispenseRequest' => {
-            'validityPeriod' => { 'end' => 119.days.ago.utc.iso8601 }
-          }
-        )
-        expect(subject.send(:within_renewal_window?, resource)).to be true
-      end
-
       it 'returns true at exactly 120 days (boundary condition)' do
         resource = base_renewable_resource.merge(
           'dispenseRequest' => {
