@@ -38,7 +38,7 @@ class VANotifyDdEmailJob
     StatsD.increment(STATSD_SUCCESS_NAME)
   rescue => e
     handle_errors(e)
-    raise e
+    raise e if Flipper.enabled?(:form526_raise_e)
   end
 
   def handle_errors(exception)
