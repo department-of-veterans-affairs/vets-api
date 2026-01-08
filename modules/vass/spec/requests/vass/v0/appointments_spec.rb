@@ -281,6 +281,32 @@ RSpec.describe 'Vass::V0::Appointments', type: :request do
           end
         end
       end
+
+      context 'when service returns an unexpected status' do
+        it 'logs error and returns internal server error' do
+          # Mock the service to return an unexpected status
+          appointments_service = instance_double(Vass::AppointmentsService)
+          allow(Vass::AppointmentsService).to receive(:build).and_return(appointments_service)
+          allow(appointments_service).to receive(:get_current_cohort_availability).and_return(
+            {
+              status: :unexpected_status,
+              data: {}
+            }
+          )
+
+          allow(Rails.logger).to receive(:error)
+
+          get('/vass/v0/appointment-availability', headers:)
+
+          expect(response).to have_http_status(:internal_server_error)
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['code']).to eq('internal_error')
+          expect(json_response['errors'].first['detail']).to eq('An unexpected error occurred')
+
+          expect(Rails.logger).to have_received(:error).with('Unexpected availability status: unexpected_status')
+        end
+      end
     end
   end
 end

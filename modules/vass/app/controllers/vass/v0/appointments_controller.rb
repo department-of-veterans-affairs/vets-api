@@ -154,6 +154,9 @@ module Vass
           message = data[:message]
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
           render_error(error_code, message, :unprocessable_entity)
+        else
+          Rails.logger.error("Unexpected availability status: #{status}")
+          render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
         end
       end
 
