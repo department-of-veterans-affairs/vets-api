@@ -6,8 +6,6 @@ module AccreditedRepresentativePortal
   class DeleteOldBenefitsIntakeRecordsJob
     include Sidekiq::Job
 
-    # This job is idempotent: deleting old records multiple times is safe
-    # No retry needed, since all exceptions are logged and monitored
     sidekiq_options retry: false, queue: :default
 
     STATSD_KEY_PREFIX = 'worker.accredited_representative_portal.delete_old_benefits_intake_records'
