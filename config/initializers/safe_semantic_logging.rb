@@ -14,11 +14,7 @@ module SafeSemanticLogging
   def log_internal(level, index, message = nil, payload = nil, exception = nil, &)
     if SafeSemanticLogging.safe_log_enabled? && payload.is_a?(Hash)
       ex = payload[:exception]
-      if ex && !ex.respond_to?(:backtrace)
-        exception ||= RuntimeError.new(ex.to_s)
-      elsif ex.nil?
-        exception ||= RuntimeError.new('No exception provided')
-      end
+      exception ||= RuntimeError.new(ex.to_s) if ex && !ex.respond_to?(:backtrace)
     end
 
     super(level, index, message, payload, exception, &)
