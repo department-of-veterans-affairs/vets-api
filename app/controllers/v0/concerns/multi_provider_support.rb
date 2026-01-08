@@ -37,18 +37,24 @@ module V0
       end
 
       def extract_claims_data(provider_class, response)
+        provider_name = provider_class.name
+        logger = ::Rails.logger
+
         if response.nil?
-          ::Rails.logger.warn("Provider #{provider_class.name} returned nil from get_claims")
+          logger.warn("Provider #{provider_name} returned nil from get_claims")
           return []
         end
 
-        unless response.is_a?(Hash) && response.key?('data')
-          ::Rails.logger.error(
-            "Provider #{provider_class.name} returned unexpected structure from get_claims",
+        is_hash = response.is_a?(Hash)
+        has_data_key = is_hash && response.key?('data')
+
+        unless has_data_key
+          logger.error(
+            "Provider #{provider_name} returned unexpected structure from get_claims",
             {
-              provider: provider_class.name,
+              provider: provider_name,
               response_class: response.class.name,
-              has_data_key: response.is_a?(Hash) && response.key?('data')
+              has_data_key:
             }
           )
           return []
@@ -58,14 +64,17 @@ module V0
       end
 
       def handle_provider_error(provider_class, error, provider_errors)
-        provider_errors << { 'provider' => provider_class.name, 'error' => 'Provider temporarily unavailable' }
+        provider_name = provider_class.name
+        controller_class = self.class
+
+        provider_errors << { 'provider' => provider_name, 'error' => 'Provider temporarily unavailable' }
 
         ::Rails.logger.error(
-          "Provider #{provider_class.name} failed",
+          "Provider #{provider_name} failed",
           { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
         )
-        StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.provider_error",
-                         tags: self.class::STATSD_TAGS + ["provider:#{provider_class.name}"])
+        StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.provider_error",
+                         tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
       end
 
       def get_claim_from_providers(claim_id)
@@ -95,13 +104,16 @@ module V0
       end
 
       def handle_get_claim_error(provider_class, error)
+        provider_name = provider_class.name
+        controller_class = self.class
+
         # Unexpected error: log and try next provider
         ::Rails.logger.error(
-          "Provider #{provider_class.name} error fetching claim",
+          "Provider #{provider_name} error fetching claim",
           { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
         )
-        StatsD.increment("#{self.class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
-                         tags: self.class::STATSD_TAGS + ["provider:#{provider_class.name}"])
+        StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
+                         tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
       end
     end
   end
