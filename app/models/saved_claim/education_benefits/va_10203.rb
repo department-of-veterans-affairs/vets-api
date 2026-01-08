@@ -20,7 +20,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
     send_confirmation_email if Flipper.enabled?(:form21_10203_confirmation_email)
 
-    if @user.present? && FeatureFlipper.send_email? && !Flipper.enabled?(:form_10203_claimant_service)
+    if @user.present? && FeatureFlipper.send_email?
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
 
       authorized = @user.authorize(:evss, :access?)
@@ -52,7 +52,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def get_gi_bill_status
     if Flipper.enabled?(:form_10203_claimant_service)
-      service = SOB::DGI::Service.new(@user.ssn)
+      service = SOB::DGI::Service.new(ssn: @user.ssn, include_enrollments: true)
       service.get_ch33_status
     else
       service = BenefitsEducation::Service.new(@user.icn)
@@ -64,11 +64,9 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def get_facility_code
-    return {} if @gi_bill_status.blank? ||
-                 Flipper.enabled?(:form_10203_claimant_service) ||
-                 @gi_bill_status.enrollments.blank?
+    return {} if @gi_bill_status.blank? || @gi_bill_status.enrollments.blank?
 
-    most_recent = @gi_bill_status.enrollments.max_by(&:begin_date)
+    most_recent = @gi_bill_status.enrollments&.max_by(&:begin_date)
 
     return {} if most_recent.blank?
 
