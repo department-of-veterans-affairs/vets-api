@@ -27,6 +27,10 @@ namespace :payment_history do
     if mpi_profile != nil
       is_passing_policy = check_policy_attributes(mpi_profile)
     end
+
+    if is_passing_policy
+      check_bgs_file_number(mpi_profile)
+    end
     
     puts
   end
@@ -134,5 +138,47 @@ namespace :payment_history do
     end
     
     all_present
+  end
+
+  def check_bgs_file_number(mpi_profile)
+    puts
+    puts "Checking BGS file number lookup..."
+    
+    begin
+      # Create a minimal user object for BGS call
+      user = OpenStruct.new(
+        icn: mpi_profile.icn,
+        ssn: mpi_profile.ssn,
+        participant_id: mpi_profile.participant_id
+      )
+      
+      person = BGS::People::Request.new.find_person_by_participant_id(user: user)
+      
+      if person.status == :ok
+        puts "✓ BGS person lookup succeeded"
+        puts "  Status: #{person.status}"
+        
+        if person.file_number.present?
+          puts "✓ File number present: #{person.file_number}"
+        else
+          puts "✗ File number missing"
+          puts "  Payment history requires a valid file number"
+        end
+        
+        puts "  Participant ID: #{person.participant_id}"
+        puts "  SSN: ***-**-#{person.ssn_number.to_s[-4..]}"
+      elsif person.status == :error
+        puts "✗ BGS person lookup failed with error status"
+        puts "  This will cause payment history to be empty"
+      elsif person.status == :no_id
+        puts "✗ BGS person lookup failed - no ID found"
+        puts "  This will cause payment history to be empty"
+      else
+        puts "✗ BGS person lookup failed with status: #{person.status}"
+      end
+    rescue => e
+      puts "✗ Error calling BGS person lookup: #{e.message}"
+      puts "  #{e.class.name}"
+    end
   end
 end

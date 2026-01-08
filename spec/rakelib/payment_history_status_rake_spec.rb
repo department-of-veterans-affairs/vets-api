@@ -335,5 +335,81 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
       end
     end
+
+    describe '#check_bgs_file_number' do
+      let(:mpi_profile) do
+        build(:mpi_profile,
+              icn: '1234567890V123456',
+              ssn: '123456789',
+              participant_id: '600012345')
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        mpi_service = instance_double(MPI::Service)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+        response = build(:find_profile_response, profile: mpi_profile)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(response)
+      end
+
+      context 'when BGS person lookup succeeds with file number' do
+        it 'shows success and file number present' do
+          VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+            expect { task.invoke(icn) }.to output(/BGS person lookup succeeded.*File number present/m).to_stdout
+          end
+        end
+      end
+
+      context 'when BGS person lookup succeeds but file number is missing' do
+        it 'shows file number missing warning' do
+          person = OpenStruct.new(
+            status: :ok,
+            file_number: nil,
+            participant_id: '600012345',
+            ssn_number: '123456789'
+          )
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          expect { task.invoke(icn) }.to output(/File number missing.*Payment history requires a valid file number/m).to_stdout
+        end
+      end
+
+      context 'when BGS person lookup fails with error status' do
+        it 'shows error status message' do
+          person = OpenStruct.new(status: :error)
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          expect { task.invoke(icn) }.to output(/BGS person lookup failed with error status/m).to_stdout
+        end
+      end
+
+      context 'when BGS person lookup fails with no_id status' do
+        it 'shows no ID found message' do
+          person = OpenStruct.new(status: :no_id)
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          expect { task.invoke(icn) }.to output(/BGS person lookup failed - no ID found/m).to_stdout
+        end
+      end
+
+      context 'when BGS person lookup raises an exception' do
+        it 'shows error message' do
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_raise(StandardError, 'BGS connection failed')
+          
+          expect { task.invoke(icn) }.to output(/Error calling BGS person lookup: BGS connection failed/m).to_stdout
+        end
+      end
+    end
   end
 end
