@@ -33,16 +33,13 @@ module MedicalCopays
 
           org_ref = resource.dig('issuer', 'reference')
           org_id = org_ref&.split('/')&.last
-
           raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
           org_city = retrieve_city(org_id)
           raise MissingCityError, "Missing city for org_id #{org_id}" if org_city.blank?
 
-          resource = entry.fetch('resource')
-          resource = resource.merge('city' => org_city, 'facility_id' => org_id)
-
-          enriched_entry = entry.merge('resource' => resource)
+          enriched_resource = resource.merge('city' => org_city, 'facility_id' => org_id)
+          enriched_entry = entry.merge('resource' => enriched_resource)
 
           Lighthouse::HCC::Invoice.new(enriched_entry)
         end
