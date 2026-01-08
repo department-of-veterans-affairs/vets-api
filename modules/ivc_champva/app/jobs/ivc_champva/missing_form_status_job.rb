@@ -29,6 +29,14 @@ module IvcChampva
         Rails.logger.info "IVC Forms MissingFormStatusJob - Too many forms to log details (#{form_count} forms)"
       end
 
+      process_batches(batches, verbose_logging, form_count)
+    rescue => e
+      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
+
+    # Helper function to process batches of forms
+    def process_batches(batches, verbose_logging, form_count)
       current_time = Time.now.utc
 
       batches.each_value do |batch|
@@ -59,9 +67,6 @@ module IvcChampva
                               - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
         end
       end
-    rescue => e
-      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
     end
 
     def count_forms(batches)
