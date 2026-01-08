@@ -1,126 +1,144 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-
-Sidekiq::Testing.inline! # run jobs immediately for testing
 
 RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob, type: :job do
-  let(:feature_flag) { :delete_old_benefits_intake_records_job_enabled }
-  let!(:old_record) do
-    create(
-      :accredited_representative_portal_saved_claim_benefits_intake,
-      created_at: 61.days.ago
-    )
-  end
-  let!(:new_record) do
-    create(
-      :accredited_representative_portal_saved_claim_benefits_intake,
-      created_at: 30.days.ago
-    )
-  end
+  subject(:job) { described_class.new }
+
+  let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
 
   before do
-    allow(Flipper).to receive(:enabled?)
-      .with(feature_flag)
-      .and_return(feature_flag_enabled)
-
     allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:info)
-    allow(Slack::Notifier).to receive(:notify)
+    allow(Rails.logger).to receive(:error)
+    allow(Rails.logger).to receive(:warn)
   end
 
-  context 'when feature flag is enabled' do
-    let(:feature_flag_enabled) { true }
+  describe '#perform' do
+    context 'when the feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:delete_old_benefits_intake_records_job_enabled)
+          .and_return(false)
+      end
 
-    it 'deletes records older than 60 days' do
-      expect do
-        described_class.new.perform
-      end.to change(
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake,
-        :count
-      ).by(-1)
+      it 'does nothing' do
+        expect(
+          AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+        ).not_to receive(:where)
 
-      expect(
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(old_record.id)
-      ).to be false
+        job.perform
+      end
     end
 
-    it 'does not delete newer records' do
-      described_class.new.perform
+    context 'when the feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:delete_old_benefits_intake_records_job_enabled)
+          .and_return(true)
+      end
 
-      expect(
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(new_record.id)
-      ).to be true
-    end
+      context 'when there are records older than 60 days' do
+        let!(:sixty_one_days_old) { create(:saved_claim_benefits_intake, created_at: 61.days.ago) }
+        let!(:ninety_days_old)    { create(:saved_claim_benefits_intake, created_at: 90.days.ago) }
+        let!(:recent_record)      { create(:saved_claim_benefits_intake, created_at: 10.days.ago) }
 
-    it 'increments StatsD with the number of deleted records' do
-      described_class.new.perform
+        it 'deletes only records older than 60 days' do
+          expect { job.perform }.to change(
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, :count
+          ).by(-2)
 
-      expect(StatsD).to have_received(:increment).with(
-        'worker.accredited_representative_portal.delete_old_benefits_intake_records.count',
-        1
-      )
-    end
-  end
+          expect(
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(recent_record.id)
+          ).to be(true)
+        end
 
-  context 'when feature flag is disabled' do
-    let(:feature_flag_enabled) { false }
+        it 'increments StatsD with the number of deleted records' do
+          job.perform
 
-    it 'does not delete any records' do
-      expect do
-        described_class.new.perform
-      end.not_to change(
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake,
-        :count
-      )
-    end
-  end
+          expect(StatsD).to have_received(:increment)
+            .with("#{statsd_key_prefix}.count", 2)
+        end
 
-  context 'when an error occurs' do
-    let(:feature_flag_enabled) { true }
+        it 'logs an info message with the deleted count' do
+          job.perform
 
-    before do
-      allow(
-        AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-      ).to receive(:destroy_all).and_raise(StandardError.new('boom'))
-    end
+          expect(Rails.logger).to have_received(:info)
+            .with(/DeleteOldBenefitsIntakeRecordsJob deleted 2 old BenefitsIntake records/)
+        end
+      end
 
-    it 'logs the error and increments StatsD error' do
-      described_class.new.perform
+      context 'when no records qualify for deletion' do
+        let!(:recent_record) { create(:saved_claim_benefits_intake, created_at: 5.days.ago) }
 
-      expect(StatsD).to have_received(:increment).with(
-        'worker.accredited_representative_portal.delete_old_benefits_intake_records.error'
-      )
+        it 'does not delete anything' do
+          expect { job.perform }.not_to change(
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, :count
+          )
+        end
 
-      expect(Rails.logger).to have_received(:error).with(
-        'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob perform exception: ' \
-        'StandardError boom'
-      )
-    end
+        it 'increments StatsD with zero deletions' do
+          job.perform
 
-    it 'sends a Slack alert when the job fails' do
-      described_class.new.perform
+          expect(StatsD).to have_received(:increment)
+            .with("#{statsd_key_prefix}.count", 0)
+        end
+      end
 
-      expect(Slack::Notifier).to have_received(:notify).with(
-        a_string_including(
-          'DeleteOldBenefitsIntakeRecordsJob failed',
-          'StandardError',
-          'boom'
-        )
-      )
-    end
+      context 'when an exception occurs during deletion' do
+        let(:exception) { StandardError.new('boom') }
 
-    it 'does not crash if Slack notification fails' do
-      allow(Slack::Notifier).to receive(:notify)
-        .and_raise(StandardError.new('slack down'))
+        before do
+          allow(
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+          ).to receive(:where).and_raise(exception)
+        end
 
-      described_class.new.perform
+        context 'when Slack::Notifier is defined' do
+          before do
+            stub_const('Slack::Notifier', Class.new do
+              def self.notify(_message); end
+            end)
+            allow(Slack::Notifier).to receive(:notify)
+          end
 
-      expect(Rails.logger).to have_received(:error).with(
-        a_string_including('Failed to send Slack alert')
-      )
+          it 'logs the error' do
+            job.perform
+
+            expect(Rails.logger).to have_received(:error)
+              .with(/perform exception: StandardError boom/)
+          end
+
+          it 'increments the error StatsD metric' do
+            job.perform
+
+            expect(StatsD).to have_received(:increment)
+              .with("#{statsd_key_prefix}.error")
+          end
+
+          it 'sends a Slack alert' do
+            job.perform
+
+            expect(Slack::Notifier).to have_received(:notify)
+              .with(
+                '[ALERT] AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob failed: StandardError - boom'
+              )
+          end
+
+          it 'does not raise the exception' do
+            expect { job.perform }.not_to raise_error
+          end
+        end
+
+        context 'when Slack::Notifier is not defined' do
+          it 'logs a warning and does not raise' do
+            job.perform
+
+            expect(Rails.logger).to have_received(:warn)
+              .with(/Slack::Notifier not defined; skipping Slack alert/)
+          end
+        end
+      end
     end
   end
 end

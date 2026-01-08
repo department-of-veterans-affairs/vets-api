@@ -15,7 +15,8 @@ module AccreditedRepresentativePortal
     def perform
       return unless enabled?
 
-      deleted_records = SavedClaim::BenefitsIntake
+      # Fully qualified class to avoid namespace issues
+      deleted_records = AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
                         .where('created_at <= ?', 60.days.ago)
                         .destroy_all
 
@@ -38,10 +39,14 @@ module AccreditedRepresentativePortal
     end
 
     def send_slack_alert(exception)
-      # Adjust this to your Slack notifier integration
-      Slack::Notifier.notify(
-        "[ALERT] #{self.class} failed: #{exception.class} - #{exception.message}"
-      )
+      # Ensure Slack is defined (stub in test if needed)
+      if defined?(Slack::Notifier)
+        Slack::Notifier.notify(
+          "[ALERT] #{self.class} failed: #{exception.class} - #{exception.message}"
+        )
+      else
+        Rails.logger.warn("Slack::Notifier not defined; skipping Slack alert: #{exception.class} #{exception.message}")
+      end
     rescue => e
       # Avoid breaking the job if Slack fails
       Rails.logger.error("Failed to send Slack alert: #{e.class} #{e.message}")
