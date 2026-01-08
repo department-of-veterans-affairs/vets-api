@@ -733,6 +733,7 @@ lighthouse:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
       client_id: fake_client_id
       rsa_key: path/to/fake/pem
+      kid: 123
     host: https://test-api.va.gov
     scopes:
       - system/ChargeItem.read
