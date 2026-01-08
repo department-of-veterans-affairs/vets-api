@@ -20,7 +20,17 @@ module ClaimsApi
 
           return [] if docs.nil? || docs&.dig(:documents).blank?
 
-          @supporting_documents = transform_documents(docs)
+          @supporting_documents = docs[:documents].map do |doc|
+            doc = doc.transform_keys { |key| key.to_s.underscore }
+            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
+            {
+              document_id: doc['document_id'],
+              document_type_label: doc['document_type_label'],
+              original_file_name: doc['original_file_name'],
+              tracked_item_id: doc['tracked_item_id'],
+              upload_date:
+            }
+          end
         end
 
         def get_file_number(ssn)
@@ -37,21 +47,6 @@ module ClaimsApi
             return nil
           end
           file_number
-        end
-
-        def transform_documents(docs)
-          docs[:documents].map do |doc|
-            doc = doc.transform_keys { |key| key.to_s.underscore }
-            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
-            {
-              document_id: doc['document_id'],
-              document_type_label: doc['document_type_label'],
-              original_file_name: doc['original_file_name'],
-              tracked_item_id: doc['tracked_item_id'],
-              upload_date:,
-              upload_date_time: doc['upload_date'] || doc['uploaded_date_time']
-            }
-          end
         end
 
         # duplicating temporarily to bd_upload_date. remove when EVSS call is gone
