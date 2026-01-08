@@ -3,6 +3,7 @@
 
 .devcontainer/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 .github/ @department-of-veterans-affairs/backend-review-group
+.reek.yml @department-of-veterans-affairs/backend-review-group
 .rubocop.yml @department-of-veterans-affairs/backend-review-group
 .rubocop_todo.yml @department-of-veterans-affairs/backend-review-group
 .vscode/mcp.json @department-of-veterans-affairs/backend-review-group
@@ -739,6 +740,7 @@ config/initializers/benefits_claims_providers.rb @department-of-veterans-affairs
 config/initializers/betamocks.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/bgs.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/breakers.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/carrierwave_aws_file.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/clamav.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/config.rb @department-of-veterans-affairs/backend-review-group
