@@ -496,7 +496,6 @@ module Vass
     #
     def find_current_cohort(appointments)
       now = Time.current
-      time_zone = Time.zone
 
       appointments.find do |appt|
         cohort_start_utc = appt['cohortStartUtc']
@@ -504,12 +503,14 @@ module Vass
         next unless cohort_start_utc && cohort_end_utc
 
         begin
-          cohort_start = time_zone.parse(cohort_start_utc)
-          cohort_end = time_zone.parse(cohort_end_utc)
-        rescue ArgumentError => e
+          cohort_start = Time.parse(cohort_start_utc).utc
+          cohort_end = Time.parse(cohort_end_utc).utc
+        rescue ArgumentError, TypeError => e
           log_error('Invalid cohort date format from VASS API', e)
           raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
         end
+
+        next unless cohort_start && cohort_end
 
         now.between?(cohort_start, cohort_end)
       end
@@ -602,11 +603,13 @@ module Vass
       return false unless time_start_utc
 
       begin
-        slot_time = Time.zone.parse(time_start_utc)
-      rescue ArgumentError => e
+        slot_time = Time.parse(time_start_utc).utc
+      rescue ArgumentError, TypeError => e
         log_error('Invalid slot time format from VASS API', e)
         raise Vass::Errors::VassApiError, 'Invalid date format in time slot data from VASS API'
       end
+
+      return false unless slot_time
 
       slot_time >= start_range && slot_time <= end_range
     end
@@ -633,23 +636,26 @@ module Vass
     #
     def find_next_cohort(appointments)
       now = Time.current
-      time_zone = Time.zone
 
       future_appointments = appointments.select do |a|
         cohort_start_utc = a['cohortStartUtc']
         next unless cohort_start_utc
 
         begin
-          time_zone.parse(cohort_start_utc) > now
-        rescue ArgumentError => e
+          parsed_time = Time.parse(cohort_start_utc).utc
+        rescue ArgumentError, TypeError => e
           log_error('Invalid cohort start date format from VASS API', e)
           raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
         end
+
+        parsed_time && parsed_time > now
       end
 
+      return nil if future_appointments.empty?
+
       future_appointments.min_by do |a|
-        time_zone.parse(a['cohortStartUtc'])
-      rescue ArgumentError => e
+        Time.parse(a['cohortStartUtc']).utc
+      rescue ArgumentError, TypeError => e
         log_error('Invalid cohort start date format from VASS API', e)
         raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
       end
