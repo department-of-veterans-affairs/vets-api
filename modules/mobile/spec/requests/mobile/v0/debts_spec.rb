@@ -168,7 +168,7 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
     context 'when count_only is true' do
       it 'returns only the count of debts' do
         VCR.use_cassette('bgs/people_service/person_data') do
-          VCR.use_cassette('debts/get_letters') do
+          VCR.use_cassette('debts/get_letters_count_only') do
             get '/mobile/v0/debts', params: { count_only: true }, headers: sis_headers
             assert_schema_conform(200)
             expect(response.parsed_body).to eq({ 'data' => { 'attributes' => { 'debtsCount' => 5 }, 'type' => 'debts' },
