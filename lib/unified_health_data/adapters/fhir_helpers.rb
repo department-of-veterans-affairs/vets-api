@@ -108,6 +108,38 @@ module UnifiedHealthData
         Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
       end
 
+      # Parses expiration date from FHIR MedicationRequest to UTC Time
+      # Oracle Health dates are in Zulu time (UTC)
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Time, nil] Parsed UTC time or nil if not available/invalid
+      def parse_expiration_date_utc(resource)
+        expiration_string = resource.dig('dispenseRequest', 'validityPeriod', 'end')
+        return nil if expiration_string.blank?
+
+        parsed_time = Time.zone.parse(expiration_string)
+        if parsed_time.nil?
+          log_invalid_expiration_date(resource, expiration_string)
+          return nil
+        end
+
+        parsed_time.utc
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': #{e.message}")
+        nil
+      end
+
+      # Checks if prescription validity period has ended
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if expired (validity period end is in the past)
+      def prescription_expired?(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        return false if expiration_date.nil?
+
+        expiration_date < Time.current.utc
+      end
+
       # Extracts SIG (dosage instructions) from FHIR MedicationDispense
       # Concatenates all dosageInstruction texts
       #

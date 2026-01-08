@@ -7,11 +7,12 @@ module UnifiedHealthData
     # @note Designed to be included in OracleHealthPrescriptionAdapter.
     #   Requires these methods from the including class:
     #   - extract_refill_remaining(resource) - Returns Integer of remaining refills
-    #   - parse_expiration_date_utc(resource) - Returns Time or nil for expiration date
     #
     #   Requires these methods from other modules (via include):
     #   - categorize_medication(resource) - From OracleHealthCategorizer
     #   - medication_dispenses(resource) - From FhirHelpers
+    #   - parse_expiration_date_utc(resource) - From FhirHelpers
+    #   - prescription_expired?(resource) - From FhirHelpers
     module OracleHealthRenewabilityHelper
       # Determines if a medication is renewable.
       # All gate conditions must pass for renewal eligibility.
@@ -74,16 +75,8 @@ module UnifiedHealthData
         expired || refills_remaining.zero?
       end
 
-      # Checks if prescription validity period has ended
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] true if expired
-      def prescription_expired?(resource)
-        expiration_date = parse_expiration_date_utc(resource)
-        return false if expiration_date.nil?
-
-        expiration_date < Time.current.utc
-      end
+      # Note: prescription_expired? is now provided by FhirHelpers module
+      # It checks if the validity period end date is in the past
 
       # Checks for active processing (web/mobile refill or in-progress dispense)
       #

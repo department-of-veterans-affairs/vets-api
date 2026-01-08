@@ -377,7 +377,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'returns false and logs warning for invalid dates' do
         expect(subject.send(:extract_is_refillable, invalid_expiration_resource, 'active')).to be false
         expect(Rails.logger).to have_received(:warn).with(
-          /Invalid expiration date for prescription.*: invalid-date/
+          /Failed to parse expiration date 'invalid-date'/
         )
       end
     end

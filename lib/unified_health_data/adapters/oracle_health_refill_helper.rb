@@ -45,24 +45,15 @@ module UnifiedHealthData
       end
 
       # Checks if prescription expiration date is in the future
+      # Returns false if expiration date is missing (not refillable for safety)
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Boolean] true if not expired
+      # @return [Boolean] true if not expired, false if expired or missing expiration date
       def prescription_not_expired?(resource)
-        expiration_date = extract_expiration_date(resource)
-        return false unless expiration_date # No expiration date = not refillable for safety
+        expiration_date = parse_expiration_date_utc(resource)
+        return false if expiration_date.nil? # No expiration date = not refillable for safety
 
-        begin
-          parsed_date = Time.zone.parse(expiration_date)
-          return parsed_date&.> Time.zone.now if parsed_date
-
-          # If we get here, parsing returned nil (invalid date)
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        rescue ArgumentError
-          log_invalid_expiration_date(resource, expiration_date)
-          false
-        end
+        !prescription_expired?(resource)
       end
 
       # Calculates refills remaining for the medication

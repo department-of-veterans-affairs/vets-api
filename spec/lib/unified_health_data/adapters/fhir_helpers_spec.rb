@@ -387,4 +387,80 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       expect(result).to eq('Take 1 tablet twice daily')
     end
   end
+
+  describe '#parse_expiration_date_utc' do
+    it 'parses valid ISO8601 date string to UTC time' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => '2026-06-15T23:59:59Z' }
+        }
+      }
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_a(Time)
+      expect(result.utc?).to be true
+      expect(result.year).to eq(2026)
+      expect(result.month).to eq(6)
+      expect(result.day).to eq(15)
+    end
+
+    it 'returns nil when validityPeriod end is missing' do
+      resource = { 'dispenseRequest' => {} }
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when dispenseRequest is missing' do
+      resource = {}
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil and logs warning for invalid date format' do
+      resource = {
+        'id' => '12345',
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 'invalid-date' }
+        }
+      }
+      expect(Rails.logger).to receive(:warn).with(/Invalid expiration date/)
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#prescription_expired?' do
+    it 'returns true when expiration date is in the past' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 30.days.ago.utc.iso8601 }
+        }
+      }
+      expect(subject.prescription_expired?(resource)).to be true
+    end
+
+    it 'returns false when expiration date is in the future' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+        }
+      }
+      expect(subject.prescription_expired?(resource)).to be false
+    end
+
+    it 'returns false when expiration date is nil' do
+      resource = { 'dispenseRequest' => {} }
+      expect(subject.prescription_expired?(resource)).to be false
+    end
+
+    it 'returns false when expiration date is invalid' do
+      resource = {
+        'id' => '12345',
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 'invalid-date' }
+        }
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(subject.prescription_expired?(resource)).to be false
+    end
+  end
 end
