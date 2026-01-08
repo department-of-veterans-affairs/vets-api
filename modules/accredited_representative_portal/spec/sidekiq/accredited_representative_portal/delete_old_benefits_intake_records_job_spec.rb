@@ -64,7 +64,9 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
           job.perform
 
           expect(Rails.logger).to have_received(:info)
-            .with(/DeleteOldBenefitsIntakeRecordsJob deleted 2 old BenefitsIntake records/)
+            .with(
+              /DeleteOldBenefitsIntakeRecordsJob deleted 2 old BenefitsIntake records/
+            )
         end
       end
 
@@ -117,8 +119,15 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
 
             expect(Slack::Notifier).to have_received(:notify)
               .with(
-                '[ALERT] AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob failed: StandardError - boom'
+                '[ALERT] AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob ' \
+                'failed: StandardError - boom'
               )
+          end
+
+          it 'does not log a Slack warning' do
+            job.perform
+
+            expect(Rails.logger).not_to have_received(:warn)
           end
 
           it 'does not raise the exception' do
@@ -127,11 +136,15 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
         end
 
         context 'when Slack::Notifier is not defined' do
-          it 'logs a single warning and does not raise' do
+          it 'logs a single warning with the exception info and does not raise' do
             job.perform
 
             expect(Rails.logger).to have_received(:warn)
-              .with(/Slack::Notifier not defined; skipping Slack alert/)
+              .with(/Slack::Notifier not defined; skipping StandardError boom/)
+          end
+
+          it 'does not raise the exception' do
+            expect { job.perform }.not_to raise_error
           end
         end
       end
