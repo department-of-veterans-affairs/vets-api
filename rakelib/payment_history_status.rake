@@ -20,7 +20,13 @@ namespace :payment_history do
     puts '-' * 40
     
     check_feature_flag
-    check_user_exists(icn)
+    mpi_profile = check_user_exists(icn)
+
+    is_passing_policy = nil
+
+    if mpi_profile != nil
+      is_passing_policy = check_policy_attributes(mpi_profile)
+    end
     
     puts
   end
@@ -47,6 +53,7 @@ namespace :payment_history do
   def check_user_exists(icn)
     puts
     puts "Checking if user can be found..."
+    mpi_profile = nil
     
     # Try to find UserAccount by ICN
     user_account = UserAccount.find_by(icn: icn)
@@ -78,8 +85,54 @@ namespace :payment_history do
       else
         puts "✗ MPI lookup failed: #{response.error&.message}"
       end
+
+      mpi_profile = response.profile
     rescue => e
       puts "✗ Error querying MPI: #{e.message}"
     end
+
+    mpi_profile
+  end
+
+  def check_policy_attributes(mpi_profile)
+    puts
+    puts "Checking BGS policy access requirements..."
+    
+    has_icn = mpi_profile.icn.present?
+    has_ssn = mpi_profile.ssn.present?
+    has_participant_id = mpi_profile.participant_id.present?
+    
+    if has_icn
+      puts "✓ ICN present: #{mask_icn(mpi_profile.icn)}"
+    else
+      puts "✗ ICN missing"
+      puts "  BGS policy requires ICN to be present"
+    end
+    
+    if has_ssn
+      puts "✓ SSN present: ***-**-#{mpi_profile.ssn.to_s[-4..]}"
+    else
+      puts "✗ SSN missing"
+      puts "  BGS policy requires SSN to be present"
+    end
+    
+    if has_participant_id
+      puts "✓ Participant ID present: #{mpi_profile.participant_id}"
+    else
+      puts "✗ Participant ID missing"
+      puts "  BGS policy requires Participant ID to be present"
+    end
+    
+    all_present = has_icn && has_ssn && has_participant_id
+    
+    puts
+    if all_present
+      puts "✓ User has all required attributes for BGS policy access"
+    else
+      puts "✗ User is missing required attributes for BGS policy access"
+      puts "  Payment history will be denied due to missing attributes"
+    end
+    
+    all_present
   end
 end

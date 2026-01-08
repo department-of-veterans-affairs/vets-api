@@ -182,5 +182,158 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
       end
     end
+
+    describe 'check_policy_attributes' do
+      let(:mpi_service) { instance_double(MPI::Service) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+      end
+
+      context 'when user has all required attributes' do
+        let(:mpi_profile) do
+          build(:mpi_profile,
+                icn: icn,
+                ssn: '123456789',
+                participant_id: '600061742',
+                given_names: ['John'],
+                family_name: 'Doe')
+        end
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows all attributes are present' do
+          expect { task.invoke(icn) }
+            .to output(/✓ ICN present.*✓ SSN present.*✓ Participant ID present/m).to_stdout
+        end
+
+        it 'shows policy access granted' do
+          expect { task.invoke(icn) }.to output(/✓ User has all required attributes for BGS policy access/).to_stdout
+        end
+
+        it 'masks SSN in output' do
+          expect { task.invoke(icn) }.to output(/\*\*\*-\*\*-6789/).to_stdout
+        end
+      end
+
+      context 'when user is missing ICN' do
+        let(:mpi_profile) do
+          build(:mpi_profile,
+                icn: nil,
+                ssn: '123456789',
+                participant_id: '600061742')
+        end
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows ICN missing' do
+          expect { task.invoke(icn) }.to output(/✗ ICN missing/).to_stdout
+        end
+
+        it 'shows policy access denied' do
+          expect { task.invoke(icn) }.to output(/✗ User is missing required attributes for BGS policy access/).to_stdout
+        end
+
+        it 'provides explanation' do
+          expect { task.invoke(icn) }.to output(/BGS policy requires ICN to be present/).to_stdout
+        end
+      end
+
+      context 'when user is missing SSN' do
+        let(:mpi_profile) do
+          build(:mpi_profile,
+                icn: icn,
+                ssn: nil,
+                participant_id: '600061742')
+        end
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows SSN missing' do
+          expect { task.invoke(icn) }.to output(/✗ SSN missing/).to_stdout
+        end
+
+        it 'shows policy access denied' do
+          expect { task.invoke(icn) }.to output(/✗ User is missing required attributes for BGS policy access/).to_stdout
+        end
+
+        it 'provides explanation' do
+          expect { task.invoke(icn) }.to output(/BGS policy requires SSN to be present/).to_stdout
+        end
+      end
+
+      context 'when user is missing Participant ID' do
+        let(:mpi_profile) do
+          build(:mpi_profile,
+                icn: icn,
+                ssn: '123456789',
+                participant_id: nil)
+        end
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows Participant ID missing' do
+          expect { task.invoke(icn) }.to output(/✗ Participant ID missing/).to_stdout
+        end
+
+        it 'shows policy access denied' do
+          expect { task.invoke(icn) }.to output(/✗ User is missing required attributes for BGS policy access/).to_stdout
+        end
+
+        it 'provides explanation' do
+          expect { task.invoke(icn) }.to output(/BGS policy requires Participant ID to be present/).to_stdout
+        end
+      end
+
+      context 'when user is missing multiple attributes' do
+        let(:mpi_profile) do
+          build(:mpi_profile,
+                icn: nil,
+                ssn: nil,
+                participant_id: '600061742')
+        end
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
+
+        it 'shows all missing attributes' do
+          expect { task.invoke(icn) }
+            .to output(/✗ ICN missing.*✗ SSN missing/m).to_stdout
+        end
+
+        it 'shows policy access denied' do
+          expect { task.invoke(icn) }.to output(/✗ User is missing required attributes for BGS policy access/).to_stdout
+        end
+
+        it 'explains payment history will be denied' do
+          expect { task.invoke(icn) }.to output(/Payment history will be denied due to missing attributes/).to_stdout
+        end
+      end
+    end
   end
 end
