@@ -503,8 +503,14 @@ module Vass
         cohort_end_utc = appt['cohortEndUtc']
         next unless cohort_start_utc && cohort_end_utc
 
-        cohort_start = time_zone.parse(cohort_start_utc)
-        cohort_end = time_zone.parse(cohort_end_utc)
+        begin
+          cohort_start = time_zone.parse(cohort_start_utc)
+          cohort_end = time_zone.parse(cohort_end_utc)
+        rescue ArgumentError => e
+          log_error('Invalid cohort date format from VASS API', e)
+          raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
+        end
+
         now.between?(cohort_start, cohort_end)
       end
     end
@@ -595,7 +601,13 @@ module Vass
       time_start_utc = slot['timeStartUTC']
       return false unless time_start_utc
 
-      slot_time = Time.zone.parse(time_start_utc)
+      begin
+        slot_time = Time.zone.parse(time_start_utc)
+      rescue ArgumentError => e
+        log_error('Invalid slot time format from VASS API', e)
+        raise Vass::Errors::VassApiError, 'Invalid date format in time slot data from VASS API'
+      end
+
       slot_time >= start_range && slot_time <= end_range
     end
 
@@ -625,10 +637,22 @@ module Vass
 
       future_appointments = appointments.select do |a|
         cohort_start_utc = a['cohortStartUtc']
-        cohort_start_utc && time_zone.parse(cohort_start_utc) > now
+        next unless cohort_start_utc
+
+        begin
+          time_zone.parse(cohort_start_utc) > now
+        rescue ArgumentError => e
+          log_error('Invalid cohort start date format from VASS API', e)
+          raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
+        end
       end
 
-      future_appointments.min_by { |a| time_zone.parse(a['cohortStartUtc']) }
+      future_appointments.min_by do |a|
+        time_zone.parse(a['cohortStartUtc'])
+      rescue ArgumentError => e
+        log_error('Invalid cohort start date format from VASS API', e)
+        raise Vass::Errors::VassApiError, 'Invalid date format in cohort data from VASS API'
+      end
     end
 
     ##
