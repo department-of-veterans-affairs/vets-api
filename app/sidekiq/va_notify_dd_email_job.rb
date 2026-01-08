@@ -38,18 +38,16 @@ class VANotifyDdEmailJob
     StatsD.increment(STATSD_SUCCESS_NAME)
   rescue => e
     handle_errors(e)
+    raise e
   end
 
   def handle_errors(exception)
     StatsD.increment(STATSD_ERROR_NAME)
 
     Rails.logger.error(
-      message: 'Direct Deposit confirmation email job failed',
-      error: exception.message,
-      backtrace: exception.backtrace.take(5),
-      source: self.class.name
+      'Direct Deposit confirmation email job failed',
+      { source: self.class.name },
+      exception
     )
-
-    raise exception if exception.status_code.between?(500, 599)
   end
 end

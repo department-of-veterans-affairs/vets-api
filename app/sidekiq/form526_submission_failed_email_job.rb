@@ -29,7 +29,5 @@ class Form526SubmissionFailedEmailJob
   def handle_errors(ex)
     Rails.logger.error('Form526SubmissionFailedEmailJob error', error: ex)
     StatsD.increment(STATSD_ERROR_NAME)
-
-    raise ex if ex.respond_to?(:status_code) && ex.status_code.between?(500, 599)
   end
 end

@@ -25,12 +25,11 @@ class Form526ConfirmationEmailJob
     StatsD.increment(STATSD_SUCCESS_NAME)
   rescue => e
     handle_errors(e)
+    raise e
   end
 
   def handle_errors(ex)
     Rails.logger.error('Form526ConfirmationEmailJob error', error: ex)
     StatsD.increment(STATSD_ERROR_NAME)
-
-    raise ex if ex.status_code.between?(500, 599)
   end
 end
