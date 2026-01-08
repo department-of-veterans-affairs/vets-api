@@ -439,4 +439,24 @@ describe Vass::AppointmentsService do
       expect(formatted).to be_nil
     end
   end
+
+  describe '#parse_utc_time' do
+    it 'parses valid UTC time strings' do
+      time_string = '2025-11-27T10:00:00Z'
+      result = subject.send(:parse_utc_time, time_string, field_name: 'testField')
+
+      expect(result).to be_a(Time)
+      expect(result.utc?).to be true
+    end
+
+    it 'raises VassApiError and logs when parsing fails' do
+      allow(Rails.logger).to receive(:error)
+
+      expect do
+        subject.send(:parse_utc_time, 'invalid-date', field_name: 'cohortStartUtc')
+      end.to raise_error(Vass::Errors::VassApiError, %r{Invalid date/time format})
+
+      expect(Rails.logger).to have_received(:error).once
+    end
+  end
 end

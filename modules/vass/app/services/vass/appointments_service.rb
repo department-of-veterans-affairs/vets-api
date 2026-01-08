@@ -700,7 +700,7 @@ module Vass
     def parse_utc_time(time_string, field_name: 'timestamp')
       Time.parse(time_string).utc
     rescue ArgumentError, TypeError => e
-      log_error("Invalid date/time format from VASS API for field: #{field_name}", e)
+      log_error(e, "parse_utc_time (field: #{field_name})")
       raise Vass::Errors::VassApiError, "Invalid date/time format in #{field_name} from VASS API"
     end
   end
