@@ -32,7 +32,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
     end
 
     it 'returns a FHIR bundle hash' do
-      result = service.read(id: '4-O3d8XK44ejMS')
+      result = service.read('4-O3d8XK44ejMS')
       expect(result).to eq(response_body)
     end
 
@@ -55,7 +55,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
       end
 
       it 'calls handle_error and returns error envelope' do
-        expect(service.read(id: '4-O3d8XK44ejMS')).to eq(:error_envelope)
+        expect(service.read('4-O3d8XK44ejMS')).to eq(:error_envelope)
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Organization::Service do
       end
 
       it 'calls handle_error and returns error envelope' do
-        expect(service.read(id: '4-O3d8XK44ejMS')).to eq(:error_envelope)
+        expect(service.read('4-O3d8XK44ejMS')).to eq(:error_envelope)
       end
     end
   end
