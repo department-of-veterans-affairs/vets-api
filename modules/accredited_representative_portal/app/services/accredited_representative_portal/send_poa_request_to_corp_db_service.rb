@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
 
     def call
       @service.submit_power_of_attorney_request(build_payload)
-    rescue => e
+    rescue Faraday::Error => e
       log_error(e)
       raise
     end
