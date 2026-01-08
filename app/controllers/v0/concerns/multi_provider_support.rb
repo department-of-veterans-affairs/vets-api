@@ -30,7 +30,7 @@ module V0
                Common::Exceptions::ServiceUnavailable,
                Common::Exceptions::ResourceNotFound => e
           raise e
-        rescue => e
+        rescue StandardError => e
           handle_provider_error(provider_class, e, provider_errors)
         end
         { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
