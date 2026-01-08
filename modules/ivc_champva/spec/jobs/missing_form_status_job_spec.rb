@@ -22,6 +22,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: true))
 
+    allow(job).to receive(:monitor).and_return(double(log_silent_failure: nil))
+
     # Save the original form creation times so we can restore them later
     @original_creation_times = forms.map(&:created_at)
     @original_uuids = forms.map(&:form_uuid)
@@ -98,7 +100,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
-    allow(job.monitor).to receive(:log_silent_failure).and_return(nil)
 
     # Verify that we SHOULD send an email to user for this form
     expect(forms[0].email_sent).to be false
