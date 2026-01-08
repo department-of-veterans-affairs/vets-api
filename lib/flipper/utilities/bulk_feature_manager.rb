@@ -40,7 +40,7 @@ module Flipper
       attr_reader :dry_run
 
       def features_config
-        config = YAML.safe_load(Rails.root.join('config', 'features.yml').read)
+        @features_config ||= YAML.safe_load(Rails.root.join('config', 'features.yml').read)
         unless config.is_a?(Hash) && config.key?('features') && config['features'].is_a?(Hash)
           raise ArgumentError, "Invalid config/features.yml format: expected top-level 'features' map (#{Rails.env})"
         end
