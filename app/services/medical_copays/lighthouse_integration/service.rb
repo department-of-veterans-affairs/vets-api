@@ -31,8 +31,7 @@ module MedicalCopays
 
           org_id  = org_ref&.split('/')&.last
 
-          raise MissingOrganizationIdError,
-            "Missing org_id for invoice entry" if org_id.blank?
+          raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
           org_city = retrieve_city(org_id)
           entry['resource'].merge!({ 'city' => org_city, 'facility_id' => org_id }) if org_city
