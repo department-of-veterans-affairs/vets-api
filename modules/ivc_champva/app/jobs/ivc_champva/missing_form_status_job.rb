@@ -32,7 +32,7 @@ module IvcChampva
     def process_batches(batches)
       current_time = Time.now.utc
       threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i
-      threshold = threshold.positive? ? threshold : 7
+      threshold = 7 unless threshold.positive?
 
       batches.each_value do |batch|
         form = batch[0]
