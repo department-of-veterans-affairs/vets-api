@@ -5,8 +5,8 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'employment_questionnaires/constants'
 require 'employment_questionnaires/helpers'
-# require 'employment_questionnaires/pdf_fill/sections/section_01'
-# require 'employment_questionnaires/pdf_fill/sections/section_2'
+require 'employment_questionnaires/pdf_fill/sections/section_01'
+require 'employment_questionnaires/pdf_fill/sections/section_2'
 
 module EmploymentQuestionnaires
   module PdfFill
@@ -31,10 +31,12 @@ module EmploymentQuestionnaires
       QUESTION_KEY = [].freeze
 
       # V2-style sections grouping question numbers for overflow pages
-      SECTIONS = [].freeze
+      SECTIONS = [Section1, Section2].freeze
 
       # The list of section classes for form expansion and key building
-      SECTION_CLASSES = [].freeze
+      SECTION_CLASSES = [
+        Section1, Section2
+      ].freeze
 
       key = {}
 

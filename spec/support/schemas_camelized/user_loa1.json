@@ -112,6 +112,7 @@
                 "birlsId",
                 "edipi",
                 "secId",
+                "npiId",
                 "logingovUuid",
                 "idmeUuid",
                 "idTheftFlag"
@@ -228,6 +229,12 @@
                   ]
                 },
                 "secId": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "npiId": {
                   "type": [
                     "string",
                     null

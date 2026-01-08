@@ -21,7 +21,6 @@ module VeteranEnrollmentSystem
         ) do |conn|
           conn.use(:breakers, service_name:)
           conn.request :json
-          conn.use Faraday::Response::RaiseError
           conn.options.open_timeout = Settings.veteran_enrollment_system.open_timeout
           conn.options.timeout = Settings.veteran_enrollment_system.timeout
           conn.response :json_parser

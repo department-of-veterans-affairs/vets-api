@@ -18,34 +18,15 @@ module Veteran
     USER_TYPE_VSO = 'veteran_service_officer'
 
     def perform
-      # Track initial counts before processing
-      @initial_counts = fetch_initial_counts
-      @validation_results = {}
-
-      # Collect all valid representative IDs from OGC data
-      # This array is used to determine which representatives should be kept vs removed
+      setup_ingestion
       array_of_organizations = reload_representatives
-
-      # Save the results to the database
       save_accreditation_totals
-
-      # Remove representatives that are no longer in the OGC data
-      # By using where.not, we delete anyone whose ID is NOT in the array returned by reload_representatives
-      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).find_each do |rep|
-        # These are test users that Sandbox requires.  Don't delete them.
-        next if rep.first_name == 'Tamara' && rep.last_name == 'Ellis'
-        next if rep.first_name == 'John' && rep.last_name == 'Doe'
-
-        rep.destroy!
-      end
+      remove_obsolete_representatives(array_of_organizations)
+      complete_ingestion_log
     rescue Faraday::ConnectionFailed => e
-      log_message_to_sentry("OGC connection failed: #{e.message}", :warn)
-      log_to_slack('VSO Reloader failed to connect to OGC')
+      handle_connection_failure(e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
-
-      log_message_to_rails("OGC connection failed: #{e.message}", :warn)
-      log_to_slack('VSO Reloader job has failed!')
+      handle_client_error(e)
     end
 
     # Reloads attorney data from OGC
@@ -76,6 +57,7 @@ module Veteran
     # @return [Array<String>] Array of representative IDs that should remain in the system
     #   Used by perform method to determine which representatives to keep vs delete
     def reload_vso_reps
+      mark_vso_entities_running
       ensure_initial_counts
       vso_data = fetch_data('orgsexcellist.asp')
       counts = calculate_vso_counts(vso_data)
@@ -83,16 +65,15 @@ module Veteran
       # Validate both counts - if either fails, skip processing both to maintain data integrity
       reps_valid = valid_count?(:vso_representatives, counts[:reps])
       orgs_valid = valid_count?(:vso_organizations, counts[:orgs])
-      process_vsos = reps_valid && orgs_valid
 
-      if process_vsos
-        process_vso_data(vso_data)
+      if reps_valid && orgs_valid
+        process_valid_vso_data(vso_data, counts)
       else
-        # Return existing VSO rep IDs to prevent deletion
-        Veteran::Service::Representative
-          .where("'#{USER_TYPE_VSO}' = ANY(user_types)")
-          .pluck(:representative_id)
+        handle_vso_validation_failure(reps_valid, orgs_valid, counts)
       end
+    rescue => e
+      mark_vso_entities_failed(e.message)
+      raise
     end
 
     # Common method for reloading attorney and claim agent data
@@ -102,22 +83,129 @@ module Veteran
     # @param processor [Method] Method to process each record
     # @return [Array<String>] Representative IDs - either newly processed IDs or existing IDs if validation fails
     def reload_representative_type(endpoint:, rep_type:, user_type:, processor:)
+      entity_type = map_rep_type_to_entity_type(rep_type)
+      @ingestion_log&.mark_entity_running!(entity_type)
       ensure_initial_counts
+
       data = fetch_data(endpoint)
       new_count = data.count { |record| record['Registration Num'].present? }
 
       if valid_count?(rep_type, new_count)
-        data.map do |record|
-          processor.call(record) if record['Registration Num'].present?
-          record['Registration Num']
-        end
+        process_valid_representative_data(data, processor, entity_type, new_count)
       else
-        # Return existing IDs to prevent deletion
-        Veteran::Service::Representative.where('? = ANY(user_types)', user_type).pluck(:representative_id)
+        handle_representative_validation_failure(entity_type, rep_type, user_type, new_count)
       end
+    rescue => e
+      @ingestion_log&.mark_entity_failed!(entity_type, error: e.message)
+      raise
     end
 
     private
+
+    # Setup methods for perform
+
+    def setup_ingestion
+      @ingestion_log = RepresentationManagement::AccreditationDataIngestionLog.start_ingestion!(
+        dataset: :trexler_file
+      )
+      @initial_counts = fetch_initial_counts
+      @validation_results = {}
+    end
+
+    def remove_obsolete_representatives(array_of_organizations)
+      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).find_each do |rep|
+        next if test_user?(rep)
+
+        rep.destroy!
+      end
+    end
+
+    def test_user?(rep)
+      (rep.first_name == 'Tamara' && rep.last_name == 'Ellis') ||
+        (rep.first_name == 'John' && rep.last_name == 'Doe')
+    end
+
+    def handle_connection_failure(error)
+      log_message_to_sentry("OGC connection failed: #{error.message}", :warn)
+      log_to_slack('VSO Reloader failed to connect to OGC')
+      fail_ingestion_log("OGC connection failed: #{error.message}")
+    end
+
+    def handle_client_error(error)
+      log_message_to_sentry("VSO Reloading error: #{error.message}", :warn)
+      log_to_slack('VSO Reloader job has failed!')
+      fail_ingestion_log("VSO Reloading error: #{error.message}")
+    end
+
+    # VSO-specific helper methods
+
+    def mark_vso_entities_running
+      @ingestion_log&.mark_entity_running!(:representatives)
+      @ingestion_log&.mark_entity_running!(:veteran_service_organizations)
+    end
+
+    def mark_vso_entities_failed(error_message)
+      @ingestion_log&.mark_entity_failed!(:representatives, error: error_message)
+      @ingestion_log&.mark_entity_failed!(:veteran_service_organizations, error: error_message)
+    end
+
+    def process_valid_vso_data(vso_data, counts)
+      result = process_vso_data(vso_data)
+      @ingestion_log&.mark_entity_success!(:representatives, count: counts[:reps])
+      @ingestion_log&.mark_entity_success!(:veteran_service_organizations, count: counts[:orgs])
+      result
+    end
+
+    def handle_vso_validation_failure(reps_valid, orgs_valid, counts)
+      mark_representatives_failed(counts) unless reps_valid
+      mark_organizations_failed(counts) unless orgs_valid
+      existing_vso_representative_ids
+    end
+
+    def mark_representatives_failed(counts)
+      @ingestion_log&.mark_entity_failed!(
+        :representatives,
+        error: 'Count validation failed',
+        count: counts[:reps],
+        previous_count: get_previous_count(:vso_representatives)
+      )
+    end
+
+    def mark_organizations_failed(counts)
+      @ingestion_log&.mark_entity_failed!(
+        :veteran_service_organizations,
+        error: 'Count validation failed',
+        count: counts[:orgs],
+        previous_count: get_previous_count(:vso_organizations)
+      )
+    end
+
+    def existing_vso_representative_ids
+      Veteran::Service::Representative
+        .where("'#{USER_TYPE_VSO}' = ANY(user_types)")
+        .pluck(:representative_id)
+    end
+
+    # Representative type helper methods
+
+    def process_valid_representative_data(data, processor, entity_type, new_count)
+      result = data.map do |record|
+        processor.call(record) if record['Registration Num'].present?
+        record['Registration Num']
+      end
+      @ingestion_log&.mark_entity_success!(entity_type, count: new_count)
+      result
+    end
+
+    def handle_representative_validation_failure(entity_type, rep_type, user_type, new_count)
+      @ingestion_log&.mark_entity_failed!(
+        entity_type,
+        error: 'Count validation failed',
+        count: new_count,
+        previous_count: get_previous_count(rep_type)
+      )
+      Veteran::Service::Representative.where('? = ANY(user_types)', user_type).pluck(:representative_id)
+    end
 
     # Combines all representative IDs from attorneys, claim agents, and VSOs
     # @return [Array<String>] Combined array of all representative IDs that should remain in the system
@@ -231,8 +319,6 @@ module Veteran
                             previous_count:,
                             new_count:,
                             decrease_percentage:)
-
-      log_message_to_rails("VSO Reloader threshold exceeded for #{rep_type}", :warn)
     end
 
     def save_accreditation_totals
@@ -285,6 +371,41 @@ module Veteran
       Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
 
       vso_reps
+    end
+
+    # Maps VSOReloader's rep_type symbols to AccreditationDataIngestionLog entity types
+    #
+    # @param rep_type [Symbol] The rep_type used in VSOReloader (:attorneys, :claims_agents, etc.)
+    # @return [String] The entity type for the log model
+    def map_rep_type_to_entity_type(rep_type)
+      case rep_type
+      when :attorneys then 'attorneys'
+      when :claims_agents then 'agents'
+      when :vso_representatives then 'representatives'
+      when :vso_organizations then 'veteran_service_organizations'
+      else rep_type.to_s
+      end
+    end
+
+    # Completes the ingestion log with overall metrics
+    def complete_ingestion_log
+      return unless @ingestion_log
+
+      @ingestion_log.complete_ingestion!(
+        attorneys: @validation_results[:attorneys] || @initial_counts[:attorneys],
+        claims_agents: @validation_results[:claims_agents] || @initial_counts[:claims_agents],
+        vso_representatives: @validation_results[:vso_representatives] || @initial_counts[:vso_representatives],
+        vso_organizations: @validation_results[:vso_organizations] || @initial_counts[:vso_organizations]
+      )
+    end
+
+    # Marks the ingestion log as failed
+    #
+    # @param error_message [String] The error message to log
+    def fail_ingestion_log(error_message)
+      return unless @ingestion_log
+
+      @ingestion_log.fail_ingestion!(error: error_message)
     end
   end
 end

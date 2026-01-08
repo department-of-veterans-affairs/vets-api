@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'dependents_benefits/monitor'
 
 RSpec.describe DependentsBenefits::Monitor do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+  end
+
   let(:monitor) { described_class.new }
   let(:claim) { create(:dependents_claim) }
   let(:ipf) { create(:in_progress_form) }
@@ -13,10 +18,6 @@ RSpec.describe DependentsBenefits::Monitor do
   let(:message_prefix) { "#{described_class} #{DependentsBenefits::FORM_ID}" }
   let(:current_user) { create(:user) }
   let(:monitor_error) { create(:monitor_error) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-  end
 
   def base_payload(extras = {})
     {
@@ -216,6 +217,18 @@ RSpec.describe DependentsBenefits::Monitor do
         :error, log, "#{submission_stats_key}.cleanup_failed", call_location: anything, **payload
       )
       monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
+    end
+  end
+
+  describe '#track_pension_related_submission' do
+    it 'logs pension-related submission with parent_claim_id' do
+      log = 'Submitted pension-related claim'
+      payload = { parent_claim_id: claim.id, tags: [] }
+
+      expect(monitor).to receive(:track_info_event).with(
+        log, described_class::PENSION_SUBMISSION_STATS_KEY, **payload
+      )
+      monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id: claim.id)
     end
   end
 end

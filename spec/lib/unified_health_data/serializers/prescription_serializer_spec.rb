@@ -40,7 +40,8 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       facility_phone_number: '555-123-4567',
       prescription_source: 'VA',
       remarks: 'Patient should monitor blood sugar levels',
-      cmop_ndc_number: '00093721410'
+      cmop_ndc_number: '00093721410',
+      disp_status: 'Active'
     )
   end
 
@@ -79,6 +80,51 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
 
       # cmop_ndc_number
       expect(attributes[:cmop_ndc_number]).to eq('00093721410')
+
+      # disp_status
+      expect(attributes[:disp_status]).to eq('Active')
+    end
+  end
+
+  describe 'disp_status serialization' do
+    context 'when prescription has disp_status set' do
+      let(:prescription_with_disp_status) do
+        UnifiedHealthData::Prescription.new(
+          id: '67890',
+          type: 'Prescription',
+          refill_status: 'active',
+          prescription_source: 'NV',
+          disp_status: 'Active: Non-VA'
+        )
+      end
+
+      it 'includes disp_status in serialized output' do
+        serializer = described_class.new(prescription_with_disp_status)
+        result = serializer.serializable_hash
+        attributes = result[:data][:attributes]
+
+        expect(attributes[:disp_status]).to eq('Active: Non-VA')
+      end
+    end
+
+    context 'when prescription has nil disp_status' do
+      let(:prescription_without_disp_status) do
+        UnifiedHealthData::Prescription.new(
+          id: '11111',
+          type: 'Prescription',
+          refill_status: 'active',
+          prescription_source: 'VA',
+          disp_status: nil
+        )
+      end
+
+      it 'includes disp_status as nil in serialized output' do
+        serializer = described_class.new(prescription_without_disp_status)
+        result = serializer.serializable_hash
+        attributes = result[:data][:attributes]
+
+        expect(attributes[:disp_status]).to be_nil
+      end
     end
   end
 end

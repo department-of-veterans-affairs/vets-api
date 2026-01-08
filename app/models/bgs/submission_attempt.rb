@@ -15,6 +15,11 @@ class BGS::SubmissionAttempt < SubmissionAttempt
     failure: 'failure'
   }
 
+  scope :by_claim_group, lambda { |parent_claim_id|
+    joins(submission: { saved_claim: :child_of_groups })
+      .where(saved_claim_groups: { parent_claim_id: })
+  }
+
   STATS_KEY = 'api.bgs.submission_attempt'
 
   def fail!(error:)
@@ -37,6 +42,11 @@ class BGS::SubmissionAttempt < SubmissionAttempt
     log_hash = status_change_hash
     log_hash[:message] = 'BGS Submission Attempt is submitted'
     monitor.track_request(:info, log_hash[:message], STATS_KEY, **log_hash)
+  end
+
+  def claim_type_end_product
+    data = metadata.present? ? JSON.parse(metadata) : {}
+    data['claim_type_end_product']
   end
 
   def monitor

@@ -19,7 +19,7 @@ module DependentsBenefits
       ##
       # Generates a new SavedClaim with the appropriate form_id and extracted data
       #
-      # @return [DependentsBenefits::SavedClaim] The created and validated claim
+      # @return [DependentsBenefits::PrimaryDependencyClaim] The created and validated claim
       # @raise [ActiveRecord::RecordInvalid] if the claim is invalid
       #
       def generate
@@ -48,7 +48,7 @@ module DependentsBenefits
       # Create the SavedClaim with the extracted data
       #
       # @param extracted_data [Hash] The form data specific to this claim type
-      # @return [DependentsBenefits::SavedClaim] The created and validated claim
+      # @return [DependentsBenefits::PrimaryDependencyClaim] The created and validated claim
       # @raise [ActiveRecord::RecordInvalid] if the claim is invalid
       #
       def create_claim(extracted_data)
@@ -61,7 +61,7 @@ module DependentsBenefits
       ##
       # Create a claim group linking the new claim to the parent claim
       #
-      # @param claim [DependentsBenefits::SavedClaim] The newly created claim
+      # @param claim [DependentsBenefits::PrimaryDependencyClaim] The newly created claim
       # @return [void]
       #
       def create_claim_group_item(claim)
@@ -77,7 +77,7 @@ module DependentsBenefits
       ##
       # Return the claim class for this claim type
       # Must be implemented by subclasses
-      # @return [Class] The claim class (e.g., DependentsBenefits::SavedClaim)
+      # @return [Class] The claim class (e.g., DependentsBenefits::PrimaryDependencyClaim)
       # @raise [NotImplementedError] if not implemented by subclass
       #
       def claim_class

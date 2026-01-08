@@ -47,8 +47,6 @@ module AccreditedRepresentativePortal
           },
           { error: :accredited_representative_portal_power_of_attorney_request_email_job }
         )
-
-        log_exception_to_rails(e)
       else
         raise e
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Vets
-  module SharedLogging
+  module SharedLogging # rubocop:disable Metrics/ModuleLength
     extend ActiveSupport::Concern
 
     def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
@@ -87,14 +87,21 @@ module Vets
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
           v.nil? || (v.respond_to?(:empty?) && v.empty?)
         end
-        # Log BackendServiceException with structured data (message + hash)
+
+        # Changed 'backtrace' to 'error_backtrace' to avoid SemanticLogger 4.18.0 trying to call .backtrace
+        log_payload = if Flipper.enabled?(:error_backtrace)
+                        error_details.merge(error_backtrace: exception.backtrace || [])
+                      else
+                        error_details.merge(backtrace: exception.backtrace || [])
+                      end
+
         case level
-        when 'debug' then Rails.logger.debug(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'info' then Rails.logger.info(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'warn' then Rails.logger.warn(exception.message, error_details.merge(backtrace: exception.backtrace))
-        when 'fatal' then Rails.logger.fatal(exception.message, error_details.merge(backtrace: exception.backtrace))
+        when 'debug' then Rails.logger.debug(exception.message, log_payload)
+        when 'info' then Rails.logger.info(exception.message, log_payload)
+        when 'warn' then Rails.logger.warn(exception.message, log_payload)
+        when 'fatal' then Rails.logger.fatal(exception.message, log_payload)
         else # 'error' and unknown levels
-          Rails.logger.error(exception.message, error_details.merge(backtrace: exception.backtrace))
+          Rails.logger.error(exception.message, log_payload)
         end
       else
         case level

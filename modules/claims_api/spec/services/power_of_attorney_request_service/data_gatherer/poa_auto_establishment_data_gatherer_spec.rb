@@ -34,7 +34,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
   let(:claimant) { nil }
   let(:gathered_data_obj) do
     {
-      'service_number' => nil, 'insurance_numbers' => nil, 'phone_number' => '5555551234',
+      'service_number' => nil, 'insurance_numbers' => nil, 'phone_nbr' => '5555551234',
       'claimant_relationship' => nil, 'poa_code' => '074', 'organization_name' => 'AMERICAN LEGION',
       'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
       'representative_last_name' => 'Doe', 'representative_title' => nil, 'section_7332_auth' => 'true',
@@ -48,9 +48,15 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
 
   let(:gathered_data_obj_with_claimant) do
     {
-      'addrs_one_txt' => '2719 Hyperion Ave', 'addrs_two_txt' => 'Apt 2', 'city_nm' => 'Los Angeles',
-      'cntry_nm' => 'USA', 'postal_cd' => 'CA', 'zip_prefix_nbr' => '92264', 'zip_first_suffix_nbr' => '0200',
-      'email_addrs_txt' => nil, 'registration_number' => '12345678',
+      'service_number' => '123678453', 'insurance_numbers' => '1234567890', 'claimant_relationship' => 'Spouse',
+      'poa_code' => '083', 'organization_name' => 'DISABLED AMERICAN VETERANS',
+      'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
+      'representative_last_name' => 'Doe', 'representative_title' => nil,
+      'section_7332_auth' => 'true', 'limitation_alcohol' => 'true', 'limitation_drug_abuse' => 'true',
+      'limitation_hiv' => 'true', 'limitation_sca' => 'true', 'change_address_auth' => 'true',
+      'addrs_one_txt' => '2719 Pluto Ave', 'addrs_two_txt' => 'Apt 2', 'city_nm' => 'Los Angeles',
+      'cntry_nm' => 'Vietnam', 'postal_cd' => 'CA', 'zip_prefix_nbr' => '92264', 'zip_first_suffix_nbr' => '0200',
+      'email_addrs_txt' => nil, 'registration_number' => '12345678', 'phone_nbr' => '5555551234',
       'claimant' => { 'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3',
                       'city_nm' => 'Boston', 'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
                       'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil, 'phone_nbr' => '5555559876',
@@ -100,26 +106,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
         res = subject.gather_data
 
         expect(res).to eq(gathered_data_obj_with_claimant)
-      end
-    end
-
-    describe '#vnp_phone_data' do
-      let(:proc_id) { '3865028' }
-      let(:registration_number) { '23456789' }
-      let(:metadata) do
-        {
-          'veteran' => { 'vnp_mail_id' => '158304', 'vnp_email_id' => '158305', 'vnp_phone_id' => '112509' },
-          'claimant' => { 'vnp_mail_id' => '158306', 'vnp_email_id' => '158307' }
-        }
-      end
-
-      it 'does not call BGS if no phone number was submitted for the claimant' do
-        expect_any_instance_of(described_class).not_to receive(:gather_vnp_phone_data)
-        cassette = 'poa_data_gather_dependent_no_phone'
-
-        VCR.use_cassette("claims_api/power_of_attorney_request_service/decide/data_gatherer/#{cassette}") do
-          subject.gather_data
-        end
       end
     end
   end

@@ -43,19 +43,13 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  attr_accessor :use_v2
-
   after_initialize do
-    self.form_id = if use_v2 || form_id == '686C-674-V2'
-                     '686C-674-V2'
-                   else
-                     self.class::FORM.upcase
-                   end
+    self.form_id = '686C-674-V2'
   end
 
   def pdf_overflow_tracking
-    track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
-    track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
+    track_each_pdf_overflow('686C-674-V2') if submittable_686?
+    track_each_pdf_overflow('21-674-V2') if submittable_674?
   rescue => e
     monitor.track_pdf_overflow_tracking_failure(e)
   end
@@ -107,11 +101,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_686?
-    submitted_flows = DEPENDENT_CLAIM_FLOWS.map { |flow| parsed_form['view:selectable686_options'].include?(flow) }
-
-    return true if submitted_flows.include?(true)
-
-    false
+    # checking key and value just avoids inconsistencies in the mock data or from FE submission
+    DEPENDENT_CLAIM_FLOWS.any? do |flow|
+      parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]
+    end
   end
 
   def submittable_674?
@@ -260,6 +253,22 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     monitor.track_send_received_email_success(user&.user_account_uuid)
   rescue => e
     monitor.track_send_received_email_failure(e, user&.user_account_uuid)
+  end
+
+  ##
+  # Determine if the submission includes pension-related information
+  #
+  def pension_related_submission?
+    return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension)
+
+    # We can determine pension-related submission by checking if
+    # household income or student income info was asked on the form
+    household_income_present = parsed_form['dependents_application']&.key?('household_income')
+    student_income_present = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+      student&.key?('student_networth_information')
+    end
+
+    !!(household_income_present || student_income_present)
   end
 
   def monitor

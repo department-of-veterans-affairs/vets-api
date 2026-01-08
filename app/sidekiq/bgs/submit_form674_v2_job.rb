@@ -28,6 +28,21 @@ module BGS
                           'worker.submit_674_bgs.exhaustion')
 
       BGS::SubmitForm674V2Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
+    rescue => e
+      monitor = ::Dependents::Monitor.new
+      monitor.track_event('error', 'BGS::SubmitForm674Job retries exhausted failed...',
+                          'worker.submit_674_bgs.retry_exhaustion_failure',
+                          { error: e.message, nested_error: e.cause&.message, last_error: msg['error_message'] })
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = vet_info&.dig('veteran_information', 'va_profile_email')
+      if email.present?
+        claim.send_failure_email(email)
+      else
+        monitor.log_silent_failure(
+          monitor.default_payload.merge({ error: e }),
+          call_location: caller_locations.first
+        )
+      end
     end
 
     def perform(user_uuid, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)

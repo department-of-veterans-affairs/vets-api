@@ -50,6 +50,9 @@ module Burials
         },
         'name' => {
           key: 'form1[0].#subform[37].FederalCemeteryName[0]',
+          question_num: 17,
+          question_label: 'Name Of National Or Federal Cemetery',
+          question_text: 'NAME OF NATIONAL OR FEDERAL CEMETERY',
           limit: 50
         },
         # 18
@@ -94,6 +97,20 @@ module Burials
       # @note Modifies `form_data`
       #
       def expand(form_data)
+        form_data['hasNationalOrFederal'] = select_radio(form_data['nationalOrFederal'])
+        form_data['hasGovtContributions'] = select_radio(form_data['govtContributions'])
+
+        # special case for transportation being the only option selected.
+        final_resting_place = form_data.dig('finalRestingPlace', 'location')
+        if final_resting_place.present?
+          form_data['finalRestingPlace']['location'] = {
+            'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+            'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
+            'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+            'other' => select_checkbox(final_resting_place == 'other')
+          }
+        end
+
         set_state_to_no_if_national(form_data)
         expand_cemetery_location(form_data)
         expand_location_question(form_data)
