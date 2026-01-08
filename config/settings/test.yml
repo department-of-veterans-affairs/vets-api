@@ -286,6 +286,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
     enabled: true
@@ -1707,6 +1708,9 @@ vanotify:
         form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
         form21_4138_error_email: form21_4138_error_email_template_id
         form21_4138_received_email: form21_4138_received_email_template_id
+        form21_4140_confirmation_email: form21_4140_confirmation_email_template_id
+        form21_4140_error_email: form21_4140_error_email_template_id
+        form21_4140_received_email: form21_4140_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1783,18 +1787,20 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
-  api_url: <%= ENV['vass__api_url'] %>
+  api_url: <%= ENV['vass__api_url'] || 'https://api.vass.va.gov' %>
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
   mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>
   service_name: VASS-API
-  subscription_key: <%= ENV['vass__subscription_key'] %>
-  tenant_id: <%= ENV['vass__tenant_id'] %>
+  subscription_key: fake_subscription_key
+  tenant_id: fake_tenant_id
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true

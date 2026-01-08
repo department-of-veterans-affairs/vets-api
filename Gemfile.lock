@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 531d9b1ef4f1738b825953b5e5a7e3d6fe1e1eec
+  revision: 68616615591d293fbaca5fe23830b053b2ab752b
   branch: master
   specs:
-    vets_json_schema (25.2.37)
+    vets_json_schema (25.2.41)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -466,7 +466,7 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-follow_redirects (0.3.0)
+    faraday-follow_redirects (0.4.0)
       faraday (>= 1, < 3)
     faraday-http-cache (2.5.1)
       faraday (>= 0.8)
@@ -857,7 +857,7 @@ GEM
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
-    prism (1.6.0)
+    prism (1.7.0)
     process_executer (1.3.0)
     pry (0.15.2)
       coderay (~> 1.1)
@@ -961,6 +961,12 @@ GEM
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
+    reek (6.5.0)
+      dry-schema (~> 1.13)
+      logger (~> 1.6)
+      parser (~> 3.3.0)
+      rainbow (>= 2.0, < 4.0)
+      rexml (~> 3.1)
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -971,9 +977,9 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     require_all (3.0.0)
-    restforce (8.0.0)
+    restforce (8.0.1)
       faraday (>= 1.1.0, < 3.0.0)
-      faraday-follow_redirects (<= 0.3.0, < 1.0.0)
+      faraday-follow_redirects (< 0.6.0)
       faraday-multipart (>= 1.0.0, < 2.0.0)
       faraday-net_http (< 4.0.0)
       hashie (>= 1.2.0, < 6.0)
@@ -1038,7 +1044,7 @@ GEM
       actionpack (>= 5.2, < 8.2)
       railties (>= 5.2, < 8.2)
     rtesseract (3.1.4)
-    rubocop (1.81.7)
+    rubocop (1.82.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1046,12 +1052,12 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.47.1, < 2.0)
+      rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.48.0)
+    rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.4)
+      prism (~> 1.7)
     rubocop-capybara (2.22.1)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -1180,7 +1186,7 @@ GEM
     uber (0.1.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
-    unicode-emoji (4.1.0)
+    unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
     utf8-cleaner (1.0.0)
@@ -1402,6 +1408,7 @@ DEPENDENCIES
   ransack
   redis
   redis-namespace
+  reek
   representation_management!
   request_store
   require_all

@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 1919 0839 10275 8794 0976].each do |form_type|
+  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 1919 0839 10275 8794 0976 10272].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do

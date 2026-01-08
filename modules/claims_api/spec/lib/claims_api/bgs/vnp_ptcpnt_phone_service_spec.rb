@@ -14,8 +14,10 @@ describe ClaimsApi::VnpPtcpntPhoneService do
       options[:vnp_ptcpnt_id] = '44693'
       options[:phone_nbr] = '2225552252'
       options[:efctv_dt] = '2020-07-16T18:20:17Z'
+
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/vnp_ptcpnt_phone_create') do
         response = subject.vnp_ptcpnt_phone_create(options)
+
         expect(response[:vnp_proc_id]).to eq '29798'
         expect(response[:vnp_ptcpnt_id]).to eq '44693'
         expect(response[:phone_type_nm]).to eq 'Daytime'
@@ -30,6 +32,7 @@ describe ClaimsApi::VnpPtcpntPhoneService do
       options[:vnp_ptcpnt_id] = nil
       options[:phone_nbr] = '2225552252'
       options[:efctv_dt] = '2020-07-16T18:20:17Z'
+
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/invalid_vnp_ptcpnt_phone_create') do
         expect do
           subject.vnp_ptcpnt_phone_create(options)

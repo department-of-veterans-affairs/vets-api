@@ -1,4 +1,6 @@
 ---
+exclude_paths:
+  - vendor
 
 ### https://github.com/troessner/reek
 
