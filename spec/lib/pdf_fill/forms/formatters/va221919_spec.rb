@@ -153,7 +153,7 @@ RSpec.describe PdfFill::Forms::Formatters::Va221919 do
 
       it 'converts to blank' do
         described_class.process_is_authenticated(form_data)
-        expect(form_data['isAuthenticated']).to eq(nil)
+        expect(form_data['isAuthenticated']).to be_nil
       end
     end
 
@@ -162,7 +162,7 @@ RSpec.describe PdfFill::Forms::Formatters::Va221919 do
 
       it 'remains nil' do
         described_class.process_is_authenticated(form_data)
-        expect(form_data['isAuthenticated']).to eq(nil)
+        expect(form_data['isAuthenticated']).to be_nil
       end
     end
   end
