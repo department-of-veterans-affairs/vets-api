@@ -504,7 +504,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             allow(Flipper).to receive(:enabled?).with(flipper_new_conditions).and_return(true)
           end
 
-          it 'sets new_conditions_workflow to true when form_data contains disability_comp_new_conditions_workflow: true' do
+          it 'sets new_conditions_workflow to true when disability_comp_new_conditions_workflow is true' do
             put v0_disability_compensation_in_progress_form_url(new_form.form_id),
                 params: {
                   form_data: { greeting: 'Hello!', disability_comp_new_conditions_workflow: true },
