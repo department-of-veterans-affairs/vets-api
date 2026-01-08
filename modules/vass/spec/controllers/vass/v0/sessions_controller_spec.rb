@@ -21,6 +21,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
   before do
     allow(Settings).to receive(:vass).and_return(
       OpenStruct.new(
+        jwt_secret: 'test-jwt-secret',
         redis_otc_expiry: 600,
         redis_session_expiry: 7200,
         redis_token_expiry: 3540,
