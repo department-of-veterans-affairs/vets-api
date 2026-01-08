@@ -169,7 +169,7 @@ module Vass
         booking_session_key(veteran_id),
         data,
         namespace: 'vass-booking-cache',
-        expires_in: 3600 # 1 hour, same as veteran metadata
+        expires_in: Settings.vass.booking_session_expiry || 3600
       )
     end
 

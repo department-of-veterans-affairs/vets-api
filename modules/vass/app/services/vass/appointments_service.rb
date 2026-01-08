@@ -214,9 +214,9 @@ module Vass
       current_cohort = find_current_cohort(appointments)
 
       # 3. Determine availability status
-      if current_cohort.nil?
-        handle_no_current_cohort(appointments)
-      elsif cohort_booked?(current_cohort)
+      return handle_no_current_cohort(appointments) unless current_cohort
+
+      if cohort_booked?(current_cohort)
         handle_booked_cohort(current_cohort)
       else
         handle_available_cohort(current_cohort, veteran_id)
@@ -312,7 +312,7 @@ module Vass
     # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
     #
     def format_datetime(datetime)
-      return nil if datetime.nil?
+      return unless datetime
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
@@ -343,14 +343,11 @@ module Vass
 
       case error
       when Vass::ServiceException
-        # VASS-specific service exceptions (inherits from BackendServiceException)
-        if error.original_status == 401
-          raise Vass::Errors::AuthenticationError, 'Authentication failed'
-        elsif error.original_status == 404
-          raise Vass::Errors::NotFoundError, 'Resource not found'
-        else
-          raise Vass::Errors::VassApiError, "VASS API error: #{error.original_status}"
-        end
+        status = error.original_status
+        raise Vass::Errors::AuthenticationError, 'Authentication failed' if status == 401
+        raise Vass::Errors::NotFoundError, 'Resource not found' if status == 404
+
+        raise Vass::Errors::VassApiError, "VASS API error: #{status}"
       when Common::Exceptions::GatewayTimeout
         # Timeout errors from Faraday or Ruby's Timeout
         raise Vass::Errors::ServiceError, "Request timeout in #{method_name}"
@@ -392,9 +389,11 @@ module Vass
     # @return [Boolean] true if identity matches
     #
     def validate_veteran_identity(veteran_data, last_name, date_of_birth)
-      return false unless veteran_data && veteran_data['data']
+      return false unless veteran_data
 
       data = veteran_data['data']
+      return false unless data
+
       last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
       dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
 
@@ -442,9 +441,11 @@ module Vass
     # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]
     #
     def extract_contact_info(veteran_data)
-      return [nil, nil] unless veteran_data && veteran_data['data']
+      return [nil, nil] unless veteran_data
 
       data = veteran_data['data']
+      return [nil, nil] unless data
+
       email = data['notificationEmail']
 
       if email.present?
@@ -496,15 +497,16 @@ module Vass
     #
     def find_current_cohort(appointments)
       now = Time.current
-      time_zone = Time.zone
 
       appointments.find do |appt|
         cohort_start_utc = appt['cohortStartUtc']
         cohort_end_utc = appt['cohortEndUtc']
         next unless cohort_start_utc && cohort_end_utc
 
-        cohort_start = time_zone.parse(cohort_start_utc)
-        cohort_end = time_zone.parse(cohort_end_utc)
+        cohort_start = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
+        cohort_end = parse_utc_time(cohort_end_utc, field_name: 'cohortEndUtc')
+        next unless cohort_start && cohort_end
+
         now.between?(cohort_start, cohort_end)
       end
     end
@@ -595,7 +597,9 @@ module Vass
       time_start_utc = slot['timeStartUTC']
       return false unless time_start_utc
 
-      slot_time = Time.zone.parse(time_start_utc)
+      slot_time = parse_utc_time(time_start_utc, field_name: 'timeStartUTC')
+      return false unless slot_time
+
       slot_time >= start_range && slot_time <= end_range
     end
 
@@ -621,14 +625,18 @@ module Vass
     #
     def find_next_cohort(appointments)
       now = Time.current
-      time_zone = Time.zone
 
-      future_appointments = appointments.select do |a|
-        cohort_start_utc = a['cohortStartUtc']
-        cohort_start_utc && time_zone.parse(cohort_start_utc) > now
+      future_appointments = appointments.filter_map do |appt|
+        cohort_start_utc = appt['cohortStartUtc']
+        next unless cohort_start_utc
+
+        parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
+        { appt:, parsed_time: } if parsed_time && parsed_time > now
       end
 
-      future_appointments.min_by { |a| time_zone.parse(a['cohortStartUtc']) }
+      return nil if future_appointments.empty?
+
+      future_appointments.min_by { |entry| entry[:parsed_time] }&.dig(:appt)
     end
 
     ##
@@ -679,6 +687,21 @@ module Vass
           message: 'No available appointment slots'
         }
       }
+    end
+
+    ##
+    # Parses a timestamp string as UTC.
+    #
+    # @param time_string [String] UTC timestamp string
+    # @param field_name [String] Name of the field being parsed (for error logging)
+    # @return [Time, nil] Parsed UTC time or nil if invalid
+    # @raise [Vass::Errors::VassApiError] if parsing fails
+    #
+    def parse_utc_time(time_string, field_name: 'timestamp')
+      Time.parse(time_string).utc
+    rescue ArgumentError, TypeError => e
+      log_error("Invalid date/time format from VASS API for field: #{field_name}", e)
+      raise Vass::Errors::VassApiError, "Invalid date/time format in #{field_name} from VASS API"
     end
   end
 end
