@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/stub_efolder_documents'
+require 'claims_evidence_api/service/search'
+
 
 RSpec.describe 'VO::TsaLetter', type: :request do
   let(:user) { build(:user, :loa3) }
@@ -12,30 +13,66 @@ RSpec.describe 'VO::TsaLetter', type: :request do
 
   describe 'GET /v0/tsa_letter' do
     let(:tsa_letters) do
-      [
-        OpenStruct.new(
-          document_id: '{73CD7B28-F695-4337-BBC1-2443A913ACF6}',
-          doc_type: '34',
-          type_description: 'Correspondence',
-          received_at: Date.new(2024, 9, 13)
-        )
-      ]
+      {
+        "page": {
+          "totalPages": 1,
+          "requestedResultsPerPage": 10,
+          "currentPage": 1,
+          "totalResults": 1
+        },
+        "files": [
+          {
+            "owner": {
+              "type": "VETERAN",
+              "id": "796378881"
+            },
+            "uuid": "c75438b4-47f8-44d3-9e35-798158591456",
+            "currentVersionUuid": "920debba-cc65-479c-ab47-db9b2a5cd95f",
+            "currentVersion": {
+              "systemData": {
+                "uploadedDateTime": "2025-09-09T14:18:53",
+                "contentSize": 177200,
+                "contentName": "VETS Safe Travel - Outreach Letter_TSA edits_08.29.25 DRAFT.pdf",
+                "mimeType": "application/pdf",
+                "uploadSource": "ClaimEvidenceUI"
+              },
+              "providerData": {
+                "subject": "VETS Safe Travel Outreach Letter",
+                "documentTypeId": 34,
+                "ocrStatus": "Not Searchable",
+                "newMail": false,
+                "userSARL": "7",
+                "bookmarks": {
+                  "VBA": {
+                    "isDefaultRealm": true
+                  }
+                },
+                "systemSource": "ClaimEvidenceUI",
+                "isAnnotated": false,
+                "modifiedDateTime": "2025-09-09T14:18:53",
+                "numberOfContentions": 0,
+                "readByCurrentUser": true,
+                "dateVaReceivedDocument": "2025-09-09",
+                "hasContentionAnnotations": false,
+                "contentSource": "VA.gov",
+                "actionable": false,
+                "lastOpenedDocument": true
+              }
+            }
+          }
+        ]
+      }
     end
 
-    # before do
-    #   expect(efolder_service).to receive(:list_tsa_letters).and_return(tsa_letters)
-    # end
+    before do
+      allow_any_instance_of(ClaimsEvidenceApi::Service::Search).to receive(:find).and_return(tsa_letters)
+    end
 
     it 'returns the tsa letter metadata' do
-      VCR.use_cassette('spec/support/vcr_cassettes/tsa_letters/index_success.yml') do
-        expected_response = { 'data' =>
-          [{ 'id' => '',
-            'type' => 'tsa_letter',
-            'attributes' => { 'document_id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'doc_type' => '34',
-                              'type_description' => 'Correspondence', 'received_at' => '2024-09-13' } }] }
-        get '/v0/tsa_letter'
-        expect(response.body).to eq(expected_response.to_json)
-      end
+      # VCR.use_cassette('spec/support/vcr_cassettes/tsa_letters/index_success', { match_requests_on: %i[method uri] }) do
+      get '/v0/tsa_letter'
+      expect(response.body).to eq({uuid: 'c75438b4-47f8-44d3-9e35-798158591456', version: '920debba-cc65-479c-ab47-db9b2a5cd95f'}.to_json)
+      # end
     end
   end
 

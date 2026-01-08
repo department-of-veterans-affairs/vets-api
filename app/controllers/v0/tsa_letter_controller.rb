@@ -12,8 +12,15 @@ module V0
       folder_identifier = "VETERAN:ICN:#{current_user.icn}"
       search_service.folder_identifier = folder_identifier
       response = search_service.find(filters:)
-      binding.pry
-      render(json: response)
+      files = response[:files]
+      latest = files.max do |a, b|
+        a_time = DateTime.parse(a[:currentVersion][:systemData][:uploadedDateTime])
+        b_time = DateTime.parse(b[:currentVersion][:systemData][:uploadedDateTime])
+        a_time <=> b_time
+      end
+      latest_uuid = latest[:uuid]
+      latest_version = latest[:currentVersionUuid]
+      render(json: {uuid: latest_uuid, version: latest_version})
     end
 
     # service = ClaimsEvidenceApi::Service::Search.new
