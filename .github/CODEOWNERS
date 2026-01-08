@@ -949,6 +949,7 @@ lib/lgy/configuration.rb @department-of-veterans-affairs/benefits-non-disability
 lib/lgy/service.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/lgy/tag_sentry.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/auth/client_credentials/jwt_generator.rb @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/auth/client_credentials/service.rb @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/healthcare_cost_and_coverage @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims/monitor.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
