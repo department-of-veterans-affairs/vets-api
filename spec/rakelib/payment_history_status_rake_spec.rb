@@ -522,5 +522,168 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
       end
     end
+
+    describe '#check_payment_history_filters' do
+      let(:mpi_profile) do
+        build(:mpi_profile,
+              icn: '1234567890V123456',
+              ssn: '123456789',
+              participant_id: '600012345')
+      end
+
+      let(:person) do
+        OpenStruct.new(
+          status: :ok,
+          file_number: '123456789',
+          participant_id: '600012345',
+          ssn_number: '123456789'
+        )
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        mpi_service = instance_double(MPI::Service)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+        response = build(:find_profile_response, profile: mpi_profile)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(response)
+
+        bgs_service = instance_double(BGS::People::Request)
+        allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+        allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+      end
+
+      context 'when all payments pass filters (no third-party payments)' do
+        it 'shows no payments are filtered' do
+          payments = [
+            {
+              payee_type: 'Person',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            },
+            {
+              payee_type: 'Person',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            }
+          ]
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
+
+          expect { task.invoke(icn) }
+            .to output(/✓ Would NOT be filtered.*Total payments: 2.*Filtered out: 0.*Would be returned: 2.*✓ No payments are being filtered/m)
+            .to_stdout
+        end
+      end
+
+      context 'when payments are filtered by Third Party/Vendor payee type' do
+        it 'shows payments filtered by payee type' do
+          payments = [
+            {
+              payee_type: 'Third Party/Vendor',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            }
+          ]
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
+
+          expect { task.invoke(icn) }
+            .to output(/✗ FILTERED: Payee type is 'Third Party\/Vendor'/)
+            .to_stdout
+        end
+      end
+
+      context 'when payments are filtered by mismatched participant IDs' do
+        it 'shows payments filtered by ID mismatch' do
+          payments = [
+            {
+              payee_type: 'Person',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600099999'
+            }
+          ]
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
+
+          expect { task.invoke(icn) }
+            .to output(/✗ FILTERED: Beneficiary and Recipient IDs don't match/)
+            .to_stdout
+        end
+      end
+
+      context 'when all payments are filtered out' do
+        it 'shows all payments filtered warning' do
+          payments = [
+            {
+              payee_type: 'Third Party/Vendor',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            },
+            {
+              payee_type: 'Person',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600099999'
+            }
+          ]
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
+
+          expect { task.invoke(icn) }
+            .to output(/Total payments: 2.*Filtered out: 2.*Would be returned: 0.*✗ All payments are being filtered out!.*This is why payment history appears empty/m)
+            .to_stdout
+        end
+      end
+
+      context 'when some payments are filtered out' do
+        it 'shows partial filtering warning' do
+          payments = [
+            {
+              payee_type: 'Person',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            },
+            {
+              payee_type: 'Third Party/Vendor',
+              beneficiary_participant_id: '600012345',
+              recipient_participant_id: '600012345'
+            }
+          ]
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
+
+          expect { task.invoke(icn) }
+            .to output(/Total payments: 2.*Filtered out: 1.*Would be returned: 1.*⚠ Some payments are being filtered out/m)
+            .to_stdout
+        end
+      end
+
+      context 'when payment is a single hash (not array)' do
+        it 'handles single payment correctly' do
+          payment = {
+            payee_type: 'Person',
+            beneficiary_participant_id: '600012345',
+            recipient_participant_id: '600012345'
+          }
+
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payment } })
+
+          expect { task.invoke(icn) }
+            .to output(/Total payments: 1.*Filtered out: 0.*Would be returned: 1/m)
+            .to_stdout
+        end
+      end
+    end
   end
 end

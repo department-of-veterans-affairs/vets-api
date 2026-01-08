@@ -33,10 +33,16 @@ namespace :payment_history do
       person = check_bgs_file_number(mpi_profile)
     end
 
+    payment_history = nil
     if person
-      check_payment_history(mpi_profile, person)
+      payment_history = check_payment_history(mpi_profile, person)
     end
-    
+
+
+    if payment_history
+      check_payment_history_filters(payment_history)
+    end
+
     puts
   end
 
@@ -215,7 +221,7 @@ namespace :payment_history do
       if response.nil?
         puts "✗ BGS returned nil response"
         puts "  No payment records available"
-        return
+        return nil
       end
       
       payments = response&.dig(:payments, :payment)
@@ -231,9 +237,60 @@ namespace :payment_history do
         puts "✓ Payment records found: #{payment_count} payment(s)"
         puts "  BGS has payment history data available"
       end
+
+      return payments
     rescue => e
       puts "✗ Error calling BGS payment history: #{e.message}"
       puts "  #{e.class.name}"
+    end
+  end
+
+  def check_payment_history_filters(payment_history)
+    puts
+    puts "Checking if payments are being filtered out..."
+    
+    # Normalize to array
+    payments = payment_history.is_a?(Array) ? payment_history : [payment_history]
+    
+    filtered_count = 0
+    
+    payments.each_with_index do |payment, index|
+      puts
+      puts "Payment #{index + 1}:"
+      puts "  Payee type: #{payment[:payee_type]}"
+      puts "  Beneficiary Participant ID: #{payment[:beneficiary_participant_id]}"
+      puts "  Recipient Participant ID: #{payment[:recipient_participant_id]}"
+      
+      is_third_party_vendor = payment[:payee_type] == 'Third Party/Vendor'
+      ids_dont_match = payment[:beneficiary_participant_id] != payment[:recipient_participant_id]
+      
+      if is_third_party_vendor
+        puts "  ✗ FILTERED: Payee type is 'Third Party/Vendor'"
+        filtered_count += 1
+      elsif ids_dont_match
+        puts "  ✗ FILTERED: Beneficiary and Recipient IDs don't match"
+        filtered_count += 1
+      else
+        puts "  ✓ Would NOT be filtered"
+      end
+    end
+    
+    puts
+    puts "Summary:"
+    puts "  Total payments: #{payments.length}"
+    puts "  Filtered out: #{filtered_count}"
+    puts "  Would be returned: #{payments.length - filtered_count}"
+    
+    if filtered_count == payments.length
+      puts
+      puts "✗ All payments are being filtered out!"
+      puts "  This is why payment history appears empty"
+    elsif filtered_count > 0
+      puts
+      puts "⚠ Some payments are being filtered out"
+    else
+      puts
+      puts "✓ No payments are being filtered"
     end
   end
 end
