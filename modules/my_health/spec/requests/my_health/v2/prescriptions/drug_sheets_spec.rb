@@ -161,10 +161,13 @@ RSpec.describe 'MyHealth::V2::Prescriptions::DrugSheets', type: :request do
           post '/my_health/v2/prescriptions/drug_sheets/search', params: { ndc: }
 
           expect(Rails.logger).to have_received(:error).with(
-            a_string_matching(/DrugSheetsController: Failed to fetch documentation for NDC #{ndc}/)
-              .and(matching(/StandardError/))
-              .and(matching(/#{error_message}/))
-              .and(matching(/\.rb:\d+/)) # Backtrace line format (file.rb:line_number)
+            'DrugSheetsController: Failed to fetch documentation',
+            hash_including(
+              ndc:,
+              error_class: 'StandardError',
+              error_message:,
+              backtrace: kind_of(Array)
+            )
           )
         end
       end
