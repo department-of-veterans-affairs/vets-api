@@ -102,21 +102,17 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
             allow(Slack::Notifier).to receive(:notify)
           end
 
-          it 'logs the error' do
+          it 'logs the error and increments StatsD error metric' do
             job.perform
 
             expect(Rails.logger).to have_received(:error)
               .with(/perform exception: StandardError boom/)
-          end
-
-          it 'increments the error StatsD metric' do
-            job.perform
 
             expect(StatsD).to have_received(:increment)
               .with("#{statsd_key_prefix}.error")
           end
 
-          it 'sends a Slack alert' do
+          it 'sends a Slack alert with the exception info' do
             job.perform
 
             expect(Slack::Notifier).to have_received(:notify)

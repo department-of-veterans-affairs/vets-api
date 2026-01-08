@@ -20,14 +20,21 @@ module AccreditedRepresentativePortal
                         .where('created_at <= ?', 60.days.ago)
                         .destroy_all
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
-      Rails.logger.info("#{self.class} deleted #{deleted_records.size} old BenefitsIntake records")
+      deleted_count = deleted_records.size
+      klass_name    = self.class.to_s
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_count)
+      Rails.logger.info("#{klass_name} deleted #{deleted_count} old BenefitsIntake records")
     rescue => e
+      error_class   = e.class
+      error_message = e.message
+      klass_name    = self.class.to_s
+
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-      Rails.logger.error("#{self.class} perform exception: #{e.class} #{e.message}")
+      Rails.logger.error("#{klass_name} perform exception: #{error_class} #{error_message}")
 
       # Slack alert for immediate visibility to VA ARC OCTO team
-      send_slack_alert(e)
+      send_slack_alert(error_class, error_message, klass_name)
 
       nil
     end
@@ -38,14 +45,16 @@ module AccreditedRepresentativePortal
       Flipper.enabled?(:delete_old_benefits_intake_records_job_enabled)
     end
 
-    def send_slack_alert(exception)
+    def send_slack_alert(error_class, error_message, klass_name)
       # Ensure Slack is defined (stub in test if needed)
       if defined?(Slack::Notifier)
         Slack::Notifier.notify(
-          "[ALERT] #{self.class} failed: #{exception.class} - #{exception.message}"
+          "[ALERT] #{klass_name} failed: #{error_class} - #{error_message}"
         )
       else
-        Rails.logger.warn("Slack::Notifier not defined; skipping Slack alert: #{exception.class} #{exception.message}")
+        Rails.logger.warn(
+          "Slack::Notifier not defined; skipping Slack alert: #{error_class} #{error_message}"
+        )
       end
     rescue => e
       # Avoid breaking the job if Slack fails
