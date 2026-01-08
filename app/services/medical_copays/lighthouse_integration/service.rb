@@ -19,6 +19,7 @@ module MedicalCopays
       PAYMENT_FETCH_LIMIT = 100
 
       class MissingOrganizationIdError < StandardError; end
+      class MissingCityError < StandardError; end
 
       def initialize(icn)
         @icn = icn
@@ -26,23 +27,30 @@ module MedicalCopays
 
       def list(count:, page:)
         raw_invoices = invoice_service.list(count:, page:)
-        entries = raw_invoices['entry'].map do |entry|
-          org_ref = entry.dig('resource', 'issuer', 'reference')
 
-          org_id  = org_ref&.split('/')&.last
+        entries = raw_invoices.fetch('entry').map do |entry|
+          resource = entry.fetch('resource')
+
+          org_ref = resource.dig('issuer', 'reference')
+          org_id = org_ref&.split('/')&.last
 
           raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
           org_city = retrieve_city(org_id)
-          entry['resource'].merge!({ 'city' => org_city, 'facility_id' => org_id }) if org_city
+          raise MissingCityError, "Missing city for org_id #{org_id}" if org_city.blank?
 
-          Lighthouse::HCC::Invoice.new(entry)
+          resource = entry.fetch('resource')
+          resource = resource.merge('city' => org_city, 'facility_id' => org_id)
+
+          enriched_entry = entry.merge('resource' => resource)
+
+          Lighthouse::HCC::Invoice.new(enriched_entry)
         end
 
         Lighthouse::HCC::Bundle.new(raw_invoices, entries)
       rescue => e
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.message}")
-        raise e
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        raise
       end
 
       def get_detail(id:)
