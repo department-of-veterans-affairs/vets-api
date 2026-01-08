@@ -91,12 +91,8 @@ module DecisionReviews
       raise Common::Exceptions::NotImplemented
     end
 
-    def enabled?
-      raise Common::Exceptions::NotImplemented
-    end
-
     def should_perform?
-      enabled? && records_to_update.present?
+      records_to_update.present?
     rescue => e
       StatsD.increment("#{statsd_prefix}.error")
       Rails.logger.error("#{log_prefix} error", { message: e.message })

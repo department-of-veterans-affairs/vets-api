@@ -379,7 +379,7 @@
                     "user_facility_migrating_to_oh": {
                       "type": "boolean"
                     },
-                    "healthcare_settings_pilot_eligible": {
+                    "scheduling_preferences_pilot_eligible": {
                       "type": "boolean"
                     }
                   }

@@ -176,7 +176,7 @@ module Users
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state,
           active_mhv_ids: user.active_mhv_ids,
-          healthcare_settings_pilot_eligible:
+          scheduling_preferences_pilot_eligible:
         }
       else
         handle_service_error(user.mpi_error, 'MVI', 'mpi_profile')
@@ -284,12 +284,12 @@ module Users
       log_external_service_error(error_hash)
     end
 
-    def healthcare_settings_pilot_eligible
-      return false unless Flipper.enabled?(:profile_health_care_settings_page, user)
+    def scheduling_preferences_pilot_eligible
+      return false unless Flipper.enabled?(:profile_scheduling_preferences, user)
 
       UserVisnService.new(user).in_pilot_visn?
     rescue => e
-      Rails.logger.error("Error checking healthcare settings pilot eligibility: #{e.message}")
+      Rails.logger.error("Error checking scheduling preferences pilot eligibility: #{e.message}")
       false
     end
   end

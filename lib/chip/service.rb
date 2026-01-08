@@ -136,7 +136,6 @@ module Chip
                               },
                               { external_service: self.class.to_s.underscore, team: 'check-in' })
 
-      log_exception_to_rails(e)
       raise e
     end
 

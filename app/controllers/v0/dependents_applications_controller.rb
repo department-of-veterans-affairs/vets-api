@@ -17,8 +17,7 @@ module V0
 
     def create
       form = dependent_params.to_json
-      use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
-      claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
+      claim = SavedClaim::DependencyClaim.new(form:)
 
       monitor.track_create_attempt(claim, current_user)
 
@@ -34,16 +33,14 @@ module V0
 
       claim.process_attachments!
 
-      # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+      dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
-      monitor.track_create_success(in_progress_form, claim, current_user)
+      log_submitted(in_progress_form, claim)
       claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
-
       render json: SavedClaimSerializer.new(claim)
     rescue => e
       monitor.track_create_error(in_progress_form, claim, current_user, e)
@@ -87,6 +84,13 @@ module V0
       metadata['submission'] ||= {}
       metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
       in_progress_form.update(metadata:)
+    end
+
+    def log_submitted(in_progress_form, claim)
+      monitor.track_create_success(in_progress_form, claim, current_user)
+      if claim.pension_related_submission?
+        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+      end
     end
 
     def create_dependent_service

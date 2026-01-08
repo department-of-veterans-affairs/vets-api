@@ -35,6 +35,7 @@ describe PdfFill::Processors::VA220839Processor do
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-0839_abc.pdf')
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
+        expect(get_field_value(fields, 'academic_year')).to eq '2025 to 2025'
       end
     end
 
@@ -70,10 +71,11 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'branch_campus_0_facility_code')).to eq '87654321'
+        expect(get_field_value(fields, 'num_eligible_students')).to eq ''
       end
     end
 
-    context 'with an unlimited max students submission' do
+    context 'with an unlimited max students and/or contribution submission' do
       let(:saved_claim) { create(:va0839_unlimited) }
 
       it 'creates the pdf correctly' do
@@ -87,6 +89,8 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'num_eligible_students')).to eq 'Unlimited'
+        expect(get_field_value(fields, 'us_school_0_max_students')).to eq 'Unlimited'
+        expect(get_field_value(fields, 'us_school_0_maximum_contribution')).to eq 'Unlimited'
       end
     end
   end

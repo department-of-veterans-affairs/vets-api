@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Vets
-  module SharedLogging
+  module SharedLogging # rubocop:disable Metrics/ModuleLength
     extend ActiveSupport::Concern
 
     def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
@@ -88,8 +88,12 @@ module Vets
           v.nil? || (v.respond_to?(:empty?) && v.empty?)
         end
 
-        # Add backtrace to error_details - this is what the tests expect
-        log_payload = error_details.merge(backtrace: exception.backtrace)
+        # Changed 'backtrace' to 'error_backtrace' to avoid SemanticLogger 4.18.0 trying to call .backtrace
+        log_payload = if Flipper.enabled?(:error_backtrace)
+                        error_details.merge(error_backtrace: exception.backtrace || [])
+                      else
+                        error_details.merge(backtrace: exception.backtrace || [])
+                      end
 
         case level
         when 'debug' then Rails.logger.debug(exception.message, log_payload)

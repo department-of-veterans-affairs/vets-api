@@ -44,9 +44,25 @@ RSpec.describe SOB::DGI::Response do
       expect(response.attributes).to eq(attributes)
     end
 
-    it 'throws Ch33DataMissing error if no relevant benefit present' do
-      body['claimant']['benefits'] = []
-      expect { response }.to raise_error(described_class::Ch33DataMissing)
+    it 'aggregates TOEs across transfers to multiple dependents' do
+      toes = body['claimant']['benefits'].first['entitlement_transfer_out']
+      total_days = toes.sum { |toe| toe['transferred_days'] }
+      transferred_out = response.entitlement_transferred_out
+      expect(total_days).to eq((transferred_out.months * 30) + transferred_out.days)
+    end
+
+    context 'when no entitlement transferred out' do
+      it 'sets months and days to zero' do
+        body['claimant']['benefits'].first['entitlement_transfer_out'] = []
+        expect(response.entitlement_transferred_out).to eq({ months: 0, days: 0 })
+      end
+    end
+
+    context 'when no Ch 33 benefit present' do
+      it 'throws Ch33DataMissing error' do
+        body['claimant']['benefits'] = []
+        expect { response }.to raise_error(described_class::Ch33DataMissing)
+      end
     end
   end
 end

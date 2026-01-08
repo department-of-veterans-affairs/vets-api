@@ -24,20 +24,28 @@ puts "🚀 Setting up test data for FailureNotificationEmailJob..."
 puts "Making sure Flipper for creating VANotify::Notification records is on..."
 Flipper.enable(:va_notify_notification_creation) unless Flipper.enabled?(:va_notify_notification_creation)
 
-# Check prerequisites
-user_account = UserAccount.first
+# ⚠️ UPDATE THIS EMAIL TO YOUR PERSONAL EMAIL FOR TESTING ⚠️
+TEST_EMAIL = "your-email@example.com"
+
+# Staging test veteran (Hector Allen)
+TEST_ICN = "1012667122V019349"
+TEST_VETERAN = { first_name: "Hector", last_name: "Allen" }.freeze
+
+# Check prerequisites - use a known staging ICN
+user_account = UserAccount.find_by(icn: TEST_ICN)
 if user_account.nil?
-  UserAccount.create!(icn: SecureRandom.uuid)
-  user_account = UserAccount.first
+  user_account = UserAccount.create!(icn: TEST_ICN)
 end
 
-puts "✅ Using UserAccount: #{user_account.id}"
+puts "✅ Using UserAccount: #{user_account.id} (ICN: #{user_account.icn})"
+puts "✅ Test veteran: #{TEST_VETERAN[:first_name]} #{TEST_VETERAN[:last_name]}"
+puts "✅ Test email: #{TEST_EMAIL}"
 
 # 1. Create SavedClaims with proper types and form data
 puts "📝 Creating SavedClaims..."
 appeal_types = [
   'SavedClaim::HigherLevelReview',
-  'SavedClaim::NoticeOfDisagreement', 
+  'SavedClaim::NoticeOfDisagreement',
   'SavedClaim::SupplementalClaim'
 ]
 
@@ -50,9 +58,9 @@ saved_claims = appeal_types.map.with_index do |type, index|
       "data" => {
         "attributes" => {
           "veteran" => {
-            "email" => "test_email_#{index + 1}@gmail.com",
-            "firstName" => "Test",
-            "lastName" => "Veteran#{index + 1}"
+            "email" => TEST_EMAIL,
+            "firstName" => TEST_VETERAN[:first_name],
+            "lastName" => TEST_VETERAN[:last_name]
           },
           "appealType" => type.split('::').last
         }
@@ -122,8 +130,8 @@ secondary_forms = [SecondaryAppealForm.create!(
       "data" => {
         "formId" => "4142",
         "veteran" => {
-          "firstName" => "Test",
-          "lastName" => "Veteran"
+          "firstName" => TEST_VETERAN[:first_name],
+          "lastName" => TEST_VETERAN[:last_name]
         }
       }
     }.to_json,
@@ -202,7 +210,7 @@ secondary_forms.each_with_index do |form, index|
   
   if saved_claim
     form_data = JSON.parse(saved_claim.form)
-    form_data['data']['attributes']['veteran']['email'] = "test.secondary.form#{index + 1}@example.com"
+    form_data['data']['attributes']['veteran']['email'] = TEST_EMAIL
     saved_claim.update!(form: form_data.to_json)
   end
 end
@@ -286,7 +294,7 @@ def trigger_va_notify_callbacks
       request = Net::HTTP::Post.new(url)
       request['Authorization'] = 'Bearer fake_bearer_token'
       request['Content-Type'] = 'application/json'
-      request.body = { id: id, notification_type: "email", status: "delivered", completed_at: "2025-07-28T12:00:00Z" }.to_json
+      request.body = { id: id, notification_type: "email", status: "delivered", completed_at: Time.current.iso8601 }.to_json
 
       response = http.request(request)
       puts "Request #{index + 1} - Status: #{response.code}, Body: #{response.body}"
