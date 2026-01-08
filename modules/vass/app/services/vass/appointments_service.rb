@@ -343,14 +343,11 @@ module Vass
 
       case error
       when Vass::ServiceException
-        # VASS-specific service exceptions (inherits from BackendServiceException)
-        if error.original_status == 401
-          raise Vass::Errors::AuthenticationError, 'Authentication failed'
-        elsif error.original_status == 404
-          raise Vass::Errors::NotFoundError, 'Resource not found'
-        else
-          raise Vass::Errors::VassApiError, "VASS API error: #{error.original_status}"
-        end
+        status = error.original_status
+        raise Vass::Errors::AuthenticationError, 'Authentication failed' if status == 401
+        raise Vass::Errors::NotFoundError, 'Resource not found' if status == 404
+
+        raise Vass::Errors::VassApiError, "VASS API error: #{status}"
       when Common::Exceptions::GatewayTimeout
         # Timeout errors from Faraday or Ruby's Timeout
         raise Vass::Errors::ServiceError, "Request timeout in #{method_name}"
@@ -392,9 +389,11 @@ module Vass
     # @return [Boolean] true if identity matches
     #
     def validate_veteran_identity(veteran_data, last_name, date_of_birth)
-      return false unless veteran_data && veteran_data['data']
+      return false unless veteran_data
 
       data = veteran_data['data']
+      return false unless data
+
       last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
       dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
 
@@ -442,9 +441,11 @@ module Vass
     # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]
     #
     def extract_contact_info(veteran_data)
-      return [nil, nil] unless veteran_data && veteran_data['data']
+      return [nil, nil] unless veteran_data
 
       data = veteran_data['data']
+      return [nil, nil] unless data
+
       email = data['notificationEmail']
 
       if email.present?
@@ -625,17 +626,17 @@ module Vass
     def find_next_cohort(appointments)
       now = Time.current
 
-      future_appointments = appointments.select do |appt|
+      future_appointments = appointments.filter_map do |appt|
         cohort_start_utc = appt['cohortStartUtc']
         next unless cohort_start_utc
 
         parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
-        parsed_time && parsed_time > now
+        { appt:, parsed_time: } if parsed_time && parsed_time > now
       end
 
       return nil if future_appointments.empty?
 
-      future_appointments.min_by { |appt| parse_utc_time(appt['cohortStartUtc'], field_name: 'cohortStartUtc') }
+      future_appointments.min_by { |entry| entry[:parsed_time] }&.dig(:appt)
     end
 
     ##
