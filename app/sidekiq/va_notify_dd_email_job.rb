@@ -49,6 +49,11 @@ class VANotifyDdEmailJob
       { source: self.class.name },
       exception
     )
-    # raise exception if exception.status_code.between?(500, 599)
+    if !Flipper.enabled?(:form526_error_handling) &&
+       exception&.status_code&.between?(
+         500, 599
+       )
+      raise exception
+    end
   end
 end

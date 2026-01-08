@@ -31,6 +31,11 @@ class Form526ConfirmationEmailJob
   def handle_errors(ex)
     Rails.logger.error('Form526ConfirmationEmailJob error', error: ex)
     StatsD.increment(STATSD_ERROR_NAME)
-    # raise ex if ex.status_code.between?(500, 599)
+    if !Flipper.enabled?(:form526_error_handling) &&
+       ex&.status_code&.between?(
+         500, 599
+       )
+      raise ex
+    end
   end
 end
