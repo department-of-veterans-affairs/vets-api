@@ -39,7 +39,7 @@ module AccreditedRepresentativePortal
         Rails.logger.info('ARP ITF: Created intent to file in Benefits Claims')
 
         if parsed_response['errors'].present?
-          Rails.logger.info("ARP ITF: Error response - error_count: #{parsed_response['errors']&.count}")
+          Rails.logger.warn("ARP ITF: Error response - error_count: #{parsed_response['errors']&.count}")
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
@@ -57,7 +57,7 @@ module AccreditedRepresentativePortal
           render json: parsed_response, status: :created
         end
       rescue ArgumentError => e
-        Rails.logger.info('ARP ITF: ArgumentError during ITF creation')
+        Rails.logger.warn('ARP ITF: ArgumentError during ITF creation')
         render json: { error: e.message }, status: :bad_request
       rescue => e
         Rails.logger.error("ARP ITF: ERROR - #{e.class}: #{e.message.truncate(100)}")
