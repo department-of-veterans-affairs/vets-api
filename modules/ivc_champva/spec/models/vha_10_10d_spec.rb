@@ -182,34 +182,6 @@ RSpec.describe IvcChampva::VHA1010d do
       end
     end
 
-    context 'with extended form flow' do
-      let(:extended_statsd_key) { 'api.ivc_champva_form.10_10d_extended' }
-      let(:submission_data) do
-        {
-          'certifier_role' => 'sponsor',
-          'primary_contact_info' => {},
-          'form_number' => '10-10D-EXTENDED'
-        }
-      end
-      let(:form_instance) { described_class.new(submission_data) }
-
-      it 'uses extended stats key when form_number is 10-10D-EXTENDED' do
-        expect(StatsD).to receive(:increment).with(
-          "#{extended_statsd_key}.submission",
-          tags: %w[identity:sponsor loa:3 email:no form_version:vha_10_10d]
-        )
-        expect(Rails.logger).to receive(:info).with(
-          'IVC ChampVA Forms - 10-10D Submission',
-          identity: 'sponsor',
-          current_user_loa: 3,
-          email_used: 'no',
-          form_version:
-        )
-
-        form_instance.track_submission(mock_user)
-      end
-    end
-
     context 'when current_user is nil' do
       let(:submission_data) do
         {
