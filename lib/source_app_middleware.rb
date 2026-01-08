@@ -104,6 +104,7 @@ class SourceAppMiddleware
     'letters',
     'login-page',
     'medical-copays',
+    'medical-expense-report',
     'medical-records',
     'medications',
     'messages',
