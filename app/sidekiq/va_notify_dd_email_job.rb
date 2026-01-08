@@ -49,5 +49,6 @@ class VANotifyDdEmailJob
       { source: self.class.name },
       exception
     )
+    # raise exception if exception.status_code.between?(500, 599)
   end
 end
