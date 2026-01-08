@@ -454,7 +454,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         ).to receive(:build_veteran_and_dependent_data).with(anything, anything).and_return(veteran)
         allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
           .to receive(:process_poa_decision).and_return(OpenStruct.new(id: request_response.id))
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(false)
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -653,7 +653,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           ClaimsApi::PowerOfAttorneyRequestService::Decide
         ).to receive(:validate_decide_representative_params!).with(anything, anything).and_return(nil)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(false)
       end
 
       it 'calls the decision handler' do
@@ -837,7 +837,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:representative_data).and_return(representative_data)
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(false)
       allow(ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests).to receive(:new)
         .with(anything)
         .and_return(terminate_existing_requests)
@@ -859,7 +859,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'returning a Lighthouse ID' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bep).and_return(true)
       end
 
       let(:sandbox_lh_id) { 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb' }

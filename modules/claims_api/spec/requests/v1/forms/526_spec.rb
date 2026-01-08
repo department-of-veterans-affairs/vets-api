@@ -2544,7 +2544,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
-              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bep).and_return(flipped)
               allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
@@ -2592,7 +2592,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when feature flag is #{flipped}" do
             before do
               allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
-              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bep).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
@@ -2751,7 +2751,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when feature flag is #{flipped}" do
             before do
               allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
-              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bep).and_return(flipped)
               if flipped
                 allow_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
@@ -2788,7 +2788,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
             context "when 'disabilities.classificationCode' is valid but expires in the past" do
               before do
-                if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                if Flipper.enabled?(:claims_api_526_validations_v1_local_bep)
                   allow_any_instance_of(ClaimsApi::StandardDataService)
                     .to receive(:get_contention_classification_type_code_list)
                     .and_return([{

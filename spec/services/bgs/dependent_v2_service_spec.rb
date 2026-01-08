@@ -59,7 +59,7 @@ RSpec.describe BGS::DependentV2Service do
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_bep_extra_error_logging).and_return(false)
   end
 
   describe '#submit_686c_form' do
@@ -290,7 +290,7 @@ RSpec.describe BGS::DependentV2Service do
 
       context 'when Flipper is enabled for extra error logging' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_bgs_extra_error_logging).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_bep_extra_error_logging).and_return(true)
         end
 
         it 'increments StatsD for certain errors - 302,500,502,504' do

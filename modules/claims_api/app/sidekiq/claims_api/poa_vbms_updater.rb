@@ -64,7 +64,7 @@ module ClaimsApi
 
     def update_poa_access(poa_form:, participant_id:, poa_code:)
       # allow_poa_c_add reports 'No Data' if sent lowercase
-      service = if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bgs
+      service = if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bep
                   corporate_update_service
                 else
                   bgs_ext_service.corporate_update

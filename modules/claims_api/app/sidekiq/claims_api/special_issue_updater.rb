@@ -17,7 +17,7 @@ module ClaimsApi
 
       contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
-      service = if Flipper.enabled?(:claims_api_special_issues_updater_uses_local_bgs)
+      service = if Flipper.enabled?(:claims_api_special_issues_updater_uses_local_bep)
                   contention_service(user)
                 else
                   bgs_ext_service(user).contention

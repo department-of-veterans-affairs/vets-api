@@ -120,7 +120,7 @@ module BGS
     # Centralized BGS error logging/tracking wrapper for visibility in monitoring.
     # Emits a monitor event with sanitized error details and increments metrics when configured.
     def log_bgs_errors(error)
-      increment_non_validation_error(error) if Flipper.enabled?(:va_dependents_bgs_extra_error_logging)
+      increment_non_validation_error(error) if Flipper.enabled?(:va_dependents_bep_extra_error_logging)
 
       # Temporarily logging a few iterations of status code to see what BGS returns in the error
       @monitor.track_event(

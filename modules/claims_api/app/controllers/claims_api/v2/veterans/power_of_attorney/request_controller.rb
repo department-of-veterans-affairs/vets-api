@@ -84,7 +84,7 @@ module ClaimsApi
             request, method(:build_target_veteran)
           )
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
-          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bep)
             # Will either get null when a decision is declined or
             # a poa.id for record saved in our DB when decision is accepted
             decision_response = process_poa_decision(
@@ -136,7 +136,7 @@ module ClaimsApi
           bgs_form_attributes = build_bgs_attributes(form_attributes)
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
-          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bep)
             res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator
                   .new(target_veteran.participant_id,
                        bgs_form_attributes.deep_symbolize_keys,
@@ -150,7 +150,7 @@ module ClaimsApi
             form_attributes['id'] = poa_request.id
           end
           # The only way to get an ID value returned in Sandbox since we do not save the requests
-          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          if Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bep)
             form_attributes['id'] = 'c5ab49ca-0bd3-4529-8c48-5e277083f9eb'
           end
 

@@ -138,7 +138,7 @@ module ClaimsApi
       def claims_status_service
         edipi_check
 
-        if Flipper.enabled? :claims_status_v1_bgs_enabled
+        if Flipper.enabled? :claims_status_v1_bep_enabled
           bgs_claim_status_service
         else
           claims_service

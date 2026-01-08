@@ -453,7 +453,7 @@ module ClaimsApi
     end
 
     def contention_classification_type_code_list
-      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bep)
                                                       service = ClaimsApi::StandardDataService.new(
                                                         external_uid: Settings.bgs.external_uid,
                                                         external_key: Settings.bgs.external_key

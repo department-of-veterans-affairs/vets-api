@@ -38,7 +38,7 @@ module ClaimsApi
     end
 
     def add_flash(user, flash_name)
-      if Flipper.enabled? :claims_api_flash_updater_uses_local_bgs
+      if Flipper.enabled? :claims_api_flash_updater_uses_local_bep
         bgs_service(user).add_flash(file_number: user['ssn'], flash: { flash_name: })
       else
         bgs_service(user).add_flash(file_number: user['ssn'], flash_name:)
@@ -46,7 +46,7 @@ module ClaimsApi
     end
 
     def bgs_service(user)
-      if Flipper.enabled? :claims_api_flash_updater_uses_local_bgs
+      if Flipper.enabled? :claims_api_flash_updater_uses_local_bep
         claimant_service(user)
       else
         bgs_ext_service(user).claimant
