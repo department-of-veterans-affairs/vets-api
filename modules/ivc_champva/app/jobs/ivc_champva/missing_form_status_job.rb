@@ -22,30 +22,31 @@ module IvcChampva
       # Send the count of forms to DataDog
       StatsD.gauge('ivc_champva.forms_missing_status.count', batches.count)
 
-      current_time = Time.now.utc
-
-      batches.each_value do |batch|
-        form = batch[0] # get a representative form from this submission batch
-
-        # Check reporting API to see if this missing status is a false positive
-        next if Flipper.enabled?(:champva_enable_pega_report_check, @current_user) && num_docs_match_reports?(batch)
-
-        # Check if we've been missing Pega status for > custom threshold of days:
-        elapsed_days = (current_time - form.created_at).to_i / 1.day
-        threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
-        if elapsed_days >= threshold && !form.email_sent
-          template_id = "#{form[:form_number]}-FAILURE"
-          additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
-
-          send_failure_email(form, template_id, additional_context)
-        end
-
-        # Send each form UUID to DataDog
-        StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
-      end
+      process_batches(batches)
     rescue => e
       Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
+    end
+
+    # Helper function to process batches of forms
+    def process_batches(batches)
+      current_time = Time.now.utc
+      threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i
+      threshold = threshold.positive? ? threshold : 7
+
+      batches.each_value do |batch|
+        form = batch[0]
+        next if Flipper.enabled?(:champva_enable_pega_report_check, @current_user) && num_docs_match_reports?(batch)
+
+        elapsed_days = (current_time - form.created_at).to_i / 1.day
+        if elapsed_days >= threshold && !form.email_sent
+          template_id = "#{form[:form_number]}-FAILURE"
+          additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
+          send_failure_email(form, template_id, additional_context)
+        end
+
+        StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+      end
     end
 
     def construct_email_payload(form, template_id)

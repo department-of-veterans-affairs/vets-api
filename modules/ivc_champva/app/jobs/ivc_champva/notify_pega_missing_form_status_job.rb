@@ -19,6 +19,14 @@ module IvcChampva
 
       return unless batches.any?
 
+      process_batches(batches)
+    rescue => e
+      Rails.logger.error "IVC Forms NotifyPegaMissingFormStatusJob Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
+
+    # Helper function to process batches of forms
+    def process_batches(batches)
       current_time = Time.now.utc
 
       batches.each_value do |batch|
@@ -38,9 +46,6 @@ module IvcChampva
           send_zsf_notification_to_pega(form, 'PEGA-TEAM_MISSING_STATUS')
         end
       end
-    rescue => e
-      Rails.logger.error "IVC Forms NotifyPegaMissingFormStatusJob Error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
     end
 
     # Fires off a notification email to Pega so they know the communication status of
