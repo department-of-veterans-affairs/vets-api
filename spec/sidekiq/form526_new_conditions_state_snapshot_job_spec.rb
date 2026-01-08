@@ -68,7 +68,9 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
           allow(InProgressForm).to receive(:where).and_raise(StandardError.new('Database error'))
         end
 
-        it 'logs the error and does not raise' do
+        it 'logs the error, increments StatsD error metric, and does not raise' do
+          prefix = described_class::STATSD_PREFIX
+          expect(StatsD).to receive(:increment).with("#{prefix}.error")
           expect(Rails.logger).to receive(:error).with(
             'Error logging new conditions state snapshot',
             hash_including(message: 'Database error')
@@ -84,13 +86,11 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_new_conditions_stats_job).and_return(true)
       end
 
-      it 'returns only forms with new_conditions_workflow metadata set to true' do
+      it 'returns count of forms with new_conditions_workflow metadata set to true' do
         job = described_class.new
         result = job.send(:v2_in_progress_forms)
 
-        expect(result).to include(v2_in_progress_form.id)
-        expect(result).not_to include(v1_in_progress_form.id)
-        expect(result).not_to include(other_form.id)
+        expect(result).to eq(1)
       end
     end
 
@@ -99,14 +99,11 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_new_conditions_stats_job).and_return(true)
       end
 
-      it 'returns 526 forms where new_conditions_workflow is not true' do
+      it 'returns count of 526 forms where new_conditions_workflow is not true' do
         job = described_class.new
         result = job.send(:v1_in_progress_forms)
 
-        expect(result).to include(v1_in_progress_form.id)
-        expect(result).to include(v1_form_with_false.id)
-        expect(result).not_to include(v2_in_progress_form.id)
-        expect(result).not_to include(other_form.id)
+        expect(result).to eq(2)
       end
     end
 
@@ -115,14 +112,11 @@ RSpec.describe Form526NewConditionsStateSnapshotJob, type: :worker do
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_new_conditions_stats_job).and_return(true)
       end
 
-      it 'returns all 526 in-progress forms regardless of workflow version' do
+      it 'returns count of all 526 in-progress forms regardless of workflow version' do
         job = described_class.new
         result = job.send(:total_in_progress_forms)
 
-        expect(result).to include(v2_in_progress_form.id)
-        expect(result).to include(v1_in_progress_form.id)
-        expect(result).to include(v1_form_with_false.id)
-        expect(result).not_to include(other_form.id)
+        expect(result).to eq(3)
       end
     end
   end

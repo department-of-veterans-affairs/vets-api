@@ -16,6 +16,7 @@ class Form526NewConditionsStateSnapshotJob
                         message: 'Flipper flag disability_compensation_new_conditions_stats_job is disabled')
     end
   rescue => e
+    StatsD.increment("#{STATSD_PREFIX}.error")
     Rails.logger.error('Error logging new conditions state snapshot',
                        class: self.class.name,
                        message: e.try(:message))
@@ -31,8 +32,8 @@ class Form526NewConditionsStateSnapshotJob
 
   def state_as_counts
     @state_as_counts ||= {}.tap do |abbreviation|
-      snapshot_state.each do |dp, ids|
-        abbreviation[:"#{dp}_count"] = ids.count
+      snapshot_state.each do |dp, count|
+        abbreviation[:"#{dp}_count"] = count
       end
     end
   end
@@ -47,7 +48,7 @@ class Form526NewConditionsStateSnapshotJob
 
   # V2 forms - those with new_conditions_workflow metadata set to 'true'
   def v2_in_progress_forms
-    InProgressForm.where(form_id: '21-526EZ').where("metadata->>'new_conditions_workflow' = 'true'").pluck(:id)
+    InProgressForm.where(form_id: '21-526EZ').where("metadata->>'new_conditions_workflow' = 'true'").count
   end
 
   # V1 forms - those where new_conditions_workflow is not 'true' (includes legacy forms without the key)
@@ -55,11 +56,11 @@ class Form526NewConditionsStateSnapshotJob
     InProgressForm.where(form_id: '21-526EZ')
                   .where("metadata->>'new_conditions_workflow' IS NULL OR " \
                          "metadata->>'new_conditions_workflow' != 'true'")
-                  .pluck(:id)
+                  .count
   end
 
   # Total 526 in-progress forms (regardless of workflow version)
   def total_in_progress_forms
-    InProgressForm.where(form_id: '21-526EZ').pluck(:id)
+    InProgressForm.where(form_id: '21-526EZ').count
   end
 end

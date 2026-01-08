@@ -20,23 +20,27 @@ module V0
     def update
       if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
          params[:metadata].present? &&
-         params[:form_data].present?
-        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+         parsed_form_data.present?
         params[:metadata][:sync_modern0781_flow] =
-          form_hash['sync_modern0781_flow'] || form_hash[:sync_modern0781_flow] || false
+          parsed_form_data['sync_modern0781_flow'] || parsed_form_data[:sync_modern0781_flow] || false
       end
 
       if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
          params[:metadata].present? &&
-         params[:form_data].present?
-        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+         parsed_form_data.present?
         params[:metadata][:new_conditions_workflow] =
-          form_hash['disability_comp_new_conditions_workflow'] || false
+          parsed_form_data['disability_comp_new_conditions_workflow'] || false
       end
       super
     end
 
     private
+
+    def parsed_form_data
+      @parsed_form_data ||= if params[:form_data].present?
+                              params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+                            end
+    end
 
     def form_id
       FormProfiles::VA526ez::FORM_ID
