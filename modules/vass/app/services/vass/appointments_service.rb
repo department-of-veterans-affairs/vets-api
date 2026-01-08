@@ -214,9 +214,9 @@ module Vass
       current_cohort = find_current_cohort(appointments)
 
       # 3. Determine availability status
-      if current_cohort.nil?
-        handle_no_current_cohort(appointments)
-      elsif cohort_booked?(current_cohort)
+      return handle_no_current_cohort(appointments) unless current_cohort
+
+      if cohort_booked?(current_cohort)
         handle_booked_cohort(current_cohort)
       else
         handle_available_cohort(current_cohort, veteran_id)
@@ -312,7 +312,7 @@ module Vass
     # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
     #
     def format_datetime(datetime)
-      return nil if datetime.nil?
+      return unless datetime
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
