@@ -14,6 +14,10 @@ module Vass
       before_action :authenticate_jwt
       before_action :set_appointments_service
 
+      rescue_from StandardError, with: :handle_standard_error
+      rescue_from Vass::Errors::ServiceError, with: :handle_service_error
+      rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
+
       ##
       # GET /vass/v0/appointment-availability
       #
@@ -31,15 +35,41 @@ module Vass
         end
 
         render_availability_result(result)
-      rescue Vass::Errors::VassApiError => e
-        handle_vass_error(e, 'get_availability')
-      rescue Vass::Errors::ServiceError => e
-        handle_service_error(e, 'get_availability')
-      rescue => e
-        handle_unexpected_error(e, 'get_availability')
       end
 
       private
+
+      ##
+      # Handles VASS API errors.
+      #
+      # @param exception [Vass::Errors::VassApiError] The exception
+      #
+      def handle_vass_api_error(exception)
+        handle_error(exception, 'vass_api_error', 'External service error', :bad_gateway)
+      end
+
+      ##
+      # Handles service errors (timeouts, network issues).
+      #
+      # @param exception [Vass::Errors::ServiceError] The exception
+      #
+      def handle_service_error(exception)
+        handle_error(
+          exception,
+          'service_error',
+          'Unable to process request with appointment service',
+          :service_unavailable
+        )
+      end
+
+      ##
+      # Handles unexpected standard errors.
+      #
+      # @param exception [StandardError] The exception
+      #
+      def handle_standard_error(exception)
+        handle_error(exception, 'internal_error', 'An unexpected error occurred', :internal_server_error)
+      end
 
       ##
       # Returns a Redis client instance.
@@ -61,8 +91,7 @@ module Vass
         edipi = veteran_metadata&.fetch(:edipi, nil)
 
         unless edipi
-          render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
-          return
+          return render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
         end
 
         @appointments_service = Vass::AppointmentsService.build(
@@ -81,52 +110,23 @@ module Vass
       end
 
       ##
-      # Handles VASS API errors.
-      #
-      # @param error [Vass::Errors::VassApiError] VASS API error
-      # @param action [String] Action name
-      #
-      def handle_vass_error(error, action)
-        log_error(error, action)
-        render_error('vass_api_error', 'External service error', :bad_gateway)
-      end
-
-      ##
-      # Handles service errors (timeouts, network issues).
-      #
-      # @param error [Vass::Errors::ServiceError] Service error
-      # @param action [String] Action name
-      #
-      def handle_service_error(error, action)
-        log_error(error, action)
-        render_error('service_error', 'Unable to process request with appointment service', :service_unavailable)
-      end
-
-      ##
-      # Handles unexpected errors.
-      #
-      # @param error [StandardError] Unexpected error
-      # @param action [String] Action name
-      #
-      def handle_unexpected_error(error, action)
-        log_error(error, action)
-        render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
-      end
-
-      ##
-      # Logs error information without PHI.
+      # Handles errors by logging and rendering appropriate response.
       #
       # @param error [Exception] Error object
-      # @param action [String] Action name
+      # @param code [String] Error code
+      # @param detail [String] Error detail message
+      # @param status [Symbol] HTTP status
       #
-      def log_error(error, action)
+      def handle_error(error, code, detail, status)
         Rails.logger.error({
           service: 'vass',
           controller: 'appointments',
-          action:,
+          action: action_name,
           error_class: error.class.name,
           timestamp: Time.current.iso8601
         }.to_json)
+
+        render_error(code, detail, status)
       end
 
       ##
@@ -160,57 +160,63 @@ module Vass
         when :available_slots then render_available_slots(data)
         when :already_booked then render_already_booked(data)
         when :next_cohort then render_next_cohort(data)
-        when :no_cohorts then render_no_cohorts(data)
-        when :no_slots_available then render_no_slots_available(data)
+        when :no_cohorts, :no_slots_available
+          message = data[:message]
+          error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
+          render_error(error_code, message, :unprocessable_entity)
         end
       end
 
+      ##
+      # Renders successful response with available appointment slots.
+      #
+      # @param data [Hash] Appointment data with available slots
+      #
       def render_available_slots(data)
-        render_success(
-          appointmentId: data[:appointment_id],
-          availableSlots: data[:available_slots]
-        )
-      end
-
-      def render_already_booked(data)
-        render_error_with_data(
-          'appointment_already_booked',
-          'already scheduled',
-          :conflict,
-          appointment: {
+        render json: {
+          data: {
             appointmentId: data[:appointment_id],
-            dtStartUTC: data[:start_utc],
-            dtEndUTC: data[:end_utc]
+            availableSlots: data[:available_slots]
           }
-        )
+        }, status: :ok
       end
 
+      ##
+      # Renders conflict response when appointment is already booked.
+      #
+      # @param data [Hash] Existing appointment data
+      #
+      def render_already_booked(data)
+        render json: {
+          errors: [{
+            code: 'appointment_already_booked',
+            detail: 'already scheduled',
+            appointment: {
+              appointmentId: data[:appointment_id],
+              dtStartUTC: data[:start_utc],
+              dtEndUTC: data[:end_utc]
+            }
+          }]
+        }, status: :conflict
+      end
+
+      ##
+      # Renders response with next available cohort information.
+      #
+      # @param data [Hash] Next cohort data
+      #
       def render_next_cohort(data)
         next_cohort = data[:next_cohort]
 
-        render_success(
-          message: data[:message],
-          nextCohort: {
-            cohortStartUtc: next_cohort[:cohort_start_utc],
-            cohortEndUtc: next_cohort[:cohort_end_utc]
+        render json: {
+          data: {
+            message: data[:message],
+            nextCohort: {
+              cohortStartUtc: next_cohort[:cohort_start_utc],
+              cohortEndUtc: next_cohort[:cohort_end_utc]
+            }
           }
-        )
-      end
-
-      def render_no_cohorts(data)
-        render_error('not_within_cohort', data[:message], :unprocessable_entity)
-      end
-
-      def render_no_slots_available(data)
-        render_error('no_slots_available', data[:message], :unprocessable_entity)
-      end
-
-      def render_success(data)
-        render json: { data: }, status: :ok
-      end
-
-      def render_error_with_data(code, detail, status, **additional)
-        render json: { errors: [{ code:, detail: }.merge(additional)] }, status:
+        }, status: :ok
       end
     end
   end
