@@ -87,6 +87,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it_behaves_like 'error response'
 
       it 'logs error to Rails logger' do
+        # Allow other error calls (e.g., from Kafka/Waterdrop background threads) while
+        # asserting the expected authentication error is logged
+        allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(
           '[SignIn][Authentication] authentication error',
           hash_including(**log_context)
@@ -512,6 +515,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       it 'logs error to Rails logger' do
+        # Allow other error calls (e.g., from Kafka/Waterdrop background threads) while
+        # asserting the expected authentication error is logged
+        allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(
           '[SignIn][Authentication] authentication error',
           hash_including(:errors, **log_context)
@@ -523,7 +529,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:skip_render_error) { true }
 
         it 'does not log an error' do
-          expect(Rails.logger).not_to receive(:error)
+          # Allow background error calls (e.g., from Kafka/Waterdrop) but verify
+          # no authentication error is logged
+          allow(Rails.logger).to receive(:error)
+          expect(Rails.logger).not_to receive(:error).with(
+            '[SignIn][Authentication] authentication error',
+            anything
+          )
           subject
         end
       end
