@@ -504,10 +504,10 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             allow(Flipper).to receive(:enabled?).with(flipper_new_conditions).and_return(true)
           end
 
-          it 'sets new_conditions_workflow to true when form_data contains disabilityCompNewConditionsWorkflow: true' do
+          it 'sets new_conditions_workflow to true when form_data contains disability_comp_new_conditions_workflow: true' do
             put v0_disability_compensation_in_progress_form_url(new_form.form_id),
                 params: {
-                  form_data: { greeting: 'Hello!', disabilityCompNewConditionsWorkflow: true },
+                  form_data: { greeting: 'Hello!', disability_comp_new_conditions_workflow: true },
                   metadata: new_form.metadata
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
@@ -517,10 +517,10 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(response).to have_http_status(:ok)
           end
 
-          it 'sets new_conditions_workflow to false when disabilityCompNewConditionsWorkflow is false' do
+          it 'sets new_conditions_workflow to false when disability_comp_new_conditions_workflow is false' do
             put v0_disability_compensation_in_progress_form_url(new_form.form_id),
                 params: {
-                  form_data: { greeting: 'Hello!', disabilityCompNewConditionsWorkflow: false },
+                  form_data: { greeting: 'Hello!', disability_comp_new_conditions_workflow: false },
                   metadata: new_form.metadata
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
@@ -546,7 +546,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           it 'handles form_data as a JSON string' do
             put v0_disability_compensation_in_progress_form_url(new_form.form_id),
                 params: {
-                  form_data: { greeting: 'Hello!', disabilityCompNewConditionsWorkflow: true }.to_json,
+                  form_data: { greeting: 'Hello!', disability_comp_new_conditions_workflow: true }.to_json,
                   metadata: new_form.metadata
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }

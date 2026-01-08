@@ -31,7 +31,7 @@ module V0
          params[:form_data].present?
         form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
         params[:metadata][:new_conditions_workflow] =
-          form_hash['disabilityCompNewConditionsWorkflow'] || form_hash[:disabilityCompNewConditionsWorkflow] || false
+          form_hash['disability_comp_new_conditions_workflow'] || false
       end
       super
     end
