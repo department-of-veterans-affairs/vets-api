@@ -30,7 +30,7 @@ module V0
                Common::Exceptions::ServiceUnavailable,
                Common::Exceptions::ResourceNotFound => e
           raise e
-        rescue StandardError => e
+        rescue => e
           handle_provider_error(provider_class, e, provider_errors)
         end
         { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
@@ -44,11 +44,12 @@ module V0
 
         unless response.is_a?(Hash) && response.key?('data')
           ::Rails.logger.error(
-    "Provider #{provider_class.name} failed",
-    { provider: provider_class.name, error_class: error.class.name, ... }  # Add provider key
-
             "Provider #{provider_class.name} returned unexpected structure from get_claims",
-            { response_class: response.class.name, has_data_key: response.is_a?(Hash) && response.key?('data') }
+            {
+              provider: provider_class.name,
+              response_class: response.class.name,
+              has_data_key: response.is_a?(Hash) && response.key?('data')
+            }
           )
           return []
         end
