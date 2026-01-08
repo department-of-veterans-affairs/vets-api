@@ -58,14 +58,15 @@ module Vass
       #
       def set_appointments_service
         veteran_metadata = redis_client.veteran_metadata(uuid: @current_veteran_id)
+        edipi = veteran_metadata&.fetch(:edipi, nil)
 
-        unless veteran_metadata && veteran_metadata[:edipi]
+        unless edipi
           render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
           return
         end
 
         @appointments_service = Vass::AppointmentsService.build(
-          edipi: veteran_metadata[:edipi],
+          edipi:,
           correlation_id: permitted_params[:correlation_id]
         )
       end
@@ -152,12 +153,15 @@ module Vass
       # @param result [Hash] Result from AppointmentsService#get_current_cohort_availability
       #
       def render_availability_result(result)
-        case result[:status]
-        when :available_slots then render_available_slots(result[:data])
-        when :already_booked then render_already_booked(result[:data])
-        when :next_cohort then render_next_cohort(result[:data])
-        when :no_cohorts then render_no_cohorts(result[:data])
-        when :no_slots_available then render_no_slots_available(result[:data])
+        status = result[:status]
+        data = result[:data]
+
+        case status
+        when :available_slots then render_available_slots(data)
+        when :already_booked then render_already_booked(data)
+        when :next_cohort then render_next_cohort(data)
+        when :no_cohorts then render_no_cohorts(data)
+        when :no_slots_available then render_no_slots_available(data)
         end
       end
 
@@ -182,11 +186,13 @@ module Vass
       end
 
       def render_next_cohort(data)
+        next_cohort = data[:next_cohort]
+
         render_success(
           message: data[:message],
           nextCohort: {
-            cohortStartUtc: data[:next_cohort][:cohort_start_utc],
-            cohortEndUtc: data[:next_cohort][:cohort_end_utc]
+            cohortStartUtc: next_cohort[:cohort_start_utc],
+            cohortEndUtc: next_cohort[:cohort_end_utc]
           }
         )
       end
