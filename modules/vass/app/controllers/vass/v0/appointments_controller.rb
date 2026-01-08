@@ -14,7 +14,6 @@ module Vass
       before_action :authenticate_jwt
       before_action :set_appointments_service
 
-      rescue_from StandardError, with: :handle_standard_error
       rescue_from Vass::Errors::ServiceError, with: :handle_service_error
       rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
 
@@ -60,15 +59,6 @@ module Vass
           'Unable to process request with appointment service',
           :service_unavailable
         )
-      end
-
-      ##
-      # Handles unexpected standard errors.
-      #
-      # @param exception [StandardError] The exception
-      #
-      def handle_standard_error(exception)
-        handle_error(exception, 'internal_error', 'An unexpected error occurred', :internal_server_error)
       end
 
       ##
