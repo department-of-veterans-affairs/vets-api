@@ -21,7 +21,7 @@ module MyHealth
         if uhd_enabled?
           immunizations = uhd_service.get_immunizations
           log_vaccines(immunizations.length)
-          render json: UnifiedHealthData::Serializers::ImmunizationSerializer.new(immunizations)
+          render json: UnifiedHealthData::ImmunizationSerializer.new(immunizations)
         else
           start_date = params[:start_date]
           end_date = params[:end_date]

@@ -30,7 +30,7 @@ http_interactions:
   recorded_at: Wed, 07 Jan 2026 19:00:00 GMT
 - request:
     method: get
-    uri: "<MHV_UHD_HOST>/v1/medicalrecords/immunizations?patientId=123456789V012345&startDate=1900-01-01&endDate=2026-01-07"
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/immunizations?endDate=2026-01-07&patientId=1000123456V123456&startDate=1900-01-01"
     body:
       encoding: US-ASCII
       string: ''
