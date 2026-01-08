@@ -2266,24 +2266,24 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(result['data']).to eq([])
       end
 
-      it 'logs warning when provider returns hash without data key' do
+      it 'logs error when provider returns hash without data key' do
         allow(mock_provider).to receive(:get_claims).and_return({ 'meta' => {} })
 
-        expect(Rails.logger).to receive(:warn).with(
+        expect(Rails.logger).to receive(:error).with(
           'Provider MockProvider returned unexpected structure from get_claims',
-          hash_including(response_class: 'Hash', has_data_key: false)
+          hash_including(provider: 'MockProvider', response_class: 'Hash', has_data_key: false)
         )
 
         result = controller.send(:get_claims_from_providers)
         expect(result['data']).to eq([])
       end
 
-      it 'logs warning when provider returns non-hash' do
+      it 'logs error when provider returns non-hash' do
         allow(mock_provider).to receive(:get_claims).and_return('invalid')
 
-        expect(Rails.logger).to receive(:warn).with(
+        expect(Rails.logger).to receive(:error).with(
           'Provider MockProvider returned unexpected structure from get_claims',
-          hash_including(response_class: 'String', has_data_key: false)
+          hash_including(provider: 'MockProvider', response_class: 'String', has_data_key: false)
         )
 
         result = controller.send(:get_claims_from_providers)
