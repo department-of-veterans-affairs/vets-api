@@ -839,6 +839,40 @@ RSpec.describe FormProfile, type: :model do
       }
     }
   end
+  let(:vform_mock_prefill_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'vaFileNumber' => user.va_file_number,
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => va_profile_address.street,
+              'addressLine2' => va_profile_address.street2,
+              'city' => va_profile_address.city,
+              'stateCode' => va_profile_address.state,
+              'countryName' => va_profile_address.country,
+              'zipCode5' => va_profile_address.postal_code
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '3035551234',
+            'mobilePhone' => mobile_phone,
+            'emailAddressText' => user.va_profile_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
   let(:v28_1900_expected) do
     {
       'veteranInformation' => {
@@ -2221,6 +2255,7 @@ RSpec.describe FormProfile, type: :model do
           21-22A
           21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
+          FORM-MOCK-PREFILL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
