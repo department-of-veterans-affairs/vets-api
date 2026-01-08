@@ -287,6 +287,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
     enabled: true
@@ -1792,6 +1793,7 @@ vass:
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
+  jwt_secret: 'development-jwt-secret-key-not-for-production'
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>

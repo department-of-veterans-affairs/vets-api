@@ -390,7 +390,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
         it 'adds 0781 metadata if flipper enabled' do
           allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(true)
-          put v0_in_progress_form_url(new_form.form_id),
+          put v0_disability_compensation_in_progress_form_url(new_form.form_id),
               params: {
                 form_data: { greeting: 'Hello!' },
                 metadata: new_form.metadata
@@ -403,7 +403,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
         it 'does not add 0781 metadata if form and flipper disabled' do
           allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(false)
-          put v0_in_progress_form_url(new_form.form_id),
+          put v0_disability_compensation_in_progress_form_url(new_form.form_id),
               params: {
                 form_data: { greeting: 'Hello!' },
                 metadata: new_form.metadata
@@ -411,6 +411,64 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               headers: { 'CONTENT_TYPE' => 'application/json' }
           expect(JSON.parse(response.body)['data']['attributes']['metadata'].key?('sync_modern0781_flow')).to be(false)
           expect(response).to have_http_status(:ok)
+        end
+
+        context 'when flipper is enabled for 0781 metadata sync' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(true)
+          end
+
+          it 'sets sync_modern0781_flow to true when form_data contains sync_modern0781_flow: true' do
+            put v0_disability_compensation_in_progress_form_url(new_form.form_id),
+                params: {
+                  form_data: { greeting: 'Hello!', sync_modern0781_flow: true },
+                  metadata: new_form.metadata
+                }.to_json,
+                headers: { 'CONTENT_TYPE' => 'application/json' }
+
+            metadata = JSON.parse(response.body)['data']['attributes']['metadata']
+            expect(metadata['sync_modern0781_flow']).to be(true)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'sets sync_modern0781_flow to false when form_data contains sync_modern0781_flow: false' do
+            put v0_disability_compensation_in_progress_form_url(new_form.form_id),
+                params: {
+                  form_data: { greeting: 'Hello!', sync_modern0781_flow: false },
+                  metadata: new_form.metadata
+                }.to_json,
+                headers: { 'CONTENT_TYPE' => 'application/json' }
+
+            metadata = JSON.parse(response.body)['data']['attributes']['metadata']
+            expect(metadata['sync_modern0781_flow']).to be(false)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'defaults sync_modern0781_flow to false when not present in form_data' do
+            put v0_disability_compensation_in_progress_form_url(new_form.form_id),
+                params: {
+                  form_data: { greeting: 'Hello!' },
+                  metadata: new_form.metadata
+                }.to_json,
+                headers: { 'CONTENT_TYPE' => 'application/json' }
+
+            metadata = JSON.parse(response.body)['data']['attributes']['metadata']
+            expect(metadata['sync_modern0781_flow']).to be(false)
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'handles form_data as a JSON string' do
+            put v0_disability_compensation_in_progress_form_url(new_form.form_id),
+                params: {
+                  form_data: { greeting: 'Hello!', sync_modern0781_flow: true }.to_json,
+                  metadata: new_form.metadata
+                }.to_json,
+                headers: { 'CONTENT_TYPE' => 'application/json' }
+
+            metadata = JSON.parse(response.body)['data']['attributes']['metadata']
+            expect(metadata['sync_modern0781_flow']).to be(true)
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
 

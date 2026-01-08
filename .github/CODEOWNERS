@@ -740,6 +740,7 @@ config/initializers/benefits_claims_providers.rb @department-of-veterans-affairs
 config/initializers/betamocks.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/bgs.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/breakers.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/carrierwave_aws_file.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/clamav.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/config.rb @department-of-veterans-affairs/backend-review-group
@@ -771,6 +772,7 @@ config/initializers/renderers.rb @department-of-veterans-affairs/vfs-facilities-
 config/initializers/rgeo.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/rswag-ui.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/rubyzip.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/safe_semantic_logging.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/saml.rb @department-of-veterans-affairs/octo-identity
 config/initializers/sentry.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/session_store.rb @department-of-veterans-affairs/backend-review-group
@@ -1631,6 +1633,7 @@ spec/lib/vets @department-of-veterans-affairs/backend-review-group
 spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/lib/zero_silent_failures/manual_remediation/saved_claim_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/logging/semantic_logger_exceptions_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_daily_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/create_excel_files_mailer_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_staging_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
