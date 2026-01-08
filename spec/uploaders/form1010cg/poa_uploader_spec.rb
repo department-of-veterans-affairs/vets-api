@@ -142,15 +142,16 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
 
   describe '#retrieve_from_store!' do
     it 'retrieves the stored file in s3' do
-      VCR.use_cassette("s3/object/get/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
+      # Use allow_unused_http_interactions: true because retrieve_from_store! only sets
+      # up metadata - it doesn't fetch content until .read is called. We're testing
+      # the retrieval mechanism, not S3 content integrity (which is flaky in parallel CI).
+      retrieve_vcr_options = vcr_options.merge(allow_unused_http_interactions: true)
+      VCR.use_cassette("s3/object/get/#{form_attachment_guid}/doctors-note.jpg", retrieve_vcr_options) do
         subject.retrieve_from_store!(source_file_name)
 
         expect(subject.file.filename).to eq('doctors-note.jpg')
         expect(subject.file.path).to eq("#{form_attachment_guid}/#{source_file_name}")
         expect(subject.versions).to eq({})
-        # Content verification removed - VCR cassette race conditions in parallel CI
-        # can cause empty responses. The retrieval mechanism (filename, path, versions)
-        # is what we're testing, not S3 content integrity.
       end
     end
   end
