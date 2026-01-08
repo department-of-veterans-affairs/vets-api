@@ -204,7 +204,9 @@ namespace :payment_history do
       user = OpenStruct.new(
         icn: mpi_profile.icn,
         ssn: mpi_profile.ssn,
-        participant_id: mpi_profile.participant_id
+        participant_id: mpi_profile.participant_id,
+        common_name: "#{mpi_profile.given_names&.first} #{mpi_profile.family_name}",
+        email: 'test@example.com'
       )
       
       payment_service = BGS::PaymentService.new(user)
