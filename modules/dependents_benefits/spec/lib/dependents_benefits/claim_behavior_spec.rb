@@ -110,6 +110,29 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect { child_claim.to_pdf }.to raise_error(DependentsBenefits::MissingVeteranInfoError)
       end
     end
+
+    context 'with a student claim' do
+      before do
+        allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_call_original
+      end
+
+      it 'builds the pdf correctly' do
+        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil).and_call_original
+        expect { student_claim.to_pdf }.not_to raise_error
+      end
+
+      context 'when veteran_information is missing' do
+        before do
+          allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_call_original
+
+          student_claim.parsed_form.delete('veteran_information')
+        end
+
+        it 'raises an error in the PDF filler' do
+          expect { student_claim.to_pdf }.to raise_error(DependentsBenefits::MissingVeteranInfoError)
+        end
+      end
+    end
   end
 
   describe '#pension_related_submission?' do
