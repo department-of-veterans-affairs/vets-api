@@ -13,7 +13,6 @@ module AccreditedRepresentativePortal
     def perform
       return unless enabled?
 
-      # Fully qualified class to avoid namespace issues
       deleted_records = AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
                         .where('created_at <= ?', 60.days.ago)
                         .destroy_all
@@ -22,19 +21,21 @@ module AccreditedRepresentativePortal
       klass_name    = self.class.to_s
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_count)
-      Rails.logger.info("#{klass_name} deleted #{deleted_count} old BenefitsIntake records")
+
+      # Consolidate info logging into one call
+      message = "#{klass_name} deleted #{deleted_count} old BenefitsIntake records"
+      Rails.logger.info(message)
     rescue => e
       error_class   = e.class
       error_message = e.message
       klass_name    = self.class.to_s
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-      Rails.logger.error("#{klass_name} perform exception: #{error_class} #{error_message}")
 
-      # Slack alert for immediate visibility to VA ARC OCTO team
+      # Consolidate error logging and slack alert
+      error_log_message = "#{klass_name} perform exception: #{error_class} #{error_message}"
+      Rails.logger.error(error_log_message)
       send_slack_alert(error_class, error_message, klass_name)
-
-      nil
     end
 
     private
@@ -44,23 +45,16 @@ module AccreditedRepresentativePortal
     end
 
     def send_slack_alert(error_class, error_message, klass_name)
-      # Ensure Slack is defined (stub in test if needed)
+      message = "[ALERT] #{klass_name} failed: #{error_class} - #{error_message}"
       if defined?(Slack::Notifier)
-        Slack::Notifier.notify(
-          "[ALERT] #{klass_name} failed: #{error_class} - #{error_message}"
-        )
+        Slack::Notifier.notify(message)
       else
-        Rails.logger.warn(
-          "Slack::Notifier not defined; skipping Slack alert: #{error_class} #{error_message}"
-        )
+        Rails.logger.warn("Slack::Notifier not defined; skipping Slack alert: #{error_class} #{error_message}")
       end
     rescue => e
-      # Avoid breaking the job if Slack fails
       Rails.logger.error("Failed to send Slack alert: #{e.class} #{e.message}")
     end
 
-    # Rerun helper for manually retrying missed deletions
-    # Usage: AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob.rerun_missed!
     def self.rerun_missed!
       new.perform
     end

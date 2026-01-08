@@ -60,7 +60,7 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
             .with("#{statsd_key_prefix}.count", 2)
         end
 
-        it 'logs an info message with the deleted count' do
+        it 'logs a single info message with the deleted count' do
           job.perform
 
           expect(Rails.logger).to have_received(:info)
@@ -106,13 +106,13 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
             job.perform
 
             expect(Rails.logger).to have_received(:error)
-              .with(/perform exception: StandardError boom/)
+              .with(/DeleteOldBenefitsIntakeRecordsJob perform exception: StandardError boom/)
 
             expect(StatsD).to have_received(:increment)
               .with("#{statsd_key_prefix}.error")
           end
 
-          it 'sends a Slack alert with the exception info' do
+          it 'sends a single Slack alert with the exception info' do
             job.perform
 
             expect(Slack::Notifier).to have_received(:notify)
@@ -127,7 +127,7 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
         end
 
         context 'when Slack::Notifier is not defined' do
-          it 'logs a warning and does not raise' do
+          it 'logs a single warning and does not raise' do
             job.perform
 
             expect(Rails.logger).to have_received(:warn)
