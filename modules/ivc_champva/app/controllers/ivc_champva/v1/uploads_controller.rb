@@ -793,6 +793,7 @@ module IvcChampva
         # Optionally add a supporting document with arbitrary form-defined values.
         add_blank_doc_and_stamp(form, parsed_form_data)
 
+        # DataDog Tracking
         form.track_user_identity
         form.track_current_user_loa(@current_user)
         form.track_email_usage
