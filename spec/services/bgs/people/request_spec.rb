@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/models/concerns/cache_aside'
 
 RSpec.describe BGS::People::Request do
   let(:user) { create(:user, :loa3, participant_id:) }
