@@ -38,6 +38,9 @@ features:
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
+  accredited_representative_portal_skip_itf_check:
+    actor_type: user
+    description: If enabled, skip existing ITF check in ARP
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -210,10 +213,6 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  ezr_download_pdf_enabled:
-    actor_type: user
-    description: Enables the download of a pre-filled 10-10EZR PDF form.
-    enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
     description: Enables Toxic Exposure File Upload for 10-10EZR applicants.
@@ -332,6 +331,9 @@ features:
   champva_update_metadata_keys:
     actor_type: user
     description: Enables the use of updated JSON key names in the Pega submission metadata
+  champva_missing_status_verbose_logging:
+    actor_type: user
+    description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -650,22 +652,6 @@ features:
     actor_type: user
     description: Enable using MAY 2024 revision of 200995 Supplemental Claim form when submitting to EMMS for intake
     enable_in_development: false
-  decision_review_saved_claim_hlr_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
-    enable_in_development: true
-  decision_review_saved_claim_nod_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::NoticeOfDisagreements
-    enable_in_development: true
-  decision_review_saved_claim_sc_status_updater_job_enabled:
-    actor_type: user
-    description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
-    enable_in_development: true
-  decision_review_delete_saved_claims_job_enabled:
-    actor_type: user
-    description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
-    enable_in_development: true
   decision_review_delete_secondary_appeal_forms_enabled:
     actor_type: user
     description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
@@ -888,6 +874,10 @@ features:
   digital_dmc_dispute_service:
     actor_type: user
     description: Enables the Digital DMC Dispute Service
+    enable_in_development: true
+  error_backtrace:
+    actor_type: user
+    description: When enabled, vets-api returns error_backtrace instead of backtrace in Vets::SharedLogging
     enable_in_development: true
   event_bus_gateway_retry_emails:
     actor_type: user
@@ -1329,6 +1319,14 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
     enable_in_development: false
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_uhd_name_logging:
+    actor_type: user
+    description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
@@ -1379,10 +1377,6 @@ features:
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
-    enable_in_development: true
-  mhv_vaccine_lighthouse_name_logging:
-    actor_type: user
-    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: true
   mhv_secure_messaging_recipient_opt_groups:
     actor_type: user
@@ -2161,9 +2155,6 @@ features:
   vre_send_icn_to_res:
     actor_type: user
     description: Enables sending ICN to RES service
-  vre_track_submissions:
-    actor_type: user
-    description: In VRE application, create form submission/attempt records
   priority_processing_request_apply_vsi_flash:
     actor_type: user
     description: Enables VSI (Very Seriously Injured) flash functionality for form 20-10207 submissions
@@ -2284,12 +2275,6 @@ features:
   disability_compensation_upload_0781_to_lighthouse:
     actor_type: user
     description: If enabled uploads 0781/a forms to Lighthouse Benefits Documents API instead of EVSS
-  disability_compensation_use_api_provider_for_submit_veteran_upload:
-    actor_type: user
-    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Veteran Evidence
-  disability_compensation_upload_veteran_evidence_to_lighthouse:
-    actor_type: user
-    description: If enabled uploads Veteran Evidence to Lighthouse Benefits Documents API instead of EVSS
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications
@@ -2345,6 +2330,10 @@ features:
   burial_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Burial
+  burial_pdf_form_alignment:
+    actor_type: user
+    description: Align digital form with PDF form
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -2756,6 +2745,10 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
+
+  safe_semantic_logging:
+    actor_type: user
+    description: Prevents logging failures when non-exception objects are passed as exception parameters
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203

@@ -2,7 +2,7 @@
 
 class UserVisnService
   # Hardcoded pilot VISNs for MVP - easy to update as pilot expands
-  PILOT_VISNS = %w[2 15 21].freeze
+  PILOT_VISNS = %w[2 15 21 983 200ESR].freeze
   CACHE_KEY_PREFIX = 'va_profile:facility_visn'
 
   def initialize(user)
