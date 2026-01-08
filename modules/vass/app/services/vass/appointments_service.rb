@@ -625,8 +625,8 @@ module Vass
     def find_next_cohort(appointments)
       now = Time.current
 
-      future_appointments = appointments.select do |a|
-        cohort_start_utc = a['cohortStartUtc']
+      future_appointments = appointments.select do |appt|
+        cohort_start_utc = appt['cohortStartUtc']
         next unless cohort_start_utc
 
         parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
@@ -635,7 +635,7 @@ module Vass
 
       return nil if future_appointments.empty?
 
-      future_appointments.min_by { |a| parse_utc_time(a['cohortStartUtc'], field_name: 'cohortStartUtc') }
+      future_appointments.min_by { |appt| parse_utc_time(appt['cohortStartUtc'], field_name: 'cohortStartUtc') }
     end
 
     ##
