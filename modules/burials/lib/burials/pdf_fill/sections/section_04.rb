@@ -50,6 +50,9 @@ module Burials
         },
         'name' => {
           key: 'form1[0].#subform[37].FederalCemeteryName[0]',
+          question_num: 17,
+          question_label: 'Name Of National Or Federal Cemetery',
+          question_text: 'NAME OF NATIONAL OR FEDERAL CEMETERY',
           limit: 50
         },
         # 18

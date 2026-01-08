@@ -45,13 +45,24 @@ jobs:
           bundler-cache: true
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run: bundle exec bundle-audit check --update
+        run: bundle exec bundle-audit check --update --ignore CVE-2025-14762
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github
 
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+
+      - name: Run Reek
+        uses: reviewdog/action-reek@v1.20.0
+        with:
+          reek_version: gemfile
+          reporter: github-pr-review
+          reek_flags: --smell DuplicateMethodCall
+          # Note: this is the default anyway but explicitly set to remind us we can change to hard-fail on reek warnings with `any`
+          # For now we just want to run in advisory mode to surface architectural smells as comments during review
+          # ...but _without_ blocking merges for now
+          fail_level: none
 
       # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label

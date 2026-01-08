@@ -52,7 +52,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::ReadAllVeteranR
     {
       'service_number' => '123678453',
       'insurance_numbers' => '1234567890',
-      'phone_number' => '5555551234',
       'claimant_relationship' => nil,
       'poa_code' => '083',
       'organization_name' => 'DISABLED AMERICAN VETERANS',

@@ -17,6 +17,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_callback, @current_user).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(false)
     allow(StatsD).to receive(:gauge)
     allow(StatsD).to receive(:increment)
 
@@ -32,6 +33,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   after do
     # Restore original dummy form created_at/form_uuid props in case we've adjusted them
     forms.each_with_index do |form, index|
+      next if form.destroyed?
+
       form.update(created_at: @original_creation_times[index])
       form.update(form_uuid: @original_uuids[index])
     end
@@ -155,6 +158,70 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
 
     expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count)
+  end
+
+  it 'sends form metrics with key tags to DataDog' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+
+    job.perform
+
+    forms.each do |form|
+      expected_key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+      expect(StatsD).to have_received(:increment).with('ivc_champva.form_missing_status', tags: ["key:#{expected_key}"])
+    end
+  end
+
+  context 'verbose logging' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+    end
+
+    it 'logs detailed form information when verbose logging is enabled and batch count is <= 10' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
+
+      # Ensure we have a small batch
+      forms[0].update(form_uuid: 'unique-uuid-1')
+      forms[1].update(form_uuid: 'unique-uuid-2')
+      forms[2].update(form_uuid: 'unique-uuid-3')
+
+      expect(Rails.logger).to receive(:info).exactly(3).times do |message|
+        expect(message).to include('IVC Forms MissingFormStatusJob - Missing status for Form')
+        expect(message).to include('Elapsed days:')
+        expect(message).to include('File name:')
+        expect(message).to include('S3 status:')
+        expect(message).to include('Created at:')
+      end
+
+      job.perform
+    end
+
+    it 'does not log detailed information when verbose logging is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging,
+                                                @current_user).and_return(false)
+
+      expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
+
+      job.perform
+    end
+
+    it 'does not log detailed information when batch count > 10 even with verbose logging enabled' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
+
+      # Remove the original forms so they don't interfere with our test
+      forms.each(&:destroy)
+
+      # Create a large batch with the same UUID (11 forms total)
+      shared_uuid = SecureRandom.uuid
+      large_batch_forms = create_list(:ivc_champva_form, 11, pega_status: nil, created_at: one_week_ago)
+      large_batch_forms.each { |form| form.update!(form_uuid: shared_uuid) }
+
+      expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
+
+      job.perform
+
+      # Clean up the forms we created for this test
+      large_batch_forms.each(&:destroy)
+    end
   end
 
   it 'logs an error if an exception occurs' do

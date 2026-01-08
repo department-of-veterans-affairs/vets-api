@@ -24,14 +24,14 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       )
     )
   end
-  let(:proc_id) { '3864182' }
+  let(:proc_id) { '3866592' }
   let(:poa_code) { '083' }
-  let(:registration_number) { '12345678' }
+  let(:registration_number) { '123456783' }
   let(:individual_type) { '2122a' }
   let(:organization_type) { '2122' }
 
   context 'for a valid decide request' do
-    let(:proc_id) { '3864182' }
+    let(:proc_id) { '3866592' }
     let(:poa_code) { '083' }
     let(:claimant) do
       OpenStruct.new(
@@ -65,9 +65,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
                              'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'US',
                              'zipCode' => '92264', 'zipCodeSuffix' => '0200' },
               'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
-              'serviceNumber' => '123678453'
+              'serviceNumber' => '123456783'
             },
-            'representative' => { 'poaCode' => '083', 'type' => 'ATTORNEY', 'registrationNumber' => '12345678' },
+            'representative' => { 'poaCode' => '067', 'type' => 'ATTORNEY', 'registrationNumber' => '123456783' },
             'recordConsent' => true, 'consentLimits' => %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
             'consentAddressChange' => true,
             'claimant' => { 'claimantId' => '1013093331V548481',
@@ -91,7 +91,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
     context 'determines the type' do
       let(:organization) { create(:organization, poa: 'B12') }
-      let(:representative) { create(:representative, representative_id: '12345678', poa_codes: ['A1Y']) }
+      let(:representative) { create(:representative, representative_id: '123456783', poa_codes: ['A1Y']) }
 
       it 'correctly for an organization' do
         subject.instance_variable_set(:@poa_code, organization.poa)

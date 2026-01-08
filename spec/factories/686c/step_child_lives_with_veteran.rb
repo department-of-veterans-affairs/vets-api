@@ -100,7 +100,6 @@ FactoryBot.define do
             'ssn' => '987654321',
             'va_file_number' => '987654321'
           },
-          'use_v2' => true,
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true
         },
