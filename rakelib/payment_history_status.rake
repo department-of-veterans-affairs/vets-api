@@ -28,8 +28,13 @@ namespace :payment_history do
       is_passing_policy = check_policy_attributes(mpi_profile)
     end
 
+    person = nil
     if is_passing_policy
-      check_bgs_file_number(mpi_profile)
+      person = check_bgs_file_number(mpi_profile)
+    end
+
+    if person
+      check_payment_history(mpi_profile, person)
     end
     
     puts
@@ -143,6 +148,7 @@ namespace :payment_history do
   def check_bgs_file_number(mpi_profile)
     puts
     puts "Checking BGS file number lookup..."
+    person = nil
     
     begin
       # Create a minimal user object for BGS call
@@ -163,6 +169,7 @@ namespace :payment_history do
         else
           puts "✗ File number missing"
           puts "  Payment history requires a valid file number"
+          return nil
         end
         
         puts "  Participant ID: #{person.participant_id}"
@@ -170,14 +177,60 @@ namespace :payment_history do
       elsif person.status == :error
         puts "✗ BGS person lookup failed with error status"
         puts "  This will cause payment history to be empty"
+        return nil
       elsif person.status == :no_id
         puts "✗ BGS person lookup failed - no ID found"
         puts "  This will cause payment history to be empty"
+        return nil
       else
         puts "✗ BGS person lookup failed with status: #{person.status}"
+        return nil
       end
     rescue => e
       puts "✗ Error calling BGS person lookup: #{e.message}"
+      puts "  #{e.class.name}"
+      return nil
+    end
+
+    person
+  end
+
+  def check_payment_history(mpi_profile, person)
+    puts
+    puts "Checking BGS payment history records..."
+    
+    begin
+      # Create user object for payment service
+      user = OpenStruct.new(
+        icn: mpi_profile.icn,
+        ssn: mpi_profile.ssn,
+        participant_id: mpi_profile.participant_id
+      )
+      
+      payment_service = BGS::PaymentService.new(user)
+      response = payment_service.payment_history(person)
+      
+      if response.nil?
+        puts "✗ BGS returned nil response"
+        puts "  No payment records available"
+        return
+      end
+      
+      payments = response&.dig(:payments, :payment)
+      
+      if payments.nil?
+        puts "✗ No payments found in response"
+        puts "  BGS has no payment records for this veteran"
+      elsif payments.empty?
+        puts "✗ Payments array is empty"
+        puts "  BGS has no payment records for this veteran"
+      else
+        payment_count = payments.is_a?(Array) ? payments.length : 1
+        puts "✓ Payment records found: #{payment_count} payment(s)"
+        puts "  BGS has payment history data available"
+      end
+    rescue => e
+      puts "✗ Error calling BGS payment history: #{e.message}"
       puts "  #{e.class.name}"
     end
   end

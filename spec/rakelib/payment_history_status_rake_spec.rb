@@ -411,5 +411,116 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
       end
     end
+
+    describe '#check_payment_history' do
+      let(:mpi_profile) do
+        build(:mpi_profile,
+              icn: '1234567890V123456',
+              ssn: '123456789',
+              participant_id: '600012345')
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        mpi_service = instance_double(MPI::Service)
+        allow(MPI::Service).to receive(:new).and_return(mpi_service)
+        response = build(:find_profile_response, profile: mpi_profile)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(response)
+      end
+
+      context 'when BGS has payment records' do
+        it 'shows payment records found' do
+          VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+            VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+              expect { task.invoke(icn) }.to output(/Payment records found: 47 payment\(s\)/m).to_stdout
+            end
+          end
+        end
+      end
+
+      context 'when BGS returns nil response' do
+        it 'shows nil response message' do
+          person = OpenStruct.new(
+            status: :ok,
+            file_number: '123456789',
+            participant_id: '600012345',
+            ssn_number: '123456789'
+          )
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return(nil)
+          
+          expect { task.invoke(icn) }.to output(/BGS returned nil response.*No payment records available/m).to_stdout
+        end
+      end
+
+      context 'when BGS returns response without payments key' do
+        it 'shows no payments found message' do
+          person = OpenStruct.new(
+            status: :ok,
+            file_number: '123456789',
+            participant_id: '600012345',
+            ssn_number: '123456789'
+          )
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({})
+          
+          expect { task.invoke(icn) }.to output(/No payments found in response.*BGS has no payment records/m).to_stdout
+        end
+      end
+
+      context 'when BGS returns empty payments array' do
+        it 'shows payments array is empty message' do
+          person = OpenStruct.new(
+            status: :ok,
+            file_number: '123456789',
+            participant_id: '600012345',
+            ssn_number: '123456789'
+          )
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: [] } })
+          
+          expect { task.invoke(icn) }.to output(/Payments array is empty.*BGS has no payment records/m).to_stdout
+        end
+      end
+
+      context 'when BGS payment history raises an exception' do
+        it 'shows error message' do
+          person = OpenStruct.new(
+            status: :ok,
+            file_number: '123456789',
+            participant_id: '600012345',
+            ssn_number: '123456789'
+          )
+          
+          bgs_service = instance_double(BGS::People::Request)
+          allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
+          
+          payment_service = instance_double(BGS::PaymentService)
+          allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
+          allow(payment_service).to receive(:payment_history).and_raise(StandardError, 'BGS payment service unavailable')
+          
+          expect { task.invoke(icn) }.to output(/Error calling BGS payment history: BGS payment service unavailable/m).to_stdout
+        end
+      end
+    end
   end
 end
