@@ -19,16 +19,15 @@ module IvcChampva
 
       return unless batches.any?
 
-      process_batches(batches)
+      current_time = Time.now.utc
+      process_batches(batches, current_time)
     rescue => e
       Rails.logger.error "IVC Forms NotifyPegaMissingFormStatusJob Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
     end
 
     # Helper function to process batches of forms
-    def process_batches(batches)
-      current_time = Time.now.utc
-
+    def process_batches(batches, current_time)
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
         next if form.nil?
