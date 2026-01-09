@@ -13,13 +13,20 @@ http_interactions:
           - Bearer test-token
     response:
       status:
-        code: 200
-        message: OK
+        code: 503
+        message: Service Unavailable
       headers:
         Content-Type:
           - application/json; charset=utf-8
       body:
         encoding: UTF-8
-        string: '{"success":true,"message":"Agent skills retrieved successfully","correlationId":"test-correlation-id","timeStamp":"2026-01-09T02:36:39Z","data":{"agentSkills":[{"skillId":"d7374595-5e53-f011-bec2-001dd806389e","skillName":"Benefits"},{"skillId":"5fe0bd9f-5e53-f011-bec2-001dd806389e","skillName":"Example Services"},{"skillId":"67e0bd9f-5e53-f011-bec2-001dd806389e","skillName":"Testing"}]}}'
+        string: |-
+          {
+            "success": false,
+            "message": "Service temporarily unavailable",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2025-11-26T12:00:00Z",
+            "data": null
+          }
     recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
 recorded_with: VCR 6.0.0
