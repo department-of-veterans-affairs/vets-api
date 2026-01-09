@@ -8,22 +8,7 @@ RSpec.describe SemanticLogger do
     allow(Flipper).to receive(:enabled?).with(:safe_semantic_logging).and_return(feature_flag_enabled)
   end
 
-  context 'when FeatureFlag::SafeSemanticLogging is disabled' do
-    let(:feature_flag_enabled) { false }
-
-    it 'emits an appender failure' do
-      log_failure_messages = []
-      allow_any_instance_of(SemanticLogger::Appender::File).to receive(:error) do |_appender, message, _error|
-        log_failure_messages << message
-      end
-
-      Rails.logger.error('oops', exception: 'not an exception')
-
-      expect(log_failure_messages).not_to be_empty
-      expect(log_failure_messages.any? { |msg| msg.include?('Failed to log to appender') }).to be true
-    end
-  end
-
+  # NOTE: never disabled now
   context 'when FeatureFlag::SafeSemanticLogging is enabled' do
     let(:feature_flag_enabled) { true }
 

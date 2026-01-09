@@ -14,9 +14,9 @@ module EducationForm
                             .eager_load(:education_stem_automated_decision)
                             .where(form_clauses)
                             .find_each do |record|
-        edu_claim_ids << record.id
-        saved_claim_ids << record.saved_claim&.id
-        stem_automated_decision_ids << record.education_stem_automated_decision&.id
+                              edu_claim_ids << record.id
+                              saved_claim_ids << record.saved_claim&.id
+                              stem_automated_decision_ids << record.education_stem_automated_decision&.id
       end
 
       edu_claim_ids.compact!

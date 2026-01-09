@@ -14,7 +14,7 @@ module V0
           'telephone',
           telephone_params
         )
-        Rails.logger.warn('TelephonesController#create request completed', sso_logging_info)
+        Rails.logger.info('TelephonesController#create request completed', sso_logging_info)
       end
 
       def create_or_update
@@ -31,7 +31,7 @@ module V0
           telephone_params,
           http_verb: 'put'
         )
-        Rails.logger.warn('TelephonesController#update request completed', sso_logging_info)
+        Rails.logger.info('TelephonesController#update request completed', sso_logging_info)
       end
 
       def destroy
@@ -40,7 +40,7 @@ module V0
           add_effective_end_date(telephone_params),
           http_verb: 'put'
         )
-        Rails.logger.warn('TelephonesController#destroy request completed', sso_logging_info)
+        Rails.logger.info('TelephonesController#destroy request completed', sso_logging_info)
       end
 
       private
