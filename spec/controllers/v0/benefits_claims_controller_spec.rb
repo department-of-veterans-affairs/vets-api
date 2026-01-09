@@ -724,9 +724,9 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .with(an_instance_of(User))
           .and_return([failing_provider, mock_provider_class_one])
 
-        expect(Rails.logger).to receive(:error).with(
+        expect(Rails.logger).to receive(:warn).with(
           'Provider FailingProvider failed',
-          hash_including(error_class: 'StandardError')
+          hash_including(provider: 'FailingProvider', error_class: 'StandardError')
         )
         expect(StatsD).to receive(:increment).with(
           'api.benefits_claims.provider_error',
@@ -2206,12 +2206,12 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(result['meta']['provider_errors'].first['error']).to eq(error_message)
       end
 
-      it 'logs the error' do
+      it 'logs the warning' do
         controller.send(:get_claims_from_providers)
 
-        expect(Rails.logger).to have_received(:error).with(
+        expect(Rails.logger).to have_received(:warn).with(
           'Provider MockProvider failed',
-          hash_including(error_class: 'StandardError')
+          hash_including(provider: 'MockProvider', error_class: 'StandardError')
         )
       end
 

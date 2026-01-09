@@ -68,9 +68,9 @@ module V0
 
         provider_errors << { 'provider' => provider_name, 'error' => 'Provider temporarily unavailable' }
 
-        ::Rails.logger.error(
+        ::Rails.logger.warn(
           "Provider #{provider_name} failed",
-          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
+          { provider: provider_name, error_class: error.class.name }
         )
         StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.provider_error",
                          tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
