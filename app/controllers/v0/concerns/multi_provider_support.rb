@@ -25,12 +25,11 @@ module V0
           response = provider.get_claims
           claims_data.concat(extract_claims_data(provider_class, response))
         rescue Common::Exceptions::Unauthorized,
-               Common::Exceptions::Forbidden,
-               Common::Exceptions::GatewayTimeout,
-               Common::Exceptions::ServiceUnavailable,
-               Common::Exceptions::ResourceNotFound => e
+               Common::Exceptions::Forbidden => e
+          # Re-raise: these are user-level auth errors that affect ALL providers
           raise e
         rescue => e
+          # Handle all other errors, log and try next provider
           handle_provider_error(provider_class, e, provider_errors)
         end
         { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
@@ -81,14 +80,14 @@ module V0
           provider = provider_class.new(@current_user)
           return provider.get_claim(claim_id)
         rescue Common::Exceptions::RecordNotFound
+          # Expected: this provider doesn't have the claim, try next provider
           log_claim_not_found(provider_class)
         rescue Common::Exceptions::Unauthorized,
-               Common::Exceptions::Forbidden,
-               Common::Exceptions::GatewayTimeout,
-               Common::Exceptions::ServiceUnavailable,
-               Common::Exceptions::ResourceNotFound => e
+               Common::Exceptions::Forbidden => e
+          # Re-raise: these are user-level auth errors that affect ALL providers
           raise e
         rescue => e
+          # Handle all other errors, log and try next provider
           handle_get_claim_error(provider_class, e)
         end
         raise Common::Exceptions::RecordNotFound, claim_id

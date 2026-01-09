@@ -772,6 +772,142 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(parsed_body['meta']['provider_errors'].map { |e| e['provider'] })
           .to contain_exactly('FailingProviderOne', 'FailingProviderTwo')
       end
+
+      context 'with provider-level exceptions (graceful degradation)' do
+        it 'continues when first provider throws GatewayTimeout' do
+          timeout_provider = Class.new do
+            def self.name
+              'TimeoutProvider'
+            end
+
+            def initialize(_user); end
+
+            def get_claims
+              raise Common::Exceptions::GatewayTimeout
+            end
+          end
+
+          allow(BenefitsClaims::Providers::ProviderRegistry)
+            .to receive(:enabled_provider_classes)
+            .with(an_instance_of(User))
+            .and_return([timeout_provider, mock_provider_class_one])
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['data'].count).to eq(1)
+          expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
+          expect(parsed_body['meta']['provider_errors']).to be_present
+          expect(parsed_body['meta']['provider_errors'].first['provider']).to eq('TimeoutProvider')
+        end
+
+        it 'continues when first provider throws ServiceUnavailable' do
+          unavailable_provider = Class.new do
+            def self.name
+              'UnavailableProvider'
+            end
+
+            def initialize(_user); end
+
+            def get_claims
+              raise Common::Exceptions::ServiceUnavailable
+            end
+          end
+
+          allow(BenefitsClaims::Providers::ProviderRegistry)
+            .to receive(:enabled_provider_classes)
+            .with(an_instance_of(User))
+            .and_return([unavailable_provider, mock_provider_class_one])
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['data'].count).to eq(1)
+          expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
+          expect(parsed_body['meta']['provider_errors']).to be_present
+          expect(parsed_body['meta']['provider_errors'].first['provider']).to eq('UnavailableProvider')
+        end
+
+        it 'continues when first provider throws ResourceNotFound' do
+          not_found_provider = Class.new do
+            def self.name
+              'NotFoundProvider'
+            end
+
+            def initialize(_user); end
+
+            def get_claims
+              raise Common::Exceptions::ResourceNotFound
+            end
+          end
+
+          allow(BenefitsClaims::Providers::ProviderRegistry)
+            .to receive(:enabled_provider_classes)
+            .with(an_instance_of(User))
+            .and_return([not_found_provider, mock_provider_class_one])
+
+          get(:index)
+          parsed_body = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['data'].count).to eq(1)
+          expect(parsed_body['data'].first['id']).to eq('provider_one_claim_one')
+          expect(parsed_body['meta']['provider_errors']).to be_present
+          expect(parsed_body['meta']['provider_errors'].first['provider']).to eq('NotFoundProvider')
+        end
+      end
+
+      context 'with user-level exceptions (critical errors)' do
+        it 're-raises Unauthorized and stops processing' do
+          unauthorized_provider = Class.new do
+            def self.name
+              'UnauthorizedProvider'
+            end
+
+            def initialize(_user); end
+
+            def get_claims
+              raise Common::Exceptions::Unauthorized
+            end
+          end
+
+          allow(BenefitsClaims::Providers::ProviderRegistry)
+            .to receive(:enabled_provider_classes)
+            .with(an_instance_of(User))
+            .and_return([unauthorized_provider, mock_provider_class_one])
+
+          get(:index)
+
+          # HTTP status proves exception was re-raised and stopped processing
+          expect(response).to have_http_status(:unauthorized)
+        end
+
+        it 're-raises Forbidden and stops processing' do
+          forbidden_provider = Class.new do
+            def self.name
+              'ForbiddenProvider'
+            end
+
+            def initialize(_user); end
+
+            def get_claims
+              raise Common::Exceptions::Forbidden
+            end
+          end
+
+          allow(BenefitsClaims::Providers::ProviderRegistry)
+            .to receive(:enabled_provider_classes)
+            .with(an_instance_of(User))
+            .and_return([forbidden_provider, mock_provider_class_one])
+
+          get(:index)
+
+          # HTTP status proves exception was re-raised and stopped processing
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
     end
   end
 
