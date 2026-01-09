@@ -33,9 +33,9 @@ describe SM::Client, '#status' do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
             expect { client.post_create_message(message_params, poll_for_status: true) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
-              expect(error.status_code).to eq(400)
-              expect(error.errors.first[:code]).to eq('SM98')
-              expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
+                expect(error.status_code).to eq(400)
+                expect(error.errors.first[:code]).to eq('SM98')
+                expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
             end
           end
         end
@@ -46,9 +46,9 @@ describe SM::Client, '#status' do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
             expect { client.post_create_message(message_params, poll_for_status: true) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
-              expect(error.status_code).to eq(400)
-              expect(error.errors.first[:code]).to eq('SM98')
-              expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
+                expect(error.status_code).to eq(400)
+                expect(error.errors.first[:code]).to eq('SM98')
+                expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
             end
           end
         end
