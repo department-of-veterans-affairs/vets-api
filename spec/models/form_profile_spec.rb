@@ -850,7 +850,6 @@ RSpec.describe FormProfile, type: :model do
             'suffix' => user.suffix,
             'dateOfBirth' => user.birth_date,
             'ssn' => user.ssn.last(4),
-            'vaFileNumber' => user.va_file_number,
             'gender' => user.gender,
             'address' => {
               'addressLine1' => va_profile_address.street,
@@ -1173,7 +1172,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS', 'FORM-MOCK-PREFILL'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
