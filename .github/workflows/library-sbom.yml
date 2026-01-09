@@ -2,9 +2,9 @@ name: Library SBOM Generation
 
 on:
   push:
-    branches:
-      - master
-      - eb-sbom-trivy-workflow  # TODO: remove after testing
+    branches: [master]
+    paths:
+      - 'Gemfile.lock'
   workflow_dispatch:
 
 permissions:
