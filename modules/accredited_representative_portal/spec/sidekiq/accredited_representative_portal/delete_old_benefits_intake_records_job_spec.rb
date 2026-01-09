@@ -23,10 +23,7 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
       end
 
       it 'does nothing' do
-        expect(
-          AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-        ).not_to receive(:where)
-
+        expect(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake).not_to receive(:where)
         job.perform
       end
     end
@@ -84,9 +81,7 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
           job.perform
 
           expect(Rails.logger).to have_received(:info)
-            .with(
-              /DeleteOldBenefitsIntakeRecordsJob deleted 2 old BenefitsIntake records/
-            )
+            .with(/DeleteOldBenefitsIntakeRecordsJob deleted 2 old BenefitsIntake records/)
         end
       end
 
@@ -113,64 +108,39 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
       end
 
       context 'when an exception occurs during deletion' do
-        let(:exception) { StandardError.new('boom') }
+        let(:exception) { ActiveRecord::ActiveRecordError.new('boom') }
+
+        let(:slack_messenger) do
+          instance_double(VBADocuments::Slack::Messenger, notify!: true)
+        end
 
         before do
-          allow(
-            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-          ).to receive(:where).and_raise(exception)
+          allow(AccreditedRepresentativePortal::SavedClaim::BenefitsIntake)
+            .to receive(:where).and_raise(exception)
+
+          allow(VBADocuments::Slack::Messenger)
+            .to receive(:new)
+            .and_return(slack_messenger)
         end
 
-        context 'when Slack::Notifier is defined' do
-          before do
-            stub_const('Slack::Notifier', Class.new do
-              def self.notify(_message); end
-            end)
-            allow(Slack::Notifier).to receive(:notify)
-          end
+        it 'logs the error and increments StatsD error metric' do
+          job.perform
 
-          it 'logs the error and increments StatsD error metric' do
-            job.perform
+          expect(Rails.logger).to have_received(:error)
+            .with(/DeleteOldBenefitsIntakeRecordsJob perform exception: ActiveRecord::ActiveRecordError boom/)
 
-            expect(Rails.logger).to have_received(:error)
-              .with(/DeleteOldBenefitsIntakeRecordsJob perform exception: StandardError boom/)
-
-            expect(StatsD).to have_received(:increment)
-              .with("#{statsd_key_prefix}.error")
-          end
-
-          it 'sends a single Slack alert with the exception info' do
-            job.perform
-
-            expect(Slack::Notifier).to have_received(:notify)
-              .with(
-                '[ALERT] AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob ' \
-                'failed: StandardError - boom'
-              )
-          end
-
-          it 'does not log a Slack warning' do
-            job.perform
-
-            expect(Rails.logger).not_to have_received(:warn)
-          end
-
-          it 'does not raise the exception' do
-            expect { job.perform }.not_to raise_error
-          end
+          expect(StatsD).to have_received(:increment)
+            .with("#{statsd_key_prefix}.error")
         end
 
-        context 'when Slack::Notifier is not defined' do
-          it 'logs a single warning with the exception info and does not raise' do
-            job.perform
+        it 'sends a single Slack alert with the exception info' do
+          job.perform
 
-            expect(Rails.logger).to have_received(:warn)
-              .with(/Slack::Notifier not defined; skipping StandardError boom/)
-          end
+          expect(slack_messenger).to have_received(:notify!).once
+        end
 
-          it 'does not raise the exception' do
-            expect { job.perform }.not_to raise_error
-          end
+        it 'does not raise the exception' do
+          expect { job.perform }.not_to raise_error
         end
       end
     end
