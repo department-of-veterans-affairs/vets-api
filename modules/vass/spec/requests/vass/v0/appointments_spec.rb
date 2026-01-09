@@ -68,6 +68,12 @@ RSpec.describe 'Vass::V0::Appointments', type: :request do
     end
 
     context 'when user is authenticated' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      # and ensure slots (Jan 8, 9) are in the valid "tomorrow to 2 weeks" range
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       context 'with available slots in current cohort' do
         it 'returns available slots status with appointment data' do
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
