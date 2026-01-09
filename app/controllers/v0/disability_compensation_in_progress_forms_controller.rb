@@ -17,6 +17,17 @@ module V0
       render json: data
     end
 
+    def update
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:sync_modern0781_flow] =
+          form_hash['sync_modern0781_flow'] || form_hash[:sync_modern0781_flow] || false
+      end
+      super
+    end
+
     private
 
     def form_id
@@ -36,7 +47,8 @@ module V0
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
-        evss_rated_disabilities = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
+        # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
+        evss_rated_disabilities = rated_disabilities_evss.rated_disabilities.map(&:as_json)
         parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
       end
 
@@ -50,7 +62,8 @@ module V0
     end
 
     def set_started_form_version(data)
-      if data['started_form_version'].blank? || data['startedFormVersion'].blank?
+      # Only set default if BOTH keys are missing (using && instead of ||)
+      if data['started_form_version'].blank? && data['startedFormVersion'].blank?
         log_started_form_version(data, 'existing IPF missing startedFormVersion')
         data['startedFormVersion'] = '2019'
       end
@@ -76,16 +89,16 @@ module V0
     # temp: for https://github.com/department-of-veterans-affairs/va.gov-team/issues/97932
     # tracking down a possible issue with prefill
     def log_started_form_version(data, location)
-      cloned_data = data.deep_dup
-      cloned_data_as_json = cloned_data.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      # Handle different data structures from different call sites:
+      # - From show method: {formData: ..., metadata: ...} with symbol keys
+      # - From set_started_form_version: raw form data hash with string keys
+      form_data = data[:formData] || data['formData'] || data[:form_data] || data['form_data'] || data
+      started_form_version = form_data&.dig('startedFormVersion') || form_data&.dig(:startedFormVersion) ||
+                             form_data&.dig('started_form_version') || form_data&.dig(:started_form_version)
 
-      if cloned_data_as_json['formData'].present?
-        started_form_version = cloned_data_as_json['formData']['startedFormVersion']
-        message = "Form526 InProgressForm startedFormVersion = #{started_form_version} #{location}"
-        Rails.logger.info(message)
-      end
-
-      if started_form_version.blank?
+      if started_form_version.present?
+        Rails.logger.info("Form526 InProgressForm startedFormVersion = #{started_form_version} #{location}")
+      else
         raise Common::Exceptions::ServiceError.new(
           detail: "no startedFormVersion detected in #{location}",
           source: 'DisabilityCompensationInProgressFormsController#show'

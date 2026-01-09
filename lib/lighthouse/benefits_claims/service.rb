@@ -33,7 +33,11 @@ module BenefitsClaims
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      response = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options)
+      claims = response.body
+
+      validate_response_data!(claims, response, 'get_claims', Array)
+
       claims['data'] = filter_by_status(claims['data'])
       claims['data'] = apply_configured_ep_filters(claims['data'])
 
@@ -45,7 +49,11 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      response = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options)
+      claim = response.body
+
+      validate_response_data!(claim, response, 'get_claim', Hash)
+
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
@@ -64,6 +72,22 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def submit_power_of_attorney_request(payload, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
+                                         options = {})
+      config.post(
+        "#{@icn}/power-of-attorney-request",
+        payload,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+    rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+      # Log/notify via Lighthouse::ServiceException
+      handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
+      # Re-raise the original exception for upstream handling
+      raise
     end
 
     def get_2122_submission(
@@ -202,6 +226,27 @@ module BenefitsClaims
     end
 
     private
+
+    def validate_response_data!(body, response, method_name, expected_data_class)
+      unless body.is_a?(Hash)
+        log_invalid_response(body, response, "#{method_name} received non-Hash response")
+        raise BenefitsClaims::ServiceException.new({ status: 502 }), 'Lighthouse Error'
+      end
+
+      return if body['data'].is_a?(expected_data_class)
+
+      log_invalid_response(body, response, "#{method_name} received invalid data structure")
+      raise BenefitsClaims::ServiceException.new({ status: 502 }), 'Lighthouse Error'
+    end
+
+    def log_invalid_response(body, response, message)
+      Rails.logger.error("BenefitsClaims::Service##{message}", {
+                           response_class: body.class.name,
+                           response_body_truncated: body.to_s.truncate(500),
+                           response_status: response.status,
+                           content_type: response.headers&.dig('content-type')
+                         })
+    end
 
     def build_request_body(body, transaction_id = "vagov-#{SecureRandom}")
       body = body.as_json
