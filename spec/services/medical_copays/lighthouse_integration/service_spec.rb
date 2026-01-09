@@ -62,7 +62,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         { 'entry' => [{ 'resource' => { 'issuer' => { 'reference' => 'Organization/4-O3d8XK44ejMS' } } }] }
       end
 
-
       it 'raises BadRequest for a 400 from Lighthouse' do
         skip 'Temporarily skip flaky test'
         VCR.use_cassette('lighthouse/hcc/auth_error') do
@@ -79,8 +78,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         skip 'Temporarily skip flaky test'
         raw_invoices['entry'].first['resource']['issuer']['reference'] = nil
 
-        allow(service).to receive(:invoice_service)
-                            .and_return(double(list: raw_invoices))
+        allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
 
         expect { service.list(count: 10, page: 1) }
           .to raise_error(
@@ -91,12 +89,9 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       it 'raises MissingCityError' do
         skip 'Temporarily skip flaky test'
-        allow(service).to receive(:invoice_service)
-                            .and_return(double(list: raw_invoices))
+        allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
 
-        allow(service).to receive(:retrieve_city)
-                            .with('4-O3d8XK44ejMS')
-                            .and_return(nil)
+        allow(service).to receive(:retrieve_city).with('4-O3d8XK44ejMS').and_return(nil)
 
         expect { service.list(count: 10, page: 1) }
           .to raise_error(
