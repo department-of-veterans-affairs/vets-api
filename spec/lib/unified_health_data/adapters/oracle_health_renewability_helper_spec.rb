@@ -241,15 +241,11 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
         expect(subject.send(:within_renewal_window?, base_renewable_resource)).to be true
       end
 
-      it 'returns true at exactly 120 days (boundary condition)' do
-        # Freeze time to ensure precise boundary testing
-        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
-          # Expiration was exactly 120 days ago at the same time of day
-          # 2026-01-08 12:00 - 120 days = 2025-09-10 12:00
-          expiration_date = Time.zone.parse('2025-09-10 12:00:00 UTC').iso8601
-          resource = base_renewable_resource.merge(
+      it 'returns true at exactly 120 days (boundary)' do
+        travel_to Time.zone.parse('2026-01-15T12:00:00Z') do
+          resource = base_renewable_resource.deep_merge(
             'dispenseRequest' => {
-              'validityPeriod' => { 'end' => expiration_date }
+              'validityPeriod' => { 'end' => '2025-09-17T12:00:00Z' } # exactly 120 days before
             }
           )
           expect(subject.send(:within_renewal_window?, resource)).to be true
@@ -257,13 +253,10 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
 
       it 'returns false when expired more than 120 days ago' do
-        # Freeze time to ensure precise boundary testing
-        travel_to Time.zone.parse('2026-01-08 12:00:00 UTC') do
-          # Expiration was 121 days ago
-          expiration_date = Time.zone.parse('2025-09-09 00:00:00 UTC').iso8601
-          resource = base_renewable_resource.merge(
+        travel_to Time.zone.parse('2026-01-15T12:00:00Z') do
+          resource = base_renewable_resource.deep_merge(
             'dispenseRequest' => {
-              'validityPeriod' => { 'end' => expiration_date }
+              'validityPeriod' => { 'end' => '2025-09-16T11:59:59Z' } # 121 days before
             }
           )
           expect(subject.send(:within_renewal_window?, resource)).to be false
@@ -271,7 +264,7 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
 
       it 'returns true when prescription has not yet expired (future date)' do
-        resource = base_renewable_resource.merge(
+        resource = base_renewable_resource.deep_merge(
           'dispenseRequest' => {
             'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
           }
@@ -280,8 +273,8 @@ RSpec.describe UnifiedHealthData::Adapters::OracleHealthRenewabilityHelper do
       end
 
       it 'returns false when expiration date is nil' do
-        resource = base_renewable_resource.merge(
-          'dispenseRequest' => { 'validityPeriod' => {} }
+        resource = base_renewable_resource.deep_merge(
+          'dispenseRequest' => { 'validityPeriod' => { 'end' => nil } }
         )
         expect(subject.send(:within_renewal_window?, resource)).to be false
       end
