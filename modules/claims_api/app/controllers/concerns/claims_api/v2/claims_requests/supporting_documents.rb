@@ -42,14 +42,16 @@ module ClaimsApi
         def transform_documents(docs)
           docs[:documents].map do |doc|
             doc = doc.transform_keys { |key| key.to_s.underscore }
-            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
+            upload_date_value = doc['upload_date']
+            uploaded_date_time_value = doc['uploaded_date_time']
+
             {
               document_id: doc['document_id'],
               document_type_label: doc['document_type_label'],
               original_file_name: doc['original_file_name'],
               tracked_item_id: doc['tracked_item_id'],
-              upload_date:,
-              upload_date_time: doc['upload_date'] || doc['uploaded_date_time']
+              upload_date: upload_date(upload_date_value) || bd_upload_date(uploaded_date_time_value),
+              upload_date_time: upload_date_value || uploaded_date_time_value
             }
           end
         end
