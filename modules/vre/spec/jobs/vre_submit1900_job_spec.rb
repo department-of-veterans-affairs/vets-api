@@ -62,7 +62,7 @@ describe VRE::VRESubmit1900Job do
     it 'sends a failure email to user' do
       notification_email = double('notification_email')
       expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
-      expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
+      expect(notification_email).to receive(:deliver).with(:error)
 
       VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
         exhaustion_msg['args'] = [claim.id, encrypted_user]
