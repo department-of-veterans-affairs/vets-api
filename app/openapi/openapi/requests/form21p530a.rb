@@ -3,30 +3,35 @@
 module Openapi
   module Requests
     class Form21p530a
+      # The exact list the front end uses, addressSchema references the countries constant in vets-json-schema
+      COUNTRIES_3 = VetsJsonSchema::CONSTANTS['countries'].collect { |country| country['value'] }
+
       FORM_SCHEMA = {
         '$schema': 'json-schemer://openapi30/schema',
         type: :object,
         properties: {
           veteranInformation: {
             type: :object,
-            required: %i[fullName dateOfBirth dateOfDeath],
+            required: %i[fullName dateOfBirth dateOfDeath ssn],
             properties: {
               fullName: { '$ref' => '#/components/schemas/FirstMiddleLastName' },
               ssn: {
                 type: :string,
-                pattern: '^\d{9}$',
+                pattern: "^[0-9]{9}$",
                 description: 'Social Security Number (9 digits)',
                 example: '123456789'
               },
-              vaServiceNumber: { type: :string, example: '987654321' },
-              vaFileNumber: { type: :string, example: '987654321' },
+              vaServiceNumber: { type: :string, example: '987654321' }, # does not exist on FE
+              vaFileNumber: { type: :string, example: '987654321', pattern: "^\\d{8,9}$" },
               dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
               dateOfDeath: { type: :string, format: :date, example: '1980-01-01' },
               placeOfBirth: {
                 type: :object,
                 properties: {
                   city: { type: :string, example: 'Kansas City' },
-                  state: { type: :string, example: 'MO' }
+                  # note, the FE specifies an enum of us states (full name, i.e. "Alabama"), but we probably want to allow for foreign births
+                  state: { type: :string, example: 'MO' } 
+        
                 }
               }
             }
@@ -38,12 +43,13 @@ module Openapi
                 type: :array,
                 items: {
                   type: :object,
+                  required: %i[serviceBranch],
                   properties: {
                     serviceBranch: { type: :string, example: 'Army' },
-                    dateEnteredService: { type: :string, format: :date, example: '1968-06-01' },
+                    dateEnteredService: { type: :string, format: :date, example: '1968-06-01' }, #FE dateEnteredService is required if periods exist
                     placeEnteredService: { type: :string, example: 'Fort Benning, GA' },
                     rankAtSeparation: { type: :string, example: 'Sergeant' },
-                    dateLeftService: { type: :string, format: :date, example: '1972-05-31' },
+                    dateLeftService: { type: :string, format: :date, example: '1972-05-31' }, #FE dateLeftService is required if periods exist
                     placeLeftService: { type: :string, example: 'Fort Hood, TX' }
                   }
                 }
@@ -57,6 +63,7 @@ module Openapi
           },
           burialInformation: {
             type: :object,
+            required: %i[nameOfStateCemeteryOrTribalOrganization dateOfBurial],
             properties: {
               nameOfStateCemeteryOrTribalOrganization: {
                 type: :string,
@@ -65,6 +72,7 @@ module Openapi
               },
               placeOfBurial: {
                 type: :object,
+                required: %i[stateCemeteryOrTribalCemeteryName stateCemeteryOrTribalCemeteryLocation],
                 properties: {
                   stateCemeteryOrTribalCemeteryName: {
                     type: :string,
@@ -74,7 +82,7 @@ module Openapi
                   stateCemeteryOrTribalCemeteryLocation: {
                     type: :string,
                     description: 'State cemetery or tribal cemetery location',
-                    example: 'Higginsville, MO'
+                    example: 'Higginsville, MO' # FE enforces that this is a "City, US State"
                   }
                 }
               },
@@ -85,6 +93,11 @@ module Openapi
               },
               recipientOrganization: {
                 type: :object,
+                required: %w[
+                  name
+                  phoneNumber
+                  address
+                ],
                 properties: {
                   name: {
                     type: :string,
@@ -93,12 +106,16 @@ module Openapi
                   phoneNumber: {
                     type: :string,
                     example: '555-123-4567'
+                    # "pattern": "^\\d{3}-?\\d{3}-?\\d{4}$" # FE enforces this pattern, but we likely want to allow international numbers
                   },
                   address: {
                     type: :object,
+
                     properties: {
                       streetAndNumber: {
                         type: :string,
+                        minLength: 1,
+                        maxLength: 100,
                         example: '2400 Veterans Memorial Drive'
                       },
                       aptOrUnitNumber: {
@@ -109,6 +126,8 @@ module Openapi
                       },
                       city: {
                         type: :string,
+                        minLength: 1,
+                        maxLength: 100,
                         example: 'Higginsville'
                       },
                       state: {
@@ -118,18 +137,14 @@ module Openapi
                       country: {
                         type: :string,
                         maxLength: 3,
-                        description: 'Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)',
-                        example: 'US'
+                        example: 'USA',
+                        # we cannot validate the country in the schema because it is transformed before it is saved as a SavedClaim, which also validates against the schema
+                        # fix in https://github.com/department-of-veterans-affairs/va.gov-team/issues/128935
+                        # enum: COUNTRIES_3
                       },
                       postalCode: {
                         type: :string,
                         example: '64037'
-                      },
-                      postalCodeExtension: {
-                        type: :string,
-                        pattern: '^\d{4}$',
-                        description: '4-digit postal code extension (ZIP+4)',
-                        example: '1234'
                       }
                     }
                   }
