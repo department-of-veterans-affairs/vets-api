@@ -42,10 +42,10 @@ module AccreditedRepresentativePortal
           Rails.logger.warn("ARP ITF: Error response - error_count: #{parsed_response['errors']&.count}")
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
-          icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
-          Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
-          claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
           SavedClaim::BenefitsClaims::IntentToFile.transaction do
+            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
+            Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
+            claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
             saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
             Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
             SavedClaimClaimantRepresentative.create!(
