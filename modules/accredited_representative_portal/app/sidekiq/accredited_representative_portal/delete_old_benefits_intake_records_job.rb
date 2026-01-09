@@ -23,15 +23,21 @@ module AccreditedRepresentativePortal
 
     # Feature flag
     def enabled?
-      Flipper.enabled?(:delete_old_benefits_intake_records_job_enabled)
+      Flipper.enabled?(:accredited_representative_portal_delete_benefits_intake)
     end
 
     # Deletes old records and returns the count
     def perform_deletion
-      records = AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
-                .where('created_at <= ?', 60.days.ago)
-                .destroy_all
-      records.size
+      total = 0
+
+      AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+        .where('delete_date <= ?', 60.days.ago)
+        .find_each(batch_size: 1000) do |record|
+          record.destroy
+          total += 1
+        end
+
+      total
     end
 
     # Handle success in small helpers
@@ -59,7 +65,7 @@ module AccreditedRepresentativePortal
         log_error
         increment_error
         notify_slack
-      rescue => e
+      rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::ActiveRecordError, StandardError => e
         log_slack_failure(e)
       end
 

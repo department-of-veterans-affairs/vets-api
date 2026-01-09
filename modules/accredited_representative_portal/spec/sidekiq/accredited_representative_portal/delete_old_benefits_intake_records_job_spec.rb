@@ -18,7 +18,7 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
     context 'when the feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:delete_old_benefits_intake_records_job_enabled)
+          .with(:accredited_representative_portal_delete_benefits_intake)
           .and_return(false)
       end
 
@@ -34,14 +34,30 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
     context 'when the feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:delete_old_benefits_intake_records_job_enabled)
+          .with(:accredited_representative_portal_delete_benefits_intake)
           .and_return(true)
       end
 
       context 'when there are records older than 60 days' do
-        let!(:sixty_one_days_old) { create(:saved_claim_benefits_intake, created_at: 61.days.ago) }
-        let!(:ninety_days_old)    { create(:saved_claim_benefits_intake, created_at: 90.days.ago) }
-        let!(:recent_record)      { create(:saved_claim_benefits_intake, created_at: 10.days.ago) }
+        let!(:dependency_old) do
+          create(:saved_claim_benefits_intake, delete_date: 61.days.ago)
+        end
+
+        let!(:disability_old) do
+          create(:saved_claim_benefits_intake,
+                 type: 'AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DisabilityClaim',
+                 delete_date: 70.days.ago)
+        end
+
+        let!(:dependency_recent) do
+          create(:saved_claim_benefits_intake, delete_date: 10.days.ago)
+        end
+
+        let!(:disability_recent) do
+          create(:saved_claim_benefits_intake,
+                 type: 'AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DisabilityClaim',
+                 delete_date: 5.days.ago)
+        end
 
         it 'deletes only records older than 60 days' do
           expect { job.perform }.to change(
@@ -49,7 +65,11 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
           ).by(-2)
 
           expect(
-            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(recent_record.id)
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(dependency_recent.id)
+          ).to be(true)
+
+          expect(
+            AccreditedRepresentativePortal::SavedClaim::BenefitsIntake.exists?(disability_recent.id)
           ).to be(true)
         end
 
@@ -71,7 +91,12 @@ RSpec.describe AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob
       end
 
       context 'when no records qualify for deletion' do
-        let!(:recent_record) { create(:saved_claim_benefits_intake, created_at: 5.days.ago) }
+        let!(:dependency_recent) { create(:saved_claim_benefits_intake, delete_date: 5.days.ago) }
+        let!(:disability_recent) do
+          create(:saved_claim_benefits_intake,
+                 type: 'AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DisabilityClaim',
+                 delete_date: 10.days.ago)
+        end
 
         it 'does not delete anything' do
           expect { job.perform }.not_to change(
