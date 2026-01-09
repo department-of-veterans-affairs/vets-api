@@ -441,7 +441,6 @@ app/serializers/user_verification_serializer.rb @department-of-veterans-affairs/
 app/serializers/valid_va_file_number_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/services/bgs/awards_service.rb @department-of-veterans-affairs/backend-review-group
 app/services/bgs/dependency_verification_service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
-app/services/bgs/dependent_service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/services/bgs/dependent_v2_service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/services/bgs/payment_service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/services/bgs/people/service.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
@@ -956,6 +955,7 @@ lib/lighthouse/healthcare_cost_and_coverage @department-of-veterans-affairs/vsa-
 lib/lighthouse/benefits_claims @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims/monitor.rb @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_claims/utilities/helpers.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
+lib/lighthouse/benefits_claims/service.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_discovery @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_documents/ @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/lighthouse/benefits_education @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
@@ -1079,8 +1079,14 @@ lib/vye @department-of-veterans-affairs/backend-review-group @department-of-vete
 lib/zero_silent_failures/manual_remediation/saved_claim.rb @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/power_of_attorney_request_decisions_controller.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/spec/requests/accredited_representative_portal/v0/power_of_attorney_request_decisions_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/app/services/accredited_representative_portal/representative_user_loader.rb @department-of-veterans-affairs/octo-identity
 modules/accredited_representative_portal/spec/services/accredited_representative_portal/representative_user_loader_spec.rb @department-of-veterans-affairs/octo-identity
+modules/accredited_representative_portal/spec/services/accredited_representative_portal/send_poa_request_to_corp_db_service_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/spec/sidekiq/accredited_representative_portal/send_poa_request_to_corp_db_job_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/app/services/accredited_representative_portal/send_poa_request_to_corp_db_service.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/app/sidekiq/accredited_representative_portal/send_poa_request_to_corp_db_job.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels
 modules/apps_api @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
 modules/ask_va_api @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
@@ -1543,6 +1549,7 @@ spec/lib/kafka @department-of-veterans-affairs/ves-submission-traceability @depa
 spec/lib/lgy @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/auth @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_claims @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
+spec/lib/lighthouse/benefits_claims/service_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_discovery @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_documents @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
 spec/lib/lighthouse/benefits_documents/service_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
@@ -2232,6 +2239,11 @@ spec/support/url_service_helpers.rb @department-of-veterans-affairs/octo-identit
 spec/support/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/validation_helpers.rb @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/accredited_representative_portal @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/201_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/401_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/404_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/413_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/422_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/apps @department-of-veterans-affairs/lighthouse-pivot
 spec/support/vcr_cassettes/ask_va_api/dynamics @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/avs @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/after-visit-summary

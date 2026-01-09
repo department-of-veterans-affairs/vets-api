@@ -481,7 +481,7 @@ RSpec.describe BGS::DependentV2Service do
     let(:monitor) { Dependents::Monitor.new(claim.id) }
     let(:pdf_path) { 'path/to/pdf' }
     let(:stamper) { PDFUtilities::PDFStamper.new('TEST') }
-    let(:stats_key) { BGS::DependentService::STATS_KEY }
+    let(:stats_key) { BGS::DependentV2Service::STATS_KEY }
 
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
