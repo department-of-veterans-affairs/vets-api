@@ -66,6 +66,22 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
+    def submit_power_of_attorney_request(payload, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
+                                         options = {})
+      config.post(
+        "#{@icn}/power-of-attorney-request",
+        payload,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+    rescue Faraday::TimeoutError, Faraday::ClientError, Faraday::ServerError => e
+      # Log/notify via Lighthouse::ServiceException
+      handle_error(e, lighthouse_client_id, 'power-of-attorney-request')
+      # Re-raise the original exception for upstream handling
+      raise
+    end
+
     def get_2122_submission(
       id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {}
     )

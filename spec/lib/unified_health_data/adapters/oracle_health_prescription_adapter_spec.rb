@@ -137,6 +137,61 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       end
     end
 
+    context 'with prescription_number field' do
+      it 'sets prescription_number to nil when no prescription identifier exists' do
+        result = subject.parse(base_resource)
+
+        expect(result).to be_a(UnifiedHealthData::Prescription)
+        expect(result.prescription_number).to be_nil
+      end
+
+      it 'returns prescription_number when identifier with system containing "prescription" exists' do
+        resource_with_prescription_id = base_resource.merge(
+          'identifier' => [
+            {
+              'system' => 'http://example.com/prescription',
+              'value' => 'RX123456'
+            }
+          ]
+        )
+        result = subject.parse(resource_with_prescription_id)
+
+        expect(result.prescription_number).to eq('RX123456')
+      end
+    end
+
+    context 'with tracking information' do
+      it 'sets prescription_number to nil in tracking when dispense has no prescription number identifier' do
+        resource_with_tracking_no_rx_number = base_resource.merge(
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => '21142623',
+              'identifier' => [
+                {
+                  'type' => { 'text' => 'Tracking Number' },
+                  'value' => '77298027203980000000398'
+                },
+                {
+                  'type' => { 'text' => 'Carrier' },
+                  'value' => 'UPS'
+                }
+              ]
+            }
+          ]
+        )
+
+        result = subject.send(:build_tracking_information, resource_with_tracking_no_rx_number)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(1)
+
+        tracking = result.first
+        expect(tracking[:prescription_number]).to be_nil
+        expect(tracking[:tracking_number]).to eq('77298027203980000000398')
+      end
+    end
+
     context 'with inpatient medication (should be filtered)' do
       let(:inpatient_resource) do
         base_resource.merge(
