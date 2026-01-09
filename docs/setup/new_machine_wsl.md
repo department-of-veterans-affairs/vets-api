@@ -11,51 +11,42 @@
 6. After completing the VS Code installation, open up the application and navigate to extensions in the left sidebar.
 7. In extensions, search for `wsl`. Install the WSL extension for VS Code. This will allow you to be able to open VS Code from the WSL Ubuntu terminal.
 
-## Setup Github (with SSH and token storage)
+## Setup GitHub (with SSH)
 
-1. Once you have GitHub access, set up your personal token for the repository by opening up the vets-api repository, click your profile, select settings, select developer settings, and under Personal access tokens, select Tokens (classic).
-2. Click generate new token and select Generate new token (classic).
-3. Select the following options for your token:
-   - all under `repo`
-   - `workflow`
-   - `admin:repo_hook`
-   - `admin:org_hook`
-   - all under `user`
-4. Once the token is generated, copy the token and click update at the bottom of the page.
-5. In terminal run the following commands to set your GitHub credentials:
+1. In terminal run the following commands to set your GitHub credentials:
 
    ```bash
    git config --global user.name "Your Name"
    git config --global user.email "youremail@domain.com"
    ```
 
-6. Set up SSH keys with:
+2. Set up SSH keys with:
 
    ```bash
    ssh-keygen -t ed25519 -C "your-email@example.com"
    ```
 
-7. Enter a passphrase (optional)
-8. Once the key is created, start the SSH agent with:
+3. Enter a passphrase (optional)
+4. Once the key is created, start the SSH agent with:
 
    ```bash
    eval "$(ssh-agent -s)"
    ```
 
-9. Add the new key to the agent (enter passphrase from step 7 if created):
+5. Add the new key to the agent (enter passphrase from step 7 if created):
 
    ```bash
    ssh-add ~/.ssh/id_ed25519
    ```
 
-10. Copy the public key output from this command:
+6. Copy the public key output from this command:
 
     ```bash
     cat ~/.ssh/id_ed25519.pub
     ```
 
-11. Go to Github SSH settings, click create new SSH key, create a name for the key, paste the key contents and save the key.
-12. Validate SSH is working by running:
+7. Go to GitHub SSH settings, click create new SSH key, create a name for the key, paste the key contents and save the key.
+8. Validate SSH is working by running:
 
     ```bash
     ssh -T git@github.com
@@ -63,21 +54,50 @@
 
     The output will be:
 
-    ```
+    ```bash
     Hi your-github-username! You've successfully authenticated, but GitHub does not provide shell access.
     ```
 
-13. When cloning repos, run the SSH commands instead of HTTPS:
+9. When cloning repos, run the SSH commands instead of HTTPS:
 
     ```bash
     git clone git@github.com:owner/repo.git
     ```
 
-**Note:** If you want to store your token, you can run `git config --global credential.helper store` to store the personal access token from step 4. You will be prompted for this token on first push.
+## Setup asdf or RVM (Ruby Version Manager) for Ruby version management
 
-## Setup RVM (Ruby Version Manager)
+> When running the setup steps, rbenv did not support version 3.3.6, so you can use asdf or RVM. *Note*: use only one of these and not both.
 
-> When running the setup steps, rbenv did not support version 3.3.6, so I opted for RVM
+### asdf setup
+
+1. Install Ruby version manager
+
+    ```bash
+    git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
+
+    echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+    echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+    echo 'legacy_version_file = yes' >> ~/.asdfrc
+    echo 'export EDITOR="code --wait"' >> ~/.bashrc
+
+    exec $SHELL
+    ```
+
+2. Add plugins for Ruby
+
+    ```bash
+    asdf plugin add ruby
+    ```
+
+3. Download Ruby (verify correct version)
+
+    ```bash
+    asdf install ruby 3.3.6
+    asdf global ruby 3.3.6
+    ruby -v
+    ```
+
+### RVM setup
 
 1. Install GPG keys to verify installation package:
 
@@ -104,7 +124,7 @@
 2. In terminal, clone the repository using the command:
 
    ```bash
-   git clone https://github.com/department-of-veterans-affairs/vets-api.git
+   git clone git@github.com:department-of-veterans-affairs/vets-api.git
    ```
 
 3. Create the required certs directory and files:
@@ -222,13 +242,13 @@ sudo apt install -y pdftk
 
 ## Install and run Bundler
 
-8. Install Bundler to manage Ruby dependencies:
+1. Install Bundler to manage Ruby dependencies:
 
    ```bash
    sudo gem install bundler
    ```
 
-9. Install gem dependencies inside vets-api directory:
+2. Install gem dependencies inside vets-api directory:
 
    ```bash
    bundle install
@@ -236,11 +256,7 @@ sudo apt install -y pdftk
 
    > **NOTE:** Ignore any warning messages about Sidekiq for now. That will be resolved in a later step (if needed).
 
-10. Discard any changes made to the `Gemfile.lock`:
-
-    ```bash
-    git checkout Gemfile.lock
-    ```
+3. Discard any changes made to the `Gemfile.lock`:
 
 ### Bundler Troubleshooting
 
@@ -269,7 +285,7 @@ bundle install
 
 If you have an issue that returns:
 
-```
+```bash
 You might have to install separate package for the ruby development
 environment, ruby-dev or ruby-devel for example.
 ```
@@ -293,13 +309,11 @@ Then rerun `sudo gem install rails` inside the vets-api directory.
    bin/rails db:migrate
    ```
 
-2. Remove any additions to `schema.rb` created from running migrations.
-
 ### Setup Databases and Migrations Troubleshooting
 
 If you receive an error running `rails db:setup` that contains:
 
-```
+```bash
 Caused by:
 PG::ConnectionBad: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "SOME_NAME_HERE" does not exist (PG::ConnectionBad)
 ```
@@ -312,7 +326,7 @@ createuser --superuser SOME_NAME_HERE
 exit
 ```
 
-## Set Up vets-api-mock-data
+## Set Up vets-api-mockdata
 
 1. Follow setup steps for vets-api-mockdata: [vets-api/docs/setup/new_machine.md](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/new_machine.md)
    - If using SSH, run the following command instead of the HTTPS command:
@@ -348,7 +362,7 @@ If you receive an error where the repo cannot be found, make sure you have acces
    RAILS_ENV=test NOCOVERAGE=true bundle exec parallel_rspec spec modules
    ```
 
-## Congratulations! You are set up!
+## Congratulations! You are set up
 
 ## Helpful Resources
 
