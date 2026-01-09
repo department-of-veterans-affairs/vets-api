@@ -23,28 +23,13 @@ module SafeSemanticLogging
           payload = payload.dup
           payload[:exception] = RuntimeError.new(ex.to_s)
         end
-
       end
     end
 
     super(level, index, message, payload, exception, &)
   end
 
-  def self.safe_log_enabled?
-    return false unless database_exists?
-
-    Flipper.enabled?(:safe_semantic_logging)
-  rescue
-    false
-  end
-
-  def self.database_exists?
-    ActiveRecord::Base.connection
-  rescue ActiveRecord::NoDatabaseError
-    false
-  else
-    true
-  end
+  def self.safe_log_enabled? = true
 end
 
 Rails.logger.singleton_class.prepend(SafeSemanticLogging)
