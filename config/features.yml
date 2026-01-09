@@ -605,15 +605,6 @@ features:
   debts_sharepoint_error_logging:
     actor_type: user
     description: Logs Sharepoint error data
-  decision_review_hlr_email:
-    actor_type: user
-    description: Send email notification for successful HLR submission
-  decision_review_nod_email:
-    actor_type: user
-    description: Send email notification for successful NOD submission
-  decision_review_sc_email:
-    actor_type: user
-    description: Send email notification for successful SC submission
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
@@ -2293,6 +2284,10 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
+  virtual_agent_show_chatbot:
+    actor_type: user
+    description: Controls visibility of the VA Virtual Agent chatbot on VA.gov - managed by virtual agent team
+    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2755,9 +2750,9 @@ features:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
 
-  safe_semantic_logging:
-    actor_type: user
-    description: Prevents logging failures when non-exception objects are passed as exception parameters
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
+  send_poa_to_corpdb:
+    actor_type: user
+    description: Controls whether the SendPoaToCorpDbJob is enqueued for new POA requests
