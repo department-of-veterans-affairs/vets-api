@@ -3,10 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe NotificationsClientPatch do
+  before do
+    stub_const('NotificationsClientPatch::PRODUCTION_BASE_URL', 'https://api.notifications.va.gov')
+  end
+
   let(:speaker_class) do
     Class.new do
-      PRODUCTION_BASE_URL = 'https://api.notifications.va.gov'.freeze
-
       attr_reader :service_id, :secret_token, :base_url
 
       def validate_uuids!; end
@@ -15,8 +17,6 @@ RSpec.describe NotificationsClientPatch do
 
   let(:speaker_class_with_validation) do
     Class.new do
-      PRODUCTION_BASE_URL = 'https://api.notifications.va.gov'.freeze
-
       attr_reader :service_id, :secret_token, :base_url
     end.prepend(described_class)
   end

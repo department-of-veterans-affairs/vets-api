@@ -6,14 +6,17 @@ module NotificationsClientPatch
   URLSAFE_TOKEN_LENGTH = 86
 
   def initialize(secret_token = nil, base_url = nil)
-    return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
+    if Flipper.enabled?(:va_notify_enhanced_uuid_validation)
 
-    token_length = detect_token_length(secret_token)
-    @secret_token = secret_token[-token_length..]
-    @service_id = secret_token[-(token_length + 1 + UUID_LENGTH)..-(token_length + 2)]
-    @base_url = base_url || PRODUCTION_BASE_URL
+      token_length = detect_token_length(secret_token)
+      @secret_token = secret_token[-token_length..]
+      @service_id = secret_token[-(token_length + 1 + UUID_LENGTH)..-(token_length + 2)]
+      @base_url = base_url || PRODUCTION_BASE_URL
 
-    validate_uuids!
+      validate_uuids!
+    else
+      super
+    end
   end
 
   def validate_uuids!
@@ -67,6 +70,6 @@ end
 # prevents a race condition when booting up Rails
 # Speaker.prepend inserts a method signature for validate_uuids! which patches the original version
 Rails.configuration.to_prepare do
-  require "notifications/client"
+  require 'notifications/client'
   Notifications::Client::Speaker.prepend(NotificationsClientPatch)
 end
