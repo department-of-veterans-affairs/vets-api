@@ -407,6 +407,13 @@ edu:
     - marelby.hernandez@va.gov
     - nawar.hussein@va.gov
     - engin.akman@va.gov
+  staging_sco_email:
+    emails:
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - jeffrey.marks@govcio.com
+      - taras.kurilo@va.gov
+      - nawar.hussein@va.gov
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
@@ -418,13 +425,6 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
-  staging_sco_email:
-    emails:
-      - gregg.puhala@va.gov
-      - noah.stern@va.gov
-      - jeffrey.marks@govcio.com
-      - taras.kurilo@va.gov
-      - nawar.hussein@va.gov
 email_verification:
   jwt_secret: <%= ENV['email_verification__jwt_secret'] %>
 # Settings for EVSS
