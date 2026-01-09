@@ -1399,9 +1399,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
     enable_in_development: true
-  mhv_secure_messaging_612_care_systems_fix:
-    actor_type: user
-    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
   mhv_secure_messaging_medications_renewal_request:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
