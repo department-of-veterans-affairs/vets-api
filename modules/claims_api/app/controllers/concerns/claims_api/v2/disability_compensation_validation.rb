@@ -694,7 +694,6 @@ module ClaimsApi
         validate_service_periods(service_information, target_veteran)
         validate_service_branch_names(service_information)
         validate_confinements(service_information)
-        validate_alternate_names(service_information)
         validate_reserves_required_values(service_information)
         validate_form_526_location_codes(service_information)
       end
@@ -902,24 +901,6 @@ module ClaimsApi
 
         conf_begin.between?(service_begin, service_end) &&
           conf_end.between?(service_begin, service_end)
-      end
-
-      def validate_alternate_names(service_information)
-        alternate_names = service_information&.dig('alternateNames')
-        return if alternate_names.blank?
-
-        # clean them up to compare
-        alternate_names = alternate_names.map(&:strip).map(&:downcase)
-
-        # returns nil unless there are duplicate names
-        duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
-
-        unless duplicate_names_check.nil?
-          collect_error_messages(
-            source: '/serviceInformation/alternateNames',
-            detail: 'Names entered as an alternate name must be unique.'
-          )
-        end
       end
 
       def validate_service_branch_names(service_information)
