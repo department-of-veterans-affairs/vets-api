@@ -288,6 +288,12 @@ describe Vass::AppointmentsService do
 
   describe '#get_current_cohort_availability' do
     context 'with current cohort that is unbooked and has available slots' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      # and ensure slots (Jan 8, 9) are in the valid "tomorrow to 2 weeks" range
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns available_slots status with appointment data and filtered slots' do
         # Freeze time to Jan 6, 2026 so VCR cassette dates (Jan 7-9) fall within valid range
         # (tomorrow to 2 weeks out)
@@ -315,6 +321,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with current cohort that is already booked' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns already_booked status without calling availability API' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
@@ -331,6 +342,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with current cohort but no available slots' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns no_slots_available status' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
@@ -347,6 +363,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with no current cohort but future cohort exists' do
+      # Freeze time to be before the future cassette cohort (2026-02-15 to 2026-02-28)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns next_cohort status with future cohort details' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_future_cohort_only') do
