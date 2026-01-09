@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 require 'unique_user_events'
+require 'unified_health_data/service'
+require 'unified_health_data/serializers/immunization_serializer'
 
 module Mobile
   module V1
     class ImmunizationsController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       FUTURE_DATE = '3000-01-01'
 
       def index
-        immunizations = uhd_enabled? ? uhd_service.get_immunizations : lh_immunizations
-        paginated_immunizations, meta = Mobile::PaginationHelper.paginate(list: immunizations,
-                                                                          validated_params: pagination_params)
+        immunizations = uhd_enabled? ? sort_records(uhd_service.get_immunizations) : lh_immunizations
 
         # Log unique user events for immunizations/vaccines accessed
         UniqueUserEvents.log_events(
@@ -24,10 +25,13 @@ module Mobile
         )
 
         serialized_immunizations = if uhd_enabled?
-                                     UnifiedHealthData::Serializers::ImmunizationSerializer.new(
-                                       paginated_immunizations, meta
+                                     UnifiedHealthData::ImmunizationSerializer.new(
+                                       immunizations
                                      )
                                    else
+                                     paginated_immunizations, meta =
+                                       Mobile::PaginationHelper.paginate(list: immunizations,
+                                                                         validated_params: pagination_params)
                                      Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
                                    end
         render json: serialized_immunizations
