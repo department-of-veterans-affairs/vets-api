@@ -95,17 +95,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(false)
-
           allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
         end
 
         context 'with client error' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             allow(mock_client).to receive(:get_immunizations)
               .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
@@ -132,9 +126,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'with backend service exception' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             allow(mock_client).to receive(:get_immunizations)
               .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
                                                                          detail: 'Backend Service Unavailable'))
@@ -157,9 +148,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'when response has no entries' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
             allow(mock_client).to receive(:get_immunizations)
               .and_return(OpenStruct.new(body: empty_response))
@@ -295,8 +283,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       context 'when response has no entries' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(true)
           # Expect StatsD to receive count of 0
           expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
 
@@ -319,17 +305,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         let(:mock_service) { instance_double(UnifiedHealthData::Service) }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(true)
-
           allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:uhd_service).and_return(mock_service)
         end
 
         context 'with client error' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(true)
-
             allow(mock_service).to receive(:get_immunizations)
               .and_raise(Common::Client::Errors::ClientError.new(
                            'Internal server error', 500
@@ -358,9 +338,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'with backend service exception' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(true)
-
             allow(mock_service).to receive(:get_immunizations)
               .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
                                                                          detail: 'Backend Service Unavailable'))
