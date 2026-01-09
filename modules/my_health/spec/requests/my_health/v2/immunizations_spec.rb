@@ -366,11 +366,14 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
     let(:show_path) { "#{path}/#{immunization_id}" }
     let(:show_params) { default_params }
 
+    before do
+      # SCDF is not set up for single record retrieval yet, so we can only test LH
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                instance_of(User)).and_return(false)
+    end
+
     context 'happy path' do
       before do
-        # SCDF is not set up for single record retrieval yet, so we can only test LH
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                  instance_of(User)).and_return(false)
         VCR.use_cassette(lh_immunizations_cassette) do
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
         end
