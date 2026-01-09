@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/healthcare_cost_and_coverage/configuration'
 
 RSpec.describe 'V1::MedicalCopays', type: :request do
   let(:current_user) { build(:user, :loa3, icn: 123) }
 
   before do
     sign_in_as(current_user)
+
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake-access-token')
   end
 
   describe 'index', skip: 'temporarily skipped' do
     it 'returns a formatted hash response' do
-      VCR.use_cassette(
-        'lighthouse/hcc/medical_copays_index_with_city',
-        record: :new_episodes
-      ) do
+      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
