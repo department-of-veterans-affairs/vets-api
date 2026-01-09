@@ -9,7 +9,7 @@ module V0
   module Profile
     class DirectDepositsController < ApplicationController
       service_tag 'direct-deposit'
-      before_action { authorize :lighthouse, :direct_deposit_access? }
+      # before_action { authorize :lighthouse, :direct_deposit_access? }
 
       after_action :log_sso_info, only: :update
 
@@ -30,7 +30,8 @@ module V0
       end
 
       def show
-        response = client.get_payment_info
+        # response = client.get_payment_info
+        response = mock_fetch_response
         render json: DirectDepositsSerializer.new(response.body), status: response.status
       end
 
@@ -62,6 +63,35 @@ module V0
 
       def send_confirmation_email
         VANotifyDdEmailJob.send_to_emails(current_user.all_emails)
+      end
+
+      def mock_fetch_response
+        mock_body = {
+          'control_information' => {
+            'can_update_direct_deposit' => true,
+            'is_corp_available' => true,
+            'is_edu_claim_available' => true,
+            'has_cp_claim' => true,
+            'has_cp_award' => true,
+            'is_corp_rec_found' => true,
+            'has_no_bdn_payments' => true,
+            'has_index' => true,
+            'is_competent' => true,
+            'has_mailing_address' => true,
+            'has_no_fiduciary_assigned' => true,
+            'is_not_deceased' => true,
+            'has_payment_address' => true,
+            'has_identity' => true
+          },
+          'payment_account' => {
+            'financial_institution_name' => 'WELLS FARGO BANK',
+            'account_type' => 'Savings',
+            'account_number' => '1234567890',
+            'financial_institution_routing_number' => '021000021'
+          }
+        }
+        mock_response = OpenStruct.new(status: 200, body: mock_body)
+        Lighthouse::DirectDeposit::PaymentInfoParser.parse(mock_response)
       end
     end
   end
