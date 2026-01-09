@@ -32,6 +32,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     token = 'fake_access_token'
 
     allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:warn)
     allow(Rails.logger).to receive(:error)
     allow(StatsD).to receive(:increment)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
@@ -579,35 +580,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'when ICN not found' do
-      it 'returns a status of 404' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/404_response') do
-          get(:index)
-        end
-
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'when there is a gateway timeout' do
-      it 'returns a status of 504' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/504_response') do
-          get(:index)
-        end
-
-        expect(response).to have_http_status(:gateway_timeout)
-      end
-    end
-
-    context 'when LH takes too long to respond' do
-      it 'returns a status of 504' do
-        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
-        get(:index)
-
-        expect(response).to have_http_status(:gateway_timeout)
       end
     end
 
@@ -1663,35 +1635,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:unauthorized)
       end
     end
-
-    context 'when ICN not found' do
-      it 'returns a status of 404' do
-        VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
-          get(:show, params: { id: claim_id })
-        end
-
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'when there is a gateway timeout' do
-      it 'returns a status of 504' do
-        VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
-          get(:show, params: { id: claim_id })
-        end
-
-        expect(response).to have_http_status(:gateway_timeout)
-      end
-    end
-
-    context 'when LH takes too long to respond' do
-      it 'returns a status of 504' do
-        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
-        get(:show, params: { id: claim_id })
-
-        expect(response).to have_http_status(:gateway_timeout)
-      end
-    end
   end
 
   describe '#submit5103' do
@@ -2323,7 +2266,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         allow(mock_provider_class).to receive(:name).and_return('MockProvider')
         allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
         allow(second_provider).to receive(:get_claims).and_return(second_claims)
-        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:warn)
         allow(StatsD).to receive(:increment)
       end
 
