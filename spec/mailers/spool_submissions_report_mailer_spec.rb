@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
     subject do
-      stub_reports_s3(filename) do
+       do
         mail
       end
     end

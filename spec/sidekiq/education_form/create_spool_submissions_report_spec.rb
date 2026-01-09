@@ -48,7 +48,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
       let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
 
       def perform
-        stub_reports_s3(filename) do
+         do
           subject.perform
         end
       end
