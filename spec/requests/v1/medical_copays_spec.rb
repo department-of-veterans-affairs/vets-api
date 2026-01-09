@@ -34,7 +34,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
               url
               facility
               facilityId
-              lastupdatedAt
+              lastUpdatedAt
               city
               externalId
               latestBillingRef
