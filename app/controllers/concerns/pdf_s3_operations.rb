@@ -41,13 +41,14 @@ module PdfS3Operations
   #  @param config [Config] SimpleFormsApi::FormRemediation::Configuration::Base needed for s3 settings
   #  @param form_class [PdfFormBase] the pdf filler class needed for overflow? ex: IncreaseCompensation::PdfFill::Va218940v1
   def s3_signed_url(claim, created_at, config:, form_class: nil)
-    directory = dated_directory_name(claim.form_id, created_at)
+    form_id = claim.form_id
+    directory = dated_directory_name(form_id, created_at)
     s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
     final = overflow?(claim, created_at, form_class:)
-    s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf") || nil
+    s3_uploader.get_s3_link("#{directory}/#{form_id}_#{claim.guid}#{final}.pdf") || nil
   rescue => e
     Rails.logger.warn(
-      "[PdfS3Operations] S3 Fetch Signed Url | form #{claim.form_id}", error: e.message
+      "[PdfS3Operations] S3 Fetch Signed Url | form #{form_id}", error: e.message
     )
     nil
   end
