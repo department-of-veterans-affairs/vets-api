@@ -1306,10 +1306,6 @@ features:
     actor_type: user
     description: Control fetching OH vitals data
     enable_in_development: false
-  mhv_vaccine_uhd_name_logging:
-    actor_type: user
-    description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
-    enable_in_development: true
   mhv_accelerated_delivery_uhd_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
