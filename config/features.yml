@@ -2745,11 +2745,6 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-  simple_forms_email_delivery_callback:
-    actor_type: user
-    description: >-
-      Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
-      SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs
   safe_semantic_logging:
     actor_type: user
     description: Prevents logging failures when non-exception objects are passed as exception parameters
@@ -2759,3 +2754,8 @@ features:
   send_poa_to_corpdb:
     actor_type: user
     description: Controls whether the SendPoaToCorpDbJob is enqueued for new POA requests
+  simple_forms_email_delivery_callback:
+    actor_type: user
+    description: >-
+      Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
+      SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
