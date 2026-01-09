@@ -156,16 +156,33 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
 
   describe '#to_pdf' do
     let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_pdf_path) { '/tmp/test_form_stamped.pdf' }
+    let(:parsed_form_data) do
+      {
+        'certification' => {
+          'signature' => 'John Doe'
+        }
+      }
+    end
 
     before do
       allow(PdfFill::Filler).to receive(:fill_form).and_return(pdf_path)
+      allow(PdfFill::Forms::Va21p530a).to receive(:stamp_signature).and_return(stamped_pdf_path)
+      allow(claim).to receive(:parsed_form).and_return(parsed_form_data)
     end
 
-    it 'generates PDF' do
+    it 'generates PDF and stamps the signature' do
       result = claim.to_pdf
 
       expect(PdfFill::Filler).to have_received(:fill_form).with(claim, nil, {})
-      expect(result).to eq(pdf_path)
+      expect(PdfFill::Forms::Va21p530a).to have_received(:stamp_signature).with(pdf_path, parsed_form_data)
+      expect(result).to eq(stamped_pdf_path)
+    end
+
+    it 'passes file_name to the filler' do
+      claim.to_pdf('custom-file-name')
+
+      expect(PdfFill::Filler).to have_received(:fill_form).with(claim, 'custom-file-name', {})
     end
 
     it 'passes fill_options to the filler' do
