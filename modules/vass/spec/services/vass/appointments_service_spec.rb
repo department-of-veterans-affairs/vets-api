@@ -286,6 +286,14 @@ describe Vass::AppointmentsService do
 
   describe '#get_current_cohort_availability' do
     context 'with current cohort that is unbooked and has available slots' do
+      before do
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc)
+      end
+
+      after do
+        Timecop.return
+      end
+
       it 'returns available_slots status with appointment data and filtered slots' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
