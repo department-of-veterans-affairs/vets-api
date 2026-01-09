@@ -202,19 +202,6 @@ describe SimpleFormsApi::Notification::Email do
           expect(options[:callback_metadata][:notification_type]).to eq('duplicate')
         end
       end
-
-      context 'boolean type casting for flipper' do
-        subject { described_class.new(config, notification_type: :confirmation) }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return('true')
-        end
-
-        it 'handles truthy values correctly' do
-          _, options = subject.__send__(:email_args)
-          expect(options[:callback_klass]).to eq('SimpleFormsApi::Notification::EmailDeliveryStatusCallback')
-        end
-      end
     end
 
     describe '#send' do

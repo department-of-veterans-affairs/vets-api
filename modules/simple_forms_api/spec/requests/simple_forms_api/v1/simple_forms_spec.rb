@@ -805,6 +805,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
     before do
       sign_in(user)
+      allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
     end
 
     describe '21_4142' do
@@ -834,6 +835,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_4142',
@@ -887,6 +889,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_10210',
@@ -946,6 +949,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21p_0847',
@@ -1000,6 +1004,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           },
           'fake_secret',
           {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
             callback_metadata: {
               notification_type: 'confirmation',
               form_number: 'vba_21_0972',
@@ -1041,6 +1046,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         context 'veteran preparer' do
@@ -1073,6 +1079,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               },
               'fake_secret',
               {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
                 callback_metadata: {
                   notification_type: 'received',
                   form_number: 'vba_21_0966_intent_api',
@@ -1110,6 +1117,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               },
               'fake_secret',
               {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
                 callback_metadata: {
                   notification_type: 'confirmation',
                   form_number: 'vba_21_0966',
@@ -1173,6 +1181,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a confirmation email' do
@@ -1192,6 +1201,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'confirmation',
                 form_number: 'vba_26_4555',
@@ -1216,6 +1226,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a rejected email' do
@@ -1235,6 +1246,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'rejected',
                 form_number: 'vba_26_4555',
@@ -1258,6 +1270,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a duplicate email' do
@@ -1276,6 +1289,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             },
             'fake_secret',
             {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
               callback_metadata: {
                 notification_type: 'duplicate',
                 form_number: 'vba_26_4555',
