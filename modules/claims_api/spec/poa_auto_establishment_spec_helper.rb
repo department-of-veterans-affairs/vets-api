@@ -4,8 +4,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
   let(:org_gathered_data) do
     {
       'name' => 'Ralph Lee', 'ssn' => '796378782', 'file_number' => '123456',
-      'date_of_birth' => '19481030', 'service_number' => '123678453',
-      'insurance_numbers' => '1234567890', 'phone_number' => '5555551234',
+      'date_of_birth' => '19481030', 'service_number' => '12345678',
+      'insurance_numbers' => '1234567890', 'phone_nbr' => '5555551234',
       'claimant_relationship' => 'Spouse', 'poa_code' => '083',
       'organization_name' => 'DISABLED AMERICAN VETERANS',
       'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
@@ -28,8 +28,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
 
   let(:individual_gathered_data) do
     {
-      'service_number' => '123678453', 'insurance_numbers' => '1234567890',
-      'phone_number' => '5555551234', 'claimant_relationship' => 'Spouse', 'poa_code' => '074',
+      'service_number' => '12345678', 'insurance_numbers' => '1234567890',
+      'phone_nbr' => '5555551234', 'claimant_relationship' => 'Spouse', 'poa_code' => '074',
       'organization_name' => 'AMERICAN LEGION', 'representativeLawFirmOrAgencyName' => nil,
       'representative_first_name' => 'John', 'representative_last_name' => 'Doe',
       'representative_title' => nil, 'section_7332_auth' => 'true', 'limitation_alcohol' => 'true',
@@ -58,7 +58,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'zipCode' => '92264', 'zipCodeSuffix' => '0200'
             },
             'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
-            'serviceNumber' => '123678453'
+            'serviceNumber' => '12345678'
           },
           'representative' => { 'poaCode' => '074', 'type' => 'ATTORNEY', 'registrationNumber' => '12345678' },
           'recordConsent' => true,
@@ -90,7 +90,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'zipCode' => '92264', 'zipCodeSuffix' => '0200'
             },
             'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
-            'serviceNumber' => '123678453',
+            'serviceNumber' => '12345678',
             'insuranceNumber' => '1234567890'
           },
           'serviceOrganization' => {
