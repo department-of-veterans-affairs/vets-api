@@ -88,6 +88,7 @@ module SimpleFormsApi
       # Using relationship as the identity tracker, which is a standard field
       relationship = data.dig('claimant', 'relationship_to_deceased')
 
+      return 'unknown' unless relationship
       # If user entered freeform text, just track as "other":
       return 'other' unless relationship.in?(%w[executor creditor])
 
