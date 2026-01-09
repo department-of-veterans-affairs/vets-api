@@ -36,6 +36,29 @@ module Vass
         render_availability_result(result)
       end
 
+      ##
+      # GET /vass/v0/topics
+      #
+      # Returns available appointment topics (agent skills from VASS).
+      # Requires JWT authentication.
+      #
+      # @example Response
+      #   {
+      #     "data": {
+      #       "topics": [
+      #         {
+      #           "topicId": "67e0bd9f-5e53-f011-bec2-001dd806389e",
+      #           "topicName": "General Support"
+      #         }
+      #       ]
+      #     }
+      #   }
+      #
+      def topics
+        topics_list = @appointments_service.get_agent_skills || []
+        render json: { data: { topics: topics_list } }, status: :ok
+      end
+
       private
 
       ##

@@ -1,0 +1,141 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
+  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+  let(:uuid) { 'da1e1a40-1e63-f011-bec2-001dd80351ea' }
+  let(:veteran_id) { 'vet-uuid-123' }
+  let(:edipi) { '1234567890' }
+  let(:jwt_secret) { 'test-jwt-secret' }
+  let(:jwt_token) do
+    # Generate a valid JWT token for testing
+    payload = {
+      sub: veteran_id,
+      exp: 1.hour.from_now.to_i,
+      iat: Time.current.to_i,
+      jti: SecureRandom.uuid
+    }
+    JWT.encode(payload, jwt_secret, 'HS256')
+  end
+
+  before do
+    allow(Rails).to receive(:cache).and_return(memory_store)
+    Rails.cache.clear
+
+    # Stub VASS settings
+    allow(Settings).to receive(:vass).and_return(
+      OpenStruct.new(
+        auth_url: 'https://login.microsoftonline.us',
+        tenant_id: 'test-tenant-id',
+        client_id: 'test-client-id',
+        client_secret: 'test-client-secret',
+        jwt_secret:,
+        scope: 'https://api.va.gov/.default',
+        api_url: 'https://api.vass.va.gov',
+        subscription_key: 'test-subscription-key',
+        service_name: 'vass_api',
+        redis_otc_expiry: 600,
+        redis_session_expiry: 7200,
+        redis_token_expiry: 3540,
+        rate_limit_max_attempts: 5,
+        rate_limit_expiry: 900
+      )
+    )
+
+    # Set up veteran metadata in Redis using veteran_id as the identifier
+    # (this is what the JWT sub claim will contain)
+    redis_client = Vass::RedisClient.build
+    redis_client.save_veteran_metadata(uuid: veteran_id, edipi:, veteran_id:)
+  end
+
+  describe 'GET /vass/v0/topics' do
+    let(:headers) do
+      {
+        'Authorization' => "Bearer #{jwt_token}",
+        'Content-Type' => 'application/json'
+      }
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns unauthorized status' do
+        get '/vass/v0/topics', headers: { 'Content-Type' => 'application/json' }
+
+        expect(response).to have_http_status(:unauthorized)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+      end
+    end
+
+    context 'when user is authenticated' do
+      it 'returns available topics successfully' do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/get_agent_skills_success', match_requests_on: %i[method uri]) do
+            get('/vass/v0/topics', headers:)
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+
+            expect(json_response['data']).to be_present
+            expect(json_response['data']['topics']).to be_an(Array)
+            expect(json_response['data']['topics']).not_to be_empty
+
+            # Verify topic structure
+            first_topic = json_response['data']['topics'].first
+            expect(first_topic).to have_key('topicId')
+            expect(first_topic).to have_key('topicName')
+            expect(first_topic['topicId']).to be_present
+            expect(first_topic['topicName']).to be_present
+          end
+        end
+      end
+
+      it 'returns empty array when no agent skills available' do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/get_agent_skills_empty', match_requests_on: %i[method uri]) do
+            get('/vass/v0/topics', headers:)
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+
+            expect(json_response['data']).to be_present
+            expect(json_response['data']['topics']).to eq([])
+          end
+        end
+      end
+
+      context 'when veteran metadata is missing from Redis' do
+        before do
+          Rails.cache.delete(
+            "veteran_metadata_#{veteran_id}",
+            namespace: 'vass-otc-cache'
+          )
+        end
+
+        it 'returns unauthorized status' do
+          get('/vass/v0/topics', headers:)
+
+          expect(response).to have_http_status(:unauthorized)
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['detail']).to include('EDIPI not found')
+        end
+      end
+
+      context 'when VASS API returns an error' do
+        it 'returns bad gateway status' do
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/get_agent_skills_error', match_requests_on: %i[method uri]) do
+              get('/vass/v0/topics', headers:)
+
+              expect(response).to have_http_status(:bad_gateway)
+              json_response = JSON.parse(response.body)
+              expect(json_response['errors']).to be_present
+              expect(json_response['errors'].first['code']).to eq('vass_api_error')
+            end
+          end
+        end
+      end
+    end
+  end
+end

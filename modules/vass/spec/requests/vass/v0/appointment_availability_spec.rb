@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Vass::V0::Appointments', type: :request do
+RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:uuid) { 'da1e1a40-1e63-f011-bec2-001dd80351ea' }
   let(:veteran_id) { 'vet-uuid-123' }
