@@ -476,7 +476,7 @@ module UnifiedHealthData
         # Look for identifier with prescription number
         identifiers = resource['identifier'] || []
         prescription_id = identifiers.find { |id| id['system']&.include?('prescription') }
-        prescription_id ? prescription_id['value'] : resource['id']
+        prescription_id ? prescription_id['value'] : nil
       end
 
       def extract_prescription_name(resource)
