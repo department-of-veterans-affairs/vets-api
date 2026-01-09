@@ -243,13 +243,7 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(veteran_id:)
-      veteran_data = parse_response(response)
-
-      # Validate we have the required data structure
-      unless veteran_data && veteran_data['success'] && veteran_data['data']
-        raise Vass::Errors::VassApiError,
-              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
-      end
+      veteran_data = response.body
 
       # Extract and add contact info for OTC flow
       contact_method, contact_value = extract_contact_info(veteran_data)

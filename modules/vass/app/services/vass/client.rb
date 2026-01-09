@@ -298,18 +298,24 @@ module Vass
     # Override perform method to support server_url option for OAuth authentication
     # at different endpoints than the main API.
     #
+    # rubocop:disable Metrics/MethodLength
     def perform(method, path, params, headers = nil, options = nil)
       server_url = options&.delete(:server_url)
 
-      if server_url
-        custom_connection = config.connection(server_url:)
-        custom_connection.send(method.to_sym, path, params || {}) do |request|
-          request.headers.update(headers || {})
-          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
-        end.env
-      else
-        super
-      end
+      response_env = if server_url
+                       custom_connection = config.connection(server_url:)
+                       custom_connection.send(method.to_sym, path, params || {}) do |request|
+                         request.headers.update(headers || {})
+                         (options || {}).each { |option, value| request.options.send("#{option}=", value) }
+                       end.env
+                     else
+                       super
+                     end
+
+      # Validate response body structure (skip OAuth token endpoint)
+      validate_response_body(response_env) unless server_url
+
+      response_env
     rescue Common::Exceptions::BackendServiceException,
            Common::Client::Errors::ClientError,
            Common::Exceptions::GatewayTimeout,
@@ -319,6 +325,25 @@ module Vass
            Faraday::ServerError,
            Faraday::Error => e
       handle_error(e)
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    ##
+    # Validates the response body structure from VASS API.
+    #
+    # @param response_env [Faraday::Env] Faraday response environment
+    # @raise [Vass::ServiceException] if body indicates failure
+    #
+    def validate_response_body(response_env)
+      body = response_env.body
+      return if body.is_a?(Hash) && body['success']
+
+      raise config.service_exception.new(
+        Vass::Errors::ERROR_KEY_VASS_ERROR,
+        { detail: 'VASS API returned an unsuccessful response' },
+        response_env.status,
+        body
+      )
     end
 
     ##
