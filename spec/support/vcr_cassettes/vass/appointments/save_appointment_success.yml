@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://api.vass.va.gov/api/SaveAppointment
+    uri: <VASS_API_URL>/api/SaveAppointment
     body:
       encoding: UTF-8
       string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","selectedAgentSkills":["skill-1","skill-2"]}'

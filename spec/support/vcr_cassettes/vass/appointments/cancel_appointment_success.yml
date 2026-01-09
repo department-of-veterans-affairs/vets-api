@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://api.vass.va.gov/api/CancelAppointment
+    uri: <VASS_API_URL>/api/CancelAppointment
     body:
       encoding: UTF-8
       string: '{"appointmentId":"appt-abc123"}'
