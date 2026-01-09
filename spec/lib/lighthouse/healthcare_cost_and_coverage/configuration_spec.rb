@@ -15,7 +15,7 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
         client_id: 'client_id',
         rsa_key: 'rsa_key',
         aud_claim_url: 'aud_claim_url',
-        kid: 123
+        kid: '123'
       ),
       scopes: ['scope1']
     )
