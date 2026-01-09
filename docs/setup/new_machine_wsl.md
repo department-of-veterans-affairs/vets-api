@@ -254,7 +254,13 @@ sudo apt install -y pdftk
    bundle install
    ```
 
-   > **NOTE:** Ignore any warning messages about Sidekiq for now. That will be resolved in a later step (if needed).
+   > **NOTE:** Ignore any warning messages about Sidekiq for your local. When you complete the redis installation, when you run:
+
+   ```bash
+   foreman start
+   ```
+
+   and naviate to ```http://localhost:3000/sidekiq```, you should be able to see the sidekiq GUI. Just make sure to not commit changes to Gemfile.lock.
 
 3. Discard any changes made to the `Gemfile.lock`:
 
