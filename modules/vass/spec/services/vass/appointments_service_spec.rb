@@ -281,6 +281,100 @@ describe Vass::AppointmentsService do
         end
       end
     end
+
+    context 'when client encounters errors' do
+      let(:client) { instance_double(Vass::Client) }
+      let(:service_with_mock_client) do
+        service = described_class.build(edipi:, correlation_id:)
+        allow(service).to receive(:client).and_return(client)
+        service
+      end
+
+      context 'when VASS API returns unsuccessful response' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              503,
+              { 'success' => false, 'message' => 'Service temporarily unavailable' }
+            )
+          )
+        end
+
+        it 'raises VassApiError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::VassApiError, /VASS API error/)
+        end
+      end
+
+      context 'when request times out' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Exceptions::GatewayTimeout.new
+          )
+        end
+
+        it 'raises ServiceError with timeout message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /Request timeout/)
+        end
+      end
+
+      context 'when network error occurs' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Client::Errors::ClientError.new('Connection refused', 500)
+          )
+        end
+
+        it 'raises ServiceError with HTTP error message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /HTTP error/)
+        end
+      end
+
+      context 'when VASS API returns 401 unauthorized' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Authentication failed' },
+              401,
+              { 'success' => false, 'message' => 'Unauthorized' }
+            )
+          )
+        end
+
+        it 'raises AuthenticationError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::AuthenticationError, /Authentication failed/)
+        end
+      end
+
+      context 'when VASS API returns 404 not found' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Resource not found' },
+              404,
+              { 'success' => false, 'message' => 'Not found' }
+            )
+          )
+        end
+
+        it 'raises NotFoundError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::NotFoundError, /Resource not found/)
+        end
+      end
+    end
   end
 
   describe '#get_current_cohort_availability' do
