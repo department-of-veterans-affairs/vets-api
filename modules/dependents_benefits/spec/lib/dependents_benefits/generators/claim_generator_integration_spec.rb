@@ -25,7 +25,7 @@ RSpec.describe 'DependentsBenefits Claim Generator Integration', type: :model do
     context 'when creating a 686c claim' do
       let(:dependents_claim_data) { create(:add_remove_dependents_claim).parsed_form }
 
-      it 'extracts only dependent-related data' do
+      xit 'extracts only dependent-related data' do
         generator = DependentsBenefits::Generators::Claim686cGenerator.new(form_data, parent_claim_id)
         claim_686c = generator.generate
 

@@ -365,6 +365,27 @@ RSpec.describe FormProfile, type: :model do
               expect(dependents).to be_an(Object)
               expect(dependents['dependents'].first['dateOfBirth']).to be_nil
             end
+
+            it 'handles blank dependents data' do
+              # Test line 160: when dependents.blank? or dependents[:persons].blank?, sets @dependents_information to []
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+              allow(dependent_service).to receive(:get_dependents).and_return(nil)
+
+              result = form_profile.prefill
+              # When dependents are blank but no error occurs, success is true but no dependents key is created
+              expect(result[:form_data]['nonPrefill']['dependents']['success']).to eq('true')
+            end
+
+            # it 'handles dependents with blank persons array by setting empty array' do
+            #   # Test line 160: when dependents[:persons].blank?, sets @dependents_information to []
+            #   blank_persons_data = { persons: [] }
+            #   allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+            #   allow(dependent_service).to receive(:get_dependents).and_return(blank_persons_data)
+
+            #   result = form_profile.prefill
+            #   # When persons array is blank but no error occurs, success is true but no dependents key is created
+            #   expect(result[:form_data]['nonPrefill']['dependents']['success']).to eq('true')
+            # end
           end
         end
 
@@ -525,6 +546,67 @@ RSpec.describe FormProfile, type: :model do
             end
           end
         end
+      end
+    end
+  end
+
+  describe 'Additional Specs' do
+    let(:va686c674_form_profile) { DependentsBenefits::FormProfiles::VA686c674.new(form_id: '686C-674', user:) }
+
+    describe '#prefill_form_address' do
+      it 'handles VA Profile error gracefully' do
+        allow(VAProfileRedis::V2::ContactInformation)
+          .to receive(:for_user)
+          .with(user)
+          .and_raise(StandardError.new('VA Profile error'))
+
+        expect { va686c674_form_profile.send(:prefill_form_address) }.not_to raise_error
+        expect(va686c674_form_profile.instance_variable_get(:@form_address)).to be_nil
+      end
+    end
+
+    describe '#va_file_number' do
+      it 'handles BGS error and calls monitor with fallback to SSN' do
+        allow(BGS::People::Request).to receive(:new).and_raise(StandardError.new('BGS error'))
+        monitor_instance = instance_double(DependentsBenefits::Monitor)
+        allow(va686c674_form_profile).to receive(:monitor).and_return(monitor_instance)
+
+        expect(monitor_instance).to receive(:track_prefill_warning).with(
+          'Failed to retrieve VA file number',
+          'file_number_error',
+          hash_including(error: 'BGS error')
+        )
+
+        result = va686c674_form_profile.send(:va_file_number)
+        expect(result).to eq(user.ssn.presence)
+      end
+    end
+
+    describe '#prefill_dependents_information' do
+      it 'sets empty array when dependents is blank' do
+        dependent_service = instance_double(BGS::DependentService)
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
+        allow(dependent_service).to receive(:get_dependents).and_return(nil)
+
+        va686c674_form_profile.send(:prefill_dependents_information)
+
+        # When v3 is enabled, it should be a hash, when disabled it should be an array
+        result = va686c674_form_profile.instance_variable_get(:@dependents_information)
+        expect(result[:dependents]).to eq([])
+      end
+    end
+
+    describe '#parse_date_safely' do
+      it 'handles ArgumentError by returning nil' do
+        result = va686c674_form_profile.send(:parse_date_safely, 'invalid/date/format')
+        expect(result).to be_nil
+      end
+
+      it 'handles TypeError by returning nil' do
+        allow(Date).to receive(:strptime).and_raise(TypeError.new('Type error'))
+
+        result = va686c674_form_profile.send(:parse_date_safely, 'some-date')
+        expect(result).to be_nil
       end
     end
   end

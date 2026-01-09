@@ -205,6 +205,12 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         job.send(:mark_submission_attempt_failed, nil, nil)
       end.to raise_error(NotImplementedError, 'Subclasses must implement mark_submission_attempt_failed')
     end
+
+    it 'raises NotImplementedError for mark_submission_failed' do
+      expect do
+        job.send(:mark_submission_failed, nil)
+      end.to raise_error(NotImplementedError, 'Subclasses must implement mark_submission_failed')
+    end
   end
 
   describe '#handle_job_success' do
@@ -223,6 +229,18 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
       expect(monitor).to receive(:track_submission_info).with(
         match(/Successfully submitted/),
         'success',
+        parent_claim_id: parent_claim.id
+      )
+      job.send(:handle_job_success)
+    end
+
+    it 'tracks submission error on error' do
+      allow(claim_processor).to receive(:handle_successful_submission).and_raise(StandardError.new('Logging error'))
+      expect(monitor).to receive(:track_submission_error).with(
+        'Error handling job success',
+        'success_failure',
+        error: anything,
+        claim_id: anything,
         parent_claim_id: parent_claim.id
       )
       job.send(:handle_job_success)
@@ -287,6 +305,44 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         claim_id: parent_claim.id
       )
       job.send(:handle_permanent_failure, parent_claim.id, exception)
+    end
+
+    context 'when handle permanent failure raises error' do
+      let(:email_double) { instance_double(DependentsBenefits::NotificationEmail) }
+
+      before do
+        allow(DependentsBenefits::NotificationEmail).to receive(:new).and_return(email_double)
+        allow(email_double).to receive(:send_error_notification)
+      end
+
+      context 'when sending an error email succeeds' do
+        it 'sends the email and logs silent failure avoided' do
+          allow(monitor).to receive(:log_silent_failure_avoided)
+          allow(claim_processor).to receive(:handle_permanent_failure).and_raise(StandardError.new('failed'))
+          expect(email_double).to receive(:send_error_notification)
+          expect(monitor).to receive(:log_silent_failure_avoided).with({
+                                                                         claim_id: parent_claim.id,
+                                                                         error: anything
+                                                                       })
+          job.send(:handle_permanent_failure, parent_claim.id, exception)
+        end
+      end
+
+      context 'when sending an error email fails' do
+        before do
+          allow(monitor).to receive(:log_silent_failure)
+          allow(email_double).to receive(:send_error_notification).and_raise(StandardError.new('email error'))
+          allow(claim_processor).to receive(:handle_permanent_failure).and_raise(StandardError.new('failed'))
+        end
+
+        it 'logs the email sending error' do
+          expect(monitor).to receive(:log_silent_failure).with({
+                                                                 claim_id: parent_claim.id,
+                                                                 error: anything
+                                                               })
+          job.send(:handle_permanent_failure, parent_claim.id, exception)
+        end
+      end
     end
   end
 

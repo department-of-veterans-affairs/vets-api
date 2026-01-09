@@ -31,6 +31,9 @@ module DependentsBenefits
     # statsd key for pension-related submissions
     PENSION_SUBMISSION_STATS_KEY = 'app.dependents_benefits.pension_submission'
 
+    # statsd key for unknown claim type
+    UNKNOWN_CLAIM_TYPE_STATS_KEY = 'api.dependents_benefits.unknown_claim_type'
+
     # Allowed context keys for logging
     ALLOWLIST = %w[
       tags
@@ -213,6 +216,12 @@ module DependentsBenefits
       context = append_tags(context)
       track_info_event(message, PENSION_SUBMISSION_STATS_KEY, **context)
     end
+
+    def track_unknown_claim_type(message, **context)
+      context = append_tags(context)
+      track_warning_event(message, UNKNOWN_CLAIM_TYPE_STATS_KEY, **context)
+    end
+
 
     private
 
