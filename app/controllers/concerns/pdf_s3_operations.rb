@@ -47,7 +47,7 @@ module PdfS3Operations
     s3_uploader.get_s3_link("#{directory}/#{claim.form_id}_#{claim.guid}#{final}.pdf") || nil
   rescue => e
     Rails.logger.warn(
-      "[PdfS3Operations] S3 Fetch Signed Url | form #{claim.form_id}", e
+      "[PdfS3Operations] S3 Fetch Signed Url | form #{claim.form_id}", error: e.message
     )
     nil
   end
