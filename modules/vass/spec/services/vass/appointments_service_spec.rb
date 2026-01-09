@@ -4,6 +4,8 @@ require 'rails_helper'
 require_relative '../../../app/services/vass/appointments_service'
 
 describe Vass::AppointmentsService do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.build(edipi:, correlation_id:) }
 
   let(:edipi) { '1234567890' }
@@ -287,20 +289,24 @@ describe Vass::AppointmentsService do
   describe '#get_current_cohort_availability' do
     context 'with current cohort that is unbooked and has available slots' do
       it 'returns available_slots status with appointment data and filtered slots' do
-        VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
-            VCR.use_cassette('vass/appointments/get_availability_success') do
-              result = subject.get_current_cohort_availability(veteran_id:)
+        # Freeze time to Jan 6, 2026 so VCR cassette dates (Jan 7-9) fall within valid range
+        # (tomorrow to 2 weeks out)
+        travel_to Time.zone.parse('2026-01-06T12:00:00Z') do
+          VCR.use_cassette('vass/oauth_token_success') do
+            VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
+              VCR.use_cassette('vass/appointments/get_availability_success') do
+                result = subject.get_current_cohort_availability(veteran_id:)
 
-              expect(result[:status]).to eq(:available_slots)
-              expect(result[:data]).to be_a(Hash)
-              expect(result[:data][:appointment_id]).to be_present
-              expect(result[:data][:available_slots]).to be_an(Array)
-              expect(result[:data][:available_slots]).not_to be_empty
-              # Verify slots have start and end times
-              result[:data][:available_slots].each do |slot|
-                expect(slot['dtStartUtc']).to be_present
-                expect(slot['dtEndUtc']).to be_present
+                expect(result[:status]).to eq(:available_slots)
+                expect(result[:data]).to be_a(Hash)
+                expect(result[:data][:appointment_id]).to be_present
+                expect(result[:data][:available_slots]).to be_an(Array)
+                expect(result[:data][:available_slots]).not_to be_empty
+                # Verify slots have start and end times
+                result[:data][:available_slots].each do |slot|
+                  expect(slot['dtStartUtc']).to be_present
+                  expect(slot['dtEndUtc']).to be_present
+                end
               end
             end
           end
