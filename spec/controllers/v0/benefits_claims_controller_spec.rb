@@ -2271,7 +2271,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(Rails.logger).to receive(:error).with(
           'Provider MockProvider returned unexpected structure from get_claims',
-          hash_including(provider: 'MockProvider', response_class: 'Hash', has_data_key: false)
+          hash_including(provider: 'MockProvider', response_class: 'Hash')
         )
 
         result = controller.send(:get_claims_from_providers)
@@ -2283,7 +2283,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(Rails.logger).to receive(:error).with(
           'Provider MockProvider returned unexpected structure from get_claims',
-          hash_including(provider: 'MockProvider', response_class: 'String', has_data_key: false)
+          hash_including(provider: 'MockProvider', response_class: 'String')
         )
 
         result = controller.send(:get_claims_from_providers)

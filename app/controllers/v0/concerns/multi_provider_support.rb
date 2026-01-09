@@ -53,8 +53,7 @@ module V0
             "Provider #{provider_name} returned unexpected structure from get_claims",
             {
               provider: provider_name,
-              response_class: response.class.name,
-              has_data_key:
+              response_class: response.class.name
             }
           )
           return []
