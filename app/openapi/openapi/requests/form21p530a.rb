@@ -17,21 +17,22 @@ module Openapi
               fullName: { '$ref' => '#/components/schemas/FirstMiddleLastName' },
               ssn: {
                 type: :string,
-                pattern: "^[0-9]{9}$",
+                pattern: '^[0-9]{9}$',
                 description: 'Social Security Number (9 digits)',
                 example: '123456789'
               },
               vaServiceNumber: { type: :string, example: '987654321' }, # does not exist on FE
-              vaFileNumber: { type: :string, example: '987654321', pattern: "^\\d{8,9}$" },
+              vaFileNumber: { type: :string, example: '987654321', pattern: '^\\d{8,9}$' },
               dateOfBirth: { type: :string, format: :date, example: '1980-01-01' },
               dateOfDeath: { type: :string, format: :date, example: '1980-01-01' },
               placeOfBirth: {
                 type: :object,
                 properties: {
                   city: { type: :string, example: 'Kansas City' },
-                  # note, the FE specifies an enum of us states (full name, i.e. "Alabama"), but we probably want to allow for foreign births
-                  state: { type: :string, example: 'MO' } 
-        
+                  # note, the FE specifies an enum of us states (full name, i.e. "Alabama"),
+                  # but we probably want to allow for foreign births
+                  state: { type: :string, example: 'MO' }
+
                 }
               }
             }
@@ -46,10 +47,12 @@ module Openapi
                   required: %i[serviceBranch],
                   properties: {
                     serviceBranch: { type: :string, example: 'Army' },
-                    dateEnteredService: { type: :string, format: :date, example: '1968-06-01' }, #FE dateEnteredService is required if periods exist
+                    # FE dateEnteredService is required if periods exist
+                    dateEnteredService: { type: :string, format: :date, example: '1968-06-01' },
                     placeEnteredService: { type: :string, example: 'Fort Benning, GA' },
                     rankAtSeparation: { type: :string, example: 'Sergeant' },
-                    dateLeftService: { type: :string, format: :date, example: '1972-05-31' }, #FE dateLeftService is required if periods exist
+                    # FE dateLeftService is required if periods exist
+                    dateLeftService: { type: :string, format: :date, example: '1972-05-31' },
                     placeLeftService: { type: :string, example: 'Fort Hood, TX' }
                   }
                 }
@@ -106,7 +109,8 @@ module Openapi
                   phoneNumber: {
                     type: :string,
                     example: '555-123-4567'
-                    # "pattern": "^\\d{3}-?\\d{3}-?\\d{4}$" # FE enforces this pattern, but we likely want to allow international numbers
+                    # FE enforces this pattern, but we likely want to allow international numbers
+                    # "pattern": "^\\d{3}-?\\d{3}-?\\d{4}$"
                   },
                   address: {
                     type: :object,
@@ -137,8 +141,9 @@ module Openapi
                       country: {
                         type: :string,
                         maxLength: 3,
-                        example: 'USA',
-                        # we cannot validate the country in the schema because it is transformed before it is saved as a SavedClaim, which also validates against the schema
+                        example: 'USA'
+                        # we cannot validate the country in the schema because it is transformed before it is saved as a
+                        # SavedClaim, which also validates against the schema
                         # fix in https://github.com/department-of-veterans-affairs/va.gov-team/issues/128935
                         # enum: COUNTRIES_3
                       },
