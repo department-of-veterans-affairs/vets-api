@@ -73,7 +73,7 @@ http_interactions:
                     "text": "INFLUENZA, HIGH-DOSE, QUADRIVALENT, PF"
                   },
                   "patient": { "reference": "Patient/24643801" },
-                  "occurrenceDateTime": "2025-11-25T17:20:00Z",
+                  "occurrenceDateTime": "2023",
                   "location": {
                     "reference": "EVENING PRIMARY CARE",
                     "display": "EVENING PRIMARY CARE"
@@ -281,6 +281,110 @@ http_interactions:
                             }
                           ],
                           "text": "Human Papillomavirus"
+                        }
+                      ],
+                      "doseNumberString": "Unknown"
+                    }
+                  ]
+                }
+              },
+              {
+                "resource": {
+                  "resourceType": "Immunization",
+                  "id": "M20875036619",
+                  "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2025-11-26T17:17:12+00:00"
+                  },
+                  "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Immunization</b></p><p><b>Vaccine</b>: rabies vaccine, unspecified formulation</p><p><b>Occurrence</b>: Apr  4, 2016</p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Status</b>: Completed</p><p><b>Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+                  },
+                  "identifier": [
+                    {
+                      "system": "https://fhir.cerner.com/ceuuid",
+                      "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875036619-2025112617171200"
+                    }
+                  ],
+                  "status": "completed",
+                  "vaccineCode": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                        "code": "112324605",
+                        "display": "rabies vaccine, unspecified formulation",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://hl7.org/fhir/sid/cvx",
+                        "code": "90",
+                        "display": "rabies vaccine, unspecified formulation",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "rabies vaccine, unspecified formulation"
+                  },
+                  "patient": {
+                    "reference": "Patient/72339199",
+                    "display": "SILVA, ALEXANDER RICARDO"
+                  },
+                  "encounter": { "reference": "Encounter/322675981" },
+                  "occurrenceDateTime": "2016-04-04",
+                  "primarySource": false,
+                  "reportOrigin": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/30200",
+                        "code": "679975",
+                        "display": "Immunization Record",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/immunization-origin",
+                        "code": "record",
+                        "display": "Written Record",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "Immunization Record"
+                  },
+                  "location": {
+                    "reference": "Location/353977013",
+                    "display": "556 JAL IL VA"
+                  },
+                  "doseQuantity": {
+                    "value": 0.0,
+                    "unit": "unknown unit",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "{unknownunit}"
+                  },
+                  "performer": [
+                    {
+                      "actor": {
+                        "reference": "Organization/2044131",
+                        "display": "556 Captain James A Lovell IL VA Medical Center"
+                      }
+                    }
+                  ],
+                  "protocolApplied": [
+                    {
+                      "targetDisease": [
+                        {
+                          "coding": [
+                            {
+                              "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/4003106",
+                              "code": "42348045",
+                              "display": "Rabies",
+                              "userSelected": true
+                            },
+                            {
+                              "system": "http://hl7.org/fhir/sid/cvx",
+                              "code": "90",
+                              "display": "rabies vaccine, unspecified formulation",
+                              "userSelected": false
+                            }
+                          ],
+                          "text": "Rabies"
                         }
                       ],
                       "doseNumberString": "Unknown"

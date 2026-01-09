@@ -13,13 +13,14 @@ module MyHealth
   module V2
     class ImmunizationsController < ApplicationController
       include MyHealth::V2::Concerns::ErrorHandler
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       STATSD_KEY_PREFIX = 'api.my_health.immunizations'
 
       def index
         if uhd_enabled?
-          immunizations = uhd_service.get_immunizations
+          immunizations = sort_records(uhd_service.get_immunizations, params[:sort])
           log_vaccines(immunizations.length)
           render json: UnifiedHealthData::ImmunizationSerializer.new(immunizations)
         else

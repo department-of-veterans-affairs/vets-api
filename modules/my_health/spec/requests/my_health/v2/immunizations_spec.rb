@@ -205,7 +205,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         it 'returns a successful response' do
           expect(response).to be_successful
           json_response = JSON.parse(response.body)
-          expect(json_response['data'].count).to eq(3)
+          expect(json_response['data'].count).to eq(4)
           expect(json_response['data']).to be_an(Array)
           expect(json_response['data'].first['type']).to eq('immunization')
           expect(json_response['data'].first).to include(
@@ -238,6 +238,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
               UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
             ]
           )
+        end
+
+        it 'orders records by descending date, even if date format is different' do
+          dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
+          expect(dates).to eq(['2025-12-12T18:00:00Z', '2025-12-10T14:19:00-06:00', '2023', '2016-04-04'])
         end
 
         context 'when date parameters are provided, they are ignored' do
@@ -284,7 +289,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           end
 
           # Verify the location name for the first immunization
-          expect(json_response['data'][0]['attributes']['location']).to eq('EVENING PRIMARY CARE')
+          expect(json_response['data'][0]['attributes']['location']).to eq('TEST')
         end
       end
 
