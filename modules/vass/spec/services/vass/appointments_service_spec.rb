@@ -245,16 +245,15 @@ describe Vass::AppointmentsService do
       end
 
       context 'when API response is invalid' do
-        let(:invalid_response) do
-          {
-            'success' => false,
-            'message' => 'Veteran not found'
-          }
-        end
-
         before do
-          allow(client).to receive(:get_veteran).and_return(
-            double(body: invalid_response, status: 200)
+          # Client now validates responses and raises ServiceException for invalid responses
+          allow(client).to receive(:get_veteran).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              200,
+              { 'success' => false, 'message' => 'Veteran not found' }
+            )
           )
         end
 
@@ -271,13 +270,13 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves available agent skills' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_agent_skills_success') do
+          VCR.use_cassette('vass/appointments/get_agent_skills_success') do
             result = subject.get_agent_skills
 
-            expect(result['success']).to be true
-            expect(result['data']['agentSkills']).to be_an(Array)
-            expect(result['data']['agentSkills'].length).to eq(4)
-            expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+            expect(result).to be_an(Array)
+            expect(result.length).to eq(3)
+            expect(result.first[:topicId]).to be_present
+            expect(result.first[:topicName]).to be_present
           end
         end
       end

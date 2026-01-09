@@ -273,8 +273,15 @@ module Vass
     #
     def get_agent_skills
       response = client.get_agent_skills
+      body = response.body
 
-      parse_response(response)
+      agent_skills = body.dig('data', 'agentSkills') || []
+      agent_skills.map do |skill|
+        {
+          topicId: skill['skillId'],
+          topicName: skill['skillName']
+        }
+      end
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
