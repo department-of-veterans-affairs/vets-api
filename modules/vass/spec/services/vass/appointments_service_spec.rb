@@ -270,7 +270,7 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves available agent skills' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/appointments/get_agent_skills_success') do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success') do
             result = subject.get_agent_skills
 
             expect(result).to be_an(Array)

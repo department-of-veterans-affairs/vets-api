@@ -70,7 +70,8 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
     context 'when user is authenticated' do
       it 'returns available topics successfully' do
         VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('vass/appointments/get_agent_skills_success', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success',
+                           match_requests_on: %i[method uri]) do
             get('/vass/v0/topics', headers:)
 
             expect(response).to have_http_status(:ok)
@@ -92,7 +93,8 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
 
       it 'returns empty array when no agent skills available' do
         VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('vass/appointments/get_agent_skills_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_empty',
+                           match_requests_on: %i[method uri]) do
             get('/vass/v0/topics', headers:)
 
             expect(response).to have_http_status(:ok)
@@ -125,7 +127,8 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
       context 'when VASS API returns an error' do
         it 'returns bad gateway status' do
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('vass/appointments/get_agent_skills_error', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_error',
+                             match_requests_on: %i[method uri]) do
               get('/vass/v0/topics', headers:)
 
               expect(response).to have_http_status(:bad_gateway)
