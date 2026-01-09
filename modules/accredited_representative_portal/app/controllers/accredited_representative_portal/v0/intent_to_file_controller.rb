@@ -44,15 +44,18 @@ module AccreditedRepresentativePortal
         else
           icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
           Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
-          saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
-          Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
           claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
-          SavedClaimClaimantRepresentative.create!(
-            saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
-            power_of_attorney_holder_type: claimant_representative.power_of_attorney_holder.type,
-            power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
-            accredited_individual_registration_number: claimant_representative.accredited_individual_registration_number
-          )
+          SavedClaim::BenefitsClaims::IntentToFile.transaction do
+            saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
+            Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
+            SavedClaimClaimantRepresentative.create!(
+              saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
+              power_of_attorney_holder_type: claimant_representative.power_of_attorney_holder.type,
+              power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
+              accredited_individual_registration_number:
+                claimant_representative.accredited_individual_registration_number
+            )
+          end
           Rails.logger.info('ARP ITF: SavedClaimClaimantRepresentative created')
           render json: parsed_response, status: :created
         end
