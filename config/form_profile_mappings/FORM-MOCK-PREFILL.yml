@@ -15,7 +15,6 @@ data:
       suffix: [identity_information, full_name, suffix]
       dateOfBirth: [identity_information, date_of_birth]
       ssn: [identity_information, ssn_last_four]
-      vaFileNumber: [identity_information, va_file_number]
       gender: [identity_information, gender]
       phone:
         areaCode: [phone_object, area_code]
