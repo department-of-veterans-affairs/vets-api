@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 module NotificationsClientPatch
-  # need to overwrite initialize to extract different key lengths
+  UUID_LENGTH = 36
+  MINIMUM_TOKEN_LENGTH = 75
+  URLSAFE_TOKEN_LENGTH = 86
+
   def initialize(secret_token = nil, base_url = nil)
     return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
 
-    @service_id = secret_token[secret_token.length - 73..secret_token.length - 38]
-    # TODO: extract secret_token that is either 36 or 86 characters long
-    @secret_token = secret_token[secret_token.length - 36..secret_token.length]
+    token_length = detect_token_length(secret_token)
+    @secret_token = secret_token[-token_length..]
+    @service_id = secret_token[-(token_length + 1 + UUID_LENGTH)..-(token_length + 2)]
     @base_url = base_url || PRODUCTION_BASE_URL
 
     validate_uuids!
@@ -19,6 +22,8 @@ module NotificationsClientPatch
     raise ArgumentError, "Invalid service_id format: #{@service_id}" unless valid_uuid?(@service_id)
 
     raise ArgumentError, "Invalid secret_token format: #{@secret_token}" unless valid_token?(@secret_token)
+
+    Rails.logger.info('NotificationsClientPatch: validation successful')
   end
 
   private
@@ -40,6 +45,22 @@ module NotificationsClientPatch
     return true if token.length >= 86 && token.match?(/\A[A-Za-z0-9_-]+\z/)
 
     false
+  end
+
+  def detect_token_length(secret_token)
+    # minimum length includes 2 uuids, dashes, and a character for name
+    unless secret_token.is_a?(String) && secret_token.length >= MINIMUM_TOKEN_LENGTH
+      raise ArgumentError, "Invalid secret_token format: #{secret_token}"
+    end
+
+    potential_uuid = secret_token[-UUID_LENGTH..]
+    if valid_uuid?(potential_uuid)
+      Rails.logger.info('NotificationsClientPatch: Detected uuid format for api_key')
+      UUID_LENGTH
+    else
+      Rails.logger.info('NotificationsClientPatch: Detected urlsafe format for api_key')
+      URLSAFE_TOKEN_LENGTH
+    end
   end
 end
 
