@@ -23,15 +23,17 @@ module EventBusGateway
       job_id = msg['jid']
       error_class = msg['error_class']
       error_message = msg['error_message']
+      cache_key = msg['args'][2]
       timestamp = Time.now.utc
 
       ::Rails.logger.error('LetterReadyEmailJob retries exhausted',
                            { job_id:, timestamp:, error_class:, error_message: })
       tags = Constants::DD_TAGS + ["function: #{error_message}"]
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
-    def perform(participant_id, template_id, cache_key = nil)
+    def perform(participant_id, template_id, cache_key = nil) # rubocop:disable Metrics/MethodLength
       first_name = nil
       icn = nil
 
@@ -55,6 +57,10 @@ module EventBusGateway
 
       # Clean up PII from Redis if cache_key was used
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
+    rescue Sidekiq::AttrPackageError => e
+      # Log AttrPackage errors as application logic errors (no retries)
+      Rails.logger.error('LetterReadyEmailJob AttrPackage error', { error: e.message })
+      raise ArgumentError, e.message
     rescue => e
       record_notification_send_failure(e, 'Email')
       raise
