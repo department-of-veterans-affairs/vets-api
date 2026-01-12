@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Spool10203SubmissionsReportMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
     subject do
-       do
+      stub_reports_s3 do
         mail
       end
     end
@@ -19,9 +19,12 @@ RSpec.describe Spool10203SubmissionsReportMailer, type: %i[mailer aws_helpers] d
       end
 
       it 'sends the right email' do
+        expected_url = 'https://test-url.com/report.pdf'
+        allow(Reports::Uploader).to receive(:get_s3_link).and_return(expected_url)
+
         subject
         text = described_class::REPORT_TEXT
-        expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
+        expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{expected_url}")
         expect(mail.subject).to eq(text)
       end
 

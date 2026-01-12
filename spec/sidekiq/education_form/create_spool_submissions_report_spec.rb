@@ -38,7 +38,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
     describe '#perform' do
       before do
-        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:send_edu_report_email).and_return(true)
       end
 
       after do
@@ -48,7 +48,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
       let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
 
       def perform
-         do
+        stub_reports_s3 do
           subject.perform
         end
       end

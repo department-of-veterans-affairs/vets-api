@@ -108,17 +108,16 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       let(:url) { 'https://s3.amazonaws.com/bucket/test-file.pdf?presigned=true' }
+      let(:filename) { "tmp/daily_reports/#{date}.csv" }
 
       before do
-        allow(FeatureFlipper).to receive(:send_edu_report_email?).and_return(true)  # Changed from expect to allow
+        allow(FeatureFlipper).to receive(:send_edu_report_email?).and_return(true) # Changed from expect to allow
         allow(Reports::Uploader).to receive(:get_s3_link).and_return(url)
       end
 
       after do
         FileUtils.rm_f(filename)
       end
-
-      let(:filename) { "tmp/daily_reports/#{date}.csv" }
 
       it 'creates a csv file' do
         subject

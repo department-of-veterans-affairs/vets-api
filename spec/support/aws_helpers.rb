@@ -32,13 +32,12 @@ module AwsHelpers
     s3_resource = double('s3_resource')
 
     # Stub the chain: s3_resource.bucket(bucket_name).object(key)
-    allow(s3_resource).to receive(:client).and_return(s3_client)
-    allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
+    allow(s3_resource).to receive_messages(client: s3_client, bucket: s3_bucket)
     allow(s3_bucket).to receive(:object).and_return(s3_object)
 
     # Stub the presigned_url method with expires_in parameter
     allow(s3_object).to receive(:presigned_url)
-      .with(:get, expires_in: 604800)
+      .with(:get, expires_in: 604_800)
       .and_return('https://s3.amazonaws.com/bucket/test-file.pdf?presigned=true')
 
     allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)

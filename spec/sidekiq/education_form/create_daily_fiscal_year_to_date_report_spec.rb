@@ -134,7 +134,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       subject do
         create_daily_year_to_date_report = described_class.new
 
-         do
+        stub_reports_s3 do
           create_daily_year_to_date_report.perform
         end
 
