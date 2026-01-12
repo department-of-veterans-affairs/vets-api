@@ -1618,7 +1618,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 10203' do
         before do
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
