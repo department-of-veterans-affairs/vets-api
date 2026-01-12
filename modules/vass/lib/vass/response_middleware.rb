@@ -126,4 +126,9 @@ module Vass
       }
     end
   end
+
+  # Main service exception used by middleware and client
+  # Inherits from BackendServiceException to maintain compatibility with vets-api error handling
+  # Defined here (after common/exceptions is required) rather than in errors.rb to avoid load order issues
+  class ServiceException < Common::Exceptions::BackendServiceException; end
 end
