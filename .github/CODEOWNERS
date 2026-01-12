@@ -1667,6 +1667,7 @@ spec/mailers/stem_applicant_denial_mailer_spec.rb @department-of-veterans-affair
 spec/mailers/stem_applicant_sco_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/transactional_email_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/veteran_readiness_employment_mailer_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
+spec/mailers/year_to_date_report_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/middleware @department-of-veterans-affairs/backend-review-group
 spec/models/account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/accreditation_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
