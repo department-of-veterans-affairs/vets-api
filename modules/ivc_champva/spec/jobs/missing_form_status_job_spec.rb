@@ -22,8 +22,9 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     allow(StatsD).to receive(:increment)
 
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: true))
-    allow(job).to receive(:monitor).and_return(double(track_send_zsf_notification_to_pega: nil,
-                                                      track_failed_send_zsf_notification_to_pega: nil))
+
+    allow(job).to receive(:monitor).and_return(double(log_silent_failure: nil))
+
     # Save the original form creation times so we can restore them later
     @original_creation_times = forms.map(&:created_at)
     @original_uuids = forms.map(&:form_uuid)
@@ -64,29 +65,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be true
   end
 
-  it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
-    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
-
-    threshold = 8
-    allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
-
-    # verify that the forms are approaching threshold w/ no PEGA status:
-    forms.each do |form|
-      expect(form.pega_status).to be_nil
-      expect(days_since_now(form.created_at) < threshold).to be true
-      expect(days_since_now(form.created_at) > threshold - 2).to be true
-    end
-
-    # `perform` should identify the form as nearing a lapse and send a notice to PEGA:
-    job.perform
-
-    # Verify that we attempted to notify PEGA:
-    expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).exactly(forms.count).times
-
-    # email_sent should not be true for this form since we only attempted to notify PEGA:
-    expect(forms[0].reload.email_sent).to be false
-  end
-
   it 'checks PEGA reporting API and declines to send failure email if form has actually been processed' do
     # The `pega_status` stored on a form object may be innacurate if the PEGA service
     # had an unrelated failure when attempting to update the status via the API.
@@ -125,7 +103,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
-    allow(job.monitor).to receive(:log_silent_failure).and_return(nil)
 
     # Verify that we SHOULD send an email to user for this form
     expect(forms[0].email_sent).to be false
@@ -253,30 +230,5 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(Rails.logger).to receive(:error).twice
 
     IvcChampva::MissingFormStatusJob.new.perform
-  end
-
-  context 'when send_zsf_notification_to_pega is successful' do
-    it 'logs a successful notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
-
-      # Expect our monitor to track the successful send
-      expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).with(forms[0].form_uuid,
-                                                                                      'fake-template')
-    end
-  end
-
-  context 'when send_zsf_notification_to_pega fails' do
-    before do
-      # Sending the email should fail in this case
-      allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
-    end
-
-    it 'logs a failed notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
-
-      # Expect our monitor to track the failed send
-      expect(job.monitor).to have_received(:track_failed_send_zsf_notification_to_pega).with(forms[0].form_uuid,
-                                                                                             'fake-template')
-    end
   end
 end

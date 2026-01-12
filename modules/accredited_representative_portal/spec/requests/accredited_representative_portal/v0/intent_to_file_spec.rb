@@ -103,8 +103,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         benefitType: 'compensation',
         veteranFullName: { first: 'Derrick', last: 'Reid' },
         veteranSsn: '666468765',
-        veteranDateOfBirth: '1976-01-16',
-        postalCode: '12345'
+        veteranDateOfBirth: '1976-01-16'
       }
     end
 

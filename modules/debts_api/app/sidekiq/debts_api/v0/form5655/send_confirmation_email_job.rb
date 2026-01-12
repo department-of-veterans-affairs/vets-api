@@ -15,6 +15,7 @@ module DebtsApi
 
     sidekiq_retries_exhausted do |job, ex|
       args = job['args'][0]
+      cache_key = args['cache_key']
       submission_type = args['submission_type'] || 'fsr'
       stats_key = if submission_type == 'fsr'
                     FSR_STATS_KEY
@@ -31,9 +32,11 @@ module DebtsApi
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
+
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
-    def perform(args)
+    def perform(args) # rubocop:disable Metrics/MethodLength
       submission_type = args['submission_type'] || 'fsr'
       cache_key = args['cache_key']
       pii = retrieve_pii(args, cache_key)
@@ -52,8 +55,11 @@ module DebtsApi
         pii[:email], args['template_id'], email_personalization_info(pii, submissions_data,
                                                                      submission_type), { id_type: 'email' }
       )
-
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
+    rescue Sidekiq::AttrPackageError => e
+      # Log AttrPackage errors as application logic errors (no retries)
+      Rails.logger.error('V0::Form5655::SendConfirmationEmailJob', { error: e.message })
+      raise ArgumentError, e.message
     rescue => e
       Rails.logger.error("DebtsApi::SendConfirmationEmailJob (#{submission_type}) - Error sending email: #{e.message}")
       raise e

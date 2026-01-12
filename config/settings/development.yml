@@ -529,6 +529,8 @@ form_10_10cg:
       region: us-gov-west-1
 form_mock_ae_design_patterns:
   prefill: true
+form_mock_prefill:
+  prefill: true
 form_upload:
   prefill: true
 forms:
@@ -1332,6 +1334,11 @@ travel_pay:
     client_secret: ~
     resource: ~
     tenant_id: ~
+unique_user_metrics:
+  processor_job:
+    batch_size: 50
+    max_iterations: 20
+    max_queue_depth: 5000
 va_forms:
   drupal_password: ~
   drupal_url: ~
@@ -1616,6 +1623,7 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
