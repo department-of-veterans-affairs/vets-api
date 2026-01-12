@@ -22,7 +22,8 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
   describe 'constants' do
     it 'uses COMMON_CARRIER_EXPLANATIONS from Constants module' do
       expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values).to eq(['Privately Owned Vehicle Not Available',
-                                                                              'Medically Indicated', 'Other',
+                                                                              'Medically Indicated',
+                                                                              'Other',
                                                                               'Unspecified'])
     end
 
@@ -211,6 +212,32 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
       expect(subject).not_to be_valid
       expect(subject.errors[:reason_not_using_pov]).to include("can't be blank")
       expect(subject.errors[:carrier_type]).to include("can't be blank")
+    end
+  end
+
+  describe '.permitted_params' do
+    it 'extends base expense permitted parameters with common carrier-specific fields' do
+      params = described_class.permitted_params
+      expect(params).to include(:reason_not_using_pov, :carrier_type)
+    end
+  end
+
+  describe '#to_service_params' do
+    subject do
+      described_class.new(
+        purchase_date: Date.new(2024, 3, 15),
+        description: 'Taxi to hospital',
+        cost_requested: 45.00,
+        reason_not_using_pov: 'Medically Indicated',
+        carrier_type: 'Taxi',
+        claim_id: 'claim-uuid-carrier'
+      )
+    end
+
+    it 'includes common carrier-specific fields' do
+      params = subject.to_service_params
+      expect(params['reason_not_using_pov']).to eq('Medically Indicated')
+      expect(params['carrier_type']).to eq('Taxi')
     end
   end
 end

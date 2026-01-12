@@ -11,6 +11,8 @@ module IvcChampva
     class UploadsController < ApplicationController
       skip_after_action :set_csrf_header
 
+      include ActionView::Helpers::NumberHelper
+
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
         '10-10D-EXTENDED' => 'vha_10_10d',
@@ -65,8 +67,6 @@ module IvcChampva
       # This method handles generating OHI forms for all appropriate applicants
       # when a user submits a 10-10d/10-7959c merged form.
       def submit_champva_app_merged
-        return unless Settings.vsp_environment != 'production'
-
         parsed_form_data = JSON.parse(params.to_json)
         form_id = get_form_id
         apps = applicants_with_ohi(parsed_form_data['applicants'])
@@ -319,8 +319,18 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A 10-10D-EXTENDED].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
+          Rails.logger.info "submit_supporting_documents called for form #{params[:form_id]}"
+
           unlocked = unlock_file(params['file'], params['password'])
           attachment.file = params['password'] ? unlocked : params['file']
+
+          # pre-validation logging to help debug issues
+          Rails.logger.info "submit_supporting_documents attachment.file class: #{attachment.file.class}"
+          Rails.logger.info "submit_supporting_documents attachment.file present: #{attachment.file.present?}"
+          Rails.logger.info(
+            "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
+          )
+
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -768,8 +778,7 @@ module IvcChampva
 
       def get_attachment_ids_and_form(parsed_form_data)
         base_form_id = get_form_id
-        form_id = IvcChampva::FormVersionManager.resolve_form_version(base_form_id, @current_user)
-        form = IvcChampva::FormVersionManager.create_form_instance(form_id, parsed_form_data, @current_user)
+        form = IvcChampva::FormVersionManager.create_form_instance(base_form_id, parsed_form_data, @current_user)
 
         form_class = form.class
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1

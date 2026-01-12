@@ -44,8 +44,8 @@ RSpec.describe FeatureFlagHelper do
 
         expect { instance.verify_feature_flag!(feature_flag, user, error_message: custom_message) }
           .to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ServiceUnavailable)
-          expect(error.errors.first[:detail]).to eq(custom_message)
+            expect(error).to be_a(Common::Exceptions::ServiceUnavailable)
+            expect(error.errors.first[:detail]).to eq(custom_message)
         end
       end
     end

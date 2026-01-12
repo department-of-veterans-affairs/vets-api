@@ -2,24 +2,7 @@
 
 module ClaimsApi
   class SubmissionReportMailer < ApplicationMailer
-    RECIPIENTS = %w[
-      afreemer@technatomy.com
-      david.mazik@va.gov
-      drew.fisher@adhocteam.us
-      janet.coutinho@va.gov
-      jgreene@technatomy.com
-      kayla.watanabe@adhocteam.us
-      mchristianson@technatomy.com
-      michael.clement@adhocteam.us
-      michael.harlow@va.gov
-      mzanaty@technatomy.com
-      robert.perea-martinez@adhocteam.us
-      rrice@technatomy.com
-      stone_christopher@bah.com
-      zachary.goldfine@va.gov
-    ].freeze
-
-    def build(date_from, date_to, data)
+    def build(date_from, date_to, recipients, data)
       @date_from = date_from.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @date_to = date_to.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @data = { month: {} }
@@ -35,7 +18,7 @@ module ClaimsApi
       body = ERB.new(template).result(binding)
 
       mail(
-        to: RECIPIENTS,
+        to: recipients,
         subject: 'Benefits Claims Monthly Submission Report', # rubocop:disable Rails/I18nLocaleTexts
         content_type: 'text/html',
         body:

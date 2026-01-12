@@ -42,26 +42,37 @@ module Mobile
 
       def get_unique_care_systems612_fix(all_recipients)
         unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-        does_include612 = unique_care_system_ids.delete('612')
+        included_complex_systems = MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS.keys & unique_care_system_ids
+        unique_care_system_ids -= included_complex_systems
         care_system_map = map_care_systems(unique_care_system_ids)
-
-        if does_include612
+        included_complex_systems.each do |system_id|
           care_system_map << {
-            station_number: '612',
-            health_care_system_name: 'VA Northern California'
+            station_number: system_id,
+            health_care_system_name: MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS[system_id]
           }
         end
         care_system_map
       end
 
       def map_care_systems(unique_care_system_ids)
-        unique_care_system_names = Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
+        unique_care_system_names = fetch_facility_names(unique_care_system_ids)
         unique_care_system_ids.zip(unique_care_system_names).map do |system|
           {
             station_number: system[0],
             health_care_system_name: system[1] || system[0]
           }
         end
+      end
+
+      def fetch_facility_names(unique_care_system_ids)
+        Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
+      rescue => e
+        # log the error but don't prevent allrecipients from being returned
+        StatsD.increment('mobile.sm.allrecipients.facilities_lookup.failure')
+        Rails.logger.error('Lighthouse Facilities API error for allrecipients',
+                           error: e.message, user_uuid: @current_user&.uuid)
+        # Return nil for each facility so fallback to station_number occurs
+        Array.new(unique_care_system_ids.size)
       end
     end
   end

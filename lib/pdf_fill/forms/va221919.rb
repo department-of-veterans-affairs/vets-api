@@ -11,6 +11,13 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
+        'isAuthenticated' => {
+          key: 'isAuthenticated',
+          limit: 1,
+          question_num: 23,
+          question_suffix: 'A',
+          question_text: 'IS AUTHENTICATED'
+        },
         'institutionDetails' => {
           'institutionName' => {
             key: 'institutionName',
@@ -179,7 +186,8 @@ module PdfFill
           limit: 10,
           question_num: 22,
           question_suffix: 'A',
-          question_text: 'DATE SIGNED'
+          question_text: 'DATE SIGNED',
+          format: 'date'
         }
       }.freeze
 
@@ -187,9 +195,11 @@ module PdfFill
         form_data = JSON.parse(JSON.generate(@form_data))
 
         FORMATTER.process_certifying_official(form_data)
+        FORMATTER.process_institution_address(form_data)
         FORMATTER.convert_boolean_fields(form_data)
         FORMATTER.process_proprietary_conflicts(form_data)
         FORMATTER.process_all_proprietary_conflicts(form_data)
+        FORMATTER.process_is_authenticated(form_data)
 
         form_data
       end

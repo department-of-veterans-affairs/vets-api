@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module TestUserDashboard
   class ApplicationController < ActionController::API
-    include SentryLogging
+    include Vets::SharedLogging
     include Traceable
 
     def require_jwt

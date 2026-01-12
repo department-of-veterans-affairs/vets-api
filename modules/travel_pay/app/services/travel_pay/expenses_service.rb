@@ -5,6 +5,8 @@ require 'base64'
 
 module TravelPay
   class ExpensesService
+    include ExpenseNormalizer
+
     def initialize(auth_manager)
       @auth_manager = auth_manager
     end
@@ -32,7 +34,6 @@ module TravelPay
       raise ArgumentError, 'You must provide a claim ID to create an expense.' unless params['claim_id']
 
       Rails.logger.info("Creating expense of type: #{params['expense_type']}")
-
       # Build the request body for the API
       request_body = build_expense_request_body(params)
 
@@ -54,7 +55,10 @@ module TravelPay
       Rails.logger.info("Getting expense of type: #{expense_type} with ID: #{expense_id}")
 
       response = client.get_expense(veis_token, btsss_token, expense_type, expense_id)
-      response.body['data']
+      expense = response.body['data']
+
+      # Normalize expense type
+      normalize_expense(expense)
     rescue Faraday::Error => e
       Rails.logger.error("Failed to get expense via API: #{e.message}")
       TravelPay::ServiceError.raise_mapped_error(e)
@@ -112,10 +116,28 @@ module TravelPay
         # Use special mapping if it exists, otherwise convert to camelCase
         key_str = key.to_s
         api_key = special_mappings[key_str] || key_str.camelize(:lower)
-        request_body[api_key] = value
+
+        # Transform hashes (like receipt)
+        request_body[api_key] = camelize_hash_keys(value)
       end
 
       request_body
+    end
+
+    ##
+    # Transforms hash values to camelCase
+    # For receipt parameter which is a hash with properties
+    #
+    # @param value [Object] The value to transform
+    # @return [Object] The transformed value
+    #
+    def camelize_hash_keys(value)
+      case value
+      when Hash
+        value.transform_keys { |k| k.to_s.camelize(:lower) }
+      else
+        value
+      end
     end
 
     def client

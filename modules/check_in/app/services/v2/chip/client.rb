@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module V2
   module Chip
     ##
@@ -27,7 +29,7 @@ module V2
     #   @return (see Config::Options#service_name)
     class Client
       extend Forwardable
-      include SentryLogging
+      include Vets::SharedLogging
 
       attr_reader :settings, :claims_token, :check_in_session
 
@@ -131,6 +133,7 @@ module V2
                                   uuid: check_in_session.uuid
                                 },
                                 { external_service: service_name, team: 'check-in' })
+
         raise e
       end
 
@@ -192,6 +195,7 @@ module V2
                                   uuid: check_in_session.uuid
                                 },
                                 { external_service: service_name, team: 'check-in' })
+
         Faraday::Response.new(response_body: e.original_body, status: e.original_status)
       end
 

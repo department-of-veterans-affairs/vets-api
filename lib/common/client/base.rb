@@ -3,7 +3,7 @@
 require 'faraday'
 require 'common/client/errors'
 require 'common/models/collection'
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module Common
   module Client
@@ -45,7 +45,7 @@ module Common
     #   end
     #
     class Base
-      include SentryLogging
+      include Vets::SharedLogging
 
       ##
       # Sets the configuration singleton to use

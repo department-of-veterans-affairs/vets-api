@@ -17,8 +17,8 @@ module AAL
     # Create an AAL (account activity log) entry in MHV.
     #
     # @param [Hash] attributes - The AAL attributes to send
-    # @param [Boolean] once_per_session - Whether this log should be limited to once per session
-    # @param [Common::UTCTime] session_id - Unique identifier for the user's VA.gov session, e.g. last_signed_in
+    # @param [Bool] once_per_session - Whether this log should be limited to once per session
+    # @param [Vets::Type::UTCTime] session_id - Unique identifier for the user's VA.gov session, e.g. last_signed_in
     #
     def create_aal(attributes, once_per_session, session_id)
       if once_per_session

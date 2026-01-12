@@ -144,7 +144,7 @@ describe V2::Chip::Client do
       end
 
       it 'returns success response' do
-        expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_exception_to_sentry)
 
         expect(subject.set_precheckin_started(token:)).to eq(resp)
       end
@@ -152,7 +152,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -200,7 +200,7 @@ describe V2::Chip::Client do
       end
 
       it 'returns success response' do
-        expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_exception_to_sentry)
 
         expect(subject.set_echeckin_started(token:, appointment_attributes:)).to eq(resp)
       end
@@ -208,7 +208,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -216,7 +216,7 @@ describe V2::Chip::Client do
       end
 
       it 'handles the exception and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry)
 
         expect { subject.set_echeckin_started(token:, appointment_attributes:) }
           .to raise_error Common::Exceptions::BackendServiceException
@@ -357,7 +357,7 @@ describe V2::Chip::Client do
 
     context 'when CHIP returns an error' do
       let(:resp) { Faraday::Response.new(body: { 'title' => 'Unknown error' }.to_json, status: 500) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
       let(:token) { 'abc123' }
 
       before do
@@ -365,7 +365,7 @@ describe V2::Chip::Client do
       end
 
       it 'handles the exception and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry)
 
         response = subject.delete(token:)
         expect(response.status).to eq(resp.status)

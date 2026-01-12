@@ -56,7 +56,7 @@ RSpec.describe 'MyHealth::V2::CcdController', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response.content_type).to include('text/html')
-          expect(response.body).to include('<!DOCTYPE html>')
+          expect(response.body).to include('<!DOCTYPE html')
         end
       end
     end

@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake_url.com/suite/webapi/get-ch31-case-details
+    body:
+      encoding: UTF-8
+      string: '{"icn":"1012667145V762142"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Appian-API-Key:
+      - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.dummy-key-for-test
+  response:
+    status:
+      code: 500
+      message: '500'
+    headers:
+      date:
+      - Tue, 14 Sep 2025 20:00:00 GMT
+      content-type:
+      - application/json
+      connection:
+      - keep-alive
+      server:
+      - Apache
+      cache-control:
+      - no-cache, private
+      x-trace-id:
+      - ''
+      x-frame-options:
+      - SAMEORIGIN
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+      x-content-type-options:
+      - nosniff
+      content-security-policy:
+      - report-uri /suite/rest/a/logging/latest/csp/report; report-to report;
+      reporting-endpoints:
+      - report="/suite/rest/a/logging/latest/csp/report"
+      requested-while-authenticated:
+      - 'false'
+    body:
+      encoding: UTF-8
+      string: '{"resource":"/suite/webapi/aw7nZg","error":"APNX-1-4187-000","message":"Authentication failed. Please check your credentials and try again.","title":"An Error Has Occurred"}'
+  recorded_at: Tue, 14 Sep 2025 20:00:00 GMT
+recorded_with: VCR 6.3.1

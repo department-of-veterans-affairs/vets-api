@@ -650,7 +650,7 @@ RSpec.describe SAML::PostURLService do
 
                 context 'and authentication is occuring on a review instance' do
                   let(:review_instance_slug) { 'some-review-instance-slug' }
-                  let(:base_url) { "http://#{review_instance_slug}.review.vetsgov-internal" }
+                  let(:base_url) { "http://#{review_instance_slug}.vfs.va.gov" }
 
                   before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
 
@@ -686,7 +686,7 @@ RSpec.describe SAML::PostURLService do
 
                 context 'and authentication is occuring on a review instance' do
                   let(:review_instance_slug) { 'some-review-instance-slug' }
-                  let(:base_url) { "http://#{review_instance_slug}.review.vetsgov-internal" }
+                  let(:base_url) { "http://#{review_instance_slug}.vfs.va.gov" }
 
                   before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
 
@@ -746,7 +746,7 @@ RSpec.describe SAML::PostURLService do
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
       with_settings(IdentitySettings.saml_ssoe,
-                    relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
+                    relay: "http://#{slug_id}.vfs.va.gov/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end

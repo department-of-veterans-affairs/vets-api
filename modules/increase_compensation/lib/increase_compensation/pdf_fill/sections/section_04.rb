@@ -20,14 +20,23 @@ module IncreaseCompensation
           }
         },
         'trainingPreDisabled' => {
+          question_num: 24,
+          question_suffix: 'A',
           key: 'form1[0].#subform[2].RadioButtonList[6]'
         },
         'educationTrainingPreUnemployability' => {
+          question_num: 24,
           'name' => {
+            question_num: 24,
             limit: 12,
+            question_suffix: 'B',
+            question_label: 'TYPE OF EDUCATION OR TRAINING',
+            question_text: 'Type of education or training pre unemployability',
             key: 'form1[0].#subform[2].Type_Of_Education_Or_Training[0]'
           },
           'datesOfTraining' => {
+            question_number: 24,
+            question_suffix: 'C',
             'from' => {
               'month' => {
                 key: 'form1[0].#subform[2].DATESOFTRAINING_BEGINNING_MONTH[0]'
@@ -54,15 +63,21 @@ module IncreaseCompensation
         },
         'trainingPostUnemployment' => {
           question_num: 25,
+          question_suffix: 'A',
           key: 'form1[0].#subform[2].RadioButtonList[7]'
         },
         'educationTrainingPostUnemployability' => {
-          question_num: 25,
           'name' => {
+            question_num: 25,
             limit: 12,
+            question_suffix: 'B',
+            question_label: 'TYPE OF EDUCATION OR TRAINING',
+            question_text: 'Type of education or training post unemployability',
             key: 'form1[0].#subform[2].Type_Of_Education_Or_Training[1]'
           },
           'datesOfTraining' => {
+            question_num: 25,
+            question_suffix: 'C',
             'from' => {
               'month' => {
                 limit: 2,
@@ -107,24 +122,18 @@ module IncreaseCompensation
           form_data['educationTrainingPostUnemployability']['datesOfTraining'] =
             map_date_range(form_data['educationTrainingPostUnemployability']['datesOfTraining'])
         end
+        form_data['trainingPostUnemployment'] = format_custom_boolean(
+          form_data['trainingPostUnemployment'],
+          'YES (If "Yes," complete Items 25B and 25C)'
+        )
       end
 
       # option are off by 1 as grade '9' is not in the pdf data, so grade 12 appears as 'Off'
+      # the fix is to map to index of the option
       def education_highschool_bug_fix(grade)
         return {} if grade.nil?
 
-        case grade
-        when 9
-          10
-        when 10
-          11
-        when 11
-          12
-        when 12
-          'Off'
-        else
-          ''
-        end
+        [9, 10, 11, 12].find_index(grade) || 'Off'
       end
     end
   end

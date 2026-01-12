@@ -8,17 +8,6 @@ module IncreaseCompensation
     include ActiveSupport::NumberHelper
     include ::PdfFill::Forms::FormHelper
 
-    # Format a YYYY-MM-DD date string to MM/DD/YYYY
-    #
-    # @param date_string [String]
-    # @return [String]
-    #
-    def format_date_to_mm_dd_yyyy(date_string)
-      return nil if date_string.blank?
-
-      Date.parse(date_string).strftime('%m/%d/%Y')
-    end
-
     # Maps a date_range to a hash of from and to dates split into month, day, and year
     #
     # @param date_range [Hash]
@@ -79,18 +68,69 @@ module IncreaseCompensation
     # @param limit [Integer]
     # return [Hash]
     #
-    def two_line_overflow(string, key_name, limit)
+    def two_line_overflow(string, key_name, split_limit)
       return {} if string.blank?
 
-      if string.length > limit
+      if string.length > split_limit
         {
-          "#{key_name}1" => string[..(limit - 1)],
-          "#{key_name}2" => string[limit..]
+          "#{key_name}1" => string[..(split_limit - 1)],
+          "#{key_name}2" => string[split_limit..]
         }
       else
         {
           "#{key_name}1" => string
         }
+      end
+    end
+
+    ##
+    # If the care arrays are exactly 1 item, this formats if to fit the form sections
+    #
+    #  @param care_item [Hash]
+    def format_first_care_item(care_item)
+      date_key = care_item.key?('doctorsTreatmentDates') ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
+      namekey = care_item.key?('nameAndAddressOfDoctor') ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
+      dates = if care_item[date_key].length > 1
+                {
+                  'from' => {
+                    'year' => care_item[date_key].map { |td| "from: #{td['from']}, to: #{td['to']}\n" }.join
+                  }
+                }
+              else
+                map_date_range(care_item[date_key].first)
+              end
+      is_va = care_item['inVANetwork'] ? 'VA' : 'Non-VA'
+      [
+        dates,
+        "#{is_va} - #{care_item[namekey]}"
+      ]
+    end
+
+    ##
+    # If the care arrays have more than 1 entry, this formats it for the overflow pages
+    #
+    # @param care_info_array [Array]
+    # @param is_doc [Bool]
+    def overflow_doc_and_hospitals(care_info_array, is_doc)
+      return nil if care_info_array.nil? || is_doc.nil?
+
+      key_name_address = is_doc ? 'nameAndAddressOfDoctor' : 'nameAndAddressOfHospital'
+      key_treatment = is_doc ? 'doctorsTreatmentDates' : 'hospitalTreatmentDates'
+      care_info_array.map do |info|
+        "#{info['inVANetwork'] ? 'VA' : 'Non-VA'} - #{info[key_name_address]}\n" \
+          "#{info['relatedDisability'] ? "Treated for: #{info['relatedDisability'].join(', ')}\n" : ''}" \
+          "#{info[key_treatment].map { |td| "From: #{td['from']}, To: #{td['to']}\n" }.join}"
+      end
+    end
+
+    def resolve_boolean_checkbox(bool_value)
+      case bool_value
+      when true
+        'YES'
+      when false
+        'NO'
+      else
+        'OFF'
       end
     end
   end

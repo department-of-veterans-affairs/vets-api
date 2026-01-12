@@ -29,13 +29,6 @@ module Burials
             question_num: 1,
             question_label: "Deceased Veteran's Last Name",
             question_text: "DECEASED VETERAN'S LAST NAME"
-          },
-          'suffix' => {
-            key: 'form1[0].#subform[82].Suffix[0]',
-            question_num: 1,
-            limit: 0,
-            question_label: "Deceased Veteran's Suffix",
-            question_text: "DECEASED VETERAN'S SUFFIX"
           }
         },
         'veteranSocialSecurityNumber' => {
@@ -142,6 +135,10 @@ module Burials
       #
       def expand(form_data)
         form_data['vaFileNumber'] = extract_va_file_number(form_data['vaFileNumber'])
+        %w[veteranDateOfBirth deathDate burialDate].each do |attr|
+          form_data[attr] = split_date(form_data[attr])
+        end
+        extract_middle_i(form_data, 'veteranFullName')
       end
 
       ##

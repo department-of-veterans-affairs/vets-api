@@ -31,10 +31,29 @@ RSpec.describe BGS::DependentV2Service do
   let(:parsed_form) { { 'dependents_application' => vet_info } }
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:service) { BGS::DependentV2Service.new(user) }
+  let(:single_dependent_response) do
+    {
+      number_of_records: '1',
+      persons: { award_indicator: 'Y',
+                 date_of_birth: '07/09/2024',
+                 email_address: nil,
+                 first_name: 'TESTER',
+                 gender: 'M',
+                 last_name: 'TEST',
+                 proof_of_dependency: 'N',
+                 participant_id: '123456789',
+                 related_to_vet: 'Y',
+                 relationship: 'Child',
+                 ssn: '123456789',
+                 veteran_indicator: 'N' },
+      return_code: 'SHAR 9999',
+      return_message: 'Records found'
+    }
+  end
 
   before do
     # TODO: add user_account_id back once the DB migration is done
-    allow(claim).to receive_messages(id: '1234', use_v2: true, form_id: '686C-674-V2',
+    allow(claim).to receive_messages(id: '1234', form_id: '686C-674-V2',
                                      submittable_686?: false, submittable_674?: true, add_veteran_info: true,
                                      valid?: true, persistent_attachments: [], document_type: 148)
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
@@ -134,6 +153,38 @@ RSpec.describe BGS::DependentV2Service do
           user.uuid, claim.id,
           enc_vet_info
         )
+        service.submit_686c_form(claim)
+      end
+    end
+
+    context 'BGS person is found by participant id or ssn' do
+      let(:monitor) { instance_double(Dependents::Monitor) }
+
+      before do
+        allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_event)
+      end
+
+      it 'submits call to find person by ptcpnt id and logs that the pid is present' do
+        expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
+        expect(monitor).to receive(:track_event).with(
+          'info',
+          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+          'bgs.dependent_service.find_by_participant_id'
+        )
+
+        service.submit_686c_form(claim)
+      end
+
+      it 'submits call to find person by ssn after ptcpnt returns nil and logs that the ssn was used' do
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+        expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return(nil)
+        expect(monitor).to receive(:track_event).with(
+          'info',
+          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+          'bgs.dependent_service.find_by_ssn'
+        )
+
         service.submit_686c_form(claim)
       end
     end
@@ -313,6 +364,16 @@ RSpec.describe BGS::DependentV2Service do
         expect(response).to have_key(:persons)
       end
     end
+
+    it 'handles a single dependent response' do
+      allow_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+        .with(user.participant_id, user.ssn).and_return(single_dependent_response.deep_dup)
+      response = service.get_dependents
+
+      expect(response).to include(persons: Array)
+      expect(response[:persons].size).to eq(1)
+      expect(response[:persons][0]).to eq(single_dependent_response[:persons])
+    end
   end
 
   describe '#submit_674_form' do
@@ -420,7 +481,7 @@ RSpec.describe BGS::DependentV2Service do
     let(:monitor) { Dependents::Monitor.new(claim.id) }
     let(:pdf_path) { 'path/to/pdf' }
     let(:stamper) { PDFUtilities::PDFStamper.new('TEST') }
-    let(:stats_key) { BGS::DependentService::STATS_KEY }
+    let(:stats_key) { BGS::DependentV2Service::STATS_KEY }
 
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)

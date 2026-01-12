@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 require 'sidekiq'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
@@ -8,7 +10,7 @@ module Lighthouse
   module EvidenceSubmissions
     class FailureNotificationEmailJob
       include Sidekiq::Job
-      include SentryLogging
+      include Vets::SharedLogging
       # Job runs daily with 0 retries
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
@@ -55,6 +57,7 @@ module Lighthouse
 
       def record_email_send_success(upload, response)
         # Update evidence_submissions table record with the va_notify_id and va_notify_date
+        # Note: delete_date is set in VANotifyEmailStatusCallback when delivery is confirmed
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)

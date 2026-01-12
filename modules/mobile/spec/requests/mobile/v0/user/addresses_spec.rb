@@ -232,7 +232,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
           'state_code' => 'KY',
           'transaction_id' => '537b388e-344a-474e-be12-08d43cf35d69',
           'updated_at' => '2020-02-10T17:40:25.000Z',
-          'validation_key' => nil,
+          'override_validation_key' => nil,
           'zip_code' => '40515',
           'zip_code_suffix' => '4655' }
       end

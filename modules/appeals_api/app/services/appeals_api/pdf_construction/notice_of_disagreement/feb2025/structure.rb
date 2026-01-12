@@ -219,17 +219,18 @@ module AppealsApi
                    .reject { |issue| self.class.issue_text_exceeds_column_width?(issue) }
                    .map { |issue| issue_full_text(issue) }
                    .each do |full_text|
-            pdf.text_box(
-              full_text,
-              text_opts.merge({ at: [-4, 221 - (24 * form_row_index)], width: 465, height: 22, valign: :center })
-            )
-            form_row_index += 1
+                     pdf.text_box(
+                       full_text,
+                       text_opts.merge({ at: [-4, 221 - (24 * form_row_index)], width: 465, height: 22,
+                                         valign: :center })
+                     )
+                     form_row_index += 1
           end
 
           # display attached page notification only if all issues overflow(issues table is empty)
           if form_row_index.zero? && form_data.contestable_issues.length.positive?
             pdf.text_box('See attached page for additional issues',
-                         text_opts.merge({ at: [-4, 221 - (24 * row_index)], width: 465, height: 22, valign: :center }))
+                         text_opts.merge({ at: [-4, 221], width: 465, height: 22, valign: :center }))
           end
         end
 

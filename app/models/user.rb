@@ -171,6 +171,7 @@ class User < Common::RedisStore
   delegate :mhv_correlation_id, to: :mpi, prefix: true
   delegate :mhv_ien, to: :mpi
   delegate :mhv_iens, to: :mpi, prefix: true
+  delegate :npi_id, to: :mpi
   delegate :participant_id, to: :mpi
   delegate :participant_ids, to: :mpi, prefix: true
   delegate :person_types, to: :mpi
@@ -501,7 +502,7 @@ class User < Common::RedisStore
   end
 
   def bgs_relationships
-    bgs_dependents = BGS::DependentService.new(self).get_dependents
+    bgs_dependents = BGS::DependentV2Service.new(self).get_dependents
     return unless bgs_dependents.presence && bgs_dependents[:persons]
 
     bgs_dependents[:persons].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }

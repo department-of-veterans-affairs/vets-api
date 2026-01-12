@@ -2,11 +2,19 @@
 
 require 'rails_helper'
 require 'chatbot/report_to_cxi'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
   include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
+
+  let(:mpi_profile) { instance_double(MPI::Models::MviProfile, edipi: '1234567890') }
+
+  before do
+    allow_any_instance_of(V0::Chatbot::ClaimStatusController)
+      .to receive(:mpi_profile).and_return(mpi_profile)
+  end
 
   describe 'GET /v0/chatbot/claims from lighthouse' do
     subject(:get_claims) do
@@ -214,15 +222,13 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
         end
 
-        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'excludes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).not_to include('Attorney Fees')
-          expect(names).not_to include('Secondary Action Required')
-          expect(names).not_to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).to be_empty
         end
       end
 
@@ -231,15 +237,13 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
         end
 
-        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'includes suppressed evidence request tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           names = parsed_body.dig('data', 'data', 'attributes', 'trackedItems').map { |i| i['displayName'] }
-          expect(names).to include('Attorney Fees')
-          expect(names).to include('Secondary Action Required')
-          expect(names).to include('Stage 2 Development')
+          expect(names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).not_to be_empty
         end
       end
     end

@@ -55,17 +55,98 @@ describe VRE::VRESubmit1900Job do
     before do
       allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(Flipper).to receive(:enabled?)
-        .with(:vre_use_new_vfs_notification_library)
+        .with(:vre_use_new_vfs_notification_library, claim)
         .and_return(true)
     end
 
     it 'sends a failure email to user' do
       notification_email = double('notification_email')
       expect(VRE::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
-      expect(notification_email).to receive(:deliver).with(SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE)
+      expect(notification_email).to receive(:deliver).with(:error)
 
       VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
         exhaustion_msg['args'] = [claim.id, encrypted_user]
+      end
+    end
+  end
+
+  describe '#duplicate_submission_check' do
+    let(:user_account) { create(:user_account) }
+    let(:form_type) { SavedClaim::VeteranReadinessEmploymentClaim::FORM }
+
+    before do
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'with nil user_account' do
+      it 'returns early without checking duplicates' do
+        expect(StatsD).not_to receive(:increment)
+        subject.send(:duplicate_submission_check, nil)
+      end
+    end
+
+    context 'with user_account but no duplicates' do
+      it 'does not increment StatsD metric' do
+        # Create only 1 submission (not a duplicate)
+        create(:form_submission,
+               user_account:,
+               form_type: SavedClaim::VeteranReadinessEmploymentClaim::FORM,
+               created_at: 1.hour.ago)
+
+        subject.send(:duplicate_submission_check, user_account)
+
+        expect(StatsD).not_to have_received(:increment)
+      end
+    end
+
+    context 'with user_account and duplicate submissions' do
+      it 'increments StatsD metric and logs warning' do
+        # Create 2 submissions within threshold (duplicate scenario)
+        submission1 = create(:form_submission,
+                             user_account:,
+                             form_type:,
+                             created_at: 2.hours.ago)
+        submission2 = create(:form_submission,
+                             user_account:,
+                             form_type:,
+                             created_at: 1.hour.ago)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'VRE::VRESubmit1900Job - Duplicate Submission Check',
+          hash_including(user_account_id: user_account.id, submissions_count: 2, threshold_hours: 24,
+                         duplicates_detected: true,
+                         submissions_data: [
+                           { id: submission1.id, created_at: submission1.created_at },
+                           { id: submission2.id, created_at: submission2.created_at }
+                         ])
+        )
+
+        subject.send(:duplicate_submission_check, user_account)
+
+        expect(StatsD).to have_received(:increment)
+          .with('worker.vre.vre_submit_1900_job.duplicate_submission')
+      end
+    end
+
+    context 'with submissions outside threshold window' do
+      it 'does not count old submissions as duplicates' do
+        allow(Settings.veteran_readiness_and_employment)
+          .to receive(:duplicate_submission_threshold_hours)
+          .and_return(24)
+
+        # Create 1 old submission (outside 24hr window) and 1 recent
+        create(:form_submission,
+               user_account:,
+               form_type:,
+               created_at: 25.hours.ago)
+        create(:form_submission,
+               user_account:,
+               form_type:,
+               created_at: 1.hour.ago)
+
+        subject.send(:duplicate_submission_check, user_account)
+
+        expect(StatsD).not_to have_received(:increment)
       end
     end
   end
