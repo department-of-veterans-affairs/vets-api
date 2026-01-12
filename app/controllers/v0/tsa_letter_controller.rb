@@ -24,21 +24,6 @@ module V0
       render(json: {uuid: latest_uuid, version: latest_version})
     end
 
-    # service = ClaimsEvidenceApi::Service::Search.new
-    # filters = { subject: ['VETS Safe Travel Outreach Letter'] }
-    # folder_identifier = "VETERAN:ICN:#{user icn}"
-    # service.folder_identifier = folder_identifier
-    # start_time = Time.now
-    # response = service.find(filters:)
-    # end_time = Time.now
-    # elapsed = end_time - start_time
-    # puts "Elapsed: #{elapsed}"
-
-    # require 'claims_evidence_api/service/files'
-    # service = ClaimsEvidenceApi::Service::Files.new
-    # uuid = 'c75438b4-47f8-44d3-9e35-798158591456' # pulled from search response
-    # version = '920debba-cc65-479c-ab47-db9b2a5cd95f' # from search response
-
     def show
       send_data(
         service.get_tsa_letter(params[:id]),

@@ -97,6 +97,45 @@ http_interactions:
                   "lastOpenedDocument": true
                 }
               }
+            },
+            {
+              "owner": {
+                "type": "VETERAN",
+                "id": "796378881"
+              },
+              "uuid": "c75438b4-47f8-44d3-9e35-798158591456",
+              "currentVersionUuid": "cbb29e79-a10d-4757-b266-3db336fcffbe",
+              "currentVersion": {
+                "systemData": {
+                  "uploadedDateTime": "2025-08-09T14:18:53",
+                  "contentSize": 177200,
+                  "contentName": "VETS Safe Travel - Outreach Letter_TSA edits_08.29.25 DRAFT.pdf",
+                  "mimeType": "application/pdf",
+                  "uploadSource": "ClaimEvidenceUI"
+                },
+                "providerData": {
+                  "subject": "VETS Safe Travel Outreach Letter",
+                  "documentTypeId": 34,
+                  "ocrStatus": "Not Searchable",
+                  "newMail": false,
+                  "userSARL": "7",
+                  "bookmarks": {
+                    "VBA": {
+                      "isDefaultRealm": true
+                    }
+                  },
+                  "systemSource": "ClaimEvidenceUI",
+                  "isAnnotated": false,
+                  "modifiedDateTime": "2025-09-09T14:18:53",
+                  "numberOfContentions": 0,
+                  "readByCurrentUser": true,
+                  "dateVaReceivedDocument": "2025-09-09",
+                  "hasContentionAnnotations": false,
+                  "contentSource": "VA.gov",
+                  "actionable": false,
+                  "lastOpenedDocument": true
+                }
+              }
             }
           ]
         }
