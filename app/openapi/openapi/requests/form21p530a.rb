@@ -12,7 +12,7 @@ module Openapi
         properties: {
           veteranInformation: {
             type: :object,
-            required: %i[fullName dateOfBirth dateOfDeath ssn],
+            required: %i[fullName dateOfBirth dateOfDeath],
             properties: {
               fullName: { '$ref' => '#/components/schemas/FirstMiddleLastName' },
               ssn: {
