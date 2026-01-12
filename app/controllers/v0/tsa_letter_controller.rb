@@ -12,7 +12,7 @@ module V0
     # finish specs
     # add spec for empty response
     # make sorting safer
-    # match on body
+    # x match on body
     # turn off feature flag in staging
 
     def show
@@ -34,6 +34,7 @@ module V0
       render(json: {uuid: latest_uuid, version: latest_version, upload_date:})
     rescue => e
       if e.respond_to?(:status) && e.status == 404
+        # should this return an empty instead?
         raise Common::Exceptions::RecordNotFound, current_user.user_account_uuid
       else
         raise e

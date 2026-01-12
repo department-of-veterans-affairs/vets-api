@@ -18,10 +18,21 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    it 'renders error message' do
-      VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri] }) do
-        get '/v0/tsa_letter'
-        expect(response.status).to eq(404)
+    context 'when upstream returns 404' do
+      it 'returns 404' do
+        VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response.status).to eq(404)
+        end
+      end
+    end
+
+    context 'when upstream returns other error' do
+      it 'it returns 503' do
+        VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response.status).to eq(503)
+        end
       end
     end
   end
