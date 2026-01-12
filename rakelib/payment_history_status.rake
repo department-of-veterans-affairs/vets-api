@@ -157,7 +157,8 @@ namespace :payment_history do
 
       person = BGS::People::Request.new.find_person_by_participant_id(user:)
 
-      if person.status == :ok
+      case person.status
+      when :ok
         puts '✓ BGS person lookup succeeded'
         puts "  Status: #{person.status}"
 
@@ -171,11 +172,11 @@ namespace :payment_history do
 
         puts "  Participant ID: #{person.participant_id}"
         puts "  SSN: ***-**-#{person.ssn_number.to_s[-4..]}"
-      elsif person.status == :error
+      when :error
         puts '✗ BGS person lookup failed with error status'
         puts '  This will cause payment history to be empty'
         return nil
-      elsif person.status == :no_id
+      when :no_id
         puts '✗ BGS person lookup failed - no ID found'
         puts '  This will cause payment history to be empty'
         return nil
@@ -272,15 +273,13 @@ namespace :payment_history do
     puts "  Filtered out: #{filtered_count}"
     puts "  Would be returned: #{payments.length - filtered_count}"
 
+    puts
     if filtered_count == payments.length
-      puts
       puts '✗ All payments are being filtered out!'
       puts '  This is why payment history appears empty'
-    elsif filtered_count > 0
-      puts
+    elsif filtered_count.positive?
       puts '⚠ Some payments are being filtered out'
     else
-      puts
       puts '✓ No payments are being filtered'
     end
   end
