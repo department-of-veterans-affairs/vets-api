@@ -216,7 +216,7 @@ module VAProfile
 
         # GET's the status of a person options transaction from the VAProfile api
         # @param transaction_id [String] the transaction_id to check
-        # @return [VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse] wrapper around a transaction object
+        # @return [VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse] wrapper around a tx object
         def get_person_options_transaction_status(transaction_id)
           # Delegate to PersonSettings service for the actual API call (different endpoint)
           person_settings_service = VAProfile::PersonSettings::Service.new(@user)
@@ -226,7 +226,7 @@ module VAProfile
             VAProfile::Stats.increment_transaction_results(raw_response, 'person_options')
 
             # Return a ContactInformation TransactionResponse for consistency
-            VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse.from(raw_response, @user)
+            VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse.from(raw_response)
           end
         rescue => e
           handle_error(e)

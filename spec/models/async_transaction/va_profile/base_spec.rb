@@ -99,7 +99,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   describe '.fetch_transaction' do
     let(:user) { build(:user, :loa3) }
     let(:service) { VAProfile::ContactInformation::V2::Service.new(user) }
-    let(:transaction_id) { 'abc-123' }
+    let(:transaction_id) { '95ea4993-ade7-4ce9-a584-9a4f8a34e0e0' }
 
     it 'raises an error if passed unrecognized transaction' do
       # Instead of simply calling Struct.new('Surprise'), we need to check that it hasn't been defined already
@@ -114,7 +114,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
     context 'with PersonOptionsTransaction' do
       let(:person_options_transaction) do
-        build(:person_options_transaction, transaction_id: transaction_id)
+        build(:person_options_transaction, transaction_id:)
       end
 
       before do
@@ -125,7 +125,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
       it 'calls get_person_options_transaction_status' do
         expect(service).to receive(:get_person_options_transaction_status).with(transaction_id)
-        
+
         AsyncTransaction::VAProfile::Base.fetch_transaction(person_options_transaction, service)
       end
     end
@@ -175,14 +175,14 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
   describe '.last_ongoing_transactions_for_user' do
     let(:user) { create(:user, :loa3) }
-    
+
     before do
       # Create multiple transaction types in requested status
       create(:address_transaction, user_uuid: user.uuid, status: 'requested')
-      create(:email_transaction, user_uuid: user.uuid, status: 'requested') 
+      create(:email_transaction, user_uuid: user.uuid, status: 'requested')
       create(:telephone_transaction, user_uuid: user.uuid, status: 'requested')
       create(:person_options_transaction, user_uuid: user.uuid, status: 'requested')
-      
+
       # Create completed ones that shouldn't be returned
       create(:person_options_transaction, user_uuid: user.uuid, status: 'completed')
       create(:address_transaction, user_uuid: user.uuid, status: 'completed')
@@ -190,7 +190,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
     it 'returns only requested transactions' do
       transactions = AsyncTransaction::VAProfile::Base.last_ongoing_transactions_for_user(user)
-      
+
       expect(transactions.length).to eq(4)
       expect(transactions.all? { |t| t.status == 'requested' }).to be true
     end
