@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module Vass
   module Errors
     # Error keys for service exceptions
@@ -19,4 +21,8 @@ module Vass
     class IdentityValidationError < BaseError; end
     class MissingContactInfoError < BaseError; end
   end
+
+  # Main service exception used by middleware and client
+  # Inherits from BackendServiceException to maintain compatibility with vets-api error handling
+  class ServiceException < Common::Exceptions::BackendServiceException; end
 end

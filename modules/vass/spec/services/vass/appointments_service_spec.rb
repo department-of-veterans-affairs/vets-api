@@ -68,8 +68,8 @@ describe Vass::AppointmentsService do
             )
 
             expect(result['success']).to be true
-            expect(result['data']['availableTimeSlots']).to be_an(Array)
-            expect(result['data']['appointmentDuration']).to eq(30)
+            expect(result['data']['available_time_slots']).to be_an(Array)
+            expect(result['data']['appointment_duration']).to eq(30)
           end
         end
       end
@@ -93,7 +93,7 @@ describe Vass::AppointmentsService do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['data']['appointment_id']).to eq('appt-abc123')
           end
         end
       end
@@ -135,8 +135,8 @@ describe Vass::AppointmentsService do
             result = subject.get_appointment(appointment_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq(appointment_id)
-            expect(result['data']['agentNickname']).to eq('Dr. Smith')
+            expect(result['data']['appointment_id']).to eq(appointment_id)
+            expect(result['data']['agent_nickname']).to eq('Dr. Smith')
           end
         end
       end
@@ -151,7 +151,7 @@ describe Vass::AppointmentsService do
             result = subject.get_appointments(veteran_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['veteranId']).to eq(veteran_id)
+            expect(result['data']['veteran_id']).to eq(veteran_id)
             expect(result['data']['appointments']).to be_an(Array)
             expect(result['data']['appointments'].length).to eq(2)
           end
@@ -166,11 +166,11 @@ describe Vass::AppointmentsService do
       {
         'success' => true,
         'data' => {
-          'firstName' => 'John',
-          'lastName' => 'Doe',
-          'dateOfBirth' => '1990-01-15',
+          'first_name' => 'John',
+          'last_name' => 'Doe',
+          'date_of_birth' => '1990-01-15',
           'edipi' => edipi,
-          'notificationEmail' => 'john.doe@example.com'
+          'notification_email' => 'john.doe@example.com'
         }
       }
     end
@@ -182,8 +182,8 @@ describe Vass::AppointmentsService do
             result = subject.get_veteran_info(veteran_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['firstName']).to eq('John')
-            expect(result['data']['lastName']).to eq('Doe')
+            expect(result['data']['first_name']).to eq('John')
+            expect(result['data']['last_name']).to eq('Doe')
             expect(result['data']['edipi']).to eq(edipi)
           end
         end
@@ -208,8 +208,8 @@ describe Vass::AppointmentsService do
         result = service_with_mock_client.get_veteran_info(veteran_id:)
 
         expect(result['success']).to be true
-        expect(result['data']['firstName']).to eq('John')
-        expect(result['data']['lastName']).to eq('Doe')
+            expect(result['data']['first_name']).to eq('John')
+            expect(result['data']['last_name']).to eq('Doe')
         expect(result['contact_method']).to eq('email')
         expect(result['contact_value']).to eq('john.doe@example.com')
       end
@@ -219,11 +219,11 @@ describe Vass::AppointmentsService do
           {
             'success' => true,
             'data' => {
-              'firstName' => 'John',
-              'lastName' => 'Doe',
-              'dateOfBirth' => '1990-01-15',
+              'first_name' => 'John',
+              'last_name' => 'Doe',
+              'date_of_birth' => '1990-01-15',
               'edipi' => edipi,
-              'notificationEmail' => nil
+              'notification_email' => nil
             }
           }
         end
@@ -275,9 +275,9 @@ describe Vass::AppointmentsService do
             result = subject.get_agent_skills
 
             expect(result['success']).to be true
-            expect(result['data']['agentSkills']).to be_an(Array)
-            expect(result['data']['agentSkills'].length).to eq(4)
-            expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+            expect(result['data']['agent_skills']).to be_an(Array)
+            expect(result['data']['agent_skills'].length).to eq(4)
+            expect(result['data']['agent_skills'].first['skill_name']).to eq('Mental Health Counseling')
           end
         end
       end

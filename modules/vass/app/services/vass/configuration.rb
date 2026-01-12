@@ -60,13 +60,13 @@ module Vass
         # Response middleware runs in reverse order (bottom-up):
         # 1. betamocks (if enabled) returns mock responses
         # 2. raise_custom_error handles error responses
-        # 3. vass_errors checks for HTTP 200 with success: false
-        # 4. snakecase transforms keys from camelCase to snake_case
+        # 3. snakecase transforms keys from camelCase to snake_case (with string keys, not symbols)
+        # 4. vass_errors checks for HTTP 200 with success: false (must run before snakecase)
         # 5. json_parser parses JSON string to Ruby hash
         conn.response :betamocks if mock_enabled?
         conn.response :raise_custom_error, error_prefix: service_name, include_request: true
+        conn.response :snakecase, symbolize: false
         conn.response :vass_errors
-        conn.response :snakecase
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
