@@ -18,16 +18,18 @@ module V0
     end
 
     def update
+      form_data_present = parsed_form_data.present?
+
       if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
          params[:metadata].present? &&
-         parsed_form_data.present?
+         form_data_present
         params[:metadata][:sync_modern0781_flow] =
           parsed_form_data['sync_modern0781_flow'] || parsed_form_data[:sync_modern0781_flow] || false
       end
 
       if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
          params[:metadata].present? &&
-         parsed_form_data.present?
+         form_data_present
         params[:metadata][:new_conditions_workflow] =
           parsed_form_data['disability_comp_new_conditions_workflow'] || false
       end
@@ -37,9 +39,12 @@ module V0
     private
 
     def parsed_form_data
-      @parsed_form_data ||= if params[:form_data].present?
-                              params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
-                            end
+      @parsed_form_data ||= begin
+        form_data = params[:form_data]
+        if form_data.present?
+          form_data.is_a?(String) ? JSON.parse(form_data) : form_data
+        end
+      end
     end
 
     def form_id

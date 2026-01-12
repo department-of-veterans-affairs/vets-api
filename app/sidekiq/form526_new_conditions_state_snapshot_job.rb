@@ -8,18 +8,20 @@ class Form526NewConditionsStateSnapshotJob
   STATSD_PREFIX = 'form526.new_conditions.state.snapshot'
 
   def perform
+    logger = Rails.logger
+
     if Flipper.enabled?(:disability_compensation_new_conditions_stats_job)
       write_snapshot
     else
-      Rails.logger.info('New conditions state snapshot job disabled',
-                        class: self.class.name,
-                        message: 'Flipper flag disability_compensation_new_conditions_stats_job is disabled')
+      logger.info('New conditions state snapshot job disabled',
+                  class: self.class.name,
+                  message: 'Flipper flag disability_compensation_new_conditions_stats_job is disabled')
     end
   rescue => e
     StatsD.increment("#{STATSD_PREFIX}.error")
-    Rails.logger.error('Error logging new conditions state snapshot',
-                       class: self.class.name,
-                       message: e.try(:message))
+    logger.error('Error logging new conditions state snapshot',
+                 class: self.class.name,
+                 message: e.try(:message))
   end
 
   private
