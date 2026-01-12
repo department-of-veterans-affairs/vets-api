@@ -14,7 +14,6 @@ module MHV
         :mhv_accelerated_delivery_care_notes_enabled,
         :mhv_accelerated_delivery_conditions_enabled,
         :mhv_accelerated_delivery_labs_and_tests_enabled,
-        :mhv_accelerated_delivery_vaccines_enabled,
         :mhv_accelerated_delivery_vital_signs_enabled,
         :mhv_secure_messaging_cerner_pilot,
         :mhv_medications_cerner_pilot

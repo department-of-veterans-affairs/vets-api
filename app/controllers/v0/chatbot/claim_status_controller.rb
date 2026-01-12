@@ -113,8 +113,8 @@ module V0
       def order_claims_lighthouse(claims)
         Array(claims)
           .sort_by do |claim|
-          Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
-                        '%Y-%m-%d').to_time.to_i
+            Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
+                          '%Y-%m-%d').to_time.to_i
         end
           .reverse
       end

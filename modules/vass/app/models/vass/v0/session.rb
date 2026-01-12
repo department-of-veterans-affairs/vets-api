@@ -386,7 +386,7 @@ module Vass
       # @return [String] JWT secret
       #
       def jwt_secret
-        Rails.application.secret_key_base
+        Settings.vass.jwt_secret
       end
 
       ##

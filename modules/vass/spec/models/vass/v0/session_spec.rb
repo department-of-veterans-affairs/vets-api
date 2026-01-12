@@ -8,6 +8,13 @@ RSpec.describe Vass::V0::Session, type: :model do
   let(:valid_phone) { '5555551234' }
   let(:uuid) { SecureRandom.uuid }
   let(:otp_code) { '123456' }
+  let(:jwt_secret) { 'test-jwt-secret' }
+
+  before do
+    allow(Settings).to receive(:vass).and_return(
+      OpenStruct.new(jwt_secret:)
+    )
+  end
 
   describe '.build' do
     it 'creates a new session instance' do
@@ -236,7 +243,7 @@ RSpec.describe Vass::V0::Session, type: :model do
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
         jwt_token = session.validate_and_generate_jwt
-        decoded = JWT.decode(jwt_token, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
+        decoded = JWT.decode(jwt_token, jwt_secret, true, { algorithm: 'HS256' })
         payload = decoded[0]
 
         expect(payload['sub']).to eq(uuid)
