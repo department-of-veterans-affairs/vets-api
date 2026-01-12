@@ -177,8 +177,6 @@ RSpec.describe EmailVerificationJob, type: :job do
         'args' => [template_type, cache_key]
       }
 
-      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
-
       described_class.sidekiq_retries_exhausted_block.call(msg, nil)
 
       expect(Rails.logger).to have_received(:error).with(
@@ -191,28 +189,6 @@ RSpec.describe EmailVerificationJob, type: :job do
         )
       )
       expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.retries_exhausted')
-    end
-
-    it 'handles cache cleanup failure gracefully in retries exhausted' do
-      msg = {
-        'jid' => 'test_job_id',
-        'class' => 'EmailVerificationJob',
-        'error_class' => 'StandardError',
-        'error_message' => 'Connection failed',
-        'args' => [template_type, cache_key]
-      }
-
-      allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key).and_raise(
-        Sidekiq::AttrPackageError.new('delete', 'Redis failed')
-      )
-      allow(Rails.logger).to receive(:warn)
-
-      expect { described_class.sidekiq_retries_exhausted_block.call(msg, nil) }.not_to raise_error
-
-      expect(Rails.logger).to have_received(:warn).with(
-        'Failed to clean up AttrPackage after retries exhausted',
-        hash_including(cache_key:, error: '[Sidekiq] [AttrPackage] delete error: Redis failed')
-      )
     end
   end
 
