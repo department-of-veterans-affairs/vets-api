@@ -74,7 +74,7 @@ module EducationForm
     end
 
     def staging_env?
-      Settings.hostname.eql?('staging-api.va.gov')
+      Settings.hostname.to_s == 'staging-api.va.gov'
     end
 
     def staging_recipients
