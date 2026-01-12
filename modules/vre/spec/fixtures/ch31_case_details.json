@@ -1,41 +1,35 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "required": ["data"],
-  "properties": {
-    "data": {
-      "type": ["object", "null"],
-      "required": ["id", "type", "attributes"],
-      "properties": {
-        "id": { "type": "string" },
-        "type": { "type": "string" },
-        "attributes": {
-          "type": "object",
-          "required": ["res_case_id", "is_transferred_to_cwnrs", "is_interrupted", "external_status"],
-          "properties": {
-            "res_case_id": { "type": ["integer", "null"] },
-            "is_transferred_to_cwnrs": { "type": ["boolean", "null"] },
-            "is_interrupted": { "type": ["boolean", "null"] },
-            "external_status": {
-              "type": ["object", "null"],
-              "properties": {
-                "is_discontinued": { "type": ["boolean", "null"] },
-                "discontinued_reason": { "type": ["string", "null"] },
-                "state_list": {
-                  "type": ["array", "null"],
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "step_code": { "type": ["string", "null"] },
-                      "status": { "type": ["string", "null"] }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+  "resCaseId": 123456,
+  "isTransferredToCWNRS": true,
+  "isInterrupted": false,
+  "externalStatus": {
+    "isDiscontinued": false,
+    "discontinuedReason": null,
+    "stateList": [
+      {
+        "stepCode": "APPL",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "ELGLDET",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "INTAKE",
+        "status": "ACTIVE"
+      },
+      {
+        "stepCode": "ENTLDET",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
       }
-    }
+    ]
   }
 }
