@@ -1,0 +1,101 @@
+{
+  "form_number": "10-7959C",
+  "certifier_role": "other",
+  "applicants": [
+    {
+      "applicant_name": {
+        "first": "Applicant",
+        "middle": "I",
+        "last": "Surname"
+      },
+      "applicant_ssn": "234234234",
+      "applicant_address": {
+        "country": "USA",
+        "street": "456 Street Circle",
+        "street_combined": "456 Street Circle",
+        "city": "Anyburg",
+        "state": "AK",
+        "postal_code": "12323"
+      },
+      "applicant_new_address": "no",
+      "applicant_email": "applicant@email.gov",
+      "applicant_phone": "3331233456",
+      "applicant_gender": "male",
+      "medicare": [
+        {
+          "medicare_plan_type": "c",
+          "medicare_number": "1EG4TE5MK73",
+          "medicare_part_a_effective_date": "01-15-2023",
+          "medicare_part_b_effective_date": "01-15-2023",
+          "medicare_part_c_carrier": "Advantage Health Solutions",
+          "medicare_part_c_effective_date": "02-01-2023",
+          "has_pharmacy_benefits": true,
+          "has_medicare_part_d": true,
+          "medicare_part_d_carrier": "PharmaCare Plus",
+          "medicare_part_d_effective_date": "02-01-2023"
+        }
+      ],
+      "health_insurance": [
+        {
+          "insurance_type": "medigap",
+          "medigap_plan": "K",
+          "provider": "Blue Cross Blue Shield",
+          "effective_date": "10-01-2024",
+          "expiration_date": "10-02-2024",
+          "through_employer": true,
+          "eob": true,
+          "additional_comments": "Lorem"
+        }
+      ]
+    }
+  ],
+  "supporting_docs": [
+    {
+      "name": "ohi_front.png",
+      "confirmation_code": "0d21739a-632a-4773-90f6-480b2f2473ce",
+      "attachment_id": "Front of health insurance card",
+      "is_encrypted": false
+    },
+    {
+      "name": "ohi_back.png",
+      "confirmation_code": "925433d3-3342-4395-834c-083dbaa46b04",
+      "attachment_id": "Back of health insurance card",
+      "is_encrypted": false
+    },
+    {
+      "name": "ab_front.png",
+      "confirmation_code": "6043bb5e-5738-4811-abf4-87573ef2e815",
+      "attachment_id": "Front of Medicare Parts A or B Card",
+      "is_encrypted": false
+    },
+    {
+      "name": "ab_back.png",
+      "confirmation_code": "a178864b-ea20-4131-9778-2a964f21b1e0",
+      "attachment_id": "Back of Medicare Parts A or B Card",
+      "is_encrypted": false
+    },
+    {
+      "name": "d_front.png",
+      "confirmation_code": "a178864b-ea20-4131-9778-2a964f21b1e0",
+      "attachment_id": "Front of Medicare Part D Card",
+      "is_encrypted": false
+    },
+    {
+      "name": "d_back.png",
+      "confirmation_code": "a178864b-ea20-4131-9778-2a964f21b1e0",
+      "attachment_id": "Back of Medicare Part D Card",
+      "is_encrypted": false
+    }
+  ],
+  "primary_contact_info": {
+    "name": {
+      "first": "Applicant",
+      "middle": "I",
+      "last": "Surname"
+    },
+    "email": false,
+    "phone": "3331233456"
+  },
+  "certification_date": "01-01-2010",
+  "statement_of_truth_signature": "Certifier Jones"
+}
