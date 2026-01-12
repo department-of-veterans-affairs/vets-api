@@ -48,6 +48,7 @@
   },
   "certification": {
     "titleOfStateOrTribalOfficial": "Director of Veterans Services",
-    "signature": "John Doe"
+    "signature": "John Doe",
+    "certified": true
   }
 }

@@ -6,6 +6,11 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   stub_virus_scan
   subject(:job) { described_class.new }
 
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_| "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf" }
+  end
+
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }
@@ -63,7 +68,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 disabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
     describe '#perform' do
@@ -295,7 +299,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
     describe '#perform' do
@@ -518,6 +521,62 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           'ahash1' => 'hash2',
           'numberPages1' => 2
         )
+      end
+    end
+  end
+
+  context 'sidekiq_retries_exhausted' do
+    context 'successful exhaustion processing' do
+      it 'tracks exhaustion event and sends backup submission' do
+        msg = {
+          'args' => [claim.id, user.uuid, encrypted_user_struct],
+          'error_message' => 'Connection timeout'
+        }
+        error = StandardError.new('Job failed')
+
+        # Make find return the same claim instance
+        allow(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+
+        # Mock the monitor
+        monitor_double = instance_double(Dependents::Monitor)
+        expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor_double)
+
+        # Expect the monitor to track the exhaustion event
+        expect(monitor_double).to receive(:track_submission_exhaustion).with(msg, 'vets.gov.user+228@gmail.com')
+
+        # Expect the claim to send a failure email
+        expect(claim).to receive(:send_failure_email).with('vets.gov.user+228@gmail.com')
+
+        # Call the sidekiq_retries_exhausted callback
+        described_class.sidekiq_retries_exhausted_block.call(msg, error)
+      end
+    end
+
+    context 'failed exhaustion processing' do
+      it 'logs silent failure when an exception occurs' do
+        msg = {
+          'args' => [claim.id, user.uuid, encrypted_user_struct],
+          'error_message' => 'Connection timeout'
+        }
+        error = StandardError.new('Job failed')
+        json_error = StandardError.new('JSON parse error')
+
+        # Make find return the same claim instance
+        allow(JSON).to receive(:parse).and_raise(json_error)
+
+        expect(Rails.logger)
+          .to receive(:error)
+          .with(
+            'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!',
+            { e: json_error, msg: }
+          )
+
+        expect(StatsD)
+          .to receive(:increment)
+          .with("#{described_class::STATSD_KEY_PREFIX}.silent_failure")
+
+        # Call the sidekiq_retries_exhausted callback
+        described_class.sidekiq_retries_exhausted_block.call(msg, error)
       end
     end
   end

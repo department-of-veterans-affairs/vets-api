@@ -19,6 +19,7 @@ module ClaimsApi
       validate_service_periods_chronology!
       validate_form_526_no_active_duty_end_date_more_than_180_days_in_future!
       # ensure 'servicePeriods.activeDutyBeginDate' values are in the past
+      validate_service_after_13th_birthday!
       validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
@@ -125,6 +126,23 @@ module ClaimsApi
         next false if end_date.blank?
 
         Date.parse(end_date) > 180.days.from_now.end_of_day
+      end
+    end
+
+    def validate_service_after_13th_birthday!
+      service_periods = form_attributes&.dig('serviceInformation', 'servicePeriods')
+      age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_date
+
+      return if age_thirteen.nil? || service_periods.nil?
+
+      started_before_age_thirteen = service_periods.any? do |period|
+        Date.parse(period['activeDutyBeginDate']) < age_thirteen
+      end
+      if started_before_age_thirteen
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
+                  "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
+        )
       end
     end
 

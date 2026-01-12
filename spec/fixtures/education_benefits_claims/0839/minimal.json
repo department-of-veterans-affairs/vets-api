@@ -25,7 +25,8 @@
         "city": "Some City",
         "street": "123 Main St",
         "postalCode": "12345"
-      }
+      },
+      "isForeignCountry": false
     },
     {
       "facilityCode": "87654321",
@@ -36,33 +37,34 @@
         "city": "Another City",
         "street": "123 Main St",
         "postalCode": "87654"
-      }
+      },
+      "isForeignCountry": false
     }
   ],
   "yellowRibbonProgramAgreementRequest": [
     {
-        "eligibleIndividuals": 10,
-        "yearRange": {
-          "from": "2025-01-01",
-          "to": "2025-12-31"
-        },
-        "maximumNumberofStudents": 10,
-        "degreeLevel": "all",
-        "degreeProgram": "Science",
-        "currencyType": "USD",
-        "maximumContributionAmount": 10000
+      "eligibleIndividuals": 10,
+      "yearRange": {
+        "from": "2025-01-01",
+        "to": "2025-12-31"
+      },
+      "maximumNumberofStudents": 10,
+      "degreeLevel": "all",
+      "degreeProgram": "Science",
+      "currencyType": "USD",
+      "maximumContributionAmount": 10000
     },
     {
-        "eligibleIndividuals": 15,
-        "yearRange": {
-          "from": "2025-01-01",
-          "to": "2025-12-31"
-        },
-        "maximumNumberofStudents": 19,
-        "degreeLevel": "undergraduate",
-        "degreeProgram": "Science",
-        "currencyType": "Euro",
-        "maximumContributionAmount": 5000
+      "eligibleIndividuals": 15,
+      "yearRange": {
+        "from": "2025-01-01",
+        "to": "2025-12-31"
+      },
+      "maximumNumberofStudents": 19,
+      "degreeLevel": "undergraduate",
+      "degreeProgram": "Science",
+      "currencyType": "Euro",
+      "maximumContributionAmount": 5000
     }
   ],
   "pointOfContact": {

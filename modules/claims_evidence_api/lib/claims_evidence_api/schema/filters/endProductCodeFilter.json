@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/endProductCodeFilter.json",
+  "description" : "Filters results on EndProductCode.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "030BGR",
+      "type" : "string"
+    }
+  },
+  "title" : "End Product Code Filter Request",
+  "type" : "object"
+}

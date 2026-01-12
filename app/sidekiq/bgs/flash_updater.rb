@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'logging/third_party_transaction'
+require 'bgs/monitor'
 
 module BGS
   class FlashUpdater
     include Sidekiq::Job
-    include SentryLogging
 
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
@@ -28,6 +28,7 @@ module BGS
     )
 
     sidekiq_retries_exhausted do |msg, _ex|
+      monitor = BGS::Monitor.new
       job_id = msg['jid']
       error_class = msg['error_class']
       error_message = msg['error_message']
@@ -50,24 +51,17 @@ module BGS
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-      ::Rails.logger.warn(
-        'Flash Updater Retries exhausted',
-        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+      monitor.warn(
+        'Flash Updater Retries exhausted', 'exhausted',
+        stats_key: "#{STATSD_KEY_PREFIX}.exhausted",
+        job_id:, error_class:, error: error_message, timestamp:, form526_submission_id:
       )
     rescue => e
-      ::Rails.logger.error(
-        'Failure in FlashUpdater#sidekiq_retries_exhausted',
-        {
-          messaged_content: e.message,
-          job_id:,
-          submission_id: form526_submission_id,
-          pre_exhaustion_failure: {
-            error_class:,
-            error_message:
-          }
-        }
+      monitor.error(
+        'Failure in FlashUpdater#sidekiq_retries_exhausted', 'exhaustion_failure',
+        stats_key: STATSD_KEY_PREFIX,
+        error: e.message, job_id:, submission_id: form526_submission_id,
+        pre_exhaustion_failure: { error_class:, error: error_message }
       )
       raise e
     end
@@ -86,8 +80,7 @@ module BGS
         # NOTE: Assumption that duplicate flashes are ignored when submitted
         service.add_flash(file_number: ssn, flash_name:)
       rescue BGS::ShareError, BGS::PublicError => e
-        Sentry.set_tags(source: '526EZ-all-claims', submission_id:)
-        log_exception_to_sentry(e)
+        monitor.error(e.message, 'add_flashes', source: '526EZ-all-claims', submission_id:)
       end
     end
 
@@ -96,9 +89,8 @@ module BGS
       flashes.each do |flash_name|
         assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
-          Sentry.set_tags(source: '526EZ-all-claims', submission_id:)
-          e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
-          log_exception_to_sentry(e)
+          monitor.error("Failed to assign '#{flash_name}' to Veteran", 'add_flashes',
+                        source: '526EZ-all-claims', submission_id:)
         end
       end
     end
@@ -125,6 +117,10 @@ module BGS
         external_uid: ssn,
         external_key: ssn
       )
+    end
+
+    def monitor
+      @monitor ||= BGS::Monitor.new(allowlist: %w[timestamp form526_submission_id pre_exhaustion_failure])
     end
   end
 end

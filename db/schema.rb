@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -31,6 +31,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
+  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
+
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
     t.integer "attorneys"
@@ -38,6 +40,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.integer "veteran_service_organizations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "accreditation_data_ingestion_logs", force: :cascade do |t|
+    t.integer "dataset", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "agents_status", default: 0, null: false
+    t.integer "attorneys_status", default: 0, null: false
+    t.integer "representatives_status", default: 0, null: false
+    t.integer "veteran_service_organizations_status", default: 0, null: false
+    t.datetime "started_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "finished_at"
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dataset", "started_at"], name: "index_accr_data_ing_logs_on_dataset_started_at"
+    t.index ["dataset", "status", "finished_at"], name: "index_accr_data_ing_logs_on_dataset_status_finished_at"
+    t.index ["status", "finished_at"], name: "index_accr_data_ing_logs_on_status_and_finished_at"
   end
 
   create_table "accreditations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -742,9 +761,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "pdf_uploaded_at"
+    t.string "vbms_file_uuid"
+    t.integer "pdf_upload_attempt_count", default: 0
+    t.text "pdf_upload_error"
     t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_16518323ec"
     t.index ["notification_id"], name: "idx_on_notification_id_e2314be616"
     t.index ["reference"], name: "index_decision_review_notification_audit_logs_on_reference"
+    t.index ["vbms_file_uuid"], name: "idx_on_vbms_file_uuid_b00c6bc3b9"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -764,7 +788,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
+    t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
     t.jsonb "debt_identifiers", default: [], null: false
@@ -778,7 +803,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
+    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
+    t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_digital_dispute_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_digital_dispute_submissions_on_user_uuid"
@@ -833,9 +861,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.integer "saved_claim_id", null: false
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "token"
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
+    t.index ["token"], name: "index_education_benefits_claims_on_token", unique: true
   end
 
   create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
@@ -880,13 +910,21 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
   end
 
   create_table "event_bus_gateway_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "va_notify_id", null: false
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "attempts", default: 1
     t.index ["user_account_id"], name: "index_event_bus_gateway_notifications_on_user_account_id"
+  end
+
+  create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
+    t.uuid "user_account_id"
+    t.string "template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_event_bus_gateway_push_notifications_on_user_account_id"
   end
 
   create_table "evidence_submissions", force: :cascade do |t|
@@ -1822,6 +1860,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.text "service_api_key_path"
+    t.uuid "service_id"
     t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
@@ -2107,47 +2146,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
     t.index ["user_profile_id"], name: "index_vye_verifications_on_user_profile_id"
   end
 
-  create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
-    t.bigint "webhooks_notification_id", null: false
-    t.bigint "webhooks_notification_attempt_id", null: false
-    t.index ["webhooks_notification_attempt_id"], name: "index_wh_assoc_attempt_id"
-    t.index ["webhooks_notification_id"], name: "index_wh_assoc_notification_id"
-  end
-
-  create_table "webhooks_notification_attempts", force: :cascade do |t|
-    t.boolean "success", default: false
-    t.jsonb "response", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "webhooks_notifications", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid", null: false
-    t.string "event", null: false
-    t.string "callback_url", null: false
-    t.jsonb "msg", null: false
-    t.integer "final_attempt_id"
-    t.integer "processing"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
-    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
-  end
-
-  create_table "webhooks_subscriptions", force: :cascade do |t|
-    t.string "api_name", null: false
-    t.string "consumer_name", null: false
-    t.uuid "consumer_id", null: false
-    t.uuid "api_guid"
-    t.jsonb "events", default: {"subscriptions"=>[]}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
-  end
-
   add_foreign_key "accreditations", "accredited_individuals"
   add_foreign_key "accreditations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -2171,6 +2169,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_24_143311) do
   add_foreign_key "digital_dispute_submissions", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "event_bus_gateway_notifications", "user_accounts"
+  add_foreign_key "event_bus_gateway_push_notifications", "user_accounts"
   add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"

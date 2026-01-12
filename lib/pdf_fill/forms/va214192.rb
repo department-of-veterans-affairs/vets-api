@@ -32,7 +32,7 @@ module PdfFill
       # @param form_data [Hash] The form data containing the signature
       # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
       def self.stamp_signature(pdf_path, form_data)
-        signature_text = form_data.dig('employerCertification', 'signature')
+        signature_text = form_data.dig('certification', 'signature')
 
         # Return original path if signature is blank
         return pdf_path if signature_text.nil? || signature_text.to_s.strip.empty?
@@ -213,7 +213,7 @@ module PdfFill
       end
 
       def merge_certification(options = {})
-        return unless @form_data['employerCertification']
+        return unless @form_data['certification']
 
         # Auto-generate certification date (MM/DD/YYYY format)
         certification_date = options[:created_at]&.to_date || Time.zone.today
@@ -223,7 +223,7 @@ module PdfFill
           year: certification_date.year.to_s
         }
 
-        @form_data['employerCertification']['certificationDate'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
+        @form_data['certification']['certificationDate'] = "#{date[:month]}/#{date[:day]}/#{date[:year]}"
 
         # Signature should already be set from form data, just ensure it's present
         # The signature field will be passed through as-is to the PDF

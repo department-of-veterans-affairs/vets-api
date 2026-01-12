@@ -2,13 +2,14 @@
 
 require 'bgs/form686c'
 require 'dependents/monitor'
+require 'vets/shared_logging'
 
 module BGS
   class SubmitForm686cJob < Job
     class Invalid686cClaim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
@@ -28,6 +29,21 @@ module BGS
                           'worker.submit_686c_bgs.exhaustion')
 
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
+    rescue => e
+      monitor = ::Dependents::Monitor.new
+      monitor.track_event('error', 'BGS::SubmitForm686cJob retries exhausted failed...',
+                          'worker.submit_686c_bgs.retry_exhaustion_failure',
+                          { error: e.message, nested_error: e.cause&.message, last_error: msg['error_message'] })
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = vet_info&.dig('veteran_information', 'va_profile_email')
+      if email.present?
+        claim.send_failure_email(email)
+      else
+        monitor.log_silent_failure(
+          monitor.default_payload.merge({ error: e }),
+          call_location: caller_locations.first
+        )
+      end
     end
 
     # method length lint disabled because this will be cut in half when flipper is removed

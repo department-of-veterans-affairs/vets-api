@@ -6,9 +6,11 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
+require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
@@ -109,11 +111,15 @@ module UnifiedHealthData
       build_error_response(normalized_orders)
     end
 
-    def get_care_summaries_and_notes
+    def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
-        # NOTE: we must pass in a startDate and endDate to SCDF
-        start_date = default_start_date
-        end_date = default_end_date
+        # Validate user-provided dates BEFORE applying defaults
+        validate_date_param(start_date, 'start_date') if start_date
+        validate_date_param(end_date, 'end_date') if end_date
+
+        # Apply defaults after validation
+        start_date ||= default_start_date
+        end_date ||= default_end_date
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
@@ -145,6 +151,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         parse_single_note(filtered)
+      end
+    end
+
+    def get_vitals
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        vitals_adapter.parse(combined_records)
       end
     end
 
@@ -180,6 +200,20 @@ module UnifiedHealthData
         return nil unless filtered
 
         allergy_adapter.parse_single_allergy(filtered)
+      end
+    end
+
+    def get_immunizations
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_immunizations_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        immunization_adapter.parse(combined_records)
       end
     end
 
@@ -245,8 +279,10 @@ module UnifiedHealthData
     def fetch_combined_records(body)
       return [] if body.nil?
 
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
+      vista_records = (body.dig('vista', 'entry') || []).map { |r| r.merge('source' => 'vista') }
+      oracle_health_records = (body.dig('oracle-health', 'entry') || []).map do |r|
+        r.merge('source' => 'oracle-health')
+      end
       vista_records + oracle_health_records
     end
 
@@ -316,10 +352,11 @@ module UnifiedHealthData
       # Parse successful refills from API response array
       successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
+        order = refill['order'] || refill
         {
-          id: refill['orderId'],
+          id: order['orderId'],
           status: refill['message'] || 'submitted',
-          station_number: refill['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
@@ -328,10 +365,11 @@ module UnifiedHealthData
       # Parse failed refills from API response array
       failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
+        order = failure['order'] || failure
         {
-          id: failure['orderId'],
+          id: order['orderId'],
           error: failure['message'] || 'Unable to process refill',
-          station_number: failure['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
@@ -399,6 +437,14 @@ module UnifiedHealthData
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
     end
 
+    def vitals_adapter
+      @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
+    end
+
+    def immunization_adapter
+      @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
+    end
+
     def logger
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
@@ -410,6 +456,12 @@ module UnifiedHealthData
 
     def default_end_date
       Time.zone.today.to_s
+    end
+
+    def validate_date_param(date_string, param_name)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
     end
   end
 end

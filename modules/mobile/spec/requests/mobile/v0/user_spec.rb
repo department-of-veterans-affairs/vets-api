@@ -15,6 +15,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                               instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -43,12 +45,10 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'with no upstream errors' do
       before do
-        VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
-              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
-                get '/mobile/v0/user', headers: sis_headers
-              end
+        VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+          VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
         end
@@ -207,6 +207,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
             militaryServiceHistory
@@ -245,11 +246,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         let!(:user) { sis_user(birth_date: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         before do
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
-                get '/mobile/v0/user', headers: sis_headers
-              end
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
         end
@@ -271,21 +270,56 @@ RSpec.describe 'Mobile::V0::User', type: :request do
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                   instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                  instance_of(User)).and_return(true)
+      end
 
-        VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
-              VCR.use_cassette(
-                'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
-              ) do
-                get '/mobile/v0/user', headers: sis_headers
-              end
+      it 'includes only some OH services when flags are enabled and app version matches' do
+        VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+          VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+            VCR.use_cassette(
+              'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
+            ) do
+              get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '2.99.99' })
             end
           end
         end
+
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            decisionLetters
+            directDepositBenefits
+            directDepositBenefitsUpdate
+            disabilityRating
+            genderIdentity
+            lettersAndDocuments
+            medicationsOracleHealthEnabled
+            militaryServiceHistory
+            paymentHistory
+            preferredName
+            scheduleAppointments
+            secureMessagingOracleHealthEnabled
+            userProfileUpdate
+          ]
+        )
       end
 
-      it 'includes the OH services when flags are enabled' do
+      it 'includes all OH services when flags are enabled and app version is high enough' do
+        VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+          VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+            VCR.use_cassette(
+              'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
+            ) do
+              get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '3.0.0' })
+            end
+          end
+        end
+
         expect(attributes['authorizedServices']).to eq(
           %w[
             allergiesOracleHealthEnabled
@@ -297,8 +331,41 @@ RSpec.describe 'Mobile::V0::User', type: :request do
             directDepositBenefitsUpdate
             disabilityRating
             genderIdentity
+            labsAndTestsEnabled
             lettersAndDocuments
             medicationsOracleHealthEnabled
+            militaryServiceHistory
+            paymentHistory
+            preferredName
+            scheduleAppointments
+            secureMessagingOracleHealthEnabled
+            userProfileUpdate
+          ]
+        )
+      end
+
+      it 'includes no OH services when flags are enabled but app version is not high enough' do
+        VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+          VCR.use_cassette('mr_client/bb_internal/session_auth.yml') do
+            VCR.use_cassette(
+              'lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]
+            ) do
+              get '/mobile/v0/user', headers: sis_headers({ 'App-Version' => '1.0.0' })
+            end
+          end
+        end
+
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            decisionLetters
+            directDepositBenefits
+            directDepositBenefitsUpdate
+            disabilityRating
+            genderIdentity
+            lettersAndDocuments
             militaryServiceHistory
             paymentHistory
             preferredName
@@ -392,11 +459,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'empty get_facility test' do
       before do
-        VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: sis_headers
-            end
+        VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            get '/mobile/v0/user', headers: sis_headers
           end
         end
       end
@@ -424,11 +489,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     describe 'fax number' do
       let(:user_request) do
-        VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: sis_headers
-            end
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            get '/mobile/v0/user', headers: sis_headers
           end
         end
       end
@@ -469,11 +532,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         it 'does not enqueue vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
 
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: sis_headers
-              end
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
           expect(response).to have_http_status(:ok)
@@ -482,14 +543,12 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         it 'flips mobile user vet360_linked to true if record exists' do
           Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
 
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              VCR.use_cassette('sm_client/session.yml') do
-                VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
-                  get '/mobile/v0/user', headers: sis_headers
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('sm_client/session.yml') do
+              VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+                get '/mobile/v0/user', headers: sis_headers
 
-                  expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
-                end
+                expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
               end
             end
           end
@@ -503,11 +562,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
 
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
-                get '/mobile/v0/user', headers: sis_headers
-              end
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
           expect(response).to have_http_status(:ok)

@@ -20,7 +20,7 @@ module DisabilityCompensation
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
       def initialize
-        super(SERVICE_NAME)
+        super(SERVICE_NAME, allowlist: %w[completely_removed removed_keys submission_id tags])
       end
 
       # Logs SavedClaim ActiveRecord save errors
@@ -131,6 +131,65 @@ module DisabilityCompensation
           "#{self.class::SUBMISSION_STATS_KEY}.without_banking_info",
           user_account_uuid:,
           form_id: self.class::FORM_ID
+        )
+      end
+
+      # Logs when banking info is successfully prefilled from Lighthouse Direct Deposit API
+      #
+      # Veterans can have their banking info prefilled from the Lighthouse Direct Deposit API
+      # during the Form 526 submission flow. We track this to monitor prefill success rates
+      # and detect potential issues with the Lighthouse API integration.
+      #
+      # @param user_account_uuid [uuid] uuid of the user with prefilled banking info
+      def track_banking_info_prefilled(user_account_uuid)
+        submit_event(
+          :info,
+          'Banking info successfully prefilled from Lighthouse Direct Deposit API',
+          "#{self.class::SUBMISSION_STATS_KEY}.banking_info_prefilled",
+          user_account_uuid:,
+          form_id: self.class::FORM_ID
+        )
+      end
+
+      # Logs when banking info lookup returns no data on file
+      #
+      # When we attempt to prefill banking info from Lighthouse but the veteran has no
+      # banking info on file. This helps us understand prefill failure rates and whether
+      # veterans need to manually enter their banking information.
+      #
+      # @param user_account_uuid [uuid] uuid of the user without banking info on file
+      def track_no_banking_info_on_file(user_account_uuid)
+        submit_event(
+          :info,
+          'No banking info on file for veteran during prefill attempt',
+          "#{self.class::SUBMISSION_STATS_KEY}.no_banking_info_on_file",
+          user_account_uuid:,
+          form_id: self.class::FORM_ID
+        )
+      end
+
+      # Logs when there is an error calling the Lighthouse Direct Deposit API
+      #
+      # Tracks failures when attempting to retrieve banking info from Lighthouse
+      # during Form 526 submission prefill. This helps identify API reliability issues
+      # and their impact on the veteran experience.
+      #
+      # @param user_account_uuid [uuid] uuid of the user experiencing the error
+      # @param error [Exception, String] exception (preferred) or error class/message
+      def track_banking_info_api_error(user_account_uuid, error)
+        error_class = if error.respond_to?(:class)
+                        error.class.name
+                      else
+                        error.to_s
+                      end
+
+        submit_event(
+          :error,
+          'Error retrieving banking info from Lighthouse Direct Deposit API',
+          "#{self.class::SUBMISSION_STATS_KEY}.banking_info_api_error",
+          user_account_uuid:,
+          form_id: self.class::FORM_ID,
+          error: error_class
         )
       end
 

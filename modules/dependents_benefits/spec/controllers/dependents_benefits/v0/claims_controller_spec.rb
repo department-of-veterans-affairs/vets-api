@@ -5,16 +5,17 @@ require 'rails_helper'
 RSpec.describe DependentsBenefits::V0::ClaimsController do
   routes { DependentsBenefits::Engine.routes }
 
-  let(:user) { create(:evss_user) }
-  let(:test_form) { build(:dependents_claim).parsed_form }
-  let(:bgs_service) { double('BGS::Services') }
-  let(:bgs_people) { double('BGS::People') }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
+
+  let(:user) { create(:evss_user) }
+  let(:test_form) { build(:dependents_claim).parsed_form }
+  let(:bgs_service) { double('BGS::Services') }
+  let(:bgs_people) { double('BGS::People') }
 
   describe '#show' do
     context 'with a valid bgs response' do
@@ -29,7 +30,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
     context 'with an erroneous bgs response' do
       it 'returns no content' do
-        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
+        allow_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents).and_raise(BGS::ShareError)
         get(:show, params: { id: user.participant_id }, as: :json)
         expect(response).to have_http_status(:bad_request)
       end
@@ -50,7 +51,6 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       before do
-        allow_any_instance_of(BGSV2::Service).to receive(:create_proc).and_return({ vnp_proc_id: '21875' })
         allow(BGS::Services).to receive(:new).and_return(bgs_service)
         allow(bgs_service).to receive(:people).and_return(bgs_people)
         allow(bgs_people).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '987654321' })
@@ -65,7 +65,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         expect do
           post(:create, params: test_form, as: :json)
         end.to change(
-          DependentsBenefits::SavedClaim, :count
+          DependentsBenefits::PrimaryDependencyClaim, :count
         ).by(1)
           .and change(
             DependentsBenefits::AddRemoveDependent, :count
@@ -98,8 +98,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
       it 'calls ClaimProcessor with correct parameters' do
         expect(DependentsBenefits::ClaimProcessor).to receive(:enqueue_submissions)
-          .with(a_kind_of(Integer), '21875')
-          .and_return({ data: { jobs_enqueued: 2 }, error: nil })
+          .with(a_kind_of(Integer))
 
         post(:create, params: test_form, as: :json)
         expect(response).to have_http_status(:ok)
@@ -117,7 +116,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       it 'does not create a saved claim' do
         expect do
           post(:create, params: invalid_params, as: :json)
-        end.not_to change(DependentsBenefits::SavedClaim, :count)
+        end.not_to change(DependentsBenefits::PrimaryDependencyClaim, :count)
       end
     end
 
@@ -134,7 +133,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       it 'does not create a saved claim' do
         expect do
           post(:create, params: test_form, as: :json)
-        end.not_to change(DependentsBenefits::SavedClaim, :count)
+        end.not_to change(DependentsBenefits::PrimaryDependencyClaim, :count)
       end
     end
   end

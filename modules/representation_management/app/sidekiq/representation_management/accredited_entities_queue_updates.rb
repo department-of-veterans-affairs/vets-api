@@ -46,21 +46,12 @@ module RepresentationManagement
     # @return [void]
     def perform(force_update_types = [])
       @force_update_types = force_update_types
-      initialize_instance_variables
-      @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
-      setup_daily_report
-
-      # Don't save fresh API counts if updates are forced
-      @entity_counts.save_api_counts unless @force_update_types.any?
-      process_entity_type(AGENTS)
-      process_entity_type(ATTORNEYS)
-      process_orgs_and_reps
-      remove_skipped_deletions
-      delete_removed_accredited_individuals
-      delete_removed_accredited_organizations
-      delete_removed_accreditations
+      setup_ingestion
+      process_all_entities
+      cleanup_removed_records
+      complete_ingestion_log
     rescue => e
-      log_error("Error in AccreditedEntitiesQueueUpdates: #{e.message}")
+      handle_ingestion_error(e)
     ensure
       finalize_and_send_report
     end
@@ -74,9 +65,9 @@ module RepresentationManagement
       @attorney_ids = []
       @vso_ids = []
       @representative_ids = []
-      @agent_json_for_address_validation = []
-      @attorney_json_for_address_validation = []
-      @representative_json_for_address_validation = []
+      @agent_ids_for_address_validation = []
+      @attorney_ids_for_address_validation = []
+      @representative_ids_for_address_validation = []
       @rep_to_vso_associations = {}
       @accreditation_ids = []
       @processing_error_types = []
@@ -99,6 +90,48 @@ module RepresentationManagement
 
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
+    end
+
+    # Sets up the ingestion process by initializing variables and starting the log
+    #
+    # @return [void]
+    def setup_ingestion
+      initialize_instance_variables
+      @ingestion_log = RepresentationManagement::AccreditationDataIngestionLog.start_ingestion!(
+        dataset: :accreditation_api
+      )
+      @entity_counts = RepresentationManagement::AccreditationApiEntityCount.new
+      setup_daily_report
+      # Don't save fresh API counts if updates are forced
+      @entity_counts.save_api_counts unless @force_update_types.any?
+    end
+
+    # Processes all entity types
+    #
+    # @return [void]
+    def process_all_entities
+      process_entity_type(AGENTS)
+      process_entity_type(ATTORNEYS)
+      process_orgs_and_reps
+    end
+
+    # Cleans up removed records from the database
+    #
+    # @return [void]
+    def cleanup_removed_records
+      remove_skipped_deletions
+      delete_removed_accredited_individuals
+      delete_removed_accredited_organizations
+      delete_removed_accreditations
+    end
+
+    # Handles errors during ingestion
+    #
+    # @param error [Exception] The error that occurred
+    # @return [void]
+    def handle_ingestion_error(error)
+      log_error("Error in AccreditedEntitiesQueueUpdates: #{error.message}")
+      fail_ingestion_log("Error in AccreditedEntitiesQueueUpdates: #{error.message}")
     end
 
     # Adds a summary of skipped deletions to the report
@@ -146,61 +179,185 @@ module RepresentationManagement
     # @param entity_type [String] The type of entity to process ('agents' or 'attorneys')
     # @return [void]
     def process_entity_type(entity_type)
-      # Don't process if we are forcing updates for other types
-      return if @force_update_types.any? && @force_update_types.exclude?(entity_type)
+      return if should_skip_entity_type?(entity_type)
 
-      if @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
-        # Capture expected count before processing
-        @expected_counts[entity_type.to_sym] = @entity_counts.current_api_counts[entity_type.to_sym]
+      @ingestion_log&.mark_entity_running!(entity_type)
 
-        if entity_type == AGENTS
-          update_agents
-          @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
-          validate_agent_addresses
-        else # attorneys
-          update_attorneys
-          @report << "Attorneys processed: #{@attorney_ids.uniq.compact.size}\n"
-          validate_attorney_addresses
-        end
+      if should_process_entity_type?(entity_type)
+        process_valid_entity_type(entity_type)
       else
-        entity_display = entity_type.capitalize
-        log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+        handle_invalid_entity_count(entity_type)
       end
+    rescue => e
+      @ingestion_log&.mark_entity_failed!(entity_type, error: e.message)
+      raise
+    end
+
+    # Determines if an entity type should be skipped
+    #
+    # @param entity_type [String] The entity type
+    # @return [Boolean]
+    def should_skip_entity_type?(entity_type)
+      @force_update_types.any? && @force_update_types.exclude?(entity_type)
+    end
+
+    # Determines if an entity type should be processed
+    #
+    # @param entity_type [String] The entity type
+    # @return [Boolean]
+    def should_process_entity_type?(entity_type)
+      @entity_counts.valid_count?(entity_type) || @force_update_types.include?(entity_type)
+    end
+
+    # Processes a validated entity type
+    #
+    # @param entity_type [String] The entity type
+    # @return [void]
+    def process_valid_entity_type(entity_type)
+      @expected_counts[entity_type.to_sym] = @entity_counts.current_api_counts[entity_type.to_sym]
+
+      if entity_type == AGENTS
+        process_agents
+      else
+        process_attorneys
+      end
+
+      @ingestion_log&.mark_entity_success!(entity_type, count: entity_count_for(entity_type))
+    end
+
+    # Processes agents
+    #
+    # @return [void]
+    def process_agents
+      update_agents
+      @report << "Agents processed: #{@agent_ids.uniq.compact.size}\n"
+      validate_agent_addresses
+    end
+
+    # Processes attorneys
+    #
+    # @return [void]
+    def process_attorneys
+      update_attorneys
+      @report << "Attorneys processed: #{@attorney_ids.uniq.compact.size}\n"
+      validate_attorney_addresses
+    end
+
+    # Returns the count for a specific entity type
+    #
+    # @param entity_type [String] The entity type
+    # @return [Integer]
+    def entity_count_for(entity_type)
+      entity_type == AGENTS ? @agent_ids.uniq.compact.size : @attorney_ids.uniq.compact.size
+    end
+
+    # Handles invalid entity counts
+    #
+    # @param entity_type [String] The entity type
+    # @return [void]
+    def handle_invalid_entity_count(entity_type)
+      entity_display = entity_type.capitalize
+      log_error("#{entity_display} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+      @ingestion_log&.mark_entity_failed!(
+        entity_type,
+        error: 'Count validation failed',
+        threshold: DECREASE_THRESHOLD
+      )
     end
 
     def process_orgs_and_reps
-      # Check if there are any force update types specified AND
-      # that none of them are representatives or veteran_service_organizations
-      return if @force_update_types.any? &&
-                !@force_update_types.intersect?(orgs_and_reps)
+      return if should_skip_orgs_and_reps?
 
+      mark_orgs_and_reps_running
+      log_invalid_counts_for_orgs_and_reps
+      return unless can_process_orgs_and_reps?
+
+      capture_expected_counts_for_orgs_and_reps
+      process_vsos_and_reps
+      create_or_update_accreditations
+    rescue => e
+      mark_orgs_and_reps_failed(e.message)
+      raise
+    end
+
+    # Determines if orgs and reps should be skipped
+    #
+    # @return [Boolean]
+    def should_skip_orgs_and_reps?
+      @force_update_types.any? && !@force_update_types.intersect?(orgs_and_reps)
+    end
+
+    # Marks organizations and representatives as running
+    #
+    # @return [void]
+    def mark_orgs_and_reps_running
+      @ingestion_log&.mark_entity_running!(REPRESENTATIVES)
+      @ingestion_log&.mark_entity_running!(VSOS)
+    end
+
+    # Logs invalid counts for organizations and representatives
+    #
+    # @return [void]
+    def log_invalid_counts_for_orgs_and_reps
       orgs_and_reps.each do |type|
         unless @entity_counts.valid_count?(type) || @force_update_types.include?(type)
           log_error("#{type.humanize} count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
         end
       end
+    end
 
-      unless orgs_and_reps_both_valid? || @force_update_types.intersect?(orgs_and_reps)
-        log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
-        return
+    # Determines if organizations and representatives can be processed
+    #
+    # @return [Boolean]
+    def can_process_orgs_and_reps?
+      if orgs_and_reps_both_valid? || @force_update_types.intersect?(orgs_and_reps)
+        true
+      else
+        handle_invalid_orgs_and_reps_counts
+        false
       end
+    end
 
-      # Capture expected counts before processing
+    # Handles invalid counts for organizations and representatives
+    #
+    # @return [void]
+    def handle_invalid_orgs_and_reps_counts
+      log_error('Both Orgs and Reps must have valid counts to process together - skipping update for both')
+      mark_orgs_and_reps_failed('Both Orgs and Reps must have valid counts')
+    end
+
+    # Captures expected counts for organizations and representatives
+    #
+    # @return [void]
+    def capture_expected_counts_for_orgs_and_reps
       api_counts = @entity_counts.current_api_counts
       @expected_counts[:veteran_service_organizations] = api_counts[:veteran_service_organizations]
       @expected_counts[:representatives] = api_counts[:representatives]
+    end
 
+    # Processes VSOs and representatives
+    #
+    # @return [void]
+    def process_vsos_and_reps
       # Process VSOs first (must exist before representatives can reference them)
       update_vsos
       @report << "VSOs processed: #{@vso_ids.uniq.compact.size}\n"
+      @ingestion_log&.mark_entity_success!(VSOS, count: @vso_ids.uniq.compact.size)
 
       # Process representatives
       update_reps
       @report << "Representatives processed: #{@representative_ids.uniq.compact.size} (deduplicated)\n"
       validate_rep_addresses
+      @ingestion_log&.mark_entity_success!(REPRESENTATIVES, count: @representative_ids.uniq.compact.size)
+    end
 
-      # Create or update join records
-      create_or_update_accreditations
+    # Marks organizations and representatives as failed
+    #
+    # @param error_message [String] The error message
+    # @return [void]
+    def mark_orgs_and_reps_failed(error_message)
+      @ingestion_log&.mark_entity_failed!(REPRESENTATIVES, error: error_message)
+      @ingestion_log&.mark_entity_failed!(VSOS, error: error_message)
     end
 
     # Fetches agent data from the GCLAWS API and updates database records
@@ -321,9 +478,7 @@ module RepresentationManagement
 
       # Check if address validation is needed
       raw_address = raw_address_for_representative(rep)
-      if record.raw_address != raw_address
-        @representative_json_for_address_validation << individual_representative_json(record, rep)
-      end
+      @representative_ids_for_address_validation << record.id if record.raw_address != raw_address
 
       # Update record
       record.update(rep_hash)
@@ -363,15 +518,6 @@ module RepresentationManagement
         'state_code' => rep['workState'],
         'zip_code' => rep['workZip']
       }
-    end
-
-    # Creates a JSON object for a representative's address, used for address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the representative
-    # @param rep [Hash] Raw representative data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_representative_json(record, rep)
-      individual_entity_json(record, rep, :representative)
     end
 
     def processed_individual_types
@@ -481,9 +627,9 @@ module RepresentationManagement
         AccreditedIndividual.where(individual_type: processed_individual_types)
                             .where.not(id: @agent_ids + @attorney_ids + @representative_ids)
                             .find_each do |record|
-          record.destroy
-        rescue => e
-          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+                              record.destroy
+                            rescue => e
+                              log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
         end
       else
         # Original behavior: delete all records not in current ID lists
@@ -510,10 +656,7 @@ module RepresentationManagement
 
       # Check if address validation is needed
       raw_address = send("raw_address_for_#{api_type}", entity)
-      if record.raw_address != raw_address
-        json_method = "individual_#{api_type}_json"
-        instance_variable_get(config[:json_var]) << send(json_method, record, entity)
-      end
+      instance_variable_get(config[:validation_ids_var]) << record.id if record.raw_address != raw_address
 
       # Update record and store ID
       record.update(entity_hash)
@@ -593,55 +736,14 @@ module RepresentationManagement
       raw_address_from_entity(attorney, city: 'workCity', state_code: 'workState')
     end
 
-    # Creates a JSON object for an agent's address, used for address validation
+    # Queues address validation jobs for a batch of record IDs
     #
-    # @param record [AccreditedIndividual] The database record for the agent
-    # @param agent [Hash] Raw agent data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_agent_json(record, agent)
-      individual_entity_json(record, agent, :agent)
-    end
-
-    # Creates a JSON object for an attorney's address, used for address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the attorney
-    # @param attorney [Hash] Raw attorney data from the GCLAWS API
-    # @return [Hash] JSON structure for address validation
-    def individual_attorney_json(record, attorney)
-      individual_entity_json(record, attorney, :attorney)
-    end
-
-    # Base method to create a JSON object for entity address validation
-    #
-    # @param record [AccreditedIndividual] The database record for the entity
-    # @param entity [Hash] Raw entity data from the GCLAWS API
-    # @param entity_type [Symbol] The type of entity (:agent, :attorney, or :representative)
-    # @return [Hash] JSON structure for address validation
-    def individual_entity_json(record, entity, entity_type)
-      raw_address = send("raw_address_for_#{entity_type}", entity)
-
-      {
-        id: record.id,
-        address: {
-          address_pou: 'RESIDENCE/CHOICE',
-          address_line1: raw_address['address_line1'],
-          address_line2: raw_address['address_line2'],
-          address_line3: raw_address['address_line3'],
-          city: raw_address['city'],
-          state: { state_code: raw_address['state_code'] },
-          zip_code5: raw_address['zip_code']
-        }
-      }
-    end
-
-    # Queues address validation jobs for a batch of records
-    #
-    # @param records_for_validation [Array<Hash>] Records to validate
+    # @param record_ids_for_validation [Array<Integer>] Record IDs to validate
     # @param description [String] Description for the Sidekiq batch
     # @return [void]
-    def validate_addresses(records_for_validation,
+    def validate_addresses(record_ids_for_validation,
                            description = 'Batching address updates from GCLAWS Accreditation API')
-      return if records_for_validation.empty?
+      return if record_ids_for_validation.empty?
 
       delay = 0
       batch = Sidekiq::Batch.new
@@ -649,9 +751,8 @@ module RepresentationManagement
 
       begin
         batch.jobs do
-          records_for_validation.each_slice(SLICE_SIZE) do |individuals|
-            json_individuals = individuals.to_json
-            RepresentationManagement::AccreditedIndividualsUpdate.perform_in(delay.minutes, json_individuals)
+          record_ids_for_validation.uniq.each_slice(SLICE_SIZE) do |ids|
+            RepresentationManagement::AccreditedIndividualsUpdate.perform_in(delay.minutes, ids)
             delay += 1
           end
         end
@@ -687,11 +788,11 @@ module RepresentationManagement
     # @return [void]
     def validate_entity_addresses(entity_type)
       config = ENTITY_CONFIG[entity_type]
-      json_var = config[:json_var]
+      validation_ids_var = config[:validation_ids_var]
       description = config[:validation_description]
 
       validate_addresses(
-        instance_variable_get(json_var),
+        instance_variable_get(validation_ids_var),
         description
       )
     end
@@ -810,6 +911,28 @@ module RepresentationManagement
       end
     rescue => e
       log_error("Error creating/updating accreditations: #{e.message}")
+    end
+
+    # Completes the ingestion log with overall metrics
+    def complete_ingestion_log
+      return unless @ingestion_log
+
+      @ingestion_log.complete_ingestion!(
+        agents: @agent_ids.uniq.compact.size,
+        attorneys: @attorney_ids.uniq.compact.size,
+        representatives: @representative_ids.uniq.compact.size,
+        veteran_service_organizations: @vso_ids.uniq.compact.size,
+        accreditations: @accreditation_ids.uniq.compact.size
+      )
+    end
+
+    # Marks the ingestion log as failed
+    #
+    # @param error_message [String] The error message to log
+    def fail_ingestion_log(error_message)
+      return unless @ingestion_log
+
+      @ingestion_log.fail_ingestion!(error: error_message)
     end
   end
   # rubocop:enable Metrics/ClassLength

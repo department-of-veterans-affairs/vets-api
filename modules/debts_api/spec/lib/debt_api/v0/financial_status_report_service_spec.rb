@@ -11,8 +11,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     mock_pdf_fill
   end
 
-  it 'inherits SentryLogging' do
-    expect(described_class.ancestors).to include(SentryLogging)
+  it 'inherits Vets::SharedLogging' do
+    expect(described_class.ancestors).to include(Vets::SharedLogging)
   end
 
   def mock_sharepoint_upload
@@ -380,11 +380,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
             VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
               expect { service.submit_vha_fsr(form_submission) }
                 .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-                error_details = e.errors.first
-                expect(error_details.status).to eq('400')
-                expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
-                expect(error_details.code).to eq('SHAREPOINT_PDF_400')
-                expect(error_details.source).to eq('SharepointRequest')
+                  error_details = e.errors.first
+                  expect(error_details.status).to eq('400')
+                  expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+                  expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+                  expect(error_details.source).to eq('SharepointRequest')
               end
             end
           end

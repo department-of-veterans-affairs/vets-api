@@ -117,8 +117,8 @@ module Openapi
                       },
                       country: {
                         type: :string,
-                        maxLength: 2,
-                        description: 'Country code (max 2 characters)',
+                        maxLength: 3,
+                        description: 'Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)',
                         example: 'US'
                       },
                       postalCode: {
@@ -139,6 +139,7 @@ module Openapi
           },
           certification: {
             type: :object,
+            required: %i[titleOfStateOrTribalOfficial signature certified],
             properties: {
               titleOfStateOrTribalOfficial: {
                 type: :string,
@@ -149,11 +150,18 @@ module Openapi
                 type: :string,
                 description: 'Signature of state or tribal official',
                 example: 'John Doe'
+              },
+              certified: {
+                type: :boolean,
+                enum: [true],
+                description: 'Certified by the state or tribal official (must be true)',
+                example: true
               }
             }
           },
           remarks: { type: :string }
-        }
+        },
+        required: %i[veteranInformation burialInformation certification]
       }.freeze
     end
   end

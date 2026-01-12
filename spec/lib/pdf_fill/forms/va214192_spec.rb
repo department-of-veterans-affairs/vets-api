@@ -115,7 +115,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     context 'when signature is present' do
       let(:form_data_with_sig) do
         {
-          'employerCertification' => {
+          'certification' => {
             'signature' => 'John H. Doe'
           }
         }
@@ -142,7 +142,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     context 'when signature is blank' do
       let(:form_data_no_sig) do
         {
-          'employerCertification' => {
+          'certification' => {
             'signature' => ''
           }
         }
@@ -159,7 +159,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     context 'when signature is nil' do
       let(:form_data_nil_sig) do
         {
-          'employerCertification' => {}
+          'certification' => {}
         }
       end
 
@@ -174,7 +174,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     context 'when signature is whitespace only' do
       let(:form_data_whitespace_sig) do
         {
-          'employerCertification' => {
+          'certification' => {
             'signature' => '   '
           }
         }
@@ -191,7 +191,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     context 'when stamping fails' do
       let(:form_data_with_sig) do
         {
-          'employerCertification' => {
+          'certification' => {
             'signature' => 'John Doe'
           }
         }

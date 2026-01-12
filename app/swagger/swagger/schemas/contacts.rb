@@ -17,6 +17,7 @@ module Swagger::Schemas
           end
         end
       end
+      property :meta, type: :object, description: 'Upstream response metadata'
     end
 
     swagger_schema :Contact do

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'sidekiq/attr_package'
 
 Sidekiq::Testing.fake!
 
@@ -9,13 +10,24 @@ RSpec.describe EmailVerificationJob, type: :job do
   subject { described_class }
 
   let(:template_type) { 'initial_verification' }
-  let(:email_address) { 'veteran@example.com' }
-  let(:personalisation) { { 'verification_link' => 'https://va.gov/verify/123', 'first_name' => 'John', 'email_address' => email_address } }
+  let(:cache_key) { 'test_cache_key_123' }
+  let(:personalisation_data) do
+    {
+      verification_link: 'https://va.gov/verify/123',
+      first_name: 'John',
+      email: 'veteran@example.com'
+    }
+  end
+  let(:notify_client) { instance_double(VaNotify::Service) }
 
   before do
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(VaNotify::Service).to receive(:new).and_return(notify_client)
+    allow(notify_client).to receive(:send_email)
+    allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(personalisation_data)
+    allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
   end
 
   describe '#perform' do
@@ -24,27 +36,49 @@ RSpec.describe EmailVerificationJob, type: :job do
         allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(true)
       end
 
-      it 'logs email verification and increments success metric' do
-        subject.new.perform(template_type, email_address, personalisation)
+      it 'retrieves PII data from cache and logs email verification and increments success metric' do
+        subject.new.perform(template_type, cache_key)
 
+        expect(Sidekiq::AttrPackage).to have_received(:find).with(cache_key)
         expect(Rails.logger).to have_received(:info).with(
           'Email verification sent (logging only - not actually sent)',
           hash_including(template_type:)
         )
         expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.success')
+        expect(Sidekiq::AttrPackage).to have_received(:delete).with(cache_key)
       end
 
-      # Test all template types in one spec
-      %w[initial_verification annual_verification email_change_verification verification_success].each do |type|
-        it "handles #{type} template type" do
-          expect { subject.new.perform(type, email_address, personalisation) }.not_to raise_error
+      it 'raises ArgumentError when cache data is missing' do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+
+        expect do
+          subject.new.perform(template_type, cache_key)
+        end.to raise_error(ArgumentError, 'Missing personalisation data in Redis')
+
+        expect(Rails.logger).to have_received(:error).with(
+          'EmailVerificationJob failed: Missing personalisation data in Redis',
+          hash_including(template_type:, cache_key_present: true)
+        )
+      end
+
+      %w[initial_verification annual_verification email_change_verification].each do |type|
+        it "handles #{type} template type with verification templates data structure" do
+          verification_data = {
+            verification_link: 'https://va.gov/verify/123',
+            first_name: 'John',
+            email: 'veteran@example.com'
+          }
+          allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(verification_data)
+
+          expect { subject.new.perform(type, cache_key) }.not_to raise_error
         end
       end
 
-      it 'raises ArgumentError for unknown template type' do
-        expect do
-          subject.new.perform('unknown_type', email_address, personalisation)
-        end.to raise_error(ArgumentError, 'Unknown template type')
+      it 'handles verification_success template type with success data structure' do
+        success_data = { first_name: 'John', email: 'veteran@example.com' }
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(success_data)
+
+        expect { subject.new.perform('verification_success', cache_key) }.not_to raise_error
       end
     end
 
@@ -54,7 +88,7 @@ RSpec.describe EmailVerificationJob, type: :job do
       end
 
       it 'returns early without logging or metrics' do
-        subject.new.perform(template_type, email_address, personalisation)
+        subject.new.perform(template_type, cache_key)
 
         expect(Rails.logger).not_to have_received(:info)
         expect(StatsD).not_to have_received(:increment)
@@ -69,7 +103,7 @@ RSpec.describe EmailVerificationJob, type: :job do
 
     it 'enqueues the job' do
       expect do
-        subject.perform_async('initial_verification', email_address, personalisation)
+        subject.perform_async(template_type, cache_key)
       end.to change(subject.jobs, :size).by(1)
     end
   end
@@ -80,10 +114,11 @@ RSpec.describe EmailVerificationJob, type: :job do
     end
 
     it 'handles general errors with failure metrics and logging' do
-      allow_any_instance_of(described_class).to receive(:get_template_id).and_raise(StandardError, 'Service error')
+      allow_any_instance_of(described_class).to receive(:build_personalisation).and_raise(StandardError,
+                                                                                          'Service error')
 
       expect do
-        subject.new.perform(template_type, email_address, personalisation)
+        subject.new.perform(template_type, cache_key)
       end.to raise_error(StandardError, 'Service error')
 
       expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.failure')
@@ -93,28 +128,56 @@ RSpec.describe EmailVerificationJob, type: :job do
     end
 
     it 'does not increment failure metrics for ArgumentError' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
+
       expect do
-        subject.new.perform('unknown_type', email_address, personalisation)
+        subject.new.perform(template_type, cache_key)
       end.to raise_error(ArgumentError)
 
+      expect(StatsD).not_to have_received(:increment)
+        .with('api.vanotify.email_verification.failure')
+      expect(Rails.logger).to have_received(:error)
+        .with(
+          'EmailVerificationJob failed: Missing personalisation data in Redis', {
+            template_type:,
+            cache_key_present: true
+          }
+        )
+    end
+
+    it 'handles Sidekiq::AttrPackageError as ArgumentError (no retries)' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_raise(
+        Sidekiq::AttrPackageError.new('find', 'Redis connection failed')
+      )
+
+      expect do
+        subject.new.perform(template_type, cache_key)
+      end.to raise_error(ArgumentError, '[Sidekiq] [AttrPackage] find error: Redis connection failed')
+
+      expect(Rails.logger)
+        .to have_received(:error)
+        .with(
+          'EmailVerificationJob AttrPackage error', {
+            error: '[Sidekiq] [AttrPackage] find error: Redis connection failed',
+            template_type:
+          }
+        )
       expect(StatsD).not_to have_received(:increment).with('api.vanotify.email_verification.failure')
-      expect(Rails.logger).to have_received(:error).with('EmailVerificationJob validation failed', {
-                                                           error: 'Unknown template type',
-                                                           template_type: 'unknown_type'
-                                                         })
     end
   end
 
   describe 'retries exhausted' do
-    it 'logs exhaustion with proper context' do
-      # Simulate sidekiq_retries_exhausted callback
+    it 'logs exhaustion with proper context and cleans up cache' do
+      # Simulate sidekiq_retries_exhausted callback with new parameter structure
       msg = {
         'jid' => 'test_job_id',
         'class' => 'EmailVerificationJob',
         'error_class' => 'StandardError',
         'error_message' => 'Connection failed',
-        'args' => [template_type, email_address, personalisation]
+        'args' => [template_type, cache_key]
       }
+
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
 
       described_class.sidekiq_retries_exhausted_block.call(msg, nil)
 
@@ -128,6 +191,56 @@ RSpec.describe EmailVerificationJob, type: :job do
         )
       )
       expect(StatsD).to have_received(:increment).with('api.vanotify.email_verification.retries_exhausted')
+    end
+
+    it 'handles cache cleanup failure gracefully in retries exhausted' do
+      msg = {
+        'jid' => 'test_job_id',
+        'class' => 'EmailVerificationJob',
+        'error_class' => 'StandardError',
+        'error_message' => 'Connection failed',
+        'args' => [template_type, cache_key]
+      }
+
+      allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key).and_raise(
+        Sidekiq::AttrPackageError.new('delete', 'Redis failed')
+      )
+      allow(Rails.logger).to receive(:warn)
+
+      expect { described_class.sidekiq_retries_exhausted_block.call(msg, nil) }.not_to raise_error
+
+      expect(Rails.logger).to have_received(:warn).with(
+        'Failed to clean up AttrPackage after retries exhausted',
+        hash_including(cache_key:, error: '[Sidekiq] [AttrPackage] delete error: Redis failed')
+      )
+    end
+  end
+
+  describe '#callback_options' do
+    let(:job_instance) { subject.new }
+
+    it 'returns properly structured callback options for each template type' do
+      %w[initial_verification annual_verification email_change_verification verification_success].each do |type|
+        options = job_instance.send(:callback_options, type)
+
+        expect(options).to eq({
+                                callback_klass: 'EmailVerificationCallback',
+                                callback_metadata: {
+                                  statsd_tags: {
+                                    service: 'vagov-profile-email-verification',
+                                    function: "#{type}_email"
+                                  }
+                                }
+                              })
+      end
+    end
+
+    it 'references a valid callback class' do
+      options = job_instance.send(:callback_options, 'initial_verification')
+      callback_klass = options[:callback_klass]
+
+      expect { callback_klass.constantize }.not_to raise_error
+      expect(callback_klass.constantize).to respond_to(:call)
     end
   end
 
@@ -158,6 +271,38 @@ RSpec.describe EmailVerificationJob, type: :job do
           job_instance.send(:validate_personalisation!, template_type, nil)
         end.to raise_error(ArgumentError, 'Personalisation cannot be nil')
       end
+    end
+  end
+
+  describe '#build_personalisation' do
+    let(:job_instance) { subject.new }
+
+    it 'builds correct personalisation for verification templates' do
+      data = { verification_link: 'https://va.gov/verify/123', first_name: 'John', email: 'test@va.gov' }
+
+      %w[initial_verification annual_verification email_change_verification].each do |type|
+        result = job_instance.send(:build_personalisation, type, data)
+        expect(result).to eq({
+                               'verification_link' => 'https://va.gov/verify/123',
+                               'first_name' => 'John',
+                               'email_address' => 'test@va.gov'
+                             })
+      end
+    end
+
+    it 'builds correct personalisation for verification_success' do
+      data = { first_name: 'John', email: 'test@va.gov' }
+      result = job_instance.send(:build_personalisation, 'verification_success', data)
+
+      expect(result).to eq({ 'first_name' => 'John' })
+    end
+
+    it 'raises ArgumentError for unknown template type' do
+      data = { first_name: 'John' }
+
+      expect do
+        job_instance.send(:build_personalisation, 'unknown_type', data)
+      end.to raise_error(ArgumentError, 'Unknown template type')
     end
   end
 

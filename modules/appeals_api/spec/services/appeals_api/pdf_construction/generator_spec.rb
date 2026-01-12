@@ -45,15 +45,18 @@ describe AppealsApi::PdfConstruction::Generator do
       end
 
       shared_examples 'shared NOD v2 and v3 generator examples' do |pdf_version|
-        let(:fixture_name) { 'expected_10182.pdf' }
-        let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
         let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
 
         after { FileUtils.rm_f(generated_pdf) }
 
-        it 'generates the expected pdf' do
-          expect(generated_pdf).to match_pdf expected_pdf
+        context 'with required content' do
+          let(:fixture_name) { 'expected_10182.pdf' }
+          let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf expected_pdf
+          end
         end
 
         context 'with extra content' do
@@ -111,6 +114,10 @@ describe AppealsApi::PdfConstruction::Generator do
 
       context 'v2' do
         include_examples 'shared NOD v2 and v3 generator examples', 'v2'
+      end
+
+      context 'feb2025' do
+        include_examples 'shared NOD v2 and v3 generator examples', 'feb2025'
       end
     end
 

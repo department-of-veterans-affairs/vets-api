@@ -7,79 +7,6 @@ RSpec.describe IncreaseCompensation::Helpers do
 
   let(:dummy_class) { Class.new { include IncreaseCompensation::Helpers } }
 
-  describe '#format_date_to_mm_dd_yyyy' do
-    it 'formats a valid date string' do
-      expect(subject.format_date_to_mm_dd_yyyy('2024-06-01')).to eq('06/01/2024')
-    end
-
-    it 'returns nil for blank input' do
-      expect(subject.format_date_to_mm_dd_yyyy('')).to be_nil
-      expect(subject.format_date_to_mm_dd_yyyy(nil)).to be_nil
-    end
-  end
-
-  describe '#split_currency_amount_sm' do
-    it 'splits a small currency amount correctly' do
-      result = subject.split_currency_amount_sm(12_345.67)
-      expect(result).to eq({ 'cents' => '67', 'dollars' => '345', 'thousands' => '12' })
-    end
-
-    it 'returns empty hash for zero, nil, negative, or too large amounts' do
-      expect(subject.split_currency_amount_sm(nil)).to eq({})
-      expect(subject.split_currency_amount_sm(0)).to eq({})
-      expect(subject.split_currency_amount_sm(-1)).to eq({})
-      expect(subject.split_currency_amount_sm(1_000_000)).to eq({})
-    end
-
-    it 'returns empty hash if any field exceeds its length' do
-      result = subject.split_currency_amount_sm(999_999.99, { 'dollars' => 2 })
-      expect(result).to eq({})
-    end
-  end
-
-  describe '#split_currency_amount_lg' do
-    it 'splits a large currency amount correctly' do
-      result = subject.split_currency_amount_lg(12_345_678.90)
-      expect(result).to eq({ 'cents' => '90', 'dollars' => '678', 'thousands' => '345', 'millions' => '12' })
-    end
-
-    it 'returns empty hash for zero, nil, negative, or too large amounts' do
-      expect(subject.split_currency_amount_lg(nil)).to eq({})
-      expect(subject.split_currency_amount_lg(0)).to eq({})
-      expect(subject.split_currency_amount_lg(-1)).to eq({})
-      expect(subject.split_currency_amount_lg(99_999_999)).to eq({})
-    end
-
-    it 'returns empty hash if any field exceeds its length' do
-      result = subject.split_currency_amount_lg(99_999_998.99, { 'thousands' => 2 })
-      expect(result).to eq({})
-    end
-  end
-
-  describe '#get_currency_field' do
-    it 'pads value to field length' do
-      arr = %w[12 345 678 90]
-      expect(subject.get_currency_field(arr, -2, 5)).to eq('  678')
-    end
-
-    it 'returns nil if index out of bounds' do
-      arr = %w[12 345]
-      expect(subject.get_currency_field(arr, -4, 2)).to be_nil
-    end
-  end
-
-  describe '#change_hash_to_string' do
-    it 'joins hash values with spaces' do
-      hash = { a: 'foo', b: 'bar', c: 'baz' }
-      expect(subject.change_hash_to_string(hash)).to eq('foo bar baz')
-    end
-
-    it 'returns empty string for blank hash' do
-      expect(subject.change_hash_to_string({})).to eq('')
-      expect(subject.change_hash_to_string(nil)).to eq('')
-    end
-  end
-
   describe '#split_currency_amount_thousands' do
     it 'returns empty hash for zero, nil, negative, or too large amounts' do
       expect(subject.split_currency_amount_thousands(nil)).to eq({})
@@ -151,6 +78,111 @@ RSpec.describe IncreaseCompensation::Helpers do
     it 'returns {} if date range is nil or has no from date' do
       expect(subject.map_date_range({})).to eq({})
       expect(subject.map_date_range(nil)).to eq({})
+    end
+  end
+
+  describe '#format_first_care_item' do
+    it 'formats to write 1 single item to form' do
+      care_item =
+        {
+          'inVANetwork' => true,
+          'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
+          'hospitalTreatmentDates' => [
+            {
+              'from' => '2024-06-01',
+              'to' => '2024-06-15'
+            }
+          ]
+        }
+      expect(subject.format_first_care_item(care_item)).to eq(
+        [
+          {
+            'from' => {
+              'month' => '06', 'day' => '01', 'year' => '2024'
+            }, 'to' => { 'month' => '06', 'day' => '15', 'year' => '2024' }
+          },
+          'VA - Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
+        ]
+      )
+    end
+
+    it 'overflows if more than one date range' do
+      care_item =
+        {
+          'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
+          'hospitalTreatmentDates' => [
+            {
+              'from' => '2024-06-01',
+              'to' => '2024-06-15'
+            },
+            { 'from' => '2024-06-01' }
+          ]
+        }
+      expect(subject.format_first_care_item(care_item)).to eq(
+        [
+          {
+            'from' => {
+              'year' => "from: 2024-06-01, to: 2024-06-15\nfrom: 2024-06-01, to: \n"
+            }
+          },
+          'Non-VA - Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
+        ]
+      )
+    end
+  end
+
+  describe '#overflow_doc_and_hospitals' do
+    doctors_care = [
+      {
+        'inVANetwork' => true,
+        'doctorsTreatmentDates' => [
+          { 'from' => '2024-01-10',
+            'to' => '2025-02-20' }
+        ],
+        'nameAndAddressOfDoctor' => 'Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001',
+        'relatedDisability' => ['PTSD']
+      },
+      {
+        'inVANetwork' => false,
+        'doctorsTreatmentDates' => [
+          { 'from' => '2024-01-10',
+            'to' => '2025-02-20' },
+          { 'from' => '2024-01-10' }
+        ],
+        'nameAndAddressOfDoctor' => 'Dr.Nick, 123 frontage St, Cheyenne, WY 82001'
+      },
+      {
+        'doctorsTreatmentDates' => [
+          { 'from' => '2024-01-10',
+            'to' => '2025-02-20' },
+          { 'from' => '2024-01-10',
+            'to' => '2025-02-20' }
+        ],
+        'nameAndAddressOfDoctor' => 'Dr. Zoidberg, 423 main St, Cheyenne, WY 82001'
+      }
+    ]
+    it 'formats all items for overflow' do
+      expect(subject.overflow_doc_and_hospitals(doctors_care, true)).to eq(
+        [
+          "VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001\nTreated for: PTSD\nFrom: 2024-01-10, To: 2025-02-20\n", # rubocop:disable Layout/LineLength
+          "Non-VA - Dr.Nick, 123 frontage St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: \n", # rubocop:disable Layout/LineLength
+          "Non-VA - Dr. Zoidberg, 423 main St, Cheyenne, WY 82001\nFrom: 2024-01-10, To: 2025-02-20\nFrom: 2024-01-10, To: 2025-02-20\n" # rubocop:disable Layout/LineLength
+        ]
+      )
+    end
+  end
+
+  describe '#resolve_boolean_checkbox' do
+    it 'take a true and returns YES' do
+      expect(subject.resolve_boolean_checkbox(true)).to eq('YES')
+    end
+
+    it 'take a false and returns NO' do
+      expect(subject.resolve_boolean_checkbox(false)).to eq('NO')
+    end
+
+    it 'take a nil and returns OFF' do
+      expect(subject.resolve_boolean_checkbox(nil)).to eq('OFF')
     end
   end
 end

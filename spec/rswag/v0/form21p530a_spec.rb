@@ -6,6 +6,7 @@ require 'rails_helper'
 
 RSpec.describe 'Form 21P-530a API', openapi_spec: 'public/openapi.json', type: :request do
   before do
+    host! Settings.hostname
     allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-1234-1234-123456789abc')
     allow(Time).to receive(:current).and_return(Time.zone.parse('2025-01-15 10:30:00 UTC'))
   end

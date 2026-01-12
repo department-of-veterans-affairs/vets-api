@@ -91,6 +91,18 @@ describe TravelPay::ClaimAssociationService do
           start: '2021-06-02T16:00:00Z',
           local_start_time: '2021-06-02T16:00:00.000-0400',
           cancellable: false
+        },
+        {
+          id: '32073',
+          kind: 'clinic',
+          status: 'cancelled',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '408',
+          start: '2021-06-02T16:00:00Z',
+          # Below is the REAL data we get in local_start_time if appts fails to convert it
+          local_start_time: 'Unable to convert UTC to local time',
+          cancellable: false
         }
       ]
     end
@@ -128,13 +140,29 @@ describe TravelPay::ClaimAssociationService do
       end
 
       expect(appts_with_claims.count).to eq(appointments.count)
-      appts_with_claims.each do |appt|
+
+      happy_path_claims = appts_with_claims.filter do |appt|
+        appt['travelPayClaim']['metadata']['message'].exclude?('local_start_time')
+      end
+
+      happy_path_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
         expect(appt['travelPayClaim']['metadata']['success']).to be(true)
       end
+
       expect(actual_appts_with_claims.count).to equal(1)
       expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq(expected_uuids[0])
+
+      ## Make sure we can handle invalid `local_start_time`s
+      bad_time_appt = appts_with_claims.find do |appt|
+        appt['travelPayClaim']['metadata']['message'].include?('local_start_time')
+      end
+
+      expect(bad_time_appt).not_to be_nil
+      expect(bad_time_appt['travelPayClaim']['metadata']['status']).to eq(500)
+      expect(bad_time_appt['travelPayClaim']['metadata']['success']).to be(false)
+      expect(bad_time_appt['travelPayClaim']['claim']).to be_nil
     end
 
     it 'returns appointments with error metadata if claims call fails' do

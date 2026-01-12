@@ -9,17 +9,20 @@ module Committee
     end
 
     def error_body
-      {
-        errors: [
-          {
-            title: 'Unprocessable Entity',
-            detail: message,
-            code: '422',
-            status: '422',
-            source: 'Committee::Middleware::RequestValidation'
-          }
-        ]
+      error = {
+        title: 'Unprocessable Entity',
+        detail: sanitize_detail,
+        code: '422',
+        status: '422',
+        source: 'Committee::Middleware::RequestValidation'
       }
+
+      # Add controller/action metadata if available (auto-cleaned after request)
+      controller = CommitteeContext.controller
+      action = CommitteeContext.action
+      error[:meta] = { controller:, action: }.compact if controller || action
+
+      { errors: [error] }
     end
 
     def render
@@ -28,6 +31,15 @@ module Committee
         { 'Content-Type' => 'application/json' },
         [JSON.generate(error_body)]
       ]
+    end
+
+    private
+
+    # Removes actual user input values from error messages to prevent PII exposure.
+    # We will make this more robust in the future, to give specific details about which
+    # fields and values are causing the schema validation to fail.
+    def sanitize_detail
+      'Request did not conform to API schema.'
     end
   end
 end

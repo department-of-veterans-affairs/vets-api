@@ -55,6 +55,9 @@
     "dateFirstPaymentIssued": "2024-01-15",
     "dateBenefitWillStop": "2026-12-31",
     "remarks": "Benefits provided through employer-sponsored long-term disability insurance policy administered by Third-Party Benefits Administrator Corporation. Payments coordinated with VA compensation."
+  },
+  "certification": {
+    "signature": "Maximilian A. Wellington-Smythe, Jr., HR Director",
+    "certified": true
   }
 }
-

@@ -2,11 +2,12 @@
 
 require 'vets/model'
 require 'pdf_info'
+require 'vets/shared_logging'
 
 class EVSSClaimDocument
   include Vets::Model
   include ActiveModel::Validations::Callbacks
-  include SentryLogging
+  include Vets::SharedLogging
 
   attribute :evss_claim_id, Integer
   attribute :tracked_item_id, Integer
@@ -146,6 +147,7 @@ class EVSSClaimDocument
   rescue PdfInfo::MetadataReadError => e
     Rails.logger.info("MetadataReadError: Document for claim #{evss_claim_id}")
     log_exception_to_sentry(e, nil, nil, 'warn')
+
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else

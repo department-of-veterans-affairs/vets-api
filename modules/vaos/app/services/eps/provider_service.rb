@@ -4,6 +4,8 @@ module Eps
   class ProviderService < BaseService
     # StatsD metrics for provider service calls with no parameters
     PROVIDER_SERVICE_NO_PARAMS_METRIC = "#{STATSD_PREFIX}.provider_service.no_params".freeze
+    # StatsD metric for when providers are found but none are self-schedulable
+    PROVIDER_SERVICE_NO_SELF_SCHEDULABLE_METRIC = "#{STATSD_PREFIX}.provider_service.no_self_schedulable".freeze
     ##
     # Get provider data from EPS
     #
@@ -118,28 +120,28 @@ module Eps
     # @param npi [String] NPI number to search for
     # @param specialty [String] Specialty to match (case-insensitive)
     # @param address [Hash] Address object with :street1, :city, :state, :zip keys
+    # @param referral_number [String] Optional referral/consultation number for logging
     #
     # @return OpenStruct response containing the provider service where an individual provider has
     # matching NPI, specialty and address.
     #
-    def search_provider_services(npi:, specialty:, address:)
-      validate_search_params(npi, specialty, address)
+    def search_provider_services(npi:, specialty:, address:, referral_number: nil)
+      validate_search_params(npi, specialty, address, referral_number)
 
       response = fetch_provider_services(npi)
-      if response.body[:provider_services].blank?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI")
+      all_providers = response.body[:provider_services] || []
+      if all_providers.blank?
+        log_no_providers_found(npi, referral_number)
         return nil
       end
 
-      specialty_matches = filter_by_specialty(response.body[:provider_services], specialty)
-      if specialty_matches.empty?
-        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.")
-        return nil
-      end
+      self_schedulable_providers = check_self_schedulable_results(all_providers, npi, referral_number)
+      return nil if self_schedulable_providers.nil?
 
-      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
+      specialty_matches = check_specialty_matches(self_schedulable_providers, specialty, npi, referral_number)
+      return nil if specialty_matches.nil?
 
-      find_address_match(specialty_matches, address)
+      check_address_match(specialty_matches, address, npi, referral_number)
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'search_provider_services')
       raise e
@@ -202,10 +204,10 @@ module Eps
     # @param address [Hash] Provider address
     # @raise [ArgumentError] If any required parameter is blank
     #
-    def validate_search_params(npi, specialty, address)
-      raise ArgumentError, 'Provider NPI is required and cannot be blank' if npi.blank?
-      raise ArgumentError, 'Provider specialty is required and cannot be blank' if specialty.blank?
-      raise ArgumentError, 'Provider address is required and cannot be blank' if address.blank?
+    def validate_search_params(npi, specialty, address, referral_number = nil)
+      validate_npi_param(npi, specialty, address, referral_number)
+      validate_specialty_param(specialty, npi, address, referral_number)
+      validate_address_param(address, npi, specialty, referral_number)
     end
 
     ##
@@ -224,6 +226,91 @@ module Eps
         query_params = { npi:, isSelfSchedulable: true }
         perform(:get, "/#{config.base_path}/provider-services", query_params,
                 request_headers_with_correlation_id)
+      end
+    end
+
+    ##
+    # Checks for self-schedulable providers and filters results
+    #
+    # @param all_providers [Array] All providers from EPS response
+    # @param npi [String] Provider NPI
+    # @return [Array, nil] Self-schedulable providers or nil if none found
+    #
+    def check_self_schedulable_results(all_providers, npi, referral_number = nil)
+      if all_providers.blank?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No providers found for NPI", **common_logging_context)
+        return nil
+      end
+
+      self_schedulable_providers = filter_self_schedulable(all_providers)
+      if self_schedulable_providers.empty?
+        StatsD.increment(PROVIDER_SERVICE_NO_SELF_SCHEDULABLE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
+        Rails.logger.error("#{CC_APPOINTMENTS}: No self-schedulable providers found for NPI", **common_logging_context)
+        log_personal_information_error('eps_provider_no_self_schedulable', {
+                                         npi:,
+                                         referral_number:,
+                                         failure_reason: 'No self-schedulable providers found ' \
+                                                         '(digital/direct booking disabled)'
+                                       })
+        return nil
+      end
+
+      self_schedulable_providers
+    end
+
+    ##
+    # Checks for specialty matches among self-schedulable providers
+    #
+    # @param self_schedulable_providers [Array] Self-schedulable providers
+    # @param specialty [String] Specialty to match
+    # @return [Array, nil] Specialty matches or nil if none found
+    #
+    def check_specialty_matches(self_schedulable_providers, specialty, npi, referral_number = nil)
+      specialty_matches = filter_by_specialty(self_schedulable_providers, specialty)
+      if specialty_matches.empty?
+        Rails.logger.warn("#{CC_APPOINTMENTS}: No specialty matches found.", **common_logging_context)
+        log_personal_information_error('eps_provider_specialty_mismatch', {
+                                         npi:,
+                                         referral_number:,
+                                         search_params: { specialty: },
+                                         failure_reason: "No providers match specialty '#{specialty}'"
+                                       })
+        return nil
+      end
+
+      specialty_matches
+    end
+
+    ##
+    # Checks for address match among specialty matches
+    #
+    # @param specialty_matches [Array] Providers matching specialty
+    # @param address [Hash] Address to match against
+    # @return [OpenStruct, nil] First matching provider or nil if none found
+    #
+    def check_address_match(specialty_matches, address, npi, referral_number = nil)
+      return handle_single_specialty_match(specialty_matches) if specialty_matches.size == 1
+
+      find_address_match(specialty_matches, address, npi, referral_number)
+    end
+
+    ##
+    # Filters providers to only those that are self-schedulable
+    #
+    # A provider is self-schedulable if:
+    # 1. features.isDigital is true
+    # 2. features.directBooking.isEnabled is true
+    #
+    # Note: The isSelfSchedulable query parameter in fetch_provider_services
+    # handles appointment type filtering at the EPS API level.
+    #
+    # @param providers [Array] List of providers from EPS response
+    # @return [Array] All self-schedulable providers, or empty array if none found
+    #
+    def filter_self_schedulable(providers)
+      providers.select do |provider|
+        provider.dig(:features, :is_digital) == true &&
+          provider.dig(:features, :direct_booking, :is_enabled) == true
       end
     end
 
@@ -258,21 +345,33 @@ module Eps
     # @param address [Hash] Address to match against
     # @return [OpenStruct, nil] Provider match or nil if no match found
     #
-    def find_address_match(specialty_matches, address)
+    def find_address_match(specialty_matches, address, npi, referral_number = nil)
       address_match = specialty_matches.find do |provider|
         address_matches?(provider, address)
       end
 
-      if address_match.nil?
-        warn_data = {
-          specialty_matches_count: specialty_matches.size,
-          user_uuid: @current_user&.uuid
-        }
-        message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches.size} provider(s) for NPI"
-        Rails.logger.warn(message, warn_data)
-      end
+      log_address_mismatch(specialty_matches.size, address, npi, referral_number) if address_match.nil?
 
       address_match&.then { |provider| OpenStruct.new(provider) }
+    end
+
+    def log_address_mismatch(specialty_matches_count, address, npi, referral_number)
+      warn_data = {
+        specialty_matches_count:
+      }.merge(common_logging_context)
+      message = "#{CC_APPOINTMENTS}: No address match found among #{specialty_matches_count} provider(s) for NPI"
+      Rails.logger.warn(message, warn_data)
+
+      log_personal_information_error('eps_provider_address_mismatch', {
+                                       npi:,
+                                       referral_number:,
+                                       search_params: {
+                                         specialty_matches_count:,
+                                         address: address&.except(:zip)
+                                       },
+                                       failure_reason: 'No address match found among ' \
+                                                       "#{specialty_matches_count} specialty-matched providers"
+                                     })
     end
 
     ##
@@ -288,9 +387,8 @@ module Eps
 
       error_data = {
         provider_id:,
-        timeout_seconds:,
-        user_uuid: @current_user&.uuid
-      }
+        timeout_seconds:
+      }.merge(common_logging_context)
       Rails.logger.error("#{CC_APPOINTMENTS}: Provider slots pagination timeout", error_data)
       raise Common::Exceptions::BackendServiceException.new(
         'PROVIDER_SLOTS_TIMEOUT',
@@ -359,9 +457,8 @@ module Eps
           street_matches:,
           zip_matches:,
           provider_address:,
-          referral_address: "#{address[:street1]}, #{address[:zip]}",
-          user_uuid: @current_user&.uuid
-        }
+          referral_address: "#{address[:street1]}, #{address[:zip]}"
+        }.merge(common_logging_context)
         Rails.logger.warn("#{CC_APPOINTMENTS}: Provider address partial match", warn_data)
       end
 
@@ -456,6 +553,85 @@ module Eps
         isSelfSchedulable: params[:is_self_schedulable],
         nextToken: params[:next_token]
       }.compact
+    end
+
+    def validate_npi_param(npi, specialty, address, referral_number)
+      return if npi.present?
+
+      log_personal_information_error('eps_provider_npi_missing', {
+                                       referral_number:,
+                                       search_params: {
+                                         specialty:,
+                                         address: address&.except(:zip)
+                                       },
+                                       failure_reason: 'NPI parameter is blank'
+                                     })
+      raise ArgumentError, 'Provider NPI is required and cannot be blank'
+    end
+
+    def validate_specialty_param(specialty, npi, address, referral_number)
+      return if specialty.present?
+
+      log_personal_information_error('eps_provider_specialty_missing', {
+                                       npi:,
+                                       referral_number:,
+                                       search_params: { address: address&.except(:zip) },
+                                       failure_reason: 'Specialty parameter is blank'
+                                     })
+      raise ArgumentError, 'Provider specialty is required and cannot be blank'
+    end
+
+    def validate_address_param(address, npi, specialty, referral_number)
+      return if address.present?
+
+      log_personal_information_error('eps_provider_address_missing', {
+                                       npi:,
+                                       referral_number:,
+                                       search_params: { specialty: },
+                                       failure_reason: 'Address parameter is blank'
+                                     })
+      raise ArgumentError, 'Provider address is required and cannot be blank'
+    end
+
+    def log_no_providers_found(npi, referral_number = nil)
+      log_personal_information_error('eps_provider_no_providers_found', {
+                                       npi:,
+                                       referral_number:,
+                                       failure_reason: 'No providers returned from EPS API for NPI'
+                                     })
+    end
+
+    ##
+    # Logs personal information when provider service errors occur
+    #
+    # @param error_class [String] The error class identifier
+    # @param data [Hash] Personal data to log (npi, referral_number, etc.)
+    #
+    def log_personal_information_error(error_class, data)
+      # Use create (not create!) so logging failures don't break the main flow
+      PersonalInformationLog.create(
+        error_class:,
+        data: {
+          npi: data[:npi],
+          referral_number: data[:referral_number],
+          user_uuid: data[:user_uuid] || @user&.uuid,
+          search_params: data[:search_params],
+          failure_reason: data[:failure_reason]
+        }.compact
+      )
+    end
+
+    ##
+    # Returns common logging context used throughout provider service logging
+    #
+    # @return [Hash] Common logging context with controller, station_number, eps_trace_id, and user_uuid
+    def common_logging_context
+      {
+        controller: controller_name,
+        station_number:,
+        eps_trace_id:,
+        user_uuid: user&.uuid
+      }
     end
   end
 

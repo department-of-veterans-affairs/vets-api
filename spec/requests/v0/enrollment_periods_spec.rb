@@ -17,16 +17,22 @@ RSpec.describe 'V0::EnrollmentPeriods', type: :request do
                          match_requests_on: %i[uri method body]) do
           get '/v0/enrollment_periods'
           expect(response).to have_http_status(:success)
-          expect(response.parsed_body).to eq({ 'enrollment_periods' => [{ 'startDate' => '2024-03-05',
-                                                                          'endDate' => '2024-03-05' }] })
+          expect(response.parsed_body).to eq({ 'enrollment_periods' => [
+                                               { 'startDate' => '2024-03-05',
+                                                 'endDate' => '2024-03-05' },
+                                               { 'startDate' => '2019-03-05',
+                                                 'endDate' => '2022-03-05' },
+                                               { 'startDate' => '2010-03-05',
+                                                 'endDate' => '2015-03-05' }
+                                             ] })
         end
       end
 
-      it 'returns 503 when error is encountered' do
+      it 'returns appropriate error code' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          match_requests_on: %i[uri method body]) do
           get '/v0/enrollment_periods'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end

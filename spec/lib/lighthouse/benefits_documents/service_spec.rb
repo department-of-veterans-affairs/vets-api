@@ -238,4 +238,181 @@ RSpec.describe BenefitsDocuments::Service do
       end
     end
   end
+
+  context 'participant documents' do
+    describe '#participant_documents_search' do
+      it 'receives a list of participant documents' do
+        response_body = {
+          data: {
+            documents: [
+              {
+                docTypeId: 137,
+                subject: 'File contains evidence related to the claim',
+                documentUuid: '{12345678-ABCD-0123-cdef-124345679ABC}',
+                originalFileName: 'SupportingDocument.pdf',
+                documentTypeLabel: 'VA 21-526 Veterans Application for Compensation or Pension',
+                uploadedDateTime: '2016-02-04T17:51:56Z',
+                receivedAt: '2016-02-04'
+              }
+            ]
+          },
+          pagination: {
+            pageNumber: 1,
+            pageSize: 25
+          }
+        }
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post)
+          .and_return(Faraday::Response.new(
+                        status: 200, body: response_body
+                      ))
+        expect_any_instance_of(BenefitsDocuments::Configuration)
+          .to(receive(:participant_documents_search).once.and_call_original)
+
+        response = subject.participant_documents_search(participant_id: user.participant_id)
+
+        expect(response.body.as_json['data']['documents'][0]['docTypeId']).to eq(137)
+        expect(response.body.as_json['data']['documents'][0]['subject'])
+          .to eq('File contains evidence related to the claim')
+        expect(response.body.as_json['pagination']['pageNumber']).to eq(1)
+        expect(response.body.as_json['pagination']['pageSize']).to eq(25)
+      end
+
+      it 'receives a list of participant documents with custom pagination' do
+        response_body = {
+          data: {
+            documents: []
+          },
+          pagination: {
+            pageNumber: 2,
+            pageSize: 50
+          }
+        }
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post)
+          .and_return(Faraday::Response.new(
+                        status: 200, body: response_body
+                      ))
+        expect_any_instance_of(BenefitsDocuments::Configuration)
+          .to(receive(:participant_documents_search).with(
+            participant_id: user.participant_id,
+            page_number: 2,
+            page_size: 50
+          ).once.and_call_original)
+
+        response = subject.participant_documents_search(
+          participant_id: user.participant_id,
+          page_number: 2,
+          page_size: 50
+        )
+
+        expect(response.body.as_json['pagination']['pageNumber']).to eq(2)
+        expect(response.body.as_json['pagination']['pageSize']).to eq(50)
+      end
+
+      it 'handles error responses' do
+        error_response = Faraday::ServerError.new(
+          'status' => 500,
+          'response_body' => { 'error' => 'Internal Server Error' }
+        )
+
+        allow_any_instance_of(BenefitsDocuments::Configuration)
+          .to receive(:participant_documents_search).and_raise(error_response)
+
+        expect(Lighthouse::ServiceException)
+          .to receive(:send_error).with(
+            error_response,
+            'benefits_documents/service',
+            nil,
+            %r{services/benefits-documents/v1/participant/documents/search}
+          ).and_raise(Common::Exceptions::ExternalServerInternalServerError)
+
+        expect do
+          subject.participant_documents_search(participant_id: user.participant_id)
+        end.to raise_error(Common::Exceptions::ExternalServerInternalServerError)
+      end
+    end
+
+    describe '#participant_documents_download' do
+      it 'receives content of a participant document pdf' do
+        response_body = 'participant document pdf file content'
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post)
+          .and_return(Faraday::Response.new(
+                        status: 200, body: response_body
+                      ))
+        expect_any_instance_of(BenefitsDocuments::Configuration)
+          .to(receive(:participant_documents_download).once.and_call_original)
+
+        response = subject.participant_documents_download(
+          document_uuid: '{12345678-ABCD-0123-cdef-124345679ABC}',
+          participant_id: user.participant_id
+        )
+
+        expect(response.body).to eq(response_body)
+      end
+
+      it 'receives content of a participant document pdf with file_number' do
+        response_body = 'participant document pdf file content'
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post)
+          .and_return(Faraday::Response.new(
+                        status: 200, body: response_body
+                      ))
+        expect_any_instance_of(BenefitsDocuments::Configuration)
+          .to(receive(:participant_documents_download).with(
+            document_uuid: '{12345678-ABCD-0123-cdef-124345679ABC}',
+            participant_id: nil,
+            file_number: user.ssn
+          ).once.and_call_original)
+
+        response = subject.participant_documents_download(
+          document_uuid: '{12345678-ABCD-0123-cdef-124345679ABC}',
+          file_number: user.ssn
+        )
+
+        expect(response.body).to eq(response_body)
+      end
+
+      it 'handles error responses with json body' do
+        error_body = {
+          errors: [
+            {
+              status: '404',
+              title: 'Resource Not Found',
+              detail: 'Document not found'
+            }
+          ]
+        }
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post)
+          .and_return(Faraday::Response.new(
+                        status: 404, body: error_body
+                      ))
+
+        error_response = Faraday::ClientError.new(
+          'status' => 404,
+          'response_body' => error_body
+        )
+
+        allow_any_instance_of(BenefitsDocuments::Configuration)
+          .to receive(:participant_documents_download).and_raise(error_response)
+
+        expect(Lighthouse::ServiceException)
+          .to receive(:send_error).with(
+            error_response,
+            'benefits_documents/service',
+            nil,
+            %r{services/benefits-documents/v1/participant/documents/download}
+          ).and_raise(Common::Exceptions::ResourceNotFound)
+
+        expect do
+          subject.participant_documents_download(
+            document_uuid: '{12345678-ABCD-0123-cdef-124345679ABC}',
+            participant_id: user.participant_id
+          )
+        end.to raise_error(Common::Exceptions::ResourceNotFound)
+      end
+    end
+  end
 end

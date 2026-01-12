@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Vets
-  module SharedLogging
+  module SharedLogging # rubocop:disable Metrics/ModuleLength
     extend ActiveSupport::Concern
 
     def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
@@ -13,15 +13,33 @@ module Vets
       if Settings.sentry.dsn.present?
         set_sentry_metadata(extra_context, tags_context)
         Sentry.capture_message(message, level:)
+      else
+        # Fallback to Rails logger when Sentry is not configured
+        log_message_to_rails(message, level, extra_context)
       end
     end
 
     def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
       level = normalize_shared_level(level, exception)
+      # https://docs.sentry.io/platforms/ruby/usage/set-level/
+      # valid sentry levels: log, debug, info, warning, error, fatal
+      level = 'warning' if level == 'warn'
 
       if Settings.sentry.dsn.present?
         set_sentry_metadata(extra_context, tags_context)
         Sentry.capture_exception(exception.cause.presence || exception, level:)
+      else
+        # Fallback to Rails logger when Sentry is not configured
+        rails_level = level == 'warning' ? 'warn' : level
+        message = "#{exception.message}."
+        case rails_level
+        when 'debug' then Rails.logger.debug(message)
+        when 'info' then Rails.logger.info(message)
+        when 'warn' then Rails.logger.warn(message)
+        when 'fatal' then Rails.logger.fatal(message)
+        else # 'error' and unknown levels
+          Rails.logger.error(message)
+        end
       end
     end
 
@@ -57,7 +75,7 @@ module Vets
       end
     end
 
-    def log_exception_to_rails(exception, level = 'error')
+    def log_exception_to_rails(exception, level = 'error') # rubocop:disable Metrics/MethodLength
       level = level.to_s.downcase
       level = normalize_shared_level(level, exception)
       level = 'warn' if level == 'warning' # Rails doesn't support Sentries Warning level
@@ -69,7 +87,22 @@ module Vets
         error_details = (Array(exception.errors).first&.try(:attributes) || {}).compact.reject do |_k, v|
           v.nil? || (v.respond_to?(:empty?) && v.empty?)
         end
-        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
+
+        # Changed 'backtrace' to 'error_backtrace' to avoid SemanticLogger 4.18.0 trying to call .backtrace
+        log_payload = if Flipper.enabled?(:error_backtrace)
+                        error_details.merge(error_backtrace: exception.backtrace || [])
+                      else
+                        error_details.merge(backtrace: exception.backtrace || [])
+                      end
+
+        case level
+        when 'debug' then Rails.logger.debug(exception.message, log_payload)
+        when 'info' then Rails.logger.info(exception.message, log_payload)
+        when 'warn' then Rails.logger.warn(exception.message, log_payload)
+        when 'fatal' then Rails.logger.fatal(exception.message, log_payload)
+        else # 'error' and unknown levels
+          Rails.logger.error(exception.message, log_payload)
+        end
       else
         case level
         when 'debug' then Rails.logger.debug(exception)

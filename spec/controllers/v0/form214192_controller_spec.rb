@@ -3,26 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
-  let(:valid_payload) do
-    {
-      veteranInformation: {
-        fullName: { first: 'John', last: 'Doe' },
-        dateOfBirth: '1980-01-01'
-      },
-      employmentInformation: {
-        employerName: 'Acme Corp',
-        employerAddress: {
-          street: '123 Main St',
-          city: 'Springfield',
-          state: 'IL',
-          postalCode: '62701',
-          country: 'US'
-        },
-        typeOfWorkPerformed: 'Machinist',
-        beginningDateOfEmployment: '2020-01-01'
-      }
-    }
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
   end
+
+  let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
 
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
@@ -70,6 +55,45 @@ RSpec.describe V0::Form214192Controller, type: :controller do
     it 'does not require authentication' do
       post(:create, body: valid_payload.to_json, as: :json)
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:create, body: valid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'InProgressForm cleanup' do
+      let(:user) { create(:user, :loa3) }
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21-4192', user_account: user.user_account) }
+
+      before do
+        sign_in_as(user)
+      end
+
+      it 'deletes the InProgressForm after successful submission' do
+        expect do
+          post(:create, body: valid_payload.to_json, as: :json)
+        end.to change(InProgressForm, :count).by(-1)
+
+        expect(response).to have_http_status(:ok)
+        expect(InProgressForm.find_by(id: in_progress_form.id)).to be_nil
+      end
+
+      it 'does not delete IPF if submission fails' do
+        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
+
+        expect do
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end.not_to change(InProgressForm, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 
@@ -169,6 +193,17 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
+      end
+
+      it 'returns 404 Not Found (routing error)' do
+        post(:download_pdf, body: form_data.to_json, as: :json)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context 'error handling' do
       it 'returns 500 for PDF generation failures' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
@@ -181,6 +216,65 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         expect(json['errors']).to be_present
         expect(json['errors'].first['title']).to eq('PDF Generation Failed')
         expect(json['errors'].first['status']).to eq('500')
+      end
+    end
+
+    context 'with 30-character street2 address' do
+      let(:payload_with_max_street2) do
+        payload = form_data.deep_dup
+        payload['employmentInformation']['employerAddress']['street2'] = 'B' * 30
+        payload
+      end
+
+      it 'accepts street2 with exactly 30 characters' do
+        post(:download_pdf, body: payload_with_max_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+  end
+
+  describe 'address field validation' do
+    context 'with extended street2 values' do
+      let(:payload_with_long_street2) do
+        payload = valid_payload.deep_dup
+        # Set street2 to a value longer than old 5-char limit but within new 30-char limit
+        payload['veteranInformation']['address']['street2'] = 'Apartment Suite 10B'
+        payload['employmentInformation']['employerAddress']['street2'] = 'Building A, Floor 3'
+        payload
+      end
+
+      it 'accepts street2 values up to 30 characters for form submission' do
+        post(:create, body: payload_with_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+
+      it 'accepts street2 values up to 30 characters for PDF generation' do
+        post(:download_pdf, body: payload_with_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+
+    context 'with street2 values exceeding 30 characters' do
+      let(:payload_with_too_long_street2) do
+        payload = valid_payload.deep_dup
+        # Set street2 to 31 characters (exceeds new maximum)
+        payload['veteranInformation']['address']['street2'] = 'A' * 31
+        payload
+      end
+
+      it 'rejects street2 values exceeding 30 characters for form submission' do
+        post(:create, body: payload_with_too_long_street2.to_json, as: :json)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
       end
     end
   end

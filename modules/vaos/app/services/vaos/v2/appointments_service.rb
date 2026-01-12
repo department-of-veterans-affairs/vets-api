@@ -242,6 +242,8 @@ module VAOS
           set_type(new_appointment)
           set_modality(new_appointment)
           set_derived_appointment_date_fields(new_appointment)
+          # Remove covid service type per GH#128004
+          remove_service_type(new_appointment) if covid?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -284,6 +286,8 @@ module VAOS
             set_modality(appointment)
             set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
+            # Remove covid service type per GH#128004
+            remove_service_type(appointment) if covid?(appointment)
             OpenStruct.new(appointment)
           end
         end
@@ -727,8 +731,8 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        fetch_avs_and_update_appt_body(appt: appointment, binary: include[:binary]) if avs_applicable?(appointment,
-                                                                                                       include[:avs])
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment,
+                                                                       include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -754,6 +758,9 @@ module VAOS
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
 
         log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
+
+        # Remove covid service type per GH#128004
+        remove_service_type(appointment) if covid?(appointment)
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -893,12 +900,12 @@ module VAOS
         avs_path(data[:sid])
       end
 
-      def get_avs_pdf(appt, binary)
+      def get_avs_pdf(appt)
         cerner_system_id = extract_cerner_identifier(appt)
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: binary)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
 
         return nil if avs_resp.empty? || avs_resp.nil?
 
@@ -911,14 +918,12 @@ module VAOS
       #
       # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
       #
-      # @param [boolean] binary Indicates if Oracle Health AVS binary data should be returned for cerner appts
-      #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
-      def fetch_avs_and_update_appt_body(appt:, binary: false)
+      def fetch_avs_and_update_appt_body(appt)
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt, binary)
+          avs_pdf = get_avs_pdf(appt)
           appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
@@ -948,7 +953,7 @@ module VAOS
       def avs_applicable?(appt, avs)
         return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs
+        %w[booked fulfilled].include?(appt[:status]) && appt[:start].to_datetime.past? && avs
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.

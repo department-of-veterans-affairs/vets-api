@@ -1767,88 +1767,6 @@ paths:
       security:
         - Bearer: []
       summary: /v0/efolder/documents/{documentId}/download
-  /v0/claim-letter/documents:
-    get:
-      description: Returns the user's list of documents from lighthouse
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/ClaimLetterDocuments.yml
-          description: OK
-        '400':
-          $ref: '#/components/responses/401'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/claim-letter/documents
-  /v0/claim-letter/documents/{document_id}/download:
-    post:
-      description: returns requested document
-      parameters:
-        - description: File name of the document to be returned.
-          in: query
-          name: file_name
-          required: true
-          schema:
-            type: string
-        - description: ID of the document to be returned.
-          in: path
-          name: document_id
-          required: true
-          schema:
-            type: string
-            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/pdf:
-              schema:
-                format: binary
-                type: string
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/claim-letter/documents/{documentId}/download
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
@@ -2927,18 +2845,6 @@ paths:
           required: false
           schema:
             type: string
-        - description: The page number requested
-          example: 1
-          in: query
-          name: page
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 100
-          example: 10
-          in: query
-          name: perPage
-          schema:
-            type: integer
         - description: Whether or not to use this API's cache or fetch records from
             the upstream service. Defaults to true.
           example: true
@@ -4333,6 +4239,64 @@ paths:
       security:
         - Bearer: []
       summary: /v0/travel-pay/claims/{id}
+  /v0/travel-pay/claims/{claim_id}/documents/{document_id}:
+    get:
+      description: Download a specific document associated with a travel pay claim.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The unique identifier for the travel pay claim
+          example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          in: path
+          name: claim_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: The unique identifier for the document to download
+          example: 'doc1-decision-letter'
+          in: path
+          name: document_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: Document downloaded successfully
+          headers:
+            Content-Disposition:
+              description: Indicates the file should be downloaded with the specified filename
+              schema:
+                type: string
+                example: 'attachment; filename="DecisionLetter.pdf"'
+            Content-Type:
+              description: The MIME type of the document
+              schema:
+                type: string
+                example: 'application/pdf'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/travel-pay/claims/{claim_id}/documents/{document_id}
   /v0/user:
     get:
       description: |

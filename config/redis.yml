@@ -105,9 +105,6 @@ development: &defaults
   charon_response:
     namespace: charon-response
     each_ttl: 3600
-  saml_store:
-    namespace: single-logout-request
-    each_ttl: 43200
   financial_status_report:
     namespace: financial_status_report
     each_ttl: 1800 # 30 minutes
@@ -226,6 +223,9 @@ development: &defaults
   unique_user_metrics:
     namespace: mhv-uum
     each_ttl: 86400  # 1 day cache for event existence checks
+  evidence_submission_poll_store:
+    namespace: evidence-submission-poll
+    each_ttl: 60  # 60 seconds cache for evidence submission polling
 test:
   <<: *defaults
   redis:

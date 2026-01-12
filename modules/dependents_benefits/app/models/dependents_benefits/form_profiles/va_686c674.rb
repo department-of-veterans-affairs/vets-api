@@ -131,10 +131,10 @@ module DependentsBenefits
       end
     end
 
-    # @return [Integer] the net worth limit for pension, default is 159,240 as of 2025
+    # @return [Integer] the net worth limit for pension, default is 163,699 as of 2026
     # Default will be cached in future enhancement
     def net_worth_limit
-      awards_pension[:net_worth_limit] || 159_240
+      awards_pension[:net_worth_limit] || 163_699
     end
 
     # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
@@ -208,9 +208,9 @@ module DependentsBenefits
     # Returns a BGS dependent service instance for the current user
     # Memoized to avoid creating multiple instances
     #
-    # @return [BGS::DependentService] Service for retrieving dependent information
+    # @return [BGS::DependentV2Service] Service for retrieving dependent information
     def dependent_service
-      @dependent_service ||= BGS::DependentService.new(user)
+      @dependent_service ||= BGS::DependentV2Service.new(user)
     end
 
     ##

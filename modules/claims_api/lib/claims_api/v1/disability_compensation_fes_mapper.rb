@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require_relative '../fes_mapper_base'
 require_relative '../lighthouse_military_address_validator'
 require 'claims_api/partial_date_parser'
 
 module ClaimsApi
   module V1
     class DisabilityCompensationFesMapper
+      include FesMapperBase
       include LighthouseMilitaryAddressValidator
 
       IGNORED_DISABILITY_FIELDS = %i[serviceRelevance secondaryDisabilities].freeze
@@ -74,7 +76,7 @@ module ClaimsApi
           data: {
             serviceTransactionId: @auto_claim.auth_headers['va_eauth_service_transaction_id'],
             veteranParticipantId: extract_veteran_participant_id,
-            claimantParticipantId: extract_claimant_participant_id,
+            claimantParticipantId: extract_veteran_participant_id,
             form526: @fes_claim
           }
         }
@@ -114,6 +116,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: addr[:addressLine2],
           addressLine3: addr[:addressLine3],
+          city: addr[:city],
           country: addr[:country] || 'USA',
           zipFirstFive: addr[:zipFirstFive],
           zipLastFour: addr[:zipLastFour],
@@ -122,7 +125,6 @@ module ClaimsApi
         if type == 'INTERNATIONAL'
           formatted[:internationalPostalCode] = addr[:internationalPostalCode]
         else
-          formatted[:city] = addr[:city]
           formatted[:state] = addr[:state]
         end
         @fes_claim[:veteran] ||= {}
@@ -163,6 +165,7 @@ module ClaimsApi
           addressLine1: line1,
           addressLine2: change_data[:addressLine2],
           addressLine3: change_data[:addressLine3],
+          city: change_data[:city],
           country: change_data[:country] || 'USA'
         }.compact_blank
       end
@@ -181,7 +184,6 @@ module ClaimsApi
           )
         else
           addr.merge!(
-            city: change_data[:city],
             state: change_data[:state],
             addressType: 'DOMESTIC'
           )
@@ -193,6 +195,7 @@ module ClaimsApi
         info = @data[:serviceInformation]
 
         map_service_periods(info)
+        map_separation_location_code if separation_location_code_present?
         map_confinements(info) if info&.dig(:confinements).present?
         map_reserves(info) if info&.dig(:reservesNationalGuardService).present?
         map_title_10_activation(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
@@ -201,7 +204,7 @@ module ClaimsApi
       # 'serviceBranch', 'activeDutyBeginDate' & 'activeDutyEndDate' are required via the schema
       def map_service_periods(info)
         @fes_claim[:serviceInformation] = {
-          servicePeriods: info[:servicePeriods].map(&:compact)
+          servicePeriods: info[:servicePeriods].map { |period| period.except(:separationLocationCode).compact }
         }
       end
 
@@ -247,14 +250,6 @@ module ClaimsApi
         # Try auth_headers first, then fall back to other sources
         @auto_claim.auth_headers&.dig('va_eauth_pid')&.to_i ||
           @auto_claim.auth_headers&.dig('participant_id')&.to_i
-      end
-
-      def extract_claimant_participant_id
-        if @auto_claim.auth_headers&.dig('dependent', 'participant_id').present?
-          @auto_claim.auth_headers.dig('dependent', 'participant_id')&.to_i
-        else
-          extract_veteran_participant_id
-        end
       end
     end
   end

@@ -46,7 +46,14 @@ module SignIn
     end
 
     def add_mpi_user
-      add_person_response = mpi_service.add_person_implicit_search(**mpi_credential_attributes.except(:icn, :edipi))
+      add_person_response = mpi_service.add_person_implicit_search(first_name:,
+                                                                   last_name:,
+                                                                   ssn:,
+                                                                   birth_date:,
+                                                                   email: credential_email,
+                                                                   address:,
+                                                                   idme_uuid:,
+                                                                   logingov_uuid:)
       unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
@@ -61,7 +68,16 @@ module SignIn
 
       return unless credential_attributes_digest_changed?
 
-      update_profile_response = mpi_service.update_profile(**mpi_credential_attributes)
+      update_profile_response = mpi_service.update_profile(last_name:,
+                                                           ssn:,
+                                                           birth_date:,
+                                                           icn: verified_icn,
+                                                           email: credential_email,
+                                                           address:,
+                                                           idme_uuid:,
+                                                           logingov_uuid:,
+                                                           edipi:,
+                                                           first_name:)
       unless update_profile_response&.ok?
         handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
@@ -201,21 +217,6 @@ module SignIn
 
     def user_verification
       @user_verification ||= UserVerification.find_by_type(service_name, user_verification_identifier)
-    end
-
-    def mpi_credential_attributes
-      @mpi_credential_attributes ||= {
-        last_name:,
-        ssn:,
-        birth_date:,
-        icn: verified_icn,
-        email: credential_email,
-        address:,
-        idme_uuid:,
-        logingov_uuid:,
-        edipi:,
-        first_name:
-      }
     end
 
     def idme_uuid                    = user_attributes[:idme_uuid]

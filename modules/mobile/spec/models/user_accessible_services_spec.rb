@@ -223,6 +223,10 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       context 'when user does have mhv_prescriptions access' do
         let(:user) { build(:user, :mhv) }
 
+        before do
+          allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: true))
+        end
+
         it 'is true' do
           expect(user_services.service_auth_map[:prescriptions]).to be_truthy
         end
@@ -279,6 +283,55 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
         it 'is true' do
           expect(user_services.service_auth_map[:userProfileUpdate]).to be_truthy
         end
+      end
+    end
+  end
+
+  describe '#min_version?' do
+    let(:user_services) { Mobile::V0::UserAccessibleServices.new(user, request) }
+    let(:request) { double('request', headers: { 'App-Version' => app_version }) }
+
+    before do
+      allow(Settings.vahb.version_requirement).to receive(:allergies_oracle_health).and_return('3.0.0')
+    end
+
+    context 'when app version meets minimum requirement' do
+      let(:app_version) { '5.0.0' }
+
+      it 'returns true' do
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(true)
+      end
+    end
+
+    context 'when app version does not meet minimum requirement' do
+      let(:app_version) { '1.0.0' }
+
+      it 'returns false' do
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
+      end
+    end
+
+    context 'when app version is missing' do
+      let(:app_version) { nil }
+
+      it 'returns false' do
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
+      end
+    end
+
+    context 'when app version is malformed' do
+      let(:app_version) { 'invalid.version.string' }
+
+      it 'returns false' do
+        expect(user_services.send(:min_version?, :allergies_oracle_health)).to be(false)
+      end
+    end
+
+    context 'when feature is not configured in settings' do
+      let(:app_version) { '5.0.0' }
+
+      it 'returns false' do
+        expect(user_services.send(:min_version?, :non_existent_feature)).to be(false)
       end
     end
   end

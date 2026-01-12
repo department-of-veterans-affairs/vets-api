@@ -1732,9 +1732,9 @@ RSpec.describe Form526Submission do
     let(:form526_submission) { Form526Submission.new(id: 123, form_json:) }
     let(:uploads) do
       [
-        { 'name' => 'file1.pdf', 'size' => 100 },
-        { 'name' => 'file2.pdf', 'size' => 200 },
-        { 'name' => 'file1.pdf', 'size' => 100 } # duplicate
+        { 'name' => 'file1.pdf', 'size' => 100, 'confirmationCode' => 'guid-1' },
+        { 'name' => 'file2.pdf', 'size' => 200, 'confirmationCode' => 'guid-2' },
+        { 'name' => 'file1.pdf', 'size' => 100, 'confirmationCode' => 'guid-3' } # duplicate
       ]
     end
     let(:form_json) do
@@ -1765,9 +1765,9 @@ RSpec.describe Form526Submission do
 
       it 'queues a job for each upload with the correct delay' do
         form526_submission.submit_uploads
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(60, 123, uploads[0])
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(120, 123, uploads[1])
-        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(180, 123, uploads[2])
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(60, 123, 'guid-1')
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(120, 123, 'guid-2')
+        expect(EVSS::DisabilityCompensationForm::SubmitUploads).to have_received(:perform_in).with(180, 123, 'guid-3')
       end
 
       it 'sends the delay to StatsD for each upload' do
@@ -1946,6 +1946,20 @@ RSpec.describe Form526Submission do
         expect_documents_metrics('additional_documents', { 'unknown' => 2 })
         expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
       end
+    end
+  end
+
+  describe '#log_error' do
+    let(:error) { StandardError.new('Test error message') }
+
+    it 'logs an error message with submission ID and error details' do
+      expect(Rails.logger).to receive(:error).with(
+        "Form526ClaimsFastTrackingConcern #{subject.id} encountered an error",
+        submission_id: subject.id,
+        error_message: 'Test error message'
+      )
+
+      subject.send(:log_error, error)
     end
   end
 end

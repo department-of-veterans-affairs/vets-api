@@ -8,9 +8,19 @@ MyHealth::Engine.routes.draw do
       resources :conditions, only: %i[index show], defaults: { format: :json }
       resources :immunizations, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
+      resources :vitals, only: %i[index], defaults: { format: :json }
       get 'ccd/download(.:format)', to: 'ccd#download',
                                     constraints: { format: /(xml|html|pdf)/ },
                                     defaults: { format: 'xml' }
+    end
+
+    resources :prescriptions, only: %i[index show], defaults: { format: :json } do
+      post :refill, on: :collection
+      get :list_refillable_prescriptions, on: :collection
+
+      collection do
+        post 'drug_sheets/search', to: 'prescriptions/drug_sheets#search', defaults: { format: :json }
+      end
     end
   end
 

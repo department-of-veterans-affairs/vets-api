@@ -13,37 +13,26 @@ describe MedicalRecords::Client do
         .with(:mhv_medical_records_support_new_model_health_condition).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
 
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            @client ||= begin
-              client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991' },
-                                                  icn: '1013868614V792025')
-              client.authenticate
-              client
-            end
+      VCR.use_cassette 'mr_client/session' do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+          @client ||= begin
+            client = MedicalRecords::Client.new(session: { user_uuid: '12345', user_id: '22406991' },
+                                                icn: '1013868614V792025')
+            client.authenticate
+            client
           end
         end
       end
 
       MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
-
-      # Redirect FHIR logger's output to the buffer before each test
-      @original_output = FHIR.logger.instance_variable_get(:@logdev).dev
-      FHIR.logger.instance_variable_set(:@logdev, Logger::LogDevice.new(info_log_buffer))
     end
 
     after do
       MedicalRecords::Client.send(:protected, *MedicalRecords::Client.protected_instance_methods)
-
-      # Restore original logger output after each test
-      FHIR.logger.instance_variable_set(:@logdev, Logger::LogDevice.new(@original_output))
     end
 
     let(:client) { @client }
     let(:entries) { ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'] }
-    let(:info_log_buffer) { StringIO.new }
 
     context 'when new-model flipper flags are enabled' do
       let(:user_uuid)    { 'user-123' }
@@ -251,35 +240,6 @@ describe MedicalRecords::Client do
           ).to have_been_made.at_least_once
         end
       end
-
-      context 'when the redaction feature toggle is enabled', :vcr do
-        before do
-          Flipper.enable(:mhv_medical_records_redact_fhir_client_logs)
-        end
-
-        it 'gets a patient by identifer', :vcr do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            patient_bundle = client.get_patient_by_identifier(client.fhir_client, patient_id)
-            expect(patient_bundle).to be_a(FHIR::Bundle)
-            expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
-            expect(patient_bundle.entry[0].resource.id).to eq('2952')
-            expect(info_log_buffer.string).not_to include(patient_id.to_s)
-          end
-        end
-      end
-
-      context 'when the redaction feature toggle is disabled', :vcr do
-        before do
-          Flipper.disable(:mhv_medical_records_redact_fhir_client_logs)
-        end
-
-        it 'gets a patient by identifer', :vcr do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            client.get_patient_by_identifier(client.fhir_client, patient_id)
-            expect(info_log_buffer.string).to include(patient_id.to_s)
-          end
-        end
-      end
     end
 
     it 'gets a list of allergies', :vcr do
@@ -289,7 +249,6 @@ describe MedicalRecords::Client do
           a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
         ).to have_been_made.at_least_once
         expect(allergy_list).to be_a(FHIR::Bundle)
-        expect(info_log_buffer.string).not_to include('2952')
         # Verify that the list is sorted reverse chronologically (with nil values to the end).
         allergy_list.entry.each_cons(2) do |prev, curr|
           prev_date = prev.resource.recordedDate
@@ -305,7 +264,6 @@ describe MedicalRecords::Client do
         allergy = client.get_allergy(allergy_id)
         expect(allergy).to be_a(FHIR::AllergyIntolerance)
         expect(allergy.id).to eq(allergy_id.to_s)
-        expect(info_log_buffer.string).not_to include(allergy_id.to_s)
       end
     end
 
@@ -639,18 +597,15 @@ describe MedicalRecords::Client do
 
   context 'when the patient is not found', :vcr do
     it 'returns :patient_not_found for 202 response', :vcr do
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
-            partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
-                                                                   user_id: '22406991' }, icn: '1013868614V792025')
-            partial_client.authenticate
+      VCR.use_cassette 'mr_client/session' do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+          partial_client = MedicalRecords::Client.new(session: { user_uuid: '12345',
+                                                                 user_id: '22406991' }, icn: '1013868614V792025')
+          partial_client.authenticate
 
-            VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-              result = partial_client.list_allergies('uuid')
-              expect(result).to eq(:patient_not_found)
-            end
+          VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+            result = partial_client.list_allergies('uuid')
+            expect(result).to eq(:patient_not_found)
           end
         end
       end

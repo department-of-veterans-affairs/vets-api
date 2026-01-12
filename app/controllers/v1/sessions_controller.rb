@@ -300,23 +300,13 @@ module V1
     end
 
     def check_cerner_eligibility
-      value = ActiveModel::Type::Boolean.new.cast(cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME])
+      cookie = cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME] || cookies[CERNER_ELIGIBLE_COOKIE_NAME]
+
+      value = ActiveModel::Type::Boolean.new.cast(cookie)
 
       Rails.logger.info('[SessionsController] Cerner Eligibility',
                         eligible: value.nil? ? :unknown : value,
                         cookie_action: value.nil? ? :not_found : :found)
-    end
-
-    def user_logout(saml_response)
-      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
-      if logout_request.present?
-        logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
-                          "'#{originating_request_id}'")
-      else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
-                          "'#{originating_request_id}'")
-      end
     end
 
     def new_stats(type, client_id, operation)

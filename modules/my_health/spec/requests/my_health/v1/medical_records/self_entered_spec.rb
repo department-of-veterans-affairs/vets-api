@@ -28,6 +28,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
     )
 
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
     sign_in_as(current_user)
   end
@@ -75,15 +76,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
   end
 
   context 'Authorized user' do
-    before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-
     it 'responds to GET #index' do
       VCR.use_cassette('mr_client/get_self_entered_information') do
         get '/my_health/v1/medical_records/self_entered'

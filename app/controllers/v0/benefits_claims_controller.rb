@@ -10,7 +10,9 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include InboundRequestLogging
     before_action { authorize :lighthouse, :access? }
+    before_action :log_request_origin
     service_tag 'claims-shared'
 
     STATSD_METRIC_PREFIX = 'api.benefits_claims'
@@ -32,18 +34,18 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+      end
 
-        # Add has_failed_uploads field for document uploads that were added
-        if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-          claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
-        end
+      claim_ids = claims['data'].map { |claim| claim['id'] }
+      evidence_submissions = fetch_evidence_submissions(claim_ids, 'index')
+
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        add_evidence_submissions_to_claims(claims['data'], evidence_submissions, 'index')
       end
 
       tap_claims(claims['data'])
 
-      # Report metrics for evidence submission upload statuses
-      claim_ids = claims['data'].map { |claim| claim['id'] }
-      report_evidence_submission_metrics('index', claim_ids)
+      report_evidence_submission_metrics('index', evidence_submissions)
 
       render json: claims
     end
@@ -67,13 +69,11 @@ module V0
       # be removed when we move to Lighthouse Benefits Documents for document uploads
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
-      # Add Evidence Submissions section for document uploads that were added
-      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
-        # Fetch all evidence submissions for this claim once, polling for updates if enabled
-        evidence_submissions = update_evidence_submissions_for_claim(claim['data']['id'])
+      evidence_submissions = fetch_evidence_submissions(claim['data']['id'], 'show')
 
-        claim['data']['attributes']['evidenceSubmissions'] =
-          add_evidence_submissions(claim['data'], evidence_submissions)
+      if Flipper.enabled?(:cst_show_document_upload_status, @current_user)
+        update_evidence_submissions_for_claim(claim['data']['id'], evidence_submissions)
+        add_evidence_submissions_to_claims([claim['data']], evidence_submissions, 'show')
       end
 
       # We want to log some details about claim type patterns to track in DataDog
@@ -81,8 +81,7 @@ module V0
 
       tap_claims([claim['data']])
 
-      # Report metrics for evidence submission upload statuses
-      report_evidence_submission_metrics('show', params[:id])
+      report_evidence_submission_metrics('show', evidence_submissions)
 
       render json: claim
     end
@@ -113,6 +112,12 @@ module V0
     end
 
     private
+
+    def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
+      log_inbound_request(message_type: 'lh.cst.inbound_request', message: 'Inbound request (Lighthouse claim status)')
+    end
 
     def failed_evidence_submissions
       @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
@@ -168,14 +173,6 @@ module V0
           claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
         end
       end
-    end
-
-    def add_has_failed_uploads(claim)
-      failed_evidence_submissions = EvidenceSubmission.where(
-        claim_id: claim['id'],
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-      )
-      failed_evidence_submissions.count.positive?
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
@@ -258,6 +255,7 @@ module V0
         evidence_submission.tracked_item_id,
         tracked_items
       )
+      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
@@ -270,6 +268,7 @@ module V0
         lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
         tracked_item_id: evidence_submission.tracked_item_id,
         tracked_item_display_name:,
+        tracked_item_friendly_name:,
         upload_status: evidence_submission.upload_status,
         va_notify_status: evidence_submission.va_notify_status }
     end
@@ -314,19 +313,13 @@ module V0
       tracked_items = claim.dig('data', 'attributes', 'trackedItems')
       return unless tracked_items
 
-      tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+      tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
     end
 
-    def report_evidence_submission_metrics(endpoint, claim_ids)
-      claim_ids = Array(claim_ids) # Ensure it's always an array
+    def report_evidence_submission_metrics(endpoint, evidence_submissions)
+      status_counts = evidence_submissions.group(:upload_status).count
 
-      # Get upload status counts for the claim(s)
-      status_counts = EvidenceSubmission.where(claim_id: claim_ids)
-                                        .group(:upload_status)
-                                        .count
-
-      # Increment metrics for each status found
       BenefitsDocuments::Constants::UPLOAD_STATUS.each_value do |status|
         count = status_counts[status] || 0
         next if count.zero?
@@ -339,10 +332,22 @@ module V0
       )
     end
 
-    def update_evidence_submissions_for_claim(claim_id)
-      # Fetch all evidence submissions for this claim
-      evidence_submissions = EvidenceSubmission.where(claim_id:)
+    def fetch_evidence_submissions(claim_ids, endpoint)
+      EvidenceSubmission.where(claim_id: claim_ids)
+    rescue => e
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error fetching evidence submissions",
+        {
+          claim_ids: Array(claim_ids),
+          error_message: e.message,
+          error_class: e.class.name,
+          timestamp: Time.now.utc
+        }
+      )
+      EvidenceSubmission.none
+    end
 
+    def update_evidence_submissions_for_claim(claim_id, evidence_submissions)
       # Poll for updated statuses on pending evidence submissions if feature flag is enabled
       if Flipper.enabled?(:cst_update_evidence_submission_on_show, @current_user)
         # Get pending evidence submissions as an ActiveRecord relation
@@ -355,11 +360,18 @@ module V0
 
         unless pending_submissions.empty?
           request_ids = pending_submissions.pluck(:request_id)
+
+          # Check if we recently polled for the same request_ids (cache hit)
+          if recently_polled_request_ids?(claim_id, request_ids)
+            StatsD.increment("#{STATSD_METRIC_PREFIX}.show.evidence_submission_cache_hit", tags: STATSD_TAGS)
+            return
+          end
+
+          # Cache miss - proceed with polling
+          StatsD.increment("#{STATSD_METRIC_PREFIX}.show.evidence_submission_cache_miss", tags: STATSD_TAGS)
           process_evidence_submissions(claim_id, pending_submissions, request_ids)
         end
       end
-
-      evidence_submissions
     end
 
     def process_evidence_submissions(claim_id, pending_submissions, request_ids)
@@ -406,6 +418,8 @@ module V0
       else
         # Log success metric when polling and update complete successfully
         StatsD.increment("#{STATSD_METRIC_PREFIX}.show.upload_status_success", tags: STATSD_TAGS)
+        # Cache the polled request_ids to prevent redundant polling within TTL window
+        cache_polled_request_ids(claim_id, request_ids)
       end
     rescue => e
       # Catch unexpected exceptions from update operations
@@ -429,6 +443,68 @@ module V0
       StatsD.increment(
         "#{STATSD_METRIC_PREFIX}.show.upload_status_error",
         tags: STATSD_TAGS + ["error_source:#{error_source}"]
+      )
+    end
+
+    def add_evidence_submissions_to_claims(claims, all_evidence_submissions, endpoint)
+      return if claims.empty?
+
+      # Group evidence submissions by claim_id for efficient lookup
+      evidence_submissions_by_claim = all_evidence_submissions.group_by(&:claim_id)
+
+      # Add evidence submissions to each claim
+      claims.each do |claim|
+        claim_id = claim['id'].to_i
+        evidence_submissions = evidence_submissions_by_claim[claim_id] || []
+
+        claim['attributes']['evidenceSubmissions'] =
+          add_evidence_submissions(claim, evidence_submissions)
+      end
+    rescue => e
+      # Log error but don't fail the request - graceful degradation
+      # Frontend already handles missing evidenceSubmissions attribute
+      claim_ids = claims.map { |claim| claim['id'] }
+      ::Rails.logger.error(
+        "BenefitsClaimsController##{endpoint} Error adding evidence submissions",
+        {
+          claim_ids:,
+          error_class: e.class.name
+        }
+      )
+    end
+
+    def recently_polled_request_ids?(claim_id, request_ids)
+      cache_record = EvidenceSubmissionPollStore.find(claim_id.to_s)
+      return false if cache_record.nil?
+
+      cache_record.request_ids.sort == request_ids.sort
+    rescue => e
+      ::Rails.logger.error(
+        'BenefitsClaimsController#show Error reading evidence submission poll cache',
+        {
+          claim_id:,
+          request_ids:,
+          error_class: e.class.name,
+          error_message: e.message
+        }
+      )
+      false
+    end
+
+    def cache_polled_request_ids(claim_id, request_ids)
+      EvidenceSubmissionPollStore.create(
+        claim_id: claim_id.to_s,
+        request_ids:
+      )
+    rescue => e
+      ::Rails.logger.error(
+        'BenefitsClaimsController#show Error writing evidence submission poll cache',
+        {
+          claim_id:,
+          request_ids:,
+          error_class: e.class.name,
+          error_message: e.message
+        }
       )
     end
   end

@@ -11,7 +11,7 @@ module Lighthouse
   class PollForm526PdfError < StandardError; end
 
   class PollForm526PdfStatus
-    def self.update_job_status(form_job_status:, message:, error_class:, error_message:)
+    def self.update_job_status(form_job_status:, message:, error_class:, error_message:, status:)
       timestamp = Time.now.utc
       form526_submission_id = form_job_status.form526_submission_id
       job_id = form_job_status.job_id
@@ -27,7 +27,7 @@ module Lighthouse
       }
 
       form_job_status.update(
-        status: Form526JobStatus::STATUS[:pdf_not_found],
+        status:,
         bgjob_errors: bgjob_errors.merge(new_error),
         error_class:,
         error_message: message
@@ -75,10 +75,10 @@ module Lighthouse
         form_job_status:,
         message: 'Poll for Form 526 PDF: Retries exhausted',
         error_class:,
-        error_message:
+        error_message:,
+        status: Form526JobStatus::STATUS[:pdf_not_found]
       )
     rescue => e
-      log_exception_to_sentry(e)
       log_exception_to_rails(e)
     end
     # :nocov:
@@ -91,8 +91,6 @@ module Lighthouse
     def perform(submission_id)
       @submission_id = submission_id
 
-      Sentry.set_tags(source: '526EZ-all-claims')
-
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
@@ -102,22 +100,39 @@ module Lighthouse
           end
           return
         else
-          # Check the submission.created_at date, if it's more than 4 days old
-          # update the job status to pdf_not_found immediately and exit the job
-          unless submission.created_at.between?(DateTime.now - 4.days, DateTime.now)
-            form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
-            message = 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...'
-            PollForm526PdfStatus.update_job_status(
-              form_job_status:,
-              message:,
-              error_class: 'PollForm526PdfError',
-              error_message: message
-            )
-            return
-          end
-          raise Lighthouse::PollForm526PdfError, 'Poll for form 526 PDF: Keep on retrying!'
+          form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
+          update_job_status_based_on_age(form_job_status, submission)
         end
       end
+    end
+
+    # Evaluate the submission's creation date:
+    # - Log a warning if the submission is between 1 and 4 days old.
+    # - If the submission is older than 4 days:
+    #   - Update the job status to 'pdf_not_found'.
+    #   - Exit the job immediately.
+    def update_job_status_based_on_age(form_job_status, submission)
+      if submission.created_at.between?(DateTime.now - 4.days, DateTime.now - 1.day)
+        PollForm526PdfStatus.update_job_status(
+          form_job_status:,
+          message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id ' \
+                   "#{submission.id}",
+          error_class: 'PollForm526PdfError',
+          error_message: 'Poll for form 526 PDF: Submission creation date is over 1 day old for submission_id ' \
+                         "#{submission.id}",
+          status: Form526JobStatus::STATUS[:try]
+        )
+      elsif submission.created_at <= DateTime.now - 4.days
+        PollForm526PdfStatus.update_job_status(
+          form_job_status:,
+          message: 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...',
+          error_class: 'PollForm526PdfError',
+          error_message: 'Poll for form 526 PDF: Submission creation date is over 4 days old. Exiting...',
+          status: Form526JobStatus::STATUS[:pdf_not_found]
+        )
+        return
+      end
+      raise Lighthouse::PollForm526PdfError, 'Poll for form 526 PDF: Keep on retrying!'
     end
 
     private

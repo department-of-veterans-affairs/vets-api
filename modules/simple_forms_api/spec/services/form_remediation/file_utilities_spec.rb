@@ -31,7 +31,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
       end
 
       it 'zips the directory and returns the zip file path' do
-        expect(Zip::File).to receive(:open).with(zip_file_path, Zip::File::CREATE)
+        expect(Zip::File).to receive(:open).with(zip_file_path, create: true)
         expect(zip_directory!).to eq(zip_file_path)
       end
     end

@@ -237,6 +237,32 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
       end
     end
+
+    context 'when verifying allowlist filtering' do
+      before do
+        # SavedClaim uses camelCase
+        form_data = {
+          'toxicExposure' => {
+            'conditions' => { 'asthma' => true }
+          }
+        }
+        allow(submitted_claim).to receive(:form).and_return(form_data.to_json)
+      end
+
+      # NOTE: submission_id, completely_removed, removed_keys, and tags are allowlisted
+      # in DisabilityCompensation::Loggers::Monitor#initialize to ensure they are not filtered
+      # when written to Rails.logger. This test verifies the allowlist is working correctly.
+      it 'does not filter out allowlisted toxic exposure tracking keys when writing to Rails logger' do
+        expect(Rails.logger).to receive(:info) do |_, payload|
+          expect(payload[:context][:submission_id]).to eq(submission.id)
+          expect(payload[:context][:completely_removed]).to be(false)
+          expect(payload[:context][:removed_keys]).to eq(['gulfWar1990'])
+          expect(payload[:context][:tags]).to eq(['form_id:21-526EZ-ALLCLAIMS'])
+        end
+
+        monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+      end
+    end
   end
 
   describe('#track_526_submission_with_banking_info') do
@@ -293,6 +319,95 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
         ]
       )
       monitor.track_526_submission_without_banking_info(user.uuid)
+    end
+  end
+
+  describe('#track_banking_info_prefilled') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs the prefill success' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'Banking info successfully prefilled from Lighthouse Direct Deposit API',
+        "#{described_class::SUBMISSION_STATS_KEY}.banking_info_prefilled",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_banking_info_prefilled(user.uuid)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.banking_info_prefilled",
+        tags: [
+          'service:disability-compensation',
+          'function:track_banking_info_prefilled',
+          "form_id:#{described_class::FORM_ID}"
+        ]
+      )
+
+      monitor.track_banking_info_prefilled(user.uuid)
+    end
+  end
+
+  describe('#track_no_banking_info_on_file') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+
+    it 'logs when no banking info is found' do
+      expect(monitor).to receive(:submit_event).with(
+        :info,
+        'No banking info on file for veteran during prefill attempt',
+        "#{described_class::SUBMISSION_STATS_KEY}.no_banking_info_on_file",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID
+      )
+
+      monitor.track_no_banking_info_on_file(user.uuid)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.no_banking_info_on_file",
+        tags: [
+          'service:disability-compensation',
+          'function:track_no_banking_info_on_file',
+          "form_id:#{described_class::FORM_ID}"
+        ]
+      )
+
+      monitor.track_no_banking_info_on_file(user.uuid)
+    end
+  end
+
+  describe('#track_banking_info_api_error') do
+    let(:user) { build(:disabilities_compensation_user, icn: '123498767V234859') }
+    let(:error) { StandardError.new('Connection timeout to Lighthouse Direct Deposit API') }
+
+    it 'logs the API error' do
+      expect(monitor).to receive(:submit_event).with(
+        :error,
+        'Error retrieving banking info from Lighthouse Direct Deposit API',
+        "#{described_class::SUBMISSION_STATS_KEY}.banking_info_api_error",
+        user_account_uuid: user.uuid,
+        form_id: described_class::FORM_ID,
+        error: 'StandardError'
+      )
+
+      monitor.track_banking_info_api_error(user.uuid, error)
+    end
+
+    it 'increments the correct metric' do
+      expect(StatsD).to receive(:increment).with(
+        "#{described_class::SUBMISSION_STATS_KEY}.banking_info_api_error",
+        tags: [
+          'service:disability-compensation',
+          'function:track_banking_info_api_error',
+          "form_id:#{described_class::FORM_ID}"
+        ]
+      )
+
+      monitor.track_banking_info_api_error(user.uuid, error)
     end
   end
 end
