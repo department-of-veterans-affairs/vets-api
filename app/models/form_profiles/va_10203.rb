@@ -28,7 +28,7 @@ class FormProfiles::VA10203 < FormProfile
   attribute :school_information, VA10203::FormInstitutionInfo
 
   def prefill
-    authorized = user.authorize :evss, :access?
+    authorized = user.authorize :dgi, :access?
 
     if authorized
       gi_bill_status = get_gi_bill_status
