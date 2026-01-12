@@ -200,6 +200,8 @@ module VAProfile
       end
 
       class PermissionTransactionResponse < TransactionResponse; end
+
+      class PersonOptionsTransactionResponse < TransactionResponse; end
     end
   end
 end
