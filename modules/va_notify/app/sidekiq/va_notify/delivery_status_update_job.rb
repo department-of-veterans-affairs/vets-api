@@ -74,7 +74,7 @@ module VANotify
       end
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
-      Rails.logger.error('VANotifyEmailJob AttrPackage error', { error: e.message })
+      Rails.logger.error('DeliveryStatusUpdateJob AttrPackage error', { error: e.message })
       raise ArgumentError, e.message
     end
 
