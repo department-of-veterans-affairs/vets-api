@@ -208,7 +208,7 @@ namespace :payment_history do
     puts '✓ BGS person lookup succeeded'
     puts "  Status: #{person.status}"
 
-    unless person.file_number.present?
+    if person.file_number.blank?
       puts '✗ File number missing'
       puts '  Payment history requires a valid file number'
       return nil
