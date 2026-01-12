@@ -59,9 +59,12 @@ namespace :payment_history do
   def check_user_exists(icn)
     puts
     puts 'Checking if user can be found...'
-    mpi_profile = nil
 
-    # Try to find UserAccount by ICN
+    find_user_account(icn)
+    find_mpi_profile(icn)
+  end
+
+  def find_user_account(icn)
     user_account = UserAccount.find_by(icn:)
 
     if user_account
@@ -72,65 +75,83 @@ namespace :payment_history do
       puts '✗ UserAccount not found in database'
       puts '  User may not have logged in or ICN may be incorrect'
     end
+  end
 
-    # Try to find user in MPI
-    begin
-      mpi_service = MPI::Service.new
-      response = mpi_service.find_profile_by_identifier(
-        identifier: icn,
-        identifier_type: MPI::Constants::ICN
-      )
+  def find_mpi_profile(icn)
+    mpi_service = MPI::Service.new
+    response = mpi_service.find_profile_by_identifier(
+      identifier: icn,
+      identifier_type: MPI::Constants::ICN
+    )
+    handle_mpi_response(response)
+  rescue => e
+    puts "✗ Error querying MPI: #{e.message}"
+    nil
+  end
 
-      if response.ok?
-        puts '✓ User found in MPI'
-        puts "  Name: #{response.profile.given_names&.first} #{response.profile.family_name}"
-        puts "  ICN: #{mask_icn(response.profile.icn)}"
-      elsif response.not_found?
-        puts '✗ User not found in MPI'
-        puts '  ICN may be invalid or user may not exist in Master Person Index'
-      else
-        puts "✗ MPI lookup failed: #{response.error&.message}"
-      end
-
-      mpi_profile = response.profile
-    rescue => e
-      puts "✗ Error querying MPI: #{e.message}"
+  def handle_mpi_response(response)
+    if response.ok?
+      puts '✓ User found in MPI'
+      puts "  Name: #{response.profile.given_names&.first} #{response.profile.family_name}"
+      puts "  ICN: #{mask_icn(response.profile.icn)}"
+      response.profile
+    elsif response.not_found?
+      puts '✗ User not found in MPI'
+      puts '  ICN may be invalid or user may not exist in Master Person Index'
+      nil
+    else
+      puts "✗ MPI lookup failed: #{response.error&.message}"
+      nil
     end
-
-    mpi_profile
   end
 
   def check_policy_attributes(mpi_profile)
     puts
     puts 'Checking BGS policy access requirements...'
 
-    has_icn = mpi_profile.icn.present?
-    has_ssn = mpi_profile.ssn.present?
-    has_participant_id = mpi_profile.participant_id.present?
+    has_icn = check_icn_presence(mpi_profile)
+    has_ssn = check_ssn_presence(mpi_profile)
+    has_participant_id = check_participant_id_presence(mpi_profile)
 
-    if has_icn
+    all_present = has_icn && has_ssn && has_participant_id
+    output_policy_summary(all_present)
+    all_present
+  end
+
+  def check_icn_presence(mpi_profile)
+    if mpi_profile.icn.present?
       puts "✓ ICN present: #{mask_icn(mpi_profile.icn)}"
+      true
     else
       puts '✗ ICN missing'
       puts '  BGS policy requires ICN to be present'
+      false
     end
+  end
 
-    if has_ssn
+  def check_ssn_presence(mpi_profile)
+    if mpi_profile.ssn.present?
       puts "✓ SSN present: ***-**-#{mpi_profile.ssn.to_s[-4..]}"
+      true
     else
       puts '✗ SSN missing'
       puts '  BGS policy requires SSN to be present'
+      false
     end
+  end
 
-    if has_participant_id
+  def check_participant_id_presence(mpi_profile)
+    if mpi_profile.participant_id.present?
       puts "✓ Participant ID present: #{mpi_profile.participant_id}"
+      true
     else
       puts '✗ Participant ID missing'
       puts '  BGS policy requires Participant ID to be present'
+      false
     end
+  end
 
-    all_present = has_icn && has_ssn && has_participant_id
-
+  def output_policy_summary(all_present)
     puts
     if all_present
       puts '✓ User has all required attributes for BGS policy access'
@@ -138,58 +159,64 @@ namespace :payment_history do
       puts '✗ User is missing required attributes for BGS policy access'
       puts '  Payment history will be denied due to missing attributes'
     end
-
-    all_present
   end
 
   def check_bgs_file_number(mpi_profile)
     puts
     puts 'Checking BGS file number lookup...'
-    person = nil
 
-    begin
-      # Create a minimal user object for BGS call
-      user = OpenStruct.new(
-        icn: mpi_profile.icn,
-        ssn: mpi_profile.ssn,
-        participant_id: mpi_profile.participant_id
-      )
+    user = create_user_struct(mpi_profile)
+    lookup_bgs_person(user)
+  rescue => e
+    puts "✗ Error calling BGS person lookup: #{e.message}"
+    puts "  #{e.class.name}"
+    nil
+  end
 
-      person = BGS::People::Request.new.find_person_by_participant_id(user:)
+  def create_user_struct(mpi_profile)
+    OpenStruct.new(
+      icn: mpi_profile.icn,
+      ssn: mpi_profile.ssn,
+      participant_id: mpi_profile.participant_id
+    )
+  end
 
-      case person.status
-      when :ok
-        puts '✓ BGS person lookup succeeded'
-        puts "  Status: #{person.status}"
+  def lookup_bgs_person(user)
+    person = BGS::People::Request.new.find_person_by_participant_id(user:)
+    handle_person_response(person)
+  end
 
-        if person.file_number.present?
-          puts "✓ File number present: #{person.file_number}"
-        else
-          puts '✗ File number missing'
-          puts '  Payment history requires a valid file number'
-          return nil
-        end
+  def handle_person_response(person)
+    case person.status
+    when :ok
+      handle_successful_lookup(person)
+    when :error
+      puts '✗ BGS person lookup failed with error status'
+      puts '  This will cause payment history to be empty'
+      nil
+    when :no_id
+      puts '✗ BGS person lookup failed - no ID found'
+      puts '  This will cause payment history to be empty'
+      nil
+    else
+      puts "✗ BGS person lookup failed with status: #{person.status}"
+      nil
+    end
+  end
 
-        puts "  Participant ID: #{person.participant_id}"
-        puts "  SSN: ***-**-#{person.ssn_number.to_s[-4..]}"
-      when :error
-        puts '✗ BGS person lookup failed with error status'
-        puts '  This will cause payment history to be empty'
-        return nil
-      when :no_id
-        puts '✗ BGS person lookup failed - no ID found'
-        puts '  This will cause payment history to be empty'
-        return nil
-      else
-        puts "✗ BGS person lookup failed with status: #{person.status}"
-        return nil
-      end
-    rescue => e
-      puts "✗ Error calling BGS person lookup: #{e.message}"
-      puts "  #{e.class.name}"
+  def handle_successful_lookup(person)
+    puts '✓ BGS person lookup succeeded'
+    puts "  Status: #{person.status}"
+
+    unless person.file_number.present?
+      puts '✗ File number missing'
+      puts '  Payment history requires a valid file number'
       return nil
     end
 
+    puts "✓ File number present: #{person.file_number}"
+    puts "  Participant ID: #{person.participant_id}"
+    puts "  SSN: ***-**-#{person.ssn_number.to_s[-4..]}"
     person
   end
 
@@ -197,43 +224,53 @@ namespace :payment_history do
     puts
     puts 'Checking BGS payment history records...'
 
-    begin
-      # Create user object for payment service
-      user = OpenStruct.new(
-        icn: mpi_profile.icn,
-        ssn: mpi_profile.ssn,
-        participant_id: mpi_profile.participant_id,
-        common_name: "#{mpi_profile.given_names&.first} #{mpi_profile.family_name}",
-        email: 'test@example.com'
-      )
+    user = create_payment_user_struct(mpi_profile)
+    call_payment_service(user, person)
+  rescue => e
+    puts "✗ Error calling BGS payment history: #{e.message}"
+    puts "  #{e.class.name}"
+    nil
+  end
 
-      payment_service = BGS::PaymentService.new(user)
-      response = payment_service.payment_history(person)
+  def create_payment_user_struct(mpi_profile)
+    OpenStruct.new(
+      icn: mpi_profile.icn,
+      ssn: mpi_profile.ssn,
+      participant_id: mpi_profile.participant_id,
+      common_name: "#{mpi_profile.given_names&.first} #{mpi_profile.family_name}",
+      email: 'test@example.com'
+    )
+  end
 
-      if response.nil?
-        puts '✗ BGS returned nil response'
-        puts '  No payment records available'
-        return nil
-      end
+  def call_payment_service(user, person)
+    payment_service = BGS::PaymentService.new(user)
+    response = payment_service.payment_history(person)
+    handle_payment_response(response)
+  end
 
-      payments = response&.dig(:payments, :payment)
+  def handle_payment_response(response)
+    if response.nil?
+      puts '✗ BGS returned nil response'
+      puts '  No payment records available'
+      return nil
+    end
 
-      if payments.nil?
-        puts '✗ No payments found in response'
-        puts '  BGS has no payment records for this veteran'
-      elsif payments.empty?
-        puts '✗ Payments array is empty'
-        puts '  BGS has no payment records for this veteran'
-      else
-        payment_count = payments.is_a?(Array) ? payments.length : 1
-        puts "✓ Payment records found: #{payment_count} payment(s)"
-        puts '  BGS has payment history data available'
-      end
+    payments = response&.dig(:payments, :payment)
+    output_payment_status(payments)
+    payments
+  end
 
-      payments
-    rescue => e
-      puts "✗ Error calling BGS payment history: #{e.message}"
-      puts "  #{e.class.name}"
+  def output_payment_status(payments)
+    if payments.nil?
+      puts '✗ No payments found in response'
+      puts '  BGS has no payment records for this veteran'
+    elsif payments.empty?
+      puts '✗ Payments array is empty'
+      puts '  BGS has no payment records for this veteran'
+    else
+      payment_count = payments.is_a?(Array) ? payments.length : 1
+      puts "✓ Payment records found: #{payment_count} payment(s)"
+      puts '  BGS has payment history data available'
     end
   end
 
@@ -241,32 +278,44 @@ namespace :payment_history do
     puts
     puts 'Checking if payments are being filtered out...'
 
-    # Normalize to array
     payments = payment_history.is_a?(Array) ? payment_history : [payment_history]
+    filtered_count = check_each_payment_filter(payments)
+    output_filtering_summary(payments, filtered_count)
+  end
 
+  def check_each_payment_filter(payments)
     filtered_count = 0
 
     payments.each_with_index do |payment, index|
-      puts
-      puts "Payment #{index + 1}:"
-      puts "  Payee type: #{payment[:payee_type]}"
-      puts "  Beneficiary Participant ID: #{payment[:beneficiary_participant_id]}"
-      puts "  Recipient Participant ID: #{payment[:recipient_participant_id]}"
-
-      is_third_party_vendor = payment[:payee_type] == 'Third Party/Vendor'
-      ids_dont_match = payment[:beneficiary_participant_id] != payment[:recipient_participant_id]
-
-      if is_third_party_vendor
-        puts "  ✗ FILTERED: Payee type is 'Third Party/Vendor'"
-        filtered_count += 1
-      elsif ids_dont_match
-        puts "  ✗ FILTERED: Beneficiary and Recipient IDs don't match"
-        filtered_count += 1
-      else
-        puts '  ✓ Would NOT be filtered'
-      end
+      filtered_count += 1 if check_payment_filtering(payment, index)
     end
 
+    filtered_count
+  end
+
+  def check_payment_filtering(payment, index)
+    puts
+    puts "Payment #{index + 1}:"
+    puts "  Payee type: #{payment[:payee_type]}"
+    puts "  Beneficiary Participant ID: #{payment[:beneficiary_participant_id]}"
+    puts "  Recipient Participant ID: #{payment[:recipient_participant_id]}"
+
+    is_third_party_vendor = payment[:payee_type] == 'Third Party/Vendor'
+    ids_dont_match = payment[:beneficiary_participant_id] != payment[:recipient_participant_id]
+
+    if is_third_party_vendor
+      puts "  ✗ FILTERED: Payee type is 'Third Party/Vendor'"
+      true
+    elsif ids_dont_match
+      puts "  ✗ FILTERED: Beneficiary and Recipient IDs don't match"
+      true
+    else
+      puts '  ✓ Would NOT be filtered'
+      false
+    end
+  end
+
+  def output_filtering_summary(payments, filtered_count)
     puts
     puts 'Summary:'
     puts "  Total payments: #{payments.length}"
