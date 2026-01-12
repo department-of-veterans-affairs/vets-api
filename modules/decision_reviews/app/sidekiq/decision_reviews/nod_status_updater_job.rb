@@ -38,9 +38,5 @@ module DecisionReviews
     def secondary_forms?
       false
     end
-
-    def enabled?
-      Flipper.enabled? :decision_review_saved_claim_nod_status_updater_job_enabled
-    end
   end
 end

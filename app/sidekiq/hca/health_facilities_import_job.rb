@@ -99,11 +99,11 @@ module HCA
         .where(station_number: facilities_from_lighthouse.keys)
         .pluck(:station_number, 'std_states.postal_name')
         .map do |station_number, postal_name|
-        {
-          name: facilities_from_lighthouse[station_number][:name],
-          station_number:,
-          postal_name:
-        }
+          {
+            name: facilities_from_lighthouse[station_number][:name],
+            station_number:,
+            postal_name:
+          }
       end
     end
 

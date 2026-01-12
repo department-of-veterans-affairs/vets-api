@@ -12,7 +12,7 @@ module IvcChampva
 
     attr_accessor :additional_context
 
-    def perform # rubocop:disable Metrics/MethodLength
+    def perform
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
       batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
@@ -22,8 +22,22 @@ module IvcChampva
       # Send the count of forms to DataDog
       StatsD.gauge('ivc_champva.forms_missing_status.count', batches.count)
 
-      current_time = Time.now.utc
+      verbose_logging = Flipper.enabled?(:champva_missing_status_verbose_logging, @current_user)
+      form_count = count_forms(batches)
 
+      if verbose_logging && form_count > 10
+        Rails.logger.info "IVC Forms MissingFormStatusJob - Too many forms to log details (#{form_count} forms)"
+      end
+
+      current_time = Time.now.utc
+      process_batches(batches, current_time, verbose_logging, form_count)
+    rescue => e
+      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
+
+    # Helper function to process batches of forms
+    def process_batches(batches, current_time, verbose_logging, form_count)
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
 
@@ -38,19 +52,24 @@ module IvcChampva
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
 
           send_failure_email(form, template_id, additional_context)
-          send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
-        elsif elapsed_days >= (threshold - 2) && !form.email_sent
-          # TODO: further limit this so we're not sending PEGA an email every time this job runs
-          # Give pega 2-day notice if we intend to email a user.
-          send_zsf_notification_to_pega(form, 'PEGA-TEAM_MISSING_STATUS')
         end
 
         # Send each form UUID to DataDog
-        StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+        key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+        StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
+
+        if verbose_logging && form_count <= 10
+          Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
+                              - Elapsed days: #{elapsed_days} \
+                              - File name: #{form.file_name} \
+                              - S3 status: #{form.s3_status} \
+                              - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+        end
       end
-    rescue => e
-      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
+    end
+
+    def count_forms(batches)
+      batches.values.sum(&:count)
     end
 
     def construct_email_payload(form, template_id)
@@ -100,23 +119,6 @@ module IvcChampva
       }
     end
 
-    # Fires off a notification email to Pega so they know the communication status of
-    # submissions with missing Pega statuses.
-    #
-    # @param form_data [hash] hash of form details (see `send_failure_email`)
-    # @param form [IvcChampvaForm] form object in question
-    def send_zsf_notification_to_pega(form, template_id)
-      form_data = construct_email_payload(form, template_id)
-      form_data = form_data.merge({
-                                    email: Settings.vanotify.services.ivc_champva.pega_inbox_address
-                                  })
-      if IvcChampva::Email.new(form_data).send_email
-        monitor.track_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
-      else
-        monitor.track_failed_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
-      end
-    end
-
     def fetch_forms_by_uuid(form_uuid)
       @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
     end
@@ -148,11 +150,6 @@ module IvcChampva
       false
     end
 
-    ##
-    # retreive a monitor for tracking
-    #
-    # @return [IvcChampva::Monitor]
-    #
     def monitor
       @monitor ||= IvcChampva::Monitor.new
     end
