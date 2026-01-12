@@ -19,10 +19,13 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
-        upload_data = msg['args'][1]
+        guid_or_upload_data = msg['args'][1]
 
-        # Match existing data check in perform method
-        upload_data = upload_data.first if upload_data.is_a?(Array)
+        submission = Form526Submission.find(form526_submission_id)
+        upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
+
+        guid, upload_data = get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
 
         Rails.logger.warn('Submit Form 526 Upload Retries exhausted', log_info)
@@ -45,22 +48,24 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-        if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-          submission = Form526Submission.find(form526_submission_id)
-
+        if upload_data
           provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
           provider.log_uploading_job_failure(self, error_class, error_message)
         end
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
-          guid = upload_data['confirmationCode']
+          # Extra protection. Raise here if we dont have the info we need.
+          # This will allow the rescue to catch and log a silent failure.
+          raise 'Cannot send failure email without guid' if guid.nil?
+          raise 'Cannot send failure email without form526_submission_id' if form526_submission_id.nil?
+
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
         # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
         # The mailer prevents an upload from failing silently, since we notify the veteran and provide a workaround.
         # The rescue will catch any errors in the sidekiq_retries_exhausted block and mark a "silent failure".
         # This shouldn't happen if an email was sent; there should be no code here to throw an additional exception.
-        # The mailer should be the last thing that can fail.
+        # The mailer should be the last thing that can fail, to prevent sending multiple duplicate emails to the user.
       rescue => e
         cl = caller_locations.first
         call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
@@ -100,20 +105,48 @@ module EVSS
             supporting_evidence_attachment:
           },
           current_user: user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
+          provider: ApiProviderFactory::API_PROVIDER[:lighthouse]
         )
       end
 
-      # Recursively submits a file in a new instance of this job for each upload in the uploads list
+      # Method to support getting both guid and upload_data from either calling convention
+      #
+      # @param guid_or_upload_data [String, Hash] Either the attachment GUID or the old upload_data hash
+      # @param upload_data_list [Array<Hash>] List of upload_data hashes from the form
+      # @return [Array(String, Hash)] The guid string and the upload_data hash
+      def self.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+        # Handle both old and new calling conventions
+        if guid_or_upload_data.is_a?(Array) || guid_or_upload_data.is_a?(Hash)
+          # Old format: upload_data hash was passed (possibly wrapped in array)
+          upload_data = guid_or_upload_data.is_a?(Array) ? guid_or_upload_data.first : guid_or_upload_data
+          guid = upload_data&.dig('confirmationCode')
+        else
+          # New format: guid string was passed
+          guid = guid_or_upload_data
+          upload_data = upload_data_list.find { |u| u['confirmationCode'] == guid }
+        end
+        [guid, upload_data]
+      end
+
+      # Submits a single supporting evidence attachment for a Form526 submission
+      #
+      # Supports both old and new calling conventions:
+      # - New: perform(submission_id, guid) - guid is the confirmationCode (UUID string)
+      # - Old: perform(submission_id, upload_data) - upload_data is a Hash with attachment metadata
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      # @param upload_data [String] Form metadata for attachment, including upload GUID in AWS S3
+      # @param guid_or_upload_data [String, Hash] Either the attachment GUID or the old upload_data hash
       #
-      def perform(submission_id, upload_data)
+      def perform(submission_id, guid_or_upload_data)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
-        upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
-        guid = upload_data&.dig('confirmationCode')
+        submission = Form526Submission.find(submission_id)
+        upload_data_list = submission.form[Form526Submission::FORM_526_UPLOADS] || []
+
+        guid, upload_data = self.class.get_uuid_and_upload_data(guid_or_upload_data, upload_data_list)
+
+        raise ArgumentError, "No upload found with guid #{guid} for submission #{submission_id}" if upload_data.nil?
+
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           sea = SupportingEvidenceAttachment.find_by(guid:)
           file_body = sea&.get_file&.read
@@ -123,11 +156,7 @@ module EVSS
           document_data = create_document_data(upload_data, sea.converted_filename)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-            upload_via_api_provider(submission, upload_data, file_body, sea)
-          else
-            EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
-          end
+          upload_via_api_provider(submission, upload_data, file_body, sea)
         end
       rescue => e
         # Can't send a job manually to the dead set.

@@ -11,6 +11,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
   let(:submitted_appeal_uuid) { SecureRandom.uuid }
   let(:notification_id) { SecureRandom.uuid }
   let(:vbms_file_uuid) { "#{SecureRandom.uuid}-vbms" }
+  let(:document_id) { SecureRandom.uuid.upcase }
 
   let(:appeal_submission) do
     create(:appeal_submission_module,
@@ -36,7 +37,7 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
 
   let(:claims_evidence_service) { instance_double(ClaimsEvidenceApi::Service::Files) }
   let(:upload_response) do
-    double('Response', body: { 'uuid' => vbms_file_uuid })
+    double('Response', body: { 'uuid' => vbms_file_uuid, 'currentVersionUuid' => document_id.downcase })
   end
 
   before do
@@ -130,9 +131,9 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
 
     it 'generates PDF and uploads to VBMS' do
       uploader = described_class.new(audit_log)
-      file_uuid = uploader.upload_to_vbms
+      result = uploader.upload_to_vbms
 
-      expect(file_uuid).to eq(vbms_file_uuid)
+      expect(result).to eq({ document_series_id: vbms_file_uuid, document_id: })
       expect(DecisionReviews::NotificationEmailToPdfService).to have_received(:new)
         .with(audit_log, appeal_submission:)
       expect(pdf_service).to have_received(:generate_pdf)
@@ -179,7 +180,9 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
         'DecisionReviews::NotificationPdfUploader uploaded PDF',
         hash_including(
           notification_id:,
-          file_uuid: vbms_file_uuid,
+          reference: audit_log.reference,
+          document_series_id: vbms_file_uuid,
+          document_id:,
           appeal_type: 'SC'
         )
       )
@@ -343,9 +346,10 @@ RSpec.describe DecisionReviews::NotificationPdfUploader do
 
         it "successfully uploads #{appeal_type} notification PDF" do
           uploader = described_class.new(audit_log)
-          file_uuid = uploader.upload_to_vbms
+          result = uploader.upload_to_vbms
 
-          expect(file_uuid).to eq(vbms_file_uuid)
+          expect(result[:document_series_id]).to eq(vbms_file_uuid)
+          expect(result[:document_id]).to eq(document_id)
         end
       end
     end

@@ -286,6 +286,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
     enabled: true
@@ -526,6 +527,8 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 form_mock_ae_design_patterns:
+  prefill: true
+form_mock_prefill:
   prefill: true
 form_upload:
   prefill: true
@@ -1330,6 +1333,11 @@ travel_pay:
     client_secret: client_secret
     resource: resource_id
     tenant_id: tenant_id
+unique_user_metrics:
+  processor_job:
+    batch_size: 500
+    max_iterations: 20
+    max_queue_depth: 10000
 va_forms:
   drupal_password: ~
   drupal_url: ~
@@ -1614,6 +1622,7 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
@@ -1707,6 +1716,9 @@ vanotify:
         form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
         form21_4138_error_email: form21_4138_error_email_template_id
         form21_4138_received_email: form21_4138_received_email_template_id
+        form21_4140_confirmation_email: form21_4140_confirmation_email_template_id
+        form21_4140_error_email: form21_4140_error_email_template_id
+        form21_4140_received_email: form21_4140_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1783,18 +1795,21 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
-  api_url: <%= ENV['vass__api_url'] %>
+  api_url: <%= ENV['vass__api_url'] || 'https://api.vass.va.gov' %>
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
+  jwt_secret: 'test-jwt-secret-key-not-for-production'
   mock: <%= ENV['vass__mock'] %>
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>
   service_name: VASS-API
-  subscription_key: <%= ENV['vass__subscription_key'] %>
-  tenant_id: <%= ENV['vass__tenant_id'] %>
+  subscription_key: fake_subscription_key
+  tenant_id: fake_tenant_id
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true

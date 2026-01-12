@@ -1,0 +1,25 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: <VASS_API_URL>/api/GetVeteranAppointment
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: '{"data":null,"success":false,"message":"Missing Parameters","correlationId":"test-correlation-id","timeStamp":"2025-12-02T12:00:00Z"}'
+    recorded_at: Thu, 02 Dec 2025 12:00:00 GMT
+recorded_with: VCR 6.0.0
