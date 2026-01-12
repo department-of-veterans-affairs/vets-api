@@ -63,8 +63,8 @@ module Vass
       # Log to Sentry with safe context (no PHI)
       Sentry.set_extras(
         vass_error: true,
-        correlation_id: body['correlationId'],
-        timestamp: body['timeStamp'],
+        correlation_id: body['correlation_id'],
+        timestamp: body['time_stamp'],
         has_message: body['message'].present?
       )
 
@@ -121,8 +121,8 @@ module Vass
     def response_values(body)
       {
         message: body['message'],
-        correlation_id: body['correlationId'],
-        timestamp: body['timeStamp']
+        correlation_id: body['correlation_id'],
+        timestamp: body['time_stamp']
       }
     end
   end
