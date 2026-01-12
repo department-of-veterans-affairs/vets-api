@@ -24,10 +24,7 @@ module MyHealth
           log_vaccines(immunizations.length)
           render json: UnifiedHealthData::ImmunizationSerializer.new(immunizations)
         else
-          start_date = params[:start_date]
-          end_date = params[:end_date]
-
-          response = client.get_immunizations(start_date:, end_date:)
+          response = client.get_immunizations
           immunizations = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer
                           .from_fhir_bundle(response.body)
 
@@ -42,11 +39,8 @@ module MyHealth
 
       def show
         id = params[:id]
-        start_date = params[:start_date]
-        end_date = params[:end_date]
-
         begin
-          response = client.get_immunizations(start_date:, end_date:)
+          response = client.get_immunizations
           immunization = response.body['entry'].find { |entry| entry['resource']['id'] == id }
 
           unless immunization
