@@ -13,7 +13,7 @@ RSpec.describe V0::DependentsApplicationsController do
     build(:dependency_claim_v2).parsed_form
   end
 
-  let(:service) { instance_double(BGS::DependentService) }
+  let(:service) { instance_double(BGS::DependentV2Service) }
   let(:service_v2) { instance_double(BGS::DependentV2Service) }
 
   describe '#show' do
@@ -34,7 +34,7 @@ RSpec.describe V0::DependentsApplicationsController do
       let(:user) { build(:disabilities_compensation_user, ssn: '796043735') }
 
       it 'returns no content' do
-        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
+        allow_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents).and_raise(BGS::ShareError)
         get(:show, params: { id: user.participant_id })
         expect(response).to have_http_status(:bad_request)
         expect(response).to have_http_status(:bad_request)

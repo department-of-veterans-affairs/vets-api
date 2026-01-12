@@ -117,12 +117,12 @@ namespace :persistent_attachment_remediation do
       ipf = InProgressForm.where(form_id: claim.form_id)
                           .where('updated_at >= ?', updated_time)
                           .find do |ipf|
-        JSON.parse(ipf.form_data).then do |data|
-          email = data['email'] || data['claimant_email']
-          email == claim_email && data['veteran_social_security_number'] == claim_veteran_ssn
-        end
-      rescue
-        false
+                            JSON.parse(ipf.form_data).then do |data|
+                              email = data['email'] || data['claimant_email']
+                              email == claim_email && data['veteran_social_security_number'] == claim_veteran_ssn
+                            end
+                          rescue
+                            false
       end
 
       if ipf
