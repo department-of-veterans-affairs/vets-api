@@ -6,12 +6,12 @@
 
 namespace :payment_history do
   desc 'Debug why payment history is empty for given ICNs'
-  task :debug_empty, [:icn] => :environment do |_t, args|
+  task :check_empty_history, [:icn] => :environment do |_t, args|
     icn = args[:icn]
 
     if icn.blank?
-      puts 'Usage: rake payment_history:debug_empty[ICN]'
-      puts 'Example: rake payment_history:debug_empty[1234567890V123456]'
+      puts 'Usage: rake payment_history:check_empty_history[ICN]'
+      puts 'Example: rake payment_history:check_empty_history[1234567890V123456]'
       exit 1
     end
 

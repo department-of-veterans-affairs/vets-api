@@ -3,20 +3,20 @@
 require 'rails_helper'
 require 'rake'
 
-RSpec.describe 'payment_history:debug_empty rake task' do
+RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
   before(:all) do
     Rake.application.rake_require '../rakelib/payment_history_status'
     Rake::Task.define_task(:environment)
   end
 
-  let(:task) { Rake::Task['payment_history:debug_empty'] }
+  let(:task) { Rake::Task['payment_history:check_empty_history'] }
   let(:icn) { '1234567890V123456' }
 
   before do
     task.reenable
   end
 
-  describe 'payment_history:debug_empty' do
+  describe 'payment_history:check_empty_history' do
     context 'when no ICN is provided' do
       it 'displays usage message and exits' do
         expect { task.invoke }.to raise_error(SystemExit).and output(/Usage:/).to_stdout
@@ -62,8 +62,8 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       end
 
       context 'when user account exists and MPI profile is found' do
-        let!(:user_account) { create(:user_account, icn: icn) }
-        let(:mpi_profile) { build(:mpi_profile, icn: icn, given_names: ['John'], family_name: 'Doe') }
+        let!(:user_account) { create(:user_account, icn:) }
+        let(:mpi_profile) { build(:mpi_profile, icn:, given_names: ['John'], family_name: 'Doe') }
         let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
         before do
@@ -90,7 +90,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       end
 
       context 'when user account does not exist' do
-        let(:mpi_profile) { build(:mpi_profile, icn: icn) }
+        let(:mpi_profile) { build(:mpi_profile, icn:) }
         let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
         before do
@@ -113,7 +113,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       end
 
       context 'when user account exists but MPI profile is not found' do
-        let!(:user_account) { create(:user_account, icn: icn) }
+        let!(:user_account) { create(:user_account, icn:) }
         let(:find_profile_response) { create(:find_profile_not_found_response) }
 
         before do
@@ -131,7 +131,9 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         end
 
         it 'provides helpful message about MPI' do
-          expect { task.invoke(icn) }.to output(/ICN may be invalid or user may not exist in Master Person Index/).to_stdout
+          expect do
+            task.invoke(icn)
+          end.to output(/ICN may be invalid or user may not exist in Master Person Index/).to_stdout
         end
       end
 
@@ -151,7 +153,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       end
 
       context 'when MPI service raises an error' do
-        let!(:user_account) { create(:user_account, icn: icn) }
+        let!(:user_account) { create(:user_account, icn:) }
 
         before do
           allow(mpi_service).to receive(:find_profile_by_identifier)
@@ -168,7 +170,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       end
 
       context 'when MPI returns server error response' do
-        let!(:user_account) { create(:user_account, icn: icn) }
+        let!(:user_account) { create(:user_account, icn:) }
         let(:find_profile_response) { create(:find_profile_server_error_response) }
 
         before do
@@ -194,7 +196,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       context 'when user has all required attributes' do
         let(:mpi_profile) do
           build(:mpi_profile,
-                icn: icn,
+                icn:,
                 ssn: '123456789',
                 participant_id: '600061742',
                 given_names: ['John'],
@@ -253,7 +255,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       context 'when user is missing SSN' do
         let(:mpi_profile) do
           build(:mpi_profile,
-                icn: icn,
+                icn:,
                 ssn: nil,
                 participant_id: '600061742')
         end
@@ -281,7 +283,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       context 'when user is missing Participant ID' do
         let(:mpi_profile) do
           build(:mpi_profile,
-                icn: icn,
+                icn:,
                 ssn: '123456789',
                 participant_id: nil)
         end
@@ -368,23 +370,25 @@ RSpec.describe 'payment_history:debug_empty rake task' do
             participant_id: '600012345',
             ssn_number: '123456789'
           )
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
-          expect { task.invoke(icn) }.to output(/File number missing.*Payment history requires a valid file number/m).to_stdout
+
+          expect do
+            task.invoke(icn)
+          end.to output(/File number missing.*Payment history requires a valid file number/m).to_stdout
         end
       end
 
       context 'when BGS person lookup fails with error status' do
         it 'shows error status message' do
           person = OpenStruct.new(status: :error)
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           expect { task.invoke(icn) }.to output(/BGS person lookup failed with error status/m).to_stdout
         end
       end
@@ -392,11 +396,11 @@ RSpec.describe 'payment_history:debug_empty rake task' do
       context 'when BGS person lookup fails with no_id status' do
         it 'shows no ID found message' do
           person = OpenStruct.new(status: :no_id)
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           expect { task.invoke(icn) }.to output(/BGS person lookup failed - no ID found/m).to_stdout
         end
       end
@@ -405,8 +409,9 @@ RSpec.describe 'payment_history:debug_empty rake task' do
         it 'shows error message' do
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
-          allow(bgs_service).to receive(:find_person_by_participant_id).and_raise(StandardError, 'BGS connection failed')
-          
+          allow(bgs_service).to receive(:find_person_by_participant_id).and_raise(StandardError,
+                                                                                  'BGS connection failed')
+
           expect { task.invoke(icn) }.to output(/Error calling BGS person lookup: BGS connection failed/m).to_stdout
         end
       end
@@ -446,15 +451,15 @@ RSpec.describe 'payment_history:debug_empty rake task' do
             participant_id: '600012345',
             ssn_number: '123456789'
           )
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           payment_service = instance_double(BGS::PaymentService)
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return(nil)
-          
+
           expect { task.invoke(icn) }.to output(/BGS returned nil response.*No payment records available/m).to_stdout
         end
       end
@@ -467,15 +472,15 @@ RSpec.describe 'payment_history:debug_empty rake task' do
             participant_id: '600012345',
             ssn_number: '123456789'
           )
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           payment_service = instance_double(BGS::PaymentService)
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return({})
-          
+
           expect { task.invoke(icn) }.to output(/No payments found in response.*BGS has no payment records/m).to_stdout
         end
       end
@@ -488,15 +493,15 @@ RSpec.describe 'payment_history:debug_empty rake task' do
             participant_id: '600012345',
             ssn_number: '123456789'
           )
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           payment_service = instance_double(BGS::PaymentService)
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: [] } })
-          
+
           expect { task.invoke(icn) }.to output(/Payments array is empty.*BGS has no payment records/m).to_stdout
         end
       end
@@ -509,16 +514,19 @@ RSpec.describe 'payment_history:debug_empty rake task' do
             participant_id: '600012345',
             ssn_number: '123456789'
           )
-          
+
           bgs_service = instance_double(BGS::People::Request)
           allow(BGS::People::Request).to receive(:new).and_return(bgs_service)
           allow(bgs_service).to receive(:find_person_by_participant_id).and_return(person)
-          
+
           payment_service = instance_double(BGS::PaymentService)
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
-          allow(payment_service).to receive(:payment_history).and_raise(StandardError, 'BGS payment service unavailable')
-          
-          expect { task.invoke(icn) }.to output(/Error calling BGS payment history: BGS payment service unavailable/m).to_stdout
+          allow(payment_service).to receive(:payment_history).and_raise(StandardError,
+                                                                        'BGS payment service unavailable')
+
+          expect do
+            task.invoke(icn)
+          end.to output(/Error calling BGS payment history: BGS payment service unavailable/m).to_stdout
         end
       end
     end
@@ -571,8 +579,15 @@ RSpec.describe 'payment_history:debug_empty rake task' do
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
 
+          expected_output = /
+            ✓\ Would\ NOT\ be\ filtered
+            .*Total\ payments:\ 2
+            .*Filtered\ out:\ 0
+            .*Would\ be\ returned:\ 2
+            .*✓\ No\ payments\ are\ being\ filtered
+          /mx
           expect { task.invoke(icn) }
-            .to output(/✓ Would NOT be filtered.*Total payments: 2.*Filtered out: 0.*Would be returned: 2.*✓ No payments are being filtered/m)
+            .to output(expected_output)
             .to_stdout
         end
       end
@@ -592,7 +607,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
           allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
 
           expect { task.invoke(icn) }
-            .to output(/✗ FILTERED: Payee type is 'Third Party\/Vendor'/)
+            .to output(%r{✗ FILTERED: Payee type is 'Third Party/Vendor'})
             .to_stdout
         end
       end
@@ -636,8 +651,16 @@ RSpec.describe 'payment_history:debug_empty rake task' do
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
 
+          expected_output = /
+            Total\ payments:\ 2
+            .*Filtered\ out:\ 2
+            .*Would\ be\ returned:\ 0
+            .*✗\ All\ payments\ are\ being\ filtered\ out!
+            .*This\ is\ why\ payment\ history\ appears\ empty
+          /mx
+
           expect { task.invoke(icn) }
-            .to output(/Total payments: 2.*Filtered out: 2.*Would be returned: 0.*✗ All payments are being filtered out!.*This is why payment history appears empty/m)
+            .to output(expected_output)
             .to_stdout
         end
       end
@@ -661,8 +684,14 @@ RSpec.describe 'payment_history:debug_empty rake task' do
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
           allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payments } })
 
+          expected_output = /
+            Total\ payments:\ 2
+            .*Filtered\ out:\ 1
+            .*Would\ be\ returned:\ 1
+            .*⚠\ Some\ payments\ are\ being\ filtered\ out
+          /mx
           expect { task.invoke(icn) }
-            .to output(/Total payments: 2.*Filtered out: 1.*Would be returned: 1.*⚠ Some payments are being filtered out/m)
+            .to output(expected_output)
             .to_stdout
         end
       end
@@ -677,7 +706,7 @@ RSpec.describe 'payment_history:debug_empty rake task' do
 
           payment_service = instance_double(BGS::PaymentService)
           allow(BGS::PaymentService).to receive(:new).and_return(payment_service)
-          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: payment } })
+          allow(payment_service).to receive(:payment_history).and_return({ payments: { payment: } })
 
           expect { task.invoke(icn) }
             .to output(/Total payments: 1.*Filtered out: 0.*Would be returned: 1/m)
