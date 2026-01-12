@@ -1313,6 +1313,11 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
+unique_user_metrics:
+  processor_job:
+    batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
+    max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
+    max_queue_depth: <%= ENV['unique_user_metrics__processor_job__max_queue_depth'] %>
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>
@@ -1597,6 +1602,7 @@ vanotify:
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
