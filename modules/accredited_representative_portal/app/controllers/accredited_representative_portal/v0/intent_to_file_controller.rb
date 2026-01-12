@@ -50,8 +50,8 @@ module AccreditedRepresentativePortal
             Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
             SavedClaimClaimantRepresentative.create!(
               saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
-              power_of_attorney_holder_type: claimant_representative.power_of_attorney_holder.type,
-              power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
+              power_of_attorney_holder_type: power_of_attorney_holder.type,
+              power_of_attorney_holder_poa_code: power_of_attorney_holder.poa_code,
               accredited_individual_registration_number:
                 claimant_representative.accredited_individual_registration_number
             )
@@ -143,6 +143,10 @@ module AccreditedRepresentativePortal
           power_of_attorney_holder_memberships:
             @current_user.power_of_attorney_holder_memberships
         )
+      end
+
+      def power_of_attorney_holder
+        claimant_representative.power_of_attorney_holder
       end
     end
   end
