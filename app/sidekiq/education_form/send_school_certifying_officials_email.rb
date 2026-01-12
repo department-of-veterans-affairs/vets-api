@@ -56,12 +56,12 @@ module EducationForm
     def send_sco_email
       return if @institution.blank? || school_changed?
 
-      emails = staging_env? ? staging_recipients : recipients
+      emails = use_internal_recipients? ? internal_recipients : recipients
 
       if emails.any?
         StatsD.increment("#{stats_key}.success")
         SchoolCertifyingOfficialsMailer.build(@claim.id, emails, nil).deliver_now
-        StemApplicantScoMailer.build(@claim.id, nil).deliver_now unless staging_env?
+        StemApplicantScoMailer.build(@claim.id, nil).deliver_now
         @claim.email_sent(true)
       else
         StatsD.increment("#{stats_key}.failure")
@@ -73,11 +73,11 @@ module EducationForm
       EducationForm::SendSchoolCertifyingOfficialsEmail.sco_emails(scos)
     end
 
-    def staging_env?
-      Settings.hostname.to_s == 'staging-api.va.gov'
+    def use_internal_recipients?
+      %w[development staging].include?(Settings.vsp_environment.to_s)
     end
 
-    def staging_recipients
+    def internal_recipients
       Settings.edu.staging_sco_email&.emails || []
     end
 

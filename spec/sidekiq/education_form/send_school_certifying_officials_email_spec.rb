@@ -117,20 +117,20 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
       end
     end
 
-    context 'on staging environment' do
-      let(:staging_emails) { ['staging-test@va.gov', 'staging-test2@va.gov'] }
+    context 'on non-production environment (staging or development)' do
+      let(:internal_emails) { ['staging-test@va.gov', 'staging-test2@va.gov'] }
 
       before do
         gids_response = build(:gids_response)
         allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
-        allow(Settings).to receive(:hostname).and_return('staging-api.va.gov')
+        allow(Settings).to receive(:vsp_environment).and_return('staging')
         allow(Settings.edu).to receive(:staging_sco_email).and_return(
-          OpenStruct.new(emails: staging_emails)
+          OpenStruct.new(emails: internal_emails)
         )
       end
 
-      it 'sends to internal team members instead of SCOs' do
+      it 'sends to internal team members instead of SCOs on staging' do
         ActionMailer::Base.deliveries.clear
 
         subject.perform(claim.id, true, '1')
@@ -138,22 +138,23 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
         db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
         expect(db_claim.parsed_form['scoEmailSent']).to be(true)
 
-        # Only one email should be sent (SCO email to staging recipients, no applicant email)
-        expect(ActionMailer::Base.deliveries.count).to eq(1)
+        # Two emails should be sent (SCO email to internal recipients and applicant email to user)
+        expect(ActionMailer::Base.deliveries.count).to eq(2)
 
-        # Verify the email was sent to staging recipients
+        # Verify the email was sent to internal recipients
         sco_email = ActionMailer::Base.deliveries.first
-        expect(sco_email.to).to match_array(staging_emails)
+        expect(sco_email.to).to match_array(internal_emails)
       end
 
-      it 'does not send the applicant email on staging' do
+      it 'sends to internal team members instead of SCOs on development' do
+        allow(Settings).to receive(:vsp_environment).and_return('development')
         ActionMailer::Base.deliveries.clear
 
         subject.perform(claim.id, true, '1')
 
-        # Only the SCO email should be sent, not the applicant email
-        expect(ActionMailer::Base.deliveries.count).to eq(1)
-        expect(ActionMailer::Base.deliveries.first.to).not_to include(claim.parsed_form['email'])
+        # Verify the email was sent to internal recipients
+        sco_email = ActionMailer::Base.deliveries.first
+        expect(sco_email.to).to match_array(internal_emails)
       end
     end
   end
