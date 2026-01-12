@@ -23,16 +23,15 @@ namespace :payment_history do
     mpi_profile = check_user_exists(icn)
 
     is_passing_policy = false
-
     is_passing_policy = check_policy_attributes(mpi_profile) if mpi_profile.present?
 
     person = nil
     person = check_bgs_file_number(mpi_profile) if is_passing_policy
 
     payment_history = nil
-    payment_history = check_payment_history(mpi_profile, person) if person
+    payment_history = check_payment_history(mpi_profile, person) if person.present?
 
-    check_payment_history_filters(payment_history) if payment_history
+    check_payment_history_filters(payment_history) if payment_history.present?
 
     puts
   end
