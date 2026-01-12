@@ -16,6 +16,7 @@ module V0
 
     before_action :authorize_service
     before_action :validate_type_param, only: %i[submit]
+    before_action { authorize :lighthouse, :access_vet_status? }
 
     wrap_with_logging(
       :index,
@@ -120,8 +121,6 @@ module V0
 
     def authorize_service
       authorize :lighthouse, :itf_access?
-      # Verify ICN
-      authorize :va_profile, :access_to_v2?
     end
 
     def validate_type_param
