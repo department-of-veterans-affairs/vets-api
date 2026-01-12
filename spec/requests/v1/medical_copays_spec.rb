@@ -62,8 +62,13 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
   describe 'show' do
     let(:current_user) { build(:user, :loa3, icn: '32000551') }
 
+    # Service uses Concurrent::Promises for parallel API calls, so we need:
+    # - allow_playback_repeats: concurrent threads may replay same response
+    # - match_requests_on: [:method, :uri] to handle request ordering differences
+    let(:vcr_options) { { allow_playback_repeats: true, match_requests_on: %i[method uri] } }
+
     it 'returns copay detail for authenticated user' do
-      VCR.use_cassette('lighthouse/hcc/copay_detail_success') do
+      VCR.use_cassette('lighthouse/hcc/copay_detail_success', vcr_options) do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
         get '/v1/medical_copays/4-1abZUKu7LnbcQc'
@@ -101,7 +106,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     end
 
     it 'handles auth error' do
-      VCR.use_cassette('lighthouse/hcc/auth_error') do
+      VCR.use_cassette('lighthouse/hcc/auth_error', vcr_options) do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
         get '/v1/medical_copays/4-1abZUKu7LnbcQc'

@@ -13,7 +13,7 @@ module IncreaseCompensation
       {
         version: 0,
         prefill: true,
-        returnUrl: '/claimant-information'
+        returnUrl: '/confirmation-question'
       }
     end
 

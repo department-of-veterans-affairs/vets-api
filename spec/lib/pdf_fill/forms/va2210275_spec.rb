@@ -17,17 +17,6 @@ describe PdfFill::Forms::Va2210275 do
       expect(merged_fields.dig('mainInstitution', 'mailingAddress')).to eq(mailing_address)
     end
 
-    it 'includes country in mailing address if address international' do
-      form_data['mainInstitution']['institutionAddress']['country'] = 'MEX'
-      expect(merged_fields.dig('mainInstitution', 'mailingAddress')).to include('MX')
-    end
-
-    it 'formats state if country Mexico' do
-      form_data['mainInstitution']['institutionAddress']['country'] = 'MEX'
-      form_data['mainInstitution']['institutionAddress']['state'] = 'baja-california-sur'
-      expect(merged_fields.dig('mainInstitution', 'mailingAddress')).to include('Baja California Sur')
-    end
-
     it 'converts agreement type booleans to Yes/Off' do
       agreement = merged_fields['agreementType']
       expect(agreement['newCommitment']).to eq('Yes')

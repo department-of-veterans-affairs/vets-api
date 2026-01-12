@@ -53,12 +53,12 @@ module AccreditedRepresentativePortal
                           .unredacted
                           .preload(scope_includes)
                           .then do |it|
-          if sort_params.present?
-            it.sorted_by(sort_params[:by],
-                         sort_params[:order])
-          else
-            it
-          end
+                            if sort_params.present?
+                              it.sorted_by(sort_params[:by],
+                                           sort_params[:order])
+                            else
+                              it
+                            end
         end
                           .paginate(page:, per_page:)
       end

@@ -2,8 +2,13 @@
 
 module ClaimsApi
   class ReportMonthlySubmissions < ClaimsApi::ReportingBase
+    include ClaimsApi::ReportRecipientsReader
+
     def perform
       return unless Settings.claims_api.report_enabled
+
+      recipients = load_recipients('submission_report_mailer')
+      return if recipients.empty?
 
       @from = 1.month.ago
       @to = Time.zone.now
@@ -15,6 +20,7 @@ module ClaimsApi
       ClaimsApi::SubmissionReportMailer.build(
         @from,
         @to,
+        recipients,
         consumer_claims_totals: monthly_claims_totals,
         poa_totals: monthly_poa_totals,
         itf_totals: monthly_itf_totals,
