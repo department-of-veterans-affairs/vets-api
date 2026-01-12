@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'veteran_facing_services/notification_email/saved_claim'
+require 'vre/notification_callback'
 
 module VRE
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
