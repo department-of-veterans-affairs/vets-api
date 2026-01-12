@@ -140,7 +140,7 @@ module UniqueUserEvents
     # @param user [User] the authenticated User object
     # @return [String] User account UUID
     def self.extract_user_id(user)
-      user.user_account_uuid
+      user.user_account_uuid || user.uuid
     end
 
     # Build event result hash for API response
@@ -193,7 +193,19 @@ module UniqueUserEvents
       }
     end
 
-    private_class_method :increment_statsd_counter, :get_all_events_to_log, :log_single_event, :extract_user_id,
+    private_class_method :increment_statsd_counter, :log_single_event,
                          :build_event_result
+
+    # Build buffered result hash for API response
+    #
+    # @param event_name [String] Name of the event
+    # @return [Hash] Buffered result hash
+    def self.build_buffered_result(event_name)
+      {
+        event_name:,
+        status: 'buffered',
+        new_event: nil # Intentionally nil; new_event will be determined during later batch processing
+      }
+    end
   end
 end

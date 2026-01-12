@@ -240,6 +240,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Daily job that sends notification emails to Pega of missing form statuses
+  mgr.register('0 0 * * *', 'IvcChampva::NotifyPegaMissingFormStatusJob')
+
   # Every day job at 1:30am that sends IVC CHAMPVA form insights data to DataDog
   mgr.register('30 1 * * *', 'IvcChampva::InsightsDatadogJob')
 
@@ -290,4 +293,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Hourly job to cache facility names for UHD prescriptions
   # Runs at 37 minutes past the hour to avoid resource contention
   mgr.register('37 * * * *', 'UnifiedHealthData::FacilityNameCacheJob')
+
+  # Process buffered Unique User Metrics events every 10 minutes
+  mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
 }

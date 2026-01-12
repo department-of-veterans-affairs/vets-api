@@ -840,6 +840,39 @@ RSpec.describe FormProfile, type: :model do
       }
     }
   end
+  let(:vform_mock_prefill_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => va_profile_address.street,
+              'addressLine2' => va_profile_address.street2,
+              'city' => va_profile_address.city,
+              'stateCode' => va_profile_address.state,
+              'countryName' => va_profile_address.country,
+              'zipCode5' => va_profile_address.postal_code
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '3035551234',
+            'mobilePhone' => mobile_phone,
+            'emailAddressText' => user.va_profile_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
   let(:v28_1900_expected) do
     {
       'veteranInformation' => {
@@ -1140,7 +1173,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS', 'FORM-MOCK-PREFILL'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1608,14 +1641,19 @@ RSpec.describe FormProfile, type: :model do
               'months' => 0,
               'days' => 0
             }
+            v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+            v22_10203_expected['schoolCity'] = 'NORFOLK'
+            v22_10203_expected['schoolState'] = 'VA'
+            v22_10203_expected['schoolCountry'] = 'USA'
           end
 
           it 'prefills 10203 with VA Profile and entitlement information' do
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('sob/ch33_status/200') do
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
                   VCR.use_cassette('gi_client/gets_the_institution_details') do
-                    expect(SOB::DGI::Service).to receive(:new).with(user.ssn).and_call_original
+                    expect(SOB::DGI::Service).to receive(:new).with(ssn: user.ssn, include_enrollments: true)
+                                                              .and_call_original
 
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
@@ -2222,6 +2260,7 @@ RSpec.describe FormProfile, type: :model do
           21-22A
           21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
+          FORM-MOCK-PREFILL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
