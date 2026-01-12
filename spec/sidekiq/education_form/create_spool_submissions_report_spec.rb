@@ -38,7 +38,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
     describe '#perform' do
       before do
-        expect(Flipper).to receive(:enabled?).with(:send_edu_report_email).and_return(true)
+        expect(FeatureFlipper).to receive(:enabled?).with(:send_edu_report_email).and_return(true)
       end
 
       after do
