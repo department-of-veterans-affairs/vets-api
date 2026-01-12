@@ -120,6 +120,8 @@ module V0
 
     def authorize_service
       authorize :lighthouse, :itf_access?
+      # Verify ICN
+      authorize :va_profile, :access_to_v2?
     end
 
     def validate_type_param
