@@ -73,7 +73,6 @@ module AccreditedRepresentativePortal
           veteran: {
             ssn: params[:veteranSsn],
             dateOfBirth: params[:veteranDateOfBirth],
-            postalCode: params[:postalCode],
             vaFileNumber: params[:vaFileNumber],
             name: {
               first: params[:veteranFullName][:first],
