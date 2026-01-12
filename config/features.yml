@@ -2287,6 +2287,9 @@ features:
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
+  virtual_agent_use_v2_chatbot:
+    actor_type: user
+    description: Use the V2 version of the virtual agent chatbot
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
