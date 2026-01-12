@@ -331,6 +331,9 @@ features:
   champva_update_metadata_keys:
     actor_type: user
     description: Enables the use of updated JSON key names in the Pega submission metadata
+  champva_enable_notify_pega_missing_form_status_job:
+    actor_type: user
+    description: Enables the NotifyPegaMissingFormStatusJob to run
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
@@ -650,10 +653,6 @@ features:
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
-    enable_in_development: true
-  decision_review_track_4142_submissions:
-    actor_type: user
-    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
   decision_review_service_common_exceptions_enabled:
     actor_type: user
@@ -1330,9 +1329,6 @@ features:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
-  mhv_va_health_chat_enabled:
-    actor_type: user
-    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_aal_notice:
     actor_type: user
     description: Enables AAL help content on the My HealtheVet landing page.
@@ -1558,6 +1554,16 @@ features:
   mhv_email_confirmation:
     actor_type: user
     description: Enables/disables email confirmation alerts on MHV and My VA pages
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_mobile_return_empty_location_data:
+    actor_type: user
+    description: Returns empty response for mobile health locations endpoint when enabled
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -2680,9 +2686,12 @@ features:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
-    # System level feature flag
-    actor_type:
+    actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
+    enable_in_development: true
+  unique_user_metrics_async_buffering:
+    actor_type: user
+    description: Enables asynchronous batch processing for unique user metrics.
     enable_in_development: true
   form_8794_release:
     actor_type: user
