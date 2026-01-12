@@ -17,7 +17,7 @@ RSpec.describe SimpleFormsApi::VBA21p0537 do
 
       it 'returns the signature stamp' do
         stamps = described_class.new(short_email_data).desired_stamps
-        expect(stamps.length).to eq(2) # "in reply refer to" and signature text
+        expect(stamps.length).to eq(1) # signature text
         expect(stamps.first[:text]).to eq 'Test Signature'
       end
     end
@@ -32,9 +32,9 @@ RSpec.describe SimpleFormsApi::VBA21p0537 do
         }
       end
 
-      it 'returns "in reply refer to", signature, overflow label, and email stamps' do
+      it 'returns signature, overflow label, and email stamps' do
         stamps = described_class.new(long_email_data).desired_stamps
-        expect(stamps.length).to eq(4) # "in reply refer to", signature, overflow label, email text
+        expect(stamps.length).to eq(3) # signature, overflow label, email text
         expect(stamps.first[:text]).to eq 'Test Signature'
         expect(stamps.last[:text]).to eq long_email_data.dig('recipient', 'email')
       end
