@@ -12,7 +12,7 @@ module Mobile
         response = service.get_debts(count_only:)
 
         if count_only
-          render json: Mobile::V0::DebtsSerializer.new(response[:debtsCount] || response['debtsCount'])
+          render json: response
         else
           render json: Mobile::V0::DebtsSerializer.new(response[:debts], @current_user.uuid)
         end

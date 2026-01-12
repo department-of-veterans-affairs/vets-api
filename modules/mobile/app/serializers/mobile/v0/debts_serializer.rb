@@ -22,9 +22,7 @@ module Mobile
                  :fiscal_transaction_data
 
       def initialize(debts, id = nil)
-        resource = if debts.is_a? Integer
-                     { debtsCount: debts }
-                   elsif debts.is_a? Array
+        resource = if debts.is_a? Array
                      debts.map { |debt| serialize_debt(debt, id) }
                    else
                      serialize_debt(debts)
@@ -36,8 +34,6 @@ module Mobile
       private
 
       def dependent_debts?(debts)
-        return false if debts.is_a? Integer
-
         Array.wrap(debts).any? { |debt| debt['payeeNumber'] != '00' }
       end
 
@@ -72,7 +68,7 @@ module Mobile
         end
       end
 
-      def serialize_fiscal_transaction_data(debt) # rubocop:disable Metrics/MethodLength
+      def serialize_fiscal_transaction_data(debt)
         Array.wrap(debt['fiscalTransactionData']).map do |data|
           {
             debt_id: data['debtId'],
