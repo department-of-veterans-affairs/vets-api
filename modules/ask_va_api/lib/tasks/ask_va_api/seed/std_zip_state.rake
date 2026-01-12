@@ -4,7 +4,7 @@ namespace :ask_va_api do
   namespace :seed do
     desc 'Seed minimal state and zip data for AskVA zip/state validation in development only'
     task std_zip_state: :environment do
-      abort 'This task can only be run in developoment environment. Task aborted!' unless Rails.env.development?
+      abort 'This task can only be run in development environment. Task aborted!' unless Rails.env.development?
 
       require_relative '../../../ask_va_api/seed/std_zip_state_records'
       data = AskVAApi::Seed::StdZipStateRecords
