@@ -68,7 +68,7 @@ module Mobile
         end
       end
 
-      def serialize_fiscal_transaction_data(debt)
+      def serialize_fiscal_transaction_data(debt) # rubocop:disable Metrics/MethodLength
         Array.wrap(debt['fiscalTransactionData']).map do |data|
           {
             debt_id: data['debtId'],
