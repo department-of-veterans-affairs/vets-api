@@ -30,5 +30,4 @@ RSpec.describe 'ask_va_api:seed:std_zip_state', type: :task do
       expect { task.invoke }.to raise_error(SystemExit)
     end
   end
-
 end
