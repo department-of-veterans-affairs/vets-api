@@ -20,7 +20,7 @@ Vass::Engine.routes.draw do
     post 'authenticate-otc', to: 'sessions#authenticate_otc'
 
     # Appointment management endpoints
-    resources :appointments, only: %i[index show create]
+    get 'appointment-availability', to: 'appointments#availability' # Get appointment availability for current cohort
 
     # API documentation endpoint
     get 'apidocs', to: 'apidocs#index'

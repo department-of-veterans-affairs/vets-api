@@ -175,13 +175,15 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
   end
 
   context 'sidekiq_retries_exhausted' do
-    it 'tracks exhaustion event and sends backup submission' do
-      msg = {
+    let(:base_msg) do
+      {
         'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
         'error_message' => 'Connection timeout'
       }
-      error = StandardError.new('Job failed')
+    end
+    let(:job_error) { StandardError.new('Job failed') }
 
+    it 'tracks exhaustion event and sends backup submission' do
       # Mock the monitor
       monitor_double = instance_double(Dependents::Monitor)
       expect(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
@@ -195,14 +197,62 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
       # Expect the backup submission to be called
       expect(BGS::SubmitForm674Job).to receive(:send_backup_submission).with(
-        encrypted_user_struct,
-        vet_info,
-        dependency_claim.id,
-        user.uuid
+        encrypted_user_struct, vet_info, dependency_claim.id, user.uuid
       )
+      described_class.sidekiq_retries_exhausted_block.call(base_msg, job_error)
+    end
 
-      # Call the sidekiq_retries_exhausted callback
-      described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    context 'when backup submission fails' do
+      before do
+        monitor_double = instance_double(Dependents::Monitor)
+        allow(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_event)
+        allow(BGS::SubmitForm674Job).to receive(:send_backup_submission)
+          .and_raise(StandardError.new('Backup failed'))
+      end
+
+      it 'sends failure email when veteran has email address' do
+        claim_double = instance_double(SavedClaim::DependencyClaim)
+        monitor_double = instance_double(Dependents::Monitor)
+
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(dependency_claim.id).and_return(claim_double)
+        expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(monitor_double)
+        expect(monitor_double).to receive(:track_event).with(
+          'error', 'BGS::SubmitForm674Job retries exhausted failed...',
+          'worker.submit_674_bgs.retry_exhaustion_failure',
+          hash_including(error: 'Backup failed')
+        )
+        expect(claim_double).to receive(:send_failure_email).with(user.va_profile_email)
+
+        # Call the sidekiq_retries_exhausted callback
+        described_class.sidekiq_retries_exhausted_block.call(base_msg, job_error)
+      end
+
+      it 'logs silent failure when veteran has no email address' do
+        vet_info_no_email = vet_info.deep_dup.tap { |v| v['veteran_information']['va_profile_email'] = nil }
+        msg_no_email = base_msg.dup.tap do |msg|
+          msg['args'][2] = KmsEncrypted::Box.new.encrypt(vet_info_no_email.to_json)
+        end
+
+        claim_double = instance_double(SavedClaim::DependencyClaim)
+        monitor_double = instance_double(Dependents::Monitor)
+
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(dependency_claim.id).and_return(claim_double)
+        expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(monitor_double)
+        expect(monitor_double).to receive(:track_event).with(
+          'error', 'BGS::SubmitForm674Job retries exhausted failed...',
+          'worker.submit_674_bgs.retry_exhaustion_failure',
+          hash_including(error: 'Backup failed')
+        )
+        allow(monitor_double).to receive(:default_payload).and_return({})
+        expect(monitor_double).to receive(:log_silent_failure).with(
+          hash_including(error: kind_of(StandardError)),
+          hash_including(call_location: kind_of(Thread::Backtrace::Location))
+        )
+        expect(claim_double).not_to receive(:send_failure_email)
+
+        described_class.sidekiq_retries_exhausted_block.call(msg_no_email, job_error)
+      end
     end
   end
 end
