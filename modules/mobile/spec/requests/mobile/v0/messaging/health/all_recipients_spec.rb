@@ -115,7 +115,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         parsed_response_meta = response.parsed_body['meta']
         care_systems = parsed_response_meta['careSystems']
         expect(care_systems.length).to be(10)
-        # rubocop:disable Layout/LineLength
         # Complex systems get correct healthcare system names via MyHealth::FacilitiesHelper
         # Station 612 maps to 612A4 and gets COMPLICATED_SYSTEMS name
         care_system_map = care_systems.to_h { |cs| [cs['stationNumber'], cs['healthCareSystemName']] }
@@ -126,7 +125,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(care_system_map['626']).to eq('VA Tennessee health care (multiple facilities)')
         expect(care_system_map['636']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
         expect(care_system_map['657']).to eq('VA Missouri and Illinois health care (multiple facilities)')
-        # rubocop:enable Layout/LineLength
       end
     end
   end
