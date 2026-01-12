@@ -23,7 +23,7 @@ module EventBusGateway
       job_id = msg['jid']
       error_class = msg['error_class']
       error_message = msg['error_message']
-      cache_key = msg['args'][2]
+      cache_key = msg['args']&.[](2)
       timestamp = Time.now.utc
 
       ::Rails.logger.error('LetterReadyEmailJob retries exhausted',
