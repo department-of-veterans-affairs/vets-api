@@ -11,10 +11,7 @@ module VRE
       attribute :external_status, Hash
 
       def initialize(_status, response = nil)
-        return unless response
-
-        body = response.body
-        super(body)
+        super(response.body) if response
       end
     end
   end
