@@ -16,8 +16,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
 
-    fixture_pdf = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf', 'doctors-note.pdf',
-                                  'files', 'doctors-note.pdf', 'doctors-note.pdf').to_s
+    fixture_pdf = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf').to_s
 
     converter = instance_double(
       BenefitsIntakeService::Utilities::ConvertToPdf,
