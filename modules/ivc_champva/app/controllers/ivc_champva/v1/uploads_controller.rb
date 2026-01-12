@@ -496,17 +496,80 @@ module IvcChampva
         health_insurance = applicant['health_insurance'] || [{}]
 
         health_insurance.each_slice(2) do |policies_pair|
-          # Build form data: merge form-level fields with applicant data,
-          # restricting health_insurance to just this pair of policies
-          applicant_form_data = form_data.except('applicants', 'raw_data').merge(applicant)
-          applicant_form_data['health_insurance'] = policies_pair
-          applicant_form_data['form_number'] = '10-7959C-REV2025'
+          applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
+          applicant_data['form_number'] = '10-7959C-REV2025'
 
-          # The form constructor handles flattening to applicant_primary_* / applicant_secondary_*
-          forms << IvcChampva::VHA107959cRev2025.new(applicant_form_data)
+          if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
+            # NEW: Pass health_insurance array, constructor handles flattening
+            applicant_data['health_insurance'] = policies_pair
+            forms << IvcChampva::VHA107959cRev2025.new(applicant_data)
+          else
+            # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
+            applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
+            form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+            form.data['form_number'] = '10-7959C-REV2025'
+            forms << form
+          end
         end
 
         forms
+      end
+
+      ##
+      # Sets the primary/secondary health insurance properties on the provided
+      # applicant based on a pair of policies. This is so that we can automatically
+      # get the keys/values needed to generate overflow OHI forms in the event
+      # an applicant is associated with > 2 health insurance policies
+      #
+      # @param [Array<Hash>] policies Array of hashes representing insurance policies.
+      # @param [Hash] applicant Hash representing an applicant object from a 10-10d/10-7959c form
+      #
+      # @returns [Hash] Updated applicant hash with the primary/secondary insurances mapped
+      # so an OHI (10-7959c) PDF can be stamped with this info
+      #
+      def map_policies_to_applicant(policies, applicant)
+        # Create a copy of the applicant hash to avoid modifying the original
+        updated_applicant = Marshal.load(Marshal.dump(applicant))
+
+        # Map primary and secondary insurance policies
+        map_primary_policy_to_applicant(policies[0], updated_applicant) if policies&.[](0)
+        map_secondary_policy_to_applicant(policies[1], updated_applicant) if policies&.[](1)
+
+        updated_applicant
+      end
+
+      ##
+      # Maps primary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Primary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_primary_policy_to_applicant(policy, applicant)
+        applicant['applicant_primary_provider'] = policy['provider']
+        applicant['applicant_primary_effective_date'] = policy['effective_date']
+        applicant['applicant_primary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_primary_through_employer'] = policy['through_employer']
+        applicant['applicant_primary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_primary_eob'] = policy['eob']
+        applicant['primary_medigap_plan'] = policy['medigap_plan']
+        applicant['primary_additional_comments'] = policy['additional_comments']
+      end
+
+      ##
+      # Maps secondary insurance policy fields to the applicant hash
+      #
+      # @param [Hash] policy Secondary insurance policy data
+      # @param [Hash] applicant Applicant hash to update
+      #
+      def map_secondary_policy_to_applicant(policy, applicant)
+        applicant['applicant_secondary_provider'] = policy['provider']
+        applicant['applicant_secondary_effective_date'] = policy['effective_date']
+        applicant['applicant_secondary_expiration_date'] = policy['expiration_date']
+        applicant['applicant_secondary_through_employer'] = policy['through_employer']
+        applicant['applicant_secondary_insurance_type'] = policy['insurance_type']
+        applicant['applicant_secondary_eob'] = policy['eob']
+        applicant['secondary_medigap_plan'] = policy['medigap_plan']
+        applicant['secondary_additional_comments'] = policy['additional_comments']
       end
 
       def fill_ohi_and_return_path(form)
