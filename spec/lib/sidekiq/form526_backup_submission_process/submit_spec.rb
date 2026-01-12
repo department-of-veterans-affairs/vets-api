@@ -15,14 +15,18 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
-    allow_any_instance_of(BenefitsIntakeService::Utilities::ConvertToPdf)
-      .to receive(:converted_filename)
-      .and_return('tmp/converted_file.pdf')
 
-    # Also mock the actual conversion method to prevent it from running
-    allow_any_instance_of(BenefitsIntakeService::Utilities::ConvertToPdf)
-      .to receive(:call)
-      .and_return('tmp/converted_file.pdf')
+    fixture_pdf = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf', 'doctors-note.pdf',
+                                  'files', 'doctors-note.pdf', 'doctors-note.pdf').to_s
+
+    converter = instance_double(
+      BenefitsIntakeService::Utilities::ConvertToPdf,
+      converted_filename: fixture_pdf
+    )
+
+    allow(BenefitsIntakeService::Utilities::ConvertToPdf)
+      .to receive(:new)
+      .and_return(converter)
   end
 
   let(:user) { create(:user, :loa3, :legacy_icn) }
