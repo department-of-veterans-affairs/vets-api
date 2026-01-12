@@ -94,6 +94,9 @@ module V2
 
         patient_check_in = CheckIn::V2::PatientCheckIn.build(data: raw_data, check_in:)
 
+        # Log data retrieval for debugging insurance/eligibility issues
+        log_check_in_data_retrieval(patient_check_in, raw_data) if raw_data.present? && token.present?
+
         return patient_check_in.unauthorized_message if token.blank?
         return patient_check_in.error_message if patient_check_in.error_status?
 
@@ -126,6 +129,53 @@ module V2
           raise CheckIn::V2::CheckinServiceException.new(status: '404', original_body: e.original_body)
         else
           raise e
+        end
+      end
+
+      def log_check_in_data_retrieval(patient_check_in, raw_data)
+        return unless Flipper.enabled?(:check_in_experience_detailed_logging)
+        return if patient_check_in.error_status?
+
+        appointments, demographics_status = parse_check_in_response_data(raw_data)
+
+        Rails.logger.info(build_check_in_log_data(appointments, demographics_status))
+        track_appointment_eligibility(appointments)
+      end
+
+      def parse_check_in_response_data(raw_data)
+        parsed_data = begin
+          Oj.load(raw_data.body)
+        rescue
+          {}
+        end
+        appointments = parsed_data.dig('payload', 'appointments') || []
+        demographics_status = parsed_data.dig('payload', 'patientDemographicsStatus') || {}
+
+        [appointments, demographics_status]
+      end
+
+      def build_check_in_log_data(appointments, demographics_status)
+        {
+          message: 'Check-in data retrieved',
+          check_in_uuid: check_in.uuid,
+          facility_type: check_in.facility_type,
+          check_in_type: check_in.check_in_type || 'checkIn',
+          appointment_count: appointments.size,
+          demographics_needs_update: demographics_status['demographicsNeedsUpdate'],
+          next_of_kin_needs_update: demographics_status['nextOfKinNeedsUpdate'],
+          emergency_contact_needs_update: demographics_status['emergencyContactNeedsUpdate'],
+          demographics_confirmed_at: demographics_status['demographicsConfirmedAt'],
+          eligibility_values: appointments.map { |a| a['eligibility'] }.compact.uniq
+        }
+      end
+
+      def track_appointment_eligibility(appointments)
+        appointments.each do |appt|
+          eligibility = appt['eligibility']&.downcase || 'unknown'
+          StatsD.increment(
+            CheckIn::Constants::STATSD_CHECKIN_ELIGIBILITY,
+            tags: ['service:check_in', "eligibility:#{eligibility}", "facility_type:#{check_in.facility_type}"]
+          )
         end
       end
     end
