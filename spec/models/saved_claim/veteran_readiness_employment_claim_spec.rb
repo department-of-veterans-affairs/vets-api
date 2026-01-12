@@ -82,28 +82,19 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     context 'when email_type is a confirmation type' do
       it 'sends VBMS confirmation email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_vbms]
-        )
-
+        expect(notification_email).to receive(:deliver).with(:confirmation_vbms)
         claim.send_email(:confirmation_vbms)
       end
 
       it 'sends Lighthouse confirmation email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_lighthouse]
-        )
-
+        expect(notification_email).to receive(:deliver).with(:confirmation_lighthouse)
         claim.send_email(:confirmation_lighthouse)
       end
     end
 
     context 'when email_type is not a confirmation type' do
       it 'sends error email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE
-        )
-
+        expect(notification_email).to receive(:deliver).with(:error)
         claim.send_email(:error)
       end
     end

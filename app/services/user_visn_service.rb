@@ -2,7 +2,7 @@
 
 class UserVisnService
   # Hardcoded pilot VISNs for MVP - easy to update as pilot expands
-  PILOT_VISNS = %w[2 15 21 983 200ESR].freeze
+  PILOT_VISNS = %w[2 15 21 20 10 19].freeze
   CACHE_KEY_PREFIX = 'va_profile:facility_visn'
 
   def initialize(user)
@@ -41,7 +41,9 @@ class UserVisnService
     facility = facilities.first
     return nil unless facility&.attributes
 
-    facility.attributes['visn']&.to_s
+    facility_visn = facility.attributes['visn']&.to_s
+    Rails.logger.info("Fetched VISN #{facility_visn} for facility #{facility_id} from Lighthouse API")
+    facility_visn
   rescue => e
     Rails.logger.warn("Failed to fetch VISN for facility #{facility_id}: #{e.message}")
     nil
