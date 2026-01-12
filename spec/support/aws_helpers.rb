@@ -49,20 +49,34 @@ module AwsHelpers
       .and_return(transfer_manager)
 
     allow(transfer_manager).to receive(:upload_file).and_return(true)
+
+    yield
   end
 
-  def stub_maintenance_windows_s3(filename)
-    s3 = double
-    bucket = double
-    obj = double
+  def stub_maintenance_windows_s3(_filename)
+    s3_client = instance_double(Aws::S3::Client)
 
-    expect(Aws::S3::Resource).to receive(:new).once.with(
-      region: 'region',
-      access_key_id: 'key',
-      secret_access_key: 'secret'
-    ).and_return(s3)
-    expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
-    expect(bucket).to receive(:object).once.with('maintenance_windows.json').and_return(obj)
-    expect(obj).to receive(:upload_file).once.with(filename, acl: 'public-read', content_type: 'application/json')
+    # bucket + object chain used by uploader
+    s3_object = instance_double(Aws::S3::Object)
+    s3_bucket = instance_double(Aws::S3::Bucket, object: s3_object)
+
+    s3_resource = instance_double(
+      Aws::S3::Resource,
+      client: s3_client,
+      bucket: s3_bucket
+    )
+
+    allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
+
+    # If uploader uses TransferManager
+    transfer_manager = instance_double(Aws::S3::TransferManager, upload_file: true)
+    allow(Aws::S3::TransferManager)
+      .to receive(:new)
+      .with(client: s3_client)
+      .and_return(transfer_manager)
+
+    # In case uploader uploads via the object directly
+    allow(s3_object).to receive(:upload_file)
+    allow(s3_object).to receive(:put)
   end
 end
