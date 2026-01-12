@@ -22,7 +22,7 @@ namespace :payment_history do
     check_feature_flag
     mpi_profile = check_user_exists(icn)
 
-    is_passing_policy = nil
+    is_passing_policy = false
 
     is_passing_policy = check_policy_attributes(mpi_profile) unless mpi_profile.nil?
 
