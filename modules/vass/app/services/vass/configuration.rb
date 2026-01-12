@@ -55,7 +55,7 @@ module Vass
       @__conn_pool__[server_url] ||= Faraday.new(url: server_url, headers: base_request_headers,
                                                  request: request_options) do |conn|
         conn.use(:breakers, service_name:)
-        conn.request :camelcase  # Transform outgoing snake_case to camelCase
+        conn.request :camelcase # Transform outgoing snake_case to camelCase
         conn.request :json
         # Response middleware runs in reverse order (bottom-up):
         # 1. betamocks (if enabled) returns mock responses
