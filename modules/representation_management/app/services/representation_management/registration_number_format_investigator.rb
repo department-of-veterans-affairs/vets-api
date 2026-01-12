@@ -20,11 +20,6 @@ module RepresentationManagement
   # This service is designed for console use and outputs progress via puts
   # to ensure visibility in the Rails console environment.
   class RegistrationNumberFormatInvestigator
-    # Constants for GitHub file location (reused from DataComparisonService)
-    GITHUB_ORG = 'department-of-veterans-affairs'
-    GITHUB_REPO = 'va.gov-team-sensitive'
-    GITHUB_PATH = 'products/accredited-representation-management/data/rep-org-addresses.xlsx'
-
     # UUID format regex
     UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
 
@@ -33,6 +28,7 @@ module RepresentationManagement
 
     def initialize
       @results = {}
+      @data_comparison_service = DataComparisonService.new
     end
 
     # Runs the investigation and outputs results
@@ -64,7 +60,7 @@ module RepresentationManagement
 
     def download_and_extract_file_data
       puts "[#{Time.zone.now}] Step 1/3: Downloading and extracting Excel file..."
-      file_content = download_file
+      file_content = @data_comparison_service.send(:download_file)
       return nil unless file_content
 
       individuals = extract_individuals_from_file(file_content)
@@ -239,40 +235,8 @@ module RepresentationManagement
       puts "\nInvestigation failed. Please check the error above."
     end
 
-    # Downloads the Excel file from GitHub
-    # @return [String, nil] File content or nil if download failed
-    def download_file
-      setup_github_client
-      file_info = fetch_github_file_info
-      fetch_file_content(file_info.download_url)
-    rescue => e
-      puts "[#{Time.zone.now}]   ERROR: Failed to download file from GitHub"
-      puts "[#{Time.zone.now}]   Error: #{e.message}"
-      puts "[#{Time.zone.now}]   Check GitHub access token and network connectivity"
-      nil
-    end
-
-    # Sets up the Octokit GitHub client with an access token
-    def setup_github_client
-      @github_client = Octokit::Client.new(access_token: Settings.xlsx_file_fetcher.github_access_token)
-    end
-
-    # Retrieves the file information for the XLSX file from GitHub
-    # @return [Sawyer::Resource] The file information resource from GitHub
-    def fetch_github_file_info
-      @github_client.contents("#{GITHUB_ORG}/#{GITHUB_REPO}", path: GITHUB_PATH)
-    end
-
-    # Downloads the file content from a given URL
-    # @param url [String] The URL to download the file content from
-    # @return [String] The body of the HTTP response, or nil if not successful
-    def fetch_file_content(url)
-      uri = URI.parse(url)
-      response = Net::HTTP.get_response(uri)
-      response.body if response.is_a?(Net::HTTPSuccess)
-    end
-
     # Extracts all unique registration numbers from the Excel file
+    # Uses DataComparisonService's private methods for extraction logic
     # @param file_content [String] The raw file content
     # @return [Set] Set of individual registration numbers
     def extract_individuals_from_file(file_content)
@@ -280,27 +244,7 @@ module RepresentationManagement
       xlsx = Roo::Spreadsheet.open(StringIO.new(file_content), extension: :xlsx)
 
       individuals = Set.new
-      total_rows = 0
-
-      %w[Attorneys Agents Representatives].each do |sheet_name|
-        next unless xlsx.sheets.include?(sheet_name)
-
-        puts "[#{Time.zone.now}]   Processing #{sheet_name} sheet..."
-        sheet = xlsx.sheet(sheet_name)
-        number_col = sheet.row(1).index('Number')
-
-        unless number_col
-          puts "[#{Time.zone.now}]     WARNING: 'Number' column not found in #{sheet_name}"
-          next
-        end
-
-        (2..sheet.last_row).each do |row_num|
-          number = sheet.row(row_num)[number_col]
-          individuals.add(number.to_s) if number
-          total_rows += 1
-        end
-        puts "[#{Time.zone.now}]     #{sheet_name}: #{sheet.last_row - 1} rows"
-      end
+      @data_comparison_service.send(:extract_individuals_from_sheets, xlsx, individuals)
 
       individuals
     end
