@@ -208,18 +208,28 @@ module DisabilityCompensation
         in_progress_camelized = OliveBranch::Transformations.transform(
           in_progress_toxic_exposure, OliveBranch::Transformations.method(:camelize)
         )
+
         # Filter out view: prefixed keys - these are UI metadata always stripped by the
         # submit transformer, not actual purge data. Including them causes false positives.
         in_progress_keys = in_progress_camelized.keys.reject { |k| k.start_with?('view:') }
         submitted_keys = (submitted_toxic_exposure&.keys || []).reject { |k| k.start_with?('view:') }
-        removed_keys = (in_progress_keys - submitted_keys).sort
+
+        # Filter removed keys to only include those with actual data
+        # Empty hashes {} are form scaffolding, not user data - don't count as "removed"
+        potentially_removed = in_progress_keys - submitted_keys
+        removed_keys = potentially_removed.select do |key|
+          value = in_progress_camelized[key]
+          value_has_meaningful_data?(value)
+        end.sort
+
         purge_analysis = analyze_purge_reasons(removed_keys, in_progress_camelized, submitted_toxic_exposure)
+        conditions_state = determine_conditions_state(submitted_toxic_exposure)
 
         {
           completely_removed: submitted_toxic_exposure.nil?,
           removed_keys:,
           purge_reasons: purge_analysis[:purge_reasons],
-          conditions_state: determine_conditions_state(submitted_toxic_exposure),
+          conditions_state:,
           orphaned_data_removed: purge_analysis[:orphaned_data_removed]
         }
       end
@@ -274,15 +284,27 @@ module DisabilityCompensation
       # Categorize a Details key (e.g., gulfWar1990Details)
       def categorize_details_key(key, submitted_toxic_exposure)
         parent_key = key.sub('Details', '')
-        parent_valid = submitted_toxic_exposure[parent_key].is_a?(Hash)
-        parent_valid ? ['user_deselected_all_locations', false] : ['orphaned_details_no_parent', true]
+        parent_value = submitted_toxic_exposure[parent_key]
+        parent_valid = parent_value.is_a?(Hash)
+
+        if parent_valid
+          ['user_deselected_all_locations', false]
+        else
+          ['orphaned_details_no_parent', true]
+        end
       end
 
       # Categorize an "other" field key (otherHerbicideLocations, specifyOtherExposures)
       def categorize_other_field_key(key, submitted_toxic_exposure)
         parent_key = key == 'otherHerbicideLocations' ? 'herbicide' : 'otherExposures'
-        parent_valid = submitted_toxic_exposure[parent_key].is_a?(Hash)
-        parent_valid ? ['user_opted_out_of_other_field', false] : ['orphaned_other_field_no_parent', true]
+        parent_value = submitted_toxic_exposure[parent_key]
+        parent_valid = parent_value.is_a?(Hash)
+
+        if parent_valid
+          ['user_opted_out_of_other_field', false]
+        else
+          ['orphaned_other_field_no_parent', true]
+        end
       end
 
       # Determine the final state of toxic exposure conditions
@@ -298,6 +320,35 @@ module DisabilityCompensation
 
         has_selections = conditions.any? { |k, v| k != 'none' && v == true }
         has_selections ? 'has_selections' : 'empty'
+      end
+
+      # Check if a value contains meaningful data (not just empty scaffolding)
+      #
+      # Recursively checks if a value contains actual user-entered data.
+      # Empty hashes, hashes with only empty nested values, nil, and empty strings
+      # are not considered meaningful data.
+      #
+      # @param value [Object] The value to check
+      # @return [Boolean] True if the value contains meaningful data
+      def value_has_meaningful_data?(value)
+        case value
+        when nil
+          false
+        when String
+          value.strip.present?
+        when TrueClass, FalseClass, Numeric
+          true # Boolean and numeric values are meaningful (user made a selection)
+        when Hash
+          # Empty hash is not meaningful
+          return false if value.empty?
+
+          # Check if any nested values have meaningful data
+          value.any? { |_k, v| value_has_meaningful_data?(v) }
+        when Array
+          value.any? { |v| value_has_meaningful_data?(v) }
+        else
+          value.present?
+        end
       end
 
       ##

@@ -228,6 +228,237 @@ RSpec.describe DisabilityCompensation::Loggers::Monitor do
       end
     end
 
+    # False positive prevention tests - ensure no logging when no actual data purged
+    context 'when user opts out but never entered actual data (false positive prevention)' do
+      context 'with empty form scaffolding (none: true, empty objects)' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => { 'none' => true },
+              'gulf_war_1990' => {},
+              'gulf_war_2001' => {},
+              'herbicide' => {},
+              'other_exposures' => {}
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend returns unchanged - same empty scaffolding (no actual purge)
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => { 'none' => true },
+              'gulfWar1990' => {},
+              'gulfWar2001' => {},
+              'herbicide' => {},
+              'otherExposures' => {}
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        it 'does not log when frontend returns unchanged empty scaffolding' do
+          expect(monitor).not_to receive(:submit_event)
+          monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+        end
+      end
+
+      context 'with all false values (no actual selections)' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => { 'asthma' => false, 'cancer' => false, 'none' => false },
+              'gulf_war_1990' => { 'iraq' => false, 'bahrain' => false },
+              'herbicide' => { 'vietnam' => false, 'cambodia' => false }
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend returns unchanged - same false values (no actual purge)
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => { 'asthma' => false, 'cancer' => false, 'none' => false },
+              'gulfWar1990' => { 'iraq' => false, 'bahrain' => false },
+              'herbicide' => { 'vietnam' => false, 'cambodia' => false }
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        it 'does not log when frontend returns unchanged false values' do
+          expect(monitor).not_to receive(:submit_event)
+          monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+        end
+      end
+
+      context 'with nested empty objects in details' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => {},
+              'gulf_war_1990' => {},
+              'gulf_war_1990_details' => {
+                'afghanistan' => {},
+                'bahrain' => {},
+                'iraq' => {}
+              },
+              'herbicide' => {},
+              'herbicide_details' => {
+                'vietnam' => {},
+                'cambodia' => {}
+              }
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend returns unchanged - same empty nested objects
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => {},
+              'gulfWar1990' => {},
+              'gulfWar1990Details' => {
+                'afghanistan' => {},
+                'bahrain' => {},
+                'iraq' => {}
+              },
+              'herbicide' => {},
+              'herbicideDetails' => {
+                'vietnam' => {},
+                'cambodia' => {}
+              }
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        it 'does not log when frontend returns unchanged nested empty objects' do
+          expect(monitor).not_to receive(:submit_event)
+          monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+        end
+      end
+
+      # Test case for: condition selected but no exposure data entered
+      # otherHerbicideLocations: {} and specifyOtherExposures: {} are stripped by frontend
+      context 'with condition selected but empty other fields stripped (real-world scenario)' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => { 'asthma' => true },
+              'gulf_war_1990' => {},
+              'gulf_war_1990_details' => { 'afghanistan' => {}, 'iraq' => {} },
+              'herbicide' => {},
+              'herbicide_details' => { 'vietnam' => {}, 'cambodia' => {} },
+              'other_herbicide_locations' => {},
+              'other_exposures' => {},
+              'other_exposures_details' => { 'asbestos' => {}, 'radiation' => {} },
+              'specify_other_exposures' => {}
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend strips empty otherKey fields - they're missing in submitted data
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => { 'asthma' => true },
+              'gulfWar1990' => {},
+              'gulfWar1990Details' => {},
+              'herbicide' => {},
+              'herbicideDetails' => {},
+              'otherExposures' => {},
+              'otherExposuresDetails' => {}
+              # NOTE: otherHerbicideLocations and specifyOtherExposures are MISSING
+              # because frontend purge removes empty otherKey objects
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        it 'does not log when empty other fields are stripped (no actual data purged)' do
+          expect(monitor).not_to receive(:submit_event)
+          monitor.track_toxic_exposure_changes(in_progress_form:, submitted_claim:, submission:)
+        end
+      end
+    end
+
+    # True positive tests - ensure logging DOES happen when actual data is purged
+    context 'when user opts out AND had actual data (true positive - should log)' do
+      context 'with actual condition selections purged' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => { 'asthma' => true, 'cancer' => true },
+              'gulf_war_1990' => { 'iraq' => true },
+              'gulf_war_1990_details' => {
+                'iraq' => { 'start_date' => '1991-01-01', 'end_date' => '1991-12-31' }
+              }
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend purged data - only conditions remain with none: true
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => { 'none' => true }
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        include_examples 'logs changes event',
+                         removed_keys: %w[gulfWar1990 gulfWar1990Details],
+                         completely_removed: false
+      end
+
+      context 'with partial data purged (unchecked checkbox removes details)' do
+        let(:in_progress_form_data) do
+          {
+            'toxic_exposure' => {
+              'conditions' => { 'asthma' => true },
+              'gulf_war_1990' => { 'iraq' => true, 'bahrain' => true },
+              'gulf_war_1990_details' => {
+                'iraq' => { 'start_date' => '1991-01-01' },
+                'bahrain' => { 'start_date' => '1990-08-01' }
+              },
+              'herbicide' => { 'vietnam' => true },
+              'herbicide_details' => {
+                'vietnam' => { 'start_date' => '1968-01-01' }
+              }
+            }
+          }
+        end
+
+        before do
+          allow(in_progress_form).to receive(:form_data).and_return(in_progress_form_data.to_json)
+          # Frontend filtered details for false checkboxes, removed herbicide section
+          saved_claim_data = {
+            'toxicExposure' => {
+              'conditions' => { 'asthma' => true },
+              'gulfWar1990' => { 'iraq' => true, 'bahrain' => false },
+              'gulfWar1990Details' => {
+                'iraq' => { 'startDate' => '1991-01-01' }
+              }
+            }
+          }
+          allow(submitted_claim).to receive(:form).and_return(saved_claim_data.to_json)
+        end
+
+        # herbicideDetails is correctly classified as orphaned since herbicide parent is removed
+        include_examples 'logs changes event',
+                         removed_keys: %w[herbicide herbicideDetails],
+                         completely_removed: false,
+                         orphaned_data_removed: true
+      end
+    end
+
     context 'when verifying allowlist filtering' do
       before do
         # SavedClaim uses camelCase
