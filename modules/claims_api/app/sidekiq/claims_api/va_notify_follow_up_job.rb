@@ -29,6 +29,7 @@ module ClaimsApi
       detail = "Status for notification #{notification_id} was '#{status}'"
 
       if poa_id
+        detail = "Status for notification #{notification_id} was '#{status}'. POA ID: #{poa_id}"
         # Call logic to map VANotify status to our internal step status
         step_status = map_notify_status(status)
         # Update the POA process step with latest status
