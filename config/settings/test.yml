@@ -1331,6 +1331,11 @@ travel_pay:
     client_secret: client_secret
     resource: resource_id
     tenant_id: tenant_id
+unique_user_metrics:
+  processor_job:
+    batch_size: 500
+    max_iterations: 20
+    max_queue_depth: 10000
 va_forms:
   drupal_password: ~
   drupal_url: ~
