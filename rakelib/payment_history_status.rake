@@ -24,7 +24,7 @@ namespace :payment_history do
 
     is_passing_policy = false
 
-    is_passing_policy = check_policy_attributes(mpi_profile) unless mpi_profile.nil?
+    is_passing_policy = check_policy_attributes(mpi_profile) if mpi_profile.present?
 
     person = nil
     person = check_bgs_file_number(mpi_profile) if is_passing_policy
