@@ -1043,6 +1043,9 @@ features:
   form21_4138_confirmation_email:
     actor_type: user
     description: Enables form 21-4138 email submission confirmation (VaNotify)
+  form21_4140_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4140 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1107,6 +1110,9 @@ features:
   form214138:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4138
+  form214140:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4140
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
