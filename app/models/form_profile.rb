@@ -134,7 +134,7 @@ class FormProfile
     memorials: %w[1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
-    vre_readiness: %w[28-1900 28-1900-V2]
+    vre_readiness: %w[28-1900]
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -173,7 +173,6 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '28-1900' => ::FormProfiles::VA281900,
-    '28-1900-V2' => ::FormProfiles::VA281900v2,
     '28-8832' => ::FormProfiles::VA288832,
     '40-10007' => ::FormProfiles::VA4010007,
     '5655' => ::FormProfiles::VA5655,
