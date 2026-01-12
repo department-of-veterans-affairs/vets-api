@@ -2368,6 +2368,10 @@ features:
     actor_type: user
     description: Enable the new overflow design
     enable_in_development: true
+  pension_rating_alert_logging_enabled:
+    actor_type: user
+    description: Enable Datadog logging for disability rating alert in pension form
+    enable_in_development: true
   employment_questionnaires_form_enabled:
     enable_in_development: true
     actor_type: user
