@@ -6,7 +6,16 @@ module V0
   class TsaLetterController < ApplicationController
     service_tag 'tsa_letter'
 
-    def index
+    # x figure out routing
+    # "record" 404 vcr cassette
+    # serializer
+    # finish specs
+    # add spec for empty response
+    # make sorting safer
+    # match on body
+    # turn off feature flag in staging
+
+    def show
       search_service = ClaimsEvidenceApi::Service::Search.new
       filters = { subject: ['VETS Safe Travel Outreach Letter'] }
       folder_identifier = "VETERAN:ICN:#{current_user.icn}"
@@ -21,10 +30,17 @@ module V0
       end
       latest_uuid = latest['uuid']
       latest_version = latest['currentVersionUuid']
-      render(json: {uuid: latest_uuid, version: latest_version})
+      upload_date = latest['currentVersion']['systemData']['uploadedDateTime']
+      render(json: {uuid: latest_uuid, version: latest_version, upload_date:})
+    rescue => e
+      if e.respond_to?(:status) && e.status == 404
+        raise Common::Exceptions::RecordNotFound, current_user.user_account_uuid
+      else
+        raise e
+      end
     end
 
-    def show
+    def download
       send_data(
         service.get_tsa_letter(params[:id]),
         type: 'application/pdf',

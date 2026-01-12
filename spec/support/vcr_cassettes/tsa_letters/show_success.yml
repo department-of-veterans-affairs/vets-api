@@ -5,7 +5,7 @@ http_interactions:
     uri: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/folders/files:search
     body:
       encoding: US-ASCII
-      string: ''
+      string: '{"pageRequest":{"resultsPerPage":10,"page":1},"filters":{"providerData.subject":{"evaluationType":"CONTAINS","value":"[\"VETS Safe Travel Outreach Letter\"]"}},"sort":[]}'
     headers:
       Accept:
       - application/json
