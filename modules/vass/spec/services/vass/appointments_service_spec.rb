@@ -208,8 +208,8 @@ describe Vass::AppointmentsService do
         result = service_with_mock_client.get_veteran_info(veteran_id:)
 
         expect(result['success']).to be true
-            expect(result['data']['first_name']).to eq('John')
-            expect(result['data']['last_name']).to eq('Doe')
+        expect(result['data']['first_name']).to eq('John')
+        expect(result['data']['last_name']).to eq('Doe')
         expect(result['contact_method']).to eq('email')
         expect(result['contact_value']).to eq('john.doe@example.com')
       end
