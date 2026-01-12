@@ -23,6 +23,8 @@ module DebtsApi
                     DIGITAL_DISPUTE_STATS_KEY
                   end
 
+      Sidekiq::AttrPackage.delete(args['cache_key']) if args['cache_key']
+
       StatsD.increment("#{stats_key}.retries_exhausted")
       user_uuid = args['user_uuid']
 

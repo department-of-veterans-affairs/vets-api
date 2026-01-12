@@ -26,6 +26,8 @@ module DebtManagementCenter
       options = (job['args'][3] || {}).transform_keys(&:to_s)
       cache_key = options['cache_key']
 
+      Sidekiq::AttrPackage.delete(options['cache_key']) if options['cache_key']
+
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       if options['failure_mailer'] == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")

@@ -33,6 +33,17 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
       config.sidekiq_retries_exhausted_block.call(job, exception)
     end
 
+    it 'deletes redis cache_key when retries expire' do
+      cache_key = 'test_cache_key_123'
+      job = { 'args' => [nil, nil, nil, { 'cache_key' => cache_key }] }
+
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:error)
+
+      config.sidekiq_retries_exhausted_block.call(job, exception)
+    end
+
     context 'when firing a silent error email' do
       let(:email) { 'test@tester.com' }
       let(:template_id) { DebtsApi::V0::Form5655Submission::SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID }

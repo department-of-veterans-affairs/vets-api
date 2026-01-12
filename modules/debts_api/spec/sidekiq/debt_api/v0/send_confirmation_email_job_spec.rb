@@ -218,4 +218,23 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
       end
     end
   end
+
+  describe 'sidekiq_retries_exhausted' do
+    let(:exception) do
+      e = StandardError.new('Test error')
+      allow(e).to receive(:backtrace).and_return(['line 1', 'line 2'])
+      e
+    end
+
+    it 'deletes redis cache_key when retries expire' do
+      cache_key = 'test_cache_key_456'
+      job = { 'args' => [{ 'cache_key' => cache_key, 'submission_type' => 'fsr', 'user_uuid' => 'test-uuid' }] }
+
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:error)
+
+      described_class.sidekiq_retries_exhausted_block.call(job, exception)
+    end
+  end
 end
