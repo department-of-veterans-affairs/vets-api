@@ -1635,7 +1635,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 0
@@ -1670,7 +1670,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 10
