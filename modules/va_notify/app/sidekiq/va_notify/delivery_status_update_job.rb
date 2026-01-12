@@ -72,7 +72,6 @@ module VANotify
       else
         raise NotificationNotFound, "Notification #{notification_id} not found; retrying until exhaustion"
       end
-      Sidekiq::AttrPackage.delete(attr_package_params_cache_key) if attr_package_params_cache_key
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
       Rails.logger.error('VANotifyEmailJob AttrPackage error', { error: e.message })
