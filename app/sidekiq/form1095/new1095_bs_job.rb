@@ -184,23 +184,55 @@ module Form1095
       true
     end
 
-    def process_file?(temp_file, file_details)
-      all_succeeded = true
-      lines = 0
+    def process_file?(temp_file, file_details) # rubocop:disable Metrics/MethodLength
+      batch_size = 1000
+      forms_batch = []
+
+      # ⭐ KEY: Load all existing forms ONCE instead of querying per line
+      existing_forms = Form1095B
+                       .where(tax_year: file_details[:tax_year])
+                       .pluck(:veteran_icn, :id)
+                       .to_h
+
       temp_file.each_line do |form|
-        lines += 1
-        successful_line = process_line?(form, file_details)
-        all_succeeded = false if !successful_line && all_succeeded
+        data = parse_form(form)
+        next if data[:veteran_icn].blank?
+
+        # Prepare form data
+        data[:tax_year] = file_details[:tax_year]
+        data[:form_data][:is_corrected] = !file_details[:isOg?]
+        data[:form_data][:is_beneficiary] = file_details[:is_dep_file?]
+        data[:form_data] = data[:form_data].to_json
+        data.delete(:unique_id)
+
+        # Check in-memory hash instead of querying DB
+        data[:id] = existing_forms[data[:veteran_icn]] if existing_forms[data[:veteran_icn]]
+
+        forms_batch << data
+
+        # ⭐ KEY: Batch upsert every 1000 records
+        if forms_batch.size >= batch_size
+          upsert_batch(forms_batch)
+          forms_batch.clear
+        end
       end
+
+      # Process remaining records
+      upsert_batch(forms_batch) if forms_batch.any?
 
       temp_file.close
       temp_file.unlink
+      true
+    end
 
-      all_succeeded
-    rescue => e
-      message = "Error processing file: #{file_details[:name]}, on line #{lines}; #{e.message}"
-      log_message(:error, message)
-      false
+    def upsert_batch(forms_batch)
+      # rubocop:disable Rails/SkipsModelValidations
+      Form1095B.upsert_all(
+        forms_batch,
+        unique_by: %i[veteran_icn tax_year]
+      )
+      # rubocop:enable Rails/SkipsModelValidations
+      @form_count += forms_batch.size
     end
 
     # downloading file to the disk and then reading that file,
