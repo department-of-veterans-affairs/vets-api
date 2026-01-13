@@ -29,7 +29,6 @@ module ClaimsApi
           {
             'service_number' => data['serviceNumber'],
             'insurance_numbers' => data['insuranceNumbers'],
-            'phone_number' => data['phoneNumber'],
             'claimant_relationship' => data['claimantRelationship'],
             'poa_code' => data['poaCode'],
             'organization_name' => data['organizationName'],

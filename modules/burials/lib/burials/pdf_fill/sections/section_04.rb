@@ -50,6 +50,9 @@ module Burials
         },
         'name' => {
           key: 'form1[0].#subform[37].FederalCemeteryName[0]',
+          question_num: 17,
+          question_label: 'Name Of National Or Federal Cemetery',
+          question_text: 'NAME OF NATIONAL OR FEDERAL CEMETERY',
           limit: 50
         },
         # 18
@@ -64,6 +67,9 @@ module Burials
         },
         'stateCemeteryOrTribalTrustName' => {
           key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustName[2]',
+          question_num: 18,
+          question_label: 'Name Of State Cemetery Or Tribal Trust Land',
+          question_text: 'NAME OF STATE CEMETERY OR TRIBAL TRUST LAND',
           limit: 33
         },
         'stateCemeteryOrTribalTrustZip' => {
