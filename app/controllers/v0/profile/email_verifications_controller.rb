@@ -26,6 +26,7 @@ module V0
   module Profile
     class EmailVerificationsController < ApplicationController
       include RateLimited
+      include ErrorHandler
 
       service_tag 'profile-email-verification'
 
@@ -36,7 +37,7 @@ module V0
                  daily_limit: 5,
                  redis_namespace: 'email_verification_rate_limit'
 
-      before_action :authenticate_user!
+      before_action :authenticate_loa3_user!
 
       # GET /v0/profile/email_verifications/status
       # Check if email verification is needed
@@ -54,169 +55,23 @@ module V0
       # POST /v0/profile/email_verifications
       # Initiate email verification process (send verification email)
       def create
-        unless needs_verification?
-          render json: {
-            errors: [
-              {
-                title: 'Email Already Verified',
-                detail: 'Your email address is already verified.',
-                code: 'EMAIL_ALREADY_VERIFIED',
-                status: '422'
-              }
-            ]
-          }, status: :unprocessable_entity
-          return
+        return render_verification_not_needed_error unless needs_verification?
+
+        handle_service_errors('Email verification initiation') do
+          send_verification_email
+          render_create_success
         end
-
-        # Check rate limiting (but don't increment yet)
-        enforce_rate_limit!(:email_verification)
-
-        # Send verification email
-        template_type = params[:template_type]&.to_s || 'initial_verification'
-        verification_service = EmailVerificationService.new(current_user)
-        token = verification_service.initiate_verification(template_type)
-
-        # Increment rate limit counter after successful sending
-        increment_rate_limit!(:email_verification)
-
-        Rails.logger.info('Email verification initiated', {
-                            user_uuid: current_user.uuid,
-                            template_type:,
-                            rate_limit_info: get_rate_limit_info(:email_verification)
-                          })
-
-        render json: {
-          data: {
-            type: 'email_verification',
-            attributes: {
-              email_sent: true,
-              template_type:
-            }
-          }
-        }, status: :created
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error('Email verification service error', {
-                             user_uuid: current_user.uuid,
-                             error: e.message
-                           })
-
-        render json: {
-          errors: [
-            {
-              title: 'Service Unavailable',
-              detail: 'Email verification service is temporarily unavailable. Please try again later.',
-              code: 'SERVICE_UNAVAILABLE',
-              status: '503'
-            }
-          ]
-        }, status: :service_unavailable
-      rescue => e
-        Rails.logger.error('Unexpected error during email verification initiation', {
-                             user_uuid: current_user.uuid,
-                             error: e.message,
-                             backtrace: e.backtrace
-                           })
-
-        render json: {
-          errors: [
-            {
-              title: 'Internal Server Error',
-              detail: 'An unexpected error occurred. Please try again later.',
-              code: 'INTERNAL_SERVER_ERROR',
-              status: '500'
-            }
-          ]
-        }, status: :internal_server_error
       end
 
       # GET /v0/profile/email_verifications/verify
       # Verify email using token from verification email link
       def verify
         token = params[:token]
+        return render_missing_token_error unless token.present?
 
-        unless token.present?
-          render json: {
-            errors: [
-              {
-                title: 'Missing Token',
-                detail: 'Verification token is required.',
-                code: 'MISSING_TOKEN',
-                status: '400'
-              }
-            ]
-          }, status: :bad_request
-          return
+        handle_service_errors('Email verification') do
+          process_email_verification(token)
         end
-
-        verification_service = EmailVerificationService.new(current_user)
-
-        if verification_service.verify_email!(token)
-          # Reset rate limiting on successful verification
-          reset_rate_limit!(:email_verification)
-
-          Rails.logger.info('Email verification successful', {
-                              user_uuid: current_user.uuid
-                            })
-
-          render json: {
-            data: {
-              type: 'email_verification',
-              attributes: {
-                verified: true,
-                verified_at: Time.current.iso8601
-              }
-            }
-          }
-        else
-          Rails.logger.warn('Email verification failed - invalid token', {
-                              user_uuid: current_user.uuid,
-                              token_provided: token.present?
-                            })
-
-          render json: {
-            errors: [
-              {
-                title: 'Invalid Token',
-                detail: 'The verification token is invalid or has expired. Please request a new verification email.',
-                code: 'INVALID_TOKEN',
-                status: '422'
-              }
-            ]
-          }, status: :unprocessable_entity
-        end
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error('Email verification service error during verification', {
-                             user_uuid: current_user.uuid,
-                             error: e.message
-                           })
-
-        render json: {
-          errors: [
-            {
-              title: 'Service Unavailable',
-              detail: 'Email verification service is temporarily unavailable. Please try again later.',
-              code: 'SERVICE_UNAVAILABLE',
-              status: '503'
-            }
-          ]
-        }, status: :service_unavailable
-      rescue => e
-        Rails.logger.error('Unexpected error during email verification', {
-                             user_uuid: current_user.uuid,
-                             error: e.message,
-                             backtrace: e.backtrace
-                           })
-
-        render json: {
-          errors: [
-            {
-              title: 'Internal Server Error',
-              detail: 'An unexpected error occurred. Please try again later.',
-              code: 'INTERNAL_SERVER_ERROR',
-              status: '500'
-            }
-          ]
-        }, status: :internal_server_error
       end
 
       private
@@ -229,12 +84,126 @@ module V0
         current_user.email.downcase != current_user.va_profile_email.downcase
       end
 
-      # Enforce LOA3 authentication (inherited from ApplicationController)
-      def authenticate_user!
+      # Enforce LOA3 authentication
+      def authenticate_loa3_user!
         unless current_user&.loa3?
           raise Common::Exceptions::Forbidden,
                 detail: 'You must be logged in to access this feature'
         end
+      end
+
+      # Send verification email and handle rate limiting
+      def send_verification_email
+        enforce_rate_limit!(:email_verification)
+
+        template_type = params[:template_type]&.to_s || 'initial_verification'
+        verification_service = EmailVerificationService.new(current_user)
+        verification_service.initiate_verification(template_type)
+
+        increment_rate_limit!(:email_verification)
+        log_operation_success('Email verification initiated',
+                              template_type:,
+                              rate_limit_info: get_rate_limit_info(:email_verification))
+      end
+
+      # Process email verification with the provided token
+      def process_email_verification(token)
+        verification_service = EmailVerificationService.new(current_user)
+
+        if verification_service.verify_email!(token)
+          handle_successful_verification
+        else
+          handle_failed_verification(token)
+        end
+      end
+
+      # Handle successful email verification
+      def handle_successful_verification
+        reset_rate_limit!(:email_verification)
+        Rails.logger.info(
+          message: 'Email verification successful',
+          user_uuid: current_user.uuid
+        )
+        render_verify_success
+      end
+
+      # Handle failed email verification
+      def handle_failed_verification(token)
+        Rails.logger.warn(
+          message: 'Email verification failed - invalid token',
+          user_uuid: current_user.uuid,
+          token:
+        )
+        render_invalid_token_error
+      end
+
+      # Render error when verification is not needed
+      def render_verification_not_needed_error
+        render json: {
+          errors: [
+            {
+              title: 'Email Already Verified',
+              detail: 'Your email address is already verified.',
+              code: 'EMAIL_ALREADY_VERIFIED',
+              status: '422'
+            }
+          ]
+        }, status: :unprocessable_entity
+      end
+
+      # Render error when token is missing
+      def render_missing_token_error
+        render json: {
+          errors: [
+            {
+              title: 'Missing Token',
+              detail: 'Verification token is required.',
+              code: 'MISSING_TOKEN',
+              status: '400'
+            }
+          ]
+        }, status: :bad_request
+      end
+
+      # Render error when token is invalid
+      def render_invalid_token_error
+        render json: {
+          errors: [
+            {
+              title: 'Invalid Token',
+              detail: 'The verification token is invalid or has expired. Please request a new verification email.',
+              code: 'INVALID_TOKEN',
+              status: '422'
+            }
+          ]
+        }, status: :unprocessable_entity
+      end
+
+      # Render success response for verification email sent
+      def render_create_success
+        template_type = params[:template_type]&.to_s || 'initial_verification'
+        render json: {
+          data: {
+            type: 'email_verification',
+            attributes: {
+              email_sent: true,
+              template_type:
+            }
+          }
+        }, status: :created
+      end
+
+      # Render success response for email verification
+      def render_verify_success
+        render json: {
+          data: {
+            type: 'email_verification',
+            attributes: {
+              verified: true,
+              verified_at: Time.current.iso8601
+            }
+          }
+        }
       end
     end
   end

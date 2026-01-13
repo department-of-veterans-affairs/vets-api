@@ -309,7 +309,7 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
 
-      # Email Verification
+      # "Email Verification" internally; "Email Confirmation" externally
       resources :email_verifications, only: %i[create] do
         collection do
           get :status
