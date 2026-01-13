@@ -14,10 +14,6 @@ module Vass
       before_action :authenticate_jwt
       before_action :set_appointments_service
 
-      rescue_from Vass::Errors::NotFoundError, with: :handle_not_found_error
-      rescue_from Vass::Errors::ServiceError, with: :handle_service_error
-      rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
-
       ##
       # GET /vass/v0/appointment-availability
       #
