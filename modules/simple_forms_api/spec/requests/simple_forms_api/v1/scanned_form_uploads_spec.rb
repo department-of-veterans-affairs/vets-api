@@ -68,11 +68,18 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
     it 'saves the FormSubmission and FormSubmissionAttempt' do
       form_submission = double
+      expected_form_data = params.slice(
+        'confirmation_code',
+        'form_data',
+        'supporting_documents'
+      ).to_json
+
       expect(FormSubmission).to receive(:create).with(
         form_type: form_number,
-        form_data: params['form_data'].to_json,
+        form_data: expected_form_data,
         user_account: user.user_account
       ).and_return(form_submission)
+
       expect(FormSubmissionAttempt).to receive(:create).with(
         form_submission:,
         benefits_intake_uuid: anything

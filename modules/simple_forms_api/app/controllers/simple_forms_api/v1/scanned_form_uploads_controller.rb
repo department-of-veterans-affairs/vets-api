@@ -152,7 +152,11 @@ module SimpleFormsApi
       def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          form_data: params[:form_data].to_json,
+          form_data: params.slice(
+            :confirmation_code,
+            :form_data,
+            :supporting_documents
+          ).to_json,
           user_account: @current_user&.user_account
         )
       end
