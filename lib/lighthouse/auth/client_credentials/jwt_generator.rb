@@ -25,11 +25,13 @@ module Auth
         OpenSSL::PKey::RSA.new(key)
       end
 
-      def self.generate_token(client_id, aud_claim_url, key_location)
+      def self.generate_token(client_id, aud_claim_url, key_location, kid = nil)
         claims = build_claims(client_id, aud_claim_url)
         rsa_instance = build_rsa_instance(key_location)
+        headers = {}
+        headers[:kid] = kid if kid.present?
 
-        JWT.encode(claims, rsa_instance, 'RS256')
+        JWT.encode(claims, rsa_instance, 'RS256', headers)
       end
     end
   end

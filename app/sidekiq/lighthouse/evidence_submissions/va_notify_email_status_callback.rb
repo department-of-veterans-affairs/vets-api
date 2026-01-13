@@ -12,10 +12,16 @@ module Lighthouse
 
         case status
         when 'delivered'
-          # success
-          es.update(va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:SUCCESS])
-        when 'permanent-failure'
-          # delivery failed
+          # Email successfully delivered - set delete_date for retention policy cleanup
+          es.update(
+            va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:SUCCESS],
+            delete_date: DateTime.current + 60.days
+          )
+        when 'permanent-failure', 'temporary-failure'
+          # Email delivery failed - do NOT set delete_date so record is retained for manual intervention
+          # Treat temporary failures the same as permanent failures for retention policy cleanup since there is
+          # currently no retry mechanism in place for temporary failures
+          # See retention policy issue for more details: https://github.com/department-of-veterans-affairs/va.gov-team/issues/128742
           es.update(va_notify_status: BenefitsDocuments::Constants::VANOTIFY_STATUS[:FAILED])
         end
 

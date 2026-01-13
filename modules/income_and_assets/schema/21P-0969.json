@@ -1,0 +1,712 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://income_and_assets.va.gov/schema/21P-0969",
+  "title": "UPDATE INCOME AND ASSETS EVIDENCE",
+  "type": "object",
+  "additionalProperties": false,
+  "anyOf": [
+    {
+      "required": [
+        "vaFileNumber"
+      ]
+    },
+    {
+      "required": [
+        "veteranSocialSecurityNumber"
+      ]
+    }
+  ],
+  "definitions": {
+    "dateRange": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/date"
+        },
+        "to": {
+          "$ref": "#/definitions/date"
+        }
+      }
+    },
+    "date": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "type": "string"
+    },
+    "relationshipToVeteran": {
+      "type": "string",
+      "enum": [
+        "VETERAN",
+        "SPOUSE",
+        "CUSTODIAN",
+        "CHILD",
+        "PARENT",
+        "OTHER"
+      ]
+    },
+    "addedFunds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fundsAddedDate",
+          "amountAdded"
+        ],
+        "properties": {
+          "fundsAddedDate": {
+            "$ref": "#/definitions/date"
+          },
+          "amountAdded": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "unassociatedIncomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "incomeType",
+          "grossMonthlyIncome",
+          "payer"
+        ],
+        "properties": {
+          "recipientName": {
+            "type": "string"
+          },
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "incomeType": {
+            "type": "string",
+            "enum": [
+              "SOCIAL_SECURITY",
+              "RETIREMENT_PENSION",
+              "WAGES",
+              "UNEMPLOYMENT",
+              "CIVIL_SERVICE",
+              "OTHER"
+            ]
+          },
+          "otherIncomeType": {
+            "type": "string"
+          },
+          "grossMonthlyIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "payer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "associatedIncomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "incomeType",
+          "grossMonthlyIncome",
+          "payer",
+          "accountValue"
+        ],
+        "properties": {
+          "recipientName": {
+            "type": "string"
+          },
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "incomeType": {
+            "type": "string",
+            "enum": [
+              "INTEREST",
+              "DIVIDENDS",
+              "OTHER"
+            ]
+          },
+          "otherIncomeType": {
+            "type": "string"
+          },
+          "grossMonthlyIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "payer": {
+            "type": "string"
+          },
+          "accountValue": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "ownedAssets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "assetType",
+          "grossMonthlyIncome"
+        ],
+        "properties": {
+          "recipientName": {
+            "type": "string"
+          },
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "assetType": {
+            "type": "string",
+            "enum": [
+              "FARM",
+              "BUSINESS",
+              "RENTAL_PROPERTY"
+            ]
+          },
+          "grossMonthlyIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "ownedPortionValue": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "royaltiesAndOtherProperties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "incomeGenerationMethod",
+          "grossMonthlyIncome",
+          "fairMarketValue",
+          "canBeSold"
+        ],
+        "properties": {
+          "recipientName": {
+            "type": "string"
+          },
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "incomeGenerationMethod": {
+            "type": "string",
+            "enum": [
+              "INTELLECTUAL_PROPERTY",
+              "MINERALS_LUMBER",
+              "USE_OF_LAND",
+              "OTHER"
+            ]
+          },
+          "otherIncomeType": {
+            "type": "string"
+          },
+          "grossMonthlyIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "fairMarketValue": {
+            "type": "number",
+            "default": 0
+          },
+          "canBeSold": {
+            "type": "boolean"
+          },
+          "mitigatingCircumstances": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assetTransfers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "originalOwnerRelationship",
+          "transferMethod",
+          "assetType",
+          "newOwnerName",
+          "newOwnerRelationship",
+          "saleReportedToIrs",
+          "transferDate",
+          "assetTransferredUnderFairMarketValue",
+          "fairMarketValue",
+          "capitalGainValue"
+        ],
+        "properties": {
+          "originalOwnerRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherOriginalOwnerRelationshipType": {
+            "type": "string"
+          },
+          "transferMethod": {
+            "type": "string",
+            "enum": [
+              "SOLD",
+              "GIFTED",
+              "CONVEYED",
+              "TRADED",
+              "OTHER"
+            ]
+          },
+          "otherTransferMethod": {
+            "type": "string"
+          },
+          "assetType": {
+            "type": "string"
+          },
+          "newOwnerName": {
+            "$ref": "#/definitions/fullName"
+          },
+          "newOwnerRelationship": {
+            "type": "string"
+          },
+          "saleReportedToIrs": {
+            "type": "boolean"
+          },
+          "transferDate": {
+            "$ref": "#/definitions/date"
+          },
+          "assetTransferredUnderFairMarketValue": {
+            "type": "boolean"
+          },
+          "fairMarketValue": {
+            "type": "number",
+            "default": 0
+          },
+          "saleValue": {
+            "type": "number"
+          },
+          "capitalGainValue": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "trusts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "establishedDate",
+          "marketValueAtEstablishment",
+          "trustType",
+          "addedFundsAfterEstablishment",
+          "receivingIncomeFromTrust",
+          "trustUsedForMedicalExpenses",
+          "trustEstablishedForVeteransChild",
+          "haveAuthorityOrControlOfTrust"
+        ],
+        "properties": {
+          "establishedDate": {
+            "$ref": "#/definitions/date"
+          },
+          "marketValueAtEstablishment": {
+            "type": "number",
+            "default": 0
+          },
+          "trustType": {
+            "type": "string",
+            "enum": [
+              "REVOCABLE",
+              "IRREVOCABLE",
+              "BURIAL"
+            ]
+          },
+          "addedFundsAfterEstablishment": {
+            "type": "boolean"
+          },
+          "addedFunds": {
+            "$ref": "#/definitions/addedFunds"
+          },
+          "receivingIncomeFromTrust": {
+            "type": "boolean"
+          },
+          "annualReceivedIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "trustUsedForMedicalExpenses": {
+            "type": "boolean"
+          },
+          "monthlyMedicalReimbursementAmount": {
+            "type": "number",
+            "default": 0
+          },
+          "trustEstablishedForVeteransChild": {
+            "type": "boolean"
+          },
+          "haveAuthorityOrControlOfTrust": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "annuities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "establishedDate",
+          "marketValueAtEstablishment",
+          "addedFundsAfterEstablishment",
+          "revocable",
+          "receivingIncomeFromAnnuity",
+          "canBeLiquidated"
+        ],
+        "properties": {
+          "establishedDate": {
+            "$ref": "#/definitions/date"
+          },
+          "marketValueAtEstablishment": {
+            "type": "number",
+            "default": 0
+          },
+          "addedFundsAfterEstablishment": {
+            "type": "boolean"
+          },
+          "addedFunds": {
+            "$ref": "#/definitions/addedFunds"
+          },
+          "revocable": {
+            "type": "boolean"
+          },
+          "receivingIncomeFromAnnuity": {
+            "type": "boolean"
+          },
+          "annualReceivedIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "canBeLiquidated": {
+            "type": "boolean"
+          },
+          "surrenderValue": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "unreportedAssets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "assetOwnerRelationship",
+          "ownedPortionValue",
+          "assetType",
+          "assetLocation"
+        ],
+        "properties": {
+          "assetOwnerRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherAssetOwnerRelationshipType": {
+            "type": "string"
+          },
+          "ownedPortionValue": {
+            "type": "number",
+            "default": 0
+          },
+          "assetType": {
+            "type": "string"
+          },
+          "assetLocation": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "discontinuedIncomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "payer",
+          "incomeType",
+          "incomeFrequency",
+          "incomeLastReceivedDate",
+          "grossAnnualAmount"
+        ],
+        "properties": {
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "recipientName": {
+            "type": "string"
+          },
+          "payer": {
+            "type": "string"
+          },
+          "incomeType": {
+            "type": "string"
+          },
+          "incomeFrequency": {
+            "type": "string",
+            "enum": [
+              "RECURRING",
+              "IRREGULAR",
+              "ONE_TIME"
+            ]
+          },
+          "incomeLastReceivedDate": {
+            "$ref": "#/definitions/date"
+          },
+          "grossAnnualAmount": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "incomeReceiptWaivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "recipientRelationship",
+          "payer",
+          "waivedGrossMonthlyIncome"
+        ],
+        "properties": {
+          "recipientRelationship": {
+            "$ref": "#/definitions/relationshipToVeteran"
+          },
+          "otherRecipientRelationshipType": {
+            "type": "string"
+          },
+          "recipientName": {
+            "type": "string"
+          },
+          "payer": {
+            "type": "string"
+          },
+          "expectedIncome": {
+            "type": "number",
+            "default": 0
+          },
+          "paymentResumeDate": {
+            "$ref": "#/definitions/date"
+          },
+          "waivedGrossMonthlyIncome": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "fullName": {
+      "type": "object",
+      "properties": {
+        "first": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "middle": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "last": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "suffix": {
+          "type": "string",
+          "enum": [
+            "Jr.",
+            "Sr.",
+            "II",
+            "III",
+            "IV"
+          ]
+        }
+      },
+      "required": [
+        "first",
+        "last"
+      ]
+    },
+    "ssn": {
+      "type": "string",
+      "pattern": "^[0-9]{9}$"
+    },
+    "centralMailVaFile": {
+      "type": "string",
+      "pattern": "^\\d{8,9}$"
+    },
+    "usaPhone": {
+      "type": "string",
+      "pattern": "^\\d{10}$"
+    },
+    "email": {
+      "type": "string",
+      "maxLength": 256,
+      "format": "email"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "confirmationCode": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "claimantType": {
+      "type": "string"
+    },
+    "dateReceivedByVa": {
+      "type": "boolean"
+    },
+    "hasUnassociatedIncomes": {
+      "type": "boolean",
+      "default": false
+    },
+    "unassociatedIncomes": {
+      "$ref": "#/definitions/unassociatedIncomes"
+    },
+    "hasAssociatedIncomes": {
+      "type": "boolean",
+      "default": false
+    },
+    "associatedIncomes": {
+      "$ref": "#/definitions/associatedIncomes"
+    },
+    "hasOwnedAssets": {
+      "type": "boolean",
+      "default": false
+    },
+    "ownedAssets": {
+      "$ref": "#/definitions/ownedAssets"
+    },
+    "hasRoyaltiesAndOtherProperties": {
+      "type": "boolean",
+      "default": false
+    },
+    "royaltiesAndOtherProperties": {
+      "$ref": "#/definitions/royaltiesAndOtherProperties"
+    },
+    "hasAssetTransfers": {
+      "type": "boolean",
+      "default": false
+    },
+    "assetTransfers": {
+      "$ref": "#/definitions/assetTransfers"
+    },
+    "hasTrusts": {
+      "type": "boolean",
+      "default": false
+    },
+    "trusts": {
+      "$ref": "#/definitions/trusts"
+    },
+    "hasAnnuities": {
+      "type": "boolean",
+      "default": false
+    },
+    "annuities": {
+      "$ref": "#/definitions/annuities"
+    },
+    "hasUnreportedAssets": {
+      "type": "boolean",
+      "default": false
+    },
+    "unreportedAssets": {
+      "$ref": "#/definitions/unreportedAssets"
+    },
+    "hasDiscontinuedIncomes": {
+      "type": "boolean",
+      "default": false
+    },
+    "discontinuedIncomes": {
+      "$ref": "#/definitions/discontinuedIncomes"
+    },
+    "hasIncomeReceiptWaivers": {
+      "type": "boolean",
+      "default": false
+    },
+    "incomeReceiptWaivers": {
+      "$ref": "#/definitions/incomeReceiptWaivers"
+    },
+    "statementOfTruthCertified": {
+      "type": "boolean"
+    },
+    "statementOfTruthSignature": {
+      "type": "string"
+    },
+    "veteranFullName": {
+      "$ref": "#/definitions/fullName"
+    },
+    "claimantFullName": {
+      "$ref": "#/definitions/fullName"
+    },
+    "veteranSocialSecurityNumber": {
+      "$ref": "#/definitions/ssn"
+    },
+    "claimantSocialSecurityNumber": {
+      "$ref": "#/definitions/ssn"
+    },
+    "vaFileNumber": {
+      "$ref": "#/definitions/centralMailVaFile"
+    },
+    "claimantPhone": {
+      "$ref": "#/definitions/usaPhone"
+    },
+    "incomeNetWorthDateRange": {
+      "$ref": "#/definitions/dateRange"
+    },
+    "email": {
+      "$ref": "#/definitions/email"
+    },
+    "files": {
+      "$ref": "#/definitions/files"
+    }
+  },
+  "required": [
+    "veteranFullName",
+    "statementOfTruthCertified",
+    "statementOfTruthSignature"
+  ]
+}

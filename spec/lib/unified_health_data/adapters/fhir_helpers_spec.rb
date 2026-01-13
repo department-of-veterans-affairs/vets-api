@@ -163,41 +163,114 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
     end
   end
 
+  describe '#medication_dispenses' do
+    it 'extracts MedicationDispense resources from contained array' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'id' => '1' },
+          { 'resourceType' => 'Task', 'id' => '2' },
+          { 'resourceType' => 'MedicationDispense', 'id' => '3' }
+        ]
+      }
+      result = subject.medication_dispenses(resource)
+      expect(result.length).to eq(2)
+      expect(result.map { |d| d['id'] }).to contain_exactly('1', '3')
+    end
+
+    it 'returns empty array when no MedicationDispense resources exist' do
+      resource = {
+        'contained' => [
+          { 'resourceType' => 'Task', 'id' => '1' },
+          { 'resourceType' => 'Medication', 'id' => '2' }
+        ]
+      }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'returns empty array when contained is nil' do
+      resource = {}
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'returns empty array when contained is empty' do
+      resource = { 'contained' => [] }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+
+    it 'handles resource with no contained key' do
+      resource = { 'id' => '123' }
+      result = subject.medication_dispenses(resource)
+      expect(result).to eq([])
+    end
+  end
+
   describe '#find_most_recent_medication_dispense' do
     it 'returns the most recent dispense by whenHandedOver date' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-06-20T10:00:00Z', 'id' => '2' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-03-10T10:00:00Z', 'id' => '3' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-06-20T10:00:00Z', 'id' => '2' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-03-10T10:00:00Z', 'id' => '3' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
+      expect(result['id']).to eq('2')
+    end
+
+    it 'falls back to whenPrepared if whenHandedOver is missing' do
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-01-15T10:00:00Z', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenPrepared' => '2025-06-20T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
 
     it 'returns nil when no MedicationDispense resources exist' do
-      contained_resources = [
-        { 'resourceType' => 'Task', 'id' => '1' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'Task', 'id' => '1' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result).to be_nil
     end
 
-    it 'returns nil when contained_resources is nil' do
+    it 'returns nil when medication_request is nil' do
       result = subject.find_most_recent_medication_dispense(nil)
       expect(result).to be_nil
     end
 
-    it 'returns nil when contained_resources is empty array' do
-      result = subject.find_most_recent_medication_dispense([])
+    it 'returns nil when contained is empty array' do
+      medication_request = { 'contained' => [] }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result).to be_nil
     end
 
-    it 'handles dispenses without whenHandedOver (uses epoch)' do
-      contained_resources = [
-        { 'resourceType' => 'MedicationDispense', 'id' => '1' },
-        { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
-      ]
-      result = subject.find_most_recent_medication_dispense(contained_resources)
+    it 'handles dispenses without whenHandedOver or whenPrepared (uses epoch)' do
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
+      expect(result['id']).to eq('2')
+    end
+
+    it 'handles invalid date formats gracefully' do
+      medication_request = {
+        'contained' => [
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => 'invalid-date', 'id' => '1' },
+          { 'resourceType' => 'MedicationDispense', 'whenHandedOver' => '2025-01-15T10:00:00Z', 'id' => '2' }
+        ]
+      }
+      result = subject.find_most_recent_medication_dispense(medication_request)
       expect(result['id']).to eq('2')
     end
   end
@@ -250,27 +323,6 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       instruction = {}
       result = subject.build_instruction_text(instruction)
       expect(result).to eq('')
-    end
-  end
-
-  describe '#non_va_med?' do
-    it 'returns true when reportedBoolean is true' do
-      resource = { 'reportedBoolean' => true }
-      result = subject.non_va_med?(resource)
-      expect(result).to be true
-    end
-
-    it 'returns false when reportedBoolean is false' do
-      resource = { 'reportedBoolean' => false }
-      result = subject.non_va_med?(resource)
-      expect(result).to be false
-    end
-
-    it 'returns nil when reportedBoolean is not present' do
-      resource = {}
-      result = subject.non_va_med?(resource)
-      # Hash#[] returns nil for missing key, then == true returns false
-      expect(result).to be_falsey
     end
   end
 
@@ -333,6 +385,82 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       }
       result = subject.extract_sig_from_dispense(dispense)
       expect(result).to eq('Take 1 tablet twice daily')
+    end
+  end
+
+  describe '#parse_expiration_date_utc' do
+    it 'parses valid ISO8601 date string to UTC time' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => '2026-06-15T23:59:59Z' }
+        }
+      }
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_a(Time)
+      expect(result.utc?).to be true
+      expect(result.year).to eq(2026)
+      expect(result.month).to eq(6)
+      expect(result.day).to eq(15)
+    end
+
+    it 'returns nil when validityPeriod end is missing' do
+      resource = { 'dispenseRequest' => {} }
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when dispenseRequest is missing' do
+      resource = {}
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil and logs warning for invalid date format' do
+      resource = {
+        'id' => '12345',
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 'invalid-date' }
+        }
+      }
+      expect(Rails.logger).to receive(:warn).with(/Invalid expiration date/)
+      result = subject.parse_expiration_date_utc(resource)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#prescription_expired?' do
+    it 'returns true when expiration date is in the past' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 30.days.ago.utc.iso8601 }
+        }
+      }
+      expect(subject.prescription_expired?(resource)).to be true
+    end
+
+    it 'returns false when expiration date is in the future' do
+      resource = {
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 30.days.from_now.utc.iso8601 }
+        }
+      }
+      expect(subject.prescription_expired?(resource)).to be false
+    end
+
+    it 'returns false when expiration date is nil' do
+      resource = { 'dispenseRequest' => {} }
+      expect(subject.prescription_expired?(resource)).to be false
+    end
+
+    it 'returns false when expiration date is invalid' do
+      resource = {
+        'id' => '12345',
+        'dispenseRequest' => {
+          'validityPeriod' => { 'end' => 'invalid-date' }
+        }
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(subject.prescription_expired?(resource)).to be false
     end
   end
 end

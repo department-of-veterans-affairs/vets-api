@@ -272,6 +272,21 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
             expect(res[:bnft_claim_type_cd]).to eq('400SUPP')
           end
         end
+
+        it 'does not find an open claim anyway' do
+          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+            :dependent_claims
+          ).and_return([])
+          allow_any_instance_of(ClaimsApi::BenefitClaimWebService).to receive(
+            :find_bnft_claim_by_clmant_id
+          ).and_return(
+            { 'xmlns:ns0': 'http://benefitclaim.services.vetsnet.vba.va.gov/', bnft_claim_dto: [[]] }
+          )
+
+          res = service.send(:first_open_claim_details)
+
+          expect(res).to eq({})
+        end
       end
 
       context 'dependent_claims and find_bnft_claim_by_clmant_id do not find claims' do
