@@ -75,12 +75,29 @@ module MHV
       @max_queue_depth = self.class.max_queue_depth
 
       job_start_time = Time.current
-      iterations = 0
-      total_events_processed = 0
-      total_db_inserts = 0
 
       # Early check for queue backlog - alert immediately if overflow detected
       check_queue_overflow(UniqueUserEvents::Buffer.pending_count)
+
+      # Process all batches and collect metrics
+      iterations, total_events_processed, total_db_inserts = process_all_batches
+
+      # Record aggregate metrics for the entire job run
+      record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
+    rescue => e
+      handle_job_failure(e, total_events_processed || 0, iterations || 0)
+      raise # Re-raise to trigger Sidekiq retry
+    end
+
+    private
+
+    # Process batches in a loop until queue is empty or max iterations reached
+    #
+    # @return [Array<Integer>] [iterations, total_events_processed, total_db_inserts]
+    def process_all_batches
+      iterations = 0
+      total_events_processed = 0
+      total_db_inserts = 0
 
       loop do
         # Check safeguard before each iteration
@@ -90,10 +107,8 @@ module MHV
         events = peek_events_from_buffer
         break if events.empty?
 
-        iteration_start_time = Time.current
-
         # Process this batch (dedup, cache check, insert, cache write, StatsD)
-        inserted_count = process_events(events, iteration_start_time)
+        inserted_count = process_events(events)
 
         # TRIM - Remove events only after successful processing
         trim_processed_events(events.size)
@@ -103,14 +118,8 @@ module MHV
         total_db_inserts += inserted_count
       end
 
-      # Record aggregate metrics for the entire job run
-      record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
-    rescue => e
-      handle_job_failure(e, total_events_processed, iterations)
-      raise # Re-raise to trigger Sidekiq retry
+      [iterations, total_events_processed, total_db_inserts]
     end
-
-    private
 
     # Peek at a batch of events from the Redis buffer without removing them
     #
@@ -180,9 +189,8 @@ module MHV
     # Process a single batch of events
     #
     # @param events [Array<Hash>] Raw events from buffer
-    # @param iteration_start_time [Time] Iteration start time (unused, kept for signature compatibility)
     # @return [Integer] Number of events inserted to database
-    def process_events(events, _iteration_start_time = nil)
+    def process_events(events)
       # Step 1: Deduplicate in-memory
       unique_events = deduplicate_events(events)
 
