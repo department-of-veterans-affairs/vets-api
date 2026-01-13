@@ -4,6 +4,7 @@ require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
+require_relative 'oracle_health_renewability_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -11,6 +12,7 @@ module UnifiedHealthData
       include FhirHelpers
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
+      include OracleHealthRenewabilityHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -68,6 +70,7 @@ module UnifiedHealthData
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource, refill_status),
+          is_renewable: extract_is_renewable(resource),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
@@ -243,7 +246,7 @@ module UnifiedHealthData
       end
 
       def extract_refill_date(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
@@ -449,7 +452,7 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         facility_resolver.resolve_facility_name(dispense)
       end
 
@@ -459,7 +462,7 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense.dig('quantity', 'value') if dispense
 
         nil
@@ -473,7 +476,7 @@ module UnifiedHealthData
         # Look for identifier with prescription number
         identifiers = resource['identifier'] || []
         prescription_id = identifiers.find { |id| id['system']&.include?('prescription') }
-        prescription_id ? prescription_id['value'] : resource['id']
+        prescription_id ? prescription_id['value'] : nil
       end
 
       def extract_prescription_name(resource)
@@ -482,7 +485,7 @@ module UnifiedHealthData
       end
 
       def extract_station_number(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         raw_station_number = dispense&.dig('location', 'display')
         return nil unless raw_station_number
 
@@ -498,6 +501,10 @@ module UnifiedHealthData
 
       def extract_is_refillable(resource, refill_status)
         refillable?(resource, refill_status)
+      end
+
+      def extract_is_renewable(resource)
+        renewable?(resource)
       end
 
       def extract_instructions(resource)
