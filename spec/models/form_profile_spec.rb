@@ -730,7 +730,8 @@ RSpec.describe FormProfile, type: :model do
       'bankName' => 'WELLS FARGO BANK',
       'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
-      'syncModern0781Flow' => true
+      'syncModern0781Flow' => true,
+      'disabilityCompNewConditionsWorkflow' => true
     }
   end
   let(:vfeedback_tool_expected) do
