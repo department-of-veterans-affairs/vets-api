@@ -47,6 +47,11 @@ module EventBusGateway
 
     def self.schedule_retry_job(ebg_noti)
       icn = ebg_noti.user_account.icn
+      if icn.nil?
+        Rails.logger.warn('VANotifyEmailStatusCallback ICN is null')
+        return false if icn.nil?
+      end
+
       profile = get_profile_by_icn(icn)
       personalisation = {
         host: Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
