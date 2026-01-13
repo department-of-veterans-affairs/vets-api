@@ -68,6 +68,23 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       end
     end
 
+    context 'when both submission.user_account_id and current_user.user_account are nil' do
+      let(:form_submission) { create(:form_submission, user_account: nil) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
+      before do
+        form_submission_attempt
+        allow_any_instance_of(User).to receive(:user_account).and_return(nil)
+      end
+
+      it 'raises Forbidden error (prevents nil == nil from passing)' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'when user owns submission but pdf does not exist in S3' do
       let(:form_submission) { create(:form_submission, user_account:) }
       let(:form_submission_attempt) do

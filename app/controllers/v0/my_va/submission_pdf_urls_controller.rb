@@ -42,8 +42,10 @@ module V0
       def verify_submission_ownership!
         submission = FormSubmissionAttempt.find_by(benefits_intake_uuid: request_params[:submission_guid])
                                           &.form_submission
+        user_account = current_user.user_account
 
-        unless submission&.user_account_id == current_user.user_account&.id
+        # Explicitly check both exist and match - prevents nil == nil from passing
+        unless submission && user_account && submission.user_account_id == user_account.id
           raise Common::Exceptions::Forbidden, detail: 'You do not have access to this submission'
         end
       end
