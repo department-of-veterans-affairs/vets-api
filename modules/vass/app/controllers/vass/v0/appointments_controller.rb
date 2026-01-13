@@ -86,7 +86,40 @@ module Vass
         return unless validate_appointment_id(appointment_id)
 
         response = @appointments_service.get_appointment(appointment_id:)
-        render_appointment_details(response)
+        render_vass_response(
+          response,
+          success_data: ->(r) { r['data'] },
+          error_code: 'appointment_not_found',
+          error_message: 'Appointment not found',
+          error_status: :not_found
+        )
+      end
+
+      ##
+      # POST /vass/v0/appointment/:appointment_id/cancel
+      #
+      # Cancels a specific appointment.
+      # Requires JWT authentication.
+      #
+      # @example Response
+      #   {
+      #     "data": {
+      #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea"
+      #     }
+      #   }
+      #
+      def cancel
+        appointment_id = params[:appointment_id]
+        return unless validate_appointment_id(appointment_id)
+
+        response = @appointments_service.cancel_appointment(appointment_id:)
+        render_vass_response(
+          response,
+          success_data: { appointmentId: appointment_id },
+          error_code: 'cancellation_failed',
+          error_message: 'Failed to cancel appointment',
+          error_status: :unprocessable_entity
+        )
       end
 
       ##
@@ -116,7 +149,13 @@ module Vass
         appointment_id = session_data&.fetch(:appointment_id, nil)
 
         response = save_appointment_with_service(appointment_id)
-        render_appointment_creation_response(response)
+        render_vass_response(
+          response,
+          success_data: ->(r) { { appointmentId: r.dig('data', 'appointmentId') } },
+          error_code: 'appointment_save_failed',
+          error_message: 'Failed to save appointment',
+          error_status: :unprocessable_entity
+        )
       end
 
       private
@@ -347,16 +386,21 @@ module Vass
       end
 
       ##
-      # Renders appointment creation response.
+      # Generic method to render VASS API response.
+      # Handles the common pattern of checking success and rendering appropriate response.
       #
-      # @param response [Hash] Response from VASS API save_appointment call
+      # @param response [Hash] Response from VASS API
+      # @param success_data [Hash, Proc] Data to render on success (or proc that returns data)
+      # @param error_code [String] Error code for failure case
+      # @param error_message [String] Error message for failure case
+      # @param error_status [Symbol] HTTP status for failure case
       #
-      def render_appointment_creation_response(response)
+      def render_vass_response(response, success_data:, error_code:, error_message:, error_status:)
         if response['success']
-          appointment_id = response.dig('data', 'appointmentId')
-          render json: { data: { appointmentId: appointment_id } }, status: :ok
+          data = success_data.is_a?(Proc) ? success_data.call(response) : success_data
+          render json: { data: }, status: :ok
         else
-          render_error('appointment_save_failed', 'Failed to save appointment', :unprocessable_entity)
+          render_error(error_code, error_message, error_status)
         end
       end
 
@@ -371,19 +415,6 @@ module Vass
 
         render_error('missing_appointment_id', 'Appointment ID is required', :bad_request)
         false
-      end
-
-      ##
-      # Renders appointment details response.
-      #
-      # @param response [Hash] Response from VASS API
-      #
-      def render_appointment_details(response)
-        if response['success']
-          render json: { data: response['data'] }, status: :ok
-        else
-          render_error('appointment_not_found', 'Appointment not found', :not_found)
-        end
       end
     end
   end
