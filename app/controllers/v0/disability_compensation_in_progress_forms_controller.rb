@@ -57,15 +57,15 @@ module V0
 
       # If EVSS's list of rated disabilities does not match our prefilled rated disabilities
       if rated_disabilities_evss.present? &&
-         arr_to_compare(parsed_form_data['ratedDisabilities']) !=
-         arr_to_compare(rated_disabilities_evss.rated_disabilities.map(&:attributes))
+         arr_to_compare(parsed_form_data&.dig('ratedDisabilities')) !=
+         arr_to_compare(rated_disabilities_evss&.rated_disabilities&.map(&:attributes))
 
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
         # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
-        evss_rated_disabilities = rated_disabilities_evss.rated_disabilities.map(&:as_json)
+        evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
         parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
       end
 
