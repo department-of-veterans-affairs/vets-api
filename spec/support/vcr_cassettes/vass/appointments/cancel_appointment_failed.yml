@@ -26,6 +26,13 @@ http_interactions:
           - application/json; charset=utf-8
       body:
         encoding: UTF-8
-        string: '{"success":false,"message":"Appointment cannot be cancelled","correlationId":"test-correlation-id","timeStamp":"2026-01-13T12:00:00Z","data":null}'
+        string: |
+          {
+            "success": false,
+            "message": "Appointment cannot be cancelled",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2026-01-13T12:00:00Z",
+            "data": null
+          }
     recorded_at: Mon, 13 Jan 2026 12:00:00 GMT
 recorded_with: VCR 6.0.0
