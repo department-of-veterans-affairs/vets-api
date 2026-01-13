@@ -154,16 +154,6 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         expect { job.perform }.to raise_error(StandardError, 'Database connection failed')
       end
 
-      it 'records failure metrics' do
-        expect { job.perform }.to raise_error(StandardError)
-
-        expect(StatsD).to have_received(:increment).with(
-          'uum.processor_job.failure',
-          tags: ['error_class:StandardError']
-        )
-        expect(StatsD).to have_received(:gauge).with('uum.processor_job.events_at_risk', 1)
-      end
-
       it 'logs the error with details' do
         expect { job.perform }.to raise_error(StandardError)
 
@@ -412,8 +402,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: batch_size is missing')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: batch_size is missing')
+        )
       end
     end
 
@@ -424,8 +419,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: max_iterations is missing')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: max_iterations is missing')
+        )
       end
     end
 
@@ -436,8 +436,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: max_queue_depth is missing')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: max_queue_depth is missing')
+        )
       end
     end
 
@@ -447,8 +452,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error about missing setting' do
-        expect { job.perform }.to raise_error(RuntimeError, /batch_size is missing/)
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: /batch_size is missing/)
+        )
       end
     end
 
@@ -457,8 +467,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(nil)
       end
 
-      it 'raises an error about missing setting' do
-        expect { job.perform }.to raise_error(RuntimeError, /batch_size is missing/)
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: /batch_size is missing/)
+        )
       end
     end
 
@@ -469,8 +484,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: batch_size must be a positive integer')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: batch_size must be a positive integer')
+        )
       end
     end
 
@@ -481,8 +501,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: batch_size must be a positive integer')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: batch_size must be a positive integer')
+        )
       end
     end
 
@@ -495,6 +520,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
       it 'coerces string to integer and succeeds' do
         expect { job.perform }.not_to raise_error
+        expect(Rails.logger).not_to have_received(:error)
       end
     end
 
@@ -505,8 +531,13 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         allow(Settings).to receive(:unique_user_metrics).and_return(unique_user_metrics_config)
       end
 
-      it 'raises an error because to_i returns 0' do
-        expect { job.perform }.to raise_error(RuntimeError, 'UUM Processor: batch_size must be a positive integer')
+      it 'does not raise (no retry) but logs configuration error' do
+        expect { job.perform }.not_to raise_error
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UUM Processor: Configuration error - job will not retry',
+          hash_including(message: 'UUM Processor: batch_size must be a positive integer')
+        )
       end
     end
   end

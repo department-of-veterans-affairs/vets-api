@@ -38,6 +38,9 @@ module MHV
     CACHE_NAMESPACE = 'unique_user_metrics'
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
 
+    # Custom error for configuration issues that should not trigger Sidekiq retry
+    class ConfigurationError < StandardError; end
+
     def perform
       # Configuration from Settings (AWS Parameter Store)
       # Capture configuration at job start - values remain consistent throughout this run
@@ -57,6 +60,10 @@ module MHV
 
       # Record aggregate metrics for the entire job run
       record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
+    rescue ConfigurationError => e
+      # Configuration errors are not transient - don't retry, just log and alert
+      handle_configuration_failure(e)
+      # Don't re-raise - prevents wasteful Sidekiq retries for persistent config issues
     rescue => e
       handle_job_failure(e, total_events_processed || 0, iterations || 0)
       raise # Re-raise to trigger Sidekiq retry
@@ -108,18 +115,13 @@ module MHV
       UniqueUserEvents::Buffer.trim_batch(count)
     end
 
-    # Handle job failure with detailed metrics and logging
+    # Handle job failure with logging
     #
     # @param exception [Exception] The exception that caused the failure
     # @param total_events [Integer] Total events processed before failure
     # @param iterations [Integer] Number of completed iterations before failure
     def handle_job_failure(exception, total_events, iterations)
-      # Track failure with error class for debugging
-      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["error_class:#{exception.class.name}"])
-
-      # Track events at risk (events in current batch that may not have been trimmed)
       events_at_risk = UniqueUserEvents::Buffer.pending_count
-      StatsD.gauge("#{STATSD_PREFIX}.events_at_risk", events_at_risk)
 
       Rails.logger.error('UUM Processor: Job failed', {
                            error: exception.class.name,
@@ -129,6 +131,17 @@ module MHV
                            iterations_completed: iterations,
                            queue_depth: events_at_risk,
                            backtrace: exception.backtrace.first(5)
+                         })
+    end
+
+    # Handle configuration errors (missing/invalid Settings values)
+    # These are not transient and should not trigger retries
+    #
+    # @param exception [ConfigurationError] The configuration error
+    def handle_configuration_failure(exception)
+      Rails.logger.error('UUM Processor: Configuration error - job will not retry', {
+                           error: exception.class.name,
+                           message: exception.message
                          })
     end
 
@@ -297,14 +310,14 @@ module MHV
     #
     # @param setting_name [Symbol] Name of the setting (e.g., :batch_size)
     # @return [Integer] The validated positive integer value
-    # @raise [RuntimeError] If the setting is missing or not a positive integer
+    # @raise [ConfigurationError] If the setting is missing or not a positive integer
     def fetch_positive_integer_setting(setting_name)
       raw_value = Settings.unique_user_metrics&.processor_job&.send(setting_name)
 
-      raise "UUM Processor: #{setting_name} is missing" if raw_value.blank?
+      raise ConfigurationError, "UUM Processor: #{setting_name} is missing" if raw_value.blank?
 
       value = raw_value.to_i
-      raise "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
+      raise ConfigurationError, "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
 
       value
     end
