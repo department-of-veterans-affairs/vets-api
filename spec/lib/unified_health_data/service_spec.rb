@@ -1163,7 +1163,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.ordered_date).to eq('2025-11-17T21:21:48Z')
           expect(oracle_prescription.quantity).to eq('18.0')
           expect(oracle_prescription.expiration_date).to eq('2026-11-17T07:59:59Z')
-          expect(oracle_prescription.prescription_number).to eq('20848812135')
+          expect(oracle_prescription.prescription_number).to be_nil # No prescription identifier exists
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [18g])')
           expect(oracle_prescription.dispensed_date).to be_nil
           expect(oracle_prescription.station_number).to eq('668')
@@ -1280,6 +1280,120 @@ describe UnifiedHealthData::Service, type: :service do
             expect(vista_prescription.refill_status).to eq('active')
             expect(vista_prescription.refill_submit_date).to be_nil
             expect(vista_prescription.disp_status).to eq('Active')
+          end
+        end
+      end
+
+      # is_renewable attribute tests
+      #
+      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_success):
+      # ============================================================================
+      # VistA Prescriptions:
+      #   26305871: dispStatus='Active', isRenewable=true
+      #   26305874: dispStatus='Discontinued', isRenewable=true
+      #
+      # Oracle Health Prescriptions:
+      #   20848812135: status='active', intent='order', refills=2, containedCount=3 (completed dispenses)
+      #                → NOT renewable (Gate 6: refills remaining > 0)
+      #   20848639997: status='active', intent='plan', refills=0, containedCount=1 (no dispenses)
+      #                → NOT renewable (Gate 3: no completed dispenses)
+      #   20848863583: status='completed', intent='order', refills=0, containedCount=2
+      #                → NOT renewable (Gate 1: status not active)
+      #   20849028695: status='active', intent='order', refills=0, containedCount=2 (dispense status='in-progress')
+      #                → NOT renewable (Gate 7: active processing)
+      #
+      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_vista_only):
+      # ================================================================================
+      # VistA Prescriptions:
+      #   25804852: dispStatus='Active: On Hold', isRenewable=false
+      #   25804855: dispStatus='Expired', isRenewable=false
+      #
+      context 'is_renewable attribute' do
+        context 'VistA prescriptions' do
+          it 'passes through isRenewable from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 26305871: dispStatus='Active', isRenewable=true in cassette
+              vista_prescription = prescriptions.find { |p| p.prescription_id == '26305871' }
+              expect(vista_prescription.is_renewable).to be true
+
+              # 26305874: dispStatus='Discontinued', isRenewable=true in cassette
+              # (VistA determines renewability server-side, so discontinued can still be renewable)
+              discontinued_vista = prescriptions.find { |p| p.prescription_id == '26305874' }
+              expect(discontinued_vista.is_renewable).to be true
+            end
+          end
+
+          it 'passes through isRenewable: false from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
+              prescriptions = service.get_prescriptions
+
+              # 25804852: dispStatus='Active: On Hold', isRenewable=false in cassette
+              hold_prescription = prescriptions.find { |p| p.prescription_id == '25804852' }
+              expect(hold_prescription.is_renewable).to be false
+
+              # 25804855: dispStatus='Expired', isRenewable=false in cassette
+              expired_prescription = prescriptions.find { |p| p.prescription_id == '25804855' }
+              expect(expired_prescription.is_renewable).to be false
+            end
+          end
+        end
+
+        context 'Oracle Health prescriptions' do
+          # Oracle Health renewability is computed client-side using 7 gate checks:
+          # Gate 1: status == 'active'
+          # Gate 2: VA prescription classification (not reportedBoolean, intent='order')
+          # Gate 3: Has at least one completed MedicationDispense
+          # Gate 4: Has validity period end date
+          # Gate 5: Within 120-day renewal window from expiration
+          # Gate 6: Refills exhausted OR prescription expired
+          # Gate 7: No active processing (no in-progress/preparation dispenses)
+
+          it 'returns false when refills remaining > 0 (Gate 6)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848812135: status='active', intent='order', refills=2, has completed dispenses
+              # Fails Gate 6: Still has 2 refills remaining, prescription not expired
+              prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when no dispenses exist (Gate 3)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848639997: status='active', intent='plan', refills=0
+              # containedCount=1 but contains Encounter, not MedicationDispense
+              # Fails Gate 3: No completed dispenses (never been dispensed)
+              prescription = prescriptions.find { |p| p.prescription_id == '20848639997' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when status is not active (Gate 1)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848863583: status='completed', intent='order', refills=0, has dispenses
+              # Fails Gate 1: Status is 'completed', not 'active'
+              prescription = prescriptions.find { |p| p.prescription_id == '20848863583' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when dispense is in-progress (Gate 7 - no active processing)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20849028695: status='active', intent='order', refills=0
+              # contained[0] has MedicationDispense with status='in-progress'
+              # Fails Gate 7: Prescription is currently being processed
+              prescription = prescriptions.find { |p| p.prescription_id == '20849028695' }
+              expect(prescription.is_renewable).to be false
+            end
           end
         end
       end

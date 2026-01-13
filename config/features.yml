@@ -331,6 +331,9 @@ features:
   champva_update_metadata_keys:
     actor_type: user
     description: Enables the use of updated JSON key names in the Pega submission metadata
+  champva_enable_notify_pega_missing_form_status_job:
+    actor_type: user
+    description: Enables the NotifyPegaMissingFormStatusJob to run
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
@@ -605,15 +608,6 @@ features:
   debts_sharepoint_error_logging:
     actor_type: user
     description: Logs Sharepoint error data
-  decision_review_hlr_email:
-    actor_type: user
-    description: Send email notification for successful HLR submission
-  decision_review_nod_email:
-    actor_type: user
-    description: Send email notification for successful NOD submission
-  decision_review_sc_email:
-    actor_type: user
-    description: Send email notification for successful SC submission
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
@@ -659,10 +653,6 @@ features:
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
-    enable_in_development: true
-  decision_review_track_4142_submissions:
-    actor_type: user
-    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
   decision_review_service_common_exceptions_enabled:
     actor_type: user
@@ -1339,9 +1329,6 @@ features:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
-  mhv_va_health_chat_enabled:
-    actor_type: user
-    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_aal_notice:
     actor_type: user
     description: Enables AAL help content on the My HealtheVet landing page.
@@ -1567,6 +1554,16 @@ features:
   mhv_email_confirmation:
     actor_type: user
     description: Enables/disables email confirmation alerts on MHV and My VA pages
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_mobile_return_empty_location_data:
+    actor_type: user
+    description: Returns empty response for mobile health locations endpoint when enabled
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -2031,6 +2028,9 @@ features:
   va_dependents_v3:
     actor_type: user
     description: Allows us to toggle v3 of the 686c-674 form.
+  va_dependents_view_browser_monitoring_enabled:
+    actor_type: user
+    description: Allows us to toggle Datadog RUM/LOG monitoring for the view dependents app
   va_dependents_bgs_extra_error_logging:
     actor_type: user
     description: Allows us to toggle extra error logging for BGS in 686C-674
@@ -2244,6 +2244,12 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
+  form526_error_handling:
+    actor_type: user
+    description: Toggles Form526 error handling. When enabled,e.status_code errors will not be raised
+  form526_raise_e:
+    actor_type: user
+    description: When enabled, Form526 jobs will raise e
   virtual_agent_show_ai_disclaimer:
     actor_type: user
     description: Enables a disclaimer for ai generated content - managed by virtual agent team
@@ -2284,6 +2290,10 @@ features:
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
+  virtual_agent_show_chatbot:
+    actor_type: user
+    description: Controls visibility of the VA Virtual Agent chatbot on VA.gov - managed by virtual agent team
+    enable_in_development: true
   notification_center:
     actor_type: user
     description: Enable Notification Center
@@ -2353,6 +2363,10 @@ features:
   pension_extras_redesign_enabled:
     actor_type: user
     description: Enable the new overflow design
+    enable_in_development: true
+  pension_rating_alert_logging_enabled:
+    actor_type: user
+    description: Enable Datadog logging for disability rating alert in pension form
     enable_in_development: true
   employment_questionnaires_form_enabled:
     enable_in_development: true
@@ -2676,9 +2690,12 @@ features:
     actor_type: user
     description: If enabled, confirmation email will be sent with silent failure processing
   unique_user_metrics_logging:
-    # System level feature flag
-    actor_type:
+    actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
+    enable_in_development: true
+  unique_user_metrics_async_buffering:
+    actor_type: user
+    description: Enables asynchronous batch processing for unique user metrics.
     enable_in_development: true
   form_8794_release:
     actor_type: user
@@ -2748,3 +2765,12 @@ features:
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
+  send_poa_to_corpdb:
+    actor_type: user
+    description: Controls whether the SendPoaToCorpDbJob is enqueued for new POA requests
+  simple_forms_email_delivery_callback:
+    actor_type: user
+    description: >-
+      Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
+      SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
+

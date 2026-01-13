@@ -22,6 +22,8 @@ RSpec.describe SignIn::UserInfo do
         csp_type: 'some-csp-type',
         csp_uuid: 'some-csp-uuid',
         email: 'some-email',
+        first_name: 'some-first-name',
+        last_name: 'some-last-name',
         full_name: 'some-full-name',
         birth_date: 'some-birth-date',
         ssn: 'some-ssn',
