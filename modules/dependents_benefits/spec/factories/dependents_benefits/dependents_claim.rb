@@ -60,7 +60,7 @@ FactoryBot.define do
             current_spouse_reason_for_separation: 'Other',
             other: 'other reasons',
             address: {
-              country: 'USA',
+              country: 'US',
               street: '456 fake street',
               street2: 'This is a very long apartment name and number',
               city: 'portland',
@@ -662,7 +662,7 @@ FactoryBot.define do
             'current_spouse_reason_for_separation' => 'Other',
             'other' => 'other reasons',
             'address' => {
-              'country' => 'USA',
+              'country' => 'US',
               'street' => '456 fake street',
               'street2' => 'This is a very long apartment name and number',
               'city' => 'portland',
@@ -856,7 +856,7 @@ FactoryBot.define do
           'report_divorce' => {
             'spouse_income' => true,
             'date' => '2023-11-03',
-            'divorce_location' => { 'location' => { 'city' => 'louisville', 'state' => 'KY', 'country' => 'USA' } },
+            'divorce_location' => { 'location' => { 'city' => 'louisville', 'state' => 'KY', 'country' => 'US' } },
             'reason_marriage_ended' => 'Divorce',
             'full_name' => { 'first' => 'removing', 'middle' => 'former', 'last' => 'spouse' },
             'birth_date' => '1980-02-03'
