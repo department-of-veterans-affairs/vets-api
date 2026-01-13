@@ -154,30 +154,6 @@ module VeteranStatusCard
     end
 
     ##
-    # Gets the disability rating from EVSS API
-    # Returns nil if service call fails
-    #
-    # @return [Integer, nil] the combined disability rating percentage from EVSS or nil on error
-    #
-    def evss_rating
-      return nil if auth_headers.nil?
-
-      evss_service.get_rating_info
-    rescue => e
-      Rails.logger.error("EVSS rating error: #{e.message}", backtrace: e.backtrace)
-      nil
-    end
-
-    ##
-    # Returns the EVSS service instance (memoized)
-    #
-    # @return [EVSS::CommonService] the EVSS service instance
-    #
-    def evss_service
-      @evss_service ||= EVSS::CommonService.new(auth_headers)
-    end
-
-    ##
     # Builds the authentication headers required for EVSS API calls
     # Returns nil if header generation fails
     #
@@ -279,10 +255,9 @@ module VeteranStatusCard
     #
     def military_personnel_response
       return @military_personnel_response if defined?(@military_personnel_response)
+      return @military_personnel_response = nil if @user.edipi.blank?
 
       @military_personnel_response = begin
-        return nil if @user.edipi.blank?
-
         military_personnel_service.get_dod_service_summary
       rescue => e
         Rails.logger.error("VAProfile::MilitaryPersonnel (DoD Summary) error: #{e.message}", backtrace: e.backtrace)
@@ -354,10 +329,9 @@ module VeteranStatusCard
     #
     def vet_verification_response
       return @vet_verification_response if defined?(@vet_verification_response)
+      return @vet_verification_response = nil if @user.icn.blank?
 
       @vet_verification_response = begin
-        return nil if @user.icn.blank?
-
         vet_verification_service.get_vet_verification_status(@user.icn)
       rescue => e
         Rails.logger.error("VeteranVerification::Service error: #{e.message}", backtrace: e.backtrace)
