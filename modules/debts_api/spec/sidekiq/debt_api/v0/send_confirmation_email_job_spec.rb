@@ -68,6 +68,13 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
 
         described_class.new.perform(job_params)
       end
+
+      it 'deletes the cache_key if no submissions are found' do
+        allow(Rails.logger).to receive(:warn)
+        expect(Sidekiq::AttrPackage).to receive(:delete).with(input_cache_key)
+
+        described_class.new.perform(job_params)
+      end
     end
 
     context 'when an error occurs' do

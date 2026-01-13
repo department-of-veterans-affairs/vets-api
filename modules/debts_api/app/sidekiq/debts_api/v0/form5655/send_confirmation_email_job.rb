@@ -48,6 +48,7 @@ module DebtsApi
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
           "No submissions found for user_uuid: #{args['user_uuid']}"
         )
+        Sidekiq::AttrPackage.delete(cache_key) if cache_key
         return
       end
 
