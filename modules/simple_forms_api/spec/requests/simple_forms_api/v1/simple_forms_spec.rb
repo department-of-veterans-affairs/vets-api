@@ -21,7 +21,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_4142.json',
     'vba_21p_0847.json',
     'vba_40_0247.json',
-    'vba_40_10007.json'
+    'vba_40_10007.json',
+    'vba_40_1330m.json'
   ]
 
   unauthenticated_forms = %w[
@@ -29,6 +30,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     vba_21p_0847.json
     vba_40_0247.json
     vba_40_10007.json
+    vba_40_1330m.json
   ]
   authenticated_forms = forms - unauthenticated_forms
 
@@ -577,7 +579,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       data_sets = [
         { form_id: '40-0247', file: valid_file },
-        { form_id: '40-10007', file: valid_file }
+        { form_id: '40-10007', file: valid_file },
+        { form_id: '40-1330M', file: valid_file }
       ]
 
       data_sets.each do |data|

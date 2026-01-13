@@ -1,0 +1,27 @@
+{
+  "form_number": "40-1330M",
+  "veteran_full_name": {
+    "first": "J",
+    "last": "S"
+  },
+  "veteran_date_of_birth": "1945-03-15",
+  "veteran_date_of_death": "2020-08-22",
+  "veteran_id": {
+    "ssn": "123456789"
+  },
+  "applicant_full_name": {
+    "first": "A",
+    "last": "B"
+  },
+  "applicant_address": {
+    "country": "USA",
+    "street": "123 St",
+    "city": "City",
+    "state": "OR",
+    "postal_code": "97201"
+  },
+  "applicant_phone": "5035551234",
+  "applicant_email": "a@b.com",
+  "statement_of_truth_signature": "A B",
+  "statement_of_truth_certified": true
+}

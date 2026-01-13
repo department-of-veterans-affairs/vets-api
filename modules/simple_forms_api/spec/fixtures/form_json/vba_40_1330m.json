@@ -1,0 +1,33 @@
+{
+  "form_number": "40-1330M",
+  "veteran_full_name": {
+    "first": "John",
+    "middle": "Michael",
+    "last": "Smith"
+  },
+  "veteran_date_of_birth": "1945-03-15",
+  "veteran_date_of_death": "2020-08-22",
+  "veteran_id": {
+    "ssn": "123456789",
+    "va_file_number": "987654321"
+  },
+  "applicant_full_name": {
+    "first": "Jane",
+    "middle": "Marie",
+    "last": "Smith"
+  },
+  "applicant_address": {
+    "country": "USA",
+    "street": "456 Oak Avenue",
+    "street2": "Apt 3B",
+    "city": "Portland",
+    "state": "OR",
+    "postal_code": "97201"
+  },
+  "applicant_phone": "503-555-1234",
+  "applicant_email": "jane.smith@example.com",
+  "applicant_relationship_to_veteran": "Spouse",
+  "cemetery_location": "Private Cemetery",
+  "statement_of_truth_signature": "Jane Smith",
+  "statement_of_truth_certified": true
+}
