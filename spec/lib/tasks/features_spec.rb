@@ -50,7 +50,7 @@ RSpec.describe 'features:setup rake task', type: :task do
         allow(Rails.logger).to receive(:info).and_call_original
         allow(Rails.logger).to receive(:warn).and_call_original
         task.invoke
-        expect(Rails.logger).to have_received(:info).with(/features:setup added \d+ features/)
+        expect(Rails.logger).to have_received(:info).with(/features:setup\n added \d+ features/)
       end
     end
 
@@ -87,7 +87,7 @@ RSpec.describe 'features:setup rake task', type: :task do
         task.reenable
         task.invoke
 
-        expect(Rails.logger).to have_received(:info).with(/features:setup - no new features to add/)
+        expect(Rails.logger).to have_received(:info).with(/features:setup\n no new features to add/)
       end
     end
 
@@ -144,7 +144,7 @@ RSpec.describe 'features:setup rake task', type: :task do
         allow(Rails.logger).to receive(:warn).and_call_original
         task.invoke
         expect(Rails.logger).to have_received(:warn)
-          .with(/features:setup removed \d+ features.*orphaned_feature_not_in_config/)
+          .with(/removed \d+ features.*orphaned_feature_not_in_config/)
       end
     end
 

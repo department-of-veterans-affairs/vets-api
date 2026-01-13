@@ -83,12 +83,13 @@ module Flipper
       end
 
       def log_results
+        level = :info
         message = 'features:setup'
         if added_features.any?
           message += "\n #{dry_run ? 'would add' : 'added'} #{added_features.count} features: "
           message += added_features.join(', ')
         else
-          message = 'features:setup - no new features to add'
+          message += "\n no new features to add"
         end
 
         if enabled_features.any?
@@ -99,9 +100,11 @@ module Flipper
         if removed_features.any?
           message += "\n #{dry_run ? 'would remove' : 'removed'} #{removed_features.count} features: "
           message += removed_features.join(', ')
+          level = :warn
         end
 
-        Rails.logger.info(message)
+        # Rails.logger.info(message)
+        Rails.logger.public_send(level, message)
       end
     end
 
