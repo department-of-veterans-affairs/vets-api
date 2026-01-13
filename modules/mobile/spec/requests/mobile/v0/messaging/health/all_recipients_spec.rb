@@ -118,13 +118,13 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         # Complex systems get correct healthcare system names via MyHealth::FacilitiesHelper
         # Station 612 maps to 612A4 and gets COMPLICATED_SYSTEMS name
         care_system_map = care_systems.to_h { |cs| [cs['stationNumber'], cs['healthCareSystemName']] }
-        expect(care_system_map['612A4']).to eq('VA Northern California (multiple facilities)')
-        expect(care_system_map['528']).to eq('VA New York state health care (multiple facilities)')
-        expect(care_system_map['589']).to eq('VA Kansas and Missouri health care (multiple facilities)')
-        expect(care_system_map['620']).to eq('VA Hudson Valley New York health care (multiple facilities)')
-        expect(care_system_map['626']).to eq('VA Tennessee health care (multiple facilities)')
-        expect(care_system_map['636']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
-        expect(care_system_map['657']).to eq('VA Missouri and Illinois health care (multiple facilities)')
+        expect(care_system_map['612A4']).to eq('VA Northern California Healthcare (multiple facilities)')
+        expect(care_system_map['528']).to eq('VA New York State Healthcare (multiple facilities)')
+        expect(care_system_map['589']).to eq('VA Kansas and Missouri Healthcare (multiple facilities)')
+        expect(care_system_map['620']).to eq('VA Hudson Valley New York Healthcare (multiple facilities)')
+        expect(care_system_map['626']).to eq('VA Tennessee Healthcare (multiple facilities)')
+        expect(care_system_map['636']).to eq('VA Nebraska and Iowa Healthcare (multiple facilities)')
+        expect(care_system_map['657']).to eq('VA Missouri and Illinois Healthcare (multiple facilities)')
       end
     end
   end
