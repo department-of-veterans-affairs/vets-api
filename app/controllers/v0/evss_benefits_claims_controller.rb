@@ -3,18 +3,21 @@
 module V0
   class EVSSBenefitsClaimsController < ApplicationController
     include IgnoreNotFound
+    include V0::Concerns::EVSSDeprecation
     service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
 
     def index
       claims = get_claims
+      claims = add_deprecation_metadata(claims)
 
       render json: claims
     end
 
     def show
       claim = get_claim(params[:id])
+      claim = add_deprecation_metadata(claim)
 
       render json: claim
     end

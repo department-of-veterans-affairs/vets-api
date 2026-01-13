@@ -4,6 +4,7 @@ module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
     include InboundRequestLogging
+    include V0::Concerns::EVSSDeprecation
     service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
@@ -13,7 +14,9 @@ module V0
       claims, synchronized = service.all
 
       options = { meta: { successful_sync: synchronized } }
-      render json: EVSSClaimListSerializer.new(claims, options)
+      response_json = EVSSClaimListSerializer.new(claims, options).serializable_hash
+      response_json = add_deprecation_metadata(response_json)
+      render json: response_json
     end
 
     def show
@@ -25,7 +28,9 @@ module V0
 
       claim, synchronized = service.update_from_remote(claim)
       options = { meta: { successful_sync: synchronized } }
-      render json: EVSSClaimDetailSerializer.new(claim, options)
+      response_json = EVSSClaimDetailSerializer.new(claim, options).serializable_hash
+      response_json = add_deprecation_metadata(response_json)
+      render json: response_json
     end
 
     def request_decision
