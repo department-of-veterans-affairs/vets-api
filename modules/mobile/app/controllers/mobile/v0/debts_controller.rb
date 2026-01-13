@@ -8,7 +8,7 @@ module Mobile
       before_action { authorize :debt, :access? }
 
       def index
-        count_only = ActiveModel::Type::Boolean.new.cast(params[:count_only])
+        count_only = ActiveModel::Type::Boolean.new.cast(params[:countOnly])
         response = service.get_debts(count_only:)
 
         if count_only
