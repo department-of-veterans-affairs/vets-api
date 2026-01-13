@@ -298,7 +298,6 @@ module MHV
     def check_queue_overflow(queue_depth)
       return unless queue_depth > @max_queue_depth
 
-      StatsD.increment("#{STATSD_PREFIX}.queue_overflow")
       Rails.logger.warn('UUM Processor: Queue depth exceeds threshold', {
                           queue_depth:,
                           max_queue_depth: @max_queue_depth

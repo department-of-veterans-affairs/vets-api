@@ -191,12 +191,6 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
           hash_including(queue_depth: high_queue_depth, max_queue_depth:)
         )
       end
-
-      it 'increments queue_overflow metric' do
-        job.perform
-
-        expect(StatsD).to have_received(:increment).with('uum.processor_job.queue_overflow')
-      end
     end
   end
 
