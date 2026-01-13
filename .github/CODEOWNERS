@@ -50,9 +50,9 @@ app/controllers/v0/chatbot @department-of-veterans-affairs/vfs-virtual-agent-cha
 app/controllers/v0/claim_documents_controller.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/claim_letters_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/coe_controller.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
+app/controllers/v0/concerns/evss_deprecation.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/contact_us @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/contact_us/inquiries_controller.rb @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/concerns/evss_deprecation.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/csrf_token_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/health-apps-backend
 app/controllers/v0/datadog_action_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/debt_letters_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
