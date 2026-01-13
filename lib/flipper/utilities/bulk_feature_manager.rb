@@ -41,7 +41,10 @@ module Flipper
 
       def features_config
         @features_config ||= YAML.safe_load(Rails.root.join('config', 'features.yml').read)
-        unless @features_config.is_a?(Hash) && @features_config.key?('features') && @features_config['features'].is_a?(Hash)
+        expected_structure = @features_config.is_a?(Hash) && \
+                             @features_config.key?('features') && \
+                             @features_config['features'].is_a?(Hash)
+        unless expected_structure
           raise ArgumentError, "Invalid config/features.yml format: expected top-level 'features' map (#{Rails.env})"
         end
 
@@ -80,12 +83,12 @@ module Flipper
       end
 
       def log_results
-        message = "features:setup"
+        message = 'features:setup'
         if added_features.any?
           message += "\n #{dry_run ? 'would add' : 'added'} #{added_features.count} features: "
           message += added_features.join(', ')
         else
-          message = ('features:setup - no new features to add')
+          message = 'features:setup - no new features to add'
         end
 
         if enabled_features.any?
