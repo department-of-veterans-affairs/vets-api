@@ -56,10 +56,11 @@ module Flipper
           @flipper.add(feature) unless @dry_run
 
           # Default features to enabled for test and those explicitly set for development
+          enabled_in_dev = feature_config['enable_in_development']
           should_enable =
             Rails.env.test? ||
-            (Rails.env.development? && feature_config['enable_in_development']) ||
-            (Settings.vsp_environment == 'development' && feature_config['enable_in_development'])
+            (Rails.env.development? && enabled_in_dev) ||
+            (Settings.vsp_environment == 'development' && enabled_in_dev)
 
           if should_enable
             enabled_features << feature
@@ -79,25 +80,25 @@ module Flipper
       end
 
       def log_results
+        message = "features:setup"
         if added_features.any?
-          message = "features:setup #{dry_run ? 'would add' : 'added'} #{added_features.count} features: "
+          message += "\n #{dry_run ? 'would add' : 'added'} #{added_features.count} features: "
           message += added_features.join(', ')
-          Rails.logger.info(message)
         else
-          Rails.logger.info('features:setup - no new features to add')
+          message = ('features:setup - no new features to add')
         end
 
         if enabled_features.any?
-          message = "features:setup #{dry_run ? 'would enable' : 'enabled'} #{enabled_features.count} features: "
+          message += "\n #{dry_run ? 'would enable' : 'enabled'} #{enabled_features.count} features: "
           message += enabled_features.join(', ')
-          Rails.logger.info(message)
         end
 
         if removed_features.any?
-          message = "features:setup #{dry_run ? 'would remove' : 'removed'} #{removed_features.count} features: "
+          message += "\n #{dry_run ? 'would remove' : 'removed'} #{removed_features.count} features: "
           message += removed_features.join(', ')
-          Rails.logger.warn(message)
         end
+
+        Rails.logger.info(message)
       end
     end
 
