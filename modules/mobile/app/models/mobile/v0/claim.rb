@@ -27,6 +27,7 @@ module Mobile
       attribute :claim_type_code, Types::String
       attribute :claim_type_base, Types::String
       attribute :display_title, Types::String
+      attribute :documents, Types::Array
     end
   end
 end

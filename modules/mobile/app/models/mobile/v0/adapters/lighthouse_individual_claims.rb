@@ -49,6 +49,7 @@ module Mobile
           attributes = claim.dig('data', 'attributes')
           phase_change_date = attributes.dig('claimPhaseDates', 'phaseChangeDate')
           events_timeline = events_timeline(attributes)
+          supported_documents = collect_supported_documents(events_timeline)
 
           claim_type = attributes['claimType']
           claim_type_code = attributes['claimTypeCode']
@@ -79,7 +80,8 @@ module Mobile
               updated_at: nil,
               claim_type_code:,
               claim_type_base: titles[:claim_type_base],
-              display_title: use_generated_titles ? titles[:display_title] : nil
+              display_title: use_generated_titles ? titles[:display_title] : nil,
+              supported_documents:
             }
           )
         end
@@ -193,6 +195,32 @@ module Mobile
 
         def latest_upload_date(documents)
           documents.pluck(:upload_date).max
+        end
+
+        def collect_supported_documents(events_timeline)
+          document_data = []
+
+          events_timeline.each do |event|
+            has_tracked_documents = !event.documents.nil?
+
+            document_data += event.documents.map { |event| valid_doc_obj(event) } if has_tracked_documents
+            document_data << valid_doc_obj(event)
+          end
+
+          document_data.compact
+        end
+
+        def valid_doc?(obj)
+          obj.filename.nil? && obj.document_id.nil?
+        end
+
+        def valid_doc_obj(obj)
+          if valid_doc?(obj)
+            {
+              document_id: obj.document_id,
+              filename: obj.filename
+            }
+          end
         end
       end
     end
