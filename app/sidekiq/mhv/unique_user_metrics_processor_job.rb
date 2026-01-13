@@ -68,6 +68,12 @@ module MHV
     end
 
     def perform
+      # Capture configuration at job start - values remain consistent throughout this run
+      # but will pick up changes on next job execution
+      @batch_size = self.class.batch_size
+      @max_iterations = self.class.max_iterations
+      @max_queue_depth = self.class.max_queue_depth
+
       job_start_time = Time.current
       iterations = 0
       total_events_processed = 0
@@ -78,7 +84,7 @@ module MHV
 
       loop do
         # Check safeguard before each iteration
-        break if iterations >= self.class.max_iterations
+        break if iterations >= @max_iterations
 
         # PEEK - Read events without removing them from buffer
         events = peek_events_from_buffer
@@ -110,7 +116,7 @@ module MHV
     #
     # @return [Array<Hash>] Array of event hashes with :user_id and :event_name keys
     def peek_events_from_buffer
-      UniqueUserEvents::Buffer.peek_batch(self.class.batch_size)
+      UniqueUserEvents::Buffer.peek_batch(@batch_size)
     end
 
     # Trim processed events from the buffer after successful processing
@@ -297,12 +303,12 @@ module MHV
     #
     # @param queue_depth [Integer] Current queue depth
     def check_queue_overflow(queue_depth)
-      return unless queue_depth > self.class.max_queue_depth
+      return unless queue_depth > @max_queue_depth
 
       StatsD.increment("#{STATSD_PREFIX}.queue_overflow")
       Rails.logger.warn('UUM Processor: Queue depth exceeds threshold', {
                           queue_depth:,
-                          max_queue_depth: self.class.max_queue_depth
+                          max_queue_depth: @max_queue_depth
                         })
     end
   end
