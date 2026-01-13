@@ -30,7 +30,7 @@ module V0
             endpoint: request.path,
             user_uuid: current_user&.uuid,
             sunset_date: EVSS_SUNSET_DATE,
-            days_until_sunset: days_until_sunset
+            days_until_sunset:
           }
         )
 
