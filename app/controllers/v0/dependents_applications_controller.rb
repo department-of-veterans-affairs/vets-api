@@ -16,8 +16,7 @@ module V0
     end
 
     def create
-      form = dependent_params.to_json
-      claim = SavedClaim::DependencyClaim.new(form:)
+      claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
 
@@ -67,6 +66,18 @@ module V0
         dependents_application: {},
         supporting_documents: []
       )
+    end
+
+    # Creates a new claim instance with the provided form parameters.
+    #
+    # @param form_params [Hash] The parameters for the claim form.
+    # @return [Claim] A new instance of the claim class initialized with the given attributes.
+    #   If the current user has an associated user account, it is included in the claim attributes.
+    def create_claim(form_params)
+      claim_attributes = { form: form_params }
+      claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+      SavedClaim::DependencyClaim.new(**claim_attributes)
     end
 
     ##

@@ -31,7 +31,7 @@ module DependentsBenefits
       end
 
       def create
-        claim = DependentsBenefits::PrimaryDependencyClaim.new(form: dependent_params.to_json)
+        claim = create_parent_claim(dependent_params.to_json)
 
         # Populate the form_start_date from the IPF if available
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -89,6 +89,18 @@ module DependentsBenefits
           dependents_application: {},
           supporting_documents: []
         )
+      end
+
+      # Creates a new claim instance with the provided form parameters.
+      #
+      # @param form_params [Hash] The parameters for the claim form.
+      # @return [Claim] A new instance of the claim class initialized with the given attributes.
+      #   If the current user has an associated user account, it is included in the claim attributes.
+      def create_parent_claim(form_params)
+        claim_attributes = { form: form_params }
+        claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+        DependentsBenefits::PrimaryDependencyClaim.new(**claim_attributes)
       end
 
       # Returns the stats key for dependents application events
