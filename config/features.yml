@@ -1329,9 +1329,6 @@ features:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
-  mhv_va_health_chat_enabled:
-    actor_type: user
-    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_aal_notice:
     actor_type: user
     description: Enables AAL help content on the My HealtheVet landing page.
@@ -1557,6 +1554,16 @@ features:
   mhv_email_confirmation:
     actor_type: user
     description: Enables/disables email confirmation alerts on MHV and My VA pages
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_mobile_return_empty_location_data:
+    actor_type: user
+    description: Returns empty response for mobile health locations endpoint when enabled
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -2356,6 +2363,10 @@ features:
   pension_extras_redesign_enabled:
     actor_type: user
     description: Enable the new overflow design
+    enable_in_development: true
+  pension_rating_alert_logging_enabled:
+    actor_type: user
+    description: Enable Datadog logging for disability rating alert in pension form
     enable_in_development: true
   employment_questionnaires_form_enabled:
     enable_in_development: true
