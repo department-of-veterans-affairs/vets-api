@@ -41,17 +41,17 @@ module V0
       return { data: nil } if files.nil?
 
       latest = files.max do |a, b|
-        a_time = DateTime.parse(a.dig('currentVersion', 'systemData', 'uploadedDateTime'))
-        b_time = DateTime.parse(b.dig('currentVersion', 'systemData', 'uploadedDateTime'))
+        a_time = DateTime.parse(a.dig('currentVersion', 'providerData', 'modifiedDateTime'))
+        b_time = DateTime.parse(b.dig('currentVersion', 'providerData', 'modifiedDateTime'))
         a_time <=> b_time
       end
       document_id = latest['uuid']
       document_version = latest['currentVersionUuid']
-      upload_datetime = latest['currentVersion']['systemData']['uploadedDateTime']
-      tsa_letter_metadata = OpenStruct.new(document_id:, document_version:, upload_datetime:)
+      modified_datetime = latest.dig('currentVersion', 'providerData', 'modifiedDateTime')
+      tsa_letter_metadata = OpenStruct.new(document_id:, document_version:, modified_datetime:)
       TsaLetterSerializer.new(tsa_letter_metadata)
     rescue Date::Error => e
-      datetimes = files.map { |file| file.dig('currentVersion', 'systemData', 'uploadedDateTime') }
+      datetimes = files.map { |file| file.dig('currentVersion', 'providerData', 'modifiedDateTime') }
       Rails.logger.error('Invalid datetime format found in TSA letters data', datetimes)
       raise e
     end

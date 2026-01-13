@@ -107,7 +107,7 @@ http_interactions:
               "currentVersionUuid": "cbb29e79-a10d-4757-b266-3db336fcffbe",
               "currentVersion": {
                 "systemData": {
-                  "uploadedDateTime": "2025-08-09T14:18:53",
+                  "uploadedDateTime": "2025-09-09T14:18:53",
                   "contentSize": 177200,
                   "contentName": "VETS Safe Travel - Outreach Letter_TSA edits_08.29.25 DRAFT.pdf",
                   "mimeType": "application/pdf",
@@ -126,7 +126,7 @@ http_interactions:
                   },
                   "systemSource": "ClaimEvidenceUI",
                   "isAnnotated": false,
-                  "modifiedDateTime": "2025-09-09T14:18:53",
+                  "modifiedDateTime": "2025-08-09T14:18:53",
                   "numberOfContentions": 0,
                   "readByCurrentUser": true,
                   "dateVaReceivedDocument": "2025-09-09",

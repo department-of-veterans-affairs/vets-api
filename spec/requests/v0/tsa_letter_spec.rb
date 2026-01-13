@@ -19,7 +19,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
                                               attributes: {
                                                 document_id: 'c75438b4-47f8-44d3-9e35-798158591456',
                                                 document_version: '920debba-cc65-479c-ab47-db9b2a5cd95f',
-                                                upload_datetime: '2025-09-09T14:18:53'
+                                                modified_datetime: '2025-09-09T14:18:53'
                                               } } }.to_json)
       end
     end
@@ -60,8 +60,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
               'uuid' => 'c75438b4-47f8-44d3-9e35-798158591456',
               'currentVersionUuid' => '920debba-cc65-479c-ab47-db9b2a5cd95f',
               'currentVersion' => {
-                'systemData' => {
-                  'uploadedDateTime' => '2025-09-09T14:18:53'
+                'providerData' => {
+                  'modifiedDateTime' => '2025-09-09T14:18:53'
                 }
               }
             },
@@ -69,8 +69,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
               'uuid' => 'c75438b4-47f8-44d3-9e35-798158591456',
               'currentVersionUuid' => 'cbb29e79-a10d-4757-b266-3db336fcffbe',
               'currentVersion' => {
-                'systemData' => {
-                  'uploadedDateTime' => 'null'
+                'providerData' => {
+                  'modifiedDateTime' => 'null'
                 }
               }
             }
