@@ -760,23 +760,22 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v21_2680_expected) do
-    { veteranInformation: {
-      veteranFullName: {
+    { userInformation: {
+      fullName: {
         first: 'Abraham',
         last: 'Lincoln',
         suffix: 'Jr.'
       },
-      veteranDob: '1809-02-12',
+      dob: '1809-02-12',
       phoneNumber: '3035551234',
       email: user.va_profile_email,
-      veteranAddress: {
+      address: {
         street: '140 Rock Creek Rd',
         city: 'Washington',
         state: 'DC',
         country: 'USA',
         postalCode: '20011'
-      },
-      veteranSsn: '796111863'
+      }
     } }
   end
 
@@ -1618,7 +1617,8 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 10203' do
         before do
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+          expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
@@ -1635,7 +1635,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 0
@@ -1670,7 +1670,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 10
