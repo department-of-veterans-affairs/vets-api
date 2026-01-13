@@ -71,8 +71,9 @@ module Flipper
       def orphaned?(feature) = config_feature_names.exclude?(feature.name)
 
       def remove_if_orphaned(feature)
-        unless config_feature_names.include?(feature.name)
-          removed_features << feature.name
+        feature_name = feature.name
+        unless config_feature_names.include?(feature_name)
+          removed_features << feature_name
           feature.remove unless @dry_run
         end
       end

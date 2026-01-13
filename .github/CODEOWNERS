@@ -910,6 +910,7 @@ lib/evss/service.rb @department-of-veterans-affairs/backend-review-group
 lib/faraday_adapter_socks @department-of-veterans-affairs/backend-review-group
 lib/feature_flipper.rb @department-of-veterans-affairs/backend-review-group
 lib/flipper @department-of-veterans-affairs/backend-review-group
+lib/flipper/utilities/bulk_feature_manager.rb @department-of-veterans-affairs/backend-review-group
 lib/flipper_utils.rb @department-of-veterans-affairs/backend-review-group
 lib/form1010_ezr @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 lib/form526_backup_submission @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -1499,6 +1500,7 @@ spec/lib/evss/service_exception_spec.rb @department-of-veterans-affairs/backend-
 spec/lib/evss/service_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/faraday_adapter_socks @department-of-veterans-affairs/backend-review-group
 spec/lib/flipper @department-of-veterans-affairs/backend-review-group
+spec/lib/flipper/utilities/bulk_feature_manager_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/flipper_utils_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/form1010_ezr @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/lib/form526_backup_submission @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
