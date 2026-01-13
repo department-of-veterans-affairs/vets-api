@@ -121,14 +121,9 @@ describe VAProfile::MilitaryPersonnel::Service do
         end
       end
 
-      it 'logs exception to sentry with 404' do
+      it 'logs warning with 404' do
         VCR.use_cassette('va_profile/military_personnel/dod_service_summary_404') do
-          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
-            instance_of(Common::Client::Errors::ClientError),
-            { edipi: '384759483' },
-            { va_profile: :dod_service_summary_not_found },
-            :warning
-          )
+          expect(Rails.logger).to receive(:warn).with('Dod Service Summary not found', edipi: '384759483')
 
           response = subject.get_dod_service_summary
 

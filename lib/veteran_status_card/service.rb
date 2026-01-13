@@ -130,40 +130,17 @@ module VeteranStatusCard
     end
 
     ##
-    # Gets the user's combined disability rating percentage
-    # Uses Lighthouse API if enabled, otherwise falls back to EVSS
-    # Returns nil if both services fail
-    #
-    # @return [Integer, nil] the combined disability rating percentage or nil on error
-    #
-    def disability_rating
-      lighthouse? ? lighthouse_rating : evss_rating
-    rescue => e
-      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
-      nil
-    end
-
-    ##
-    # Checks if Lighthouse rating API is enabled for this user
-    #
-    # @return [Boolean] true if Lighthouse is enabled, false otherwise
-    #
-    def lighthouse?
-      Flipper.enabled?(:profile_lighthouse_rating_info, @user)
-    end
-
-    ##
     # Gets the disability rating from Lighthouse API
     # Returns nil if service call fails or user missing ICN
     #
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
-    def lighthouse_rating
+    def disability_rating
       return nil if @user.icn.blank?
 
       lighthouse_disabilities_provider.get_combined_disability_rating
     rescue => e
-      Rails.logger.error("Lighthouse disabilities error: #{e.message}", backtrace: e.backtrace)
+      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
       nil
     end
 

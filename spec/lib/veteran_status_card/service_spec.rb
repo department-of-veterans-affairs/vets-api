@@ -12,7 +12,6 @@ RSpec.describe VeteranStatusCard::Service do
   let(:vet_verification_service) { instance_double(VeteranVerification::Service) }
   let(:military_personnel_service) { instance_double(VAProfile::MilitaryPersonnel::Service) }
   let(:lighthouse_disabilities_provider) { instance_double(LighthouseRatedDisabilitiesProvider) }
-  let(:evss_service) { double('EVSS::CommonService') }
 
   # Default mock data
   let(:vet_verification_response) do
@@ -81,11 +80,6 @@ RSpec.describe VeteranStatusCard::Service do
 
     allow(LighthouseRatedDisabilitiesProvider).to receive(:new).and_return(lighthouse_disabilities_provider)
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
-
-    allow(EVSS::CommonService).to receive(:new).and_return(evss_service)
-    allow(evss_service).to receive(:get_rating_info).and_return(disability_rating)
-
-    allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
   end
 
   describe '#status_card' do
@@ -142,54 +136,22 @@ RSpec.describe VeteranStatusCard::Service do
       context 'disability rating scenarios' do
         let(:veteran_status) { 'confirmed' }
 
-        context 'when using Lighthouse (feature flag enabled)' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
-          end
+        it 'returns disability rating from Lighthouse' do
+          expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(75)
 
-          it 'returns disability rating from Lighthouse' do
-            expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(75)
-            expect(evss_service).not_to receive(:get_rating_info)
+          result = subject.status_card
 
-            result = subject.status_card
-
-            expect(result[:confirmed]).to be true
-            expect(result[:user_percent_of_disability]).to eq(75)
-          end
-
-          it 'returns nil when Lighthouse rating is nil' do
-            allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(nil)
-
-            result = subject.status_card
-
-            expect(result[:confirmed]).to be true
-            expect(result[:user_percent_of_disability]).to be_nil
-          end
+          expect(result[:confirmed]).to be true
+          expect(result[:user_percent_of_disability]).to eq(75)
         end
 
-        context 'when using EVSS (feature flag disabled)' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
-          end
+        it 'returns nil when disability rating is nil' do
+          allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(nil)
 
-          it 'returns disability rating from EVSS' do
-            expect(evss_service).to receive(:get_rating_info).and_return(60)
-            expect(lighthouse_disabilities_provider).not_to receive(:get_combined_disability_rating)
+          result = subject.status_card
 
-            result = subject.status_card
-
-            expect(result[:confirmed]).to be true
-            expect(result[:user_percent_of_disability]).to eq(60)
-          end
-
-          it 'returns nil when EVSS rating is nil' do
-            allow(evss_service).to receive(:get_rating_info).and_return(nil)
-
-            result = subject.status_card
-
-            expect(result[:confirmed]).to be true
-            expect(result[:user_percent_of_disability]).to be_nil
-          end
+          expect(result[:confirmed]).to be true
+          expect(result[:user_percent_of_disability]).to be_nil
         end
       end
 
@@ -558,27 +520,19 @@ RSpec.describe VeteranStatusCard::Service do
   end
 
   describe '#disability_rating' do
-    context 'when lighthouse is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
-      end
+    it 'returns disability rating from Lighthouse' do
+      expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(70)
 
-      it 'returns lighthouse rating' do
-        expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(70)
-
-        expect(subject.send(:disability_rating)).to eq(70)
-      end
+      expect(subject.send(:disability_rating)).to eq(70)
     end
 
-    context 'when lighthouse is disabled' do
+    context 'when user is missing ICN' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
+        allow(user).to receive(:icn).and_return(nil)
       end
 
-      it 'returns evss rating' do
-        expect(evss_service).to receive(:get_rating_info).and_return(30)
-
-        expect(subject.send(:disability_rating)).to eq(30)
+      it 'returns nil' do
+        expect(subject.send(:disability_rating)).to be_nil
       end
     end
   end
@@ -784,55 +738,16 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when Lighthouse disabilities provider raises exception' do
+      context 'when disability rating provider raises exception' do
         let(:veteran_status) { 'confirmed' }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
           allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating)
             .and_raise(StandardError.new('Lighthouse failed'))
         end
 
         it 'logs the error and returns nil rating' do
-          expect(Rails.logger).to receive(:error).with(/Lighthouse disabilities error/, anything)
-
-          result = subject.status_card
-
-          expect(result[:confirmed]).to be true
-          expect(result[:user_percent_of_disability]).to be_nil
-        end
-      end
-
-      context 'when EVSS service raises exception' do
-        let(:veteran_status) { 'confirmed' }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
-          allow(evss_service).to receive(:get_rating_info)
-            .and_raise(StandardError.new('EVSS failed'))
-        end
-
-        it 'logs the error and returns nil rating' do
-          expect(Rails.logger).to receive(:error).with(/EVSS rating error/, anything)
-
-          result = subject.status_card
-
-          expect(result[:confirmed]).to be true
-          expect(result[:user_percent_of_disability]).to be_nil
-        end
-      end
-
-      context 'when EVSS auth headers generation fails' do
-        let(:veteran_status) { 'confirmed' }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
-          allow(EVSS::DisabilityCompensationAuthHeaders).to receive(:new)
-            .and_raise(StandardError.new('Auth headers failed'))
-        end
-
-        it 'logs the error and returns nil rating' do
-          expect(Rails.logger).to receive(:error).with(/EVSS auth headers error/, anything)
+          expect(Rails.logger).to receive(:error).with(/Disability rating error/, anything)
 
           result = subject.status_card
 
@@ -891,10 +806,8 @@ RSpec.describe VeteranStatusCard::Service do
           expect(status[:reason]).to eq('ERROR')
         end
 
-        it 'lighthouse_rating returns nil' do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
-
-          expect(subject.send(:lighthouse_rating)).to be_nil
+        it 'disability_rating returns nil' do
+          expect(subject.send(:disability_rating)).to be_nil
         end
       end
 
@@ -984,27 +897,11 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when lighthouse returns nil rating' do
+      context 'when disability rating returns nil' do
         let(:veteran_status) { 'confirmed' }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(true)
           allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(nil)
-        end
-
-        it 'disability_rating is nil' do
-          result = subject.status_card
-
-          expect(result[:user_percent_of_disability]).to be_nil
-        end
-      end
-
-      context 'when EVSS returns nil rating' do
-        let(:veteran_status) { 'confirmed' }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, user).and_return(false)
-          allow(evss_service).to receive(:get_rating_info).and_return(nil)
         end
 
         it 'disability_rating is nil' do
