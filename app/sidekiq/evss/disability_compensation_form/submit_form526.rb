@@ -122,7 +122,14 @@ module EVSS
       # send submission data to either EVSS or Lighthouse (LH)
       def choose_service_provider(submission, service)
         if submission.claims_api? # not needed once fully migrated to LH
-          send_submission_data_to_lighthouse(submission, submission.account.icn)
+          icn = submission.account.icn
+
+          if icn.blank?
+            Rails.logger.error("SubmitForm526#choose_service_provider ICN is null for submission #{submission.id}")
+            raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+          end
+
+          send_submission_data_to_lighthouse(submission, icn)
         else
           service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
         end
