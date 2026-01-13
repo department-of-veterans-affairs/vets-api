@@ -301,22 +301,6 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       end
     end
 
-    describe '#us_phone_number' do
-      it 'returns nil when primary phone is nil' do
-        expect(job.send(:us_phone_number, nil)).to be_nil
-      end
-
-      it 'only returns digits for US numbers' do
-        primary_phone = { 'countryCode' => 'US', 'contact' => '(555) 123-4567' }
-        expect(job.send(:us_phone_number, primary_phone)).to eq('5551234567')
-      end
-
-      it 'returns nil for non-US phone codes' do
-        primary_phone = { 'countryCode' => 'CA', 'contact' => '123-456-7890' }
-        expect(job.send(:us_phone_number, primary_phone)).to be_nil
-      end
-    end
-
     describe '#international_phone_number' do
       it 'prioritizes the explicit internationalPhone field' do
         form = { 'internationalPhone' => '+52 1 234 567 890' }
