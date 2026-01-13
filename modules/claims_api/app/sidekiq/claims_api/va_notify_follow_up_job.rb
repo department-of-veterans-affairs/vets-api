@@ -27,9 +27,9 @@ module ClaimsApi
     def perform(notification_id, poa_id = nil) # rubocop:disable Metrics/MethodLength
       status = notification_response_status(notification_id)
       detail = "Status for notification #{notification_id} was '#{status}'"
+      detail += ". POA ID: #{poa_id}" if poa_id
 
       if poa_id
-        detail = "Status for notification #{notification_id} was '#{status}'. POA ID: #{poa_id}"
         # Call logic to map VANotify status to our internal step status
         step_status = map_notify_status(status)
         # Update the POA process step with latest status
