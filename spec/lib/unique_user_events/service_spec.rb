@@ -11,7 +11,7 @@ RSpec.describe UniqueUserEvents::Service do
 
   describe '.log_event' do
     before do
-      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:debug)
       allow(Rails.logger).to receive(:error)
       allow(MHVMetricsUniqueUserEvent).to receive(:record_event)
       allow(described_class).to receive(:increment_statsd_counter)
