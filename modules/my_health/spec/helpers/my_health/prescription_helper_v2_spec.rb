@@ -102,60 +102,74 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       end
     end
 
-    describe '#apply_custom_filters' do
-      describe 'isRenewable filter' do
-        it 'filters for renewable items when isRenewable eq is true' do
-          renewable_item = build_prescription(id: '1', is_renewable: true)
-          non_renewable_item = build_prescription(id: '2', is_renewable: false)
-          data = [renewable_item, non_renewable_item]
-          filter_params = { isRenewable: { eq: 'true' } }
+    describe '#renewable' do
+      it 'returns true when is_renewable is true (Oracle Health)' do
+        prescription = build_prescription(is_renewable: true)
 
-          result = helper.apply_custom_filters(data, filter_params)
-
-          expect(result).to include(renewable_item)
-          expect(result).not_to include(non_renewable_item)
-        end
-
-        it 'filters for non-renewable items when isRenewable eq is false' do
-          renewable_item = build_prescription(id: '1', is_renewable: true)
-          non_renewable_item = build_prescription(id: '2', is_renewable: false)
-          data = [renewable_item, non_renewable_item]
-          filter_params = { isRenewable: { eq: 'false' } }
-
-          result = helper.apply_custom_filters(data, filter_params)
-
-          expect(result).not_to include(renewable_item)
-          expect(result).to include(non_renewable_item)
-        end
+        expect(helper.renewable(prescription)).to be true
       end
 
-      describe 'shipped filter' do
-        it 'filters for shipped items when shipped eq is true' do
-          shipped_item = build_prescription(id: '1', disp_status: 'Active', is_trackable: true)
-          non_shipped_trackable = build_prescription(id: '2', disp_status: 'Inactive', is_trackable: true)
-          non_shipped_active = build_prescription(id: '3', disp_status: 'Active', is_trackable: false)
-          data = [shipped_item, non_shipped_trackable, non_shipped_active]
-          filter_params = { shipped: { eq: 'true' } }
+      it 'returns false when is_renewable is false (Oracle Health)' do
+        prescription = build_prescription(is_renewable: false)
 
-          result = helper.apply_custom_filters(data, filter_params)
+        expect(helper.renewable(prescription)).to be false
+      end
 
-          expect(result).to include(shipped_item)
-          expect(result).not_to include(non_shipped_trackable)
-          expect(result).not_to include(non_shipped_active)
-        end
+      it 'falls through to legacy logic when is_renewable is nil' do
+        prescription = build_prescription(is_renewable: nil, disp_status: 'Active', is_refillable: false)
 
-        it 'filters for non-shipped items when shipped eq is false' do
-          shipped_item = build_prescription(id: '1', disp_status: 'Active', is_trackable: true)
-          non_shipped_trackable = build_prescription(id: '2', disp_status: 'Inactive', is_trackable: true)
-          non_shipped_active = build_prescription(id: '3', disp_status: 'Active', is_trackable: false)
-          data = [shipped_item, non_shipped_trackable, non_shipped_active]
-          filter_params = { shipped: { eq: 'false' } }
+        expect(helper.renewable(prescription)).to be true
+      end
 
-          result = helper.apply_custom_filters(data, filter_params)
+      it 'returns true for Expired status within cutoff (legacy VistA)' do
+        prescription = build_prescription(
+          is_renewable: nil,
+          disp_status: 'Expired',
+          expiration_date: 90.days.ago.to_date,
+          is_refillable: false
+        )
 
-          expect(result).not_to include(shipped_item)
-          expect(result).to include(non_shipped_trackable)
-          expect(result).to include(non_shipped_active)
+        expect(helper.renewable(prescription)).to be true
+      end
+
+      it 'returns true for Inactive status within cutoff (V2StatusMapping)' do
+        # When V2StatusMapping is enabled, "Expired" gets mapped to "Inactive"
+        prescription = build_prescription(
+          is_renewable: nil,
+          disp_status: 'Inactive',
+          expiration_date: 90.days.ago.to_date,
+          is_refillable: false
+        )
+
+        expect(helper.renewable(prescription)).to be true
+      end
+
+      it 'returns false for Inactive status outside cutoff' do
+        prescription = build_prescription(
+          is_renewable: nil,
+          disp_status: 'Inactive',
+          expiration_date: 121.days.ago.to_date,
+          is_refillable: false
+        )
+
+        expect(helper.renewable(prescription)).to be false
+      end
+
+      it 'returns true for Active status with zero refills' do
+        prescription = build_prescription(
+          is_renewable: nil,
+          disp_status: 'Active',
+          refill_remaining: 0,
+          is_refillable: false
+        )
+
+        expect(helper.renewable(prescription)).to be true
+      end
+
+      it 'returns false for non-renewable statuses' do
+        %w[Discontinued Transferred Unknown].each do |status|
+          prescription = build_prescription(is_renewable: nil, disp_status: status)
+          expect(helper.renewable(prescription)).to be false
         end
       end
     end

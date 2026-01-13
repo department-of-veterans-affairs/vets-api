@@ -152,35 +152,36 @@ module MyHealth
         is_trackable = filter_params[:is_trackable]
         is_renewable = filter_params[:is_renewable]
 
-        # Handle disp_status filtering
-        if disp_status.present?
-          prescriptions = if disp_status[:eq]&.downcase == 'active,expired'.downcase
-                            # filter renewals
-                            prescriptions.select(&method(:renewable))
-                          else
-                            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-                            prescriptions.select do |item|
-                              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
-                            end
-                          end
-        end
-
-        # Handle shipped filtering: disp_status=Active AND is_trackable=true
-        if is_trackable.present? && is_trackable[:eq] == 'true'
-          prescriptions = prescriptions.select do |item|
-            item.respond_to?(:disp_status) && item.respond_to?(:is_trackable) &&
-              item.disp_status == 'Active' && item.is_trackable == true
-          end
-        end
-
-        # Handle renewable filtering: is_renewable=true
-        if is_renewable.present? && is_renewable[:eq] == 'true'
-          prescriptions = prescriptions.select do |item|
-            item.respond_to?(:is_renewable) && item.is_renewable == true
-          end
-        end
+        prescriptions = apply_disp_status_filter(prescriptions, disp_status) if disp_status.present?
+        prescriptions = apply_shipped_filter(prescriptions) if is_trackable.present? && is_trackable[:eq] == 'true'
+        prescriptions = apply_renewable_filter(prescriptions) if is_renewable.present? && is_renewable[:eq] == 'true'
 
         prescriptions
+      end
+
+      def apply_disp_status_filter(prescriptions, disp_status)
+        if disp_status[:eq]&.downcase == 'active,expired'.downcase
+          prescriptions.select(&method(:renewable))
+        else
+          filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+          prescriptions.select do |item|
+            item.respond_to?(:disp_status) && item.disp_status &&
+              filters.include?(item.disp_status.downcase)
+          end
+        end
+      end
+
+      def apply_shipped_filter(prescriptions)
+        prescriptions.select { |item| shipped?(item) }
+      end
+
+      def apply_renewable_filter(prescriptions)
+        prescriptions.select { |item| item.respond_to?(:is_renewable) && item.is_renewable == true }
+      end
+
+      def shipped?(item)
+        item.respond_to?(:disp_status) && item.respond_to?(:is_trackable) &&
+          item.disp_status == 'Active' && item.is_trackable == true
       end
 
       def apply_sorting_to_list(prescriptions, sort_param)
@@ -238,7 +239,7 @@ module MyHealth
 
       def count_shipped_medications(list)
         # Shipped: disp_status is Active AND is_trackable is true
-        list.count { |rx| rx.respond_to?(:disp_status) && rx.respond_to?(:is_trackable) && rx.disp_status == 'Active' && rx.is_trackable == true }
+        list.count { |rx| shipped?(rx) }
       end
 
       def count_renewable_medications(list)
