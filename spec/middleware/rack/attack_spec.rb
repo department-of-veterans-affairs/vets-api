@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/authenticated_session_helper'
 
 RSpec.describe Rack::Attack do
   include Rack::Test::Methods
@@ -237,59 +236,147 @@ RSpec.describe Rack::Attack do
   end
 
   describe 'appointments' do
-    let(:data) { { data: 'foo', status: 200 } }
-
-    let(:appt) do
-      { id: '12345', station: '983' }
-    end
-
-    # let(:vaos_headers) { { accept: 'application/json', content_type: 'application/json' } }
-
-    # let(:current_user) { build(:user, :jac) }
-
     context 'when more than 30 requests' do
       context 'when GET endpoint' do
         before do
-          # sign_in_as(current_user)
-          # allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_appointments).and_return(data)
-          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:index).and_return(
-            instance_double(
-              Rack::MockResponse,
-              status: 200,
-              body: '{"message": "success"}'
-            )
-          )
-
           30.times do
-            response = get('/vaos/v2/appointments', headers:)
-            expect(response).to have_http_status(:unauthorized)
+            expect(get('/vaos/v2/appointments', headers:)).to have_http_status(:unauthorized)
           end
         end
 
         it 'throttles with status 429' do
-          response = get('/vaos/v2/appointments', headers:)
-          expect(response).to have_http_status(:too_many_requests)
+          expect(get('/vaos/v2/appointments', headers:)).to have_http_status(:too_many_requests)
         end
       end
 
       context 'when POST endpoint' do
         let(:post_params) do
-          { appt: }
+          { appt: { id: '12345' } }
         end
 
         before do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:post_appointment).and_return(data)
-
           30.times do
-            response = post('/vaos/v2/appointments', post_params, headers:)
-            expect(response).to have_http_status(:unauthorized)
+            expect(post('/vaos/v2/appointments', post_params:, headers:)).to have_http_status(:unauthorized)
           end
         end
 
         it 'throttles with status 429' do
-          response = post('/vaos/v2/appointments', post_params, headers:)
-          expect(response).to have_http_status(:too_many_requests)
+          expect(post('/vaos/v2/appointments', post_params:, headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'clinics' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/locations/983/clinics?clinic_ids=570,945',
+                       headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/locations/983/clinics?clinic_ids=570,945',
+                     headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'providers' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/providers/12345', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/providers/12345', headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'patients' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/eligibility', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/eligibility', headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'cc_eligibility' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/community_care/eligibility/PrimaryCare', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/community_care/eligibility/PrimaryCare',
+                     headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'scheduling_configurations' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/scheduling/configurations', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/scheduling/configurations', headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'facilities' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/facilities', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/facilities', headers:)).to have_http_status(:too_many_requests)
+        end
+      end
+    end
+  end
+
+  describe 'relationships' do
+    context 'when more than 30 requests' do
+      context 'when GET endpoint' do
+        before do
+          30.times do
+            expect(get('/vaos/v2/relationships', headers:)).to have_http_status(:unauthorized)
+          end
+        end
+
+        it 'throttles with status 429' do
+          expect(get('/vaos/v2/relationships', headers:)).to have_http_status(:too_many_requests)
         end
       end
     end
