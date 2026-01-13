@@ -7,8 +7,6 @@ module AppealsApi
   module V0
     class AppealsController < ApplicationController
       include AppealsApi::GatewayOriginCheck
-      before_action { authorize :appeals, :access? }
-
       skip_before_action(:authenticate)
 
       def index
