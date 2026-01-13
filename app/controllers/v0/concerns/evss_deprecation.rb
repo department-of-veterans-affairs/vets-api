@@ -45,11 +45,11 @@ module V0
       end
 
       def add_deprecation_headers
-        response.headers['Deprecation'] = "date=\"#{EVSS_SUNSET_DATE}\""
-        response.headers['Sunset'] = EVSS_SUNSET_DATE
-        response.headers['Link'] =
-          '</v0/benefits_claims>; rel="alternate"; title="Replacement endpoint using Lighthouse"'
-        response.headers['Warning'] = "299 - \"#{DEPRECATION_MESSAGE}\""
+        headers = response.headers
+        headers['Deprecation'] = "date=\"#{EVSS_SUNSET_DATE}\""
+        headers['Sunset'] = EVSS_SUNSET_DATE
+        headers['Link'] = '</v0/benefits_claims>; rel="alternate"; title="Replacement endpoint using Lighthouse"'
+        headers['Warning'] = "299 - \"#{DEPRECATION_MESSAGE}\""
       end
 
       def add_deprecation_metadata(response_hash)
