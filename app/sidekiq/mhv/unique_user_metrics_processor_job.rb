@@ -39,40 +39,19 @@ module MHV
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
 
     # Configuration from Settings (AWS Parameter Store)
-    # These are class methods (not constants) to allow dynamic configuration changes
-    # without requiring Sidekiq restart. Values are read fresh on each job run.
+    # Values are read fresh on each job run to allow dynamic configuration changes
+    # without requiring Sidekiq restart.
     #
-    # Use explicit .to_i coercion since Settings values may arrive as strings or integers
-    # depending on how Parameter Store delivers them.
-    class << self
-      def batch_size
-        value = Settings.unique_user_metrics&.processor_job&.batch_size.to_i
-        raise 'unique_user_metrics.processor_job.batch_size must be a positive integer' unless value.positive?
-
-        value
-      end
-
-      def max_iterations
-        value = Settings.unique_user_metrics&.processor_job&.max_iterations.to_i
-        raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer' unless value.positive?
-
-        value
-      end
-
-      def max_queue_depth
-        value = Settings.unique_user_metrics&.processor_job&.max_queue_depth.to_i
-        raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer' unless value.positive?
-
-        value
-      end
-    end
+    # CRITICAL: Settings values are treated as untrusted input per repository guidelines.
+    # Values may arrive as strings, integers, nil, or unexpected types from Parameter Store.
+    # We verify presence explicitly and provide clear error messages.
 
     def perform
       # Capture configuration at job start - values remain consistent throughout this run
       # but will pick up changes on next job execution
-      @batch_size = self.class.batch_size
-      @max_iterations = self.class.max_iterations
-      @max_queue_depth = self.class.max_queue_depth
+      @batch_size = fetch_positive_integer_setting(:batch_size)
+      @max_iterations = fetch_positive_integer_setting(:max_iterations)
+      @max_queue_depth = fetch_positive_integer_setting(:max_queue_depth)
 
       job_start_time = Time.current
 
@@ -318,6 +297,22 @@ module MHV
                           queue_depth:,
                           max_queue_depth: @max_queue_depth
                         })
+    end
+
+    # Safely fetch and validate a positive integer setting from processor_job config
+    #
+    # @param setting_name [Symbol] Name of the setting (e.g., :batch_size)
+    # @return [Integer] The validated positive integer value
+    # @raise [RuntimeError] If the setting is missing or not a positive integer
+    def fetch_positive_integer_setting(setting_name)
+      raw_value = Settings.unique_user_metrics&.processor_job&.send(setting_name)
+
+      raise "UUM Processor: #{setting_name} is missing" if raw_value.blank?
+
+      value = raw_value.to_i
+      raise "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
+
+      value
     end
   end
 end

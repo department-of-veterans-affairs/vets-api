@@ -139,7 +139,6 @@ module UniqueUserEvents
     #
     # @param user [User] the authenticated User object
     # @return [String] User account UUID
-    # @raise [ArgumentError] if user has no valid UUID
     def self.extract_user_id(user)
       user.user_account_uuid || user.uuid
     end
