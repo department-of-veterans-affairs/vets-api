@@ -41,11 +41,11 @@ module Flipper
 
       def features_config
         @features_config ||= YAML.safe_load(Rails.root.join('config', 'features.yml').read)
-        unless config.is_a?(Hash) && config.key?('features') && config['features'].is_a?(Hash)
+        unless @features_config.is_a?(Hash) && @features_config.key?('features') && @features_config['features'].is_a?(Hash)
           raise ArgumentError, "Invalid config/features.yml format: expected top-level 'features' map (#{Rails.env})"
         end
 
-        config
+        @features_config
       end
 
       def config_feature_names = @config_feature_names ||= features_config['features'].keys
