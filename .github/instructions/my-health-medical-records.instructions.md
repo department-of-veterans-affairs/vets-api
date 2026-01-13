@@ -7,7 +7,6 @@ applyTo: "modules/my_health/app/controllers/my_health/mr_controller.rb,modules/m
 **Path-Specific Instructions for Medical Records**
 
 These instructions automatically apply when working with:
-
 - **Controllers:** All controllers inheriting from `MyHealth::MRController`
   - `AllergiesController`, `ClinicalNotesController`, `ConditionsController`
   - `LabsAndTestsController`, `VaccinesController`, `VitalsController`
@@ -23,20 +22,16 @@ These instructions automatically apply when working with:
 ## 📚 Medical Records Module Structure
 
 ### MRController Hierarchy (`modules/my_health/`)
-
 All Medical Records controllers inherit from `MRController` which provides:
-
 - Multiple client initialization (MedicalRecords, Lighthouse, PHRMgr, BBInternal)
 - MHV session management via multiple authentication mechanisms
 - Patient resource handling (`with_patient_resource`, `render_resource`)
 - Feature flag support for Accelerated Delivery (Oracle Health) data paths
 
 **Base Controller:**
-
 - `modules/my_health/app/controllers/my_health/mr_controller.rb` - Base controller for all Medical Records features
 
 **Medical Records Controllers (inherit from MRController):**
-
 - `modules/my_health/app/controllers/my_health/v1/allergies_controller.rb` - Allergy data (index, show)
 - `modules/my_health/app/controllers/my_health/v1/clinical_notes_controller.rb` - Clinical notes (index, show)
 - `modules/my_health/app/controllers/my_health/v1/conditions_controller.rb` - Health conditions (index, show)
@@ -45,7 +40,6 @@ All Medical Records controllers inherit from `MRController` which provides:
 - `modules/my_health/app/controllers/my_health/v1/vitals_controller.rb` - Vital signs data (index)
 
 **Medical Records Namespace Controllers:**
-
 - `modules/my_health/app/controllers/my_health/v1/medical_records/ccd_controller.rb` - Consolidated CDA generation and retrieval
 - `modules/my_health/app/controllers/my_health/v1/medical_records/imaging_controller.rb` - Medical imaging study retrieval
 - `modules/my_health/app/controllers/my_health/v1/medical_records/radiology_controller.rb` - Radiology reports
@@ -54,14 +48,12 @@ All Medical Records controllers inherit from `MRController` which provides:
 - `modules/my_health/app/controllers/my_health/v1/medical_records/mr_session_controller.rb` - Medical Records session management
 
 **Serializers (JSONAPI format):**
-
 - `modules/my_health/app/serializers/my_health/v1/allergy_serializer.rb` - Allergy data
 - `modules/my_health/app/serializers/my_health/v1/health_condition_serializer.rb` - Health conditions
 - `modules/my_health/app/serializers/my_health/v1/extract_status_serializer.rb` - CCD extract status
 - `modules/my_health/app/serializers/my_health/v1/eligible_data_classes_serializer.rb` - Available data classes for user
 
 ### Routes (`modules/my_health/config/routes.rb`)
-
 **Medical Records namespace (`/my_health/v1/medical_records/`):**
 
 ```ruby
@@ -111,7 +103,6 @@ end
 ### Medical Records Client Libraries (`lib/medical_records/`)
 
 **Core Files:**
-
 - `lib/medical_records/client.rb` - Main FHIR-based client for MHV Medical Records API
 - `lib/medical_records/configuration.rb` - Faraday configuration for Medical Records endpoints
 - `lib/medical_records/client_session.rb` - Session management for MHV authentication
@@ -405,38 +396,31 @@ end
 ### Medical Records Feature Flags
 
 **`:mhv_accelerated_delivery_enabled`**
-
 - Enables Oracle Health (Lighthouse) data path when combined with `use_oh_data_path=1` parameter
 - User-specific flag
 - Routes requests to LighthouseClient instead of MedicalRecords::Client
 
 **`:mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled`**
-
 - Enables background job logging for Oracle Health lab data refresh
 - Used with LighthouseClient
 
 **`:mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled`**
-
 - Enables background job logging for VistA lab data refresh
 - Used with MedicalRecords::Client
 
 **`:mhv_medical_records_new_eligibility_check`**
-
 - Enables new eligibility verification via UserEligibility::Client
 - Replaces account type check with SM user eligibility check
 
 **`:mhv_medical_records_support_new_model_allergy`** (Experimental)
-
 - Enables new allergies model with pagination support
 - Not yet fully implemented
 
 **`:mhv_medical_records_support_backend_pagination_allergy`**
-
 - Enables caching for allergy data when using new model
 - Works with `:mhv_medical_records_support_new_model_allergy`
 
 **Usage Pattern:**
-
 ```ruby
 def client
   use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&
@@ -451,7 +435,6 @@ end
 ```
 
 **In Tests:**
-
 ```ruby
 # ALWAYS stub, never enable/disable
 allow(Flipper).to receive(:enabled?)
@@ -500,16 +483,13 @@ end
 ```
 
 **Access Requirements:**
-
 1. **Legacy:** MHV Premium account type AND VA patient status
 2. **New (with feature flag):** Valid SM user eligibility AND VA patient status
 
 **Feature Flag:**
-
 - **`:mhv_medical_records_new_eligibility_check`** - When enabled, uses new eligibility verification
 
 **Usage in Controllers:**
-
 ```ruby
 # In MRController
 def authorize
@@ -524,7 +504,6 @@ end
 ### MHV Session Management
 
 **MRController initializes Blue Button client for authentication:**
-
 ```ruby
 before_action :authenticate_bb_client
 
@@ -540,7 +519,6 @@ end
 ```
 
 **Key Points:**
-
 - User must be VA patient (`user.va_patient?`)
 - Legacy: User must have MHV Premium account type
 - New: User must pass SM user eligibility check
@@ -554,7 +532,6 @@ end
 ### Common Error Scenarios
 
 **Patient Not Found (202 Accepted):**
-
 ```ruby
 # MHV returns 202 when patient doesn't exist in system
 if resource.equal?(:patient_not_found)
@@ -565,14 +542,12 @@ end
 ```
 
 **Record Not Found:**
-
 ```ruby
 raise Common::Exceptions::RecordNotFound, record_id if resource.blank?
 # Returns 404 Not Found
 ```
 
 **MHV API Errors:**
-
 ```ruby
 rescue Faraday::TimeoutError => e
   Rails.logger.error("MHV MR: Timeout for user #{current_user.icn}")
@@ -594,7 +569,6 @@ rescue Faraday::ClientError => e
 ```
 
 **Never Log PII:**
-
 - ❌ Don't log: patient names, SSN, medical data, addresses
 - ✅ Do log: `user.icn`, record IDs, error types, response codes
 
@@ -605,7 +579,6 @@ rescue Faraday::ClientError => e
 ### Test Structure for Medical Records Features
 
 **Request Specs:**
-
 - Location: `modules/my_health/spec/requests/my_health/v1/`
 - Use VCR cassettes for Medical Records client responses
 - Test all HTTP status codes: 200, 202, 404, 500
@@ -613,7 +586,6 @@ rescue Faraday::ClientError => e
 - Test patient not found scenarios
 
 **Client Specs:**
-
 - Location: `spec/lib/medical_records/`
 - Test individual MedicalRecords::Client methods
 - Use VCR cassettes for MHV API responses
@@ -657,7 +629,6 @@ end
 ### StatsD Metrics
 
 Track Medical Records API calls:
-
 - `api.medical_records.list_allergies` - Allergy retrieval
 - `api.medical_records.list_conditions` - Condition retrieval
 - `api.medical_records.list_labs` - Lab results retrieval
@@ -667,23 +638,18 @@ Track Medical Records API calls:
 ## 🚨 Common Issues & Solutions
 
 ### Issue: 202 Accepted response instead of 404
-
 **Solution:** This is expected behavior. MHV returns 202 when patient doesn't exist in the system. Handle gracefully with empty response body.
 
 ### Issue: FHIR client errors
-
 **Solution:** Ensure `fhir_models` gem is properly configured. Check FHIR logger level and bearer token validity.
 
 ### Issue: Lighthouse vs MHV data path confusion
-
 **Solution:** Check `use_oh_data_path` parameter and `:mhv_accelerated_delivery_enabled` feature flag. Log which client is being used.
 
 ### Issue: BBInternal client authentication failures
-
 **Solution:** Verify MHV correlation ID is present. Check BB client session management.
 
 ### Issue: Missing LOINC codes
-
 **Solution:** Reference LOINC code constants defined in `MedicalRecords::Client`. Add new codes as needed for additional data types.
 
 ---
@@ -693,7 +659,6 @@ Track Medical Records API calls:
 ### When to Update This File
 
 **This instruction file should be updated when changes to `applyTo` files impact:**
-
 - API contracts (request/response formats, endpoints, parameters)
 - Controller patterns (before_actions, error handling, patient resource handling)
 - Client methods or signatures
@@ -705,7 +670,6 @@ Track Medical Records API calls:
 - LOINC codes or clinical data type definitions
 
 **Analyze changes for impact:**
-
 1. **New endpoints or actions** → Update Routes section and Controller examples
 2. **New data types (allergies, labs, etc.)** → Update Controller list and Client methods
 3. **New MedicalRecords::Client methods** → Update Client Library section with method signatures
@@ -718,7 +682,6 @@ Track Medical Records API calls:
 10. **FHIR integration changes** → Update FHIR Client Integration section
 
 **Changes that DON'T require updates:**
-
 - Internal implementation details that don't affect usage patterns
 - Refactoring that maintains the same public interface
 - Bug fixes that don't change behavior
@@ -726,7 +689,6 @@ Track Medical Records API calls:
 - Code style or formatting changes
 
 **How to Keep Instructions Current:**
-
 - Review this file when making significant changes to Medical Records features
 - Update code examples to match current patterns in the codebase
 - Remove deprecated patterns and add new best practices
