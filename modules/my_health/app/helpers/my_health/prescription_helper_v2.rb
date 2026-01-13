@@ -48,7 +48,7 @@ module MyHealth
           return true if disp_status&.downcase == 'active: parked' && has_dispenses
         end
 
-        # Note: When V2StatusMapping is enabled, "Expired" is mapped to "Inactive"
+        # NOTE: When V2StatusMapping is enabled, "Expired" is mapped to "Inactive"
         expired_or_inactive = %w[Expired Inactive].include?(disp_status)
         if expired_or_inactive && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
           return true

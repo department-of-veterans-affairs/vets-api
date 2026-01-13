@@ -153,30 +153,36 @@ module MyHealth
         is_renewable = filter_params[:is_renewable]
 
         prescriptions = apply_disp_status_filter(prescriptions, disp_status) if disp_status.present?
-        prescriptions = apply_shipped_filter(prescriptions) if is_trackable.present? && is_trackable[:eq] == 'true'
-        prescriptions = apply_renewable_filter(prescriptions) if is_renewable.present? && is_renewable[:eq] == 'true'
+        prescriptions = apply_trackable_filter(prescriptions, is_trackable) if is_trackable.present?
+        prescriptions = apply_renewable_filter(prescriptions, is_renewable) if is_renewable.present?
 
         prescriptions
       end
 
       def apply_disp_status_filter(prescriptions, disp_status)
-        if disp_status[:eq]&.downcase == 'active,expired'.downcase
-          prescriptions.select(&method(:renewable))
-        else
-          filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-          prescriptions.select do |item|
-            item.respond_to?(:disp_status) && item.disp_status &&
-              filters.include?(item.disp_status.downcase)
-          end
+        filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+        prescriptions.select do |item|
+          item.respond_to?(:disp_status) && item.disp_status &&
+            filters.include?(item.disp_status.downcase)
         end
       end
 
-      def apply_shipped_filter(prescriptions)
-        prescriptions.select { |item| shipped?(item) }
+      def apply_trackable_filter(prescriptions, is_trackable)
+        filter_value = is_trackable[:eq] == 'true'
+        if filter_value
+          prescriptions.select { |item| shipped?(item) }
+        else
+          prescriptions.reject { |item| shipped?(item) }
+        end
       end
 
-      def apply_renewable_filter(prescriptions)
-        prescriptions.select { |item| item.respond_to?(:is_renewable) && item.is_renewable == true }
+      def apply_renewable_filter(prescriptions, is_renewable)
+        filter_value = is_renewable[:eq] == 'true'
+        if filter_value
+          prescriptions.select { |item| item.respond_to?(:is_renewable) && item.is_renewable == true }
+        else
+          prescriptions.reject { |item| item.respond_to?(:is_renewable) && item.is_renewable == true }
+        end
       end
 
       def shipped?(item)
