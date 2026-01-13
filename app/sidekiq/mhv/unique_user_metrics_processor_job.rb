@@ -38,17 +38,11 @@ module MHV
     CACHE_NAMESPACE = 'unique_user_metrics'
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
 
-    # Configuration from Settings (AWS Parameter Store)
-    # Values are read fresh on each job run to allow dynamic configuration changes
-    # without requiring Sidekiq restart.
-    #
-    # CRITICAL: Settings values are treated as untrusted input per repository guidelines.
-    # Values may arrive as strings, integers, nil, or unexpected types from Parameter Store.
-    # We verify presence explicitly and provide clear error messages.
-
     def perform
+      # Configuration from Settings (AWS Parameter Store)
       # Capture configuration at job start - values remain consistent throughout this run
       # but will pick up changes on next job execution
+      # Configuration from Settings (AWS Parameter Store)
       @batch_size = fetch_positive_integer_setting(:batch_size)
       @max_iterations = fetch_positive_integer_setting(:max_iterations)
       @max_queue_depth = fetch_positive_integer_setting(:max_queue_depth)
