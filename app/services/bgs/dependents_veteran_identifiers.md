@@ -1,6 +1,6 @@
 # Additional notes on get_form_hash_686c()
 
-The purpose of this readme is to add some context and information to `app/services/bgs/dependent_service.rb` and specifically to get_form_hash_686c()  The main concern is around the identifiers used in `get_form_hash_686c()`.  As noted in the comments in code, the SSN really shouldn't be included because the SOAP service doesn't use it.
+The purpose of this readme is to add some context and information to `app/services/bgs/dependent_v2_service.rb` and specifically to get_form_hash_686c()  The main concern is around the identifiers used in `get_form_hash_686c()`.  As noted in the comments in code, the SSN really shouldn't be included because the SOAP service doesn't use it.
 
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:per="http://person.services.vetsnet.vba.va.gov/">
   <soapenv:Header/>
