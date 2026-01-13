@@ -31,8 +31,10 @@ module MedicalCopays
         entries = raw_invoices.fetch('entry').map do |entry|
           resource = entry.fetch('resource')
 
-          org_ref = resource.dig('issuer', 'reference')
-          org_id = org_ref&.split('/')&.last
+          org_ref = resource.dig('issuer', 'reference').to_s
+          parts = org_ref.split('/')
+
+          org_id = parts.include?('Organization') ? parts.last : nil
           raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
           org_city = retrieve_city(org_id)

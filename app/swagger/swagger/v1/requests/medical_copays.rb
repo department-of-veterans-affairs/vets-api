@@ -55,7 +55,7 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :string,
                          example: 'Tampa'
 
-                property :facility_id,
+                property :facilityId,
                          type: :string,
                          example: '1234'
 
