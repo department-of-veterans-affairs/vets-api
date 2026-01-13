@@ -2290,6 +2290,7 @@ features:
   virtual_agent_use_v2_chatbot:
     actor_type: user
     description: Use the V2 version of the virtual agent chatbot
+    enable_in_development: true
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
