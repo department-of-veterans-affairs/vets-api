@@ -39,7 +39,7 @@ RSpec.describe UniqueUserEvents::Service do
 
           expect(MHVMetricsUniqueUserEvent).to have_received(:record_event).with(user_id:, event_name:)
           expect(described_class).to have_received(:increment_statsd_counter).with(event_name)
-          expect(Rails.logger).to have_received(:info).with('UUM: New event logged', { user_id:, event_name: })
+          expect(Rails.logger).to have_received(:debug).with('UUM: New event logged', { user_id:, event_name: })
         end
       end
 

@@ -141,10 +141,7 @@ module UniqueUserEvents
     # @return [String] User account UUID
     # @raise [ArgumentError] if user has no valid UUID
     def self.extract_user_id(user)
-      user_id = user.user_account_uuid || user.uuid
-      raise ArgumentError, 'User has no valid UUID (user_account_uuid and uuid are both nil)' if user_id.blank?
-
-      user_id
+      user.user_account_uuid || user.uuid
     end
 
     # Build event result hash for API response
