@@ -4,6 +4,7 @@ require 'caseflow/service'
 
 class AppealsBaseController < ApplicationController
   include FailedRequestLoggable
+  before_action { authorize :appeals, :access? }
 
   private
 
