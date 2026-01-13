@@ -24,15 +24,17 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    it 'returns an empty response' do
-      VCR.use_cassette('tsa_letters/show_success_empty', { match_requests_on: %i[method uri body] }) do
-        get '/v0/tsa_letter'
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to eq({ data: nil }.to_json)
+    context 'when user has no letter' do
+      it 'returns an empty response' do
+        VCR.use_cassette('tsa_letters/show_success_empty', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({ data: nil }.to_json)
+        end
       end
     end
 
-    context 'when upstream returns 404' do
+    context 'when upstream returns 403' do
       it 'returns 404' do
         VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
           get '/v0/tsa_letter'
@@ -55,11 +57,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
     let(:content) { File.read('spec/fixtures/files/error_message.txt') }
 
-    before do
-      expect(efolder_service).to receive(:get_tsa_letter).with(document_id).and_return(content)
-    end
-
-    it 'sends the doc pdf', pending: 'route change' do
+    it 'sends the doc pdf' do
+      skip 'Pending migration to Claims Evidence API'
       get "/v0/tsa_letter/#{CGI.escape(document_id)}"
       expect(response.body).to eq(content)
     end
