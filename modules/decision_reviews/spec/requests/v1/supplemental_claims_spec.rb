@@ -138,7 +138,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
         allow(Rails.logger).to receive(:error)
@@ -163,7 +162,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       end
     end
 
-    context 'when tracking 4142 is enabled' do
+    context 'when tracking 4142' do
       subject do
         post '/decision_reviews/v1/supplemental_claims',
              params: params.to_json,
@@ -171,7 +170,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(true)
       end
@@ -221,61 +220,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               expect(saved_4142_json).to eq(expected_form4142_data_with_user)
               expect(saved4142.form_id).to eq('21-4142')
               expect(saved4142.appeal_submission.id).to eq(appeal_submission.id)
-            end
-          end
-        end
-      end
-    end
-
-    context 'when tracking 4142 is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_validate_schema).and_return(false)
-      end
-
-      it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
-        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-              previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
-              expect do
-                post '/decision_reviews/v1/supplemental_claims',
-                     params: params.to_json,
-                     headers:
-              end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
-              expect(response).to be_successful
-              parsed_response = JSON.parse(response.body)
-              id = parsed_response['data']['id']
-              expect(previous_appeal_submission_ids).not_to include id
-              appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-              expect(appeal_submission.type_of_appeal).to eq('SC')
-              expect do
-                DecisionReviews::Form4142Submit.drain
-              end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(-1)
-
-              # SavedClaim should be created with request data and list of uploaded forms
-              request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
-              saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-              expect(saved_claim.form).to eq(request_body.to_json)
-              expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
-            end
-          end
-        end
-      end
-
-      it 'does not persist a SecondaryAppealForm for the 4142' do
-        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-              expect do
-                post '/decision_reviews/v1/supplemental_claims',
-                     params: params.to_json,
-                     headers:
-              end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
-              expect do
-                DecisionReviews::Form4142Submit.drain
-              end.not_to change(SecondaryAppealForm, :count)
             end
           end
         end

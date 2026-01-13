@@ -1,8 +1,5 @@
 common:
   - benefits_require_gateway_origin
-  - decision_review_hlr_email
-  - decision_review_nod_email
-  - decision_review_sc_email
   - decision_review_delay_evidence
 development:
   - decision_review_icn_updater_enabled

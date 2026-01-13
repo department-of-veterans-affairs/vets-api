@@ -55,6 +55,9 @@ module DependentsBenefits
           *APPLICATION_KEYS
         )
 
+        # Remove 674 specific option
+        form_686c_data['view:selectable686_options'].delete('report674')
+
         form_686c_data
       end
 

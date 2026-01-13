@@ -141,8 +141,8 @@ describe DecisionReviewV1::Processor::Form4142Processor do
             it 'raises a validation error' do
               expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
                 .to raise_error do |error|
-                expect(error).to be_a Processors::Form4142ValidationError
-                expect(error.message).to include('value \"not-a-date\" did not match the regex')
+                  expect(error).to be_a Processors::Form4142ValidationError
+                  expect(error.message).to include('value \"not-a-date\" did not match the regex')
               end
             end
           end
@@ -160,8 +160,8 @@ describe DecisionReviewV1::Processor::Form4142Processor do
               it 'raises a validation error' do
                 expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
                   .to raise_error do |error|
-                  expect(error).to be_a Processors::Form4142ValidationError
-                  expect(error.message).to include("did not contain a required property of '#{field}'")
+                    expect(error).to be_a Processors::Form4142ValidationError
+                    expect(error.message).to include("did not contain a required property of '#{field}'")
                 end
               end
             end
