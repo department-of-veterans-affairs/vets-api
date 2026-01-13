@@ -40,6 +40,9 @@ ask_va_api:
     tenant_id: <%= ENV['ask_va_api__crm_api__tenant_id'] %>
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
+  zip_state_validation_throttle:
+    limit: <%= ENV.fetch('ask_va_api__zip_state_validation_throttle__limit', 60) %>
+    period_seconds: <%= ENV.fetch('ask_va_api__zip_state_validation_throttle__period_seconds', 60) %>
 authorization_server_scopes_api:
   auth_server:
     url: <%= ENV['authorization_server_scopes_api__auth_server__url'] %>
