@@ -9,6 +9,10 @@ class EmailVerificationJob
 
   STATS_KEY = 'api.vanotify.email_verification'
 
+  STATS_RETRIES_EXHAUSTED = "#{STATS_KEY}.retries_exhausted".freeze
+  STATS_SUCCESS = "#{STATS_KEY}.success".freeze
+  STATS_FAILURE = "#{STATS_KEY}.failure".freeze
+
   sidekiq_retries_exhausted do |msg, _ex|
     job_id = msg['jid']
     job_class = msg['class']
@@ -22,19 +26,9 @@ class EmailVerificationJob
     message = "#{job_class} retries exhausted"
 
     Rails.logger.error(message, { job_id:, error_class:, error_message:, template_type: })
-    StatsD.increment("#{STATS_KEY}.retries_exhausted")
+    StatsD.increment(STATS_RETRIES_EXHAUSTED)
 
-    # Clean up the cache key if it exists and retries are exhausted
-    if cache_key.present?
-      begin
-        Sidekiq::AttrPackage.delete(cache_key)
-      rescue Sidekiq::AttrPackageError => e
-        Rails.logger.warn('Failed to clean up AttrPackage after retries exhausted', {
-                            cache_key:,
-                            error: e.message
-                          })
-      end
-    end
+    Sidekiq::AttrPackage.delete(cache_key) if cache_key
   end
 
   # TODO: Add back email_address param when ready to send real emails
@@ -69,10 +63,8 @@ class EmailVerificationJob
     #   }.compact
     # )
 
-    StatsD.increment("#{STATS_KEY}.success")
-
-    # Clean up the cache after successful processing
-    Sidekiq::AttrPackage.delete(cache_key)
+    StatsD.increment(STATS_SUCCESS)
+    Sidekiq::AttrPackage.delete(cache_key) if cache_key
   rescue ArgumentError => e
     # Log application logic errors for debugging - these go to Sidekiq's Dead Job Queue (no retries)
     Rails.logger.error('EmailVerificationJob validation failed', { error: e.message, template_type: })
@@ -85,7 +77,7 @@ class EmailVerificationJob
     # Log and count service/operational failures
     # Service failures get retried by Sidekiq (5xx errors), 400s don't retry
     Rails.logger.error('EmailVerificationJob failed', { error: e.message, template_type: })
-    StatsD.increment("#{STATS_KEY}.failure")
+    StatsD.increment(STATS_FAILURE)
     raise e
   end
   # rubocop:enable Metrics/MethodLength

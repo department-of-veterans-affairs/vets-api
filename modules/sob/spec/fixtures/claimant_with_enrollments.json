@@ -85,7 +85,12 @@
           }
         ],
         "entitlementTransferIn": [],
-        "enrollments": null
+        "enrollments": [
+          {
+            "facilityCode": "123456789",
+            "beginDate": "20250101"
+          }
+        ]
       }
     ]
   }
