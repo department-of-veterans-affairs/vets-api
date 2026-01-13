@@ -222,7 +222,6 @@ module DependentsBenefits
       track_warning_event(message, UNKNOWN_CLAIM_TYPE_STATS_KEY, **context)
     end
 
-
     private
 
     # append tags to the context being logged

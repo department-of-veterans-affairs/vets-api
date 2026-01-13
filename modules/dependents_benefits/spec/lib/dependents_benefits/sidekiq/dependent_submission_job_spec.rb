@@ -495,7 +495,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
           it 'marks submission attempt as failed with validation error' do
             expect(job).to receive(:mark_submission_attempt_failed).with(
-              submission_attempt, 
+              submission_attempt,
               an_instance_of(DependentsBenefits::Invalid686cClaim)
             )
             job.send(:submit_claim_to_service, claim)
@@ -569,7 +569,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
           it 'marks submission attempt as failed with validation error' do
             expect(job).to receive(:mark_submission_attempt_failed).with(
-              submission_attempt, 
+              submission_attempt,
               an_instance_of(DependentsBenefits::Invalid674Claim)
             )
             job.send(:submit_claim_to_service, claim)
