@@ -168,7 +168,7 @@ RSpec.describe IvcChampva::VHA1010d do
       it 'increments StatsD with tags and logs submission info' do
         expect(StatsD).to receive(:increment).with(
           "#{statsd_key}.submission",
-          tags: %w[identity:applicant loa:3 email:yes form_version:vha_10_10d]
+          tags: %w[identity:applicant current_user_loa:3 email_used:yes form_version:vha_10_10d]
         )
         expect(Rails.logger).to receive(:info).with(
           'IVC ChampVA Forms - 10-10D Submission',
@@ -195,7 +195,7 @@ RSpec.describe IvcChampva::VHA1010d do
       it 'defaults loa to 0' do
         expect(StatsD).to receive(:increment).with(
           "#{statsd_key}.submission",
-          tags: %w[identity:applicant loa:0 email:no form_version:vha_10_10d]
+          tags: %w[identity:applicant current_user_loa:0 email_used:no form_version:vha_10_10d]
         )
         expect(Rails.logger).to receive(:info).with(
           'IVC ChampVA Forms - 10-10D Submission',
