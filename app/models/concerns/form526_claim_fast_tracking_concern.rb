@@ -280,6 +280,10 @@ module Form526ClaimFastTrackingConcern
   def open_claims
     @open_claims ||= begin
       icn = account.icn
+      if icn.blank?
+        Rails.logger.error('Form526ClaimFastTrackingConcern#open_claims ICN is null')
+        raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+      end
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
@@ -294,9 +298,14 @@ module Form526ClaimFastTrackingConcern
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
-  def all_rated_disabilities
+  def all_rated_disabilities # rubocop:disable Metrics/MethodLength
     settings = Settings.lighthouse.veteran_verification.form526
     icn = account&.icn
+    if icn.blank?
+      Rails.logger.error('Form526ClaimFastTrackingConcern#all_rated_disabilities ICN is null')
+      raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+    end
+
     invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
