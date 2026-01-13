@@ -70,7 +70,7 @@ sign_in:
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
   user_info_clients:
     - 861fbfbf1b4cd2594e0f7a4a367a9a87
-  usip_uri: https://va.gov/sign-in
+  usip_uri: https://www.va.gov/sign-in
   web_origins:
     - https://identity.va.gov
     - https://staging.identity.va.gov
