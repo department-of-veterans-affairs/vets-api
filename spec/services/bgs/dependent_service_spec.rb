@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe BGS::DependentV2Service do
+RSpec.describe BGS::DependentService do
   let(:user) { create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
   let(:user2) { create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
   let(:birth_date) { '1809-02-12' }
@@ -30,7 +30,7 @@ RSpec.describe BGS::DependentV2Service do
   end
   let(:parsed_form) { { 'dependents_application' => vet_info } }
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
-  let(:service) { BGS::DependentV2Service.new(user) }
+  let(:service) { BGS::DependentService.new(user) }
   let(:single_dependent_response) do
     {
       number_of_records: '1',
@@ -169,7 +169,7 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         expect(monitor).to receive(:track_event).with(
           'info',
-          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+          'BGS::DependentService#get_form_hash_686c found bgs_person by PID',
           'bgs.dependent_service.find_by_participant_id'
         )
 
@@ -181,7 +181,7 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return(nil)
         expect(monitor).to receive(:track_event).with(
           'info',
-          'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+          'BGS::DependentService#get_form_hash_686c found bgs_person by ssn',
           'bgs.dependent_service.find_by_ssn'
         )
 
@@ -204,7 +204,7 @@ RSpec.describe BGS::DependentV2Service do
           .and_raise(StandardError.new('404 person not found'))
 
         expect(monitor).to receive(:track_event).with(
-          'warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+          'warn', 'BGS::DependentService#get_user_email failed to get va_profile_email',
           'bgs.dependent_service.get_va_profile_email.failure', { error: '404 person not found' }
         )
 
@@ -218,7 +218,7 @@ RSpec.describe BGS::DependentV2Service do
             encrypted_vet_info
           )
 
-          no_email = BGS::DependentV2Service.new(user)
+          no_email = BGS::DependentService.new(user)
           allow(no_email).to receive(:submit_pdf_job)
           no_email.submit_686c_form(claim)
         end
@@ -272,7 +272,7 @@ RSpec.describe BGS::DependentV2Service do
 
           expect(monitor).to receive(:track_event).with(
             'warn',
-            'BGS::DependentV2Service#get_form_hash_686c failed',
+            'BGS::DependentService#get_form_hash_686c failed',
             'bgs.dependent_service.get_form_hash.failure',
             { error: 'Could not retrieve file number from BGS' }
           )
@@ -359,7 +359,7 @@ RSpec.describe BGS::DependentV2Service do
         expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
           .with(user.participant_id, user.ssn).and_return([])
 
-        response = BGS::DependentV2Service.new(user).get_dependents
+        response = BGS::DependentService.new(user).get_dependents
 
         expect(response).to have_key(:persons)
       end
@@ -477,11 +477,11 @@ RSpec.describe BGS::DependentV2Service do
     let(:ssn) { '123456789' }
     let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
     let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
-    let(:service) { BGS::DependentV2Service.new(user) }
+    let(:service) { BGS::DependentService.new(user) }
     let(:monitor) { Dependents::Monitor.new(claim.id) }
     let(:pdf_path) { 'path/to/pdf' }
     let(:stamper) { PDFUtilities::PDFStamper.new('TEST') }
-    let(:stats_key) { BGS::DependentV2Service::STATS_KEY }
+    let(:stats_key) { BGS::DependentService::STATS_KEY }
 
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
@@ -496,7 +496,7 @@ RSpec.describe BGS::DependentV2Service do
     it 'submits evidence pdf via claims evidence uploader' do
       expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
       expect(monitor).to receive(:track_event).with(
-        'info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+        'info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
         "#{stats_key}.submit_pdf.begin"
       )
       expect(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
@@ -512,14 +512,14 @@ RSpec.describe BGS::DependentV2Service do
                                                                           doctype: pa.document_type)
 
       expect(monitor).to receive(:track_event).with(
-        'info', "BGS::DependentV2Service claims evidence upload of 686C-674-V2 claim_id #{claim.id}",
+        'info', "BGS::DependentService claims evidence upload of 686C-674-V2 claim_id #{claim.id}",
         "#{stats_key}.claims_evidence.upload", tags: ['form_id:686C-674-V2']
       )
       expect(monitor).to receive(:track_event).with(
-        'info', "BGS::DependentV2Service claims evidence upload of 21-674-V2 claim_id #{claim.id}",
+        'info', "BGS::DependentService claims evidence upload of 21-674-V2 claim_id #{claim.id}",
         "#{stats_key}.claims_evidence.upload", tags: ['form_id:21-674-V2']
       )
-      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentV2Service#submit_pdf_job completed',
+      expect(monitor).to receive(:track_event).with('info', 'BGS::DependentService#submit_pdf_job completed',
                                                     "#{stats_key}.submit_pdf.completed")
 
       service.send(:submit_pdf_job, claim:)
