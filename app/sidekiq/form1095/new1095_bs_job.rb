@@ -188,7 +188,7 @@ module Form1095
       batch_size = 1000
       forms_batch = []
 
-      # ⭐ KEY: Load all existing forms ONCE instead of querying per line
+      # KEY: Load all existing forms ONCE instead of querying per line
       existing_forms = Form1095B
                        .where(tax_year: file_details[:tax_year])
                        .pluck(:veteran_icn, :id)
@@ -210,7 +210,7 @@ module Form1095
 
         forms_batch << data
 
-        # ⭐ KEY: Batch upsert every 1000 records
+        # KEY: Batch upsert every 1000 records
         if forms_batch.size >= batch_size
           upsert_batch(forms_batch)
           forms_batch.clear
