@@ -269,6 +269,11 @@ namespace :payment_history do
       ssn: mpi_profile.ssn,
       participant_id: mpi_profile.participant_id,
       common_name: "#{mpi_profile.given_names&.first} #{mpi_profile.family_name}",
+      # Email is hardcoded because:
+      # 1. MPI profiles don't contain email addresses
+      # 2. BGS::PaymentService uses common_name as primary external_key (email is only fallback)
+      # 3. This email is never logged or exposed, only used internally for BGS authentication
+      # 4. This is a diagnostic tool, not production code handling real user requests
       email: 'test@example.com'
     )
   end
