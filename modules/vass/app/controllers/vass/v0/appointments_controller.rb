@@ -14,6 +14,7 @@ module Vass
       before_action :authenticate_jwt
       before_action :set_appointments_service
 
+      rescue_from Vass::Errors::NotFoundError, with: :handle_not_found_error
       rescue_from Vass::Errors::ServiceError, with: :handle_service_error
       rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
 
@@ -57,6 +58,35 @@ module Vass
       def topics
         topics_list = @appointments_service.get_agent_skills || []
         render json: { data: { topics: topics_list } }, status: :ok
+      end
+
+      ##
+      # GET /vass/v0/appointment/:appointment_id
+      #
+      # Retrieves details for a specific appointment.
+      # Requires JWT authentication.
+      #
+      # @example Response
+      #   {
+      #     "data": {
+      #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea",
+      #       "startUTC": "2025-12-02T10:00:00Z",
+      #       "endUTC": "2025-12-02T10:30:00Z",
+      #       "agentId": "353dd0fc-335b-ef11-bfe3-001dd80a9f48",
+      #       "agentNickname": "Agent Name",
+      #       "appointmentStatusCode": 1,
+      #       "appointmentStatus": "Confirmed",
+      #       "cohortStartUtc": "2025-12-02T09:00:00Z",
+      #       "cohortEndUtc": "2025-12-02T17:00:00Z"
+      #     }
+      #   }
+      #
+      def show
+        appointment_id = params[:appointment_id]
+        return unless validate_appointment_id(appointment_id)
+
+        response = @appointments_service.get_appointment(appointment_id:)
+        render_appointment_details(response)
       end
 
       ##
@@ -112,6 +142,15 @@ module Vass
           'Unable to process request with appointment service',
           :service_unavailable
         )
+      end
+
+      ##
+      # Handles not found errors.
+      #
+      # @param exception [Vass::Errors::NotFoundError] The exception
+      #
+      def handle_not_found_error(exception)
+        handle_error(exception, 'appointment_not_found', 'Appointment not found', :not_found)
       end
 
       ##
@@ -173,7 +212,7 @@ module Vass
       # @return [ActionController::Parameters] Permitted parameters
       #
       def permitted_params
-        params.permit(:correlation_id, :dtStartUtc, :dtEndUtc, topics: [])
+        params.permit(:correlation_id, :appointment_id, :dtStartUtc, :dtEndUtc, topics: [])
       end
 
       ##
@@ -318,6 +357,32 @@ module Vass
           render json: { data: { appointmentId: appointment_id } }, status: :ok
         else
           render_error('appointment_save_failed', 'Failed to save appointment', :unprocessable_entity)
+        end
+      end
+
+      ##
+      # Validates appointment ID parameter.
+      #
+      # @param appointment_id [String] Appointment ID
+      # @return [Boolean] true if valid, false otherwise (renders error)
+      #
+      def validate_appointment_id(appointment_id)
+        return true if appointment_id.present?
+
+        render_error('missing_appointment_id', 'Appointment ID is required', :bad_request)
+        false
+      end
+
+      ##
+      # Renders appointment details response.
+      #
+      # @param response [Hash] Response from VASS API
+      #
+      def render_appointment_details(response)
+        if response['success']
+          render json: { data: response['data'] }, status: :ok
+        else
+          render_error('appointment_not_found', 'Appointment not found', :not_found)
         end
       end
     end
