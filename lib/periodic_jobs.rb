@@ -87,6 +87,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send metrics to datadog related to 526 submission 0781 in-progress forms and submission
   mgr.register('0 3 * * *', 'Form0781StateSnapshotJob')
 
+  # Send metrics to datadog related to 526 new conditions workflow in-progress forms
+  mgr.register('0 3 * * *', 'Form526NewConditionsStateSnapshotJob')
+
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
@@ -254,6 +257,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
   mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
+
+  # Delete old BenefitsIntake records 60 days or older
+  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')

@@ -730,7 +730,8 @@ RSpec.describe FormProfile, type: :model do
       'bankName' => 'WELLS FARGO BANK',
       'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
-      'syncModern0781Flow' => true
+      'syncModern0781Flow' => true,
+      'disabilityCompNewConditionsWorkflow' => true
     }
   end
   let(:vfeedback_tool_expected) do
@@ -760,23 +761,22 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v21_2680_expected) do
-    { veteranInformation: {
-      veteranFullName: {
+    { userInformation: {
+      fullName: {
         first: 'Abraham',
         last: 'Lincoln',
         suffix: 'Jr.'
       },
-      veteranDob: '1809-02-12',
+      dob: '1809-02-12',
       phoneNumber: '3035551234',
       email: user.va_profile_email,
-      veteranAddress: {
+      address: {
         street: '140 Rock Creek Rd',
         city: 'Washington',
         state: 'DC',
         country: 'USA',
         postalCode: '20011'
-      },
-      veteranSsn: '796111863'
+      }
     } }
   end
 
@@ -1618,7 +1618,8 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 10203' do
         before do
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+          expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
@@ -1635,19 +1636,24 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 0
             }
+            v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+            v22_10203_expected['schoolCity'] = 'NORFOLK'
+            v22_10203_expected['schoolState'] = 'VA'
+            v22_10203_expected['schoolCountry'] = 'USA'
           end
 
           it 'prefills 10203 with VA Profile and entitlement information' do
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('sob/ch33_status/200') do
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
                   VCR.use_cassette('gi_client/gets_the_institution_details') do
-                    expect(SOB::DGI::Service).to receive(:new).with(user.ssn).and_call_original
+                    expect(SOB::DGI::Service).to receive(:new).with(ssn: user.ssn, include_enrollments: true)
+                                                              .and_call_original
 
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
@@ -1665,7 +1671,7 @@ RSpec.describe FormProfile, type: :model do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 10

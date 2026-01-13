@@ -28,6 +28,9 @@ Vass::Engine.routes.draw do
     # Topics endpoint
     get 'topics', to: 'appointments#topics' # Get available appointment topics (agent skills)
 
+    # Topics endpoint
+    get 'topics', to: 'appointments#topics' # Get available appointment topics (agent skills)
+
     # API documentation endpoint
     get 'apidocs', to: 'apidocs#index'
   end

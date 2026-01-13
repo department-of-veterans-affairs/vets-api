@@ -136,7 +136,10 @@ module IvcChampva
 
       matching_reports = pega_api_client.record_has_matching_report(batch.first)
 
-      if batch.count == matching_reports.count
+      # Filter out VES JSON files since they're sent to VES, not Pega
+      pega_processable_batch = filter_pega_processable_files(batch)
+
+      if pega_processable_batch.count == matching_reports.count
         missing_status_cleanup.manually_process_batch(batch)
         true
       else
@@ -157,6 +160,28 @@ module IvcChampva
 
     def pega_api_client
       @pega_api_client ||= IvcChampva::PegaApi::Client.new
+    end
+
+    private
+
+    ##
+    # Filters out VES JSON files from a batch since they're sent to VES, not Pega
+    #
+    # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects
+    # @return [Array<IvcChampvaForm>] Filtered array excluding VES JSON files
+    def filter_pega_processable_files(batch)
+      batch.reject { |record| ves_json_file?(record.file_name) }
+    end
+
+    ##
+    # Determines if a file is a VES JSON file based on its filename
+    #
+    # @param file_name [String] The name of the file to check
+    # @return [Boolean] true if the file is a VES JSON file, false otherwise
+    def ves_json_file?(file_name)
+      return false if file_name.blank?
+
+      file_name.include?('_ves.json')
     end
   end
 end
