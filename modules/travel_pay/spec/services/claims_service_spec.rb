@@ -308,7 +308,7 @@ describe TravelPay::ClaimsService do
       expect(actual_claim['expenses'].first['name']).to eq('Parking')
     end
 
-    it 'overwrites expenseType with name for all expenses when name is present' do
+    it 'overwrites expenseType only for parking expenses, not other expense types' do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
 
       claim_data_mixed = claim_details_data.deep_dup
@@ -325,7 +325,7 @@ describe TravelPay::ClaimsService do
         {
           'id' => 'mileage-expense-id',
           'expenseType' => 'Mileage',
-          'name' => 'Mileage',
+          'name' => 'Mileage Expense',
           'dateIncurred' => '2024-01-01T16:45:34.465Z',
           'description' => 'mileage-expense',
           'costRequested' => 10.00,
@@ -340,7 +340,9 @@ describe TravelPay::ClaimsService do
       claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
       actual_claim = service.get_claim_details(claim_id)
 
+      # Parking expense should be overwritten
       expect(actual_claim['expenses'][0]['expenseType']).to eq('Parking')
+      # Mileage expense should NOT be overwritten
       expect(actual_claim['expenses'][1]['expenseType']).to eq('Mileage')
     end
 

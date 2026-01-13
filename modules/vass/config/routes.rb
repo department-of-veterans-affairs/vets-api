@@ -15,11 +15,12 @@ Vass::Engine.routes.draw do
   # v0 namespace - Initial VASS API version
   # All responses default to JSON format
   namespace :v0, defaults: { format: :json } do
-    # Session management endpoints
-    resources :sessions, only: %i[show create]
+    # OTC (One-Time Code) authentication endpoints
+    post 'request-otc', to: 'sessions#request_otc'
+    post 'authenticate-otc', to: 'sessions#authenticate_otc'
 
     # Appointment management endpoints
-    resources :appointments, only: %i[index show create]
+    get 'appointment-availability', to: 'appointments#availability' # Get appointment availability for current cohort
 
     # API documentation endpoint
     get 'apidocs', to: 'apidocs#index'

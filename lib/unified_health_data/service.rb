@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
@@ -202,6 +203,20 @@ module UnifiedHealthData
       end
     end
 
+    def get_immunizations
+      with_monitoring do
+        # NOTE: we must pass in a startDate and endDate to SCDF
+        start_date = default_start_date
+        end_date = default_end_date
+
+        response = uhd_client.get_immunizations_by_date(patient_id: @user.icn, start_date:, end_date:)
+        body = response.body
+        combined_records = fetch_combined_records(body)
+
+        immunization_adapter.parse(combined_records)
+      end
+    end
+
     # Retrieves the After Visit Summary for the given appointment ID from unified health data sources
     #
     # @param appt_id [String] The ID of the appointment to retrieve the summary for
@@ -337,10 +352,11 @@ module UnifiedHealthData
       # Parse successful refills from API response array
       successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
+        order = refill['order'] || refill
         {
-          id: refill['orderId'],
+          id: order['orderId'],
           status: refill['message'] || 'submitted',
-          station_number: refill['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
@@ -349,10 +365,11 @@ module UnifiedHealthData
       # Parse failed refills from API response array
       failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
+        order = failure['order'] || failure
         {
-          id: failure['orderId'],
+          id: order['orderId'],
           error: failure['message'] || 'Unable to process refill',
-          station_number: failure['stationNumber']
+          station_number: order['stationNumber']
         }
       end
     end
@@ -422,6 +439,10 @@ module UnifiedHealthData
 
     def vitals_adapter
       @vitals_adapter ||= UnifiedHealthData::Adapters::VitalAdapter.new
+    end
+
+    def immunization_adapter
+      @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
     end
 
     def logger

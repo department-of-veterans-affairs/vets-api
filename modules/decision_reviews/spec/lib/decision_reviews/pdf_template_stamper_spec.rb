@@ -53,6 +53,23 @@ RSpec.describe DecisionReviews::PdfTemplateStamper do
     end
   end
 
+  describe 'template existence' do
+    %w[
+      hlr_form_failure
+      sc_form_failure
+      nod_form_failure
+      sc_4142_failure
+      sc_evidence_failure
+      nod_evidence_failure
+    ].each do |template_name|
+      it "has #{template_name}.pdf template file" do
+        template_path = Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews',
+                                        'email_templates', "#{template_name}.pdf")
+        expect(File.exist?(template_path)).to be(true), "Missing template: #{template_path}"
+      end
+    end
+  end
+
   describe '#stamp_personalized_data' do
     context 'with hlr_form_failure template (no evidence filename)' do
       # Skip this test if the template doesn't exist yet

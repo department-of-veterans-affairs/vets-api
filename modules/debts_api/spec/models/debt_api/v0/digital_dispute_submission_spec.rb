@@ -134,6 +134,21 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
 
         expect { form_submission.send(:send_failure_email) }.not_to raise_error
       end
+
+      it 'enqueues failure email when user is found' do
+        allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return('cache_key_123')
+
+        expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
+          24.hours,
+          nil,
+          described_class::FAILURE_TEMPLATE,
+          nil,
+          hash_including(id_type: 'email', failure_mailer: true, cache_key: 'cache_key_123')
+        )
+
+        form_submission.send(:send_failure_email)
+      end
     end
 
     describe '#send_success_email' do
@@ -144,6 +159,22 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
         expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_success_email.failure")
 
         expect { form_submission.send(:send_success_email) }.not_to raise_error
+      end
+
+      it 'enqueues confirmation email when user is found' do
+        allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return('cache_key_123')
+
+        expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_async).with(
+          hash_including(
+            'submission_type' => 'digital_dispute',
+            'cache_key' => 'cache_key_123',
+            'user_uuid' => user.uuid,
+            'template_id' => described_class::CONFIRMATION_TEMPLATE
+          )
+        )
+
+        form_submission.send(:send_success_email)
       end
     end
   end

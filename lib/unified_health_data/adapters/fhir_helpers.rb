@@ -1,0 +1,161 @@
+# frozen_string_literal: true
+
+module UnifiedHealthData
+  module Adapters
+    # Generic FHIR resource parsing and utility methods
+    # Shared across different FHIR adapters (MedicationRequest, etc.)
+    module FhirHelpers
+      # Parses a date string or returns epoch if invalid/missing
+      #
+      # @param date_string [String, nil] Date string to parse
+      # @return [Time] Parsed time or epoch
+      def parse_date_or_epoch(date_string)
+        return Time.zone.at(0) unless date_string
+
+        parsed_time = Time.zone.parse(date_string)
+        parsed_time || Time.zone.at(0)
+      rescue ArgumentError, TypeError
+        Time.zone.at(0)
+      end
+
+      # Calculates days since a given date
+      #
+      # @param date_string [String] ISO 8601 date string
+      # @return [Integer, nil] Days since the date or nil if invalid
+      def days_since(date_string)
+        return nil unless date_string
+
+        submit_time = Time.zone.parse(date_string)
+        return nil unless submit_time
+
+        days = ((Time.zone.now - submit_time) / 1.day).floor
+        days >= 0 ? days : nil
+      rescue ArgumentError, TypeError
+        nil
+      end
+
+      # Finds a FHIR identifier value by type text
+      #
+      # @param identifiers [Array<Hash>] Array of FHIR identifier objects
+      # @param type_text [String] The type.text value to search for
+      # @return [String, nil] The identifier value or nil if not found
+      def find_identifier_value(identifiers, type_text)
+        identifier = identifiers.find { |id| id.dig('type', 'text') == type_text }
+        identifier&.dig('value')
+      end
+
+      # Extracts NDC (National Drug Code) from FHIR MedicationDispense
+      #
+      # @param dispense [Hash] FHIR MedicationDispense resource
+      # @return [String, nil] NDC code or nil if not found
+      def extract_ndc_number(dispense)
+        coding = dispense.dig('medicationCodeableConcept', 'coding') || []
+        ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
+        ndc_coding&.dig('code')
+      end
+
+      # Extracts MedicationDispense resources from a MedicationRequest resource
+      #
+      # @param medication_request [Hash] FHIR MedicationRequest resource
+      # @return [Array<Hash>] Array of MedicationDispense resources
+      def medication_dispenses(medication_request)
+        return [] if medication_request.nil?
+
+        (medication_request['contained'] || []).select do |contained_resource|
+          contained_resource['resourceType'] == 'MedicationDispense'
+        end
+      end
+
+      # Finds the most recent MedicationDispense from contained resources
+      # Sorted by whenHandedOver or whenPrepared date
+      #
+      # @param medication_request [Hash] FHIR MedicationRequest resource
+      # @return [Hash, nil] Most recent MedicationDispense or nil if none found
+      def find_most_recent_medication_dispense(medication_request)
+        dispenses = medication_dispenses(medication_request)
+        return nil if dispenses.empty?
+
+        dispenses.max_by do |dispense|
+          date = dispense['whenHandedOver'] || dispense['whenPrepared']
+          date ? parse_date_or_epoch(date) : Time.zone.at(0)
+        end
+      end
+
+      # Builds instruction text from FHIR dosageInstruction components
+      #
+      # @param instruction [Hash] FHIR dosageInstruction object
+      # @return [String] Formatted instruction text
+      def build_instruction_text(instruction)
+        parts = []
+        parts << instruction.dig('timing', 'code', 'text') if instruction.dig('timing', 'code', 'text')
+        parts << instruction.dig('route', 'text') if instruction.dig('route', 'text')
+
+        dose_and_rate = instruction.dig('doseAndRate', 0)
+        if dose_and_rate
+          dose_quantity = dose_and_rate.dig('doseQuantity', 'value')
+          dose_unit = dose_and_rate.dig('doseQuantity', 'unit')
+          parts << "#{dose_quantity} #{dose_unit}" if dose_quantity
+        end
+
+        parts.join(' ')
+      end
+
+      # Logs warning for invalid expiration date
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param expiration_date [String] Invalid expiration date string
+      def log_invalid_expiration_date(resource, expiration_date)
+        Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
+      end
+
+      # Parses expiration date from FHIR MedicationRequest to UTC Time
+      # Oracle Health dates are in Zulu time (UTC)
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Time, nil] Parsed UTC time or nil if not available/invalid
+      def parse_expiration_date_utc(resource)
+        expiration_string = resource.dig('dispenseRequest', 'validityPeriod', 'end')
+        return nil if expiration_string.blank?
+
+        parsed_time = Time.zone.parse(expiration_string)
+        if parsed_time.nil?
+          log_invalid_expiration_date(resource, expiration_string)
+          return nil
+        end
+
+        parsed_time.utc
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': #{e.message}")
+        nil
+      end
+
+      # Checks if prescription validity period has ended
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if expired (validity period end is in the past)
+      def prescription_expired?(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        return false if expiration_date.nil?
+
+        expiration_date < Time.current.utc
+      end
+
+      # Extracts SIG (dosage instructions) from FHIR MedicationDispense
+      # Concatenates all dosageInstruction texts
+      #
+      # @param dispense [Hash] FHIR MedicationDispense resource
+      # @return [String, nil] Concatenated dosage instructions or nil if none
+      def extract_sig_from_dispense(dispense)
+        dosage_instructions = dispense['dosageInstruction'] || []
+        return nil if dosage_instructions.empty?
+
+        # Concatenate all dosage instruction texts
+        texts = dosage_instructions.filter_map do |instruction|
+          instruction['text'] if instruction.is_a?(Hash)
+        end
+
+        texts.empty? ? nil : texts.join(' ')
+      end
+    end
+  end
+end

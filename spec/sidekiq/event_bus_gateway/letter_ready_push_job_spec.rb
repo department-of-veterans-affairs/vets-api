@@ -99,6 +99,31 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
         job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
       end.to change(EventBusGatewayPushNotification, :count).by(1)
     end
+
+    context 'when user_account is nil' do
+      before do
+        allow_any_instance_of(described_class).to receive(:user_account).and_return(nil)
+      end
+
+      it 'successfully creates notification record without user_account' do
+        job_instance = subject.new
+
+        expect do
+          job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
+        end.to change(EventBusGatewayPushNotification, :count).by(1)
+
+        notification = EventBusGatewayPushNotification.last
+        expect(notification.user_account).to be_nil
+        expect(notification.template_id).to eq(template_id)
+      end
+
+      it 'still sends push notification successfully' do
+        job_instance = subject.new
+
+        expect(va_notify_service).to receive(:send_push).with(expected_push_args)
+        job_instance.send(:send_push_notification, mpi_profile.icn, template_id)
+      end
+    end
   end
 
   describe 'PII protection with AttrPackage' do
@@ -258,19 +283,36 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
     end
 
     context 'when notification creation fails' do
-      let(:creation_error) { ActiveRecord::RecordInvalid.new }
-
-      before do
-        allow(EventBusGatewayPushNotification).to receive(:create!).and_raise(creation_error)
+      let(:invalid_notification) do
+        instance_double(EventBusGatewayPushNotification,
+                        persisted?: false,
+                        errors: double(full_messages: ['Template must exist']))
       end
 
-      it 'records notification send failure and re-raises error' do
-        expect_any_instance_of(described_class)
-          .to receive(:record_notification_send_failure)
-          .with(creation_error, 'Push')
+      before do
+        allow(EventBusGatewayPushNotification).to receive(:create).and_return(invalid_notification)
+        allow(Rails.logger).to receive(:warn)
+      end
 
-        expect { subject.new.perform(participant_id, template_id) }
-          .to raise_error(creation_error)
+      it 'logs a warning with error details' do
+        expect(Rails.logger).to receive(:warn).with(
+          'LetterReadyPushJob notification record failed to save',
+          {
+            errors: ['Template must exist'],
+            template_id:
+          }
+        )
+
+        subject.new.perform(participant_id, template_id)
+      end
+
+      it 'still sends the push notification successfully' do
+        expect(va_notify_service).to receive(:send_push)
+        subject.new.perform(participant_id, template_id)
+      end
+
+      it 'does not raise an error' do
+        expect { subject.new.perform(participant_id, template_id) }.not_to raise_error
       end
     end
   end
@@ -280,7 +322,8 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       {
         'jid' => '12345',
         'error_class' => 'StandardError',
-        'error_message' => 'Test error'
+        'error_message' => 'Test error',
+        'args' => [participant_id, template_id, 'test_cache_key']
       }
     end
     let(:exception) { StandardError.new('Test error') }

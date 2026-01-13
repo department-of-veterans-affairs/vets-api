@@ -204,4 +204,69 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.address_block(address)).to eq("123 Test St.\nSC")
     end
   end
+
+  describe '#format_radio_yes_no' do
+    it 'returns empty string with nil value' do
+      expect(including_class.new.format_radio_yes_no(nil)).to eq('')
+    end
+
+    it 'returns empty string with blank value' do
+      expect(including_class.new.format_radio_yes_no('')).to eq('')
+    end
+
+    it 'returns Yes for Y' do
+      expect(including_class.new.format_radio_yes_no('Y')).to eq('Yes')
+    end
+
+    it 'returns No for N' do
+      expect(including_class.new.format_radio_yes_no('N')).to eq('No')
+    end
+
+    it 'return NA for NA' do
+      expect(including_class.new.format_radio_yes_no('NA')).to eq('NA')
+    end
+  end
+
+  describe '#domestic?' do
+    it 'returns true if country is United States' do
+      expect(including_class.new.domestic?('USA')).to be true
+    end
+
+    it 'returns true if country not United States' do
+      expect(including_class.new.domestic?('MEX')).to be false
+    end
+  end
+
+  describe '#normalize_mailing_address' do
+    it 'normalizes address if international' do
+      address = { 'country' => 'CAN' }
+      including_class.new.normalize_mailing_address(address)
+      expect(address['country']).to eq('CA')
+    end
+
+    it 'normalizes address if Mexican' do
+      address = { 'country' => 'MEX', 'state' => 'baja-california-norte' }
+      including_class.new.normalize_mailing_address(address)
+      expect(address['state']).to eq('Baja California Norte')
+    end
+  end
+
+  describe '::PhoneNumberFormatting#expand_phone_number' do
+    let(:including_class) { Class.new { include PdfFill::Forms::FormHelper::PhoneNumberFormatting } }
+
+    it 'expands phone number' do
+      expect(including_class.new.expand_phone_number('5086773030'))
+        .to eq({ 'phone_area_code' => '508',
+                 'phone_first_three_numbers' => '677',
+                 'phone_last_four_numbers' => '3030' })
+    end
+  end
+
+  describe '::PhoneNumberFormatting#format_us_phone' do
+    let(:including_class) { Class.new { include PdfFill::Forms::FormHelper::PhoneNumberFormatting } }
+
+    it 'expands phone number' do
+      expect(including_class.new.format_us_phone('5086773030')).to eq('508-677-3030')
+    end
+  end
 end
