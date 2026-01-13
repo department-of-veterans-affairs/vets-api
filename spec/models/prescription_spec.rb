@@ -10,8 +10,8 @@ describe Prescription do
 
     it 'has attributes' do
       expect(subject).to have_attributes(refill_status: 'active', refill_remaining: 9, facility_name: 'ABC1223',
-                                         is_refillable: true, is_trackable: false,
-                                         prescription_id: 1_435_525, quantity: '10', prescription_number: '2719324',
+                                         is_refillable: true, is_trackable: false, prescription_id: 1_435_525,
+                                         quantity: '10', prescription_number: '2719324',
                                          prescription_name: 'Drug 1 250MG TAB', station_number: '23')
     end
 
