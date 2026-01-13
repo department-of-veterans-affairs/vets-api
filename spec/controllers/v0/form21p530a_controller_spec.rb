@@ -215,7 +215,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
 
     it 'calls PDF filler with correct parameters' do
       expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-        .with(anything, anything, '21P-530a')
+        .with(anything, anything, '21P-530A')
         .and_return(temp_file_path)
 
       post(:download_pdf, body: valid_payload.to_json, as: :json)

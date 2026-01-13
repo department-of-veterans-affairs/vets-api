@@ -33,7 +33,6 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
   let(:default_monitor_payload) do
     {
       service: 'dependent-change',
-      use_v2: @use_v2,
       claim: @claim,
       user_account_uuid: @claim&.user_account_id,
       tags: { function: described_class::ZSF_DD_TAG_FUNCTION }

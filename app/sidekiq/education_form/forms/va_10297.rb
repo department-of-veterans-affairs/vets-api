@@ -42,16 +42,8 @@ module EducationForm::Forms
       both: 'Both'
     }.freeze
 
-    def applicant_name
-      @applicant.applicantFullName
-    end
-
     def applicant_ssn
       @applicant.ssn
-    end
-
-    def applicant_va_file_number
-      @applicant.vaFileNumber
     end
 
     def bank_routing_number
@@ -86,12 +78,10 @@ module EducationForm::Forms
     end
 
     def get_program_block(program)
-      program.providerAddress
+      formatted_address = full_address_with_street2(program.providerAddress, indent: true)
       [
         ["\n  Provider name: ", program.providerName].join,
-        "\n  Location:",
-        ["\n    City: ", program.providerAddress.city].join,
-        ["\n    State: ", program.providerAddress.state].join
+        ["\n  Address: ", formatted_address].join
       ].join
     end
 
@@ -102,7 +92,7 @@ module EducationForm::Forms
       @applicant.trainingProviders.providers.each do |program|
         program_blocks.push(get_program_block(program))
       end
-      program_blocks.push(["\n  Planned start date: ", @applicant.trainingProviders.plannedStartDate].join)
+      program_blocks.push(["\n\n  Planned start date: ", @applicant.trainingProviders.plannedStartDate].join)
 
       program_blocks.join("\n")
     end
@@ -110,7 +100,7 @@ module EducationForm::Forms
     def full_address_with_street2(address, indent: false)
       return '' if address.nil?
 
-      seperator = indent ? "\n        " : "\n"
+      seperator = indent ? "\n           " : "\n"
       [
         address.street,
         address.street2,

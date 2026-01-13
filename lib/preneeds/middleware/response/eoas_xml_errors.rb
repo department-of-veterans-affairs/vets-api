@@ -31,7 +31,6 @@ module Preneeds
           extra_context = { original_status: status, original_body: env.body&.delete('%') }
           log_message_to_sentry('Generalized XML error response from EOAS', :warn, extra_context)
 
-          log_message_to_rails('Generalized XML error response from EOAS', :warn)
           raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, env.body)
         end
 

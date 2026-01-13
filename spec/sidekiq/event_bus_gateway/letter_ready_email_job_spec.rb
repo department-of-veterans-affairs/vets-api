@@ -424,7 +424,8 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
       {
         'jid' => '12345',
         'error_class' => 'StandardError',
-        'error_message' => 'Test error'
+        'error_message' => 'Test error',
+        'args' => [participant_id, template_id, 'test_cache_key'] # Add this line
       }
     end
     let(:exception) { StandardError.new('Test error') }
@@ -455,6 +456,12 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         'event_bus_gateway.letter_ready_email.exhausted',
         tags: expected_tags
       )
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
+    end
+
+    it 'deletes cache_key from AttrPackage if present' do
+      expect(Sidekiq::AttrPackage).to receive(:delete).with('test_cache_key')
 
       described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
