@@ -12,6 +12,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
+  before do
+    allow_any_instance_of(BenefitsIntakeService::Utilities::ConvertToPdf)
+      .to receive(:converted_filename)
+      .and_return('tmp/converted_file.pdf')
+  end
+
   context 'veteran with a foreign address' do
     describe 'submission and document metadata' do
       before do
