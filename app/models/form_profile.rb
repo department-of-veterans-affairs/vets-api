@@ -101,6 +101,7 @@ class FormProfile
             22-10297 22-0803 22-10272],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    form_mock_prefill: ['FORM-MOCK-PREFILL'],
     form_upload: %w[
       21P-4185-UPLOAD
       21-651-UPLOAD
@@ -183,6 +184,7 @@ class FormProfile
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'FORM-MOCK-PREFILL' => ::FormProfiles::FormMockPrefill,
     'MDOT' => ::FormProfiles::MDOT,
     '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
@@ -249,7 +251,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    form_id = form_id.downcase if %w[1010EZ 1330M].include?(form_id) # handle case sensitivity for specific forms
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 

@@ -44,7 +44,6 @@
       "spouse_income": "Y",
       "spouse_does_live_with_veteran": true
     },
-    "use_v2": true,
     "days_till_expires": 365,
     "privacy_agreement_accepted": true
   }

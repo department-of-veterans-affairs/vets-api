@@ -35,6 +35,7 @@ describe PdfFill::Processors::VA220839Processor do
         fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-0839_abc.pdf')
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
+        expect(get_field_value(fields, 'academic_year')).to eq '2025 to 2025'
       end
     end
 
@@ -70,6 +71,7 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'branch_campus_0_facility_code')).to eq '87654321'
+        expect(get_field_value(fields, 'num_eligible_students')).to eq ''
       end
     end
 

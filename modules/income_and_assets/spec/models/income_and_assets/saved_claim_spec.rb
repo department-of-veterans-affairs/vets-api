@@ -106,4 +106,16 @@ RSpec.describe IncomeAndAssets::SavedClaim do
       claim.send_email(email_type)
     end
   end
+
+  describe '#populate_has_property' do
+    it 'populates hasXXX properties before validation' do
+      claim = build(:income_and_assets_claim)
+
+      expect(claim).to receive(:populate_has_property).and_call_original
+      claim.save
+
+      has_props = claim.form_schema['properties'].keys.select { |k| k.starts_with?('has') }
+      expect(claim.parsed_form).to include(*has_props)
+    end
+  end
 end

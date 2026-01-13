@@ -27,21 +27,24 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
       context 'when the user is logged in' do
         let(:user) { create(:user) }
-        let(:service) { instance_double(SOB::DGI::Service) }
+        let(:service) { SOB::DGI::Service.new(ssn: user.ssn, include_enrollments: true) }
 
         before do
           allow(SOB::DGI::Service).to receive(:new).and_return(service)
-          allow(service).to receive(:get_ch33_status).and_return({})
+          allow(service).to receive(:get_ch33_status).and_call_original
         end
 
         it 'calls get_ch33_status on the service' do
-          instance.after_submit(user)
-          expect(service).to have_received(:get_ch33_status)
-          expect(SOB::DGI::Service).to have_received(:new).with(user.ssn).exactly(1).times
+          VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
+            instance.after_submit(user)
+            expect(service).to have_received(:get_ch33_status)
+            expect(SOB::DGI::Service).to have_received(:new).with(ssn: user.ssn, include_enrollments: true)
+                                                            .exactly(1).times
+          end
         end
 
         it 'sets the gi_bill_status instance variable' do
-          VCR.use_cassette('sob/ch33_status/200') do
+          VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
             instance.after_submit(user)
             expect(instance.instance_variable_get(:@gi_bill_status)).not_to be_nil
           end
@@ -176,7 +179,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
           end
         end
 
-        # we don't have to test the user because we're on the logged in path
         context 'sending the school certifying officials email' do
           context 'when the send_email? FeatureFlipper is false' do
             before { allow(FeatureFlipper).to receive(:send_email?).and_return(false) }
@@ -217,9 +219,41 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
                 Flipper.disable(:form21_10203_confirmation_email)
               end
 
-              it 'does not call SendSchoolCertifyingOfficialsEmail' do
+              it 'increments the SendSchoolCertifyingOfficialsEmail job queue (calls the job)' do
                 expect { instance.after_submit(user) }
-                  .not_to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size)
+                  .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
+              end
+
+              it 'calls SendSchoolCertifyingOfficialsEmail with correct arguments (gibill status is {})' do
+                allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+
+                instance.after_submit(user)
+
+                expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+                  .to have_received(:perform_async)
+                  .with(instance.id, false, {})
+              end
+
+              it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement < 6 months)' do
+                allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
+                  instance.after_submit(user)
+
+                  expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+                    .to have_received(:perform_async)
+                    .with(instance.id, true, '11902614')
+                end
+              end
+
+              it 'calls SendSchoolCertifyingOfficialsEmail (remaining entitlement >= 6 months)' do
+                allow(EducationForm::SendSchoolCertifyingOfficialsEmail).to receive(:perform_async)
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments_and_remaining_entitlement') do
+                  instance.after_submit(user)
+
+                  expect(EducationForm::SendSchoolCertifyingOfficialsEmail)
+                    .to have_received(:perform_async)
+                    .with(instance.id, false, '11902614')
+                end
               end
             end
           end
