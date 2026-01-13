@@ -45,7 +45,6 @@ module MHV
       # Configuration from Settings (AWS Parameter Store)
       # Capture configuration at job start - values remain consistent throughout this run
       # but will pick up changes on next job execution
-      # Configuration from Settings (AWS Parameter Store)
       @batch_size = fetch_positive_integer_setting(:batch_size)
       @max_iterations = fetch_positive_integer_setting(:max_iterations)
       @max_queue_depth = fetch_positive_integer_setting(:max_queue_depth)
