@@ -375,17 +375,6 @@ RSpec.describe FormProfile, type: :model do
               # When dependents are blank but no error occurs, success is true but no dependents key is created
               expect(result[:form_data]['nonPrefill']['dependents']['success']).to eq('true')
             end
-
-            # it 'handles dependents with blank persons array by setting empty array' do
-            #   # Test line 160: when dependents[:persons].blank?, sets @dependents_information to []
-            #   blank_persons_data = { persons: [] }
-            #   allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
-            #   allow(dependent_service).to receive(:get_dependents).and_return(blank_persons_data)
-
-            #   result = form_profile.prefill
-            #   # When persons array is blank but no error occurs, success is true but no dependents key is created
-            #   expect(result[:form_data]['nonPrefill']['dependents']['success']).to eq('true')
-            # end
           end
         end
 
