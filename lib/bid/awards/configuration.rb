@@ -13,6 +13,12 @@ module BID
         'BID/Awards'
       end
 
+      def request_headers
+        {
+          Authorization: "Bearer #{Settings.bid.awards.credentials}"
+        }
+      end
+
       def mock_enabled?
         Settings.bid.awards.mock || false
       end
