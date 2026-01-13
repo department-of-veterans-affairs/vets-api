@@ -104,8 +104,8 @@ module IvcChampva
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.submission", tags: [
                          "identity:#{identity}",
-                         "loa:#{current_user_loa}",
-                         "email:#{email_used}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
                          "form_version:#{FORM_VERSION}"
                        ])
       Rails.logger.info('IVC ChampVA Forms - 10-10D Submission', identity:,
