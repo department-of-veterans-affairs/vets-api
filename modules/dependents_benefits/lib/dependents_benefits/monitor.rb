@@ -217,6 +217,12 @@ module DependentsBenefits
       track_info_event(message, PENSION_SUBMISSION_STATS_KEY, **context)
     end
 
+    ##
+    # Tracks an unknown claim type event
+    #
+    # @param message [String] The message to log
+    # @param context [Hash] Additional context for the event (e.g., parent_claim_id, form_type)
+    # @return [void]
     def track_unknown_claim_type(message, **context)
       context = append_tags(context)
       track_warning_event(message, UNKNOWN_CLAIM_TYPE_STATS_KEY, **context)
