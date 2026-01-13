@@ -59,6 +59,36 @@ module Vass
         render json: { data: { topics: topics_list } }, status: :ok
       end
 
+      ##
+      # POST /vass/v0/appointment
+      #
+      # Creates/books an appointment for the authenticated veteran.
+      # Requires JWT authentication and valid appointment_id from Redis session.
+      #
+      # @example Request Body
+      #   {
+      #     "topics": ["67e0bd9f-5e53-f011-bec2-001dd806389e", "78f1ce0a-6f64-g122-cfd3-112ee917462f"],
+      #     "dtStartUtc": "2026-01-10T10:00:00Z",
+      #     "dtEndUtc": "2026-01-10T10:30:00Z"
+      #   }
+      #
+      # @example Response
+      #   {
+      #     "data": {
+      #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea"
+      #     }
+      #   }
+      #
+      def create
+        return unless validate_appointment_creation_params!
+
+        session_data = redis_client.get_booking_session(veteran_id: @current_veteran_id)
+        appointment_id = session_data&.fetch(:appointment_id, nil)
+
+        response = save_appointment_with_service(appointment_id)
+        render_appointment_creation_response(response)
+      end
+
       private
 
       ##
@@ -82,6 +112,30 @@ module Vass
           'Unable to process request with appointment service',
           :service_unavailable
         )
+      end
+
+      ##
+      # Validates required parameters for appointment creation per API spec.
+      # Error codes and messages match the external API contract.
+      #
+      # @return [Boolean] true if valid, false if invalid (and error is rendered)
+      # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/appointments/va-online-scheduling/initiatives/solid-start-scheduling/engineering/api-specification.md
+      #
+      def validate_appointment_creation_params!
+        required_params = [
+          { key: :topics, error_code: 'missing_topics', message: 'Topics are required' },
+          { key: :dtStartUtc, error_code: 'missing_start_time', message: 'Start time is required' },
+          { key: :dtEndUtc, error_code: 'missing_end_time', message: 'End time is required' }
+        ]
+
+        required_params.each do |param|
+          next if permitted_params[param[:key]].present?
+
+          render_error(param[:error_code], param[:message], :bad_request)
+          return false
+        end
+
+        true
       end
 
       ##
@@ -119,7 +173,7 @@ module Vass
       # @return [ActionController::Parameters] Permitted parameters
       #
       def permitted_params
-        params.permit(:correlation_id)
+        params.permit(:correlation_id, :dtStartUtc, :dtEndUtc, topics: [])
       end
 
       ##
@@ -233,6 +287,38 @@ module Vass
             }
           }
         }, status: :ok
+      end
+
+      ##
+      # Saves appointment via service layer.
+      #
+      # @param appointment_id [String] Appointment ID from session
+      # @return [Hash] Response from VASS API
+      #
+      def save_appointment_with_service(appointment_id)
+        @appointments_service.save_appointment(
+          appointment_params: {
+            veteran_id: @current_veteran_id,
+            time_start_utc: permitted_params[:dtStartUtc],
+            time_end_utc: permitted_params[:dtEndUtc],
+            appointment_id:,
+            selected_agent_skills: permitted_params[:topics]
+          }
+        )
+      end
+
+      ##
+      # Renders appointment creation response.
+      #
+      # @param response [Hash] Response from VASS API save_appointment call
+      #
+      def render_appointment_creation_response(response)
+        if response['success']
+          appointment_id = response.dig('data', 'appointmentId')
+          render json: { data: { appointmentId: appointment_id } }, status: :ok
+        else
+          render_error('appointment_save_failed', 'Failed to save appointment', :unprocessable_entity)
+        end
       end
     end
   end

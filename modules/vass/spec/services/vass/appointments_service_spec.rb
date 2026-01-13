@@ -93,7 +93,7 @@ describe Vass::AppointmentsService do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
           end
         end
       end
