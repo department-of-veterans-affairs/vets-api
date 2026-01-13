@@ -14,6 +14,8 @@ module Vass
       before_action :authenticate_jwt
       before_action :set_appointments_service
 
+      rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
+
       ##
       # GET /vass/v0/appointment-availability
       #
@@ -78,8 +80,7 @@ module Vass
       #   }
       #
       def show
-        appointment_id = params[:appointment_id]
-        return unless validate_appointment_id(appointment_id)
+        appointment_id = params.require(:appointment_id)
 
         response = @appointments_service.get_appointment(appointment_id:)
         render_vass_response(
@@ -105,8 +106,7 @@ module Vass
       #   }
       #
       def cancel
-        appointment_id = params[:appointment_id]
-        return unless validate_appointment_id(appointment_id)
+        appointment_id = params.require(:appointment_id)
 
         response = @appointments_service.cancel_appointment(appointment_id:)
         render_vass_response(
@@ -139,7 +139,10 @@ module Vass
       #   }
       #
       def create
-        return unless validate_appointment_creation_params!
+        # Validate required params using Rails pattern
+        params.require(:topics)
+        params.require(:dtStartUtc)
+        params.require(:dtEndUtc)
 
         session_data = redis_client.get_booking_session(veteran_id: @current_veteran_id)
         appointment_id = session_data&.fetch(:appointment_id, nil)
@@ -189,27 +192,12 @@ module Vass
       end
 
       ##
-      # Validates required parameters for appointment creation per API spec.
-      # Error codes and messages match the external API contract.
+      # Handles missing parameter errors from Rails params.require().
       #
-      # @return [Boolean] true if valid, false if invalid (and error is rendered)
-      # @see https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/health-care/appointments/va-online-scheduling/initiatives/solid-start-scheduling/engineering/api-specification.md
+      # @param exception [ActionController::ParameterMissing] The exception
       #
-      def validate_appointment_creation_params!
-        required_params = [
-          { key: :topics, error_code: 'missing_topics', message: 'Topics are required' },
-          { key: :dtStartUtc, error_code: 'missing_start_time', message: 'Start time is required' },
-          { key: :dtEndUtc, error_code: 'missing_end_time', message: 'End time is required' }
-        ]
-
-        required_params.each do |param|
-          next if permitted_params[param[:key]].present?
-
-          render_error(param[:error_code], param[:message], :bad_request)
-          return false
-        end
-
-        true
+      def handle_parameter_missing(exception)
+        render_error('missing_parameter', exception.message, :bad_request)
       end
 
       ##
@@ -398,19 +386,6 @@ module Vass
         else
           render_error(error_code, error_message, error_status)
         end
-      end
-
-      ##
-      # Validates appointment ID parameter.
-      #
-      # @param appointment_id [String] Appointment ID
-      # @return [Boolean] true if valid, false otherwise (renders error)
-      #
-      def validate_appointment_id(appointment_id)
-        return true if appointment_id.present?
-
-        render_error('missing_appointment_id', 'Appointment ID is required', :bad_request)
-        false
       end
     end
   end
