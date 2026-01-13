@@ -24,6 +24,9 @@ module MyHealth
       end
 
       def renewable(item)
+        
+        return item.is_renewable if item.respond_to?(:is_renewable) && !item.is_renewable.nil?
+
         # UHD prescriptions have disp_status attribute
         return false unless item.respond_to?(:disp_status)
 
@@ -46,7 +49,9 @@ module MyHealth
           return true if disp_status&.downcase == 'active: parked' && has_dispenses
         end
 
-        if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
+        # Note: When V2StatusMapping is enabled, "Expired" is mapped to "Inactive"
+        expired_or_inactive = disp_status == 'Expired' || disp_status == 'Inactive'
+        if expired_or_inactive && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
           return true
         end
 

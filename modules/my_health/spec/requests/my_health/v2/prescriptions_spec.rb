@@ -269,24 +269,35 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
-      it 'includes metadata' do
+      it 'includes metadata with V2 filter categories' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(true)
           get('/my_health/v2/prescriptions', headers:)
 
           json_response = JSON.parse(response.body)
           expect(json_response['meta']).to have_key('filter_count')
           expect(json_response['meta']).to have_key('recently_requested')
 
-          # Verify filter_count includes all expected fields
+          # Verify filter_count includes all V2 expected fields
           filter_count = json_response['meta']['filter_count']
           expect(filter_count).to include(
-            'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
+            'all_medications',
+            'active',
+            'in_progress',
+            'shipped',
+            'renewable',
+            'inactive',
+            'transferred',
+            'status_not_available'
           )
           expect(filter_count['all_medications']).to be >= 0
           expect(filter_count['active']).to be >= 0
-          expect(filter_count['recently_requested']).to be >= 0
-          expect(filter_count['renewal']).to be >= 0
-          expect(filter_count['non_active']).to be >= 0
+          expect(filter_count['in_progress']).to be >= 0
+          expect(filter_count['shipped']).to be >= 0
+          expect(filter_count['renewable']).to be >= 0
+          expect(filter_count['inactive']).to be >= 0
+          expect(filter_count['transferred']).to be >= 0
+          expect(filter_count['status_not_available']).to be >= 0
         end
       end
 
@@ -335,6 +346,41 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           prescriptions.each do |prescription|
             # Verify grouped_medications attribute exists (populated by RxGroupingHelperV2)
             expect(prescription['attributes']).to have_key('grouped_medications')
+          end
+        end
+      end
+
+      it 'includes is_renewable attribute in prescription data' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          prescriptions = json_response['data']
+
+          expect(prescriptions).not_to be_empty
+
+          # Verify at least some prescriptions have is_renewable attribute
+          prescriptions.each do |prescription|
+            attributes = prescription['attributes']
+            expect(attributes).to have_key('is_renewable')
+            expect(attributes['is_renewable']).to be_in([true, false, nil])
+          end
+        end
+      end
+
+      it 'includes is_trackable attribute in prescription data' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          prescriptions = json_response['data']
+
+          expect(prescriptions).not_to be_empty
+
+          prescriptions.each do |prescription|
+            attributes = prescription['attributes']
+            expect(attributes).to have_key('is_trackable')
+            expect(attributes['is_trackable']).to be_in([true, false])
           end
         end
       end
@@ -590,6 +636,115 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify all returned prescriptions have disp_status of Active or Expired
           disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
           expect(disp_statuses).to all(be_in(%w[Active Expired])) if disp_statuses.any?
+        end
+      end
+
+      context 'V2 filter parameters' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping, anything).and_return(true)
+        end
+
+        it 'filters prescriptions by is_trackable=true (shipped)' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # Verify all returned prescriptions are shipped: Active status AND is_trackable=true
+            json_response['data'].each do |prescription|
+              attributes = prescription['attributes']
+              expect(attributes['disp_status']).to eq('Active')
+              expect(attributes['is_trackable']).to eq(true)
+            end
+          end
+        end
+
+        it 'filters prescriptions by is_renewable=true' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[is_renewable][eq]]=true', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # Verify all returned prescriptions are renewable
+            json_response['data'].each do |prescription|
+              attributes = prescription['attributes']
+              expect(attributes['is_renewable']).to eq(true)
+            end
+          end
+        end
+
+        it 'filters prescriptions by disp_status=Inactive (mapped statuses)' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Inactive', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # When V2StatusMapping is enabled, Expired, Discontinued, and Active: On hold are mapped to Inactive
+            # Verify all returned prescriptions have disp_status of Inactive
+            disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
+            expect(disp_statuses).to all(eq('Inactive')) if disp_statuses.any?
+          end
+        end
+
+        it 'renewable filter works with V2StatusMapping (Inactive status)' do
+          # This test verifies that the renewable() helper correctly handles both "Expired" and "Inactive"
+          # When V2StatusMapping is enabled, "Expired" is mapped to "Inactive", so renewable logic must check both
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # The renewable filter should return prescriptions with:
+            # 1. disp_status = "Active" with zero refills and not refillable
+            # 2. disp_status = "Inactive" (mapped from "Expired") within renewal window (120 days)
+            # Verify prescriptions match renewable criteria
+            renewable_prescriptions = json_response['data']
+            expect(renewable_prescriptions).to be_an(Array)
+
+            # If there are results, verify they meet renewable criteria
+            if renewable_prescriptions.any?
+              renewable_prescriptions.each do |rx|
+                attrs = rx['attributes']
+                disp_status = attrs['disp_status']
+
+                # Should be either Active or Inactive (mapped from Expired)
+                expect(['Active', 'Inactive']).to include(disp_status)
+              end
+            end
+          end
+        end
+
+        it 'filters prescriptions by disp_status=Transferred' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Transferred', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # Verify all returned prescriptions have disp_status of Transferred
+            disp_statuses = json_response['data'].map { |rx| rx['attributes']['disp_status'] }.compact
+            expect(disp_statuses).to all(eq('Transferred')) if disp_statuses.any?
+          end
+        end
+
+        it 'combines is_trackable and disp_status filters' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            get('/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true&filter[[disp_status][eq]]=Active', headers:)
+
+            json_response = JSON.parse(response.body)
+            expect(response).to have_http_status(:success)
+
+            # Verify all returned prescriptions match both filters
+            json_response['data'].each do |prescription|
+              attributes = prescription['attributes']
+              expect(attributes['disp_status']).to eq('Active')
+              expect(attributes['is_trackable']).to eq(true)
+            end
+          end
         end
       end
 

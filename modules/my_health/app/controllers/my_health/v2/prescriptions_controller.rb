@@ -147,22 +147,40 @@ module MyHealth
       end
 
       def apply_filters_to_list(prescriptions)
-        filter_params = params.require(:filter).permit(disp_status: [:eq])
+        filter_params = params.require(:filter).permit(disp_status: [:eq], is_trackable: [:eq], is_renewable: [:eq])
         disp_status = filter_params[:disp_status]
+        is_trackable = filter_params[:is_trackable]
+        is_renewable = filter_params[:is_renewable]
 
+        # Handle disp_status filtering
         if disp_status.present?
-          if disp_status[:eq]&.downcase == 'active,expired'.downcase
-            # filter renewals
-            prescriptions.select(&method(:renewable))
-          else
-            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            prescriptions.select do |item|
-              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
-            end
-          end
-        else
-          prescriptions
+          prescriptions = if disp_status[:eq]&.downcase == 'active,expired'.downcase
+                            # filter renewals
+                            prescriptions.select(&method(:renewable))
+                          else
+                            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+                            prescriptions.select do |item|
+                              item.respond_to?(:disp_status) && item.disp_status && filters.include?(item.disp_status.downcase)
+                            end
+                          end
         end
+
+        # Handle shipped filtering: disp_status=Active AND is_trackable=true
+        if is_trackable.present? && is_trackable[:eq] == 'true'
+          prescriptions = prescriptions.select do |item|
+            item.respond_to?(:disp_status) && item.respond_to?(:is_trackable) &&
+              item.disp_status == 'Active' && item.is_trackable == true
+          end
+        end
+
+        # Handle renewable filtering: is_renewable=true
+        if is_renewable.present? && is_renewable[:eq] == 'true'
+          prescriptions = prescriptions.select do |item|
+            item.respond_to?(:is_renewable) && item.is_renewable == true
+          end
+        end
+
+        prescriptions
       end
 
       def apply_sorting_to_list(prescriptions, sort_param)
@@ -194,9 +212,12 @@ module MyHealth
           filter_count: {
             all_medications: count_grouped_prescriptions(non_modified_collection),
             active: count_active_medications(list),
-            recently_requested: get_recently_requested_prescriptions(list).length,
-            renewal: list.select { |item| renewable(item) }.length,
-            non_active: count_non_active_medications(list)
+            in_progress: get_recently_requested_prescriptions(list).length,
+            shipped: count_shipped_medications(list),
+            renewable: count_renewable_medications(list),
+            inactive: count_non_active_medications(list),
+            transferred: count_transferred_medications(list),
+            status_not_available: count_unknown_status_medications(list)
           }
         }
       end
@@ -210,8 +231,27 @@ module MyHealth
       end
 
       def count_non_active_medications(list)
-        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
-        list.count { |rx| rx.respond_to?(:disp_status) && non_active_statuses.include?(rx.disp_status) }
+        # When cernerPilot and v2StatusMapping flags are enabled,
+        # Expired, Discontinued, and OnHold are already mapped to 'Inactive'
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Inactive' }
+      end
+
+      def count_shipped_medications(list)
+        # Shipped: disp_status is Active AND is_trackable is true
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.respond_to?(:is_trackable) && rx.disp_status == 'Active' && rx.is_trackable == true }
+      end
+
+      def count_renewable_medications(list)
+        # Renewable: is_renewable field is true
+        list.count { |rx| rx.respond_to?(:is_renewable) && rx.is_renewable == true }
+      end
+
+      def count_transferred_medications(list)
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Transferred' }
+      end
+
+      def count_unknown_status_medications(list)
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Unknown' }
       end
 
       def remove_pf_pd(data)
