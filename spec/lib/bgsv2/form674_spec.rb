@@ -12,9 +12,13 @@ RSpec.describe BGSV2::Form674 do
   let(:saved_claim_674_only) { create(:dependency_claim_674_only) }
 
   before do
-    allow(Flipper).to receive(:enabled?).and_call_original
     # performance tweak
     allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
+  end
+
+  after do
+    # Clean up any Flipper stubs to prevent test pollution in parallel runs
+    RSpec::Mocks.space.reset_all
   end
 
   context 'The system is able to submit 674s automatically' do
@@ -23,6 +27,9 @@ RSpec.describe BGSV2::Form674 do
       VCR.use_cassette('bgs/form674/submit') do
         VCR.use_cassette('bid/awards/get_awards_pension') do
           VCR.use_cassette('bgs/service/create_note') do
+            # Explicitly stub only the flag we need
+            allow(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_call_original
+
             modify_dependents = BGSV2::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
 
             expect(modify_dependents).to include(
@@ -40,6 +47,9 @@ RSpec.describe BGSV2::Form674 do
 
     it 'calls all methods in flow and submits an automated claim' do
       VCR.use_cassette('bgs/form674/submit') do
+        # Explicitly stub only the flag we need
+        allow(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_call_original
+
         expect_any_instance_of(BGSV2::Service).to receive(:create_proc).and_call_original
         expect_any_instance_of(BGSV2::Service).to receive(:create_proc_form).and_call_original
         expect_any_instance_of(BGSV2::VnpVeteran).to receive(:create).and_call_original
@@ -53,21 +63,12 @@ RSpec.describe BGSV2::Form674 do
       end
     end
 
-    it 'submits a manual claim with pension disabled' do
-      VCR.use_cassette('bgs/form674/submit') do
-        VCR.use_cassette('bgs/service/create_note') do
-          expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
-
-          BGSV2::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
-        end
-      end
-    end
-
-    it 'submits a manual claim with pension enabled' do
+    it 'submits a manual claim with pension' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
       VCR.use_cassette('bgs/form674/submit') do
         VCR.use_cassette('bid/awards/get_awards_pension') do
           VCR.use_cassette('bgs/service/create_note') do
-            expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
             expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
             BGSV2::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
