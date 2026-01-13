@@ -629,6 +629,12 @@ iam_ssoe:
   client_key_path: <%= ENV['iam_ssoe__client_key_path'] %>
   oauth_url: <%= ENV['iam_ssoe__oauth_url'] %>
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: <%= ENV['bio__ibm_mms__host'] %>
+  path: <%= ENV['bio__ibm_mms__path'] %>
+  use_mocks: <%= ENV['bio__ibm_mms__use_mocks'] %>
+  version: <%= ENV['bio__ibm_mms__version'] %>
 intent_to_file:
   prefill: true
 ivc_champva:
