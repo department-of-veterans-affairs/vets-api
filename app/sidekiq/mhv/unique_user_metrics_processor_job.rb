@@ -31,38 +31,41 @@ module MHV
     # Prevent duplicate job execution (matches 10-minute schedule interval)
     sidekiq_options retry: 3, unique_for: 10.minutes
 
-    # Configuration from Settings (AWS Parameter Store)
-    # These must be configured in settings.yml - job will fail fast if missing
-    # Use explicit .to_i coercion since Settings values may arrive as strings or integers
-    # depending on how Parameter Store delivers them (env_parse_values converts "500" to 500,
-    # but this ensures consistent handling regardless of source type)
-    BATCH_SIZE = begin
-      value = Settings.unique_user_metrics&.processor_job&.batch_size.to_i
-      raise 'unique_user_metrics.processor_job.batch_size must be a positive integer' unless value.positive?
-
-      value
-    end
-
-    MAX_ITERATIONS = begin
-      value = Settings.unique_user_metrics&.processor_job&.max_iterations.to_i
-      raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer' unless value.positive?
-
-      value
-    end
-
-    MAX_QUEUE_DEPTH = begin
-      value = Settings.unique_user_metrics&.processor_job&.max_queue_depth.to_i
-      raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer' unless value.positive?
-
-      value
-    end
-
     # StatsD metrics keys
     STATSD_PREFIX = 'uum.processor_job'
 
     # Cache configuration (matches MHVMetricsUniqueUserEvent)
     CACHE_NAMESPACE = 'unique_user_metrics'
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
+
+    # Configuration from Settings (AWS Parameter Store)
+    # These are class methods (not constants) to allow dynamic configuration changes
+    # without requiring Sidekiq restart. Values are read fresh on each job run.
+    #
+    # Use explicit .to_i coercion since Settings values may arrive as strings or integers
+    # depending on how Parameter Store delivers them.
+    class << self
+      def batch_size
+        value = Settings.unique_user_metrics&.processor_job&.batch_size.to_i
+        raise 'unique_user_metrics.processor_job.batch_size must be a positive integer' unless value.positive?
+
+        value
+      end
+
+      def max_iterations
+        value = Settings.unique_user_metrics&.processor_job&.max_iterations.to_i
+        raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer' unless value.positive?
+
+        value
+      end
+
+      def max_queue_depth
+        value = Settings.unique_user_metrics&.processor_job&.max_queue_depth.to_i
+        raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer' unless value.positive?
+
+        value
+      end
+    end
 
     def perform
       job_start_time = Time.current
@@ -75,7 +78,7 @@ module MHV
 
       loop do
         # Check safeguard before each iteration
-        break if iterations >= MAX_ITERATIONS
+        break if iterations >= self.class.max_iterations
 
         # PEEK - Read events without removing them from buffer
         events = peek_events_from_buffer
@@ -107,7 +110,7 @@ module MHV
     #
     # @return [Array<Hash>] Array of event hashes with :user_id and :event_name keys
     def peek_events_from_buffer
-      UniqueUserEvents::Buffer.peek_batch(BATCH_SIZE)
+      UniqueUserEvents::Buffer.peek_batch(self.class.batch_size)
     end
 
     # Trim processed events from the buffer after successful processing
@@ -294,12 +297,12 @@ module MHV
     #
     # @param queue_depth [Integer] Current queue depth
     def check_queue_overflow(queue_depth)
-      return unless queue_depth > MAX_QUEUE_DEPTH
+      return unless queue_depth > self.class.max_queue_depth
 
       StatsD.increment("#{STATSD_PREFIX}.queue_overflow")
       Rails.logger.warn('UUM Processor: Queue depth exceeds threshold', {
                           queue_depth:,
-                          max_queue_depth: MAX_QUEUE_DEPTH
+                          max_queue_depth: self.class.max_queue_depth
                         })
     end
   end

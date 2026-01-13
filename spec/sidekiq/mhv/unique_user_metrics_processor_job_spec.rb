@@ -54,7 +54,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
       it 'peeks events from buffer and trims after processing' do
         job.perform
 
-        expect(UniqueUserEvents::Buffer).to have_received(:peek_batch).with(described_class::BATCH_SIZE).at_least(:once)
+        expect(UniqueUserEvents::Buffer).to have_received(:peek_batch).with(described_class.batch_size).at_least(:once)
         expect(UniqueUserEvents::Buffer).to have_received(:trim_batch).with(events.size)
       end
 
@@ -104,7 +104,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
       end
     end
 
-    context 'when MAX_ITERATIONS is reached' do
+    context 'when max_iterations is reached' do
       let(:events) { [{ user_id: SecureRandom.uuid, event_name: 'event_1' }] }
 
       before do
@@ -118,11 +118,11 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         )
       end
 
-      it 'stops after MAX_ITERATIONS' do
+      it 'stops after max_iterations' do
         job.perform
 
         expect(UniqueUserEvents::Buffer).to have_received(:trim_batch)
-          .exactly(described_class::MAX_ITERATIONS).times
+          .exactly(described_class.max_iterations).times
       end
     end
 
@@ -164,9 +164,9 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
       end
     end
 
-    context 'when queue depth exceeds MAX_QUEUE_DEPTH' do
+    context 'when queue depth exceeds max_queue_depth' do
       let(:events) { [{ user_id: SecureRandom.uuid, event_name: 'event_1' }] }
-      let(:high_queue_depth) { described_class::MAX_QUEUE_DEPTH + 1000 }
+      let(:high_queue_depth) { described_class.max_queue_depth + 1000 }
 
       before do
         allow(UniqueUserEvents::Buffer).to receive(:peek_batch).and_return(events, [])
@@ -184,7 +184,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(Rails.logger).to have_received(:warn).with(
           'UUM Processor: Queue depth exceeds threshold',
-          hash_including(queue_depth: high_queue_depth, max_queue_depth: described_class::MAX_QUEUE_DEPTH)
+          hash_including(queue_depth: high_queue_depth, max_queue_depth: described_class.max_queue_depth)
         )
       end
 

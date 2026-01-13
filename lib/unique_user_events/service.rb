@@ -122,7 +122,7 @@ module UniqueUserEvents
 
       if event_created
         increment_statsd_counter(event_name)
-        Rails.logger.info('UUM: New event logged', { user_id:, event_name: })
+        Rails.logger.debug('UUM: New event logged', { user_id:, event_name: })
       end
 
       build_event_result(event_name, event_created)
@@ -139,8 +139,12 @@ module UniqueUserEvents
     #
     # @param user [User] the authenticated User object
     # @return [String] User account UUID
+    # @raise [ArgumentError] if user has no valid UUID
     def self.extract_user_id(user)
-      user.user_account_uuid || user.uuid
+      user_id = user.user_account_uuid || user.uuid
+      raise ArgumentError, 'User has no valid UUID (user_account_uuid and uuid are both nil)' if user_id.blank?
+
+      user_id
     end
 
     # Build event result hash for API response
