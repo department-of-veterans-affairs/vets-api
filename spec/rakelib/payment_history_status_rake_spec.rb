@@ -16,6 +16,356 @@ RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
     task.reenable
   end
 
+  describe '#mask_value' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    context 'when value is nil' do
+      it 'returns "nil"' do
+        result = rake_context.send(:mask_value, nil)
+        expect(result).to eq('nil')
+      end
+    end
+
+    context 'when value length is less than or equal to visible_start' do
+      it 'returns the original value for exact length match' do
+        result = rake_context.send(:mask_value, '1234', visible_start: 4)
+        expect(result).to eq('1234')
+      end
+
+      it 'returns the original value for shorter strings' do
+        result = rake_context.send(:mask_value, 'abc', visible_start: 4)
+        expect(result).to eq('abc')
+      end
+
+      it 'returns empty string unchanged' do
+        result = rake_context.send(:mask_value, '', visible_start: 4)
+        expect(result).to eq('')
+      end
+    end
+
+    context 'with default parameters (visible_start: 4, visible_end: 0)' do
+      it 'masks everything after first 4 characters' do
+        result = rake_context.send(:mask_value, '1234567890')
+        expect(result).to eq('1234******')
+      end
+
+      it 'masks a long string correctly' do
+        result = rake_context.send(:mask_value, '1234567890ABCDEF')
+        expect(result).to eq('1234************')
+      end
+
+      it 'masks string with exactly 5 characters' do
+        result = rake_context.send(:mask_value, '12345')
+        expect(result).to eq('1234*')
+      end
+    end
+
+    context 'with custom visible_start' do
+      it 'shows only first 2 characters' do
+        result = rake_context.send(:mask_value, '1234567890', visible_start: 2)
+        expect(result).to eq('12********')
+      end
+
+      it 'shows first 6 characters' do
+        result = rake_context.send(:mask_value, '1234567890', visible_start: 6)
+        expect(result).to eq('123456****')
+      end
+
+      it 'shows first 3 characters' do
+        result = rake_context.send(:mask_value, 'abcdefgh', visible_start: 3)
+        expect(result).to eq('abc*****')
+      end
+    end
+
+    context 'with custom visible_end' do
+      it 'shows last 4 characters' do
+        result = rake_context.send(:mask_value, '1234567890', visible_start: 4, visible_end: 4)
+        expect(result).to eq('1234**7890')
+      end
+
+      it 'shows last 3 characters' do
+        result = rake_context.send(:mask_value, 'test@email.com', visible_start: 4, visible_end: 4)
+        expect(result).to eq('test******.com')
+      end
+
+      it 'handles zero visible_end explicitly' do
+        result = rake_context.send(:mask_value, '1234567890', visible_start: 4, visible_end: 0)
+        expect(result).to eq('1234******')
+      end
+    end
+
+    context 'with both visible_start and visible_end' do
+      it 'masks middle portion with 3 visible at start and 4 at end' do
+        result = rake_context.send(:mask_value, 'secret@email.com', visible_start: 6, visible_end: 4)
+        expect(result).to eq('secret******.com')
+      end
+
+      it 'handles SSN-like format with dashes' do
+        result = rake_context.send(:mask_value, '123-45-6789', visible_start: 0, visible_end: 4)
+        expect(result).to eq('*******6789')
+      end
+
+      it 'handles ICN-like identifiers' do
+        result = rake_context.send(:mask_value, '1234567890V123456', visible_start: 4, visible_end: 0)
+        expect(result).to eq('1234*************')
+      end
+    end
+
+    context 'edge cases' do
+      it 'handles single character string' do
+        result = rake_context.send(:mask_value, 'a', visible_start: 4)
+        expect(result).to eq('a')
+      end
+
+      it 'handles string where visible_start + visible_end equals length' do
+        result = rake_context.send(:mask_value, '12345', visible_start: 2, visible_end: 3)
+        expect(result).to eq('12345')
+      end
+
+      it 'handles string where visible_start + visible_end is greater than length' do
+        result = rake_context.send(:mask_value, '123', visible_start: 2, visible_end: 3)
+        expect(result).to eq('123')
+      end
+
+      it 'masks entire middle for exact boundaries' do
+        result = rake_context.send(:mask_value, '1234567890', visible_start: 3, visible_end: 3)
+        expect(result).to eq('123****890')
+      end
+    end
+
+    context 'real-world examples' do
+      it 'masks email addresses' do
+        result = rake_context.send(:mask_value, 'user@example.com', visible_start: 4, visible_end: 4)
+        expect(result).to eq('user********.com')
+      end
+
+      it 'masks phone numbers' do
+        result = rake_context.send(:mask_value, '555-123-4567', visible_start: 4, visible_end: 4)
+        expect(result).to eq('555-****4567')
+      end
+
+      it 'masks credit card numbers' do
+        result = rake_context.send(:mask_value, '4111111111111111', visible_start: 4, visible_end: 4)
+        expect(result).to eq('4111********1111')
+      end
+    end
+  end
+
+  describe '#mask_icn' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    it 'uses mask_value with default ICN parameters' do
+      result = rake_context.send(:mask_icn, '1234567890V123456')
+      expect(result).to eq('1234*************')
+    end
+
+    it 'handles nil ICN' do
+      result = rake_context.send(:mask_icn, nil)
+      expect(result).to eq('nil')
+    end
+
+    it 'handles short ICN' do
+      result = rake_context.send(:mask_icn, '123')
+      expect(result).to eq('123')
+    end
+  end
+
+  describe '#mask_first_name' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    it 'masks first name showing only first character' do
+      result = rake_context.send(:mask_first_name, 'John')
+      expect(result).to eq('J***')
+    end
+
+    it 'masks longer first name' do
+      result = rake_context.send(:mask_first_name, 'Alexander')
+      expect(result).to eq('A********')
+    end
+
+    it 'handles short first name' do
+      result = rake_context.send(:mask_first_name, 'J')
+      expect(result).to eq('J')
+    end
+
+    it 'handles nil first name' do
+      result = rake_context.send(:mask_first_name, nil)
+      expect(result).to eq('nil')
+    end
+
+    it 'handles empty first name' do
+      result = rake_context.send(:mask_first_name, '')
+      expect(result).to eq('')
+    end
+
+    it 'masks two-character first name' do
+      result = rake_context.send(:mask_first_name, 'Bo')
+      expect(result).to eq('B*')
+    end
+  end
+
+  describe '#mask_last_name' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    it 'masks last name showing only first character' do
+      result = rake_context.send(:mask_last_name, 'Doe')
+      expect(result).to eq('D**')
+    end
+
+    it 'masks longer last name' do
+      result = rake_context.send(:mask_last_name, 'Washington')
+      expect(result).to eq('W*********')
+    end
+
+    it 'masks hyphenated last name' do
+      result = rake_context.send(:mask_last_name, 'Smith-Jones')
+      expect(result).to eq('S**********')
+    end
+
+    it 'handles short last name' do
+      result = rake_context.send(:mask_last_name, 'O')
+      expect(result).to eq('O')
+    end
+
+    it 'handles nil last name' do
+      result = rake_context.send(:mask_last_name, nil)
+      expect(result).to eq('nil')
+    end
+
+    it 'handles empty last name' do
+      result = rake_context.send(:mask_last_name, '')
+      expect(result).to eq('')
+    end
+
+    it 'masks two-character last name' do
+      result = rake_context.send(:mask_last_name, 'Wu')
+      expect(result).to eq('W*')
+    end
+  end
+
+  describe '#mask_file_number' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    it 'masks file number showing only last 4 digits' do
+      result = rake_context.send(:mask_file_number, '123456789')
+      expect(result).to eq('*****6789')
+    end
+
+    it 'masks file number as string' do
+      result = rake_context.send(:mask_file_number, '987654321')
+      expect(result).to eq('*****4321')
+    end
+
+    it 'masks file number as integer' do
+      result = rake_context.send(:mask_file_number, 123_456_789)
+      expect(result).to eq('*****6789')
+    end
+
+    it 'handles short file number (less than 4 characters)' do
+      result = rake_context.send(:mask_file_number, '123')
+      expect(result).to eq('123')
+    end
+
+    it 'handles exactly 4 character file number' do
+      result = rake_context.send(:mask_file_number, '1234')
+      expect(result).to eq('1234')
+    end
+
+    it 'handles nil file number' do
+      result = rake_context.send(:mask_file_number, nil)
+      expect(result).to eq('nil')
+    end
+
+    it 'masks longer file number correctly' do
+      result = rake_context.send(:mask_file_number, '12345678901234')
+      expect(result).to eq('**********1234')
+    end
+
+    it 'handles file number with exactly 5 digits' do
+      result = rake_context.send(:mask_file_number, '12345')
+      expect(result).to eq('*2345')
+    end
+  end
+
+  describe '#mask_participant_id' do
+    let(:rake_context) do
+      Class.new do
+        include Rake::DSL
+        Rake.application.rake_require '../rakelib/payment_history_status'
+      end.new
+    end
+
+    it 'masks participant ID showing first 3 and last 2 digits' do
+      result = rake_context.send(:mask_participant_id, '600061742')
+      expect(result).to eq('600****42')
+    end
+
+    it 'masks another participant ID' do
+      result = rake_context.send(:mask_participant_id, '600012345')
+      expect(result).to eq('600****45')
+    end
+
+    it 'masks participant ID as integer' do
+      result = rake_context.send(:mask_participant_id, 600_061_742)
+      expect(result).to eq('600****42')
+    end
+
+    it 'handles short participant ID (5 characters or less)' do
+      result = rake_context.send(:mask_participant_id, '12345')
+      expect(result).to eq('12345')
+    end
+
+    it 'handles exactly 5 character participant ID' do
+      result = rake_context.send(:mask_participant_id, '60012')
+      expect(result).to eq('60012')
+    end
+
+    it 'handles nil participant ID' do
+      result = rake_context.send(:mask_participant_id, nil)
+      expect(result).to eq('nil')
+    end
+
+    it 'masks longer participant ID correctly' do
+      result = rake_context.send(:mask_participant_id, '123456789012')
+      expect(result).to eq('123*******12')
+    end
+
+    it 'handles exactly 6 character participant ID' do
+      result = rake_context.send(:mask_participant_id, '600123')
+      expect(result).to eq('600*23')
+    end
+
+    it 'handles participant ID as string' do
+      result = rake_context.send(:mask_participant_id, '987654321')
+      expect(result).to eq('987****21')
+    end
+  end
+
   describe 'payment_history:check_empty_history' do
     context 'when no ICN is provided' do
       it 'displays usage message and exits' do
@@ -84,8 +434,8 @@ RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
           expect { task.invoke(icn) }.to output(/✓ User found in MPI/).to_stdout
         end
 
-        it 'shows user name from MPI' do
-          expect { task.invoke(icn) }.to output(/Name: John Doe/).to_stdout
+        it 'shows user name from MPI (masked)' do
+          expect { task.invoke(icn) }.to output(/Name: J\*\*\* D\*\*/).to_stdout
         end
       end
 

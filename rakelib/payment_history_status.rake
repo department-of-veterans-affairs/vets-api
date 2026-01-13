@@ -36,11 +36,41 @@ namespace :payment_history do
     puts
   end
 
-  def mask_icn(icn)
-    return 'nil' if icn.nil?
-    return icn if icn.length < 4
+  def mask_value(value, visible_start: 4, visible_end: 0)
+    return 'nil' if value.nil?
+    return value if value.length <= visible_start
 
-    "#{icn[0..3]}#{'*' * (icn.length - 4)}"
+    masked_length = value.length - visible_start - visible_end
+    return value if masked_length <= 0
+
+    start_part = value[0...visible_start]
+    end_part = visible_end.positive? ? value[-visible_end..] : ''
+
+    "#{start_part}#{'*' * masked_length}#{end_part}"
+  end
+
+  def mask_icn(icn)
+    mask_value(icn, visible_start: 4, visible_end: 0)
+  end
+
+  def mask_first_name(first_name)
+    mask_value(first_name, visible_start: 1, visible_end: 0)
+  end
+
+  def mask_last_name(last_name)
+    mask_value(last_name, visible_start: 1, visible_end: 0)
+  end
+
+  def mask_file_number(file_number)
+    return 'nil' if file_number.nil?
+
+    mask_value(file_number.to_s, visible_start: 0, visible_end: 4)
+  end
+
+  def mask_participant_id(participant_id)
+    return 'nil' if participant_id.nil?
+
+    mask_value(participant_id.to_s, visible_start: 3, visible_end: 2)
   end
 
   def check_feature_flag
@@ -91,7 +121,9 @@ namespace :payment_history do
   def handle_mpi_response(response)
     if response.ok?
       puts '✓ User found in MPI'
-      puts "  Name: #{response.profile.given_names&.first} #{response.profile.family_name}"
+      first_name = response.profile.given_names&.first
+      last_name = response.profile.family_name
+      puts "  Name: #{mask_first_name(first_name)} #{mask_last_name(last_name)}"
       puts "  ICN: #{mask_icn(response.profile.icn)}"
       response.profile
     elsif response.not_found?
@@ -141,7 +173,7 @@ namespace :payment_history do
 
   def check_participant_id_presence(mpi_profile)
     if mpi_profile.participant_id.present?
-      puts "✓ Participant ID present: #{mpi_profile.participant_id}"
+      puts "✓ Participant ID present: #{mask_participant_id(mpi_profile.participant_id)}"
       true
     else
       puts '✗ Participant ID missing'
@@ -213,8 +245,8 @@ namespace :payment_history do
       return nil
     end
 
-    puts "✓ File number present: #{person.file_number}"
-    puts "  Participant ID: #{person.participant_id}"
+    puts "✓ File number present: #{mask_file_number(person.file_number)}"
+    puts "  Participant ID: #{mask_participant_id(person.participant_id)}"
     puts "  SSN: ***-**-#{person.ssn_number.to_s[-4..]}"
     person
   end
@@ -296,8 +328,8 @@ namespace :payment_history do
     puts
     puts "Payment #{index + 1}:"
     puts "  Payee type: #{payment[:payee_type]}"
-    puts "  Beneficiary Participant ID: #{payment[:beneficiary_participant_id]}"
-    puts "  Recipient Participant ID: #{payment[:recipient_participant_id]}"
+    puts "  Beneficiary Participant ID: #{mask_participant_id(payment[:beneficiary_participant_id])}"
+    puts "  Recipient Participant ID: #{mask_participant_id(payment[:recipient_participant_id])}"
 
     is_third_party_vendor = payment[:payee_type] == 'Third Party/Vendor'
     ids_dont_match = payment[:beneficiary_participant_id] != payment[:recipient_participant_id]
