@@ -737,6 +737,7 @@ lighthouse:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
       client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
+      kid: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__kid'] %>
       rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
