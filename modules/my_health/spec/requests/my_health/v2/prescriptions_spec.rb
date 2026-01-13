@@ -664,7 +664,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
                 attrs = rx['attributes']
                 disp_status = attrs['disp_status']
                 # When flag is ON, status should be "Inactive" (not "Expired")
-                expect(['Active', 'Inactive']).to include(disp_status)
+                expect(disp_status).to be_in(%w[Active Inactive])
               end
             end
           end
@@ -709,7 +709,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
                 attrs = rx['attributes']
                 disp_status = attrs['disp_status']
                 # When flag is OFF, status should be "Expired" (not "Inactive")
-                expect(['Active', 'Expired']).to include(disp_status)
+                expect(disp_status).to be_in(%w[Active Expired])
               end
             end
           end
@@ -741,7 +741,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             json_response['data'].each do |prescription|
               attributes = prescription['attributes']
               expect(attributes['disp_status']).to eq('Active')
-              expect(attributes['is_trackable']).to eq(true)
+              expect(attributes['is_trackable']).to be(true)
             end
           end
         end
@@ -756,7 +756,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             # Verify all returned prescriptions are renewable
             json_response['data'].each do |prescription|
               attributes = prescription['attributes']
-              expect(attributes['is_renewable']).to eq(true)
+              expect(attributes['is_renewable']).to be(true)
             end
           end
         end
@@ -798,36 +798,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
                 disp_status = attrs['disp_status']
 
                 # Should be either Active or Inactive (mapped from Expired)
-                expect(['Active', 'Inactive']).to include(disp_status)
-              end
-            end
-          end
-        end
-
-        it 'renewable filter works with V2StatusMapping (Inactive status)' do
-          # This test verifies that the renewable() helper correctly handles both "Expired" and "Inactive"
-          # When V2StatusMapping is enabled, "Expired" is mapped to "Inactive", so renewable logic must check both
-          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
-
-            json_response = JSON.parse(response.body)
-            expect(response).to have_http_status(:success)
-
-            # The renewable filter should return prescriptions with:
-            # 1. disp_status = "Active" with zero refills and not refillable
-            # 2. disp_status = "Inactive" (mapped from "Expired") within renewal window (120 days)
-            # Verify prescriptions match renewable criteria
-            renewable_prescriptions = json_response['data']
-            expect(renewable_prescriptions).to be_an(Array)
-
-            # If there are results, verify they meet renewable criteria
-            if renewable_prescriptions.any?
-              renewable_prescriptions.each do |rx|
-                attrs = rx['attributes']
-                disp_status = attrs['disp_status']
-
-                # Should be either Active or Inactive (mapped from Expired)
-                expect(['Active', 'Inactive']).to include(disp_status)
+                expect(disp_status).to be_in(%w[Active Inactive])
               end
             end
           end
@@ -848,7 +819,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'combines is_trackable and disp_status filters' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true&filter[[disp_status][eq]]=Active', headers:)
+            get(
+              '/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true&filter[[disp_status][eq]]=Active',
+              headers:
+            )
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -857,7 +831,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             json_response['data'].each do |prescription|
               attributes = prescription['attributes']
               expect(attributes['disp_status']).to eq('Active')
-              expect(attributes['is_trackable']).to eq(true)
+              expect(attributes['is_trackable']).to be(true)
             end
           end
         end
