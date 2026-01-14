@@ -80,11 +80,7 @@ module VeteranStatusCard
     # @return [Boolean] true if eligible, false otherwise
     #
     def eligible?
-      return true if vet_verification_eligible?
-
-      return true if ssc_eligible?
-
-      false
+      vet_verification_eligible? || ssc_eligible?
     end
 
     ##
@@ -134,40 +130,17 @@ module VeteranStatusCard
     end
 
     ##
-    # Gets the user's combined disability rating percentage
-    # Uses Lighthouse API if enabled, otherwise falls back to EVSS
-    # Returns nil if both services fail
-    #
-    # @return [Integer, nil] the combined disability rating percentage or nil on error
-    #
-    def disability_rating
-      lighthouse? ? lighthouse_rating : evss_rating
-    rescue => e
-      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
-      nil
-    end
-
-    ##
-    # Checks if Lighthouse rating API is enabled for this user
-    #
-    # @return [Boolean] true if Lighthouse is enabled, false otherwise
-    #
-    def lighthouse?
-      Flipper.enabled?(:profile_lighthouse_rating_info, @user)
-    end
-
-    ##
     # Gets the disability rating from Lighthouse API
     # Returns nil if service call fails or user missing ICN
     #
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
-    def lighthouse_rating
+    def disability_rating
       return nil if @user.icn.blank?
 
       lighthouse_disabilities_provider.get_combined_disability_rating
     rescue => e
-      Rails.logger.error("Lighthouse disabilities error: #{e.message}", backtrace: e.backtrace)
+      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
       nil
     end
 
@@ -178,30 +151,6 @@ module VeteranStatusCard
     #
     def lighthouse_disabilities_provider
       @lighthouse_disabilities_provider ||= LighthouseRatedDisabilitiesProvider.new(@user.icn)
-    end
-
-    ##
-    # Gets the disability rating from EVSS API
-    # Returns nil if service call fails
-    #
-    # @return [Integer, nil] the combined disability rating percentage from EVSS or nil on error
-    #
-    def evss_rating
-      return nil if auth_headers.nil?
-
-      evss_service.get_rating_info
-    rescue => e
-      Rails.logger.error("EVSS rating error: #{e.message}", backtrace: e.backtrace)
-      nil
-    end
-
-    ##
-    # Returns the EVSS service instance (memoized)
-    #
-    # @return [EVSS::CommonService] the EVSS service instance
-    #
-    def evss_service
-      @evss_service ||= EVSS::CommonService.new(auth_headers)
     end
 
     ##
@@ -264,9 +213,7 @@ module VeteranStatusCard
     # @return [Boolean] true if SSC code indicates eligibility, false otherwise
     #
     def ssc_eligible?
-      return true if more_research_required_not_title_38? && CONFIRMED_SSC_CODES.include?(ssc_code)
-
-      false
+      more_research_required_not_title_38? && CONFIRMED_SSC_CODES.include?(ssc_code)
     end
 
     ##
@@ -308,10 +255,9 @@ module VeteranStatusCard
     #
     def military_personnel_response
       return @military_personnel_response if defined?(@military_personnel_response)
+      return @military_personnel_response = nil if @user.edipi.blank?
 
       @military_personnel_response = begin
-        return nil if @user.edipi.blank?
-
         military_personnel_service.get_dod_service_summary
       rescue => e
         Rails.logger.error("VAProfile::MilitaryPersonnel (DoD Summary) error: #{e.message}", backtrace: e.backtrace)
@@ -383,10 +329,9 @@ module VeteranStatusCard
     #
     def vet_verification_response
       return @vet_verification_response if defined?(@vet_verification_response)
+      return @vet_verification_response = nil if @user.icn.blank?
 
       @vet_verification_response = begin
-        return nil if @user.icn.blank?
-
         vet_verification_service.get_vet_verification_status(@user.icn)
       rescue => e
         Rails.logger.error("VeteranVerification::Service error: #{e.message}", backtrace: e.backtrace)

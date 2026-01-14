@@ -15,9 +15,7 @@ module SM
         cache_key = "#{user_uuid}-triage-teams"
         get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
           json = perform(:get, 'triageteam', nil, token_headers).body
-          data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-          TriageTeam.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
-          data
+          Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
         end
       end
 
@@ -33,9 +31,7 @@ module SM
         get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
           path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
           json = perform(:get, path, nil, token_headers).body
-          data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-          AllTriageTeams.set_cached(cache_key, data.records) unless Flipper.enabled?(:mhv_secure_messaging_no_cache)
-          data
+          Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
         end
       end
 

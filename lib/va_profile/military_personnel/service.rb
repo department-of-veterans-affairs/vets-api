@@ -69,12 +69,10 @@ module VAProfile
       rescue Common::Client::Errors::ClientError => e
         error_status = e.status
         if error_status == 404
-          log_exception_to_sentry(
-            e, { edipi: @user.edipi }, { va_profile: :dod_service_summary_not_found }, :warning
-          )
+          Rails.logger.warn('Dod Service Summary not found', edipi: @user.edipi)
 
           return DodServiceSummaryResponse.new(404, dod_service_summary: nil)
-        elsif error_status && error_status >= 400 && error_status < 500
+        elsif error_status && (400...500).include?(error_status)
           return DodServiceSummaryResponse.new(error_status, dod_service_summary: nil)
         end
 

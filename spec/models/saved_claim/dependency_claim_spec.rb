@@ -98,7 +98,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
       describe '#formatted_686_data' do
         it 'returns all data for 686 submissions' do
@@ -141,7 +141,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: form_674_only_v2.to_json) }
 
       describe '#submittable_686?' do
         it 'returns false if there is no 686 to process' do
@@ -169,7 +169,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'processing a v2 payload' do
-      subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
+      subject { described_class.new(form: adopted_child_v2.to_json) }
 
       describe '#submittable_674?' do
         it 'returns false if there is no 674 to process' do
@@ -186,7 +186,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   context 'v2 form on and vets json schema enabled' do
-    subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+    subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
@@ -229,7 +229,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   context 'v2 form and vets json schema disabled' do
-    subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
+    subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
@@ -614,6 +614,67 @@ RSpec.describe SavedClaim::DependencyClaim do
 
       it 'raises an error in the PDF filler' do
         expect { no_veteran_claim.to_pdf(form_id: '686C-674-V2') }.to raise_error(Dependents::ErrorClasses::MissingVeteranInfoError)
+      end
+    end
+  end
+
+  describe '#pension_related_submission?' do
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(subject.pension_related_submission?).to be(false)
+      end
+    end
+
+    context 'when flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
+      end
+
+      context 'when household income is present' do
+        before do
+          subject.parsed_form['dependents_application']['household_income'] = { 'amount' => 5000 }
+        end
+
+        it 'returns true' do
+          expect(subject.pension_related_submission?).to be(true)
+        end
+      end
+
+      context 'when student income info is present' do
+        before do
+          subject.parsed_form['dependents_application']['student_information'] = [
+            { 'student_networth_information' => { 'savings' => 1000 } }
+          ]
+        end
+
+        it 'returns true' do
+          expect(subject.pension_related_submission?).to be(true)
+        end
+      end
+
+      context 'when neither household nor student income info is present' do
+        before do
+          subject.parsed_form['dependents_application'].delete('household_income')
+          subject.parsed_form['dependents_application'].delete('student_information')
+        end
+
+        it 'returns false' do
+          expect(subject.pension_related_submission?).to be(false)
+        end
+      end
+
+      context 'when student_information is empty array' do
+        before do
+          subject.parsed_form['dependents_application']['student_information'] = []
+        end
+
+        it 'returns false' do
+          expect(subject.pension_related_submission?).to be(false)
+        end
       end
     end
   end
