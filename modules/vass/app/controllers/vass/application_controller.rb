@@ -165,5 +165,39 @@ module Vass
         }]
       }, status:
     end
+
+    ##
+    # Validates that required parameters are present.
+    # Raises ActionController::ParameterMissing if any parameter is missing.
+    # Available to all VASS controllers.
+    #
+    # @param param_names [Array<Symbol>] Parameter names to validate
+    # @raise [ActionController::ParameterMissing] if any parameter is missing
+    #
+    # @example Validate single parameter
+    #   validate_required_params!(:appointment_id)
+    #
+    # @example Validate multiple parameters
+    #   validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
+    #
+    # @example Validate nested parameters
+    #   session_params = params.require(:session)
+    #   validate_required_params_in!(session_params, :uuid, :last_name, :dob)
+    #
+    def validate_required_params!(*param_names)
+      param_names.each { |param| params.require(param) }
+    end
+
+    ##
+    # Validates that required parameters are present in a nested parameter hash.
+    # Raises ActionController::ParameterMissing if any parameter is missing.
+    #
+    # @param param_hash [ActionController::Parameters] Nested parameter hash
+    # @param param_names [Array<Symbol>] Parameter names to validate
+    # @raise [ActionController::ParameterMissing] if any parameter is missing
+    #
+    def validate_required_params_in!(param_hash, *param_names)
+      param_names.each { |param| param_hash.require(param) }
+    end
   end
 end

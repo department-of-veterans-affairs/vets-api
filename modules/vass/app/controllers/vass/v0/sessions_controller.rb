@@ -10,6 +10,8 @@ module Vass
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
+      rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
+
       ##
       # POST /vass/v0/request-otc
       #
@@ -29,9 +31,10 @@ module Vass
       # @return [JSON] Success message and expiration time per spec
       #
       def request_otc
-        session = Vass::V0::Session.build(data: permitted_params)
+        session_params = params.require(:session)
+        validate_required_params_in!(session_params, :uuid, :last_name, :dob)
 
-        return unless validate_session_for_creation(session)
+        session = Vass::V0::Session.build(data: permitted_params)
 
         check_all_rate_limits(session.uuid)
         process_otc_creation(session)
@@ -65,6 +68,9 @@ module Vass
       # @return [JSON] JWT token and expiration per spec
       #
       def authenticate_otc
+        session_params = params.require(:session)
+        validate_required_params_in!(session_params, :uuid, :last_name, :dob, :otc)
+
         session = Vass::V0::Session.build(data: permitted_params_for_auth)
 
         check_validation_rate_limit(session.uuid)
@@ -324,50 +330,29 @@ module Vass
       end
 
       ##
-      # Validates session for creation.
+      # Handles missing parameter errors from Rails params.require().
       #
-      # @param session [Vass::V0::Session] Session instance
-      # @return [Boolean] true if valid, false otherwise
+      # @param exception [ActionController::ParameterMissing] The exception
       #
-      def validate_session_for_creation(session)
-        return true if session.valid_for_creation?
-
-        log_validation_error
+      def handle_parameter_missing(exception)
         render_error_response(
-          code: 'invalid_request',
-          detail: 'Missing required parameters.',
-          status: :unprocessable_entity
+          code: 'missing_parameter',
+          detail: exception.message,
+          status: :bad_request
         )
-        false
       end
 
       ##
-      # Validates OTC session parameters (but not OTC value).
+      # Validates OTC session (checks for expiry).
       # The actual OTC validation and deletion happens atomically in validate_and_generate_jwt.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] true if valid, false otherwise
       #
       def validate_otc_session(session)
-        return handle_invalid_request unless session.valid_for_validation?
         return handle_expired_otc(session) if session.otc_expired?
 
         true
-      end
-
-      ##
-      # Handles invalid request (missing parameters).
-      #
-      # @return [Boolean] false
-      #
-      def handle_invalid_request
-        log_validation_error
-        render_error_response(
-          code: 'invalid_request',
-          detail: 'Missing required parameters.',
-          status: :unprocessable_entity
-        )
-        false
       end
 
       ##

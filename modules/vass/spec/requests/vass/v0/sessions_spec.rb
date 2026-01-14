@@ -278,13 +278,15 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     end
 
     context 'with missing OTC' do
-      it 'returns unprocessable entity status' do
+      it 'returns bad request status' do
         missing_otc_params = { session: { uuid:, last_name:, dob: date_of_birth } }
         post '/vass/v0/authenticate-otc', params: missing_otc_params, as: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['code']).to eq('missing_parameter')
+        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
       end
     end
 

@@ -80,7 +80,8 @@ module Vass
       #   }
       #
       def show
-        appointment_id = params.require(:appointment_id)
+        validate_required_params!(:appointment_id)
+        appointment_id = params[:appointment_id]
 
         response = @appointments_service.get_appointment(appointment_id:)
         render_vass_response(
@@ -106,7 +107,8 @@ module Vass
       #   }
       #
       def cancel
-        appointment_id = params.require(:appointment_id)
+        validate_required_params!(:appointment_id)
+        appointment_id = params[:appointment_id]
 
         response = @appointments_service.cancel_appointment(appointment_id:)
         render_vass_response(
@@ -139,10 +141,7 @@ module Vass
       #   }
       #
       def create
-        # Validate required params using Rails pattern
-        params.require(:topics)
-        params.require(:dtStartUtc)
-        params.require(:dtEndUtc)
+        validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
 
         session_data = redis_client.get_booking_session(veteran_id: @current_veteran_id)
         appointment_id = session_data&.fetch(:appointment_id, nil)
