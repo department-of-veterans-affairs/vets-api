@@ -39,32 +39,6 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
         expect(response.headers['Warning']).to include('EVSS Claims API is deprecated')
       end
     end
-
-    it 'includes deprecation metadata in index response body' do
-      sign_in_as(evss_user)
-      VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
-        get '/v0/evss_claims'
-
-        json_response = JSON.parse(response.body)
-        expect(json_response['meta']['deprecation']).to be_present
-        expect(json_response['meta']['deprecation']['deprecated']).to be(true)
-        expect(json_response['meta']['deprecation']['sunset_date']).to eq('2026-01-28')
-        expect(json_response['meta']['deprecation']['replacement_endpoint']).to eq('/v0/benefits_claims')
-        expect(json_response['meta']['deprecation']['message']).to include('deprecated')
-        expect(json_response['meta']['deprecation']['days_remaining']).to be_a(Integer)
-      end
-    end
-
-    it 'preserves existing meta fields in index response' do
-      sign_in_as(evss_user)
-      VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
-        get '/v0/evss_claims'
-
-        json_response = JSON.parse(response.body)
-        expect(json_response['meta']['successful_sync']).to be_present
-        expect(json_response['meta']['deprecation']).to be_present
-      end
-    end
   end
 
   it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
@@ -109,30 +83,6 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
         expect(response.headers['Sunset']).to eq('2026-01-28')
         expect(response.headers['Link']).to include('/v0/benefits_claims')
         expect(response.headers['Warning']).to include('EVSS Claims API is deprecated')
-      end
-    end
-
-    it 'includes deprecation metadata in show response body' do
-      sign_in_as(evss_user)
-      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
-        get '/v0/evss_claims/600118851'
-
-        json_response = JSON.parse(response.body)
-        expect(json_response['meta']['deprecation']).to be_present
-        expect(json_response['meta']['deprecation']['deprecated']).to be(true)
-        expect(json_response['meta']['deprecation']['sunset_date']).to eq('2026-01-28')
-        expect(json_response['meta']['deprecation']['replacement_endpoint']).to eq('/v0/benefits_claims')
-      end
-    end
-
-    it 'preserves existing meta fields in show response' do
-      sign_in_as(evss_user)
-      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
-        get '/v0/evss_claims/600118851'
-
-        json_response = JSON.parse(response.body)
-        expect(json_response['meta']['successful_sync']).to be_present
-        expect(json_response['meta']['deprecation']).to be_present
       end
     end
 

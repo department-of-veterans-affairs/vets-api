@@ -52,19 +52,6 @@ module V0
         headers['Warning'] = "299 - \"#{DEPRECATION_MESSAGE}\""
       end
 
-      def add_deprecation_metadata(response_hash)
-        meta = response_hash['meta'] || {}
-        meta['deprecation'] = {
-          'deprecated' => true,
-          'sunset_date' => EVSS_SUNSET_DATE,
-          'days_remaining' => days_until_sunset,
-          'message' => DEPRECATION_MESSAGE,
-          'replacement_endpoint' => '/v0/benefits_claims'
-        }
-        response_hash['meta'] = meta
-        response_hash
-      end
-
       def days_until_sunset
         sunset = Date.parse(EVSS_SUNSET_DATE)
         (sunset - Time.zone.today).to_i
