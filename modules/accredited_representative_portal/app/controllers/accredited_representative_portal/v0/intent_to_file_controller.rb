@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           SavedClaim::BenefitsClaims::IntentToFile.transaction do
-            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
+            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(veteran_icn)
             Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
             claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
             saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
@@ -116,15 +116,28 @@ module AccreditedRepresentativePortal
       end
 
       def service
-        @service ||= BenefitsClaims::Service.new(icn)
+        @service ||= BenefitsClaims::Service.new(veteran_icn)
       end
 
       def icn
-        @icn ||= ClaimantLookupService.get_icn(
+        params[:benefitType] == 'survivor' ? claimant_icn : veteran_icn
+      end
+
+      def veteran_icn
+        @veteran_icn ||= ClaimantLookupService.get_icn(
           params[:veteranFirstName] || params[:veteranFullName][:first],
           params[:veteranLastName] || params[:veteranFullName][:last],
           params[:veteranSsn],
           params[:veteranDateOfBirth]
+        )
+      end
+
+      def claimant_icn
+        @claimant_icn ||= ClaimantLookupService.get_icn(
+          params[:claimantFirstName] || params[:claimantFullName][:first],
+          params[:claimantLastName] || params[:claimantFullName][:last],
+          params[:claimantSsn],
+          params[:claimantDateOfBirth]
         )
       end
 
