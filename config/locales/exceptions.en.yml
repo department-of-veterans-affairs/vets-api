@@ -900,12 +900,6 @@ en:
         code: 'SEARCH_GSA_504'
         detail: 'Did not receive a timely response from api.gsa.gov'
         status: 504
-      SEARCH_TYPEAHEAD_400:
-        <<: *external_defaults
-        title: Bad Request
-        code: 'SEARCH_TYPEAHEAD_400'
-        detail: 'Missing Query'
-        status: 400
       SEARCH_CLICK_TRACKING_400:
         <<: *external_defaults
         title: Bad Request
