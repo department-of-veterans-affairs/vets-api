@@ -234,7 +234,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
 
     it 'calls track_submission on form models that respond to it' do
-      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_with_track_submission)
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                     form_with_track_submission)
       data = JSON.parse(fixture_path.read)
 
       mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
