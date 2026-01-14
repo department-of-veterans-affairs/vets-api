@@ -171,7 +171,6 @@ module V0
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
       Swagger::Requests::SearchClickTracking,
-      Swagger::Requests::SearchTypeahead,
       Swagger::Requests::SignIn,
       Swagger::Requests::TravelPay,
       Swagger::Requests::UploadSupportingEvidence,

@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 68616615591d293fbaca5fe23830b053b2ab752b
+  revision: 1a1b735653b3687e6265093a2a66d4f37cf1b3e1
   branch: master
   specs:
-    vets_json_schema (25.2.41)
+    vets_json_schema (25.2.42)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -476,7 +476,7 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
-    faraday-retry (2.3.2)
+    faraday-retry (2.4.0)
       faraday (~> 2.0)
     faraday-typhoeus (1.1.0)
       faraday (~> 2.0)
@@ -1044,7 +1044,7 @@ GEM
       actionpack (>= 5.2, < 8.2)
       railties (>= 5.2, < 8.2)
     rtesseract (3.1.4)
-    rubocop (1.82.0)
+    rubocop (1.82.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)

@@ -85,7 +85,7 @@ describe VAProfile::Service do
             'addressLine1' => '1493 Martin Luther King Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
-            'addressPOU' => 'RESIDENCE/CHOICE',
+            'addressPOU' => 'RESIDENCE',
             'addressType' => 'DOMESTIC',
             'cityName' => 'Fulton',
             'countryCodeISO2' => nil,

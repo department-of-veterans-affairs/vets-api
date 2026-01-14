@@ -9,7 +9,7 @@ describe Vass::AppointmentsService do
   let(:edipi) { '1234567890' }
   let(:correlation_id) { 'test-correlation-id' }
   let(:veteran_id) { 'vet-123' }
-  let(:appointment_id) { 'appt-abc123' }
+  let(:appointment_id) { 'e61e1a40-1e63-f011-bec2-001dd80351ea' }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -93,7 +93,7 @@ describe Vass::AppointmentsService do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
           end
         end
       end
@@ -136,7 +136,7 @@ describe Vass::AppointmentsService do
 
             expect(result['success']).to be true
             expect(result['data']['appointmentId']).to eq(appointment_id)
-            expect(result['data']['agentNickname']).to eq('Dr. Smith')
+            expect(result['data']['agentNickname']).to eq('Agent Smith')
           end
         end
       end
@@ -245,16 +245,15 @@ describe Vass::AppointmentsService do
       end
 
       context 'when API response is invalid' do
-        let(:invalid_response) do
-          {
-            'success' => false,
-            'message' => 'Veteran not found'
-          }
-        end
-
         before do
-          allow(client).to receive(:get_veteran).and_return(
-            double(body: invalid_response, status: 200)
+          # Client now validates responses and raises ServiceException for invalid responses
+          allow(client).to receive(:get_veteran).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              200,
+              { 'success' => false, 'message' => 'Veteran not found' }
+            )
           )
         end
 
@@ -271,14 +270,108 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves available agent skills' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_agent_skills_success') do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success') do
             result = subject.get_agent_skills
 
-            expect(result['success']).to be true
-            expect(result['data']['agentSkills']).to be_an(Array)
-            expect(result['data']['agentSkills'].length).to eq(4)
-            expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+            expect(result).to be_an(Array)
+            expect(result.length).to eq(3)
+            expect(result.first[:topicId]).to be_present
+            expect(result.first[:topicName]).to be_present
           end
+        end
+      end
+    end
+
+    context 'when client encounters errors' do
+      let(:client) { instance_double(Vass::Client) }
+      let(:service_with_mock_client) do
+        service = described_class.build(edipi:, correlation_id:)
+        allow(service).to receive(:client).and_return(client)
+        service
+      end
+
+      context 'when VASS API returns unsuccessful response' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              503,
+              { 'success' => false, 'message' => 'Service temporarily unavailable' }
+            )
+          )
+        end
+
+        it 'raises VassApiError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::VassApiError, /VASS API error/)
+        end
+      end
+
+      context 'when request times out' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Exceptions::GatewayTimeout.new
+          )
+        end
+
+        it 'raises ServiceError with timeout message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /Request timeout/)
+        end
+      end
+
+      context 'when network error occurs' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Client::Errors::ClientError.new('Connection refused', 500)
+          )
+        end
+
+        it 'raises ServiceError with HTTP error message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /HTTP error/)
+        end
+      end
+
+      context 'when VASS API returns 401 unauthorized' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Authentication failed' },
+              401,
+              { 'success' => false, 'message' => 'Unauthorized' }
+            )
+          )
+        end
+
+        it 'raises AuthenticationError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::AuthenticationError, /Authentication failed/)
+        end
+      end
+
+      context 'when VASS API returns 404 not found' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Resource not found' },
+              404,
+              { 'success' => false, 'message' => 'Not found' }
+            )
+          )
+        end
+
+        it 'raises NotFoundError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::NotFoundError, /Resource not found/)
         end
       end
     end
@@ -286,12 +379,10 @@ describe Vass::AppointmentsService do
 
   describe '#get_current_cohort_availability' do
     context 'with current cohort that is unbooked and has available slots' do
-      before do
-        Timecop.freeze(DateTime.new(2026, 1, 7).utc)
-      end
-
-      after do
-        Timecop.return
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      # and ensure slots (Jan 8, 9) are in the valid "tomorrow to 2 weeks" range
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
       end
 
       it 'returns available_slots status with appointment data and filtered slots' do
@@ -317,6 +408,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with current cohort that is already booked' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns already_booked status without calling availability API' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_booked_cohort') do
@@ -333,6 +429,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with current cohort but no available slots' do
+      # Freeze time to be within the cassette cohort dates (2026-01-05 to 2026-01-20)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns no_slots_available status' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort') do
@@ -349,6 +450,11 @@ describe Vass::AppointmentsService do
     end
 
     context 'with no current cohort but future cohort exists' do
+      # Freeze time to be before the future cassette cohort (2026-02-15 to 2026-02-28)
+      around do |example|
+        Timecop.freeze(DateTime.new(2026, 1, 7).utc) { example.run }
+      end
+
       it 'returns next_cohort status with future cohort details' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/get_appointments_future_cohort_only') do
