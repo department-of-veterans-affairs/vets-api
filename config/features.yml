@@ -2064,6 +2064,9 @@ features:
     actor_type: user
     description: Allows us to toggle duplicate modals for the 686C-674
     enable_in_development: true
+  va_dependents_no_ssn:
+    actor_type: user
+    description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
