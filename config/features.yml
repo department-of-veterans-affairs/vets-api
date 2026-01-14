@@ -2651,6 +2651,9 @@ features:
   my_va_browser_monitoring:
     actor_type: user
     description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
+  profile_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in va.gov Profile.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
