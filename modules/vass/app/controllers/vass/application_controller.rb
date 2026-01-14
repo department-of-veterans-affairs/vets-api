@@ -101,21 +101,7 @@ module Vass
 
     def handle_vanotify_error(exception)
       log_safe_error('vanotify_error', exception.class.name)
-      # Map VANotify status codes to appropriate HTTP statuses
-      status = case exception.status_code
-               when 400
-                 :bad_request
-               when 401, 403
-                 :unauthorized
-               when 404
-                 :not_found
-               when 429
-                 :too_many_requests
-               when 500, 502, 503
-                 :bad_gateway
-               else
-                 :service_unavailable
-               end
+      status = map_vanotify_status_to_http_status(exception.status_code)
 
       render_error_response(
         title: 'Notification Service Error',
@@ -123,6 +109,29 @@ module Vass
         code: 'notification_error',
         status:
       )
+    end
+
+    ##
+    # Maps VANotify status codes to appropriate HTTP statuses.
+    #
+    # @param status_code [Integer] The VANotify error status code
+    # @return [Symbol] HTTP status symbol
+    #
+    def map_vanotify_status_to_http_status(status_code)
+      case status_code
+      when 400
+        :bad_request
+      when 401, 403
+        :unauthorized
+      when 404
+        :not_found
+      when 429
+        :too_many_requests
+      when 500, 502, 503
+        :bad_gateway
+      else
+        :service_unavailable
+      end
     end
 
     # Logs error information without PHI
