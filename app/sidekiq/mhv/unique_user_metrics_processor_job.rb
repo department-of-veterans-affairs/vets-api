@@ -202,7 +202,7 @@ module MHV
       events.uniq { |event| [event[:user_id], event[:event_name]] }
     end
 
-    # Filter out events that are already in the Redis cache
+    # Filter out events that are already in the Redis cache and refresh their TTL
     #
     # @param events [Array<Hash>] Unique events to check
     # @return [Array<Hash>] Events not found in cache
@@ -214,6 +214,9 @@ module MHV
 
       # Batch read from cache
       cached_results = Rails.cache.read_multi(*cache_keys, namespace: CACHE_NAMESPACE)
+
+      # Refresh TTL for cached events (keeps active users in cache longer)
+      Rails.cache.write_multi(cached_results, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL) if cached_results.any?
 
       # Filter out events that are cached
       events.reject.with_index do |_event, index|

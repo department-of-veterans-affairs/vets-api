@@ -288,6 +288,21 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         job.perform
       end
+
+      it 'refreshes TTL for cached events' do
+        allow(MHVMetricsUniqueUserEvent).to receive(:insert_all).and_return(
+          double(rows: [[user2_id, 'new_event']])
+        )
+
+        job.perform
+
+        # Should refresh TTL for cached events (first write_multi call)
+        expect(Rails.cache).to have_received(:write_multi).with(
+          { "#{user1_id}:cached_event" => true },
+          namespace: 'unique_user_metrics',
+          expires_in: described_class::CACHE_TTL
+        )
+      end
     end
 
     describe 'bulk insert' do
