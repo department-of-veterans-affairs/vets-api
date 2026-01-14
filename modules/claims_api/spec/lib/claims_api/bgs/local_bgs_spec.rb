@@ -65,7 +65,7 @@ describe ClaimsApi::LocalBGS do
 
   # rubocop:disable RSpec/SubjectStub
   describe '#make_request' do
-    let(:url) { "#{Settings.bgs.url}/endpoint" }
+    let(:url) { "#{Settings.bep.url}/endpoint" }
     let(:response) { instance_double(Faraday::Response) }
     let(:connection) { instance_double(Faraday::Connection) }
     let(:headers) { { 'Content-Type' => 'text/xml;charset=UTF-8' } }

@@ -316,10 +316,10 @@ module ClaimsApi
       def bgs_jrn_fields
         {
           jrn_dt: Time.current.iso8601,
-          jrn_lctn_id: Settings.bgs.client_station_id,
-          jrn_obj_id: Settings.bgs.application,
+          jrn_lctn_id: Settings.bep.client_station_id,
+          jrn_obj_id: Settings.bep.application,
           jrn_status_type_cd: 'U',
-          jrn_user_id: Settings.bgs.client_username
+          jrn_user_id: Settings.bep.client_username
         }
       end
 

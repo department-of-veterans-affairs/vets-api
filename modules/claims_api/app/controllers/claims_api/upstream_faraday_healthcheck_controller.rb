@@ -6,12 +6,12 @@ module ClaimsApi
     skip_before_action :authenticate
     def corporate
       st = DateTime.now
-      ssl_type = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+      ssl_type = Settings.bep.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       connection = Faraday::Connection.new(ssl: { verify_mode: ssl_type })
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/CorporateUpdateServiceBean/CorporateUpdateWebService?WSDL")
+        response = connection.get("#{Settings.bep.url}/CorporateUpdateServiceBean/CorporateUpdateWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st:, et:, dur: (et.to_f - st.to_f),
@@ -24,12 +24,12 @@ module ClaimsApi
 
     def claimant
       st = DateTime.now
-      ssl_type = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+      ssl_type = Settings.bep.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       connection = Faraday::Connection.new(ssl: { verify_mode: ssl_type })
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL")
+        response = connection.get("#{Settings.bep.url}/ClaimantServiceBean/ClaimantWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st:, et:, dur: (et.to_f - st.to_f),
@@ -42,12 +42,12 @@ module ClaimsApi
 
     def itf
       st = DateTime.now
-      ssl_type = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+      ssl_type = Settings.bep.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       connection = Faraday::Connection.new(ssl: { verify_mode: ssl_type })
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/IntentToFileWebServiceBean/IntentToFileWebService?WSDL")
+        response = connection.get("#{Settings.bep.url}/IntentToFileWebServiceBean/IntentToFileWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st:, et:, dur: (et.to_f - st.to_f),

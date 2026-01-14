@@ -30,27 +30,27 @@ module ClaimsApi
         end
 
       @ssl_verify_mode =
-        if Settings.bgs.ssl_verify_mode == 'none'
+        if Settings.bep.ssl_verify_mode == 'none'
           OpenSSL::SSL::VERIFY_NONE
         else
           OpenSSL::SSL::VERIFY_PEER
         end
 
-      @application = Settings.bgs.application
-      @client_station_id = Settings.bgs.client_station_id
-      @client_username = Settings.bgs.client_username
-      @env = Settings.bgs.env
-      @mock_response_location = Settings.bgs.mock_response_location
-      @mock_responses = Settings.bgs.mock_responses
-      @external_uid = external_uid || Settings.bgs.external_uid
-      @external_key = external_key || Settings.bgs.external_key
-      @forward_proxy_url = Settings.bgs.url
-      @timeout = Settings.bgs.timeout || 120
+      @application = Settings.bep.application
+      @client_station_id = Settings.bep.client_station_id
+      @client_username = Settings.bep.client_username
+      @env = Settings.bep.env
+      @mock_response_location = Settings.bep.mock_response_location
+      @mock_responses = Settings.bep.mock_responses
+      @external_uid = external_uid || Settings.bep.external_uid
+      @external_key = external_key || Settings.bep.external_key
+      @forward_proxy_url = Settings.bep.url
+      @timeout = Settings.bep.timeout || 120
     end
     # rubocop:enable Metrics/MethodLength
 
     def self.breakers_service
-      url = Settings.bgs.url
+      url = Settings.bep.url
       path = URI.parse(url).path
       host = URI.parse(url).host
       port = URI.parse(url).port
@@ -72,7 +72,7 @@ module ClaimsApi
 
     def healthcheck(endpoint)
       connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
-      wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      wsdl = connection.get("#{Settings.bep.url}/#{endpoint}?WSDL")
       wsdl.status
     end
 
@@ -154,7 +154,7 @@ module ClaimsApi
       connection.options.timeout = @timeout
 
       begin
-        url = "#{Settings.bgs.url}/#{endpoint}"
+        url = "#{Settings.bep.url}/#{endpoint}"
         body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
@@ -212,7 +212,7 @@ module ClaimsApi
 
     def fetch_namespace(connection, endpoint)
       wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+        connection.get("#{Settings.bep.url}/#{endpoint}?WSDL")
       end
       Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
     end
@@ -273,10 +273,10 @@ module ClaimsApi
     def jrn
       {
         jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_lctn_id: Settings.bep.client_station_id,
         jrn_status_type_cd: 'U',
-        jrn_user_id: Settings.bgs.client_username,
-        jrn_obj_id: Settings.bgs.application
+        jrn_user_id: Settings.bep.client_username,
+        jrn_obj_id: Settings.bep.application
       }
     end
 
@@ -311,7 +311,7 @@ module ClaimsApi
     end
 
     def use_mocks?(use_mocks)
-      use_mocks && Settings.claims_api.bgs.mock_responses
+      use_mocks && Settings.claims_api.bep.mock_responses
     end
   end
 end

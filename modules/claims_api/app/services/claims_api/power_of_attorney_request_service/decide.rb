@@ -41,8 +41,8 @@ module ClaimsApi
       end
 
       def get_poa_request(ptcpnt_id:, lighthouse_id:)
-        service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
-                                                             external_key: Settings.bgs.external_key)
+        service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bep.external_uid,
+                                                             external_key: Settings.bep.external_key)
 
         res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id:)
         res = res['poaRequestRespondReturnVOList'] if res.present?

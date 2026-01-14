@@ -63,22 +63,22 @@ benefits_intake_service:
     secret_access_key: ~
   enabled: true
   url: <%= ENV['benefits_intake_service__url'] %>
+bep:
+  application: VAgovAPI
+  client_station_id: 281
+  client_username: VAgovAPI
+  env: <%= ENV['bep__env'] %>
+  external_key: lighthouse-vets-api
+  external_uid: lighthouse-vets-api
+  mock_response_location: ~
+  mock_responses: ~
+  ssl_verify_mode: <%= ENV['bep__ssl_verify_mode'] %>
+  url: <%= ENV['bep__url'] %>
 betamocks:
   cache_dir: <%= ENV['betamocks__cache_dir'] %>
   enabled: <%= ENV['betamocks__enabled'] %>
   recording: false
   services_config: config/betamocks/services_config.yml
-bgs:
-  application: VAgovAPI
-  client_station_id: 281
-  client_username: VAgovAPI
-  env: <%= ENV['bgs__env'] %>
-  external_key: lighthouse-vets-api
-  external_uid: lighthouse-vets-api
-  mock_response_location: <%= ENV['bgs__mock_response_location'] %>
-  mock_responses: <%= ENV['bgs__mock_responses'] %>
-  ssl_verify_mode: <%= ENV['bgs__ssl_verify_mode'] %>
-  url: <%= ENV['bgs__url'] %>
 bid:
   awards:
     base_url: <%= ENV['bid__awards__base_url'] %>
@@ -200,8 +200,8 @@ claims_api:
         secret_key: "/srv/vets-api/secret/claims_api_bd_secret.key"
     host: <%= ENV['claims_api__benefits_documents__host'] %>
     use_mocks: <%= ENV['claims_api__benefits_documents__use_mocks'] %>
-  bgs:
-    mock_responses: <%= ENV['claims_api__bgs__mock_responses'] %>
+  bep:
+    mock_responses: <%= ENV['claims_api__bep__mock_responses'] %>
   claims_error_reporting:
     environment_name: <%= ENV['claims_api__claims_error_reporting__environment_name'] %>
   disability_claims_mock_override: <%= ENV['claims_api__disability_claims_mock_override'] %>

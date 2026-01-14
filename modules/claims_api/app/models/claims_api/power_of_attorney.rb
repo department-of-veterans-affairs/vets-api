@@ -117,13 +117,13 @@ module ClaimsApi
     end
 
     def external_key
-      source_data.present? ? source_data['email'] : Settings.bgs.external_key
+      source_data.present? ? source_data['email'] : Settings.bep.external_key
     end
 
     def external_uid
       return source_data['icn'] if source_data.present? && source_data['icn'].present?
 
-      Settings.bgs.external_uid
+      Settings.bep.external_uid
     end
 
     def signature_image_paths

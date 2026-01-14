@@ -4,7 +4,7 @@
 # BGS
 # FYI: mocks are generally managed in the bgs-ext gem.
 - :name: "BGS"
-  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.bep.url).host}:#{URI(Settings.bep.url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/VDC/ManageRepresentativeService"

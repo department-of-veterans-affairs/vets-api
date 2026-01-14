@@ -62,12 +62,7 @@ benefits_intake_service:
     secret_access_key: ~
   enabled: true
   url: ~
-betamocks:
-  cache_dir: ~
-  enabled: true
-  recording: false
-  services_config: config/betamocks/services_config.yml
-bgs:
+bep:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
@@ -78,6 +73,11 @@ bgs:
   mock_responses: false
   ssl_verify_mode: peer
   url: https://fwdproxy-dev.vfs.va.gov:4447
+betamocks:
+  cache_dir: ~
+  enabled: true
+  recording: false
+  services_config: config/betamocks/services_config.yml
 bid:
   awards:
     base_url: https://fake_url.com
@@ -199,7 +199,7 @@ claims_api:
         secret_key: path/to/fake/key.pem
     host: https://staging-api.va.gov
     use_mocks: false
-  bgs:
+  bep:
     mock_responses: false
   claims_error_reporting:
     environment_name: ~
