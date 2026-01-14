@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../fixtures/form_profile/va_686c674_spec_data'
+require 'bgs/dependent_service'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
