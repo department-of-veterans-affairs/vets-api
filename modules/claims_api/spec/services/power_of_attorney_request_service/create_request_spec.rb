@@ -191,15 +191,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           response = subject.call
 
           expect(response['meta']).to include(expected_response['meta'])
-          expect(response['meta']['veteran']['vnp_mail_id']).to include(
-            expected_response['meta']['veteran']['vnp_mail_id']
-          )
-          expect(response['meta']['veteran']['vnp_email_id']).to include(
-            expected_response['meta']['veteran']['vnp_email_id']
-          )
-          expect(response['meta']['veteran']['vnp_phone_id']).to include(
-            expected_response['meta']['veteran']['vnp_phone_id']
-          )
+          expect(response.except('meta')).to match(expected_response.except('meta'))
         end
       end
     end
@@ -251,7 +243,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
       end
     end
 
-    describe '#add_meta_ids' do
+    describe 'meta data' do
       let(:response_obj) do
         {
           'addressLine1' => '2719 Hyperion Ave',
@@ -301,46 +293,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
       let(:claimant_participant_id) { nil }
 
-      let(:form_data) do
-        {
-          veteran: {
-            firstName: 'Vernon',
-            lastName: 'Wagner',
-            serviceBranch: 'Air Force',
-            birthdate: '1965-07-15T08:00:00Z',
-            ssn: '796140369',
-            address: {
-              addressLine1: '2719 Hyperion Ave',
-              city: 'Los Angeles',
-              stateCode: 'CA',
-              country: 'USA',
-              zipCode: '92264'
-            },
-            phone: {
-              areaCode: '555',
-              phoneNumber: '5551234'
-            },
-            email: 'test@example.com'
-          },
-          serviceOrganization: {
-            poaCode: '074',
-            address: {
-              addressLine1: '2719 Hyperion Ave',
-              city: 'Los Angeles',
-              stateCode: 'CA',
-              country: 'USA',
-              zipCode: '92264'
-            },
-            organizationName: 'American Legion',
-            firstName: 'Bob',
-            lastName: 'GoodRep'
-          },
-          recordConsent: true,
-          consentAddressChange: true,
-          consentLimits: %w[DRUG_ABUSE SICKLE_CELL]
-        }
-      end
-
       let(:expected_res) do
         {
           'meta' => {
@@ -387,36 +339,42 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
         }
       end
 
-      it 'adds the ids to the meta' do
-        subject.instance_variable_set(:@vnp_res_object, expected_res)
-
-        res = subject.send(:add_meta_ids, response_obj)
-        expect(res['meta']).to eq(expected_res['meta'])
-      end
-
-      context 'does not add a key that is nil' do
-        it 'veteran object is present' do
-          subject.instance_variable_set(:@vnp_res_object, vet_res_with_nil)
+      context '#add_meta_ids' do
+        it 'adds the ids to the meta' do
+          subject.instance_variable_set(:@vnp_res_object, expected_res)
 
           res = subject.send(:add_meta_ids, response_obj)
-          expect(res['meta']['veteran']).not_to have_key('vnp_email_id')
+
+          expect(res['meta']).to match(expected_res['meta'])
         end
 
-        it 'veteran and claimant objects are present' do
-          subject.instance_variable_set(:@vnp_res_object, claimant_res_with_nil)
+        context 'does not add a key that is nil' do
+          it 'veteran object is present' do
+            subject.instance_variable_set(:@vnp_res_object, vet_res_with_nil)
+
+            res = subject.send(:add_meta_ids, response_obj)
+
+            expect(res['meta']['veteran']).not_to have_key('vnp_email_id')
+          end
+
+          it 'veteran and claimant objects are present' do
+            subject.instance_variable_set(:@vnp_res_object, claimant_res_with_nil)
+
+            res = subject.send(:add_meta_ids, response_obj)
+
+            expect(res['meta']['veteran']).not_to have_key('vnp_phone_id')
+            expect(res['meta']['claimant']).not_to have_key('vnp_mail_id')
+            expect(res['meta']['claimant']).not_to have_key('vnp_phone_id')
+          end
+        end
+
+        it 'does not add a meta key if no IDs are present' do
+          subject.instance_variable_set(:@vnp_res_object, { 'meta' => {} })
 
           res = subject.send(:add_meta_ids, response_obj)
-          expect(res['meta']['veteran']).not_to have_key('vnp_phone_id')
-          expect(res['meta']['claimant']).not_to have_key('vnp_mail_id')
-          expect(res['meta']['claimant']).not_to have_key('vnp_phone_id')
+
+          expect(res).not_to have_key('meta')
         end
-      end
-
-      it 'does not add a meta key if no IDs are present' do
-        subject.instance_variable_set(:@vnp_res_object, { 'meta' => {} })
-
-        res = subject.send(:add_meta_ids, response_obj)
-        expect(res).not_to have_key('meta')
       end
     end
   end
