@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 # Concern for adding deprecation warnings to EVSS endpoints
-#
-# EVSS is being sunset on January 28, 2026. This concern adds deprecation
-# headers, metadata, and logging to all EVSS controller responses.
-#
 
 module V0
   module Concerns
