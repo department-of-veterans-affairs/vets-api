@@ -34,6 +34,7 @@ module Vass
       render_error_response(
         title: 'Authentication Error',
         detail: 'Unable to authenticate request',
+        code: 'authentication_error',
         status: :unauthorized
       )
     end
@@ -42,7 +43,8 @@ module Vass
       log_safe_error('not_found', exception.class.name)
       render_error_response(
         title: 'Not Found',
-        detail: 'The requested resource was not found',
+        detail: 'Appointment not found',
+        code: 'appointment_not_found',
         status: :not_found
       )
     end
@@ -52,6 +54,7 @@ module Vass
       render_error_response(
         title: 'Validation Error',
         detail: 'The request failed validation',
+        code: 'validation_error',
         status: :unprocessable_entity
       )
     end
@@ -61,6 +64,7 @@ module Vass
       render_error_response(
         title: 'Service Error',
         detail: 'The service is temporarily unavailable',
+        code: 'service_error',
         status: :service_unavailable
       )
     end
@@ -70,6 +74,7 @@ module Vass
       render_error_response(
         title: 'VASS API Error',
         detail: 'Unable to process request with appointment service',
+        code: 'vass_api_error',
         status: :bad_gateway
       )
     end
@@ -79,6 +84,7 @@ module Vass
       render_error_response(
         title: 'Cache Error',
         detail: 'The caching service is temporarily unavailable',
+        code: 'redis_error',
         status: :service_unavailable
       )
     end
@@ -88,6 +94,7 @@ module Vass
       render_error_response(
         title: 'Rate Limit Exceeded',
         detail: 'Too many requests. Please try again later',
+        code: 'rate_limit_error',
         status: :too_many_requests
       )
     end
@@ -113,6 +120,7 @@ module Vass
       render_error_response(
         title: 'Notification Service Error',
         detail: 'Unable to send notification. Please try again later',
+        code: 'notification_error',
         status:
       )
     end
@@ -155,13 +163,14 @@ module Vass
     end
 
     # Render error response in JSON:API format
-    def render_error_response(title:, detail:, status:)
+    def render_error_response(title:, detail:, status:, code: nil)
       status_code = Rack::Utils.status_code(status)
+      error_code = code || status_code.to_s
       render json: {
         errors: [{
           title:,
           detail:,
-          code: status_code.to_s
+          code: error_code
         }]
       }, status:
     end
