@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           SavedClaim::BenefitsClaims::IntentToFile.transaction do
-            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(veteran_icn)
+            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
             Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
             claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
             saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
