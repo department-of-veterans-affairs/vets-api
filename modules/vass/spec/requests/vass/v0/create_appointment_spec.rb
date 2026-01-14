@@ -120,37 +120,60 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       end
 
       context 'when booking session is missing from Redis' do
-        it 'still creates appointment successfully without appointment_id' do
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
-              # No booking session setup - redis_client.get_booking_session will return nil
-              post('/vass/v0/appointment',
-                   params: appointment_params.to_json,
-                   headers:)
+        it 'returns bad request with descriptive error message' do
+          # No booking session setup - redis_client.get_booking_session will return nil
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
 
-              expect(response).to have_http_status(:ok)
-              json_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:bad_request)
+          json_response = JSON.parse(response.body)
 
-              expect(json_response['data']).to be_present
-              expect(json_response['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
-            end
-          end
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['code']).to eq('missing_session_data')
+          expect(json_response['errors'].first['detail']).to eq(
+            'Appointment session not found. Please check availability first.'
+          )
         end
 
-        it 'omits appointmentId from API payload when session_data is nil' do
+        it 'does not call the service when session_data is nil' do
           appointments_service = instance_double(Vass::AppointmentsService)
           allow(Vass::AppointmentsService).to receive(:build).and_return(appointments_service)
 
-          expect(appointments_service).to receive(:save_appointment) do |params|
-            expect(params[:appointment_params][:appointment_id]).to be_nil
-            { 'success' => true, 'data' => { 'appointmentId' => 'new-appt-123' } }
-          end
+          # Should NOT call save_appointment because validation fails first
+          expect(appointments_service).not_to receive(:save_appointment)
 
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
 
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'when booking session exists but appointment_id is missing' do
+        before do
+          # Set up session without appointment_id
+          redis_client = Vass::RedisClient.build
+          redis_client.store_booking_session(
+            veteran_id:,
+            data: { some_other_key: 'value' }
+          )
+        end
+
+        it 'returns bad request error' do
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
+
+          expect(response).to have_http_status(:bad_request)
+          json_response = JSON.parse(response.body)
+
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['code']).to eq('missing_session_data')
+          expect(json_response['errors'].first['detail']).to eq(
+            'Appointment session not found. Please check availability first.'
+          )
         end
       end
 

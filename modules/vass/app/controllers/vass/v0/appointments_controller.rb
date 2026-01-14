@@ -143,8 +143,8 @@ module Vass
       def create
         validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
 
-        session_data = redis_client.get_booking_session(veteran_id: @current_veteran_id)
-        appointment_id = session_data&.fetch(:appointment_id, nil)
+        appointment_id = retrieve_appointment_id_from_session
+        return unless appointment_id
 
         response = save_appointment_with_service(appointment_id)
         render_vass_response(
@@ -157,6 +157,28 @@ module Vass
       end
 
       private
+
+      ##
+      # Retrieves appointment_id from Redis booking session.
+      # Validates that the booking session exists and contains an appointment_id.
+      #
+      # @return [String, nil] Appointment ID if found, nil otherwise (renders error)
+      #
+      def retrieve_appointment_id_from_session
+        session_data = redis_client.get_booking_session(veteran_id: @current_veteran_id)
+        appointment_id = session_data&.fetch(:appointment_id, nil)
+
+        unless appointment_id
+          render_error(
+            'missing_session_data',
+            'Appointment session not found. Please check availability first.',
+            :bad_request
+          )
+          return nil
+        end
+
+        appointment_id
+      end
 
       ##
       # Handles VASS API errors.
