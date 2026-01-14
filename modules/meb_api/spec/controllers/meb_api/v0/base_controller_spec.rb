@@ -143,5 +143,59 @@ RSpec.describe MebApi::V0::BaseController, type: :controller do
         test_controller.test_log_error(error_blank_message, 'Test error message')
       end
     end
+
+    context 'caching behavior' do
+      let(:error) { double('error', message: 'Test error') }
+
+      it 'caches error class name and error body to avoid duplicate method calls' do
+        expect(error).to receive(:class).once.and_return(StandardError)
+        expect(error).to receive(:respond_to?).with(:body).once.and_return(true)
+        expect(error).to receive(:body).once.and_return('error body')
+        expect(error).to receive(:is_a?).with(Common::Client::Errors::ClientError).once.and_return(false)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+
+        test_controller.test_log_error(error, 'Test error message')
+      end
+    end
+
+    context 'logging all parameters for ClientError' do
+      let(:response_body_over_limit) { 'x' * 300 }
+      let(:expected_truncated_body) { "#{'x' * 247}..." }
+      let(:client_error_with_long_body) do
+        Common::Client::Errors::ClientError.new('DGI failed', 500, response_body_over_limit)
+      end
+
+      it 'correctly logs all parameters including truncated response body' do
+        expect(Rails.logger).to receive(:error).with(
+          'Test error message',
+          {
+            icn: user.icn,
+            error_class: 'Common::Client::Errors::ClientError',
+            error_message: 'DGI failed',
+            request_id: 'test-request-id-123',
+            status: 500,
+            response_body: expected_truncated_body
+          }
+        )
+        allow(StatsD).to receive(:increment)
+
+        test_controller.test_log_error(client_error_with_long_body, 'Test error message')
+      end
+    end
+
+    context 'StatsD increment with error_class tag' do
+      let(:error) { ArgumentError.new('Invalid argument') }
+
+      it 'calls StatsD.increment with correct error_class tag' do
+        allow(Rails.logger).to receive(:error)
+        expect(StatsD).to receive(:increment).with(
+          'api.meb.submit_claim.error',
+          tags: ['error_class:ArgumentError']
+        )
+
+        test_controller.test_log_error(error, 'Test error message')
+      end
+    end
   end
 end

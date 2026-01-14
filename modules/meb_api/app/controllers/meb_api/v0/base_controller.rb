@@ -33,9 +33,12 @@ module MebApi
       end
 
       def log_submission_error(error, log_message)
+        cached_error_class = error.class.name
+        cached_response_body = error.body if error.respond_to?(:body)
+
         log_params = {
           icn: @current_user.icn,
-          error_class: error.class.name,
+          error_class: cached_error_class,
           error_message: error.message.presence || 'No error message provided',
           request_id: request.request_id
         }
@@ -43,13 +46,13 @@ module MebApi
         # Only log response details for ClientError (downstream service failures)
         if error.is_a?(Common::Client::Errors::ClientError)
           log_params[:status] = error.status
-          log_params[:response_body] = error.body&.to_s&.truncate(250) if error.body.present?
+          log_params[:response_body] = cached_response_body&.to_s&.truncate(250) if cached_response_body.present?
         end
 
         Rails.logger.error(log_message, log_params)
 
         # Increment metrics for monitoring/alerting
-        StatsD.increment('api.meb.submit_claim.error', tags: ["error_class:#{error.class.name}"])
+        StatsD.increment('api.meb.submit_claim.error', tags: ["error_class:#{cached_error_class}"])
       end
     end
   end
