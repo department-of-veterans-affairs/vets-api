@@ -69,7 +69,7 @@ module V0
     end
 
     def encrypted_user
-      va_profile_email = current_user.authorize :va_profile, current_user.va_profile_email
+      va_profile_email = current_user&.icn.present? ? current_user.va_profile_email : nil
 
       user_struct = OpenStruct.new(
         participant_id: current_user.participant_id,

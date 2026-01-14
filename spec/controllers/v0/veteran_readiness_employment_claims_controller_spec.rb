@@ -24,16 +24,9 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     hash_copy.to_json
   end
 
-  # Clear Sidekiq jobs before each test to ensure clean state
-  before do
-    VRE::VRESubmit1900Job.clear
-  end
-
   describe 'POST create' do
     context 'logged in user' do
-      before do
-        sign_in_as(loa3_user)
-      end
+      before { sign_in_as(loa3_user) }
 
       it 'validates successfully' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
