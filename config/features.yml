@@ -1910,6 +1910,10 @@ features:
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
+  meb_1995_rudisill_access:
+    actor_type: user
+    description: Enable Rudisill review option on form 22-1995
+    enable_in_development: true
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
