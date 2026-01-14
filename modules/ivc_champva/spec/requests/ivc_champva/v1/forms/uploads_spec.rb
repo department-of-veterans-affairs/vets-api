@@ -737,9 +737,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
 
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
+
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
-          # Verify: all documents (main form + supporting docs) get "CVA Bene Response"
+          # Verify: all documents (1 main form + 2 supporting docs) get "CVA Bene Response"
           expect(attachment_ids).to eq(['CVA Bene Response', 'CVA Bene Response', 'CVA Bene Response'])
           expect(form).to be_a(IvcChampva::VHA107959a)
         end
@@ -774,10 +777,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
 
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
+
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
           # Verify: main claim sheet gets "CVA Reopen", supporting docs retain their types
-          # For claim control number, stamp_metadata should return nil (no stamped doc)
           expect(attachment_ids).to eq(['CVA Reopen', 'Medical Records', 'EOB'])
           expect(form).to be_a(IvcChampva::VHA107959a)
         end
@@ -813,6 +818,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
 
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
