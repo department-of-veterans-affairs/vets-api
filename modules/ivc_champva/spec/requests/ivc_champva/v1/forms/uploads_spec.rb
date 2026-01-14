@@ -601,7 +601,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     it 'raises an error for a missing form number' do
       allow(controller).to receive(:params).and_return({})
-      expect { controller.send(:get_form_id) }.to raise_error('Missing/malformed form_number in params')
+      expect { controller.send(:get_form_id) }.to raise_error(Common::Exceptions::ParameterMissing)
     end
   end
 
