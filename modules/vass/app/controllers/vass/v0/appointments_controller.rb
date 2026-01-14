@@ -204,15 +204,6 @@ module Vass
       end
 
       ##
-      # Handles not found errors.
-      #
-      # @param exception [Vass::Errors::NotFoundError] The exception
-      #
-      def handle_not_found_error(exception)
-        handle_error(exception, 'appointment_not_found', 'Appointment not found', :not_found)
-      end
-
-      ##
       # Handles missing parameter errors from Rails params.require().
       #
       # @param exception [ActionController::ParameterMissing] The exception
