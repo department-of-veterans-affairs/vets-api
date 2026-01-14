@@ -13,6 +13,10 @@ module PdfFill
 
       KEY = FieldMappings::Va21p530a::KEY
 
+      # Template path explicitly set due to case mismatch
+      # Form ID is registered as '21P-530A' (uppercase) but PDF file is '21P-530a.pdf' (lowercase)
+      TEMPLATE = 'lib/pdf_fill/forms/pdfs/21P-530a.pdf'
+
       # Coordinates for the 21P-530A certification signature field
       # Signature is stamped on page 2 near the "DATE SIGNED" field
       # Note: Prawn uses bottom-left origin (0,0 at bottom-left)

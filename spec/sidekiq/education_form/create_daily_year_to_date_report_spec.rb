@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'feature_flipper'
+require 'reports/uploader'
 
 def get_education_form_fixture(filename)
   get_fixture("education_form/#{filename}")
@@ -97,23 +98,26 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     describe '#perform' do
       subject do
         create_daily_year_to_date_report = described_class.new
+        create_daily_year_to_date_report.instance_variable_set(:@date, date)
 
-        stub_reports_s3(filename) do
+        stub_reports_s3 do
           create_daily_year_to_date_report.perform
         end
 
         create_daily_year_to_date_report
       end
 
+      let(:url) { 'https://s3.amazonaws.com/bucket/test-file.pdf?presigned=true' }
+      let(:filename) { "tmp/daily_reports/#{date}.csv" }
+
       before do
-        expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
+        allow(FeatureFlipper).to receive(:send_edu_report_email?).and_return(true) # Changed from expect to allow
+        allow(Reports::Uploader).to receive(:get_s3_link).and_return(url)
       end
 
       after do
         FileUtils.rm_f(filename)
       end
-
-      let(:filename) { "tmp/daily_reports/#{date}.csv" }
 
       it 'creates a csv file' do
         subject

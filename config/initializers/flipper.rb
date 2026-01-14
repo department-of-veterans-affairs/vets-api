@@ -41,12 +41,20 @@ Rails.application.reloader.to_prepare do
     config.show_feature_description_in_list = true
     config.confirm_disable = true
     config.confirm_fully_enable = true
+    config.add_actor_placeholder = 'CASE SENSITIVE: lowercase email or UUID (comma-separated for multiple)'
     config.descriptions_source = lambda do |_keys|
       FLIPPER_FEATURE_CONFIG['features'].transform_values { |value| value['description'] }
     end
   end
 
   Rails.application.config.after_initialize do
+    # Skip feature initialization if using rake task setup (FLIPPER_USE_RAKE_SETUP=true)
+    # When enabled, features are initialized via `rake features:setup` instead of during app boot
+    if ActiveModel::Type::Boolean.new.cast(ENV.fetch('FLIPPER_USE_RAKE_SETUP', nil))
+      Rails.logger.info 'Skipping Flipper feature initialization (FLIPPER_USE_RAKE_SETUP=true)'
+      next
+    end
+
     # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
     added_flippers = []
     begin

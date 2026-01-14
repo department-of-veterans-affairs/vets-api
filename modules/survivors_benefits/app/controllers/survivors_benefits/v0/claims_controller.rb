@@ -26,7 +26,7 @@ module SurvivorsBenefits
       # GET serialized survivors benefits form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: SavedClaimSerializer.new(claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -56,7 +56,7 @@ module SurvivorsBenefits
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: pdf_url(claim.guid) })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -110,6 +110,14 @@ module SurvivorsBenefits
       #
       def monitor
         @monitor ||= SurvivorsBenefits::Monitor.new
+      end
+
+      def config
+        Settings.bio.survivors_benefits
+      end
+
+      def pdf_url(guid)
+        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
       end
     end
   end

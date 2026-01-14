@@ -229,8 +229,6 @@ FactoryBot.define do
   factory :dependency_claim_v2, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674-V2' }
 
-    use_v2 { true }
-
     form {
       {
         statement_of_truth_certified: true,
@@ -685,7 +683,6 @@ FactoryBot.define do
             report_marriage_of_child_under18: true,
             report_child18_or_older_is_not_attending_school: true
           },
-          use_v2: true,
           days_till_expires: 365,
           privacy_agreement_accepted: true
         },

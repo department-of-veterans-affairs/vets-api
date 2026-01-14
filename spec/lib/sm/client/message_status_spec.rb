@@ -28,22 +28,28 @@ describe SM::Client, '#status' do
         end
       end
 
-      it 'raises UnprocessableEntity on FAILED' do
+      it 'raises BackendServiceException on FAILED' do
         VCR.use_cassette('sm_client/messages/creates/status_failed') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            expect do
-              client.post_create_message(message_params, poll_for_status: true)
-            end.to raise_error(Common::Exceptions::UnprocessableEntity)
+            expect { client.post_create_message(message_params, poll_for_status: true) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+                expect(error.status_code).to eq(400)
+                expect(error.errors.first[:code]).to eq('SM98')
+                expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
+            end
           end
         end
       end
 
-      it 'raises UnprocessableEntity on INVALID' do
+      it 'raises BackendServiceException on INVALID' do
         VCR.use_cassette('sm_client/messages/creates/status_invalid') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            expect do
-              client.post_create_message(message_params, poll_for_status: true)
-            end.to raise_error(Common::Exceptions::UnprocessableEntity)
+            expect { client.post_create_message(message_params, poll_for_status: true) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |error|
+                expect(error.status_code).to eq(400)
+                expect(error.errors.first[:code]).to eq('SM98')
+                expect(error.errors.first[:detail]).to eq('Oracle Health message send failed')
+            end
           end
         end
       end

@@ -20,11 +20,13 @@ module EventBusGateway
       error_class = msg['error_class']
       error_message = msg['error_message']
       timestamp = Time.now.utc
+      cache_key = msg['args']&.[](2)
 
       ::Rails.logger.error('LetterReadyPushJob retries exhausted',
                            { job_id:, timestamp:, error_class:, error_message: })
       tags = Constants::DD_TAGS + ["function: #{error_message}"]
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
     def perform(participant_id, template_id, cache_key = nil)
@@ -43,9 +45,11 @@ module EventBusGateway
 
       send_push_notification(icn, template_id)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
-
-      # Clean up PII from Redis if cache_key was used
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
+    rescue Sidekiq::AttrPackageError => e
+      # Log AttrPackage errors as application logic errors (no retries)
+      Rails.logger.error('LetterReadyPushJob AttrPackage error', { error: e.message })
+      raise ArgumentError, e.message
     rescue => e
       record_notification_send_failure(e, 'Push')
       raise
@@ -61,14 +65,29 @@ module EventBusGateway
         personalisation: {}
       )
 
-      EventBusGatewayPushNotification.create!(
+      create_push_notification_record(template_id, icn)
+    end
+
+    def create_push_notification_record(template_id, icn)
+      notification = EventBusGatewayPushNotification.create(
         user_account: user_account(icn),
         template_id:
+      )
+
+      return if notification.persisted?
+
+      ::Rails.logger.warn(
+        'LetterReadyPushJob notification record failed to save',
+        {
+          errors: notification.errors.full_messages,
+          template_id:
+        }
       )
     end
 
     def notify_client
-      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.api_key)
+      # Push notifications require a separate API key from email and sms
+      @notify_client ||= VaNotify::Service.new(Constants::NOTIFY_SETTINGS.push_api_key)
     end
   end
 end

@@ -80,6 +80,8 @@ module Mobile
       attribute? :travel_pay_eligible, Types::Bool
       attribute :show_schedule_link, Types::Bool.optional
       attribute :is_cerner, Types::Bool.optional
+      attribute :avs_pdf, Types::Array.of(Mobile::V0::AvsPdf).optional
+      attribute :avs_error, Types::String.optional
 
       # On staging, some upstream services use different facility ids for the same facility.
       # These methods convert between the two sets of ids.

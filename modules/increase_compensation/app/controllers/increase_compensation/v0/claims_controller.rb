@@ -2,14 +2,17 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
+require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
 
 module IncreaseCompensation
   module V0
     ###
     # The Increase Compensation claim controller that handles form submissions
-    #
+
     class ClaimsController < ClaimsBaseController
+      include PdfS3Operations
+
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
 
@@ -26,7 +29,17 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: SavedClaimSerializer.new(claim)
+        form_submission_attempt = last_form_submission_attempt(claim.guid)
+        raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
+
+        pdf_url = s3_signed_url(
+          claim,
+          form_submission_attempt.created_at.to_date,
+          config: IncreaseCompensation::ZsfConfig.new,
+          form_class: IncreaseCompensation::PdfFill::Va218940v1
+        )
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -40,7 +53,9 @@ module IncreaseCompensation
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 
-        in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+        # Issue with 2 8940's in the api, frontend  calls to /in_progess_form/8940 but backend uses `8940V1`
+        in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id[..6], current_user) : nil
+
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
@@ -52,11 +67,14 @@ module IncreaseCompensation
         process_attachments(in_progress_form, claim)
 
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
-
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+
+        # submission attempt is created in the method
+        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e

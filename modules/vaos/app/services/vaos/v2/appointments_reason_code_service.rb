@@ -15,8 +15,10 @@ module VAOS
       # Preferred modality text
       MODALITY_TEXT = {
         'FACE TO FACE' => 'In person',
+        'IN-PERSON' => 'In person',
         'VIDEO' => 'Video',
-        'TELEPHONE' => 'Phone'
+        'TELEPHONE' => 'Phone',
+        'PHONE' => 'Phone'
       }.freeze
 
       # Input format for preferred dates
@@ -88,7 +90,7 @@ module VAOS
             reason_code_hash[segments[0].strip] = segments[1].strip
           # User comments may contain colons so valid comments may consist of >=2
           # segments. We take the string after the first colon as the comments value.
-          elsif segments[0].strip == 'comments' && segments.count > 1
+          elsif segments[0] && segments[0].strip == 'comments' && segments.count > 1
             reason_code_hash['comments'] = kvp.partition(':')[2].strip
           end
         end
@@ -100,9 +102,9 @@ module VAOS
       # @param reason_code_hash [Hash] the hash of reason code key value pairs
       # @return [Hash, nil] A hash containing the contact info, or nil if not possible.
       def extract_contact_fields(reason_code_hash)
-        if reason_code_hash.key?('phone number') || reason_code_hash.key?('email')
+        if reason_code_hash.key?('phone') || reason_code_hash.key?('phone number') || reason_code_hash.key?('email')
           contact_info = []
-          contact_info.push({ type: 'phone', value: reason_code_hash['phone number'] })
+          contact_info.push({ type: 'phone', value: reason_code_hash['phone'] || reason_code_hash['phone number'] })
           contact_info.push({ type: 'email', value: reason_code_hash['email'] })
           { telecom: contact_info }
         end
@@ -126,7 +128,9 @@ module VAOS
       # @param reason_code_hash [Hash] the hash of reason code key value pairs
       # @return [String, nil] The preferred modality for appointment as a string, or nil if not possible.
       def extract_preferred_modality(reason_code_hash)
-        if reason_code_hash.key?('preferred modality') && MODALITY_TEXT.key?(reason_code_hash['preferred modality'])
+        if reason_code_hash.key?('modality') && MODALITY_TEXT.key?(reason_code_hash['modality'])
+          MODALITY_TEXT[reason_code_hash['modality']]
+        elsif reason_code_hash.key?('preferred modality') && MODALITY_TEXT.key?(reason_code_hash['preferred modality'])
           MODALITY_TEXT[reason_code_hash['preferred modality']]
         end
       end

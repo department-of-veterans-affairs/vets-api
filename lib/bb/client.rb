@@ -158,8 +158,6 @@ module BB
       if failed.present?
         log_message_to_sentry('Final health record refresh contained one or more error statuses', :warn,
                               refresh_failures: failed.sort)
-
-        log_message_to_rails('Final health record refresh contained one or more error statuses', :warn)
       end
     end
   end

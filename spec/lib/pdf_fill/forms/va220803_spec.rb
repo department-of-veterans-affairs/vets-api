@@ -22,22 +22,22 @@ describe PdfFill::Forms::Va220803 do
     it 'formats the mailing address correctly' do
       merged_data = subject.merge_fields
 
-      expect(merged_data['mailingAddress']).to eq("123 Maple Ln\nHamilton, IA, 12345\nUSA")
+      expect(merged_data['mailingAddress']).to eq("123 Maple Ln\nUnit B\nHamilton, IA, 12345\nUSA")
     end
 
     it 'formats the bill type correctly' do
       merged_data = subject.merge_fields
 
-      expect(merged_data['bill_type_chapter_30']).to be_nil
+      expect(merged_data['bill_type_chapter_30']).to eq('Yes')
       expect(merged_data['bill_type_chapter_33']).to be_nil
-      expect(merged_data['bill_type_chapter_35']).to eq('Yes')
+      expect(merged_data['bill_type_chapter_35']).to be_nil
       expect(merged_data['bill_type_chapter_1606']).to be_nil
     end
 
-    it 'formats the file number correctly' do
+    it 'does not fill in the file number field' do
       merged_data = subject.merge_fields
 
-      expect(merged_data['fileNumber']).to eq('123456789:AB')
+      expect(merged_data['fileNumber']).to eq('')
     end
 
     it 'formats the file organization info correctly' do
@@ -50,7 +50,19 @@ describe PdfFill::Forms::Va220803 do
       merged_data = subject.merge_fields
 
       expect(merged_data['statementOfTruthSignature']).to eq('Jackie Doe')
-      expect(merged_data['dateSigned']).to eq('2025-01-01')
+      expect(merged_data['dateSigned']).to eq('01/01/2025')
+    end
+
+    context 'with a chapter 35 form' do
+      let(:form_data) do
+        JSON.parse(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0803', 'chapter35.json').read)
+      end
+
+      it 'fills in the va file number and suffix field' do
+        merged_data = subject.merge_fields
+
+        expect(merged_data['fileNumber']).to eq('987-65-4321 AB')
+      end
     end
   end
 end

@@ -627,9 +627,9 @@ module RepresentationManagement
         AccreditedIndividual.where(individual_type: processed_individual_types)
                             .where.not(id: @agent_ids + @attorney_ids + @representative_ids)
                             .find_each do |record|
-          record.destroy
-        rescue => e
-          log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
+                              record.destroy
+                            rescue => e
+                              log_error("Error deleting old accredited individual with ID #{record.id}: #{e.message}")
         end
       else
         # Original behavior: delete all records not in current ID lists

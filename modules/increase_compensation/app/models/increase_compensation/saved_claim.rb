@@ -16,10 +16,12 @@ module IncreaseCompensation
     #
     # @return [Array<String>] the address lines of the regional office
     def regional_office
-      ['Department of Veterans Affairs',
-       'Evidence Intake Center',
-       'P.O. Box 4444',
-       'Janesville, Wisconsin 53547-4444']
+      [
+        'Department of Veterans Affairs',
+        'Evidence Intake Center',
+        'P.O. Box 4444',
+        'Janesville, Wisconsin 53547-4444'
+      ]
     end
 
     ##
@@ -39,7 +41,7 @@ module IncreaseCompensation
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email']
+      parsed_form['email'] || parsed_form['emailAddress']
     end
 
     # Utility function to retrieve veteran first name from form
@@ -87,16 +89,6 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
-
-      # Quick solution to the highschool education bug where the pdf form is missing the option for 9th grade
-      # need to save to the right file
-      # pdf = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
-      # if JSON.parse(form)['education']['highSchool'] == 12
-      #   pdf = CombinePDF.load(pdf)
-      #   pdf.pages[2].textbox('x', { width: 5, height: 5, x: 190, y: 310 })
-      #   pdf.save(file_name || '21-8940V1')
-      # end
-      # pdf
     end
 
     ##
