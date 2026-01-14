@@ -10,6 +10,8 @@ module Vass
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
+      rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
+
       ##
       # POST /vass/v0/request-otc
       #
@@ -29,9 +31,9 @@ module Vass
       # @return [JSON] Success message and expiration time per spec
       #
       def request_otc
-        session = Vass::V0::Session.build(data: permitted_params)
+        validate_required_params!(:uuid, :last_name, :dob)
 
-        return unless validate_session_for_creation(session)
+        session = Vass::V0::Session.build(data: permitted_params)
 
         check_all_rate_limits(session.uuid)
         process_otc_creation(session)
@@ -65,20 +67,14 @@ module Vass
       # @return [JSON] JWT token and expiration per spec
       #
       def authenticate_otc
+        validate_required_params!(:uuid, :last_name, :dob, :otc)
         session = Vass::V0::Session.build(data: permitted_params_for_auth)
-
         check_validation_rate_limit(session.uuid)
         return unless validate_otc_session(session)
 
         jwt_token = session.validate_and_generate_jwt
         session.create_authenticated_session(token: jwt_token)
-
-        # Reset rate limit on successful validation
-        reset_validation_rate_limit(session.uuid)
-
-        log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
-        increment_statsd('otc_authentication_success')
-        render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
+        handle_successful_authentication(session, jwt_token)
       rescue Vass::Errors::RateLimitError => e
         handle_validation_rate_limit_error(session, e)
       rescue Vass::Errors::AuthenticationError
@@ -114,7 +110,7 @@ module Vass
       # @return [Hash] Permitted params
       #
       def permitted_params
-        params.require(:session).permit(:uuid, :last_name, :dob)
+        params.permit(:uuid, :last_name, :dob)
       end
 
       ##
@@ -123,7 +119,7 @@ module Vass
       # @return [Hash] Permitted params
       #
       def permitted_params_for_auth
-        params.require(:session).permit(:uuid, :last_name, :dob, :otc)
+        params.permit(:uuid, :last_name, :dob, :otc)
       end
 
       ##
@@ -234,6 +230,19 @@ module Vass
       end
 
       ##
+      # Handles successful OTC authentication.
+      #
+      # @param session [Vass::V0::Session] Session instance
+      # @param jwt_token [String] Generated JWT token
+      #
+      def handle_successful_authentication(session, jwt_token)
+        reset_validation_rate_limit(session.uuid)
+        log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
+        increment_statsd('otc_authentication_success')
+        render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
+      end
+
+      ##
       # Handles VANotify errors in request_otc action.
       #
       # @param session [Vass::V0::Session] Session instance
@@ -324,50 +333,29 @@ module Vass
       end
 
       ##
-      # Validates session for creation.
+      # Handles missing parameter errors from Rails params.require().
       #
-      # @param session [Vass::V0::Session] Session instance
-      # @return [Boolean] true if valid, false otherwise
+      # @param exception [ActionController::ParameterMissing] The exception
       #
-      def validate_session_for_creation(session)
-        return true if session.valid_for_creation?
-
-        log_validation_error
+      def handle_parameter_missing(exception)
         render_error_response(
-          code: 'invalid_request',
-          detail: 'Missing required parameters.',
-          status: :unprocessable_entity
+          code: 'missing_parameter',
+          detail: exception.message,
+          status: :bad_request
         )
-        false
       end
 
       ##
-      # Validates OTC session parameters (but not OTC value).
+      # Validates OTC session (checks for expiry).
       # The actual OTC validation and deletion happens atomically in validate_and_generate_jwt.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] true if valid, false otherwise
       #
       def validate_otc_session(session)
-        return handle_invalid_request unless session.valid_for_validation?
         return handle_expired_otc(session) if session.otc_expired?
 
         true
-      end
-
-      ##
-      # Handles invalid request (missing parameters).
-      #
-      # @return [Boolean] false
-      #
-      def handle_invalid_request
-        log_validation_error
-        render_error_response(
-          code: 'invalid_request',
-          detail: 'Missing required parameters.',
-          status: :unprocessable_entity
-        )
-        false
       end
 
       ##
