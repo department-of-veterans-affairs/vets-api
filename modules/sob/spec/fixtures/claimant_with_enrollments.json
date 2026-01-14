@@ -1,0 +1,97 @@
+{
+  "status": 200,
+  "claimant": {
+    "id": 3000000010002241,
+    "vaId": null,
+    "vaFileNumber": "123456789",
+    "socialSecurityNumber": "123456789",
+    "firstName": "Jane",
+    "middleName": "M",
+    "lastName": "Smith",
+    "cadency": "",
+    "sex": "Female",
+    "sensitivityLevel": 0,
+    "educationLevel": null,
+    "station": "RPO351",
+    "dateOfBirth": "19880301",
+    "dateOfDeath": null,
+    "fryScholarship": null,
+    "sixCreditHour": "20220801",
+    "powerOfAttorneyName": null,
+    "dataSource": null,
+    "requireColmeryWp": false,
+    "benefits": [
+      {
+        "benefitType": "CH33",
+        "statusType": "authorized",
+        "lastPayableDate": null,
+        "verifiedThroughDate": "20251125",
+        "eligibilityResults": [
+          {
+            "id": 2000000002004452,
+            "totalServicePeriod": 7634,
+            "totAggregatQualifyingDays": 7634,
+            "totAggregateTrainingDays": 0,
+            "totAggregateExclusionDays": 0,
+            "activeDuty": true,
+            "servedAfter09102001": true,
+            "over90AndHonorable": true,
+            "over30ConsecutiveDisabled": false,
+            "veteranIsEligible": true,
+            "percentageBenefit": 100,
+            "eligibilityPeriod": {
+              "id": 2000000002004752,
+              "eligibilityDate": "20050401",
+              "delimitingDate": null
+            },
+            "stemEligibilityPeriod": {
+              "id": 300000000000041,
+              "eligibilityDate": "20240203",
+              "delimitingDate": "20260410"
+            }
+          }
+        ],
+        "entitlementResults": [
+          {
+            "id": 3000000010001050,
+            "origEntitledDays": 1080,
+            "daysUsed": 663,
+            "daysRemaining": 0,
+            "exhaustionDate": "20240202",
+            "isCurrent": true
+          }
+        ],
+        "stemEntitlementResults": [],
+        "entitlementTransferOut": [
+          {
+            "id": 300000000001261,
+            "beginDate": "20250101",
+            "endDate": null,
+            "transferredDays": 420,
+            "transferor": 3000000010002241,
+            "recipient": 1000000000000253,
+            "origTransferPerson": 3000000010002241,
+            "relationshipType": "Child"
+          },
+          {
+            "id": 300000000001262,
+            "beginDate": "20250101",
+            "endDate": null,
+            "transferredDays": 10,
+            "transferor": 3000000010002241,
+            "recipient": 1000000000000254,
+            "origTransferPerson": 3000000010002241,
+            "relationshipType": "Spouse"
+          }
+        ],
+        "entitlementTransferIn": [],
+        "enrollments": [
+          {
+            "facilityCode": "123456789",
+            "beginDate": "20250101"
+          }
+        ]
+      }
+    ]
+  }
+}

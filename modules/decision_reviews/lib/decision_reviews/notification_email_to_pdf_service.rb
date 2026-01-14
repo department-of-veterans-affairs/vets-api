@@ -139,7 +139,8 @@ module DecisionReviews
     def save_to_file(pdf_binary)
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/dr_email_#{SecureRandom.hex(4).upcase}.pdf"
+      unique_id = SecureRandom.hex(4).upcase
+      file_path = "#{folder}/#{@template_type.chomp('_failure')}_vagov_error_email_#{unique_id}.pdf"
 
       File.binwrite(file_path, pdf_binary)
       file_path

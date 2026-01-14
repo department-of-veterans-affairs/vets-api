@@ -401,14 +401,14 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
       service = described_class.new(audit_log, appeal_submission:)
       service.generate_pdf
 
-      expect(File).to have_received(:binwrite).with('tmp/pdfs/dr_email_ABC123.pdf', pdf_binary)
+      expect(File).to have_received(:binwrite).with('tmp/pdfs/sc_form_vagov_error_email_ABC123.pdf', pdf_binary)
     end
 
     it 'returns the file path' do
       service = described_class.new(audit_log, appeal_submission:)
       file_path = service.generate_pdf
 
-      expect(file_path).to eq('tmp/pdfs/dr_email_ABC123.pdf')
+      expect(file_path).to eq('tmp/pdfs/sc_form_vagov_error_email_ABC123.pdf')
     end
 
     context 'with evidence failure' do
@@ -474,82 +474,6 @@ RSpec.describe DecisionReviews::NotificationEmailToPdfService do
           email_delivery_failure: true
         )
       end
-    end
-  end
-
-  xdescribe 'integration test - generate actual PDF for inspection' do # rubocop:disable RSpec/PendingWithoutReason
-    # Disabled by default - only enable locally for manual PDF inspection
-    # Output saved to: tmp/pdfs/dr_email_*.pdf
-    # Open the file to verify personalized data is correctly stamped
-    let(:reference) { "SC-form-#{submitted_appeal_uuid}" }
-
-    before do
-      # Ensure tmp/pdfs directory exists
-      FileUtils.mkdir_p('tmp/pdfs')
-
-      # Skip test if template doesn't exist
-      template_path = Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews',
-                                      'email_templates', 'sc_form_failure.pdf')
-      skip "Template not found: #{template_path}" unless File.exist?(template_path)
-    end
-
-    it 'generates a real PDF file that can be inspected' do
-      service = described_class.new(audit_log, appeal_submission:)
-      file_path = service.generate_pdf
-
-      expect(File.exist?(file_path)).to be true
-
-      # Verify it's a valid PDF
-      pdf_content = File.read(file_path)
-      expect(pdf_content).to start_with('%PDF-')
-    end
-  end
-
-  xdescribe 'integration test - generate evidence failure PDF for inspection' do # rubocop:disable RSpec/PendingWithoutReason
-    # Disabled by default - only enable locally for manual PDF inspection
-    # Output saved to: tmp/pdfs/dr_email_*.pdf
-    # Open the file to verify personalized data is correctly stamped including evidence filename
-    let(:reference) { "SC-evidence-#{submitted_appeal_uuid}" }
-    let(:evidence_attachment_guid) { SecureRandom.uuid }
-    let(:file_data) do
-      { 'filename' => 'veteran_medical_evidence_document.pdf' }.to_json
-    end
-
-    let(:decision_review_evidence_attachment) do
-      double('DecisionReviewEvidenceAttachment',
-             guid: evidence_attachment_guid,
-             file_data:)
-    end
-
-    let(:appeal_submission_upload) do
-      double('AppealSubmissionUpload',
-             decision_review_evidence_attachment_guid: evidence_attachment_guid,
-             decision_review_evidence_attachment:,
-             masked_attachment_filename: 'vetXXXXXXXXXXXXXXXXXXXXXXXXXent.pdf')
-    end
-
-    before do
-      # Ensure tmp/pdfs directory exists
-      FileUtils.mkdir_p('tmp/pdfs')
-
-      allow(appeal_submission).to receive(:appeal_submission_uploads)
-        .and_return(double(order: double(first: appeal_submission_upload)))
-
-      # Skip test if template doesn't exist
-      template_path = Rails.root.join('modules', 'decision_reviews', 'lib', 'decision_reviews',
-                                      'email_templates', 'sc_evidence_failure.pdf')
-      skip "Template not found: #{template_path}" unless File.exist?(template_path)
-    end
-
-    it 'generates a real PDF file with evidence filename that can be inspected' do
-      service = described_class.new(audit_log, appeal_submission:)
-      file_path = service.generate_pdf
-
-      expect(File.exist?(file_path)).to be true
-
-      # Verify it's a valid PDF
-      pdf_content = File.read(file_path)
-      expect(pdf_content).to start_with('%PDF-')
     end
   end
 end
