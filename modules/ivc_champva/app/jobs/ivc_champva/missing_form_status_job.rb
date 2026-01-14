@@ -12,7 +12,7 @@ module IvcChampva
 
     attr_accessor :additional_context
 
-    def perform # rubocop:disable Metrics/MethodLength
+    def perform
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
       batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
@@ -30,7 +30,14 @@ module IvcChampva
       end
 
       current_time = Time.now.utc
+      process_batches(batches, current_time, verbose_logging, form_count)
+    rescue => e
+      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
 
+    # Helper function to process batches of forms
+    def process_batches(batches, current_time, verbose_logging, form_count)
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
 
@@ -45,11 +52,6 @@ module IvcChampva
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
 
           send_failure_email(form, template_id, additional_context)
-          send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
-        elsif elapsed_days >= (threshold - 2) && !form.email_sent
-          # TODO: further limit this so we're not sending PEGA an email every time this job runs
-          # Give pega 2-day notice if we intend to email a user.
-          send_zsf_notification_to_pega(form, 'PEGA-TEAM_MISSING_STATUS')
         end
 
         # Send each form UUID to DataDog
@@ -64,9 +66,6 @@ module IvcChampva
                               - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
         end
       end
-    rescue => e
-      Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
     end
 
     def count_forms(batches)
@@ -120,23 +119,6 @@ module IvcChampva
       }
     end
 
-    # Fires off a notification email to Pega so they know the communication status of
-    # submissions with missing Pega statuses.
-    #
-    # @param form_data [hash] hash of form details (see `send_failure_email`)
-    # @param form [IvcChampvaForm] form object in question
-    def send_zsf_notification_to_pega(form, template_id)
-      form_data = construct_email_payload(form, template_id)
-      form_data = form_data.merge({
-                                    email: Settings.vanotify.services.ivc_champva.pega_inbox_address
-                                  })
-      if IvcChampva::Email.new(form_data).send_email
-        monitor.track_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
-      else
-        monitor.track_failed_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
-      end
-    end
-
     def fetch_forms_by_uuid(form_uuid)
       @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
     end
@@ -154,7 +136,10 @@ module IvcChampva
 
       matching_reports = pega_api_client.record_has_matching_report(batch.first)
 
-      if batch.count == matching_reports.count
+      # Filter out VES JSON files since they're sent to VES, not Pega
+      pega_processable_batch = filter_pega_processable_files(batch)
+
+      if pega_processable_batch.count == matching_reports.count
         missing_status_cleanup.manually_process_batch(batch)
         true
       else
@@ -165,11 +150,6 @@ module IvcChampva
       false
     end
 
-    ##
-    # retreive a monitor for tracking
-    #
-    # @return [IvcChampva::Monitor]
-    #
     def monitor
       @monitor ||= IvcChampva::Monitor.new
     end
@@ -180,6 +160,28 @@ module IvcChampva
 
     def pega_api_client
       @pega_api_client ||= IvcChampva::PegaApi::Client.new
+    end
+
+    private
+
+    ##
+    # Filters out VES JSON files from a batch since they're sent to VES, not Pega
+    #
+    # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects
+    # @return [Array<IvcChampvaForm>] Filtered array excluding VES JSON files
+    def filter_pega_processable_files(batch)
+      batch.reject { |record| ves_json_file?(record.file_name) }
+    end
+
+    ##
+    # Determines if a file is a VES JSON file based on its filename
+    #
+    # @param file_name [String] The name of the file to check
+    # @return [Boolean] true if the file is a VES JSON file, false otherwise
+    def ves_json_file?(file_name)
+      return false if file_name.blank?
+
+      file_name.include?('_ves.json')
     end
   end
 end

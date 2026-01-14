@@ -28,6 +28,9 @@ FactoryBot.define do
       end
     end
 
+    factory :person_options_transaction, class: 'AsyncTransaction::VAProfile::PersonOptionsTransaction' do
+    end
+
     factory :va_profile_address_transaction, class: 'AsyncTransaction::VAProfile::AddressTransaction' do
     end
 
@@ -45,6 +48,9 @@ FactoryBot.define do
       trait :init_vet360_id do
         source_id { nil }
       end
+    end
+
+    factory :va_profile_person_options_transaction, class: 'AsyncTransaction::VAProfile::PersonOptionsTransaction' do
     end
   end
 end

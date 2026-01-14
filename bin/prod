@@ -115,7 +115,6 @@ APPLICATION_ENV=production \
   search__url="https://search.example.com" \
   search_gsa__mock_search=true \
   search_gsa__url="https://search-gsa.example.com" \
-  search_typeahead__url="https://search-typeahead.example.com" \
   search_click_tracking__url="https://search-click-tracking.example.com" \
   mdot__url="https://mdot.va.gov/api" \
   mdot__mock=true \

@@ -81,6 +81,8 @@ describe SignIn::UserInfoController do
           expect(body['csp_type']).to eq(MPI::Constants::IDME_IDENTIFIER)
           expect(body['csp_uuid']).to eq(credential_uuid)
           expect(body['email']).to eq(credential_email)
+          expect(body['first_name']).to eq(user.first_name)
+          expect(body['last_name']).to eq(user.last_name)
           expect(body['full_name']).to eq(user.full_name_normalized.values.compact.join(' '))
           expect(body['birth_date']).to eq(user.birth_date)
           expect(body['ssn']).to eq(user.ssn)
