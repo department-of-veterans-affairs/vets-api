@@ -21,6 +21,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
   before do
     allow(Settings).to receive(:vass).and_return(
       OpenStruct.new(
+        jwt_secret: 'test-jwt-secret',
         redis_otc_expiry: 600,
         redis_session_expiry: 7200,
         redis_token_expiry: 3540,
@@ -40,11 +41,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
   describe 'POST #request_otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth
       }
     end
 
@@ -133,28 +132,22 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
     end
 
-    context 'with invalid parameters' do
-      before do
-        allow(Vass::V0::Session).to receive(:build).and_return(session_model)
-        allow(session_model).to receive_messages(valid_for_creation?: false)
-      end
+    context 'with missing parameters' do
+      it 'returns bad request status when uuid is missing' do
+        invalid_params = { last_name:, dob: date_of_birth }
+        post :request_otc, params: invalid_params, format: :json
 
-      it 'returns unprocessable entity status' do
-        post :request_otc, params:, format: :json
-
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['code']).to eq('missing_parameter')
+        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: uuid')
       end
 
-      it 'does not fetch veteran info' do
+      it 'does not fetch veteran info when parameters are missing' do
+        invalid_params = { last_name:, dob: date_of_birth }
         expect(appointments_service).not_to receive(:get_veteran_info)
-        post :request_otc, params:, format: :json
-      end
-
-      it 'does not generate OTC' do
-        expect(session_model).not_to receive(:generate_otc)
-        post :request_otc, params:, format: :json
+        post :request_otc, params: invalid_params, format: :json
       end
     end
 
@@ -396,12 +389,10 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
     let(:jwt_token) { 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token' }
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth,
-          otc: otp_code
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth,
+        otc: otp_code
       }
     end
 
@@ -497,24 +488,24 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
     end
 
-    context 'with invalid parameters' do
+    context 'with missing parameters' do
       before do
-        allow(Vass::V0::Session).to receive(:build).and_return(session_model)
-        allow(session_model).to receive_messages(valid_for_validation?: false, uuid:)
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false, validation_rate_limit_count: 0)
       end
 
-      it 'returns unprocessable entity status' do
-        post :authenticate_otc, params:, format: :json
+      it 'returns bad request status when otc is missing' do
+        invalid_params = {
+          uuid:,
+          last_name:,
+          dob: date_of_birth
+        }
+        post :authenticate_otc, params: invalid_params, format: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
-      end
-
-      it 'does not validate OTC' do
-        expect(session_model).not_to receive(:valid_otc?)
-        post :authenticate_otc, params:, format: :json
+        expect(json_response['errors'].first['code']).to eq('missing_parameter')
+        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
       end
     end
   end
@@ -523,11 +514,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
     describe '#permitted_params' do
       it 'permits session attributes' do
         params = {
-          session: {
-            uuid:,
-            last_name:,
-            dob: date_of_birth
-          }
+          uuid:,
+          last_name:,
+          dob: date_of_birth
         }
         controller.params = ActionController::Parameters.new(params)
         permitted = controller.send(:permitted_params)

@@ -91,6 +91,9 @@ binaries:
 bing:
   key: <%= ENV['bing__key'] %>
 bio:
+  increase_compensation:
+    bucket: <%= ENV['bio__increase_compensation__s3__bucket'] %>
+    region: us-gov-west-1
   medical_expense_reports:
     bucket: <%= ENV['bio__medical_expense_reports__s3__bucket'] %>
     region: us-gov-west-1
@@ -530,6 +533,8 @@ form_10_10cg:
       region: us-gov-west-1
 form_mock_ae_design_patterns:
   prefill: true
+form_mock_prefill:
+  prefill: true
 form_upload:
   prefill: true
 forms:
@@ -735,6 +740,7 @@ lighthouse:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
       client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
+      kid: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__kid'] %>
       rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
@@ -1252,10 +1258,6 @@ search_gsa:
   affiliate: va
   mock_search: <%= ENV['search_gsa__mock_search'] %>
   url: <%= ENV['search_gsa__url'] %>
-search_typeahead:
-  api_key: <%= ENV['search_typeahead__api_key'] %>
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: <%= ENV['secret_key_base'] %>
 sentry:
   dsn: <%= ENV['sentry__dsn'] %>
@@ -1313,6 +1315,11 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
+unique_user_metrics:
+  processor_job:
+    batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
+    max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
+    max_queue_depth: <%= ENV['unique_user_metrics__processor_job__max_queue_depth'] %>
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>
@@ -1426,6 +1433,24 @@ vanotify:
         submitted686c_only:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: ~
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: ~
+        error:
+          flipper_id: increase_compensation_error_email_notification
+          template_id: ~
+        persistent_attachment_error:
+          flipper_id: increase_compensation_persistent_attachment_error_email_notification
+          template_id: ~
+        received:
+          flipper_id: increase_compensation_received_email_notification
+          template_id: ~
+        submitted:
+          flipper_id: increase_compensation_submitted_email_notification
+          template_id: ~
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
@@ -1594,9 +1619,11 @@ vanotify:
         form1010_ez_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ez_failure_email'] %>
         form1010_ezr_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ezr_failure_email'] %>
     income_and_assets: *vanotify_services_income_and_assets
+    increase_compensation: *vanotify_services_increase_compensation
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
@@ -1773,6 +1800,7 @@ vass:
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
+  jwt_secret: <%= ENV['vass__jwt_secret'] %>
   mock: false
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>

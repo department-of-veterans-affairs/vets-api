@@ -70,7 +70,9 @@ The module has comprehensive monitoring through DataDog, tracking various metric
 The system can process multiple PDF forms in a single submission, with appropriate attachment IDs assigned to each. This capability supports forms that may require multiple PDFs to be generated, such as forms with multiple applicants.
 
 ### Status Validation & Notifications
-A `MissingFormStatusJob` background job automatically identifies forms that haven't received a status update from PEGA within a configurable timeframe and can send failure notification emails to appropriate parties. This ensures forms don't get "lost" in the system without being processed.
+A `MissingFormStatusJob` background job automatically identifies forms that haven't received a status update from PEGA within a configurable timeframe and can send failure notification emails to users. This ensures forms don't get "lost" in the system without being processed.
+
+A `NotifyPegaMissingFormStatusJob` similar to `MissingFormStatusJob` but sends emails to the Pega team.
 
 ### Enhanced PDF Handling
 The module includes advanced PDF handling with features like:
