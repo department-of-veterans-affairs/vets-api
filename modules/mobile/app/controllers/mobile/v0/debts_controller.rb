@@ -8,9 +8,14 @@ module Mobile
       before_action { authorize :debt, :access? }
 
       def index
-        response = service.get_debts
+        count_only = ActiveModel::Type::Boolean.new.cast(params[:countOnly])
+        response = service.get_debts(count_only:)
 
-        render json: Mobile::V0::DebtsSerializer.new(response[:debts], @current_user.uuid)
+        if count_only
+          render json: response
+        else
+          render json: Mobile::V0::DebtsSerializer.new(response[:debts], @current_user.uuid)
+        end
       end
 
       def show

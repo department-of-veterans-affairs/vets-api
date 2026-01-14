@@ -1,0 +1,10 @@
+type: object
+description: Response returned when countOnly=true for the debts endpoint.
+additionalProperties: false
+required:
+  - debtsCount
+properties:
+  debtsCount:
+    type: integer
+    description: The total number of debts for the user.
+    example: 5
