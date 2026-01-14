@@ -65,6 +65,107 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       end
     end
 
+    describe 'validate schema' do
+      let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
+
+      context 'validate alternate names' do
+        context 'when nil' do
+          it 'is valid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = nil
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed['data']['attributes']['status']).to eq('valid')
+            end
+          end
+        end
+
+        context 'when valid names are provided' do
+          it 'is valid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = ['jane', 'janey lee', "jane O'Brien-Smith"] # rubocop:disable Layout/LineLength
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed['data']['attributes']['status']).to eq('valid')
+            end
+          end
+        end
+
+        context 'when empty array' do
+          it 'is invalid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = []
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when exceeds 100 items' do
+          it 'is invalid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = Array.new(101) { |i| "name#{i}" }
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when contains duplicates' do
+          it 'is invalid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = ['john doe', 'jane smith', 'John Doe']
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when contains invalid characters' do
+          it 'is invalid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = ['john@example.com']
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when contains double spaces' do
+          it 'is invalid' do
+            temp = JSON.parse(data)
+            temp['data']['attributes']['serviceInformation']['alternateNames'] = ['john  doe']
+            modified_data = temp.to_json
+
+            mock_ccg(scopes) do |auth_header|
+              post validate_path, params: modified_data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+      end
+    end
+
     describe '#generate_pdf' do
       let(:invalid_scopes) { %w[claim.write claim.read] }
       let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
