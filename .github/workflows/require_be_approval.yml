@@ -212,14 +212,17 @@ jobs:
             echo "  Backend reviewers: ${BACKEND_REVIEWERS}"
 
             # Get most recent review state per user
+            REVIEWS_JSON=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --paginate --jq '
+              .[] | select(.state == "APPROVED") | {login: .user.login, submitted_at: .submitted_at}
+            ' 2>/dev/null || echo "[]")
+
             readarray -t APPROVALS < <(
-              gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews --jq '
-                [.[] | select(.state == "APPROVED")]
-                | sort_by(.submitted_at)
+              echo "$REVIEWS_JSON" | jq -s '
+                sort_by(.submitted_at)
                 | reverse
-                | unique_by(.user.login)
-                | .[].user.login
-              ' 2>/dev/null || true
+                | unique_by(.login)
+                | .[].login
+              ' -r 2>/dev/null || true
             )
 
             # Check if any approver is from backend-review-group
