@@ -68,21 +68,13 @@ module Vass
       #
       def authenticate_otc
         validate_required_params!(:uuid, :last_name, :dob, :otc)
-
         session = Vass::V0::Session.build(data: permitted_params_for_auth)
-
         check_validation_rate_limit(session.uuid)
         return unless validate_otc_session(session)
 
         jwt_token = session.validate_and_generate_jwt
         session.create_authenticated_session(token: jwt_token)
-
-        # Reset rate limit on successful validation
-        reset_validation_rate_limit(session.uuid)
-
-        log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
-        increment_statsd('otc_authentication_success')
-        render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
+        handle_successful_authentication(session, jwt_token)
       rescue Vass::Errors::RateLimitError => e
         handle_validation_rate_limit_error(session, e)
       rescue Vass::Errors::AuthenticationError
@@ -235,6 +227,19 @@ module Vass
           detail: 'VASS service error',
           status: :bad_gateway
         )
+      end
+
+      ##
+      # Handles successful OTC authentication.
+      #
+      # @param session [Vass::V0::Session] Session instance
+      # @param jwt_token [String] Generated JWT token
+      #
+      def handle_successful_authentication(session, jwt_token)
+        reset_validation_rate_limit(session.uuid)
+        log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
+        increment_statsd('otc_authentication_success')
+        render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
       end
 
       ##
