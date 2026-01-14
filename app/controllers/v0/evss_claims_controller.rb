@@ -14,7 +14,7 @@ module V0
       claims, synchronized = service.all
 
       options = { meta: { successful_sync: synchronized } }
-      render json: EVSSClaimListSerializer.new(claims, options).serializable_hash
+      render json: EVSSClaimListSerializer.new(claims, options)
     end
 
     def show
@@ -26,7 +26,7 @@ module V0
 
       claim, synchronized = service.update_from_remote(claim)
       options = { meta: { successful_sync: synchronized } }
-      render json: EVSSClaimDetailSerializer.new(claim, options).serializable_hash
+      render json: EVSSClaimDetailSerializer.new(claim, options)
     end
 
     def request_decision
