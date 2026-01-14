@@ -48,6 +48,12 @@ module Mobile
       def coordinates
         return facility_coordinates if params[:facilityId]
 
+        unless @current_user.authorize(:va_profile, :access_to_v2?)
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'User has no home latitude and longitude'
+          )
+        end
+
         Mobile::FacilitiesHelper.user_address_coordinates(@current_user)
       end
 
