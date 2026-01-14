@@ -923,7 +923,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   end
 
   describe '7959A PDI resubmission end-to-end S3 upload' do
-    let(:base_fixture) { JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json').read) }
+    let(:base_fixture) do
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
+      JSON.parse(fixture_path.read)
+    end
     let(:pdi_resubmission_data) do
       base_fixture.merge(
         'form_number' => '10-7959A',
