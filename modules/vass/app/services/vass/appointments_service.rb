@@ -243,13 +243,7 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(veteran_id:)
-      veteran_data = parse_response(response)
-
-      # Validate we have the required data structure
-      unless veteran_data && veteran_data['success'] && veteran_data['data']
-        raise Vass::Errors::VassApiError,
-              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
-      end
+      veteran_data = response.body
 
       # Extract and add contact info for OTC flow
       contact_method, contact_value = extract_contact_info(veteran_data)
@@ -279,8 +273,15 @@ module Vass
     #
     def get_agent_skills
       response = client.get_agent_skills
+      body = response.body
 
-      parse_response(response)
+      agent_skills = body.dig('data', 'agentSkills') || []
+      agent_skills.map do |skill|
+        {
+          topicId: skill['skillId'],
+          topicName: skill['skillName']
+        }
+      end
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
