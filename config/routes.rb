@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
-  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
@@ -25,6 +25,7 @@ Rails.application.routes.draw do
 
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
+    get '/user_info', to: 'user_info#show'
 
     namespace :webhooks do
       post 'logingov/risc', to: 'logingov#risc'
@@ -33,7 +34,6 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
-      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -43,8 +43,6 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
-
-    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
@@ -177,8 +175,6 @@ Rails.application.routes.draw do
       get :failed_upload_evidence_submissions, on: :collection
     end
 
-    resources :evidence_submissions, only: %i[index]
-
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
@@ -219,6 +215,8 @@ Rails.application.routes.draw do
     mount Rswag::Ui::Engine => 'swagger'
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+    post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]
 
@@ -313,7 +311,6 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
-    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
@@ -427,6 +424,7 @@ Rails.application.routes.draw do
   mount DependentsBenefits::Engine, at: '/dependents_benefits'
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
+  mount DigitalFormsApi::Engine, at: '/digital_forms_api'
   mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'

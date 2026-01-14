@@ -210,6 +210,78 @@ describe TravelPay::ExpensesService do
 
       expect { service.get_expense('other', expense_id) }.to raise_error(Common::Exceptions::RecordNotFound)
     end
+
+    it 'overwrites expenseType with name for parking expenses' do
+      parking_expense_data = {
+        'data' => {
+          'id' => expense_id,
+          'expenseType' => 'Other',
+          'name' => 'Parking',
+          'claimId' => SecureRandom.uuid,
+          'dateIncurred' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Parking expense',
+          'costRequested' => 5.00
+        }
+      }
+      parking_expense_response = Faraday::Response.new(body: parking_expense_data)
+
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
+        .and_return(parking_expense_response)
+
+      result = service.get_expense('other', expense_id)
+
+      expect(result['expenseType']).to eq('Parking')
+      expect(result['name']).to eq('Parking')
+    end
+
+    it 'does not overwrite expenseType for non-parking expenses even when name is present' do
+      expense_with_name_data = {
+        'data' => {
+          'id' => expense_id,
+          'expenseType' => 'Mileage',
+          'name' => 'Mileage Expense',
+          'claimId' => SecureRandom.uuid,
+          'dateIncurred' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Mileage expense'
+        }
+      }
+      expense_with_name_response = Faraday::Response.new(body: expense_with_name_data)
+
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'mileage', expense_id)
+        .and_return(expense_with_name_response)
+
+      result = service.get_expense('mileage', expense_id)
+
+      expect(result['expenseType']).to eq('Mileage')
+      expect(result['name']).to eq('Mileage Expense')
+    end
+
+    it 'does not overwrite expenseType when name is blank' do
+      expense_blank_name_data = {
+        'data' => {
+          'id' => expense_id,
+          'expenseType' => 'Other',
+          'name' => '',
+          'claimId' => SecureRandom.uuid,
+          'dateIncurred' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Some expense'
+        }
+      }
+      expense_blank_name_response = Faraday::Response.new(body: expense_blank_name_data)
+
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'other', expense_id)
+        .and_return(expense_blank_name_response)
+
+      result = service.get_expense('other', expense_id)
+
+      expect(result['expenseType']).to eq('Other')
+    end
   end
 
   describe 'add_mileage_expense method' do
@@ -398,8 +470,15 @@ describe TravelPay::ExpensesService do
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq(receipt_hash)
+        # Verify receipt is renamed to expenseReceipt
+        expect(result['expenseReceipt']).to be_present
         expect(result['receipt']).to be_nil
+
+        # Verify nested keys are also camelCased
+        expect(result['expenseReceipt']['contentType']).to eq('application/pdf')
+        expect(result['expenseReceipt']['contentLength']).to eq('12345')
+        expect(result['expenseReceipt']['fileData']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']['fileType']).to eq('pdf')
       end
 
       it 'skips nil values' do
@@ -576,7 +655,7 @@ describe TravelPay::ExpensesService do
     context 'common carrier expense specific fields' do
       it 'converts common carrier-specific fields correctly' do
         params = {
-          'expense_type' => 'common_carrier',
+          'expense_type' => 'commoncarrier',
           'purchase_date' => '2024-11-01',
           'description' => 'Bus fare',
           'cost_requested' => 15.00,
@@ -588,7 +667,7 @@ describe TravelPay::ExpensesService do
         result = build_request_body(params)
 
         expect(result).to eq({
-                               'expenseType' => 'common_carrier',
+                               'expenseType' => 'commoncarrier',
                                'dateIncurred' => '2024-11-01',
                                'description' => 'Bus fare',
                                'costRequested' => 15.00,
@@ -662,8 +741,15 @@ describe TravelPay::ExpensesService do
 
         result = build_request_body(params)
 
-        expect(result['expenseReceipt']).to eq(receipt_hash)
+        # Verify receipt is renamed to expenseReceipt
+        expect(result['expenseReceipt']).to be_present
         expect(result).not_to have_key('receipt')
+
+        # Verify nested keys are also camelCased
+        expect(result['expenseReceipt']['contentType']).to eq('application/pdf')
+        expect(result['expenseReceipt']['contentLength']).to eq('12345')
+        expect(result['expenseReceipt']['fileData']).to eq('base64encodeddata')
+        expect(result['expenseReceipt']['fileType']).to eq('pdf')
       end
     end
   end

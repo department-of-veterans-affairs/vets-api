@@ -581,15 +581,6 @@
       :uid_location: header
       :uid_locator: X-VA-SSN
 
-# IHUB
-- :name: 'IHub'
-  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
-  :endpoints:
-  # Appointments
-  - :method: :get
-    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
-    :file_path: "ihub/appointments/default"
-
 # Search
 - :name: 'Search'
   :base_uri: <%= "#{URI(Settings.search.url).host}:#{URI(Settings.search.url).port}" %>
@@ -923,23 +914,30 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: patient
-
-# Lighthouse Healthcare Cost and Coverage API
-- :name: "Lighthouse Healthcare Costs and Coverage API"
-  :base_uri: <%= "#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).host}:#{URI(Settings.lighthouse.healthcare_cost_and_coverage.host).port}" %>
-  :endpoints:
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/ChargeItem"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/charge_item/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/charge_item"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Encounter"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/encounter/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/encounter"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Invoice"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/MedicationDispense"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/medication_dispense/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/medication_dispense"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Organization"
       :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
@@ -948,7 +946,28 @@
       :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Invoice/*"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice_detail"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/Invoice\/(.+)'
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Account"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/account"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Medication"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/medication"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
 
 # EPS (Enhanced Patient Services) API
 - :name: "EPS API"
@@ -1137,6 +1156,12 @@
     - :method: :post
       :path: "/suite/webapi/chapter31-eligibility-details-search"
       :file_path: "vre/ch31_eligibility"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+    - :method: :post
+      :path: "/suite/webapi/get-ch31-case-details"
+      :file_path: "vre/ch31_case_details"
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'

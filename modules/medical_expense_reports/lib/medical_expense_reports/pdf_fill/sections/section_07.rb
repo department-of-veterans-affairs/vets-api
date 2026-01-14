@@ -8,6 +8,9 @@ module MedicalExpenseReports
     class Section7 < Section
       # Section configuration hash
       KEY = {
+        'statementOfTruthSignature' => {
+          key: 'form1[0].#subform[11].SignatureField1[0]'
+        },
         'dateSigned' => {
           'month' => {
             key: 'form1[0].#subform[11].Date_Signed_Month[0]'

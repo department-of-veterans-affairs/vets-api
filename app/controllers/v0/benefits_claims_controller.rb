@@ -10,7 +10,9 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include InboundRequestLogging
     before_action { authorize :lighthouse, :access? }
+    before_action :log_request_origin
     service_tag 'claims-shared'
 
     STATSD_METRIC_PREFIX = 'api.benefits_claims'
@@ -110,6 +112,12 @@ module V0
     end
 
     private
+
+    def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
+      log_inbound_request(message_type: 'lh.cst.inbound_request', message: 'Inbound request (Lighthouse claim status)')
+    end
 
     def failed_evidence_submissions
       @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
@@ -305,7 +313,7 @@ module V0
       tracked_items = claim.dig('data', 'attributes', 'trackedItems')
       return unless tracked_items
 
-      tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+      tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
     end
 

@@ -60,9 +60,11 @@ module DebtsApi
 
       def register_failure(message)
         failed!
+        error_message = message.presence ||
+                        "An unknown error occurred while submitting from call_location: #{caller_locations&.first}"
+        Rails.logger.error("DigitalDisputeSubmission error_message: #{error_message}")
         update(
-          error_message: message.presence ||
-            "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+          error_message:
         )
         begin
           send_failure_email if Settings.vsp_environment == 'production' &&
@@ -116,7 +118,7 @@ module DebtsApi
 
       def send_success_email
         StatsD.increment("#{STATS_KEY}.send_success_email.enqueue")
-        user = User.find_by(uuid: user_uuid)
+        user = User.find(user_uuid)
         return if user&.email.blank?
 
         cache_key = Sidekiq::AttrPackage.create(email: user.email, first_name: user.first_name)
@@ -136,7 +138,7 @@ module DebtsApi
 
       def send_failure_email
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        user = User.find_by(uuid: user_uuid)
+        user = User.find(user_uuid)
         return if user&.email.blank?
 
         cache_key = Sidekiq::AttrPackage.create(

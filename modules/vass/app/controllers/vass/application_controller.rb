@@ -24,6 +24,8 @@ module Vass
     rescue_from Vass::Errors::ServiceError, with: :handle_service_error
     rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
     rescue_from Vass::Errors::RedisError, with: :handle_redis_error
+    rescue_from Vass::Errors::RateLimitError, with: :handle_rate_limit_error
+    rescue_from VANotify::Error, with: :handle_vanotify_error
 
     private
 
@@ -32,6 +34,7 @@ module Vass
       render_error_response(
         title: 'Authentication Error',
         detail: 'Unable to authenticate request',
+        code: 'authentication_error',
         status: :unauthorized
       )
     end
@@ -40,7 +43,8 @@ module Vass
       log_safe_error('not_found', exception.class.name)
       render_error_response(
         title: 'Not Found',
-        detail: 'The requested resource was not found',
+        detail: 'Appointment not found',
+        code: 'appointment_not_found',
         status: :not_found
       )
     end
@@ -50,6 +54,7 @@ module Vass
       render_error_response(
         title: 'Validation Error',
         detail: 'The request failed validation',
+        code: 'validation_error',
         status: :unprocessable_entity
       )
     end
@@ -59,6 +64,7 @@ module Vass
       render_error_response(
         title: 'Service Error',
         detail: 'The service is temporarily unavailable',
+        code: 'service_error',
         status: :service_unavailable
       )
     end
@@ -68,6 +74,7 @@ module Vass
       render_error_response(
         title: 'VASS API Error',
         detail: 'Unable to process request with appointment service',
+        code: 'vass_api_error',
         status: :bad_gateway
       )
     end
@@ -77,8 +84,54 @@ module Vass
       render_error_response(
         title: 'Cache Error',
         detail: 'The caching service is temporarily unavailable',
+        code: 'redis_error',
         status: :service_unavailable
       )
+    end
+
+    def handle_rate_limit_error(exception)
+      log_safe_error('rate_limit_error', exception.class.name)
+      render_error_response(
+        title: 'Rate Limit Exceeded',
+        detail: 'Too many requests. Please try again later',
+        code: 'rate_limit_error',
+        status: :too_many_requests
+      )
+    end
+
+    def handle_vanotify_error(exception)
+      log_safe_error('vanotify_error', exception.class.name)
+      status = map_vanotify_status_to_http_status(exception.status_code)
+
+      render_error_response(
+        title: 'Notification Service Error',
+        detail: 'Unable to send notification. Please try again later',
+        code: 'notification_error',
+        status:
+      )
+    end
+
+    ##
+    # Maps VANotify status codes to appropriate HTTP statuses.
+    #
+    # @param status_code [Integer] The VANotify error status code
+    # @return [Symbol] HTTP status symbol
+    #
+    def map_vanotify_status_to_http_status(status_code)
+      case status_code
+      when 400
+        :bad_request
+      when 401, 403
+        :unauthorized
+      when 404
+        :not_found
+      when 429
+        :too_many_requests
+      when 500, 502, 503
+        :bad_gateway
+      else
+        :service_unavailable
+      end
     end
 
     # Logs error information without PHI
@@ -94,16 +147,75 @@ module Vass
       }.to_json)
     end
 
+    ##
+    # Logs VASS events with optional metadata (no PHI).
+    #
+    # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
+    # @param uuid [String, nil] Session UUID (optional)
+    # @param level [Symbol] Log level (:debug, :info, :warn, :error, :fatal)
+    # @param metadata [Hash] Additional metadata to include
+    #
+    def log_vass_event(action:, uuid: nil, level: :info, **metadata)
+      valid_levels = %i[debug info warn error fatal]
+      level = :info unless valid_levels.include?(level)
+
+      log_data = {
+        service: 'vass',
+        action:,
+        controller: controller_name,
+        timestamp: Time.current.iso8601
+      }
+      log_data[:uuid] = uuid if uuid
+      log_data.merge!(metadata)
+
+      Rails.logger.public_send(level, log_data.to_json)
+    end
+
     # Render error response in JSON:API format
-    def render_error_response(title:, detail:, status:)
+    def render_error_response(title:, detail:, status:, code: nil)
       status_code = Rack::Utils.status_code(status)
+      error_code = code || status_code.to_s
       render json: {
         errors: [{
           title:,
           detail:,
-          code: status_code.to_s
+          code: error_code
         }]
       }, status:
+    end
+
+    ##
+    # Validates that required parameters are present.
+    # Raises ActionController::ParameterMissing if any parameter is missing.
+    # Available to all VASS controllers.
+    #
+    # @param param_names [Array<Symbol>] Parameter names to validate
+    # @raise [ActionController::ParameterMissing] if any parameter is missing
+    #
+    # @example Validate single parameter
+    #   validate_required_params!(:appointment_id)
+    #
+    # @example Validate multiple parameters
+    #   validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
+    #
+    # @example Validate nested parameters
+    #   session_params = params.require(:session)
+    #   validate_required_params_in!(session_params, :uuid, :last_name, :dob)
+    #
+    def validate_required_params!(*param_names)
+      param_names.each { |param| params.require(param) }
+    end
+
+    ##
+    # Validates that required parameters are present in a nested parameter hash.
+    # Raises ActionController::ParameterMissing if any parameter is missing.
+    #
+    # @param param_hash [ActionController::Parameters] Nested parameter hash
+    # @param param_names [Array<Symbol>] Parameter names to validate
+    # @raise [ActionController::ParameterMissing] if any parameter is missing
+    #
+    def validate_required_params_in!(param_hash, *param_names)
+      param_names.each { |param| param_hash.require(param) }
     end
   end
 end

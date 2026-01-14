@@ -3,6 +3,8 @@
 require 'ostruct'
 require 'open3'
 
+require_relative 'lib/dangerfile/parameter_filtering_allowlist_checker'
+
 module VSPDanger
   HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
   BASE_SHA = ENV.fetch('GITHUB_BASE_REF', '').empty? ? 'origin/master' : "origin/#{ENV.fetch('GITHUB_BASE_REF')}"
@@ -12,11 +14,12 @@ module VSPDanger
       prepare_git
 
       [
-        SidekiqEnterpriseGaurantor.new.run,
+        SidekiqEnterpriseGuarantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
-        GemfileLockPlatformChecker.new.run
+        GemfileLockPlatformChecker.new.run,
+        ::Dangerfile::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
 
@@ -71,7 +74,7 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
+        This PR changes `#{lines_changed}` lines of code (not counting whitespace/newlines, comments, or test files).
 
         In order to ensure each PR receives the proper attention it deserves, those exceeding
         `#{PR_SIZE[:maximum]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into
@@ -88,7 +91,7 @@ module VSPDanger
 
     def warning_message
       <<~EMSG
-        This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
+        This PR changes `#{lines_changed}` lines of code (not counting whitespace/newlines, comments, or test files).
 
         In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding
         `#{PR_SIZE[:recommended]}`. Expect some delays getting reviews.
@@ -189,8 +192,7 @@ module VSPDanger
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
       exception_groups = %w[@department-of-veterans-affairs/octo-identity
-                            @department-of-veterans-affairs/mobile-api-team
-                            @department-of-veterans-affairs/fed-eng-admin]
+                            @department-of-veterans-affairs/mobile-api-team]
 
       diff = fetch_git_diff
 
@@ -476,7 +478,7 @@ module VSPDanger
     end
   end
 
-  class SidekiqEnterpriseGaurantor
+  class SidekiqEnterpriseGuarantor
     def run
       return Result.error(error_message) if enterprise_remote_removed?
 
@@ -491,7 +493,7 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        You've removed Sidekiq Enterprise from the gemfile!  You must restore it before merging this PR.
+        You've removed Sidekiq Enterprise from the Gemfile!  You must restore it before merging this PR.
 
         More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
       EMSG
@@ -505,7 +507,7 @@ module VSPDanger
   if $PROGRAM_NAME == __FILE__
     require 'minitest/autorun'
 
-    class ChangeLimiterTest < MiniTest::Test
+    class ChangeLimiterTest < Minitest::Test
       def test_rubocop
         assert system('rubocop --format simple')
       end

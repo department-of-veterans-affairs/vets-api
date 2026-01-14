@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'dependents_benefits/monitor'
 require 'dependents_benefits/service_response'
 require 'dependents_benefits/sidekiq/dependent_submission_job'
 require 'claims_evidence_api/uploader'
@@ -8,6 +7,7 @@ require 'claims_evidence_api/uploader'
 module DependentsBenefits
   # Background jobs for dependent benefits claim processing
   module Sidekiq
+    # Submodule for Claims Evidence API-related submission jobs
     module ClaimsEvidence
       ##
       # Submission job for dependent benefits forms via Claims Evidence API
@@ -17,8 +17,8 @@ module DependentsBenefits
       # veteran's eFolder. Detects permanent VEFS errors for appropriate retry behavior.
       #
       # This is an abstract base class that requires subclasses to implement:
-      # - {#invalid_claim_error_class}
-      # - {#form_id}
+      # - {#submit_686c_form}
+      # - {#submit_674_form}
       #
       # @abstract Subclasses must implement abstract methods
       # @see DependentSubmissionJob
@@ -27,40 +27,59 @@ module DependentsBenefits
       #
       class ClaimsEvidenceFormJob < DependentSubmissionJob
         ##
-        # Returns the form identifier for this submission type
+        # Submit all child claims to the Claims Evidence API
         #
-        # @abstract Subclasses must implement this method
-        # @return [String] Form ID (e.g., 'ADD_REMOVE_DEPENDENT', 'SCHOOL_ATTENDANCE_APPROVAL')
-        # @raise [NotImplementedError] if not implemented by subclass
-        def form_id
-          raise NotImplementedError, 'Subclasses must implement form_id method'
+        # @return [void]
+        # @raise [DependentSubmissionError] if any claim submission fails
+        def submit_claims_to_service
+          child_claims.each do |claim|
+            service_response = submit_claim_to_service(claim)
+            raise DependentSubmissionError, service_response&.error unless service_response&.success?
+          end
+
+          DependentsBenefits::ServiceResponse.new(status: true)
         end
 
         ##
-        # Service-specific submission logic for Claims Evidence API
+        # Submit a 686c form to the Claims Evidence API
+        #
+        # @param claim [SavedClaim] The 686c claim to submit
+        # @return [void]
+        def submit_686c_form(claim)
+          submit_to_claims_evidence_api(claim)
+        end
+
+        ##
+        # Submit a 674 form to the Claims Evidence API
+        #
+        # @param claim [SavedClaim] The 674 claim to submit
+        # @return [void]
+        def submit_674_form(claim)
+          submit_to_claims_evidence_api(claim)
+        end
+
+        ##
+        # Submit a claim to the Claims Evidence API
         #
         # Performs the following steps:
         # 1. Processes the claim PDF using Lighthouse submission helper
         # 2. Uploads the evidence via Claims Evidence API uploader
         #
-        # @return [DependentsBenefits::ServiceResponse] Response object with status and error
-        def submit_to_service
-          file_path = lighthouse_submission.process_pdf(
-            saved_claim.to_pdf(form_id:),
-            saved_claim.created_at,
-            form_id
+        # @param claim [SavedClaim] The claim to submit
+        # @return [void]
+        def submit_to_claims_evidence_api(claim)
+          file_path = lighthouse_submission(claim).process_pdf(
+            claim.to_pdf(form_id: claim.form_id),
+            claim.created_at,
+            claim.form_id
           )
 
-          claims_evidence_uploader.upload_evidence(
-            saved_claim.id,
+          claims_evidence_uploader(claim).upload_evidence(
+            claim.id,
             file_path:,
-            form_id:,
-            doctype: saved_claim.document_type
+            form_id: claim.form_id,
+            doctype: claim.document_type
           )
-
-          DependentsBenefits::ServiceResponse.new(status: true)
-        rescue => e
-          DependentsBenefits::ServiceResponse.new(status: false, error: e)
         end
 
         ##
@@ -69,23 +88,19 @@ module DependentsBenefits
         # Uses find_or_create_by to generate or return a memoized service-specific
         # form submission record. The record is keyed by form_id and saved_claim_id.
         #
+        # @param claim [SavedClaim] The claim to find or create a submission for
         # @return [ClaimsEvidenceApi::Submission] The submission record (memoized)
-        def find_or_create_form_submission
-          @submission ||= ClaimsEvidenceApi::Submission.find_or_create_by(
-            form_id:,
-            saved_claim_id: saved_claim.id
-          )
+        def find_or_create_form_submission(claim)
+          ClaimsEvidenceApi::Submission.find_or_create_by(form_id: claim.form_id, saved_claim_id: claim.id)
         end
 
         ##
-        # Returns the memoized Claims Evidence API submission record
+        # Check if a submission has already succeeded
         #
-        # Lazily initializes the submission record via {#find_or_create_form_submission}
-        # if not already loaded.
-        #
-        # @return [ClaimsEvidenceApi::Submission] The submission record
-        def submission
-          @submission ||= find_or_create_form_submission
+        # @param submission [ClaimsEvidenceApi::Submission] The form submission record to check
+        # @return [Boolean] true if submission has an accepted attempt
+        def submission_previously_succeeded?(submission)
+          submission&.submission_attempts&.exists?(status: 'accepted')
         end
 
         ##
@@ -94,20 +109,10 @@ module DependentsBenefits
         # Each retry gets its own attempt record for debugging and tracking purposes.
         # The attempt is associated with the parent submission record.
         #
+        # @param submission [ClaimsEvidenceApi::Submission] The submission to create an attempt for
         # @return [ClaimsEvidenceApi::SubmissionAttempt] The newly created attempt record (memoized)
-        def create_form_submission_attempt
-          @submission_attempt ||= ClaimsEvidenceApi::SubmissionAttempt.create(submission:)
-        end
-
-        ##
-        # Returns the memoized Claims Evidence API submission attempt record
-        #
-        # Lazily initializes the attempt record via {#create_form_submission_attempt}
-        # if not already loaded.
-        #
-        # @return [ClaimsEvidenceApi::SubmissionAttempt] The attempt record
-        def submission_attempt
-          @submission_attempt ||= create_form_submission_attempt
+        def create_form_submission_attempt(submission)
+          ClaimsEvidenceApi::SubmissionAttempt.create(submission:)
         end
 
         ##
@@ -116,9 +121,10 @@ module DependentsBenefits
         # Service-specific success logic - updates the submission attempt record to
         # accepted status. Called after successful Claims Evidence API submission.
         #
+        # @param submission_attempt [ClaimsEvidenceApi::SubmissionAttempt] The attempt to mark as succeeded
         # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
-        def mark_submission_succeeded
-          submission_attempt&.accepted!
+        def mark_submission_attempt_succeeded(submission_attempt)
+          submission_attempt&.success!
         end
 
         ##
@@ -129,7 +135,7 @@ module DependentsBenefits
         #
         # @param exception [Exception] The exception that caused the failure
         # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
-        def mark_submission_attempt_failed(exception)
+        def mark_submission_attempt_failed(submission_attempt, exception)
           submission_attempt&.fail!(error: exception)
         end
 
@@ -184,23 +190,24 @@ module DependentsBenefits
         private
 
         ##
-        # Returns a memoized Claims Evidence API uploader instance
+        # Returns a Claims Evidence API uploader instance
         #
+        # @param claim [SavedClaim] The claim containing folder identifier
         # @return [ClaimsEvidenceApi::Uploader] Uploader configured with claim's folder identifier
-        def claims_evidence_uploader
-          @ce_uploader ||= ClaimsEvidenceApi::Uploader.new(saved_claim.folder_identifier)
+        def claims_evidence_uploader(claim)
+          ClaimsEvidenceApi::Uploader.new(claim.folder_identifier)
         end
 
         ##
-        # Returns a memoized Lighthouse submission helper instance
+        # Returns a Lighthouse submission helper instance
         #
         # Used for PDF processing utilities (stamping, dating) rather than actual Lighthouse
         # submission. The Claims Evidence API is the submission destination.
         #
+        # @param claim [SavedClaim] The claim to process
         # @return [DependentsBenefits::BenefitsIntake::LighthouseSubmission] Submission helper
-        def lighthouse_submission
-          @lighthouse_submission ||= DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim,
-                                                                                                  user_data)
+        def lighthouse_submission(claim)
+          DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(claim, user_data)
         end
       end
     end

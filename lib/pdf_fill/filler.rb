@@ -33,6 +33,7 @@ require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va220976'
+require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/forms/va212680'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
@@ -80,7 +81,7 @@ module PdfFill
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
       '21-8940' => PdfFill::Forms::Va218940,
-      '21P-530a' => PdfFill::Forms::Va21p530a,
+      '21P-530A' => PdfFill::Forms::Va21p530a,
       '21-2680' => PdfFill::Forms::Va212680,
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '10-10EZ' => PdfFill::Forms::Va1010ez,
@@ -103,6 +104,7 @@ module PdfFill
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
+      '22-10272' => PdfFill::Forms::Va2210272,
       '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
@@ -240,14 +242,12 @@ module PdfFill
                                                        fill_options)
         end
       when '22-0839'
-        return PdfFill::Processors::VA220839Processor.new(form_data, self).process
+        return PdfFill::Processors::VA220839Processor.new(form_data, self, file_name_extension).process
       when '22-0976'
-        return PdfFill::Processors::VA220976Processor.new(form_data, self).process
+        return PdfFill::Processors::VA220976Processor.new(form_data, self, file_name_extension).process
       when '22-8794'
-        return PdfFill::Processors::VA228794Processor.new(form_data, self).process
+        return PdfFill::Processors::VA228794Processor.new(form_data, self, file_name_extension).process
       end
-
-      # Handle 22-8794 has the potential to overflow a lot and require special overflow handling
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
