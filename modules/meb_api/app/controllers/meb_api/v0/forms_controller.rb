@@ -61,6 +61,7 @@ module MebApi
       end
 
       def submit_claim
+        StatsD.increment('api.meb.submit_claim.attempt')
         response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params, response_data)
 
@@ -72,7 +73,7 @@ module MebApi
           }
         }
       rescue => e
-        Rails.logger.error("MEB Forms submit_claim failed: #{e.class} - #{e.message}")
+        log_submission_error(e, 'MEB Forms submit_claim failed')
         raise
       end
 
