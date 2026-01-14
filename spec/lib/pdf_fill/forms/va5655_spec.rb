@@ -5,10 +5,6 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
-def basic_class
-  PdfFill::Forms::Va5655.new({})
-end
-
 describe PdfFill::Forms::Va5655 do
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
