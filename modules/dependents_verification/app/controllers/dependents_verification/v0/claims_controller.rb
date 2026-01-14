@@ -63,7 +63,7 @@ module DependentsVerification
 
       # Creates a new claim instance with the provided form parameters.
       #
-      # @param form_params [Hash] The parameters for the claim form.
+      # @param form_params [String] The JSON string for the claim form.
       # @return [Claim] A new instance of the claim class initialized with the given attributes.
       #   If the current user has an associated user account, it is included in the claim attributes.
       def create_claim(form_params)
