@@ -811,7 +811,7 @@ features:
     description: >
       Enables content and design enhancements for Form 0781 supporting documents
       in the 526 disability compensation workflow.
-    enable_in_development: true
+    enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
     actor_type: user
     description: enables adding new conditions workflow indicator to in progress 526 forms
