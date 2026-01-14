@@ -79,7 +79,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
     context 'veteran cannot be found' do
       before do
         allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
-          Common::Exceptions::BadRequest
+          Common::Exceptions::RecordNotFound
         )
       end
 
