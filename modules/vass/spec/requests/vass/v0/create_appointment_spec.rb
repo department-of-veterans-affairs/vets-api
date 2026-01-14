@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Vass::V0::Appointments - Save Appointment', type: :request do
+RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:uuid) { 'da1e1a40-1e63-f011-bec2-001dd80351ea' }
   let(:veteran_id) { 'vet-uuid-123' }
@@ -116,6 +116,41 @@ RSpec.describe 'Vass::V0::Appointments - Save Appointment', type: :request do
               expect(json_response['data']['appointmentId']).not_to be_empty
             end
           end
+        end
+      end
+
+      context 'when booking session is missing from Redis' do
+        it 'still creates appointment successfully without appointment_id' do
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
+              # No booking session setup - redis_client.get_booking_session will return nil
+              post('/vass/v0/appointment',
+                   params: appointment_params.to_json,
+                   headers:)
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+
+              expect(json_response['data']).to be_present
+              expect(json_response['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
+            end
+          end
+        end
+
+        it 'omits appointmentId from API payload when session_data is nil' do
+          appointments_service = instance_double(Vass::AppointmentsService)
+          allow(Vass::AppointmentsService).to receive(:build).and_return(appointments_service)
+
+          expect(appointments_service).to receive(:save_appointment) do |params|
+            expect(params[:appointment_params][:appointment_id]).to be_nil
+            { 'success' => true, 'data' => { 'appointmentId' => 'new-appt-123' } }
+          end
+
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
+
+          expect(response).to have_http_status(:ok)
         end
       end
 
