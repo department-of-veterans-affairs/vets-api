@@ -55,10 +55,10 @@ module MHV
       check_queue_overflow(UniqueUserEvents::Buffer.pending_count)
 
       # Process all batches and collect metrics
-      iterations, total_events_processed, total_db_inserts = process_all_batches
+      iterations, total_events_processed, total_db_queries, total_db_inserts = process_all_batches
 
       # Record aggregate metrics for the entire job run
-      record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
+      record_job_summary(job_start_time, iterations, total_events_processed, total_db_queries, total_db_inserts)
     rescue ConfigurationError => e
       # Configuration errors are not transient - don't retry, just log and alert
       handle_configuration_failure(e)
@@ -72,10 +72,11 @@ module MHV
 
     # Process batches in a loop until queue is empty or max iterations reached
     #
-    # @return [Array<Integer>] [iterations, total_events_processed, total_db_inserts]
+    # @return [Array<Integer>] [iterations, total_events_processed, total_db_queries, total_db_inserts]
     def process_all_batches
       iterations = 0
       total_events_processed = 0
+      total_db_queries = 0
       total_db_inserts = 0
 
       loop do
@@ -87,17 +88,18 @@ module MHV
         break if events.empty?
 
         # Process this batch (dedup, cache check, insert, cache write, StatsD)
-        inserted_count = process_events(events)
+        db_queries, inserted_count = process_events(events)
 
         # TRIM - Remove events only after successful processing
         trim_processed_events(events.size)
 
         iterations += 1
         total_events_processed += events.size
+        total_db_queries += db_queries
         total_db_inserts += inserted_count
       end
 
-      [iterations, total_events_processed, total_db_inserts]
+      [iterations, total_events_processed, total_db_queries, total_db_inserts]
     end
 
     # Peek at a batch of events from the Redis buffer without removing them
@@ -149,8 +151,9 @@ module MHV
     # @param job_start_time [Time] When the job started
     # @param iterations [Integer] Number of batch iterations completed
     # @param total_events [Integer] Total events processed across all iterations
+    # @param total_db_queries [Integer] Total events sent to database (cache misses)
     # @param total_db_inserts [Integer] Total events inserted to database (new unique events)
-    def record_job_summary(job_start_time, iterations, total_events, total_db_inserts)
+    def record_job_summary(job_start_time, iterations, total_events, total_db_queries, total_db_inserts)
       return if iterations.zero? # No work done, skip metrics
 
       duration_ms = ((Time.current - job_start_time) * 1000).round
@@ -158,6 +161,7 @@ module MHV
 
       StatsD.gauge("#{STATSD_PREFIX}.iterations", iterations)
       StatsD.gauge("#{STATSD_PREFIX}.total_events_processed", total_events)
+      StatsD.gauge("#{STATSD_PREFIX}.total_db_queries", total_db_queries)
       StatsD.gauge("#{STATSD_PREFIX}.total_db_inserts", total_db_inserts)
       StatsD.gauge("#{STATSD_PREFIX}.queue_depth", queue_depth)
       StatsD.histogram("#{STATSD_PREFIX}.job_duration_ms", duration_ms)
@@ -165,6 +169,7 @@ module MHV
       Rails.logger.debug('UUM Processor: Job completed', {
                            iterations:,
                            total_events_processed: total_events,
+                           total_db_queries:,
                            total_db_inserts:,
                            duration_ms:,
                            queue_depth:
@@ -174,16 +179,16 @@ module MHV
     # Process a single batch of events
     #
     # @param events [Array<Hash>] Raw events from buffer
-    # @return [Integer] Number of events inserted to database
+    # @return [Array<Integer>] [db_queries (cache misses), db_inserts (new events)]
     def process_events(events)
       # Step 1: Deduplicate in-memory
       unique_events = deduplicate_events(events)
 
       # Step 2: Filter out events already in cache
       uncached_events = filter_cached_events(unique_events)
-      return 0 if uncached_events.empty?
+      return [0, 0] if uncached_events.empty?
 
-      # Step 3: Bulk insert to database
+      # Step 3: Bulk insert to database (uncached_events = cache misses = db queries)
       inserted_events = bulk_insert_events(uncached_events)
 
       # Step 4: Update cache for inserted events
@@ -192,8 +197,8 @@ module MHV
       # Step 5: Increment StatsD for new events
       increment_statsd_counters(inserted_events)
 
-      # Return count of inserted events for job-level tracking
-      inserted_events.size
+      # Return counts: cache misses (sent to DB) and actual inserts (new unique events)
+      [uncached_events.size, inserted_events.size]
     end
 
     # Deduplicate events

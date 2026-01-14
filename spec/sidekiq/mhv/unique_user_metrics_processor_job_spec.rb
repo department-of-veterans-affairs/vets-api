@@ -77,13 +77,49 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 1)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.queue_depth', 0)
         expect(StatsD).to have_received(:histogram).with('uum.processor_job.job_duration_ms', kind_of(Numeric))
         expect(Rails.logger).to have_received(:debug).with(
           'UUM Processor: Job completed',
-          hash_including(:iterations, :total_events_processed, :total_db_inserts, :duration_ms, :queue_depth)
+          hash_including(:iterations, :total_events_processed, :total_db_queries, :total_db_inserts, :duration_ms,
+                         :queue_depth)
         )
+      end
+    end
+
+    context 'when some events are cached (cache hits vs misses)' do
+      let(:cached_user_id) { SecureRandom.uuid }
+      let(:uncached_user_id) { SecureRandom.uuid }
+      let(:events) do
+        [
+          { user_id: cached_user_id, event_name: 'cached_event' },
+          { user_id: uncached_user_id, event_name: 'uncached_event' }
+        ]
+      end
+      let(:cached_key) { "#{cached_user_id}:cached_event" }
+
+      before do
+        allow(UniqueUserEvents::Buffer).to receive(:peek_batch).and_return(events, [])
+        allow(UniqueUserEvents::Buffer).to receive(:trim_batch)
+        allow(UniqueUserEvents::Buffer).to receive(:pending_count).and_return(0)
+        # Simulate one event already in cache (cache hit)
+        allow(Rails.cache).to receive(:read_multi).and_return({ cached_key => true })
+        allow(Rails.cache).to receive(:write_multi)
+        # Only the uncached event is inserted
+        allow(MHVMetricsUniqueUserEvent).to receive(:insert_all).and_return(
+          double(rows: [[uncached_user_id, 'uncached_event']])
+        )
+      end
+
+      it 'tracks db_queries as cache misses only' do
+        job.perform
+
+        # 2 events processed, 1 cache miss (db query), 1 insert
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 1)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 1)
       end
     end
 
@@ -114,6 +150,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
       end
     end
