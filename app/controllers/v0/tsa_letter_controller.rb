@@ -15,7 +15,7 @@ module V0
       files = response.body['files']
       serialized = most_recent_letter(files)
       render(json: serialized)
-    rescue => e
+    rescue Common::Client::Errors::ClientError => e
       if e.respond_to?(:status) && e.status == 403
         raise Common::Exceptions::RecordNotFound, current_user.user_account_uuid
       else
@@ -38,7 +38,7 @@ module V0
     end
 
     def most_recent_letter(files)
-      return { data: nil } if files.nil?
+      return { data: nil } if files.blank?
 
       latest = files.max do |a, b|
         a_time = DateTime.parse(a.dig('currentVersion', 'providerData', 'modifiedDateTime'))
@@ -50,10 +50,12 @@ module V0
       modified_datetime = latest.dig('currentVersion', 'providerData', 'modifiedDateTime')
       tsa_letter_metadata = OpenStruct.new(document_id:, document_version:, modified_datetime:)
       TsaLetterSerializer.new(tsa_letter_metadata)
-    rescue Date::Error => e
+    rescue Date::Error
       datetimes = files.map { |file| file.dig('currentVersion', 'providerData', 'modifiedDateTime') }
-      Rails.logger.error('Invalid datetime format found in TSA letters data', datetimes)
-      raise e
+      # Rails.logger.error('Invalid datetime format found in TSA letters data', datetimes)
+      raise Common::Exceptions::UnprocessableEntity,
+            detail: "Invalid datetime format found in TSA letters data: #{datetimes.join(', ')}",
+            source: self.class.name
     end
   end
 end

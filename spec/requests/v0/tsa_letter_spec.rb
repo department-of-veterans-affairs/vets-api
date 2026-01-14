@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_evidence_api/service/search'
 
 RSpec.describe 'VO::TsaLetter', type: :request do
   let(:user) { build(:user, :loa3) }
@@ -89,11 +88,10 @@ RSpec.describe 'VO::TsaLetter', type: :request do
           allow_any_instance_of(Faraday::Connection).to receive(:post).with('folders/files:search',
                                                                             any_args).and_return(mocked_response)
           allow(mocked_response).to receive(:env).and_return(mocked_env)
-          allow(Rails.logger).to receive(:error) # this is the initial parsing error
-          expect(Rails.logger).to receive(:error).with('Invalid datetime format found in TSA letters data',
-                                                       ['2025-09-09T14:18:53', 'null'])
           get '/v0/tsa_letter'
-          expect(response).to have_http_status(:internal_server_error)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.parsed_body.dig('errors', 0, 'detail'))
+            .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
         end
       end
     end
