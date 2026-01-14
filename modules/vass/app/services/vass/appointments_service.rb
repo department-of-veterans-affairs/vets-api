@@ -201,6 +201,32 @@ module Vass
     end
 
     ##
+    # Gets appointment availability for the veteran's current cohort.
+    #
+    # @param veteran_id [String] Veteran ID in VASS system
+    # @return [Hash] Result with status (:available_slots, :already_booked, :next_cohort, :no_cohorts) and data
+    #
+    def get_current_cohort_availability(veteran_id:)
+      # 1. Get veteran appointments
+      appointments_response = get_appointments(veteran_id:)
+      appointments = appointments_response.dig('data', 'appointments') || []
+      # 2. Find current cohort
+      current_cohort = find_current_cohort(appointments)
+
+      # 3. Determine availability status
+      return handle_no_current_cohort(appointments) unless current_cohort
+
+      if cohort_booked?(current_cohort)
+        handle_booked_cohort(current_cohort)
+      else
+        handle_available_cohort(current_cohort, veteran_id)
+      end
+    rescue Vass::Errors::VassApiError, Vass::Errors::ServiceError,
+           Common::Exceptions::BackendServiceException => e
+      handle_error(e, 'get_current_cohort_availability')
+    end
+
+    ##
     # Retrieves veteran information by veteran ID (UUID).
     #
     # This method can be called without EDIPI - the VASS API returns EDIPI in the response.
@@ -217,13 +243,7 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(veteran_id:)
-      veteran_data = parse_response(response)
-
-      # Validate we have the required data structure
-      unless veteran_data && veteran_data['success'] && veteran_data['data']
-        raise Vass::Errors::VassApiError,
-              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
-      end
+      veteran_data = response.body
 
       # Extract and add contact info for OTC flow
       contact_method, contact_value = extract_contact_info(veteran_data)
@@ -253,8 +273,15 @@ module Vass
     #
     def get_agent_skills
       response = client.get_agent_skills
+      body = response.body
 
-      parse_response(response)
+      agent_skills = body.dig('data', 'agentSkills') || []
+      agent_skills.map do |skill|
+        {
+          topicId: skill['skillId'],
+          topicName: skill['skillName']
+        }
+      end
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
@@ -286,7 +313,7 @@ module Vass
     # @return [String, nil] ISO8601 formatted datetime string, or nil if input is nil
     #
     def format_datetime(datetime)
-      return nil if datetime.nil?
+      return unless datetime
       return datetime if datetime.is_a?(String)
 
       datetime.utc.iso8601
@@ -317,14 +344,11 @@ module Vass
 
       case error
       when Vass::ServiceException
-        # VASS-specific service exceptions (inherits from BackendServiceException)
-        if error.original_status == 401
-          raise Vass::Errors::AuthenticationError, 'Authentication failed'
-        elsif error.original_status == 404
-          raise Vass::Errors::NotFoundError, 'Resource not found'
-        else
-          raise Vass::Errors::VassApiError, "VASS API error: #{error.original_status}"
-        end
+        status = error.original_status
+        raise Vass::Errors::AuthenticationError, 'Authentication failed' if status == 401
+        raise Vass::Errors::NotFoundError, 'Resource not found' if status == 404
+
+        raise Vass::Errors::VassApiError, "VASS API error: #{status}"
       when Common::Exceptions::GatewayTimeout
         # Timeout errors from Faraday or Ruby's Timeout
         raise Vass::Errors::ServiceError, "Request timeout in #{method_name}"
@@ -366,9 +390,11 @@ module Vass
     # @return [Boolean] true if identity matches
     #
     def validate_veteran_identity(veteran_data, last_name, date_of_birth)
-      return false unless veteran_data && veteran_data['data']
+      return false unless veteran_data
 
       data = veteran_data['data']
+      return false unless data
+
       last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
       dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
 
@@ -416,9 +442,11 @@ module Vass
     # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]
     #
     def extract_contact_info(veteran_data)
-      return [nil, nil] unless veteran_data && veteran_data['data']
+      return [nil, nil] unless veteran_data
 
       data = veteran_data['data']
+      return [nil, nil] unless data
+
       email = data['notificationEmail']
 
       if email.present?
@@ -460,6 +488,221 @@ module Vass
         timestamp: Time.current.iso8601
       }.to_json)
       raise Vass::Errors::ValidationError, "Invalid date format: #{date}"
+    end
+
+    ##
+    # Finds the cohort appointment containing the current date.
+    #
+    # @param appointments [Array<Hash>] Array of veteran appointments
+    # @return [Hash, nil] Cohort appointment or nil if none match
+    #
+    def find_current_cohort(appointments)
+      now = Time.current
+
+      appointments.find do |appt|
+        cohort_start_utc = appt['cohortStartUtc']
+        cohort_end_utc = appt['cohortEndUtc']
+        next unless cohort_start_utc && cohort_end_utc
+
+        cohort_start = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
+        cohort_end = parse_utc_time(cohort_end_utc, field_name: 'cohortEndUtc')
+        next unless cohort_start && cohort_end
+
+        now.between?(cohort_start, cohort_end)
+      end
+    end
+
+    ##
+    # Checks if a cohort appointment is already booked.
+    #
+    # @param cohort [Hash] Cohort appointment
+    # @return [Boolean] True if booked, false otherwise
+    #
+    def cohort_booked?(cohort)
+      cohort['startUTC'].present? && cohort['endUTC'].present?
+    end
+
+    ##
+    # Handles the case when the current cohort is already booked.
+    #
+    # @param cohort [Hash] Booked cohort appointment
+    # @return [Hash] Result with status and booked appointment data
+    #
+    def handle_booked_cohort(cohort)
+      {
+        status: :already_booked,
+        data: {
+          appointment_id: cohort['appointmentId'],
+          start_utc: cohort['startUTC'],
+          end_utc: cohort['endUTC']
+        }
+      }
+    end
+
+    ##
+    # Handles the case when the current cohort is unbooked.
+    #
+    # Fetches available time slots from VASS API for the cohort window.
+    #
+    # @param cohort [Hash] Unbooked cohort appointment
+    # @param veteran_id [String] Veteran ID
+    # @return [Hash] Result with status and available slots data
+    #
+    def handle_available_cohort(cohort, veteran_id)
+      cohort_start_utc = cohort['cohortStartUtc']
+      cohort_end_utc = cohort['cohortEndUtc']
+      availability = get_availability(veteran_id:, start_date: cohort_start_utc, end_date: cohort_end_utc)
+      slots = availability.dig('data', 'availableTimeSlots') || []
+      filtered_slots = filter_available_slots(slots)
+      return build_no_slots_available_response if filtered_slots.empty?
+
+      {
+        status: :available_slots,
+        data: {
+          appointment_id: cohort['appointmentId'],
+          cohort: { cohort_start_utc:, cohort_end_utc: },
+          available_slots: filtered_slots
+        }
+      }
+    end
+
+    ##
+    # Filters appointment slots by capacity and date range.
+    #
+    # Only returns slots that:
+    # - Have available capacity (capacity > 0)
+    # - Fall within tomorrow to two weeks from tomorrow
+    #
+    # @param slots [Array<Hash>] Raw appointment slots from VASS API
+    # @return [Array<Hash>] Filtered slots with only dtStartUtc and dtEndUtc
+    #
+    def filter_available_slots(slots)
+      tomorrow = Time.current.beginning_of_day + 1.day
+      two_weeks_out = tomorrow + 2.weeks
+
+      slots
+        .select { |slot| (slot['capacity'] || 0).positive? }
+        .select { |slot| slot_within_date_range?(slot, tomorrow, two_weeks_out) }
+        .map { |slot| { 'dtStartUtc' => slot['timeStartUTC'], 'dtEndUtc' => slot['timeEndUTC'] } }
+    end
+
+    ##
+    # Checks if a slot falls within the specified date range.
+    #
+    # @param slot [Hash] Appointment slot with timeStartUTC
+    # @param start_range [Time] Start of allowed date range
+    # @param end_range [Time] End of allowed date range
+    # @return [Boolean] True if slot is within range
+    #
+    def slot_within_date_range?(slot, start_range, end_range)
+      time_start_utc = slot['timeStartUTC']
+      return false unless time_start_utc
+
+      slot_time = parse_utc_time(time_start_utc, field_name: 'timeStartUTC')
+      return false unless slot_time
+
+      slot_time >= start_range && slot_time <= end_range
+    end
+
+    ##
+    # Handles the case when no current cohort exists.
+    #
+    # Finds the next upcoming cohort or returns no cohorts status.
+    #
+    # @param appointments [Array<Hash>] All veteran appointments
+    # @return [Hash] Result with status and next cohort data or no cohorts message
+    #
+    def handle_no_current_cohort(appointments)
+      next_cohort = find_next_cohort(appointments)
+
+      next_cohort ? build_next_cohort_response(next_cohort) : build_no_cohorts_response
+    end
+
+    ##
+    # Finds the next upcoming cohort appointment.
+    #
+    # @param appointments [Array<Hash>] All veteran appointments
+    # @return [Hash, nil] Next cohort appointment or nil if none found
+    #
+    def find_next_cohort(appointments)
+      now = Time.current
+
+      future_appointments = appointments.filter_map do |appt|
+        cohort_start_utc = appt['cohortStartUtc']
+        next unless cohort_start_utc
+
+        parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
+        { appt:, parsed_time: } if parsed_time && parsed_time > now
+      end
+
+      return nil if future_appointments.empty?
+
+      future_appointments.min_by { |entry| entry[:parsed_time] }&.dig(:appt)
+    end
+
+    ##
+    # Builds response for next cohort scenario.
+    #
+    # @param cohort [Hash] Next cohort appointment
+    # @return [Hash] Result with next cohort status and data
+    #
+    def build_next_cohort_response(cohort)
+      cohort_start_utc = cohort['cohortStartUtc']
+      cohort_end_utc = cohort['cohortEndUtc']
+
+      {
+        status: :next_cohort,
+        data: {
+          message: "Booking opens on #{cohort_start_utc}",
+          next_cohort: {
+            cohort_start_utc:,
+            cohort_end_utc:
+          }
+        }
+      }
+    end
+
+    ##
+    # Builds response for no cohorts available scenario.
+    #
+    # @return [Hash] Result with no cohorts status and message
+    #
+    def build_no_cohorts_response
+      {
+        status: :no_cohorts,
+        data: {
+          message: 'Current date outside of appointment cohort date ranges'
+        }
+      }
+    end
+
+    ##
+    # Builds response for no available slots scenario.
+    #
+    # @return [Hash] Result with no slots status and message
+    #
+    def build_no_slots_available_response
+      {
+        status: :no_slots_available,
+        data: {
+          message: 'No available appointment slots'
+        }
+      }
+    end
+
+    ##
+    # Parses a timestamp string as UTC.
+    #
+    # @param time_string [String] UTC timestamp string
+    # @param field_name [String] Name of the field being parsed (for error logging)
+    # @return [Time, nil] Parsed UTC time or nil if invalid
+    # @raise [Vass::Errors::VassApiError] if parsing fails
+    #
+    def parse_utc_time(time_string, field_name: 'timestamp')
+      Time.parse(time_string).utc
+    rescue ArgumentError, TypeError => e
+      log_error(e, "parse_utc_time (field: #{field_name})")
+      raise Vass::Errors::VassApiError, "Invalid date/time format in #{field_name} from VASS API"
     end
   end
 end

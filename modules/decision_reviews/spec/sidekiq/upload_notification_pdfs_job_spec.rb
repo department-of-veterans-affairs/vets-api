@@ -14,8 +14,30 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:submitted_appeal_uuid2) { SecureRandom.uuid }
   let(:notification_id1) { SecureRandom.uuid }
   let(:notification_id2) { SecureRandom.uuid }
-  let(:vbms_file_uuid1) { "#{SecureRandom.uuid}-vbms-1" }
-  let(:vbms_file_uuid2) { "#{SecureRandom.uuid}-vbms-2" }
+  let(:document_series_id1) { "#{SecureRandom.uuid}-vbms-1" }
+  let(:document_series_id2) { "#{SecureRandom.uuid}-vbms-2" }
+  let(:document_id1) { SecureRandom.uuid.upcase }
+  let(:document_id2) { SecureRandom.uuid.upcase }
+  let(:upload_result1) do
+    {
+      document_series_id: document_series_id1,
+      document_id: document_id1
+    }
+  end
+
+  let(:upload_result2) do
+    {
+      document_series_id: document_series_id2,
+      document_id: document_id2
+    }
+  end
+
+  let(:upload_result_perm) do
+    {
+      document_series_id: "#{SecureRandom.uuid}-vbms-perm",
+      document_id: SecureRandom.uuid.upcase
+    }
+  end
 
   let(:audit_log1) do
     DecisionReviewNotificationAuditLog.create!(
@@ -80,8 +102,8 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
   let(:uploader_permanent_failure) { instance_double(DecisionReviews::NotificationPdfUploader) }
 
   around do |example|
-    # Freeze time to after the CUTOFF_DATE (Dec 12, 2025) so test fixtures are created after cutoff
-    Timecop.freeze(Date.new(2025, 12, 25)) do
+    # Freeze time to after the DEFAULT_CUTOFF_DATE (Jan 15, 2026) so test fixtures are created after cutoff
+    Timecop.freeze(Date.new(2026, 1, 25)) do
       Sidekiq::Testing.inline!(&example)
     end
   end
@@ -100,9 +122,9 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
     allow(DecisionReviews::NotificationPdfUploader).to receive(:new).with(audit_log2).and_return(uploader2)
     allow(DecisionReviews::NotificationPdfUploader).to receive(:new).with(permanent_failure_log)
                                                                     .and_return(uploader_permanent_failure)
-    allow(uploader1).to receive(:upload_to_vbms).and_return(vbms_file_uuid1)
-    allow(uploader2).to receive(:upload_to_vbms).and_return(vbms_file_uuid2)
-    allow(uploader_permanent_failure).to receive(:upload_to_vbms).and_return("#{SecureRandom.uuid}-vbms-perm")
+    allow(uploader1).to receive(:upload_to_vbms).and_return(upload_result1)
+    allow(uploader2).to receive(:upload_to_vbms).and_return(upload_result2)
+    allow(uploader_permanent_failure).to receive(:upload_to_vbms).and_return(upload_result_perm)
   end
 
   describe '#perform' do
@@ -124,7 +146,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
         subject.new.perform
 
         expect(StatsD).to have_received(:increment)
-          .with('worker.decision_reviews.upload_notification_email_pdfs.started')
+          .with('worker.decision_review.upload_notification_email_pdfs.started')
       end
 
       it 'fetches only pending uploads' do
@@ -153,7 +175,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
         subject.new.perform
 
         expect(StatsD).to have_received(:increment)
-          .with('worker.decision_reviews.upload_notification_email_pdfs.upload_success').exactly(3).times
+          .with('worker.decision_review.upload_notification_email_pdfs.upload_success').exactly(3).times
       end
 
       it 'logs successful uploads' do
@@ -161,11 +183,13 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
 
         expect(Rails.logger).to have_received(:info).with(
           'DecisionReviews::UploadNotificationPdfsJob uploaded PDF',
-          hash_including(notification_id: notification_id1, file_uuid: vbms_file_uuid1)
+          hash_including(notification_id: notification_id1, document_series_id: document_series_id1,
+                         document_id: document_id1)
         )
         expect(Rails.logger).to have_received(:info).with(
           'DecisionReviews::UploadNotificationPdfsJob uploaded PDF',
-          hash_including(notification_id: notification_id2, file_uuid: vbms_file_uuid2)
+          hash_including(notification_id: notification_id2, document_series_id: document_series_id2,
+                         document_id: document_id2)
         )
       end
 
@@ -173,11 +197,11 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
         subject.new.perform
 
         expect(StatsD).to have_received(:gauge)
-          .with('worker.decision_reviews.upload_notification_email_pdfs.total_count', 3)
+          .with('worker.decision_review.upload_notification_email_pdfs.total_count', 3)
         expect(StatsD).to have_received(:gauge)
-          .with('worker.decision_reviews.upload_notification_email_pdfs.success_count', 3)
+          .with('worker.decision_review.upload_notification_email_pdfs.success_count', 3)
         expect(StatsD).to have_received(:gauge)
-          .with('worker.decision_reviews.upload_notification_email_pdfs.failure_count', 0)
+          .with('worker.decision_review.upload_notification_email_pdfs.failure_count', 0)
       end
 
       it 'logs completion summary' do
@@ -201,7 +225,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
           subject.new.perform
 
           expect(StatsD).to have_received(:increment)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.no_pending_uploads')
+            .with('worker.decision_review.upload_notification_email_pdfs.no_pending_uploads')
         end
 
         it 'does not process any uploads' do
@@ -225,7 +249,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
             reference: "SC-form-#{SecureRandom.uuid}",
             status: 'delivered',
             payload: { 'completed_at' => '2025-11-01T10:00:00Z' }.to_json,
-            created_at: Date.new(2025, 12, 1) # Before CUTOFF_DATE
+            created_at: Date.new(2026, 1, 1) # Before DEFAULT_CUTOFF_DATE
           )
         end
 
@@ -261,7 +285,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
           subject.new.perform
 
           expect(StatsD).to have_received(:increment)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.upload_failure')
+            .with('worker.decision_review.upload_notification_email_pdfs.upload_failure')
         end
 
         it 'logs upload failure' do
@@ -280,11 +304,11 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
           subject.new.perform
 
           expect(StatsD).to have_received(:gauge)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.total_count', 3)
+            .with('worker.decision_review.upload_notification_email_pdfs.total_count', 3)
           expect(StatsD).to have_received(:gauge)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.success_count', 2)
+            .with('worker.decision_review.upload_notification_email_pdfs.success_count', 2)
           expect(StatsD).to have_received(:gauge)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.failure_count', 1)
+            .with('worker.decision_review.upload_notification_email_pdfs.failure_count', 1)
         end
 
         it 'logs completion with failure count' do
@@ -307,7 +331,7 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
           expect { subject.new.perform }.to raise_error(StandardError, 'Database connection error')
 
           expect(StatsD).to have_received(:increment)
-            .with('worker.decision_reviews.upload_notification_email_pdfs.error')
+            .with('worker.decision_review.upload_notification_email_pdfs.error')
         end
 
         it 'logs the error' do
@@ -364,6 +388,69 @@ RSpec.describe DecisionReviews::UploadNotificationPdfsJob, type: :job do
       pending = job.send(:fetch_pending_uploads)
 
       expect(pending).to include(permanent_failure_log)
+    end
+  end
+
+  describe '#cutoff_date' do
+    context 'when Settings value is configured' do
+      before do
+        allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
+          .and_return('2025-06-01')
+      end
+
+      it 'returns the configured date' do
+        job = subject.new
+        expect(job.send(:cutoff_date)).to eq(Date.new(2025, 6, 1))
+      end
+    end
+
+    context 'when Settings value is nil' do
+      before do
+        allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
+          .and_return(nil)
+      end
+
+      it 'returns the default cutoff date' do
+        job = subject.new
+        expect(job.send(:cutoff_date)).to eq(described_class::DEFAULT_CUTOFF_DATE)
+      end
+    end
+
+    context 'when Settings value is blank' do
+      before do
+        allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
+          .and_return('')
+      end
+
+      it 'returns the default cutoff date' do
+        job = subject.new
+        expect(job.send(:cutoff_date)).to eq(described_class::DEFAULT_CUTOFF_DATE)
+      end
+    end
+
+    context 'when Settings value is an invalid date string' do
+      before do
+        allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
+          .and_return('not-a-date')
+      end
+
+      it 'returns the default cutoff date' do
+        job = subject.new
+        expect(job.send(:cutoff_date)).to eq(described_class::DEFAULT_CUTOFF_DATE)
+      end
+    end
+
+    context 'when Settings value is a numeric string (env_parse_values edge case)' do
+      before do
+        # config gem with env_parse_values=true can convert numeric strings to integers
+        allow(Settings.decision_review).to receive(:email_pdf_upload_cutoff_date)
+          .and_return(20250601) # rubocop:disable Style/NumericLiterals
+      end
+
+      it 'parses the numeric value as a date string (YYYYMMDD format)' do
+        job = subject.new
+        expect(job.send(:cutoff_date)).to eq(Date.new(2025, 6, 1))
+      end
     end
   end
 end

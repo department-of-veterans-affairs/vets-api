@@ -4,6 +4,7 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'va_profile/service'
 require 'va_profile/stats'
+require 'va_profile/person_settings/service'
 require_relative 'configuration'
 require_relative 'transaction_response'
 require_relative 'person_response'
@@ -146,7 +147,10 @@ module VAProfile
           response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
 
           transaction = response.transaction
-          if transaction.received? && old_email.present?
+          # Only store old_email if the email address is actually changing.
+          # This prevents sending "email changed" notifications when users
+          # are only confirming their existing email address (confirmation_date update).
+          if transaction.received? && old_email.present? && !old_email.casecmp?(email.email_address)
             OldEmail.create(transaction_id: transaction.id,
                             email: old_email)
           end
@@ -206,6 +210,24 @@ module VAProfile
             VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
             VAProfile::ContactInformation::V2::PersonTransactionResponse.from(raw_response, @user)
+          end
+        rescue => e
+          handle_error(e)
+        end
+
+        # GET's the status of a person options transaction from the VAProfile api
+        # @param transaction_id [String] the transaction_id to check
+        # @return [VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse] wrapper around a tx object
+        def get_person_options_transaction_status(transaction_id)
+          # Delegate to PersonSettings service for the actual API call (different endpoint)
+          person_settings_service = VAProfile::PersonSettings::Service.new(@user)
+
+          with_monitoring do
+            raw_response = person_settings_service.perform(:get, "person-options/v1/status/#{transaction_id}")
+            VAProfile::Stats.increment_transaction_results(raw_response, 'person_options')
+
+            # Return a ContactInformation TransactionResponse for consistency
+            VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse.from(raw_response)
           end
         rescue => e
           handle_error(e)
