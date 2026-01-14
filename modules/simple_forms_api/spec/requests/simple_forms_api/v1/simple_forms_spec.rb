@@ -1305,4 +1305,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
   end
+
+  describe '#form_id' do
+    let(:controller) { SimpleFormsApi::V1::UploadsController.new }
+
+    it 'returns the correct form ID for a valid form number' do
+      allow(controller).to receive(:params).and_return({ form_number: '21-0966' })
+      form_id = controller.send(:form_id)
+
+      expect(form_id).to eq('vba_21_0966')
+    end
+
+    it 'raises ParameterMissing for a missing form number' do
+      allow(controller).to receive(:params).and_return({})
+      expect { controller.send(:form_id) }.to raise_error(Common::Exceptions::ParameterMissing)
+    end
+  end
 end

@@ -286,7 +286,7 @@ module SimpleFormsApi
 
       def form_id
         form_number = params[:form_number]
-        raise 'missing form_number in params' unless form_number
+        raise Common::Exceptions::ParameterMissing, :form_number unless form_number
 
         FORM_NUMBER_MAP[form_number]
       end
