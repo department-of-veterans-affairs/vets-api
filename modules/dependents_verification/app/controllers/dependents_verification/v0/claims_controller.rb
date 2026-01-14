@@ -118,6 +118,8 @@ module DependentsVerification
       # @param claim [DependentsVerification::SavedClaim] the claim to update
       # @return [void]
       def add_va_profile_email_to_claim(claim)
+        return nil unless current_user.authorize :va_profile, :access_to_v2?
+
         va_profile_email = current_user&.va_profile_email
         return unless va_profile_email
 

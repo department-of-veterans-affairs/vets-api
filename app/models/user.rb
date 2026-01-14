@@ -383,12 +383,15 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless vet360_id.present? || icn.present?
+    # ICN is required. vet360_id was removed in ContactInformationV2
+    return {} unless authorize :va_profile, :access_to_v2?
 
     @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
+    # Refrain from calling user.va_profile_email, please authorize user first:
+    # va_profile_email = user.authorize :va_profile, :access_to_v2? ? user.va_profile_email : nil
     vet360_contact_info&.email&.email_address
   end
 

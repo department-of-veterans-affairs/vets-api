@@ -143,6 +143,8 @@ module DependentsBenefits
     # @param user [User] The authenticated user object
     # @return [String, nil] The VA Profile email address, or nil if lookup fails
     def get_user_email(user)
+      return nil unless user.authorize :va_profile, :access_to_v2?
+
       # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
       # Failure is expected occasionally due to 404 errors from the redis cache
       # New users, users that have not logged on in over a month, users who created an account on web,

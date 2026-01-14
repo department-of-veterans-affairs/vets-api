@@ -379,6 +379,8 @@ module BGS
     # Attempt to retrieve the VA profile email for notifications. If profile lookup fails,
     # log the event and return nil so callers can fall back to form-supplied email.
     def get_user_email(user)
+      return nil unless user.authorize :va_profile, :access_to_v2?
+
       # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
       # Failure is expected occasionally due to 404 errors from the redis cache
       # New users, users that have not logged on in over a month, users who created an account on web,

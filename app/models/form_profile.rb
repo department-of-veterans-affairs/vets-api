@@ -346,6 +346,8 @@ class FormProfile
   end
 
   def initialize_contact_information
+    return {} unless user.authorize :va_profile, :access_to_v2?
+
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
     opt[:address] ||= user_address_hash
@@ -356,14 +358,12 @@ class FormProfile
 
   # doing this (below) instead of `@vet360_contact_info ||= Settings...` to cache nil too
   def vet360_contact_info
+    # ICN is required. vet360_id was removed in ContactInformationV2
+    return {} unless user.authorize :va_profile, :access_to_v2?
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if user.icn.present? || user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
-    else
-      Rails.logger.info('Vet360 Contact Info Null')
-    end
+    @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
     @vet360_contact_info
   end
 
