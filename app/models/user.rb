@@ -384,7 +384,7 @@ class User < Common::RedisStore
 
   def vet360_contact_info
     # ICN is required. vet360_id was removed in ContactInformationV2
-    return {} unless authorize :va_profile, :access_to_v2?
+    return nil unless authorize :va_profile, :access_to_v2?
 
     @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end

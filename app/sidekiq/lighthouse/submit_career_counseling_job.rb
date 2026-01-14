@@ -37,7 +37,7 @@ module Lighthouse
 
     def send_confirmation_email(user_uuid)
       claim_user = User.find(user_uuid)
-      found_email = claim_user.icn.present? ? claim_user&.va_profile_email : nil
+      found_email = claim_user&.icn.present? ? claim_user&.va_profile_email : nil
       email = if user_uuid.present? && found_email
                 found_email
               else

@@ -16,6 +16,7 @@ RSpec.describe FormProfiles::VA10297 do
   describe '#prefill' do
     before do
       allow(user).to receive(:authorize).with(:evss, :access?).and_return(true)
+      allow(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
       allow(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?).and_return(true)
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
     end
