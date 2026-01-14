@@ -446,7 +446,7 @@ module DecisionReviews
               when Faraday::ParsingError
                 DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
-                if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
+                if ERROR_MAP.key?(error.status)
                   ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
                 elsif error.status == 403
                   Common::Exceptions::Forbidden.new source_hash
@@ -488,10 +488,6 @@ module DecisionReviews
 
       def remove_pii_from_json_schemer_errors(errors)
         errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
-      end
-
-      def common_exceptions_flag_enabled?
-        Flipper.enabled? :decision_review_service_common_exceptions_enabled
       end
     end
   end

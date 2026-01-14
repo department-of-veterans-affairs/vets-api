@@ -654,9 +654,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_service_common_exceptions_enabled:
-    actor_type: user
-    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
