@@ -2,21 +2,34 @@
 
 module NotificationsClientPatch
   UUID_LENGTH = 36
-  MINIMUM_TOKEN_LENGTH = 75
   URLSAFE_TOKEN_LENGTH = 86
+  # Format: name-service_id-secret_token (e.g., "myapp-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+  # Minimum: 1 char name + dash + UUID (36) + dash + UUID (36) = 75
+  MINIMUM_TOKEN_LENGTH = 1 + 1 + UUID_LENGTH + 1 + UUID_LENGTH
+  UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
 
   def initialize(secret_token = nil, base_url = nil)
-    if Flipper.enabled?(:va_notify_enhanced_uuid_validation)
-
-      token_length = detect_token_length(secret_token)
-      @secret_token = secret_token[-token_length..]
-      @service_id = secret_token[-(token_length + 1 + UUID_LENGTH)..-(token_length + 2)]
-      @base_url = base_url || PRODUCTION_BASE_URL
-
-      validate_uuids!
-    else
+    unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
       super
+      return
     end
+
+    token_length = detect_token_length(secret_token)
+    @secret_token = extract_secret_token(secret_token, token_length)
+    @service_id = extract_service_id(secret_token, token_length)
+    @base_url = base_url || PRODUCTION_BASE_URL
+
+    validate_uuids!
+  end
+
+  def extract_secret_token(secret_token, token_length)
+    secret_token[-token_length..]
+  end
+
+  def extract_service_id(secret_token, token_length)
+    start_index = -(token_length + 1 + UUID_LENGTH)
+    end_index = -(token_length + 2)
+    secret_token[start_index..end_index]
   end
 
   def validate_uuids!
@@ -34,15 +47,14 @@ module NotificationsClientPatch
   def valid_uuid?(uuid)
     return false unless uuid.is_a?(String)
 
-    # Standard UUID format (36 chars, case-insensitive)
-    uuid.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+    uuid.match?(UUID_REGEX)
   end
 
   def valid_token?(token)
     return false unless token.is_a?(String)
 
     # Standard UUID format (36 chars)
-    return true if token.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+    return true if token.match?(UUID_REGEX)
 
     # Python secrets.token_urlsafe(64) format (86+ chars, URL-safe base64)
     return true if token.length >= 86 && token.match?(/\A[A-Za-z0-9_-]+\z/)
@@ -51,19 +63,27 @@ module NotificationsClientPatch
   end
 
   def detect_token_length(secret_token)
-    # minimum length includes 2 uuids, dashes, and a character for name
-    unless secret_token.is_a?(String) && secret_token.length >= MINIMUM_TOKEN_LENGTH
-      raise ArgumentError, "Invalid secret_token format: #{secret_token}"
-    end
+    validate_secret_token_format!(secret_token)
 
+    uuid_format = uuid_format_token?(secret_token)
+    log_detected_format(uuid_format)
+    uuid_format ? UUID_LENGTH : URLSAFE_TOKEN_LENGTH
+  end
+
+  def uuid_format_token?(secret_token)
     potential_uuid = secret_token[-UUID_LENGTH..]
-    if valid_uuid?(potential_uuid)
-      Rails.logger.info('NotificationsClientPatch: Detected uuid format for api_key')
-      UUID_LENGTH
-    else
-      Rails.logger.info('NotificationsClientPatch: Detected urlsafe format for api_key')
-      URLSAFE_TOKEN_LENGTH
-    end
+    valid_uuid?(potential_uuid)
+  end
+
+  def log_detected_format(uuid_format)
+    format_type = uuid_format ? 'uuid' : 'urlsafe'
+    Rails.logger.info("NotificationsClientPatch: Detected #{format_type} format for api_key")
+  end
+
+  def validate_secret_token_format!(secret_token)
+    return if secret_token.is_a?(String) && secret_token.length >= MINIMUM_TOKEN_LENGTH
+
+    raise ArgumentError, "Invalid secret_token format: #{secret_token}"
   end
 end
 
