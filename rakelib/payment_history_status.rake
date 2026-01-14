@@ -113,7 +113,7 @@ namespace :payment_history do
       identifier_type: MPI::Constants::ICN
     )
     handle_mpi_response(response)
-  rescue => e
+  rescue Common::Exceptions::RecordNotFound, Faraday::Error => e
     puts "✗ Error querying MPI: #{e.message}"
     nil
   end
