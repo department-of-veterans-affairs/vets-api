@@ -72,8 +72,8 @@ module IvcChampva
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
-          # Generates overflow OHI forms if applicant is associated with
-          # more than 2 healthInsurance policies
+          # Generate OHI forms for each applicant. Creates one form per 2 policies
+          # to handle overflow when applicant has more than 2 health insurance policies.
           ohi_forms = generate_ohi_form(app, parsed_form_data)
           ohi_forms.each do |f|
             ohi_path = fill_ohi_and_return_path(f)
@@ -484,35 +484,32 @@ module IvcChampva
       end
 
       ##
-      # Directly generates OHI form(s) + fills them (via fill_ohi_and_return_path)
-      # rather than trying to just send an OHI through the default submit
-      # method.
-      # Main reason for this is because since the PDFs need to be saved
-      # as supporting docs on 10-10d, it would be a bit too complicated to rework the
-      # existing submit flow to not send the intermediate OHI forms to Pega, etc
+      # Generates OHI form instances for a single applicant.
+      # Creates one form per 2 health insurance policies to handle overflow
+      # when an applicant has more than 2 policies.
       #
-      # @param [Hash] applicant A hash comprising a 10-10d applicant (name, ssn, etc)
-      # @param [Hash] form_data complete form submission data object
-      #
-      # @return [Array<IvcChampva::VHA107959c>] Array of form instances with details from form_data included
+      # @param applicant [Hash] Applicant data containing health_insurance array
+      # @param form_data [Hash] Complete form submission data (form-level fields)
+      # @return [Array<IvcChampva::VHA107959cRev2025>] Array of form instances
       def generate_ohi_form(applicant, form_data)
         forms = []
         health_insurance = applicant['health_insurance'] || [{}]
 
-        # Process insurance policies in pairs (2 per form)
-        # TODO: is there a clean way to piggyback off of existing generate_additional_pdf method?
-        health_insurance.each_slice(2).with_index do |policies_pair, _form_index|
-          # Create applicant-specific form data for this pair of policies
+        health_insurance.each_slice(2) do |policies_pair|
           applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
           applicant_data['form_number'] = '10-7959C-REV2025'
 
-          # Map the current pair of policies to the applicant data
-          applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
-
-          # Create and configure form
-          form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
-          form.data['form_number'] = '10-7959C-REV2025'
-          forms << form
+          if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
+            # NEW: Pass health_insurance array, constructor handles flattening
+            applicant_data['health_insurance'] = policies_pair
+            forms << IvcChampva::VHA107959cRev2025.new(applicant_data)
+          else
+            # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
+            applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
+            form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+            form.data['form_number'] = '10-7959C-REV2025'
+            forms << form
+          end
         end
 
         forms

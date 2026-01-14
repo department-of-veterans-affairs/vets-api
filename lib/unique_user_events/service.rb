@@ -122,7 +122,7 @@ module UniqueUserEvents
 
       if event_created
         increment_statsd_counter(event_name)
-        Rails.logger.info('UUM: New event logged', { user_id:, event_name: })
+        Rails.logger.debug('UUM: New event logged', { user_id:, event_name: })
       end
 
       build_event_result(event_name, event_created)
