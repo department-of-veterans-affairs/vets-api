@@ -49,6 +49,7 @@ RSpec.describe DependentsBenefits::UserData do
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive(:track_user_data_error)
     allow(monitor).to receive(:track_user_data_warning)
+    allow(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
   end
 
   describe '#initialize' do
@@ -86,6 +87,10 @@ RSpec.describe DependentsBenefits::UserData do
           participant_id: 'participant-123',
           va_profile_email: 'john.doe@va.gov'
         )
+      end
+
+      before do
+        allow(incomplete_user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
       end
 
       it 'falls back to claim data' do
@@ -181,6 +186,8 @@ RSpec.describe DependentsBenefits::UserData do
         participant_id: 'participant-123',
         va_profile_email: 'john.doe@va.gov'
       )
+
+      allow(user_without_middle).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
 
       claim_data_with_no_middle = claim_data.dup
       claim_data_with_no_middle['veteran_information']['full_name'].delete('middle')
@@ -335,6 +342,10 @@ RSpec.describe DependentsBenefits::UserData do
         )
       end
 
+      before do
+        allow(user_without_common_name).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
+      end
+
       it 'falls back to email' do
         user_data = described_class.new(user_without_common_name, claim_data)
         expect(user_data.send(:external_key)).to eq('john.doe@example.com')
@@ -361,6 +372,7 @@ RSpec.describe DependentsBenefits::UserData do
 
       before do
         stub_const('BGS::Constants::EXTERNAL_KEY_MAX_LENGTH', 10)
+        allow(long_name_user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
       end
 
       it 'truncates to max length' do
@@ -396,6 +408,10 @@ RSpec.describe DependentsBenefits::UserData do
           )
         end
 
+        before do
+          allow(user_with_blank_email).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
+        end
+
         it 'returns nil for blank email' do
           expect(user_data.send(:get_user_email, user_with_blank_email)).to be_nil
         end
@@ -421,6 +437,7 @@ RSpec.describe DependentsBenefits::UserData do
 
       before do
         allow(error_user).to receive(:va_profile_email).and_raise(StandardError, 'VAProfile service error')
+        allow(error_user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
       end
 
       it 'tracks warning and returns nil' do
@@ -463,6 +480,7 @@ RSpec.describe DependentsBenefits::UserData do
 
       before do
         allow(error_user).to receive(:va_profile_email).and_raise(StandardError, 'VAProfile service error')
+        allow(error_user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
       end
 
       it 'falls back to form email for notification_email' do
