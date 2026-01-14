@@ -3,7 +3,8 @@
 module NotificationsClientPatch
   UUID_LENGTH = 36
   URLSAFE_TOKEN_LENGTH = 86
-  # Format: name-service_id-secret_token (e.g., "myapp-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+  # Format: name-service_id-secret_token
+  # (e.g., "myapp-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
   # Minimum: 1 char name + dash + UUID (36) + dash + UUID (36) = 75
   MINIMUM_TOKEN_LENGTH = 1 + 1 + UUID_LENGTH + 1 + UUID_LENGTH
   UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i

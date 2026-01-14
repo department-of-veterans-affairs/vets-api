@@ -239,7 +239,7 @@ RSpec.describe NotificationsClientPatch do
       let(:service_id) { SecureRandom.uuid }
 
       context 'when api_key contains @' do
-        let(:invalid_api_key) { 'a' * 85 + '@' } # 86 chars with invalid character
+        let(:invalid_api_key) { "#{'a' * 85}@" } # 86 chars with invalid character
         let(:composite) { "#{key_name}-#{service_id}-#{invalid_api_key}" }
 
         it 'raises ArgumentError' do
@@ -249,7 +249,7 @@ RSpec.describe NotificationsClientPatch do
       end
 
       context 'when api_key contains #' do
-        let(:invalid_api_key) { 'a' * 85 + '#' }
+        let(:invalid_api_key) { "#{'a' * 85}#" }
         let(:composite) { "#{key_name}-#{service_id}-#{invalid_api_key}" }
 
         it 'raises ArgumentError' do
@@ -259,7 +259,7 @@ RSpec.describe NotificationsClientPatch do
       end
 
       context 'when api_key contains +' do
-        let(:invalid_api_key) { 'a' * 85 + '+' }
+        let(:invalid_api_key) { "#{'a' * 85}+" }
         let(:composite) { "#{key_name}-#{service_id}-#{invalid_api_key}" }
 
         it 'raises ArgumentError' do
