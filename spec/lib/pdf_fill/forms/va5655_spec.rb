@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/Va5655'
+require 'pdf_fill/forms/va5655'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
