@@ -4,8 +4,9 @@ require 'json'
 
 namespace :pdf do
   desc 'Map fields from field_data.json to keys in Ruby file. ' \
-       'Example: bundle exec rake pdf:map_fields_to_keys[lib/pdf_fill/forms/5655_field_data.json,lib/pdf_fill/forms/va5655.rb]'
-  task :map_fields_to_keys, [:json_file, :ruby_file] => :environment do |_t, args|
+       'Example: bundle exec rake pdf:map_fields_to_keys[lib/pdf_fill/forms/5655_field_data.json,\
+       lib/pdf_fill/forms/va5655.rb]'
+  task :map_fields_to_keys, %i[json_file ruby_file] => :environment do |_t, args|
     json_file = args[:json_file]
     ruby_file = args[:ruby_file]
 
@@ -79,11 +80,9 @@ namespace :pdf do
       next unless value.is_a?(Hash)
 
       pdf_key = value[:key] || value['key']
-      if pdf_key && keys_match?(pdf_key, target_key, use_stripped: use_stripped)
-        return { found: true, path: current_path, value: value }
-      end
+      return { found: true, path: current_path, value: } if pdf_key && keys_match?(pdf_key, target_key, use_stripped)
 
-      result = find_key_in_hash(value, target_key, current_path, use_stripped: use_stripped)
+      result = find_key_in_hash(value, target_key, current_path, use_stripped)
       return result if result[:found]
     end
 
@@ -112,7 +111,7 @@ namespace :pdf do
       else
         unmatched_fields << {
           key: json_key,
-          question_text: question_text
+          question_text:
         }
       end
     end
@@ -121,10 +120,9 @@ namespace :pdf do
   end
 
   def print_results(matched_count, unmatched_fields, total_count)
-    puts "\n" + '=' * 70
+    puts "\n#{'=' * 70}"
     puts "UNMATCHED FIELDS (#{unmatched_fields.length}):"
     puts '=' * 70
-    puts
 
     if unmatched_fields.any?
       unmatched_fields.each_with_index do |field, index|
@@ -133,16 +131,16 @@ namespace :pdf do
         puts
       end
     else
-      puts "All fields matched!"
+      puts 'All fields matched!'
       puts
     end
 
     puts '=' * 70
-    puts "Summary:"
+    puts 'Summary:'
     puts "  Matched: #{matched_count}"
     puts "  Unmatched: #{unmatched_fields.length}"
     puts "  Total: #{total_count}"
     puts '=' * 70
-    puts 'NOTE: these unmatched keys may be text titles in the form. Review the form manually to determine if this is the case.'
+    puts 'NOTE: unmatched keys may be text titles in the form. Review the form manually for confirmation.'
   end
 end
