@@ -22,6 +22,9 @@ Vass::Engine.routes.draw do
     # Appointment management endpoints
     get 'appointment-availability', to: 'appointments#availability' # Get appointment availability for current cohort
 
+    # Topics endpoint
+    get 'topics', to: 'appointments#topics' # Get available appointment topics (agent skills)
+
     # API documentation endpoint
     get 'apidocs', to: 'apidocs#index'
   end
