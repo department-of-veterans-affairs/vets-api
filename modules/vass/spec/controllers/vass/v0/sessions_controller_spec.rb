@@ -41,11 +41,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
   describe 'POST #request_otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth
       }
     end
 
@@ -136,7 +134,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
 
     context 'with missing parameters' do
       it 'returns bad request status when uuid is missing' do
-        invalid_params = { session: { last_name:, dob: date_of_birth } }
+        invalid_params = { last_name:, dob: date_of_birth }
         post :request_otc, params: invalid_params, format: :json
 
         expect(response).to have_http_status(:bad_request)
@@ -147,7 +145,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'does not fetch veteran info when parameters are missing' do
-        invalid_params = { session: { last_name:, dob: date_of_birth } }
+        invalid_params = { last_name:, dob: date_of_birth }
         expect(appointments_service).not_to receive(:get_veteran_info)
         post :request_otc, params: invalid_params, format: :json
       end
@@ -391,12 +389,10 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
     let(:jwt_token) { 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token' }
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth,
-          otc: otp_code
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth,
+        otc: otp_code
       }
     end
 
@@ -499,11 +495,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
 
       it 'returns bad request status when otc is missing' do
         invalid_params = {
-          session: {
-            uuid:,
-            last_name:,
-            dob: date_of_birth
-          }
+          uuid:,
+          last_name:,
+          dob: date_of_birth
         }
         post :authenticate_otc, params: invalid_params, format: :json
 
@@ -520,11 +514,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
     describe '#permitted_params' do
       it 'permits session attributes' do
         params = {
-          session: {
-            uuid:,
-            last_name:,
-            dob: date_of_birth
-          }
+          uuid:,
+          last_name:,
+          dob: date_of_birth
         }
         controller.params = ActionController::Parameters.new(params)
         permitted = controller.send(:permitted_params)

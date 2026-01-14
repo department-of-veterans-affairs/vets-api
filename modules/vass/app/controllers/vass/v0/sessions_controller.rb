@@ -31,8 +31,7 @@ module Vass
       # @return [JSON] Success message and expiration time per spec
       #
       def request_otc
-        session_params = params.require(:session)
-        validate_required_params_in!(session_params, :uuid, :last_name, :dob)
+        validate_required_params!(:uuid, :last_name, :dob)
 
         session = Vass::V0::Session.build(data: permitted_params)
 
@@ -68,8 +67,7 @@ module Vass
       # @return [JSON] JWT token and expiration per spec
       #
       def authenticate_otc
-        session_params = params.require(:session)
-        validate_required_params_in!(session_params, :uuid, :last_name, :dob, :otc)
+        validate_required_params!(:uuid, :last_name, :dob, :otc)
 
         session = Vass::V0::Session.build(data: permitted_params_for_auth)
 
@@ -120,7 +118,7 @@ module Vass
       # @return [Hash] Permitted params
       #
       def permitted_params
-        params.require(:session).permit(:uuid, :last_name, :dob)
+        params.permit(:uuid, :last_name, :dob)
       end
 
       ##
@@ -129,7 +127,7 @@ module Vass
       # @return [Hash] Permitted params
       #
       def permitted_params_for_auth
-        params.require(:session).permit(:uuid, :last_name, :dob, :otc)
+        params.permit(:uuid, :last_name, :dob, :otc)
       end
 
       ##

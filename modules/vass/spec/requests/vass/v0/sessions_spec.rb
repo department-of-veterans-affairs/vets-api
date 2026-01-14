@@ -50,11 +50,9 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
   describe 'POST /vass/v0/request-otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth
       }
     end
 
@@ -129,11 +127,9 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             post '/vass/v0/request-otc', params: {
-              session: {
-                uuid:,
-                last_name: invalid_last_name,
-                dob: date_of_birth
-              }
+              uuid:,
+              last_name: invalid_last_name,
+              dob: date_of_birth
             }, as: :json
 
             expect(response).to have_http_status(:unauthorized)
@@ -196,12 +192,10 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
   describe 'POST /vass/v0/authenticate-otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth,
-          otc: otp_code
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth,
+        otc: otp_code
       }
     end
 
@@ -279,7 +273,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
     context 'with missing OTC' do
       it 'returns bad request status' do
-        missing_otc_params = { session: { uuid:, last_name:, dob: date_of_birth } }
+        missing_otc_params = { uuid:, last_name:, dob: date_of_birth }
         post '/vass/v0/authenticate-otc', params: missing_otc_params, as: :json
 
         expect(response).to have_http_status(:bad_request)
