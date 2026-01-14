@@ -9,7 +9,7 @@ describe Vass::AppointmentsService do
   let(:edipi) { '1234567890' }
   let(:correlation_id) { 'test-correlation-id' }
   let(:veteran_id) { 'vet-123' }
-  let(:appointment_id) { 'appt-abc123' }
+  let(:appointment_id) { 'e61e1a40-1e63-f011-bec2-001dd80351ea' }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -93,7 +93,7 @@ describe Vass::AppointmentsService do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
           end
         end
       end
@@ -136,7 +136,7 @@ describe Vass::AppointmentsService do
 
             expect(result['success']).to be true
             expect(result['data']['appointmentId']).to eq(appointment_id)
-            expect(result['data']['agentNickname']).to eq('Dr. Smith')
+            expect(result['data']['agentNickname']).to eq('Agent Smith')
           end
         end
       end
