@@ -1445,6 +1445,7 @@ RSpec.describe FormProfile, type: :model do
       before do
         expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(true)
       end
+
       it 'returns default values' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
