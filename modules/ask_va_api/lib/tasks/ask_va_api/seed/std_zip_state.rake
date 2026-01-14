@@ -47,7 +47,7 @@ namespace :ask_va_api do
         zip.save!
       end
 
-      puts "Seeded states=#{data::STATES.size}, zipcodes=#{data::ZIPCODES.size}"
+      Rails.logger.info("Seeded states=#{data::STATES.size}, zipcodes=#{data::ZIPCODES.size}")
     end
   end
 end
