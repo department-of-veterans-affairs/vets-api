@@ -1168,6 +1168,7 @@ rakelib/load_test.rake @department-of-veterans-affairs/octo-identity @department
 rakelib/lockbox_migration.rake @department-of-veterans-affairs/backend-review-group
 rakelib/migrate_old_async_transaction_data.rake @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 rakelib/mockdata_synchronize.rake @department-of-veterans-affairs/octo-identity
+rakelib/payment_history_status.rake @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 rakelib/piilog_repl @department-of-veterans-affairs/backend-review-group
 rakelib/prod @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 rakelib/prod/user_credential.rake @department-of-veterans-affairs/octo-identity
