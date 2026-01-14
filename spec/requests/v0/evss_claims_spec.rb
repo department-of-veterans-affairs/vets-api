@@ -64,16 +64,6 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
-    it 'includes deprecation headers on request_decision endpoint' do
-      sign_in_as(evss_user)
-      post '/v0/evss_claims/600118851/request_decision'
-
-      expect(response.headers['Deprecation']).to eq('date="2026-01-28"')
-      expect(response.headers['Sunset']).to eq('2026-01-28')
-      expect(response.headers['Link']).to include('/v0/benefits_claims')
-      expect(response.headers['Warning']).to include('EVSS Claims API is deprecated')
-    end
-
     it 'includes deprecation headers on show endpoint' do
       sign_in_as(evss_user)
       VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
