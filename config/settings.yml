@@ -1448,7 +1448,7 @@ vanotify:
           template_id: <%= ENV['bio__increase_compensation__email__action_needed_template_id'] =>
         # persistent_attachment_error:
         #   flipper_id: increase_compensation_persistent_attachment_error_email_notification
-        #   template_id: <%= ENV['bio__increase_compensation__email__'] =>
+        #   template_id: <%= ENV['bio__increase_compensation__email__action_needed_template_id'] =>
         received:
           flipper_id: increase_compensation_received_email_notification
           template_id: <%= ENV['bio__increase_compensation__email__received_template_id'] =>
