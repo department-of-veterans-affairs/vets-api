@@ -6,7 +6,7 @@ require 'securerandom'
 module SimpleFormsApi
   class OverflowPdfGenerator
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
-    CUTOFF_INDEX = 3685 # last index filled by native remarks fields (0..1510, 1511..3685)
+    CUTOFF_INDEX = 3685
 
     def initialize(data, timestamp = Time.current, mask_ssn: true)
       @data = data || {}
@@ -22,7 +22,7 @@ module SimpleFormsApi
       generate_pdf(file_path, text)
       file_path
     rescue StandardError => e
-      Rails.logger.error("Failed to generate overflow PDF: #{e.class} - #{e.message}")
+      Rails.logger.error("Failed to generate overflow PDF: #{e.class} - #{e.message}\n#{e.backtrace&.join("\n")}")
       FileUtils.rm_f(file_path) if file_path && File.exist?(file_path)
       nil
     end
@@ -31,7 +31,6 @@ module SimpleFormsApi
 
     def overflow_text
       statement = (@data['statement'] || '').to_s
-      # Overflow starts at index 3686; require length > 3686
       return '' unless statement.length > CUTOFF_INDEX + 1
       statement[(CUTOFF_INDEX + 1)..-1]
     end
@@ -44,14 +43,6 @@ module SimpleFormsApi
 
     def generate_pdf(file_path, text)
       Prawn::Document.generate(file_path, page_size: 'LETTER', margin: 50) do |pdf|
-        # If you want consistency with extras pages, swap to Roboto like:
-        # pdf.font_families.update(
-        #   'Roboto' => {
-        #     normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'),
-        #     bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf')
-        #   }
-        # )
-        # pdf.font('Roboto')
         pdf.font 'Helvetica'
 
         # Header
@@ -67,9 +58,6 @@ module SimpleFormsApi
         pdf.text 'REMARKS (CONTINUED):', size: 11, style: :bold
         pdf.move_down 10
         pdf.text text, size: 10, leading: 2
-
-        # Footer with timestamp (acceptance criteria: timestamp at bottom)
-        add_footer(pdf)
       end
     end
 
@@ -82,7 +70,6 @@ module SimpleFormsApi
     end
 
     def id_line
-      # Prefer VA file number if present; otherwise SSN
       va_file = @data.dig('id_number', 'va_file_number').to_s.presence
       ssn = @data.dig('id_number', 'ssn').to_s
 
@@ -96,23 +83,9 @@ module SimpleFormsApi
     end
 
     def format_ssn(ssn)
-      # Format 9-digit string to xxx-xx-xxxx if possible
       s = ssn.gsub(/\D/, '')
       return ssn unless s.length == 9
       "#{s[0..2]}-#{s[3..4]}-#{s[5..8]}"
-    end
-
-    def add_footer(pdf)
-      pdf.number_pages(
-        "Generated: #{formatted_timestamp}",
-        at: [pdf.bounds.left, 0],
-        align: :left,
-        size: 9
-      )
-    end
-
-    def formatted_timestamp
-      @timestamp.in_time_zone('UTC').strftime('%Y-%m-%d %H:%M:%S %Z')
     end
   end
 end
