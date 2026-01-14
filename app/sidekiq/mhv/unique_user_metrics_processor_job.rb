@@ -38,17 +38,24 @@ module MHV
     CACHE_NAMESPACE = 'unique_user_metrics'
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
 
-    # Custom error for configuration issues that should not trigger Sidekiq retry
-    class ConfigurationError < StandardError; end
+    # Job configuration (from Settings, validated at class load time)
+    # Values require restart to change; raises error if missing or invalid
+    def self.fetch_positive_integer_setting(setting_name)
+      raw_value = Settings.unique_user_metrics&.processor_job&.send(setting_name)
+      raise ArgumentError, "UUM Processor: #{setting_name} is missing from Settings" if raw_value.blank?
+
+      value = raw_value.to_i
+      raise ArgumentError, "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
+
+      value
+    end
+    private_class_method :fetch_positive_integer_setting
+
+    BATCH_SIZE = fetch_positive_integer_setting(:batch_size)
+    MAX_ITERATIONS = fetch_positive_integer_setting(:max_iterations)
+    MAX_QUEUE_DEPTH = fetch_positive_integer_setting(:max_queue_depth)
 
     def perform
-      # Configuration from Settings (AWS Parameter Store)
-      # Capture configuration at job start - values remain consistent throughout this run
-      # but will pick up changes on next job execution
-      @batch_size = fetch_positive_integer_setting(:batch_size)
-      @max_iterations = fetch_positive_integer_setting(:max_iterations)
-      @max_queue_depth = fetch_positive_integer_setting(:max_queue_depth)
-
       job_start_time = Time.current
 
       # Early check for queue backlog - alert immediately if overflow detected
@@ -59,10 +66,6 @@ module MHV
 
       # Record aggregate metrics for the entire job run
       record_job_summary(job_start_time, iterations, total_events_processed, total_db_queries, total_db_inserts)
-    rescue ConfigurationError => e
-      # Configuration errors are not transient - don't retry, just log and alert
-      handle_configuration_failure(e)
-      # Don't re-raise - prevents wasteful Sidekiq retries for persistent config issues
     rescue => e
       handle_job_failure(e, total_events_processed || 0, iterations || 0)
       raise # Re-raise to trigger Sidekiq retry
@@ -81,7 +84,7 @@ module MHV
 
       loop do
         # Check safeguard before each iteration
-        break if iterations >= @max_iterations
+        break if iterations >= MAX_ITERATIONS
 
         # PEEK - Read events without removing them from buffer
         events = peek_events_from_buffer
@@ -106,7 +109,7 @@ module MHV
     #
     # @return [Array<Hash>] Array of event hashes with :user_id and :event_name keys
     def peek_events_from_buffer
-      UniqueUserEvents::Buffer.peek_batch(@batch_size)
+      UniqueUserEvents::Buffer.peek_batch(BATCH_SIZE)
     end
 
     # Trim processed events from the buffer after successful processing
@@ -132,17 +135,6 @@ module MHV
                            iterations_completed: iterations,
                            queue_depth: events_at_risk,
                            backtrace: exception.backtrace.first(5)
-                         })
-    end
-
-    # Handle configuration errors (missing/invalid Settings values)
-    # These are not transient and should not trigger retries
-    #
-    # @param exception [ConfigurationError] The configuration error
-    def handle_configuration_failure(exception)
-      Rails.logger.error('UUM Processor: Configuration error - job will not retry', {
-                           error: exception.class.name,
-                           message: exception.message
                          })
     end
 
@@ -301,28 +293,12 @@ module MHV
     #
     # @param queue_depth [Integer] Current queue depth
     def check_queue_overflow(queue_depth)
-      return unless queue_depth > @max_queue_depth
+      return unless queue_depth > MAX_QUEUE_DEPTH
 
       Rails.logger.warn('UUM Processor: Queue depth exceeds threshold', {
                           queue_depth:,
-                          max_queue_depth: @max_queue_depth
+                          max_queue_depth: MAX_QUEUE_DEPTH
                         })
-    end
-
-    # Safely fetch and validate a positive integer setting from processor_job config
-    #
-    # @param setting_name [Symbol] Name of the setting (e.g., :batch_size)
-    # @return [Integer] The validated positive integer value
-    # @raise [ConfigurationError] If the setting is missing or not a positive integer
-    def fetch_positive_integer_setting(setting_name)
-      raw_value = Settings.unique_user_metrics&.processor_job&.send(setting_name)
-
-      raise ConfigurationError, "UUM Processor: #{setting_name} is missing" if raw_value.blank?
-
-      value = raw_value.to_i
-      raise ConfigurationError, "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
-
-      value
     end
   end
 end
