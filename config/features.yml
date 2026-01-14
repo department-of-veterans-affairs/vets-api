@@ -806,6 +806,12 @@ features:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
+  disability_compensation_0781_supporting_documents_enhancement:
+    actor_type: user
+    description: >
+      Enables content and design enhancements for Form 0781 supporting documents
+      in the 526 disability compensation workflow.
+    enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
     actor_type: user
     description: enables adding new conditions workflow indicator to in progress 526 forms
@@ -2295,6 +2301,10 @@ features:
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
+  virtual_agent_use_v2_chatbot:
+    actor_type: user
+    description: Use the V2 version of the virtual agent chatbot
+    enable_in_development: true
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
