@@ -86,12 +86,20 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
             'veteran' => {
               'vnp_mail_id' => '151669',
               'vnp_email_id' => '151670',
-              'vnp_phone_id' => '108159'
+              'vnp_phone_id' => '108159',
+              'phone_data' => {
+                'areaCode' => '555',
+                'phoneNumber' => '5551234'
+              }
             },
             'claimant' => {
               'vnp_mail_id' => '151671',
               'vnp_email_id' => '151672',
-              'vnp_phone_id' => '108160'
+              'vnp_phone_id' => '108160',
+              'phone_data' => {
+                'areaCode' => '555',
+                'phoneNumber' => '5559876'
+              }
             }
           }
         }

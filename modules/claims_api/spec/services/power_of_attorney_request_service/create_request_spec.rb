@@ -99,12 +99,20 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
               'veteran' => {
                 'vnp_mail_id' => '151070',
                 'vnp_email_id' => '151071',
-                'vnp_phone_id' => '107777'
+                'vnp_phone_id' => '107777',
+                'phone_data' => {
+                  'areaCode' => '555',
+                  'phoneNumber' => '5551234'
+                }
               },
               'claimant' => {
                 'vnp_mail_id' => '151072',
                 'vnp_email_id' => '151052',
-                'vnp_phone_id' => '107778'
+                'vnp_phone_id' => '107778',
+                'phone_data' => {
+                  'areaCode' => '555',
+                  'phoneNumber' => '5559876'
+                }
               }
             }
           }
@@ -135,6 +143,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
       it 'creates the veteranrepresentative object' do
         file_name = 'claims_api/power_of_attorney_request_service/create_request/without_claimant'
+
+        temp = form_data
+        temp[:veteran][:phone][:countryCode] = '1'
+
         VCR.use_cassette(file_name) do
           expected_response = {
             'addressLine1' => '2719 Hyperion Ave',
@@ -183,7 +195,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
               'veteran' => {
                 'vnp_mail_id' => '150999',
                 'vnp_email_id' => '151000',
-                'vnp_phone_id' => '107813'
+                'vnp_phone_id' => '107813',
+                'phone_data' => {
+                  'countryCode' => '1',
+                  'areaCode' => '555',
+                  'phoneNumber' => '5551234'
+                }
               }
             }
           }
@@ -339,7 +356,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
         }
       end
 
-      context '#add_meta_ids' do
+      describe '#add_meta_ids' do
         it 'adds the ids to the meta' do
           subject.instance_variable_set(:@vnp_res_object, expected_res)
 
