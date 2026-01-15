@@ -6,53 +6,116 @@ RSpec.describe 'Email Verification HTTP API', type: :request do
   let(:user) { create(:user, :loa3, email: 'user@example.com') }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-  before do
-    sign_in_as(user)
-    allow(user).to receive(:va_profile_email).and_return('va_profile@example.com')
-  end
+  describe 'access control' do
+    context 'with LOA3 user' do
+      before do
+        sign_in_as(user)
+        allow(user).to receive(:va_profile_email).and_return('va_profile@example.com')
+      end
 
-  describe 'Authentication' do
-    it 'requires authentication for all endpoints' do
-      expect { get('/v0/profile/email_verification/status', headers:) }.not_to raise_error
-      expect { post('/v0/profile/email_verification', headers:) }.not_to raise_error
-      expect { get('/v0/profile/email_verification/verify', headers:) }.not_to raise_error
+      it 'allows access to all endpoints' do
+        expect { get('/v0/profile/email_verification/status', headers:) }.not_to raise_error
+        expect { post('/v0/profile/email_verification', headers:) }.not_to raise_error
+        expect { get('/v0/profile/email_verification/verify', headers:) }.not_to raise_error
+      end
+    end
+
+    context 'with non-LOA3 user' do
+      let(:loa1_user) { create(:user, :loa1, email: 'user@example.com') }
+
+      before do
+        sign_in_as(loa1_user)
+      end
+
+      it 'denies access to status endpoint' do
+        get('/v0/profile/email_verification/status', headers:)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('You must be logged in to access this feature')
+      end
+
+      it 'denies access to create endpoint' do
+        post('/v0/profile/email_verification', headers:)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('You must be logged in to access this feature')
+      end
+
+      it 'denies access to verify endpoint' do
+        get('/v0/profile/email_verification/verify', headers:)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('You must be logged in to access this feature')
+      end
+    end
+
+    context 'with no user signed in' do
+      # Don't sign in any user - tests should be completely unauthenticated
+
+      it 'denies access to status endpoint' do
+        get('/v0/profile/email_verification/status', headers:)
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'denies access to create endpoint' do
+        post('/v0/profile/email_verification', headers:)
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'denies access to verify endpoint' do
+        get('/v0/profile/email_verification/verify', headers:)
+
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 
-  describe 'GET /v0/profile/email_verification/status' do
-    it 'returns JSON response' do
-      get('/v0/profile/email_verification/status', headers:)
-
-      expect(response).to have_http_status(:ok)
-      expect(response.content_type).to include('application/json')
-    end
-  end
-
-  describe 'POST /v0/profile/email_verification' do
+  # Authenticated endpoint tests (with proper user context)
+  context 'as LOA3 user' do
     before do
-      allow_any_instance_of(EmailVerificationService).to receive(:initiate_verification)
-      allow(user).to receive(:email).and_return('user@example.com')
-      allow(user).to receive(:va_profile_email).and_return('different@example.com')
+      sign_in_as(user)
+      allow(user).to receive(:va_profile_email).and_return('va_profile@example.com')
     end
 
-    it 'accepts JSON requests' do
-      post('/v0/profile/email_verification', headers:)
+    describe 'GET /v0/profile/email_verification/status' do
+      it 'returns JSON response' do
+        get('/v0/profile/email_verification/status', headers:)
 
-      expect(response).to have_http_status(:created)
-      expect(response.content_type).to include('application/json')
-    end
-  end
-
-  describe 'GET /v0/profile/email_verification/verify' do
-    before do
-      allow_any_instance_of(EmailVerificationService).to receive(:verify_email!).and_return(true)
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('application/json')
+      end
     end
 
-    it 'accepts token parameter' do
-      get('/v0/profile/email_verification/verify', params: { token: 'test-token' }, headers:)
+    describe 'POST /v0/profile/email_verification' do
+      before do
+        allow_any_instance_of(EmailVerificationService).to receive(:initiate_verification)
+        allow(user).to receive_messages(
+          email: 'user@example.com',
+          va_profile_email: 'different@example.com'
+        )
+      end
 
-      expect(response).to have_http_status(:ok)
-      expect(response.content_type).to include('application/json')
+      it 'accepts JSON requests' do
+        post('/v0/profile/email_verification', headers:)
+
+        expect(response).to have_http_status(:created)
+        expect(response.content_type).to include('application/json')
+      end
+    end
+
+    describe 'GET /v0/profile/email_verification/verify' do
+      before do
+        allow_any_instance_of(EmailVerificationService).to receive(:verify_email!).and_return(true)
+      end
+
+      it 'accepts token parameter' do
+        get('/v0/profile/email_verification/verify', params: { token: 'test-token' }, headers:)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to include('application/json')
+      end
     end
   end
 end

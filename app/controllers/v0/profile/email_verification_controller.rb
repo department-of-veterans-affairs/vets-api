@@ -99,7 +99,6 @@ module V0
                                  rate_limit_info: get_email_verification_rate_limit_info)
       end
 
-      # Process email verification with the provided token
       def process_email_verification(token)
         verification_service = EmailVerificationService.new(current_user)
 
@@ -110,7 +109,6 @@ module V0
         end
       end
 
-      # Handle successful email verification
       def handle_successful_verification
         reset_email_verification_rate_limit!
         log_verification_success('email token verified successfully',
@@ -119,9 +117,7 @@ module V0
         render_verify_success
       end
 
-      # Handle failed email verification
       def handle_failed_verification(token)
-        # Use the new error handler for consistent logging, but don't include the actual token for security
         log_data = email_verification_log_data.merge(
           token_verification: 'failed',
           token_length: token&.length,
@@ -132,7 +128,6 @@ module V0
         render_invalid_token_error
       end
 
-      # Render error when verification is not needed
       def render_verification_not_needed_error
         render json: {
           errors: [
@@ -146,7 +141,6 @@ module V0
         }, status: :unprocessable_entity
       end
 
-      # Render error when token is missing
       def render_missing_token_error
         render json: {
           errors: [
@@ -160,7 +154,6 @@ module V0
         }, status: :bad_request
       end
 
-      # Render error when token is invalid
       def render_invalid_token_error
         render json: {
           errors: [

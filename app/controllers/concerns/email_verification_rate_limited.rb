@@ -44,8 +44,10 @@ module EmailVerificationRateLimited
       detail: build_verification_rate_limit_message
     )
 
-    # Add retry_after if the exception supports it
-    exception.define_singleton_method(:retry_after) { retry_after } if exception.respond_to?(:define_singleton_method)
+    # Set retry_after header for HTTP 429 responses
+    if response
+      response.headers['Retry-After'] = retry_after.to_s
+    end
 
     raise exception
   end
@@ -58,7 +60,6 @@ module EmailVerificationRateLimited
       verification_daily_count >= VERIFICATION_EMAIL_LIMITS[:daily_limit]
   end
 
-  # Increment email verification rate limit counters
   def increment_email_verification_rate_limit!
     verification_redis.multi do |multi|
       multi.incr(verification_period_key)
@@ -70,7 +71,6 @@ module EmailVerificationRateLimited
       multi.expire(verification_daily_key, VERIFICATION_EMAIL_LIMITS[:daily_period].to_i)
     end
 
-    # Clear cached counts
     clear_verification_rate_limit_cache
   end
 
@@ -96,23 +96,19 @@ module EmailVerificationRateLimited
 
   private
 
-  # Get current period count for verification emails
   def verification_period_count
     @verification_period_count ||= verification_redis.get(verification_period_key).to_i
   end
 
-  # Get current daily count for verification emails
   def verification_daily_count
     @verification_daily_count ||= verification_redis.get(verification_daily_key).to_i
   end
 
-  # Clear cached rate limit counts
   def clear_verification_rate_limit_cache
     @verification_period_count = nil
     @verification_daily_count = nil
   end
 
-  # Get seconds until next verification email is allowed
   def time_until_next_verification_allowed
     ttl_period = verification_redis.ttl(verification_period_key)
     ttl_daily = verification_redis.ttl(verification_daily_key)
@@ -121,7 +117,6 @@ module EmailVerificationRateLimited
     [ttl_period, ttl_daily, 0].max
   end
 
-  # Build email verification specific error message
   def build_verification_rate_limit_message
     seconds = time_until_next_verification_allowed
     duration = format_verification_time_duration(seconds)
@@ -130,16 +125,18 @@ module EmailVerificationRateLimited
       "Please wait #{duration} before requesting another verification email."
   end
 
-  # Format duration in human-readable form for verification emails
   def format_verification_time_duration(seconds)
     return '0 seconds' if seconds <= 0
 
     if seconds < 60
+      # Display exact seconds (under 1 minute)
       "#{seconds} second#{'s' unless seconds == 1}"
-    elsif seconds < 3600
+    elsif seconds < 3600 # 60 * 60 = 3600 seconds in an hour
+      # Round up to nearest minute to avoid "0 minutes" display
       minutes = (seconds / 60.0).ceil
       "#{minutes} minute#{'s' unless minutes == 1}"
     else
+      # Round up to nearest hour for long waits (daily limit hit)
       hours = (seconds / 3600.0).ceil
       "#{hours} hour#{'s' unless hours == 1}"
     end
@@ -163,7 +160,6 @@ module EmailVerificationRateLimited
     )
   end
 
-  # Log email verification rate limit denial
   def log_email_verification_rate_limit_denial(rate_limit_info)
     Rails.logger.warn('Email verification rate limit exceeded', {
                         user_uuid: current_user.uuid,
