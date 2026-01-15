@@ -375,8 +375,16 @@ RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
 
     context 'when ICN is provided' do
       context 'and feature flag is enabled' do
+        let(:mpi_service) { instance_double(MPI::Service) }
+        let(:mpi_profile) { build(:mpi_profile, icn:) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
         before do
           allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+          allow(MPI::Service).to receive(:new).and_return(mpi_service)
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
         end
 
         it 'shows feature flag is enabled' do
@@ -389,8 +397,16 @@ RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
       end
 
       context 'and feature flag is disabled' do
+        let(:mpi_service) { instance_double(MPI::Service) }
+        let(:mpi_profile) { build(:mpi_profile, icn:) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
         before do
           allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(false)
+          allow(MPI::Service).to receive(:new).and_return(mpi_service)
+          allow(mpi_service).to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
         end
 
         it 'shows feature flag is disabled' do
@@ -507,7 +523,7 @@ RSpec.describe 'payment_history:check_empty_history rake task', type: :task do
 
         before do
           allow(mpi_service).to receive(:find_profile_by_identifier)
-            .and_raise(StandardError.new('Connection timeout'))
+            .and_raise(Faraday::Error.new('Connection timeout'))
         end
 
         it 'shows UserAccount found' do
