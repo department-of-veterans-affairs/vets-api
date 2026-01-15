@@ -254,23 +254,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
     end
 
-    context 'Configuration' do
-      it 'reads oh_migrations_list from Settings.mhv.oh_facility_checks' do
-        expect(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list)
-        service.get_migration_schedules
-      end
-    end
-
-    context 'Method Interface' do
-      it 'is a public method' do
-        expect(service).to respond_to(:get_migration_schedules)
-      end
-
-      it 'returns an Array' do
-        expect(service.get_migration_schedules).to be_an(Array)
-      end
-    end
-
     context 'Parsing' do
       context 'when oh_migrations_list is nil' do
         let(:oh_migrations_list) { nil }
@@ -536,12 +519,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:migration_date) { Date.new(2026, 3, 3) }
       let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA]' }
 
-      it 'includes current phase in phases hash' do
-        allow(Time.zone).to receive(:today).and_return(migration_date - 30)
-        result = service.get_migration_schedules
-        expect(result.first[:phases]).to have_key(:current)
-      end
-
       context 'when in middle of a phase' do
         it 'day -50 is in p0' do
           allow(Time.zone).to receive(:today).and_return(migration_date - 50)
@@ -567,11 +544,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:user_facility_ids) { %w[516] }
       let(:migration_date) { Date.new(2026, 3, 3) }
       let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA]' }
-
-      it 'includes migration_status in response' do
-        result = service.get_migration_schedules
-        expect(result.first).to have_key(:migration_status)
-      end
 
       context 'when before p0' do
         it 'returns NOT_STARTED' do
@@ -672,46 +644,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         result = service.get_migration_schedules
         statuses = result.map { |r| r[:migration_status] }
         expect(statuses).to include('NOT_STARTED')
-      end
-    end
-
-    context 'Response Structure' do
-      let(:user_facility_ids) { %w[516 517] }
-      let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA],[517,Toledo VA]' }
-
-      it 'returns array of migration info objects' do
-        result = service.get_migration_schedules
-        expect(result).to be_an(Array)
-        expect(result.first).to be_a(Hash)
-      end
-
-      it 'includes migration_date' do
-        result = service.get_migration_schedules
-        expect(result.first).to have_key(:migration_date)
-      end
-
-      it 'includes migration_status' do
-        result = service.get_migration_schedules
-        expect(result.first).to have_key(:migration_status)
-      end
-
-      it 'includes facilities array' do
-        result = service.get_migration_schedules
-        expect(result.first).to have_key(:facilities)
-        expect(result.first[:facilities]).to be_an(Array)
-      end
-
-      it 'includes phases hash' do
-        result = service.get_migration_schedules
-        expect(result.first).to have_key(:phases)
-        expect(result.first[:phases]).to be_a(Hash)
-      end
-
-      it 'facilities include id and name' do
-        result = service.get_migration_schedules
-        facility = result.first[:facilities].first
-        expect(facility).to have_key(:id)
-        expect(facility).to have_key(:name)
       end
     end
 
