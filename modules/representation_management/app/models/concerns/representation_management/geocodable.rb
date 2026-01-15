@@ -11,16 +11,23 @@ module RepresentationManagement
     # Uses partial address information with fallback strategy.
     # @return [Boolean] true if geocoding succeeded, false otherwise
     def geocode_and_update_location!
-      address = build_geocodable_address
+      address = formatted_raw_address
       return false if address.blank?
 
       result = Geocoder.search(address).first
-      return false if result.blank?
+      return false if result.first.blank?
+
+      # Save any partial city/state and zip data for display
+      self.city = raw_address['city'] if raw_address['city'].present?
+      self.state_code = raw_address['state_code'] if raw_address['state_code'].present?
+      self.zip_code = raw_address['zip_code'] if raw_address['zip_code'].present?
 
       self.lat = result.latitude
       self.long = result.longitude
       # PostGIS expects POINT(longitude latitude) - note the order!
       self.location = "POINT(#{result.longitude} #{result.latitude})"
+
+      # Save fallback geolocation timestamp
 
       save!
       true
@@ -30,21 +37,17 @@ module RepresentationManagement
 
     private
 
-    #
-    # Builds a geocodable address string from available address fields.
-    # Tries full address first, then city/state, then zip code only.
-    # @return [String, nil] Address string suitable for geocoding, or nil if insufficient data
-    def build_geocodable_address
-      # Try full address first
-      if address_line1.present? && city.present? && state_code.present?
-        return [address_line1, city, state_code, zip_code].compact.join(', ')
-      end
+    def formatted_raw_address
+      # Define logical order based on entity type
+      # Not every entity type has all of these fields
+      # Representatives/Attorneys: address_line1, address_line2, address_line3, city, state_code, zip_code
+      # Agents: address_line1, address_line2, address_line3, zip_code, work_country
 
-      # Fall back to city/state
-      return [city, state_code].compact.join(', ') if city.present? && state_code.present?
+      fields = %w[address_line1 address_line2 address_line3 city state_code zip_code work_country]
 
-      # Last resort: zip code only
-      zip_code.presence
+      fields.map { |field| raw_address[field].to_s.strip }
+            .reject(&:empty?)
+            .join(' ')
     end
 
     #
