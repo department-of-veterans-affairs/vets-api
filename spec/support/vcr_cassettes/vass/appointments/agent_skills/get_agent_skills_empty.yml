@@ -1,0 +1,34 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: <VASS_API_URL>/api/GetAgentSkills
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "success": true,
+            "message": "Agent skills retrieved successfully",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2025-11-26T12:00:00Z",
+            "data": {
+              "agentSkills": []
+            }
+          }
+    recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+recorded_with: VCR 6.0.0
