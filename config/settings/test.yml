@@ -90,6 +90,9 @@ binaries:
 bing:
   key: ~
 bio:
+  increase_compensation:
+    bucket: ~
+    region: ~
   medical_expense_reports:
     bucket: ~
     region: ~
@@ -286,6 +289,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
     enabled: true
@@ -406,6 +410,13 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+  staging_sco_email:
+    emails:
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - jeffrey.marks@govcio.com
+      - taras.kurilo@va.gov
+      - nawar.hussein@va.gov
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
@@ -526,6 +537,8 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 form_mock_ae_design_patterns:
+  prefill: true
+form_mock_prefill:
   prefill: true
 form_upload:
   prefill: true
@@ -732,6 +745,7 @@ lighthouse:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
       client_id: fake_client_id
+      kid: 123
       rsa_key: path/to/fake/pem
     host: https://test-api.va.gov
     scopes:
@@ -1269,10 +1283,6 @@ search_gsa:
   affiliate: va
   mock_search: false
   url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
-search_typeahead:
-  api_key: TEST_KEY
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
 sentry:
   dsn: ~
@@ -1330,6 +1340,11 @@ travel_pay:
     client_secret: client_secret
     resource: resource_id
     tenant_id: tenant_id
+unique_user_metrics:
+  processor_job:
+    batch_size: 500
+    max_iterations: 20
+    max_queue_depth: 10000
 va_forms:
   drupal_password: ~
   drupal_url: ~
@@ -1443,6 +1458,24 @@ vanotify:
         submitted686c_only:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: form686c_only_submitted_email_template_id
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: fake_api_key
+      email:
+        confirmation:
+          flipper_id: form21-8940_confirmation_email_notification
+          template_id: form21-8940_confirmation_email_template_id
+        error:
+          flipper_id: increase_compensation_error_email_notification
+          template_id: form21-8940_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: increase_compensation_persistent_attachment_error_email_notification
+          template_id: form21-8940_persistent_attachment_error_email_template_id
+        received:
+          flipper_id: increase_compensation_received_email_notification
+          template_id: form21-8940_received_email_template_id
+        submitted:
+          flipper_id: increase_compensation_submitted_email_notification
+          template_id: form21-8940_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1611,9 +1644,11 @@ vanotify:
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     income_and_assets: *vanotify_services_income_and_assets
+    increase_compensation: *vanotify_services_increase_compensation
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
@@ -1790,6 +1825,7 @@ vass:
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
+  jwt_secret: 'test-jwt-secret-key-not-for-production'
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>

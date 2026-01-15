@@ -169,9 +169,9 @@ describe VAProfile::Profile::V3::Service do
         # Wrap original to override contacts
         allow(VAProfile::Profile::V3::HealthBenefitBioResponse)
           .to receive(:new).and_wrap_original do |orig, resp|
-          response = orig.call(resp)
-          allow(response).to receive(:contacts).and_return([])
-          response
+            response = orig.call(resp)
+            allow(response).to receive(:contacts).and_return([])
+            response
         end
         subject.get_health_benefit_bio
         expect(Rails.logger).to have_received(:info).with(
