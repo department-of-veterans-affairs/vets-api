@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
+RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   let(:user) { create(:user, :loa3) }
   let(:service) { instance_double(EmailVerificationService) }
 
   before do
     allow(EmailVerificationService).to receive(:new).and_return(service)
-    allow(controller).to receive(:enforce_rate_limit!)
-    allow(controller).to receive(:increment_rate_limit!)
-    allow(controller).to receive(:reset_rate_limit!)
+    allow(controller).to receive(:enforce_email_verification_rate_limit!)
+    allow(controller).to receive(:increment_email_verification_rate_limit!)
+    allow(controller).to receive(:reset_email_verification_rate_limit!)
   end
 
   describe 'GET #status' do
@@ -64,7 +64,7 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
       it 'increments rate limit after successful send' do
         post :create
 
-        expect(controller).to have_received(:increment_rate_limit!).with(:email_verification)
+        expect(controller).to have_received(:increment_email_verification_rate_limit!)
       end
 
       context 'with custom template type' do
@@ -91,13 +91,17 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
     context 'when rate limit is exceeded' do
       before do
         allow(controller).to receive(:needs_verification?).and_return(true)
-        allow(controller).to receive(:enforce_rate_limit!).and_raise(Common::Exceptions::TooManyRequests)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(Common::Exceptions::TooManyRequests)
       end
 
-      it 'returns rate limit error' do
+      it 'returns email verification rate limit error' do
         post :create
         expect(response).to have_http_status(:too_many_requests)
-        expect(JSON.parse(response.body)['errors']).to be_present
+
+        body = JSON.parse(response.body)
+        expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED')
+        expect(body['errors'][0]['title']).to eq('Email Verification Rate Limit Exceeded')
+        expect(response.headers['Retry-After']).to be_present
       end
     end
 
@@ -109,10 +113,13 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
         )
       end
 
-      it 'returns service unavailable error' do
+      it 'returns email verification service unavailable error' do
         post :create
 
+        body = JSON.parse(response.body)
         expect(response).to have_http_status(:service_unavailable)
+        expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_SERVICE_UNAVAILABLE')
+        expect(body['errors'][0]['title']).to eq('Email Verification Service Unavailable')
       end
     end
 
@@ -122,12 +129,13 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
         allow(service).to receive(:initiate_verification).and_raise(StandardError.new('Unexpected error'))
       end
 
-      it 'returns internal server error' do
+      it 'returns email verification internal error' do
         post :create
 
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:internal_server_error)
-        expect(body['errors'][0]['code']).to eq('INTERNAL_SERVER_ERROR')
+        expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_INTERNAL_ERROR')
+        expect(body['errors'][0]['title']).to eq('Email Verification Error')
       end
     end
   end
@@ -153,7 +161,7 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
       it 'resets rate limit on successful verification' do
         get :verify, params: { token: }
 
-        expect(controller).to have_received(:reset_rate_limit!).with(:email_verification)
+        expect(controller).to have_received(:reset_email_verification_rate_limit!)
       end
     end
 
@@ -188,10 +196,13 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
         )
       end
 
-      it 'returns service unavailable error' do
+      it 'returns email verification service unavailable error' do
         get :verify, params: { token: }
 
+        body = JSON.parse(response.body)
         expect(response).to have_http_status(:service_unavailable)
+        expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_SERVICE_UNAVAILABLE')
+        expect(body['errors'][0]['title']).to eq('Email Verification Service Unavailable')
       end
     end
 
@@ -202,12 +213,13 @@ RSpec.describe V0::Profile::EmailVerificationsController, type: :controller do
         allow(service).to receive(:verify_email!).and_raise(StandardError.new('Unexpected error'))
       end
 
-      it 'returns internal server error' do
+      it 'returns email verification internal error' do
         get :verify, params: { token: }
 
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:internal_server_error)
-        expect(body['errors'][0]['code']).to eq('INTERNAL_SERVER_ERROR')
+        expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_INTERNAL_ERROR')
+        expect(body['errors'][0]['title']).to eq('Email Verification Error')
       end
     end
   end

@@ -13,7 +13,7 @@ RSpec.describe 'Email Verification API', type: :request do
 
   describe 'Basic functionality' do
     it 'returns status for authenticated LOA3 user' do
-      get('/v0/profile/email_verifications/status', headers:)
+      get('/v0/profile/email_verification/status', headers:)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body['data']['type']).to eq('email_verification_status')
@@ -26,7 +26,7 @@ RSpec.describe 'Email Verification API', type: :request do
       allow(user).to receive(:va_profile_email).and_return('different@example.com')
       allow_any_instance_of(EmailVerificationService).to receive(:initiate_verification).and_return('token')
 
-      post('/v0/profile/email_verifications', headers:)
+      post('/v0/profile/email_verification', headers:)
 
       expect(response).to have_http_status(:created)
       expect(response.parsed_body['data']['type']).to eq('email_verification')
@@ -36,7 +36,7 @@ RSpec.describe 'Email Verification API', type: :request do
     it 'verifies email with valid token' do
       allow_any_instance_of(EmailVerificationService).to receive(:verify_email!).and_return(true)
 
-      get('/v0/profile/email_verifications/verify', params: { token: 'valid-token' }, headers:)
+      get('/v0/profile/email_verification/verify', params: { token: 'valid-token' }, headers:)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body['data']['attributes']['verified']).to be true

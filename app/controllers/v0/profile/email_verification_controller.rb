@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-# EmailVerificationsController
+# EmailVerificationController
 #
 # This controller implements the email verification API for LOA3 authenticated users.
 # It handles the complete email verification workflow including status checks,
 # sending verification emails, and verifying tokens.
 #
 # ## Endpoints:
-# - GET  /v0/profile/email_verifications/status  - Check if verification is needed
-# - POST /v0/profile/email_verifications         - Send verification email
-# - GET  /v0/profile/email_verifications/verify  - Verify token from email link
+# - GET  /v0/profile/email_verification/status  - Check if verification is needed
+# - POST /v0/profile/email_verification         - Send verification email
+# - GET  /v0/profile/email_verification/verify  - Verify token from email link
 #
 # ## Rate Limiting:
-# Email sending (POST /v0/profile/email_verifications) is rate limited:
+# Email sending (POST /v0/profile/email_verification) is rate limited:
 # - 1 email per 5-minute period per user
 # - Maximum 5 emails per 24-hour period per user
 # - Rate limits are stored in Redis with automatic expiration
@@ -24,22 +24,15 @@
 #
 module V0
   module Profile
-    class EmailVerificationsController < ApplicationController
-      include RateLimited
-      include ErrorHandler
+    class EmailVerificationController < ApplicationController
+      include EmailVerificationRateLimited
+      include EmailVerificationErrorHandler
 
       service_tag 'profile-email-verification'
 
-      # Configure rate limiting for email verification
-      rate_limit :email_verification,
-                 per_period: 1,
-                 period: 5.minutes,
-                 daily_limit: 5,
-                 redis_namespace: 'email_verification_rate_limit'
-
       before_action :authenticate_loa3_user!
 
-      # GET /v0/profile/email_verifications/status
+      # GET /v0/profile/email_verification/status
       # Check if email verification is needed
       def status
         render json: {
@@ -52,24 +45,24 @@ module V0
         }
       end
 
-      # POST /v0/profile/email_verifications
+      # POST /v0/profile/email_verification
       # Initiate email verification process (send verification email)
       def create
         return render_verification_not_needed_error unless needs_verification?
 
-        handle_service_errors('Email verification initiation') do
+        handle_verification_errors('send verification email') do
           send_verification_email
           render_create_success
         end
       end
 
-      # GET /v0/profile/email_verifications/verify
+      # GET /v0/profile/email_verification/verify
       # Verify email using token from verification email link
       def verify
         token = params[:token]
         return render_missing_token_error unless token.present?
 
-        handle_service_errors('Email verification') do
+        handle_verification_errors('verify email token') do
           process_email_verification(token)
         end
       end
@@ -94,16 +87,16 @@ module V0
 
       # Send verification email and handle rate limiting
       def send_verification_email
-        enforce_rate_limit!(:email_verification)
+        enforce_email_verification_rate_limit!
 
         template_type = params[:template_type]&.to_s || 'initial_verification'
         verification_service = EmailVerificationService.new(current_user)
         verification_service.initiate_verification(template_type)
 
-        increment_rate_limit!(:email_verification)
-        log_operation_success('Email verification initiated',
-                              template_type:,
-                              rate_limit_info: get_rate_limit_info(:email_verification))
+        increment_email_verification_rate_limit!
+        log_verification_success('verification email sent',
+                                 template_type:,
+                                 rate_limit_info: get_email_verification_rate_limit_info)
       end
 
       # Process email verification with the provided token
@@ -119,21 +112,23 @@ module V0
 
       # Handle successful email verification
       def handle_successful_verification
-        reset_rate_limit!(:email_verification)
-        Rails.logger.info(
-          message: 'Email verification successful',
-          user_uuid: current_user.uuid
-        )
+        reset_email_verification_rate_limit!
+        log_verification_success('email token verified successfully',
+                                 token_verification: 'success',
+                                 verification_time: Time.current.iso8601)
         render_verify_success
       end
 
       # Handle failed email verification
       def handle_failed_verification(token)
-        Rails.logger.warn(
-          message: 'Email verification failed - invalid token',
-          user_uuid: current_user.uuid,
-          token:
+        # Use the new error handler for consistent logging, but don't include the actual token for security
+        log_data = email_verification_log_data.merge(
+          token_verification: 'failed',
+          token_length: token&.length,
+          verification_time: Time.current.iso8601
         )
+
+        Rails.logger.warn('Email verification: token verification failed', log_data)
         render_invalid_token_error
       end
 

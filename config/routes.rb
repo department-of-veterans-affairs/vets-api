@@ -310,8 +310,8 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
 
       # "Email Verification" internally; "Email Confirmation" externally
-      resources :email_verifications, only: %i[create] do
-        collection do
+      resource :email_verification, only: %i[create], controller: 'email_verification' do
+        member do
           get :status
           get :verify
         end
