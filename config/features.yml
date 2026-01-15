@@ -806,10 +806,10 @@ features:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
-  disability_compensation_0781_supporting_documents_enhancement:
+  disability_526_supporting_evidence_enhancement:
     actor_type: user
     description: >
-      Enables content and design enhancements for Form 0781 supporting documents
+      Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
