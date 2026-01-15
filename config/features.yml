@@ -52,6 +52,9 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  appeals_response_status:
+    actor_type: user
+    description: Returns Caseflow status with Caseflow response
   arm_use_datadog_real_user_monitoring:
     actor_type: user
     description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
@@ -2793,7 +2796,7 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-    
+
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
