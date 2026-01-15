@@ -2320,10 +2320,6 @@ features:
     actor_type: user
     description: Enable Notification Center
     enable_in_development: true
-  nod_part3_update:
-    actor_type: user
-    description: NOD update to latest form, part III box 11
-    enable_in_development: true
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
