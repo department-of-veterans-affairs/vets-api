@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_15_140605) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_15_211347) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1492,6 +1492,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_15_140605) do
     t.integer "vso_organizations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "idx_on_created_at_5b6fb39541"
   end
 
   create_table "saved_claim_groups", force: :cascade do |t|
