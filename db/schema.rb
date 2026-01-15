@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_15_225000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -222,6 +222,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["id"], name: "idx_ahlr_kms_rotation_true_id", where: "(needs_kms_rotation = true)"
     t.index ["needs_kms_rotation"], name: "index_appeals_api_higher_level_reviews_on_needs_kms_rotation"
     t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
