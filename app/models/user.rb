@@ -383,6 +383,7 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
+    return nil unless icn.present?
     @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
