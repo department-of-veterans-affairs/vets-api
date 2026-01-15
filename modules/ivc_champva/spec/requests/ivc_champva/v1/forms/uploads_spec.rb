@@ -237,6 +237,18 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#submit error handling' do
+    it 'returns HTTP 400 when form_number parameter is missing' do
+      # Submit without form_number parameter
+      post '/ivc_champva/v1/forms', params: {}
+
+      expect(response).to have_http_status(:bad_request)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors']).to be_present
+      expect(json_response['errors'].first['title']).to include('Missing parameter')
+    end
+  end
+
   # Copied this test from the #submit endpoint tests above and adjusted to use
   # the new endpoint. We'll need more tests in future, but wanted to have at
   # least one verifying it wasn't throwing rampant errors
@@ -264,6 +276,16 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       expect(record.form_uuid).to be_present
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns HTTP 400 when form_number parameter is missing' do
+      # Submit without form_number parameter
+      post '/ivc_champva/v1/forms/10-10d-ext', params: {}
+
+      expect(response).to have_http_status(:bad_request)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors']).to be_present
+      expect(json_response['errors'].first['title']).to include('Missing parameter')
     end
 
     # Also taken from the main #submit endpoint tests as they function the same at this level
