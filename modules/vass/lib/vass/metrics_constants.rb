@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+module Vass
+  ##
+  # Constants for StatsD metrics tracking throughout the VASS module.
+  #
+  # Naming Convention: api.vass.{layer}.{component}.{action}.{outcome}
+  #
+  # Layers:
+  #   - controller: User-facing API endpoints (success/failure)
+  #   - infrastructure: Rate limiting, OTC/session lifecycle, VANotify
+  #
+  # Controller Metrics (7 endpoints × 2 outcomes = 14 metrics):
+  #   Each endpoint tracks: .success, .failure
+  #
+  # Infrastructure Metrics (7 metrics):
+  #   OTC lifecycle, rate limiting, JWT creation, VANotify
+  #
+  # Tags (consistent across all metrics):
+  #   - service:vass (always present)
+  #   - endpoint:{action_name} (controller metrics)
+  #   - http_method:{GET|POST} (controller metrics)
+  #   - http_status:{200|400|401|404|500|502} (controller metrics)
+  #   - error_type:{ErrorClassName} (failure metrics only)
+  #
+  module MetricsConstants
+    # Base prefixes
+    METRIC_PREFIX = 'api.vass'
+    CONTROLLER_PREFIX = "#{METRIC_PREFIX}.controller".freeze
+    SERVICE_PREFIX = "#{METRIC_PREFIX}.service".freeze
+    INFRASTRUCTURE_PREFIX = "#{METRIC_PREFIX}.infrastructure".freeze
+
+    # Service identification
+    SERVICE_TAG = 'service:vass'
+
+    # Outcome suffixes
+    SUCCESS = 'success'
+    FAILURE = 'failure'
+
+    # ========================================
+    # Controller Metrics - Sessions
+    # ========================================
+    SESSIONS_REQUEST_OTC = "#{CONTROLLER_PREFIX}.sessions.request_otc".freeze
+    SESSIONS_AUTHENTICATE_OTC = "#{CONTROLLER_PREFIX}.sessions.authenticate_otc".freeze
+
+    # ========================================
+    # Controller Metrics - Appointments
+    # ========================================
+    APPOINTMENTS_AVAILABILITY = "#{CONTROLLER_PREFIX}.appointments.availability".freeze
+    APPOINTMENTS_CREATE = "#{CONTROLLER_PREFIX}.appointments.create".freeze
+    APPOINTMENTS_SHOW = "#{CONTROLLER_PREFIX}.appointments.show".freeze
+    APPOINTMENTS_CANCEL = "#{CONTROLLER_PREFIX}.appointments.cancel".freeze
+    APPOINTMENTS_TOPICS = "#{CONTROLLER_PREFIX}.appointments.topics".freeze
+
+    # ========================================
+    # Infrastructure Metrics - VANotify
+    # ========================================
+    VANOTIFY_SEND_OTP = "#{SERVICE_PREFIX}.vanotify.send_otp".freeze
+
+    # ========================================
+    # Infrastructure Metrics - Rate Limiting
+    # ========================================
+    RATE_LIMIT_GENERATION_EXCEEDED = "#{INFRASTRUCTURE_PREFIX}.rate_limit.generation.exceeded".freeze
+    RATE_LIMIT_VALIDATION_EXCEEDED = "#{INFRASTRUCTURE_PREFIX}.rate_limit.validation.exceeded".freeze
+
+    # ========================================
+    # Infrastructure Metrics - Session/OTC
+    # ========================================
+    SESSION_OTC_GENERATED = "#{INFRASTRUCTURE_PREFIX}.session.otc.generated".freeze
+    SESSION_OTC_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otc.expired".freeze
+    SESSION_OTC_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otc.invalid".freeze
+    SESSION_JWT_CREATED = "#{INFRASTRUCTURE_PREFIX}.session.jwt.created".freeze
+  end
+end
