@@ -240,7 +240,7 @@ features:
   ezr_service_history_enabled:
     actor_type: user
     description: Enables Service History flow in the 10-10EZR form.
-    enable_in_development: true   
+    enable_in_development: false   
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
