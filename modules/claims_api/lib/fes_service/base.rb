@@ -61,12 +61,12 @@ module ClaimsApi
       private
 
       def client
-        base_url = "#{Settings.claims_api.fes.host}/form526-establishment-service/v1"
+        base_url = "#{Settings.claims_api.fes.url}/form526-establishment-service/v1"
 
-        raise StandardError, 'FES host URL missing' if Settings.claims_api.fes.host.blank?
+        raise StandardError, 'FES host URL missing' if Settings.claims_api.fes.url.blank?
 
         Faraday.new(base_url,
-                    ssl: { verify: Settings.claims_api&.fes&.ssl != false },
+                    ssl: { verify: Settings.claims_api&.fes&.use_ssl != false },
                     headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock

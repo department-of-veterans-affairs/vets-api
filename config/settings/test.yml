@@ -210,11 +210,15 @@ claims_api:
     client_key: fakekeyvaluehere
     client_secret: ~
   fes:
+    url: https://fakedomainandsubdomain.com
+    host: https://sandbox-api.va.gov
     auth:
       ccg:
-        aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
-    host: https://staging-api.va.gov
+        secret_key:  path/to/fake/key.pem
+        aud_claim_url: https://fakeurlhere/fake/path/here
+    use_ssl: false
+    use_mocks: true
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
