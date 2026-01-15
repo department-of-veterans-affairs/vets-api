@@ -237,16 +237,20 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
-  describe '#submit error handling' do
+  # Shared examples for testing missing form_number parameter
+  shared_examples 'returns HTTP 400 for missing form_number' do |endpoint_path|
     it 'returns HTTP 400 when form_number parameter is missing' do
-      # Submit without form_number parameter
-      post '/ivc_champva/v1/forms', params: {}
+      post endpoint_path, params: {}
 
       expect(response).to have_http_status(:bad_request)
       json_response = JSON.parse(response.body)
       expect(json_response['errors']).to be_present
       expect(json_response['errors'].first['title']).to include('Missing parameter')
     end
+  end
+
+  describe '#submit error handling' do
+    include_examples 'returns HTTP 400 for missing form_number', '/ivc_champva/v1/forms'
   end
 
   # Copied this test from the #submit endpoint tests above and adjusted to use
@@ -278,15 +282,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns HTTP 400 when form_number parameter is missing' do
-      # Submit without form_number parameter
-      post '/ivc_champva/v1/forms/10-10d-ext', params: {}
-
-      expect(response).to have_http_status(:bad_request)
-      json_response = JSON.parse(response.body)
-      expect(json_response['errors']).to be_present
-      expect(json_response['errors'].first['title']).to include('Missing parameter')
-    end
+    include_examples 'returns HTTP 400 for missing form_number', '/ivc_champva/v1/forms/10-10d-ext'
 
     # Also taken from the main #submit endpoint tests as they function the same at this level
     it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
