@@ -51,7 +51,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   end
 
   describe '#index' do
-    context 'when successful' do
+    context 'when cst_multi_claim_provider is enabled with single provider' do
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
@@ -583,7 +583,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
 
-    context 'with provider aggregation' do
+    context 'when cst_multi_claim_provider is enabled with multiple providers' do
       let(:mock_provider_class_one) do
         Class.new do
           def self.name
@@ -884,7 +884,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   end
 
   describe '#show' do
-    context 'when successful' do
+    context 'when cst_multi_claim_provider is enabled with single provider' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
       end
