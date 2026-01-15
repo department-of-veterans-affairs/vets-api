@@ -5,6 +5,7 @@ require 'claims_evidence_api/service/search'
 module V0
   class TsaLetterController < ApplicationController
     service_tag 'tsa_letter'
+    before_action { authorize :tsa_letter, :access? }
 
     def show
       search_service = ClaimsEvidenceApi::Service::Search.new

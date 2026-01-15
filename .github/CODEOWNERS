@@ -370,6 +370,7 @@ app/policies/mhv_user_account_policy.rb @department-of-veterans-affairs/octo-ide
 app/policies/mpi_policy.rb @department-of-veterans-affairs/octo-identity
 app/policies/power_of_attorney_policy.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 app/policies/sign_in/ @department-of-veterans-affairs/octo-identity
+app/policies/tsa_letter_policy.rb @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 app/policies/va_profile_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/vet360_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/policies/vye_policy.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group

@@ -77,7 +77,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
         }
       end
 
-      it 'logs error and renders 503' do
+      it 'logs error and renders 422' do
         VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
           # mocking this because I don't know if it's a real possibility
           mocked_response = Faraday::Response.new(response_body: bad_response, status: 200)
@@ -93,6 +93,15 @@ RSpec.describe 'VO::TsaLetter', type: :request do
           expect(response.parsed_body.dig('errors', 0, 'detail'))
             .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
         end
+      end
+    end
+
+    context 'when user does not have an ICN' do
+      let(:user) { build(:user, icn: nil) }
+
+      it 'renders 403' do
+        get '/v0/tsa_letter'
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
