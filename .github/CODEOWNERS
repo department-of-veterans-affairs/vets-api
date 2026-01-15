@@ -185,6 +185,7 @@ app/models/concerns/form526_claim_fast_tracking_concern.rb @department-of-vetera
 app/models/concerns/form526_mpi_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/concerns/form526_rapid_ready_for_decision_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/concerns/kms_encrypted_model_patch.rb @department-of-veterans-affairs/backend-review-group
+app/models/concerns/pension_award_helper.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/models/concerns/redis_caching.rb @department-of-veterans-affairs/backend-review-group
 app/models/concerns/redis_form.rb @department-of-veterans-affairs/backend-review-group
 app/models/concerns/set_guid.rb @department-of-veterans-affairs/backend-review-group
