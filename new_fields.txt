@@ -1,0 +1,816 @@
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field1[0]
+FieldNameAlt: 1.  social security number
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field2[0]
+FieldNameAlt: 2. FILE NUMBER
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field3[0]
+FieldNameAlt: (Type or print all entries.  If more space is needed for any item, continue under Section 7, Additional Data, Item 36 or attach separate sheet)3. SPECIFY WHY YOU ARE COMPLETING THIS FORM (Waiver, Compromise, Payment Plan or Other)
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field4[0]
+FieldNameAlt: Read the Privacy Act Notice and Respondent Burden above.SECTION 1 - PERSONAL DATA4.  FIRST-MIDDLE-LAST NAME OF PERSON
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field5[0]
+FieldNameAlt: 5. ADDRESS (Number and street or rural route, City or P.O. Box, State, and ZIP Code)
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field6[0]
+FieldNameAlt: 6. TELEPHONE NUMBER (Include Area Code)
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field7[0]
+FieldNameAlt: 7. DATE OF BIRTH (M M - D D - Y Y Y Y)
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: vaco5655[0].#subform[0].RadioButtonList[0]
+FieldFlags: 49152
+FieldValue: Off
+FieldJustification: Left
+FieldStateOption: 1
+FieldStateOption: 2
+FieldStateOption: Off
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field10[0]
+FieldNameAlt: 9. NAME OF SPOUSE
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field11[0]
+FieldNameAlt: 10. AGE(S) OF OTHER DEPENDENTS
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field12[0]
+FieldNameAlt: COMPLETE RECORD OF EMPLOYMENT FOR YOURSELF AND SPOUSE DURING PAST 2 YEARSKIND OF JOB11. YOUR EMPLOYMENT EXPERIENCE
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field13[0]
+FieldNameAlt: 11.  Line 1:  Enter Date, From to Present Time
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field14[0]
+FieldNameAlt: 11.  NAME AND ADDRESS OF EMPLOYER line 1 of 2
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field15[0]
+FieldNameAlt: 11.  KIND OF JOB. (Prior to current job.)
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field16[0]
+FieldNameAlt: 11. Line 2:  Date, From. Enter 2-digit month and 4-digit year.
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field17[0]
+FieldNameAlt: 11.  Date to. line 2
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field18[0]
+FieldNameAlt: 11.  NAME AND ADDRESS OF EMPLOYER line 2 of 2
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field19[0]
+FieldNameAlt: KIND OF JOB12. YOUR SPOUSE&apos;S EMPLOYMENT.  line 1 of 2.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field20[0]
+FieldNameAlt: 12. Line 1 of 2:  Date From to Present Time
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field21[0]
+FieldNameAlt: 12.   NAME AND ADDRESS OF EMPLOYER line 1 of 2
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field22[0]
+FieldNameAlt: KIND OF JOB. line 2 of 2.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field23[0]
+FieldNameAlt: 12. Line 2 of 2:  Date From
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field24[0]
+FieldNameAlt: 12.  Date, To, line 2
+FieldFlags: 0
+FieldJustification: Center
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field25[0]
+FieldNameAlt: 12.   NAME AND ADDRESS OF EMPLOYER line 2 of 2
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field26[0]
+FieldNameAlt: SECTION 2 - INCOMEAVERAGE MONTHLY INCOME13.  MONTHLY GROSS SALARY (Before payroll deductions) for Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field27[0]
+FieldNameAlt: 13.  MONTHLY GROSS SALARY (Before payroll deductions) for Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field28[0]
+FieldNameAlt: 14.  PAYROLL DEDUCTIONS.A. FEDERAL, STATE AND LOCAL INCOME TAXES for Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field29[0]
+FieldNameAlt: A.  FEDERAL, STATE AND  LOCAL INCOME TAXES for Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field30[0]
+FieldNameAlt: B. Retirement - Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field31[0]
+FieldNameAlt: B. Retirement - Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field32[0]
+FieldNameAlt: C.  SOCIAL SECURITY - for SELF
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field33[0]
+FieldNameAlt: C.  SOCIAL SECURITY - for spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field34[0]
+FieldNameAlt: D. Other (Specify)
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field35[0]
+FieldNameAlt: D. Other - Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field36[0]
+FieldNameAlt: D. Other - Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field37[0]
+FieldNameAlt: E.  TOTAL DEDUCTIONS (Items 14 A through 14 D) for Self.
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field38[0]
+FieldNameAlt: E.  TOTAL DEDUCTIONS (Items 14 A through 14 D) for Spouse.
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field39[0]
+FieldNameAlt: 15.  NET TAKE HOME PAY (Subtract Item 14 E from Item 13) Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field40[0]
+FieldNameAlt: 15.  NET TAKE HOME PAY (Subtract Item 14 E from Item 13) Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field41[0]
+FieldNameAlt: 16.  VA BENEFITS, Social Security, OR OTHER INCOME (Specify)
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field42[0]
+FieldNameAlt: 16.  V A BENEFITS, Social Security, OR OTHER INCOME - Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field43[0]
+FieldNameAlt: 16.  V A BENEFITS, Social Security, OR OTHER INCOME - Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field44[0]
+FieldNameAlt: 17.  TOTAL MONTHLY NET INCOME (Item 15 plus Item 16) - Self
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field45[0]
+FieldNameAlt: 17.  TOTAL MONTHLY NET INCOME (Item 15 plus Item 16) - Spouse
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field46[0]
+FieldNameAlt: SECTION 3 - EXPENSESAVERAGE MONTHLY EXPENSES18. RENT OR MORTGAGE PAYMENT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field47[0]
+FieldNameAlt: 19. Food
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field48[0]
+FieldNameAlt: 20. Utilities and Heat 
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field35[1]
+FieldNameAlt: 21. OTHER LIVING EXPENSES (specify)
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field49[0]
+FieldNameAlt: 21. Other Living Expenses amount
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field50[0]
+FieldNameAlt: 22. MONTHLY PAYMENTS ON INSTALLMENT CONTRACTS AND OTHER DEBTS (Include amount from Section 6, Line 34 I - Column E.)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field51[0]
+FieldNameAlt: 23. TOTAL MONTHLY EXPENSES
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field52[0]
+FieldNameAlt: SECTION 4 - DISCRETIONARY INCOME24 A. NET MONTHLY INCOME LESS EXPENSES (Item 17 less Item 23)
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[0].Field53[0]
+FieldNameAlt: 24 B. AMOUNT YOU CAN PAY ON A MONTHLY BASIS TOWARD YOUR DEBT.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field54[0]
+FieldNameAlt: SECTION 5 - ASSETS25. CASH IN BANK (Checking and savings accounts, building and loan accounts, etcetera)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field55[0]
+FieldNameAlt: 26. CASH ON HAND
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field56[0]
+FieldNameAlt: 27. AUTOMOBILES (Resale value) Make. line 1 OF 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field57[0]
+FieldNameAlt: Year line 1 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field58[0]
+FieldNameAlt: Model. line 1 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field59[0]
+FieldNameAlt: ENTER AUTOMOBILES Resale value line 1 of 3
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field60[0]
+FieldNameAlt: Make. line 2 OF 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field61[0]
+FieldNameAlt: Year line 2 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field62[0]
+FieldNameAlt: Model. line 2 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field63[0]
+FieldNameAlt: ENTER AUTOMOBILES Resale value line 2 of 3
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field64[0]
+FieldNameAlt: Make. line 3 OF 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field65[0]
+FieldNameAlt: Year line 3 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field66[0]
+FieldNameAlt: Model. line 3 of 3
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field67[0]
+FieldNameAlt: ENTER AUTOMOBILES Resale value line 3 of 3
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field68[0]
+FieldNameAlt: 28. TRAILERS, BOATS, CAMPERS (Resale value)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field69[0]
+FieldNameAlt: 29. US SAVINGS BONDS (Current Value)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field70[0]
+FieldNameAlt: 30. STOCKS AND OTHER BONDS (Current Value)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field71[0]
+FieldNameAlt: 31. REAL ESTATE OWNED (Resale value)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field72[0]
+FieldNameAlt: 32. OTHER ASSETS (Specify below) line 1 of 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field73[0]
+FieldNameAlt: ENTER OTHER ASSETS VALUE. line 1 OF 3.
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field74[0]
+FieldNameAlt: OTHER ASSETS  line 2 of 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field75[0]
+FieldNameAlt: ENTER OTHER ASSETS VALUE. line 2 OF 3.
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field76[0]
+FieldNameAlt: OTHER ASSETS line 3 of 3.
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field77[0]
+FieldNameAlt: ENTER OTHER ASSETS VALUE. line 3 OF 3.
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field78[0]
+FieldNameAlt: 33. TOTAL ASSETS
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field79[0]
+FieldNameAlt: SECTION 6 - INSTALLMENT CONTRACTS AND OTHER DEBTSRead NOTE above.34 A. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field80[0]
+FieldNameAlt: 34 A. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field81[0]
+FieldNameAlt: 34 A. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field82[0]
+FieldNameAlt: 34 A. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field83[0]
+FieldNameAlt: 34 A.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field84[0]
+FieldNameAlt: 34 A.  AMOUNT PAST DUE 
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field85[0]
+FieldNameAlt: 34 b. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field86[0]
+FieldNameAlt: 34 b. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field87[0]
+FieldNameAlt: 34 B. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field88[0]
+FieldNameAlt: 34 B. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field89[0]
+FieldNameAlt: 34 B.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field90[0]
+FieldNameAlt: 34 B.  AMOUNT PAST DUE 
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field91[0]
+FieldNameAlt: 34 c. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field92[0]
+FieldNameAlt: 34 c. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field93[0]
+FieldNameAlt: 34 C. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field94[0]
+FieldNameAlt: 34 C. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field95[0]
+FieldNameAlt: 34 C.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field96[0]
+FieldNameAlt: 34 C.  AMOUNT PAST DUE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field97[0]
+FieldNameAlt: 34 d. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field98[0]
+FieldNameAlt: 34 d. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field99[0]
+FieldNameAlt: 34 D. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field100[0]
+FieldNameAlt: 34 D. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field101[0]
+FieldNameAlt: 34 D.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field102[0]
+FieldNameAlt: 34 D.  AMOUNT PAST DUE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field103[0]
+FieldNameAlt: 34 e. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field104[0]
+FieldNameAlt: 34 e. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field105[0]
+FieldNameAlt: 34 E. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field106[0]
+FieldNameAlt: 34 E. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field107[0]
+FieldNameAlt: 34 E.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field108[0]
+FieldNameAlt: 34 E.  AMOUNT PAST DUE 
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field109[0]
+FieldNameAlt: 34 f. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field110[0]
+FieldNameAlt: 34 f. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field111[0]
+FieldNameAlt: 34 F. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field112[0]
+FieldNameAlt: 34 F. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field113[0]
+FieldNameAlt: 34  F.  Enter AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field114[0]
+FieldNameAlt: 34 F.  AMOUNT PAST DUE 
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field115[0]
+FieldNameAlt: 34 g. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field116[0]
+FieldNameAlt: 34 g. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field117[0]
+FieldNameAlt: 34 G. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field118[0]
+FieldNameAlt: 34 G. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field119[0]
+FieldNameAlt: 34 G.  AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field120[0]
+FieldNameAlt: 34 g  AMOUNT PAST DUE (If any)
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field121[0]
+FieldNameAlt: Item 34h. NAME AND ADDRESS OF CREDITOR 
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field122[0]
+FieldNameAlt: Item 34h. DATE AND PURPOSE OF DEBT
+FieldFlags: 8392704
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field123[0]
+FieldNameAlt: Item 34H. ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field124[0]
+FieldNameAlt: ITEM 34H. UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field125[0]
+FieldNameAlt: ITEM 34H.  Enter AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field126[0]
+FieldNameAlt: ITEM 34H.  Enter AMOUNT PAST DUE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field127[0]
+FieldNameAlt: 34 i. TOTAL ORIGINAL AMOUNT OF DEBT
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field128[0]
+FieldNameAlt: 34 i. TOTAL UNPAID BALANCE
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field129[0]
+FieldNameAlt: 34 i. TOTAL AMOUNT DUE MONTHLY
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field130[0]
+FieldNameAlt: 34 i.  TOTAL AMOUNT PAST DUESee NOTE below
+FieldFlags: 8388608
+FieldJustification: Right
+---
+FieldType: Button
+FieldName: vaco5655[0].#subform[1].RadioButtonList[1]
+FieldFlags: 49152
+FieldValue: Off
+FieldJustification: Left
+FieldStateOption: 1
+FieldStateOption: 2
+FieldStateOption: Off
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field133[0]
+FieldNameAlt: 35 B. DATE DISCHARGED FROM BANKRUPTCY.
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field134[0]
+FieldNameAlt: 35 C. LOCATION OF COURT
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field135[0]
+FieldNameAlt: 35 D. DOCKET NUMBER, IF KNOWN
+FieldFlags: 8388608
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: vaco5655[0].#subform[1].Field136[0]
+FieldNameAlt: 36. USE THIS SPACE AND ADDITIONAL SHEETS, IF NECESSARY, TO SUPPLY ANY PERTINENT INFORMATION AND TO CONTINUE YOUR ANSWER TO PREVIOUS ITEM NUMBER(S) TO WHICH YOUR COMMENTS APPLY
+FieldFlags: 8392704
+FieldJustification: Left
