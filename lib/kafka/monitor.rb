@@ -10,8 +10,18 @@ module Kafka
     # metric prefix
     STATSD_KEY_PREFIX = 'api.kafka_service'
 
+    # override default allowed logging params to include `tags`
+    ALLOWLIST = %w[
+      statsd
+      service
+      function
+      line
+      context
+      tags
+    ].freeze
+
     def initialize
-      super('kafka-service')
+      super('kafka-service', allowlist: ALLOWLIST)
     end
 
     # Track submission successful
