@@ -53,7 +53,6 @@ module V0
       TsaLetterSerializer.new(tsa_letter_metadata)
     rescue Date::Error
       datetimes = files.map { |file| file.dig('currentVersion', 'providerData', 'modifiedDateTime') }
-      # Rails.logger.error('Invalid datetime format found in TSA letters data', datetimes)
       raise Common::Exceptions::UnprocessableEntity,
             detail: "Invalid datetime format found in TSA letters data: #{datetimes.join(', ')}",
             source: self.class.name
