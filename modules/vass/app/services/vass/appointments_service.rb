@@ -266,22 +266,14 @@ module Vass
     ##
     # Retrieves available agent skills for appointment scheduling.
     #
-    # @return [Hash] List of available agent skills
+    # @return [Hash] Response with success flag and agent skills data
     #
     # @example
     #   service.get_agent_skills
     #
     def get_agent_skills
       response = client.get_agent_skills
-      body = response.body
-
-      agent_skills = body.dig('data', 'agentSkills') || []
-      agent_skills.map do |skill|
-        {
-          topicId: skill['skillId'],
-          topicName: skill['skillName']
-        }
-      end
+      parse_response(response)
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
