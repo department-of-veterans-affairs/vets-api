@@ -1,0 +1,196 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe EmailVerificationSerializer, type: :serializer do
+  describe 'status response' do
+    let(:response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        needs_verification: true
+      )
+    end
+
+    let(:serialized_data) do
+      described_class.new(response_data, status: true)
+    end
+
+    let(:serialized_hash) { serialized_data.serializable_hash }
+
+    it 'includes correct type' do
+      expect(serialized_hash[:data][:type]).to eq :email_verification
+    end
+
+    it 'includes id field' do
+      expect(serialized_hash[:data][:id]).to be_present
+      expect(serialized_hash[:data][:id]).to eq response_data.id
+    end
+
+    it 'includes needs_verification attribute' do
+      expect(serialized_hash[:data][:attributes][:needs_verification]).to eq true
+    end
+
+    it 'excludes other response type attributes' do
+      attributes = serialized_hash[:data][:attributes]
+      expect(attributes).not_to have_key(:email_sent)
+      expect(attributes).not_to have_key(:template_type)
+      expect(attributes).not_to have_key(:verified)
+      expect(attributes).not_to have_key(:verified_at)
+    end
+
+    context 'when verification is not needed' do
+      let(:response_data) do
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          needs_verification: false
+        )
+      end
+
+      let(:serialized_data) do
+        described_class.new(response_data, status: true)
+      end
+
+      it 'returns false for needs_verification' do
+        expect(serialized_hash[:data][:attributes][:needs_verification]).to eq false
+      end
+    end
+  end
+
+  describe 'sent response' do
+    let(:template_type) { 'reminder_verification' }
+    let(:response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        email_sent: true,
+        template_type:
+      )
+    end
+
+    let(:serialized_data) do
+      described_class.new(response_data, sent: true)
+    end
+
+    let(:serialized_hash) { serialized_data.serializable_hash }
+
+    it 'includes correct type' do
+      expect(serialized_hash[:data][:type]).to eq :email_verification
+    end
+
+    it 'includes id field' do
+      expect(serialized_hash[:data][:id]).to be_present
+      expect(serialized_hash[:data][:id]).to eq response_data.id
+    end
+
+    it 'includes email_sent attribute' do
+      expect(serialized_hash[:data][:attributes][:email_sent]).to eq true
+    end
+
+    it 'includes template_type attribute' do
+      expect(serialized_hash[:data][:attributes][:template_type]).to eq template_type
+    end
+
+    it 'excludes other response type attributes' do
+      attributes = serialized_hash[:data][:attributes]
+      expect(attributes).not_to have_key(:needs_verification)
+      expect(attributes).not_to have_key(:verified)
+      expect(attributes).not_to have_key(:verified_at)
+    end
+
+    context 'with default template type' do
+      let(:response_data) do
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          email_sent: true,
+          template_type: 'initial_verification'
+        )
+      end
+
+      it 'uses initial_verification as default' do
+        expect(serialized_hash[:data][:attributes][:template_type]).to eq 'initial_verification'
+      end
+    end
+  end
+
+  describe 'verified response' do
+    let(:verification_time) { Time.zone.parse('2026-01-15T10:00:00Z') }
+    let(:response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        verified: true,
+        verified_at: verification_time
+      )
+    end
+
+    let(:serialized_data) do
+      described_class.new(response_data, verified: true)
+    end
+
+    let(:serialized_hash) { serialized_data.serializable_hash }
+
+    it 'includes correct type' do
+      expect(serialized_hash[:data][:type]).to eq :email_verification
+    end
+
+    it 'includes id field' do
+      expect(serialized_hash[:data][:id]).to be_present
+      expect(serialized_hash[:data][:id]).to eq response_data.id
+    end
+
+    it 'includes verified attribute' do
+      expect(serialized_hash[:data][:attributes][:verified]).to eq true
+    end
+
+    it 'includes verified_at attribute' do
+      expect(serialized_hash[:data][:attributes][:verified_at]).to eq verification_time
+    end
+
+    it 'excludes other response type attributes' do
+      attributes = serialized_hash[:data][:attributes]
+      expect(attributes).not_to have_key(:needs_verification)
+      expect(attributes).not_to have_key(:email_sent)
+      expect(attributes).not_to have_key(:template_type)
+    end
+
+    context 'with current time default' do
+      let(:response_data) do
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          verified: true,
+          verified_at: Time.current
+        )
+      end
+
+      it 'uses current time when no verified_at provided' do
+        expect(serialized_hash[:data][:attributes][:verified_at]).to be_within(1.second).of(Time.current)
+      end
+    end
+  end
+
+  describe 'invalid response type' do
+    let(:response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        needs_verification: true
+      )
+    end
+
+    let(:serialized_data) do
+      described_class.new(response_data)
+    end
+
+    let(:serialized_hash) { serialized_data.serializable_hash }
+
+    it 'includes id field' do
+      expect(serialized_hash[:data][:id]).to be_present
+    end
+
+    it 'excludes all conditional attributes when no flag is provided' do
+      attributes = serialized_hash[:data][:attributes]
+      expect(attributes).not_to have_key(:needs_verification)
+      expect(attributes).not_to have_key(:email_sent)
+      expect(attributes).not_to have_key(:template_type)
+      expect(attributes).not_to have_key(:verified)
+      expect(attributes).not_to have_key(:verified_at)
+    end
+  end
+end

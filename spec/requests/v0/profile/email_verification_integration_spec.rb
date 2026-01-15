@@ -16,7 +16,7 @@ RSpec.describe 'Email Verification API', type: :request do
       get('/v0/profile/email_verification/status', headers:)
 
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body['data']['type']).to eq('email_verification_status')
+      expect(response.parsed_body['data']['type']).to eq('email_verification')
       expect(response.parsed_body['data']['attributes']).to have_key('needs_verification')
     end
 

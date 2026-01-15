@@ -35,14 +35,14 @@ module V0
       # GET /v0/profile/email_verification/status
       # Check if email verification is needed
       def status
-        render json: {
-          data: {
-            type: 'email_verification_status',
-            attributes: {
-              needs_verification: needs_verification?
-            }
-          }
-        }
+        response_data = OpenStruct.new(
+          id: SecureRandom.uuid,
+          needs_verification: needs_verification?
+        )
+        render json: EmailVerificationSerializer.new(
+          response_data,
+          status: true
+        )
       end
 
       # POST /v0/profile/email_verification
@@ -177,28 +177,28 @@ module V0
       # Render success response for verification email sent
       def render_create_success
         template_type = params[:template_type]&.to_s || 'initial_verification'
-        render json: {
-          data: {
-            type: 'email_verification',
-            attributes: {
-              email_sent: true,
-              template_type:
-            }
-          }
-        }, status: :created
+        response_data = OpenStruct.new(
+          id: SecureRandom.uuid,
+          email_sent: true,
+          template_type:
+        )
+        render json: EmailVerificationSerializer.new(
+          response_data,
+          sent: true
+        ), status: :created
       end
 
       # Render success response for email verification
       def render_verify_success
-        render json: {
-          data: {
-            type: 'email_verification',
-            attributes: {
-              verified: true,
-              verified_at: Time.current.iso8601
-            }
-          }
-        }
+        response_data = OpenStruct.new(
+          id: SecureRandom.uuid,
+          verified: true,
+          verified_at: Time.current
+        )
+        render json: EmailVerificationSerializer.new(
+          response_data,
+          verified: true
+        )
       end
     end
   end
