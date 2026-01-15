@@ -491,7 +491,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
             # Find the toxic exposure log call
             toxic_exposure_call = logged_calls.find do |call|
-              call[:message].is_a?(String) && call[:message].include?('toxic exposure orphaned dates purged')
+              call[:message].is_a?(String) && call[:message].include?('toxic exposure data purged')
             end
 
             # Verify the call was made
@@ -506,12 +506,18 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(context[:submission_id]).to be > 0
             expect(context[:completely_removed]).to be(false)
             expect(context[:removed_keys]).to eq(['gulfWar2001'])
+            expect(context[:purge_reasons]).to be_a(Hash)
+            expect(context[:conditions_state]).to be_a(String)
+            expect(context[:orphaned_data_removed]).to be_in([true, false])
             expect(context[:tags]).to eq(['form_id:21-526EZ-ALLCLAIMS'])
 
             # Verify none of the values are filtered
             expect(context[:submission_id]).not_to eq('[FILTERED]')
             expect(context[:completely_removed]).not_to eq('[FILTERED]')
             expect(context[:removed_keys]).not_to eq('[FILTERED]')
+            expect(context[:purge_reasons]).not_to eq('[FILTERED]')
+            expect(context[:conditions_state]).not_to eq('[FILTERED]')
+            expect(context[:orphaned_data_removed]).not_to eq('[FILTERED]')
             expect(context[:tags]).not_to eq('[FILTERED]')
           end
         end

@@ -846,9 +846,10 @@ module IvcChampva
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))
+          elsif selector == 'PDI number'
+            # Main form keeps default form_id; all supporting docs get relabeled to "CVA Bene Response".
+            build_pdi_resubmission_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           else
-            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
-            # "CVA Bene Response"; supporting docs keep their original types.
             build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           end
         else
@@ -869,6 +870,20 @@ module IvcChampva
       end
 
       ##
+      # Builds the attachment_ids array for PDI number resubmissions.
+      # All documents (main form and supporting docs) are labeled "CVA Bene Response".
+      #
+      # @param [String] _form_id The mapped form ID (unused, all docs get same label)
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_pdi_resubmission_attachment_ids(_form_id, parsed_form_data, applicant_rounded_number)
+        supporting_doc_count = parsed_form_data['supporting_docs']&.count.to_i
+        total_doc_count = applicant_rounded_number + supporting_doc_count
+        Array.new(total_doc_count) { 'CVA Bene Response' }
+      end
+
+      ##
       # Add a blank page to the PDF with stamped metadata if the form allows it.
       #
       # This method checks if the form has a `stamp_metadata` method that returns a hash.
@@ -881,12 +896,15 @@ module IvcChampva
       def add_blank_doc_and_stamp(form, parsed_form_data)
         # Only triggers if the form in question has a method that returns values
         # we want to stamp.
-        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
-          blank_page_path = IvcChampva::Attachments.get_blank_page
+        if form.methods.include?(:stamp_metadata)
           stamps = form.stamp_metadata
-          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
-          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
-          add_supporting_doc(parsed_form_data, att)
+
+          if !stamps.nil? && stamps.is_a?(Hash)
+            blank_page_path = IvcChampva::Attachments.get_blank_page
+            IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+            att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
+            add_supporting_doc(parsed_form_data, att)
+          end
         end
       end
 
