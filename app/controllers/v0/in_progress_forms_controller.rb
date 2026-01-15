@@ -4,6 +4,8 @@ module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
     service_tag 'save-in-progress'
+    before_action(only: :show) { authorize :va_profile, :access_to_v2? }
+    before_action(only: :update) { authorize :va_profile, :access? }
 
     def index
       # the keys of metadata shouldn't be deeply transformed, which might corrupt some keys
