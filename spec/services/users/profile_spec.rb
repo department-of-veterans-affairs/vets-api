@@ -340,7 +340,7 @@ RSpec.describe Users::Profile do
             end
 
             it 'sets user_facility_migrating_to_oh to true' do
-              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
             end
           end
 
@@ -350,7 +350,7 @@ RSpec.describe Users::Profile do
             end
 
             it 'sets user_facility_migrating_to_oh to false' do
-              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
             end
           end
 
@@ -360,7 +360,7 @@ RSpec.describe Users::Profile do
             end
 
             it 'sets user_facility_migrating_to_oh to true' do
-              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
             end
           end
 
@@ -372,7 +372,7 @@ RSpec.describe Users::Profile do
             it 'correctly identifies all three flags' do
               expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
               expect(va_profile[:user_facility_ready_for_info_alert]).to be true
-              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
             end
           end
 
@@ -384,7 +384,7 @@ RSpec.describe Users::Profile do
             it 'sets all flags to false' do
               expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
               expect(va_profile[:user_facility_ready_for_info_alert]).to be false
-              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
             end
           end
 
@@ -396,7 +396,7 @@ RSpec.describe Users::Profile do
             it 'sets all OH facility flags to false' do
               expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
               expect(va_profile[:user_facility_ready_for_info_alert]).to be false
-              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
             end
           end
 
@@ -408,7 +408,7 @@ RSpec.describe Users::Profile do
             it 'only sets user_facility_migrating_to_oh to true' do
               expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
               expect(va_profile[:user_facility_ready_for_info_alert]).to be false
-              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
             end
           end
         end
@@ -908,30 +908,44 @@ RSpec.describe Users::Profile do
             .and_return('2026-03-03:[516,Columbus VA],[517,Toledo VA]')
         end
 
-        it 'includes oh_migration_info in mpi_profile' do
+        it 'includes oh_migration_info hash in mpi_profile' do
           expect(mpi_profile_result).to have_key(:oh_migration_info)
+          expect(mpi_profile_result[:oh_migration_info]).to be_a(Hash)
         end
 
-        it 'returns migration info for matching facilities' do
-          expect(mpi_profile_result[:oh_migration_info]).to be_an(Array)
-          expect(mpi_profile_result[:oh_migration_info].length).to eq(1)
+        it 'includes user_facility_migrating_to_oh in oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to have_key(:user_facility_migrating_to_oh)
+        end
+
+        it 'includes migration_schedules in oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to have_key(:migration_schedules)
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to be_an(Array)
+        end
+
+        it 'returns migration schedules for matching facilities' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.length).to eq(1)
         end
 
         it 'includes facilities matching user va_treatment_facility_ids' do
-          facility_ids = mpi_profile_result[:oh_migration_info].first[:facilities].map { |f| f[:id] }
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          facility_ids = schedules.first[:facilities].map { |f| f[:id] }
           expect(facility_ids).to contain_exactly('516', '517')
         end
 
         it 'includes migration_date in response' do
-          expect(mpi_profile_result[:oh_migration_info].first[:migration_date]).to eq('March 3, 2026')
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:migration_date]).to eq('March 3, 2026')
         end
 
         it 'includes migration_status in response' do
-          expect(mpi_profile_result[:oh_migration_info].first[:migration_status]).to be_present
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:migration_status]).to be_present
         end
 
         it 'includes phases in response' do
-          expect(mpi_profile_result[:oh_migration_info].first[:phases]).to be_a(Hash)
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:phases]).to be_a(Hash)
         end
       end
 
@@ -941,8 +955,8 @@ RSpec.describe Users::Profile do
             .and_return('2026-03-03:[999,Other VA]')
         end
 
-        it 'returns empty array for oh_migration_info' do
-          expect(mpi_profile_result[:oh_migration_info]).to eq([])
+        it 'returns empty array for migration_schedules' do
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to eq([])
         end
       end
 
@@ -951,12 +965,12 @@ RSpec.describe Users::Profile do
           allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(nil)
         end
 
-        it 'returns empty array for oh_migration_info' do
-          expect(mpi_profile_result[:oh_migration_info]).to eq([])
+        it 'returns empty array for migration_schedules' do
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to eq([])
         end
       end
 
-      # NOTE: Error handling for get_oh_migration_info is tested in
+      # NOTE: Error handling for get_migration_schedules is tested in
       # spec/lib/mhv/oh_facilities_helper/service_spec.rb
       # The service method rescues all errors and returns []
     end

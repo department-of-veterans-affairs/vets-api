@@ -61,10 +61,10 @@ module MHV
         end
       end
 
-      # Returns migration information for facilities the user is associated with.
+      # Returns migration schedule information for facilities the user is associated with.
       # Response includes migration dates, facilities, current phase, and migration status.
-      # @return [Array<Hash>] Array of migration info objects, empty array on error or no matches
-      def get_oh_migration_info
+      # @return [Array<Hash>] Array of migration schedule objects, empty array on error or no matches
+      def get_migration_schedules
         build_migration_response
       rescue => e
         Rails.logger.error(
