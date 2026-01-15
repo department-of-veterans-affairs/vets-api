@@ -57,9 +57,10 @@ Rails.application.reloader.to_prepare do
 
     # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
     added_flippers = []
+    existing_features = Flipper.features.to_set(&:name)
     begin
       FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
-        unless Flipper.exist?(feature)
+        unless feature.in?(existing_features)
           Flipper.add(feature)
           added_flippers.push(feature)
 
