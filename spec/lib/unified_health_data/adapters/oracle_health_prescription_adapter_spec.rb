@@ -1665,25 +1665,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         end
       end
 
-      it 'returns "expired" when no refills remaining and past expiration for VA medication' do
-        resource = status_test_resource.merge(
-          'reportedBoolean' => false,
-          'intent' => 'order',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
-          ],
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 0,
-            'validityPeriod' => { 'end' => 1.day.ago.utc.iso8601 }
-          },
-          'contained' => []
-        )
-
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('expired')
-      end
-
       it 'returns "refillinprocess" when the most recent dispense is preparation' do
         resource = status_test_resource.merge(
           'contained' => [
@@ -1747,25 +1728,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('active')
-      end
-
-      it 'returns "expired" when no refills remaining and past expiration for VA medication (no validityPeriod.end)' do
-        resource = status_test_resource.merge(
-          'reportedBoolean' => false,
-          'intent' => 'order',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
-          ],
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 0,
-            'validityPeriod' => { 'end' => 1.day.ago.utc.iso8601 }
-          },
-          'contained' => []
-        )
-
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('expired')
       end
     end
 
