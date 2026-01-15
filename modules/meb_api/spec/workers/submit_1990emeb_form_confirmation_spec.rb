@@ -7,10 +7,14 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
 
   let(:email) { 'test@example.com' }
   let(:first_name) { 'TEST' }
+  let(:user_icn) { '1234567890V123456' }
   let(:today) { Time.zone.today.strftime('%B %d, %Y') }
 
   before do
     allow(VANotify::EmailJob).to receive(:perform_async)
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(StatsD).to receive(:increment)
   end
 
   context 'when claim status is ELIGIBLE' do
@@ -22,7 +26,7 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
     it 'uses the approved template id' do
       travel_to Time.zone.local(2024, 1, 15) do
         expected_date = Time.zone.today.strftime('%B %d, %Y')
-        described_class.new.perform('ELIGIBLE', email, first_name)
+        described_class.new.perform('ELIGIBLE', email, first_name, user_icn)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
           email,
@@ -43,7 +47,7 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
     end
 
     it 'uses the denied template id' do
-      described_class.new.perform('DENIED', email, first_name)
+      described_class.new.perform('DENIED', email, first_name, user_icn)
 
       expect(VANotify::EmailJob).to have_received(:perform_async).with(
         email,
@@ -63,7 +67,7 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
     end
 
     it 'uses the offramp template id' do
-      described_class.new.perform('PENDING', email, first_name)
+      described_class.new.perform('PENDING', email, first_name, user_icn)
 
       expect(VANotify::EmailJob).to have_received(:perform_async).with(
         email,
@@ -83,10 +87,13 @@ describe MebApi::V0::Submit1990emebFormConfirmation, type: :worker do
       allow(VANotify::EmailJob).to receive(:perform_async).and_raise(error)
     end
 
-    it 'logs the error via Vets::SharedLogging' do
-      expect_any_instance_of(described_class).to receive(:log_exception_to_rails).with(error)
+    it 'logs the error and re-raises for Sidekiq retry' do
+      expect(Rails.logger).to receive(:error).with(
+        'MEB confirmation email enqueue failed',
+        hash_including(error_class: 'VANotify::Error')
+      )
 
-      described_class.new.perform('PENDING', email, first_name)
+      expect { described_class.new.perform('PENDING', email, first_name, user_icn) }.to raise_error(VANotify::Error)
     end
   end
 end

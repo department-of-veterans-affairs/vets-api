@@ -15,6 +15,10 @@ module MebApi
     class EducationBenefitsController < MebApi::V0::BaseController
       before_action :set_type, only: %i[claim_letter claim_status claimant_info eligibility]
 
+      FORM_TYPE = MebApi::ConfirmationEmailConfig::FORM_1990MEB
+      FORM_TAG = MebApi::ConfirmationEmailConfig::TAG_1990MEB
+      FLIPPER_KEY = :form1990meb_confirmation_email
+
       def claimant_info
         response = automation_service.get_claimant_info(@form_type)
 
@@ -94,13 +98,20 @@ module MebApi
       end
 
       def send_confirmation_email
-        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+        log_confirmation_email_request(FORM_TAG, FLIPPER_KEY)
 
-        status = params[:claim_status]
+        unless Flipper.enabled?(FLIPPER_KEY)
+          log_confirmation_email_skipped(FORM_TAG, 'flipper_disabled')
+          return
+        end
+
         email = params[:email] || @current_user.email
-        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+        if email.blank?
+          log_confirmation_email_skipped(FORM_TAG, 'email_missing', params[:claim_status])
+          return
+        end
 
-        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
+        dispatch_confirmation_email(email)
       end
 
       def submit_enrollment_verification
@@ -138,6 +149,16 @@ module MebApi
 
       def set_type
         @form_type = params['type']&.capitalize.presence || 'Chapter33'
+      end
+
+      def dispatch_confirmation_email(email)
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(
+          params[:claim_status],
+          email,
+          params[:first_name]&.upcase || @current_user.first_name&.upcase,
+          @current_user.icn
+        )
+        log_confirmation_email_dispatched(FORM_TAG, params[:claim_status])
       end
 
       def contact_info_service
