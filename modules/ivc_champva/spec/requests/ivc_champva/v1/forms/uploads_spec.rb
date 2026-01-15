@@ -590,6 +590,32 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe 'POST /ivc_champva/v1/forms' do
+    context 'when form_number parameter is missing' do
+      it 'returns 400 Bad Request with standard error envelope' do
+        # Make actual HTTP POST request without form_number parameter
+        post '/ivc_champva/v1/forms', params: {}
+
+        # Verify response status is 400 (not 500)
+        expect(response).to have_http_status(:bad_request)
+
+        # Verify error format matches VA.gov's standard error envelope
+        response_body = JSON.parse(response.body)
+        expect(response_body).to have_key('errors')
+        expect(response_body['errors']).to be_an(Array)
+        expect(response_body['errors'].size).to eq(1)
+
+        error = response_body['errors'].first
+        expect(error).to include(
+          'title' => 'Missing parameter',
+          'detail' => 'The required parameter "form_number", is missing',
+          'code' => '108',
+          'status' => '400'
+        )
+      end
+    end
+  end
+
   describe '#get_form_id' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
 
