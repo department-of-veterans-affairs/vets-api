@@ -117,25 +117,13 @@ module SurvivorsBenefits
       # @param form_data [Hash] The form data containing the signature
       # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
       def self.stamp_signature(pdf_path, form_data)
-        signature_text = form_data['claimantSignature'].presence ||
-                         [form_data.dig('claimantFullName', 'first'),
-                          form_data.dig('claimantFullName', 'last')].select(&:present?).join(' ')
+        signature_text = signature_text_for(form_data)
         return pdf_path if signature_text.blank?
 
         coordinates = signature_overlay_coordinates(pdf_path)
         return pdf_path unless coordinates
 
-        PDFUtilities::DatestampPdf.new(pdf_path).run(
-          text: signature_text,
-          x: coordinates[:x],
-          y: coordinates[:y],
-          page_number: coordinates[:page_number],
-          size: SIGNATURE_FONT_SIZE,
-          text_only: true,
-          timestamp: '',
-          template: pdf_path,
-          multistamp: true
-        )
+        stamp_pdf(pdf_path, signature_text, coordinates)
       rescue => e
         Rails.logger.error('SurvivorsBenefits 21P-534EZ: Error stamping signature',
                            error: e.message, backtrace: e.backtrace)
@@ -168,6 +156,29 @@ module SurvivorsBenefits
         Rails.logger.error('SurvivorsBenefits 21P-534EZ: Error deriving signature coordinates',
                            error: e.message, backtrace: e.backtrace)
         nil
+      end
+
+      def self.signature_text_for(form_data)
+        form_data['claimantSignature'].presence || claimant_full_name(form_data)
+      end
+
+      def self.claimant_full_name(form_data)
+        [form_data.dig('claimantFullName', 'first'),
+         form_data.dig('claimantFullName', 'last')].compact_blank.join(' ')
+      end
+
+      def self.stamp_pdf(pdf_path, signature_text, coordinates)
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: coordinates[:x],
+          y: coordinates[:y],
+          page_number: coordinates[:page_number],
+          size: SIGNATURE_FONT_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
       end
     end
   end
