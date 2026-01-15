@@ -98,6 +98,22 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
         end
       end
 
+      it 'tracks success metrics' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.appointments.topics.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:topics'))
+        ).and_call_original
+
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success',
+                           match_requests_on: %i[method uri]) do
+            get('/vass/v0/topics', headers:)
+          end
+        end
+      end
+
       it 'returns empty array when no agent skills available' do
         VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_empty',

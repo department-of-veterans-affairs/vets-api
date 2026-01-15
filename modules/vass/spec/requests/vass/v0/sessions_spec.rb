@@ -91,6 +91,23 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         end
       end
 
+      it 'tracks success metrics' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.request_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+        ).and_call_original
+
+        VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
+              post '/vass/v0/request-otc', params:, as: :json
+            end
+          end
+        end
+      end
+
       it 'stores OTP in Redis' do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
@@ -234,6 +251,17 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         expect(json_response['data']['token']).to be_present
         expect(json_response['data']['tokenType']).to eq('Bearer')
         expect(json_response['data']['expiresIn']).to eq(3600)
+      end
+
+      it 'tracks success metrics' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        ).and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
       end
 
       it 'deletes OTC after validation' do

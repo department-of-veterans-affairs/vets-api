@@ -109,6 +109,23 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           end
         end
 
+        it 'tracks success metrics' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.create.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:create'))
+          ).and_call_original
+
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
+              post('/vass/v0/appointment',
+                   params: appointment_params.to_json,
+                   headers:)
+            end
+          end
+        end
+
         it 'returns appointment ID in response' do
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
@@ -193,6 +210,21 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           expect(StatsD).to have_received(:increment).with(
             'api.vass.controller.appointments.create.failure',
             hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
+          ).at_least(:once)
+        end
+
+        it 'tracks failure metrics' do
+          allow(StatsD).to receive(:increment)
+
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
+
+          expect(response).to have_http_status(:bad_request)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.vass.controller.appointments.create.failure',
+            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error:missing_session_data'))
           ).at_least(:once)
         end
       end
