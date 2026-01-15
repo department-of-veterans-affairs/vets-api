@@ -156,6 +156,8 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
             first_name last_name birls_id icn edipi mhv_correlation_id
             participant_id vet360_id ssn assurance_level birth_date
           ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+          %w[message backtrace].each { |key| expect(pil.data['error'][key]).to be_truthy }
+          expect(pil.data['additional_data']['request']['body']).not_to be_empty
         end
       end
     end
