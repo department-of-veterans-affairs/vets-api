@@ -69,14 +69,17 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
 
       context 'validate alternate names' do
-        array_error_detail = 'The property /serviceInformation/alternateNames did not match the following requirements: ' \
-                             '{"description"=>"List any other names under which the Veteran served, if applicable.", ' \
+        array_error_detail = 'The property /serviceInformation/alternateNames ' \
+                             'did not match the following requirements: ' \
+                             '{"description"=>"List any other names under which ' \
+                             'the Veteran served, if applicable.", ' \
                              '"type"=>["array", "null"], "nullable"=>true, "minItems"=>1, "maxItems"=>100, ' \
                              '"uniqueItems"=>true, "items"=>{"type"=>"string", ' \
                              '"pattern"=>"^([-a-zA-Z0-9/\']+( ?))+$", "additionalProperties"=>false, ' \
                              '"examples"=>["jane", "janey lee", "jane lee MacDonald"]}}'
 
-        regex_error_detail = 'The property /serviceInformation/alternateNames/0 did not match the following requirements: ' \
+        regex_error_detail = 'The property /serviceInformation/alternateNames/0 ' \
+                             'did not match the following requirements: ' \
                              '{"type"=>"string", "pattern"=>"^([-a-zA-Z0-9/\']+( ?))+$", ' \
                              '"additionalProperties"=>false, ' \
                              '"examples"=>["jane", "janey lee", "jane lee MacDonald"]}'
