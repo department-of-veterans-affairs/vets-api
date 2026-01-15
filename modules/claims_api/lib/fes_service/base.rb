@@ -3,7 +3,7 @@
 require 'claims_api/claim_logger'
 require 'common/client/errors'
 require 'custom_error'
-require 'claims_api/v2/benefits_documents/service'
+require 'claims_api/v2/form526_establishment_service/service'
 
 module ClaimsApi
   module FesService
@@ -87,9 +87,7 @@ module ClaimsApi
       def access_token
         return 'fake_token' if @use_mock
 
-        # Following BD service pattern - use BenefitsDocuments service for auth
-        # Per Greg Bell: "You may try using the same client id/secret as BDS for now"
-        @fes_auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
+        @fes_auth_token ||= ClaimsApi::V2::Form526EstablishmentService::Service.new.get_auth_token
         raise StandardError, 'FES auth token missing' if @fes_auth_token.blank?
 
         @fes_auth_token
