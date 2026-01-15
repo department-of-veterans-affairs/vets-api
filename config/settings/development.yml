@@ -91,6 +91,9 @@ binaries:
 bing:
   key: ~
 bio:
+  increase_compensation:
+    bucket: ~
+    region: ~
   medical_expense_reports:
     bucket: ~
     region: ~
@@ -408,6 +411,13 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+  staging_sco_email:
+    emails:
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - jeffrey.marks@govcio.com
+      - taras.kurilo@va.gov
+      - nawar.hussein@va.gov
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
@@ -736,6 +746,7 @@ lighthouse:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/fake1tcityDg93hgKkd#/v1/token
       client_id: fake_client_id
+      kid: ''
       rsa_key: path/to/fake/pem
     host: https://test-api.va.gov
     scopes:
@@ -1273,10 +1284,6 @@ search_gsa:
   affiliate: va
   mock_search: false
   url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
-search_typeahead:
-  api_key: API_GOV_ACCESS_KEY
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: c1a13acb916e6ebf1d2a93a3924586520508b609e80e048364902cd36ab602c9ec6ddcb47ac66e7903dbc77ae876df5564658a4f786b50497440b0c7dc029361
 sentry:
   dsn: ~
@@ -1452,6 +1459,24 @@ vanotify:
         submitted686c_only:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: form686c_only_submitted_email_template_id
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: ~
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: ~
+        error:
+          flipper_id: increase_compensation_error_email_notification
+          template_id: form21-8940_error_email_template_id
+        persistent_attachment_error:
+          flipper_id: increase_compensation_persistent_attachment_error_email_notification
+          template_id: form21-8940_persistent_attachment_error_email_template_id
+        received:
+          flipper_id: increase_compensation_received_email_notification
+          template_id: form21-8940_received_email_template_id
+        submitted:
+          flipper_id: increase_compensation_submitted_email_notification
+          template_id: form21-8940_submitted_email_template_id
     21p_0969: &vanotify_services_income_and_assets
       api_key: fake_secret
       email:
@@ -1620,6 +1645,7 @@ vanotify:
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     income_and_assets: *vanotify_services_income_and_assets
+    increase_compensation: *vanotify_services_increase_compensation
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7

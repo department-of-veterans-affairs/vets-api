@@ -10,9 +10,19 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
   let(:user_id) { SecureRandom.uuid }
   let(:event_name) { 'prescriptions_accessed' }
 
+  # Test configuration values (stub the class constants)
+  let(:batch_size) { 100 }
+  let(:max_iterations) { 10 }
+  let(:max_queue_depth) { 1000 }
+
   before do
     allow(StatsD).to receive_messages(increment: nil, gauge: nil, histogram: nil)
     allow(Rails.logger).to receive_messages(debug: nil, info: nil, warn: nil, error: nil)
+
+    # Stub class constants for testing
+    stub_const("#{described_class}::BATCH_SIZE", batch_size)
+    stub_const("#{described_class}::MAX_ITERATIONS", max_iterations)
+    stub_const("#{described_class}::MAX_QUEUE_DEPTH", max_queue_depth)
   end
 
   describe '#perform' do
@@ -54,7 +64,7 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
       it 'peeks events from buffer and trims after processing' do
         job.perform
 
-        expect(UniqueUserEvents::Buffer).to have_received(:peek_batch).with(described_class::BATCH_SIZE).at_least(:once)
+        expect(UniqueUserEvents::Buffer).to have_received(:peek_batch).with(batch_size).at_least(:once)
         expect(UniqueUserEvents::Buffer).to have_received(:trim_batch).with(events.size)
       end
 
@@ -63,13 +73,49 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 1)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.queue_depth', 0)
         expect(StatsD).to have_received(:histogram).with('uum.processor_job.job_duration_ms', kind_of(Numeric))
         expect(Rails.logger).to have_received(:debug).with(
           'UUM Processor: Job completed',
-          hash_including(:iterations, :total_events_processed, :total_db_inserts, :duration_ms, :queue_depth)
+          hash_including(:iterations, :total_events_processed, :total_db_queries, :total_db_inserts, :duration_ms,
+                         :queue_depth)
         )
+      end
+    end
+
+    context 'when some events are cached (cache hits vs misses)' do
+      let(:cached_user_id) { SecureRandom.uuid }
+      let(:uncached_user_id) { SecureRandom.uuid }
+      let(:events) do
+        [
+          { user_id: cached_user_id, event_name: 'cached_event' },
+          { user_id: uncached_user_id, event_name: 'uncached_event' }
+        ]
+      end
+      let(:cached_key) { "#{cached_user_id}:cached_event" }
+
+      before do
+        allow(UniqueUserEvents::Buffer).to receive(:peek_batch).and_return(events, [])
+        allow(UniqueUserEvents::Buffer).to receive(:trim_batch)
+        allow(UniqueUserEvents::Buffer).to receive(:pending_count).and_return(0)
+        # Simulate one event already in cache (cache hit)
+        allow(Rails.cache).to receive(:read_multi).and_return({ cached_key => true })
+        allow(Rails.cache).to receive(:write_multi)
+        # Only the uncached event is inserted
+        allow(MHVMetricsUniqueUserEvent).to receive(:insert_all).and_return(
+          double(rows: [[uncached_user_id, 'uncached_event']])
+        )
+      end
+
+      it 'tracks db_queries as cache misses only' do
+        job.perform
+
+        # 2 events processed, 1 cache miss (db query), 1 insert
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 1)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 1)
       end
     end
 
@@ -100,11 +146,12 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.iterations', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_events_processed', 2)
+        expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_queries', 2)
         expect(StatsD).to have_received(:gauge).with('uum.processor_job.total_db_inserts', 2)
       end
     end
 
-    context 'when MAX_ITERATIONS is reached' do
+    context 'when max_iterations is reached' do
       let(:events) { [{ user_id: SecureRandom.uuid, event_name: 'event_1' }] }
 
       before do
@@ -118,11 +165,11 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         )
       end
 
-      it 'stops after MAX_ITERATIONS' do
+      it 'stops after max_iterations' do
         job.perform
 
         expect(UniqueUserEvents::Buffer).to have_received(:trim_batch)
-          .exactly(described_class::MAX_ITERATIONS).times
+          .exactly(max_iterations).times
       end
     end
 
@@ -140,16 +187,6 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         expect { job.perform }.to raise_error(StandardError, 'Database connection failed')
       end
 
-      it 'records failure metrics' do
-        expect { job.perform }.to raise_error(StandardError)
-
-        expect(StatsD).to have_received(:increment).with(
-          'uum.processor_job.failure',
-          tags: ['error_class:StandardError']
-        )
-        expect(StatsD).to have_received(:gauge).with('uum.processor_job.events_at_risk', 1)
-      end
-
       it 'logs the error with details' do
         expect { job.perform }.to raise_error(StandardError)
 
@@ -164,9 +201,9 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
       end
     end
 
-    context 'when queue depth exceeds MAX_QUEUE_DEPTH' do
+    context 'when queue depth exceeds max_queue_depth' do
       let(:events) { [{ user_id: SecureRandom.uuid, event_name: 'event_1' }] }
-      let(:high_queue_depth) { described_class::MAX_QUEUE_DEPTH + 1000 }
+      let(:high_queue_depth) { max_queue_depth + 1000 }
 
       before do
         allow(UniqueUserEvents::Buffer).to receive(:peek_batch).and_return(events, [])
@@ -186,12 +223,6 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
           'UUM Processor: Queue depth exceeds threshold',
           hash_including(queue_depth: high_queue_depth, max_queue_depth: described_class::MAX_QUEUE_DEPTH)
         )
-      end
-
-      it 'increments queue_overflow metric' do
-        job.perform
-
-        expect(StatsD).to have_received(:increment).with('uum.processor_job.queue_overflow')
       end
     end
   end

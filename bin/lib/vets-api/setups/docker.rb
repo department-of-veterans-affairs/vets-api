@@ -12,6 +12,7 @@ module VetsApi
         configuring_clamav_antivirus
         docker_build
         setup_db
+        setup_features
         setup_parallel_spec
         puts "\nDocker Setup Complete!"
       end
@@ -51,6 +52,12 @@ module VetsApi
         puts 'Setting up database...'
         execute_docker_command('bundle exec rails db:prepare')
         puts 'Setting up database...Done'
+      end
+
+      def setup_features
+        puts 'Setting up Flipper features...'
+        execute_docker_command('bundle exec rake features:setup')
+        puts 'Setting up Flipper features...Done'
       end
 
       def setup_parallel_spec
