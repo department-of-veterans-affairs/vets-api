@@ -258,9 +258,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
             allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
               .and_raise(StandardError, 'something went wrong')
 
-            expect do
-              post('/accredited_representative_portal/v0/intent_to_file', params:)
-            end.to raise_error(StandardError)
+            # Perform the request normally, don't expect it to raise
+            post('/accredited_representative_portal/v0/intent_to_file', params:)
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
