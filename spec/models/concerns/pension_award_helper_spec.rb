@@ -136,7 +136,7 @@ RSpec.describe PensionAwardHelper, type: :model do
       end
 
       it 'returns non-pension status when user has non-IP award line type' do
-        mock_response_body['Award']['AwardEventList']['awardEvents'][0]['awardLineList']['awardLines'][0]['awardLineType'] = 'COMP'
+        mock_response_body['Award']['AwardEventList']['awardEvents'][0]['awardLineList']['awardLines'][0]['awardLineType'] = 'COMP' # rubocop:disable Layout/LineLength
         mock_response = OpenStruct.new(body: mock_response_body)
         allow(mock_service).to receive(:get_current_awards).and_return(mock_response)
 
