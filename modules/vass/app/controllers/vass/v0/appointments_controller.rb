@@ -10,6 +10,7 @@ module Vass
     #
     class AppointmentsController < Vass::ApplicationController
       include Vass::JwtAuthentication
+      include Vass::MetricsTracking
 
       before_action :authenticate_jwt
       before_action :set_appointments_service
@@ -33,6 +34,10 @@ module Vass
         end
 
         render_availability_result(result)
+        track_success(APPOINTMENTS_AVAILABILITY)
+      rescue => e
+        track_failure(APPOINTMENTS_AVAILABILITY, error: e)
+        raise
       end
 
       ##
@@ -58,6 +63,10 @@ module Vass
         agent_skills = response.dig('data', 'agent_skills') || []
         topics = map_agent_skills_to_topics(agent_skills)
         render_camelized_json({ data: { topics: } })
+        track_success(APPOINTMENTS_TOPICS)
+      rescue => e
+        track_failure(APPOINTMENTS_TOPICS, error: e)
+        raise
       end
 
       ##
@@ -93,6 +102,10 @@ module Vass
           error_message: 'Appointment not found',
           error_status: :not_found
         )
+        track_success(APPOINTMENTS_SHOW)
+      rescue => e
+        track_failure(APPOINTMENTS_SHOW, error: e)
+        raise
       end
 
       ##
@@ -120,6 +133,10 @@ module Vass
           error_message: 'Failed to cancel appointment',
           error_status: :unprocessable_entity
         )
+        track_success(APPOINTMENTS_CANCEL)
+      rescue => e
+        track_failure(APPOINTMENTS_CANCEL, error: e)
+        raise
       end
 
       ##
@@ -146,7 +163,7 @@ module Vass
         validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
 
         appointment_id = retrieve_appointment_id_from_session
-        return unless appointment_id
+        return handle_missing_appointment_id unless appointment_id
 
         response = save_appointment_with_service(appointment_id)
         render_vass_response(
@@ -156,6 +173,10 @@ module Vass
           error_message: 'Failed to save appointment',
           error_status: :unprocessable_entity
         )
+        track_success(APPOINTMENTS_CREATE)
+      rescue => e
+        track_failure(APPOINTMENTS_CREATE, error: e)
+        raise
       end
 
       private
@@ -180,6 +201,14 @@ module Vass
         end
 
         appointment_id
+      end
+
+      ##
+      # Handles the missing appointment_id scenario by tracking failure metrics.
+      #
+      def handle_missing_appointment_id
+        error_obj = StandardError.new('missing_session_data')
+        track_failure(APPOINTMENTS_CREATE, error: error_obj, additional_tags: { error: 'missing_session_data' })
       end
 
       ##
