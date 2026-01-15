@@ -716,7 +716,6 @@ config/form_profile_mappings/22-5490.yml @department-of-veterans-affairs/govcio-
 config/form_profile_mappings/22-5495.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/26-1880.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/26-4555.yml @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/28-1900-V2.yml @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/28-1900.yml @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/28-8832.yml @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/40-10007.yml @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
