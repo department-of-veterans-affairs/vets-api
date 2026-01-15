@@ -289,9 +289,12 @@ RSpec.describe Users::Profile do
 
         context 'Oracle Health facility checks' do
           before do
-            allow(Settings.mhv.oh_facility_checks).to receive_messages(pretransitioned_oh_facilities: '612, 357, 555',
-                                                                       facilities_ready_for_info_alert: '555, 500',
-                                                                       facilities_migrating_to_oh: '321, 654, 777')
+            allow(Settings.mhv.oh_facility_checks).to receive_messages(
+              pretransitioned_oh_facilities: '612, 357, 555',
+              facilities_ready_for_info_alert: '555, 500',
+              facilities_migrating_to_oh: '321, 654, 777',
+              oh_migrations_list: '2026-03-03:[321,Test VA],[654,Another VA],[777,Third VA]'
+            )
           end
 
           context 'when user has pre-transitioned OH facility' do
