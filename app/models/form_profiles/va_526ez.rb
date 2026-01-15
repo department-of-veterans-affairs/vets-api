@@ -73,6 +73,7 @@ module VA526ez
 
     attribute :started_form_version, String
     attribute :sync_modern_0781_flow, Bool
+    attribute :disability_comp_new_conditions_workflow, Bool
   end
 end
 
@@ -167,7 +168,8 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
       started_form_version: '2022',
-      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
+      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user),
+      disability_comp_new_conditions_workflow: Flipper.enabled?(:disability_compensation_new_conditions_workflow, user)
     )
   end
 
