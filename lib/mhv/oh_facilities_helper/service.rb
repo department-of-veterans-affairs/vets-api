@@ -21,20 +21,20 @@ module MHV
 
       # Phase boundaries are INCLUSIVE - day -45 is the START of p1
       PHASES = {
-        p0: -60, # Day -60: 60 days before migration
-        p1: -45, # Day -45: 45 days before migration
-        p2: -30, # Day -30: 30 days before migration
-        p3: -5,  # Day -5: 5 days before migration
-        p4: -2,  # Day -2: 2 days before migration
-        p5: 0,   # Day 0: Migration day
-        p6: 2,   # Day 2: 2 days after migration
-        p7: 7    # Day 7: 7 days after migration
+        p0: -60,
+        p1: -45,
+        p2: -30,
+        p3: -6,
+        p4: -3,
+        p5: 0,
+        p6: 2,
+        p7: 7
       }.freeze
 
       MIGRATION_STATUS = {
-        not_started: 'NOT_STARTED', # Before p0 (>60 days before migration)
-        active: 'ACTIVE',           # Between p0 and p7 (inclusive)
-        complete: 'COMPLETE'        # After p7 (>7 days after migration)
+        not_started: 'NOT_STARTED', # Before p0
+        active: 'ACTIVE',           # Between p0 and pN (inclusive)
+        complete: 'COMPLETE'        # After pN
       }.freeze
 
       def user_at_pretransitioned_oh_facility?
