@@ -125,7 +125,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Authentication Error',
                   detail: 'Unable to authenticate request',
-                  code: '401'
+                  code: 'authentication_error'
                 )
               )
             )
@@ -168,8 +168,8 @@ RSpec.describe Vass::ApplicationController, type: :controller do
               errors: array_including(
                 hash_including(
                   title: 'Not Found',
-                  detail: 'The requested resource was not found',
-                  code: '404'
+                  detail: 'Appointment not found',
+                  code: 'appointment_not_found'
                 )
               )
             )
@@ -199,7 +199,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Validation Error',
                   detail: 'The request failed validation',
-                  code: '422'
+                  code: 'validation_error'
                 )
               )
             )
@@ -229,7 +229,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Service Error',
                   detail: 'The service is temporarily unavailable',
-                  code: '503'
+                  code: 'service_error'
                 )
               )
             )
@@ -259,7 +259,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'VASS API Error',
                   detail: 'Unable to process request with appointment service',
-                  code: '502'
+                  code: 'vass_api_error'
                 )
               )
             )
@@ -289,7 +289,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Cache Error',
                   detail: 'The caching service is temporarily unavailable',
-                  code: '503'
+                  code: 'redis_error'
                 )
               )
             )
@@ -319,7 +319,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Rate Limit Exceeded',
                   detail: 'Too many requests. Please try again later',
-                  code: '429'
+                  code: 'rate_limit_error'
                 )
               )
             )
@@ -421,7 +421,7 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                 hash_including(
                   title: 'Notification Service Error',
                   detail: 'Unable to send notification. Please try again later',
-                  code: '502'
+                  code: 'notification_error'
                 )
               )
             )

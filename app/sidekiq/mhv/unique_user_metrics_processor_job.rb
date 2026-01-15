@@ -183,8 +183,9 @@ module MHV
       # Step 3: Bulk insert to database (uncached_events = cache misses = db queries)
       inserted_events = bulk_insert_events(uncached_events)
 
-      # Step 4: Update cache for inserted events
-      cache_inserted_events(inserted_events)
+      # Step 4: Cache ALL events sent to DB
+      # This prevents repeated DB lookups when cache expires but record exists
+      cache_events(uncached_events)
 
       # Step 5: Increment StatsD for new events
       increment_statsd_counters(inserted_events)
@@ -201,7 +202,7 @@ module MHV
       events.uniq { |event| [event[:user_id], event[:event_name]] }
     end
 
-    # Filter out events that are already in the Redis cache
+    # Filter out events that are already in the Redis cache and refresh their TTL
     #
     # @param events [Array<Hash>] Unique events to check
     # @return [Array<Hash>] Events not found in cache
@@ -213,6 +214,9 @@ module MHV
 
       # Batch read from cache
       cached_results = Rails.cache.read_multi(*cache_keys, namespace: CACHE_NAMESPACE)
+
+      # Refresh TTL for cached events (keeps active users in cache longer)
+      Rails.cache.write_multi(cached_results, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL) if cached_results.any?
 
       # Filter out events that are cached
       events.reject.with_index do |_event, index|
@@ -251,10 +255,10 @@ module MHV
       end
     end
 
-    # Cache inserted events using write_multi
+    # Cache events using write_multi
     #
-    # @param events [Array<Hash>] Events that were inserted
-    def cache_inserted_events(events)
+    # @param events [Array<Hash>] Events to cache
+    def cache_events(events)
       return if events.empty?
 
       # Build hash for write_multi: { cache_key => true }

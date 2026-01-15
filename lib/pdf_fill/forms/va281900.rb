@@ -11,44 +11,44 @@ module PdfFill
         'veteranInformation' => {
           'fullName' => {
             'first' => {
-              key: 'VBA281900[0].#subform[0].Claimants_First_Name[0]',
+              key: 'form1[0].#subform[0].FirstName[0]',
               limit: 12,
               question_num: 1,
               question_suffix: 'A',
-              question_text: 'NAME OF CLAIMANT'
+              question_text: "CLAIMANT'S NAME"
             },
             'middleInitial' => {
-              key: 'VBA281900[0].#subform[0].Middle_Initial1[0]',
+              key: 'form1[0].#subform[0].MiddleInitial[0]',
               limit: 1,
               question_num: 1,
               question_suffix: 'B',
-              question_text: 'NAME OF CLAIMANT'
+              question_text: "CLAIMANT'S NAME"
             },
             'last' => {
-              key: 'VBA281900[0].#subform[0].Last_Name[0]',
+              key: 'form1[0].#subform[0].LastName[0]',
               limit: 18,
               question_num: 1,
               question_suffix: 'C',
-              question_text: 'NAME OF CLAIMANT'
+              question_text: "CLAIMANT'S NAME"
             }
           }, # end fullName
           'ssn' => {
             'first' => {
-              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_FirstThreeNumbers[0]',
+              key: 'form1[0].#subform[0].FirstThreeNumbers[0]',
               limit: 3,
               question_num: 2,
               question_suffix: 'A',
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'second' => {
-              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_SecondTwoNumbers[0]',
+              key: 'form1[0].#subform[0].SecondTwoNumbers[0]',
               limit: 2,
               question_num: 2,
               question_suffix: 'B',
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'third' => {
-              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_LastFourNumbers[0]',
+              key: 'form1[0].#subform[0].LastFourNumbers[0]',
               limit: 4,
               question_num: 2,
               question_suffix: 'C',
@@ -56,7 +56,7 @@ module PdfFill
             }
           },
           'VAFileNumber' => {
-            key: 'VBA281900[0].#subform[0].VA_File_Number[0]',
+            key: 'form1[0].#subform[0].VA_File_Number[0]',
             limit: 9,
             question_num: 3,
             question_suffix: 'A',
@@ -64,21 +64,21 @@ module PdfFill
           },
           'dob' => {
             'month' => {
-              key: 'VBA281900[0].#subform[0].DOB_Month[0]',
+              key: 'form1[0].#subform[0].DOBMonth[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'A',
               question_text: 'DATE OF BIRTH'
             },
             'day' => {
-              key: 'VBA281900[0].#subform[0].DOB_Day[0]',
+              key: 'form1[0].#subform[0].DOBDay[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'B',
               question_text: 'DATE OF BIRTH'
             },
             'year' => {
-              key: 'VBA281900[0].#subform[0].DOB_Year[0]',
+              key: 'form1[0].#subform[0].DOBYear[0]',
               limit: 4,
               question_num: 4,
               question_suffix: 'C',
@@ -87,144 +87,174 @@ module PdfFill
           }
         }, # end veteran_information
         'veteranAddress' => {
-          'addressLine1' => {
-            key: 'VBA281900[0].#subform[0].Mailing_Address1[0]',
-            limit: 30,
-            question_num: 5,
-            question_suffix: 'A',
-            question_text: 'MAILING ADDRESS'
+          question_num: 5,
+          question_text: 'MAILING ADDRESS',
+
+          'street' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30
           },
-          'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Mailing_Address1[1]',
-            limit: 30,
-            question_num: 5,
-            question_suffix: 'B',
-            question_text: 'MAILING ADDRESS'
+          'unitNumber' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5
           },
-          'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Mailing_Address1[2]',
-            limit: 30,
-            question_num: 5,
-            question_suffix: 'C',
-            question_text: 'MAILING ADDRESS'
+          'city' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_City[0]',
+            limit: 18
+          },
+          'state' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_StateOrProvince[0]',
+            limit: 2
+          },
+          'country' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_Country[0]',
+            limit: 2
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+              limit: 5
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+              limit: 4
+            }
           }
         }, # end veteran_address
         'mainPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
+            key: 'form1[0].#subform[0].AreaCode[0]',
             limit: 3,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
+            key: 'form1[0].#subform[0].FirstThreeNumbers[1]',
             limit: 3,
             question_num: 6,
             question_suffix: 'B',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
+            key: 'form1[0].#subform[0].LastFourNumbers[1]',
             limit: 4,
             question_num: 6,
             question_suffix: 'C',
             question_text: 'MAIN TELEPHONE NUMBER'
           }
-        },
-        'email' => {
-          key: 'VBA281900[0].#subform[0].Email_Address[0]',
-          limit: 30,
-          question_num: 7,
-          question_suffix: 'A',
-          question_text: 'E-MAIL ADDRESS OF CLAIMANT'
         },
         'cellPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_AreaCode[0]',
+            key: 'form1[0].#subform[0].AreaCode[1]',
             limit: 3,
-            question_num: 8,
+            question_num: 7,
             question_suffix: 'A',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_FirstThreeNumbers[0]',
+            key: 'form1[0].#subform[0].FirstThreeNumbers[2]',
             limit: 3,
-            question_num: 8,
+            question_num: 7,
             question_suffix: 'B',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].Cell_PhoneNumber_LastFourNumbers[0]',
+            key: 'form1[0].#subform[0].LastFourNumbers[2]',
             limit: 4,
-            question_num: 8,
+            question_num: 7,
             question_suffix: 'C',
             question_text: 'CELL PHONE NUMBER'
           }
         },
+        'email' => {
+          key: 'form1[0].#subform[0].Email_Address[0]',
+          limit: 30,
+          question_num: 8,
+          question_suffix: 'A',
+          question_text: 'E-MAIL ADDRESS OF CLAIMANT'
+        },
         'newAddress' => {
-          'addressLine1' => {
-            key: 'VBA281900[0].#subform[0].Address1[0]',
+          question_num: 9,
+          question_text: 'IF YOU ARE MOVING WITHIN THE NEXT 30 DAYS, PROVIDE YOUR NEW ADDRESS BELOW.',
+
+          'street' => {
+            key: 'form1[0].#subform[0].NewAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 9,
-            question_suffix: 'A',
-            question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
+            question_suffix: 'A'
           },
-          'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Address1[1]',
-            limit: 30,
+          'unitNumber' => {
+            key: 'form1[0].#subform[0].NewAddress_ApartmentOrUnitNumber[0]',
+            limit: 5,
             question_num: 9,
-            question_suffix: 'B',
-            question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
+            question_suffix: 'B'
           },
-          'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Address1[2]',
-            limit: 30,
+          'city' => {
+            key: 'form1[0].#subform[0].NewAddress_City[0]',
+            limit: 18,
             question_num: 9,
-            question_suffix: 'C',
-            question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
+            question_suffix: 'C'
+          },
+          'state' => {
+            key: 'form1[0].#subform[0].NewAddress_StateOrProvince[0]',
+            limit: 2,
+            question_num: 9,
+            question_suffix: 'D'
+          },
+          'country' => {
+            key: 'form1[0].#subform[0].NewAddress_Country[0]',
+            limit: 2,
+            question_num: 9,
+            question_suffix: 'E'
+          },
+          'postalCode' => {
+            question_num: 9,
+            question_suffix: 'F',
+
+            'firstFive' => {
+              key: 'form1[0].#subform[0].NewAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+              limit: 5
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[0].NewAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+              limit: 4
+            }
           }
         }, # end new_address
         'yearsOfEducation' => {
-          key: 'VBA281900[0].#subform[0].Number_Of_Years_Of_Education[0]',
+          key: 'form1[0].#subform[0].Number_Of_Years_Of_Education[0]',
           limit: 2,
           question_num: 10,
           question_suffix: 'A',
           question_text: 'NUMBER OF YEARS OF EDUCATION'
         },
-        'signature' => {
-          key: 'SignatureField'
+        'privacyAgreementAccepted' => {
+          key: 'form1[0].#subform[1].IfIDontGiveMyInfo[0]'
         },
-        'date_signed' => {
+        'signature' => {
+          key: 'form1[0].#subform[1].SignatureField11[0]'
+        },
+        'signatureDate' => {
           'month' => {
-            key: 'VBA281900[0].#subform[0].Date_Signed_Month[0]'
+            key: 'form1[0].#subform[1].DateSigned_Month[0]'
           },
           'day' => {
-            key: 'VBA281900[0].#subform[0].Date_Signed_Day[0]'
+            key: 'form1[0].#subform[1].DateSigned_Day[0]'
           },
           'year' => {
-            key: 'VBA281900[0].#subform[0].Date_Signed_Year[0]'
+            key: 'form1[0].#subform[1].DateSigned_Year[0]'
           }
-        }, # end date_signed
-        'useEva' => {
-          key: 'useEva'
-        },
-        'useTelecounseling' => {
-          key: 'useTelecounseling'
-        },
-        'appointmentTimePreferences' => {
-          key: 'appointmentTimePreferences'
-        }
+        } # end date_signed
       }.freeze
 
-      def merge_fields(options = {})
+      def merge_fields(_options = {})
         merge_veteran_helpers
         merge_address_helpers
-        merge_preferences_helpers
 
-        created_at = options[:created_at] if options[:created_at].present?
-        expand_signature(@form_data['veteranInformation']['fullName'], created_at&.to_date || Time.zone.today)
-        @form_data['date_signed'] = split_date(@form_data['signatureDate'])
+        expand_signature(@form_data['veteranInformation']['fullName'], @form_data['signatureDate'] || Time.zone.today)
+        @form_data['signatureDate'] = split_date(@form_data['signatureDate'])
+        @form_data['privacyAgreementAccepted'] = select_checkbox(@form_data['privacyAgreementAccepted'])
 
         @form_data
       end
@@ -242,6 +272,7 @@ module PdfFill
           va_file_number = veteran_information['VAFileNumber']
 
           veteran_information['VAFileNumber'] = '' if ssn == va_file_number
+          @form_data['veteranInformation']['VAFileNumber'] = veteran_information['VAFileNumber']
         end
 
         # extract birth date
@@ -264,35 +295,19 @@ module PdfFill
       end
 
       def merge_address_helpers
-        format_address(@form_data['veteranAddress'])
+        veteran_address = @form_data.key?('veteranAddress') ? @form_data['veteranAddress'] : {}
+        format_address(veteran_address) unless veteran_address.empty?
         format_address(@form_data['newAddress']) if @form_data['isMoving']
       end
 
       def format_address(address)
-        street2 = address['street2'] || ''
-        street3 = address['street3'] || ''
-        state = address['state'] || ''
+        address['country'] = extract_country(address)
 
-        address['addressLine1'] = "#{address['street']} #{street2} #{street3}"
-        address['addressLine2'] = "#{address['city']} #{state} #{address['postalCode']}"
-        address['addressLine3'] = address['country']
-      end
-
-      def merge_preferences_helpers
-        @form_data['useEva'] = @form_data['useEva'] ? 'Yes' : 'No'
-        @form_data['useTelecounseling'] = @form_data['useTelecounseling'] ? 'Yes' : 'No'
-        @form_data['appointmentTimePreferences'] = set_appointment_time_preferences
-      end
-
-      def set_appointment_time_preferences
-        times = @form_data['appointmentTimePreferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
-        counseling_hours = {
-          'morning' => "Mornings 6:00 to 10:00 a.m.\n",
-          'midday' => "Midday 10:00 a.m. to 2:00 p.m.\n",
-          'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
+        zip_code = split_postal_code(address)
+        address['postalCode'] = {
+          'firstFive' => zip_code['firstFive'],
+          'lastFour' => zip_code['lastFour']
         }
-
-        times.map { |time| counseling_hours[time] }.join
       end
     end
   end

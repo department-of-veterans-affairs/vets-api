@@ -371,8 +371,4 @@ module Vass
       end
     end
   end
-
-  # Mirrors the middleware-defined VASS exception so callers can rely on
-  # BackendServiceException fields (e.g., original_status, original_body).
-  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
 end

@@ -24,6 +24,8 @@ module MyHealth
       end
 
       def renewable(item)
+        return item.is_renewable if item.respond_to?(:is_renewable) && !item.is_renewable.nil?
+
         # UHD prescriptions have disp_status attribute
         return false unless item.respond_to?(:disp_status)
 
@@ -46,7 +48,9 @@ module MyHealth
           return true if disp_status&.downcase == 'active: parked' && has_dispenses
         end
 
-        if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
+        # NOTE: When V2StatusMapping is enabled, "Expired" is mapped to "Inactive"
+        expired_or_inactive = %w[Expired Inactive].include?(disp_status)
+        if expired_or_inactive && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
           return true
         end
 
@@ -59,10 +63,6 @@ module MyHealth
         zero_date = Date.new(0, 1, 1)
         date.present? && date != zero_date && date >= Time.zone.today - 120.days
       end
-
-      module_function :collection_resource,
-                      :filter_data_by_refill_and_renew,
-                      :renewable
     end
 
     module Sorting
@@ -185,8 +185,6 @@ module MyHealth
       def empty_field?(value)
         value.nil? || value.to_s.strip.empty?
       end
-
-      module_function :apply_sorting
     end
   end
 end

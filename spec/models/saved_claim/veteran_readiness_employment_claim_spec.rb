@@ -31,7 +31,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#form_id' do
     it 'returns the correct form ID' do
-      expect(claim.form_id).to eq('28-1900-V2')
+      expect(claim.form_id).to eq('28-1900')
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       allow(StatsD).to receive(:increment)
       claim.save!
 
-      tags = ['form_id:28-1900-V2', 'doctype:10']
+      tags = ['form_id:28-1900', 'doctype:10']
       expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
     end
   end

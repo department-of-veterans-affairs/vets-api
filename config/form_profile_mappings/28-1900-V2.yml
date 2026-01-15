@@ -1,8 +1,0 @@
-veteranInformation:
-  fullName: [identity_information, full_name]
-  ssn: [identity_information, ssn]
-  dob: [identity_information, date_of_birth]
-veteranAddress: [contact_information, address]
-mainPhone: [contact_information, us_phone]
-cellPhone: [contact_information, mobile_phone]
-email: [contact_information, email]

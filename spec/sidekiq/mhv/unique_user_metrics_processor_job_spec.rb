@@ -288,6 +288,21 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
 
         job.perform
       end
+
+      it 'refreshes TTL for cached events' do
+        allow(MHVMetricsUniqueUserEvent).to receive(:insert_all).and_return(
+          double(rows: [[user2_id, 'new_event']])
+        )
+
+        job.perform
+
+        # Should refresh TTL for cached events (first write_multi call)
+        expect(Rails.cache).to have_received(:write_multi).with(
+          { "#{user1_id}:cached_event" => true },
+          namespace: 'unique_user_metrics',
+          expires_in: described_class::CACHE_TTL
+        )
+      end
     end
 
     describe 'bulk insert' do
@@ -317,19 +332,31 @@ RSpec.describe MHV::UniqueUserMetricsProcessorJob, type: :job do
         job.perform
       end
 
-      it 'only processes actually inserted events' do
-        # Simulate one event already existed (not returned by insert_all)
+      it 'caches all DB-queried events but only increments StatsD for inserts' do
+        # Simulate one event already existed in DB (not returned by insert_all)
         allow(MHVMetricsUniqueUserEvent).to receive(:insert_all).and_return(
-          double(rows: [[user1_id, 'event_1']]) # Only one inserted
+          double(rows: [[user1_id, 'event_1']]) # Only one actually inserted
         )
 
         job.perform
 
-        # Cache should only be written for the inserted event
+        # Cache should be written for ALL events sent to DB (prevents repeated lookups)
         expect(Rails.cache).to have_received(:write_multi).with(
-          { "#{user1_id}:event_1" => true },
+          { "#{user1_id}:event_1" => true, "#{user2_id}:event_2" => true },
           namespace: 'unique_user_metrics',
           expires_in: described_class::CACHE_TTL
+        )
+
+        # StatsD should only increment for actually inserted events
+        expect(StatsD).to have_received(:increment).with(
+          'uum.unique_user_metrics.event',
+          1,
+          tags: ['event_name:event_1']
+        )
+        expect(StatsD).not_to have_received(:increment).with(
+          'uum.unique_user_metrics.event',
+          anything,
+          tags: ['event_name:event_2']
         )
       end
     end

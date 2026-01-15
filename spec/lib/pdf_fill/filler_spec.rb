@@ -151,7 +151,7 @@ describe PdfFill::Filler, type: :model do
       show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
     end
 
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 26-1880 5655
        22-10216 22-10215 22-10215a 22-1919 22-10275 22-10272].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }

@@ -4,6 +4,7 @@ module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
     include InboundRequestLogging
+    include V0::Concerns::EVSSDeprecation
     service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }

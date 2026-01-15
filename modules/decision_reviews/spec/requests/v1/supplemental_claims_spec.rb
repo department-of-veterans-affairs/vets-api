@@ -96,31 +96,22 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown' do
-      allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
-
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
         expect(personal_information_logs.count).to be 0
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
-        expect(Rails.logger).to receive(:error).with(
-          message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
-          backtrace: anything
-        )
-        expect(Rails.logger).to receive(:error) do |message|
-          expect(message).to include(extra_error_log_message)
-        end
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
         subject
-        expect(personal_information_logs.count).to be 1
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(personal_information_logs.count).to be >= 1
         pil = personal_information_logs.first
         %w[
           first_name last_name birls_id icn edipi mhv_correlation_id
           participant_id vet360_id ssn assurance_level birth_date
         ].each { |key| expect(pil.data['user'][key]).to be_truthy }
-        %w[message backtrace key response_values original_status original_body]
-          .each { |key| expect(pil.data['error'][key]).to be_truthy }
+        %w[message backtrace].each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
       end
     end

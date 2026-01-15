@@ -654,15 +654,6 @@ Track Medical Records API calls:
 
 ---
 
-## 📖 Additional Resources
-
-For general vets-api patterns and guidelines, see:
-- [.github/copilot-instructions.md](../copilot-instructions.md) - General repository patterns
-- [.github/instructions/my-health-messaging.instructions.md](./my-health-messaging.instructions.md) - Secure Messaging patterns (similar module)
-- [.vscode/copilot-examples.md](../../.vscode/copilot-examples.md) - Code examples
-
----
-
 ## 🔄 Maintaining These Instructions
 
 ### When to Update This File

@@ -4,6 +4,7 @@
 # development and not fully integrated, gated behind the profile_scheduling_preferences
 # feature flag via the SchedulingPreferencesController.
 
+require 'va_profile/person_settings/configuration'
 require 'va_profile/person_settings/person_options_response'
 
 module VAProfile

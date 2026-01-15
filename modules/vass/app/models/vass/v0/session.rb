@@ -299,8 +299,8 @@ module Vass
       # @raise [Vass::Errors::IdentityValidationError] if identity doesn't match
       #
       def validate_identity_against_veteran_data(veteran_data)
-        vass_last_name = veteran_data.dig('data', 'lastName')
-        vass_dob = veteran_data.dig('data', 'dateOfBirth')
+        vass_last_name = veteran_data.dig('data', 'last_name')
+        vass_dob = veteran_data.dig('data', 'date_of_birth')
 
         unless matches_identity?(vass_last_name, vass_dob)
           raise Vass::Errors::IdentityValidationError, 'Identity validation failed'

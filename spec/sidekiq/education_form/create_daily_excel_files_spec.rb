@@ -10,6 +10,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
 
   before do
     allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_debug).and_return(false)
   end
 
   after do
@@ -24,6 +25,25 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     it 'just returns immediately' do
       expect(SFTPWriter::Factory).not_to receive(:get_writer)
       expect { described_class.new.perform }.not_to change { EducationBenefitsClaim.unprocessed.count }
+    end
+  end
+
+  context 'with the debug flag enabled' do
+    let(:dummy_factory) { double('SFTPWriter::Factory') }
+    let(:dummy_writer) { double('SFTPWriter::Remote') }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_debug).and_return(true)
+      allow(SFTPWriter::Factory).to receive(:get_writer).and_return(dummy_writer)
+      allow(dummy_writer).to receive(:new).and_return(dummy_writer)
+    end
+
+    it 'sends some dummy data to the sftp server' do
+      expect(dummy_writer).to receive(:write).with('This is only a test', anything)
+      expect(ExcelFileEvent).not_to receive(:build_event)
+
+      described_class.new.perform
     end
   end
 

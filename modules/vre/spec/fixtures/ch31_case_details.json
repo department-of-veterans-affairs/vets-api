@@ -1,6 +1,7 @@
 {
   "resCaseId": 123456,
   "isTransferredToCWNRS": true,
+  "isInterrupted": false,
   "externalStatus": {
     "isDiscontinued": false,
     "discontinuedReason": null,

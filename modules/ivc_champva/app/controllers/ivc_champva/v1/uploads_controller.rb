@@ -72,8 +72,8 @@ module IvcChampva
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
         apps.each do |app|
-          # Generates overflow OHI forms if applicant is associated with
-          # more than 2 healthInsurance policies
+          # Generate OHI forms for each applicant. Creates one form per 2 policies
+          # to handle overflow when applicant has more than 2 health insurance policies.
           ohi_forms = generate_ohi_form(app, parsed_form_data)
           ohi_forms.each do |f|
             ohi_path = fill_ohi_and_return_path(f)
@@ -484,35 +484,32 @@ module IvcChampva
       end
 
       ##
-      # Directly generates OHI form(s) + fills them (via fill_ohi_and_return_path)
-      # rather than trying to just send an OHI through the default submit
-      # method.
-      # Main reason for this is because since the PDFs need to be saved
-      # as supporting docs on 10-10d, it would be a bit too complicated to rework the
-      # existing submit flow to not send the intermediate OHI forms to Pega, etc
+      # Generates OHI form instances for a single applicant.
+      # Creates one form per 2 health insurance policies to handle overflow
+      # when an applicant has more than 2 policies.
       #
-      # @param [Hash] applicant A hash comprising a 10-10d applicant (name, ssn, etc)
-      # @param [Hash] form_data complete form submission data object
-      #
-      # @return [Array<IvcChampva::VHA107959c>] Array of form instances with details from form_data included
+      # @param applicant [Hash] Applicant data containing health_insurance array
+      # @param form_data [Hash] Complete form submission data (form-level fields)
+      # @return [Array<IvcChampva::VHA107959cRev2025>] Array of form instances
       def generate_ohi_form(applicant, form_data)
         forms = []
         health_insurance = applicant['health_insurance'] || [{}]
 
-        # Process insurance policies in pairs (2 per form)
-        # TODO: is there a clean way to piggyback off of existing generate_additional_pdf method?
-        health_insurance.each_slice(2).with_index do |policies_pair, _form_index|
-          # Create applicant-specific form data for this pair of policies
+        health_insurance.each_slice(2) do |policies_pair|
           applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
           applicant_data['form_number'] = '10-7959C-REV2025'
 
-          # Map the current pair of policies to the applicant data
-          applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
-
-          # Create and configure form
-          form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
-          form.data['form_number'] = '10-7959C-REV2025'
-          forms << form
+          if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
+            # NEW: Pass health_insurance array, constructor handles flattening
+            applicant_data['health_insurance'] = policies_pair
+            forms << IvcChampva::VHA107959cRev2025.new(applicant_data)
+          else
+            # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
+            applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
+            form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
+            form.data['form_number'] = '10-7959C-REV2025'
+            forms << form
+          end
         end
 
         forms
@@ -849,9 +846,10 @@ module IvcChampva
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))
+          elsif selector == 'PDI number'
+            # Main form keeps default form_id; all supporting docs get relabeled to "CVA Bene Response".
+            build_pdi_resubmission_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           else
-            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
-            # "CVA Bene Response"; supporting docs keep their original types.
             build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           end
         else
@@ -872,6 +870,20 @@ module IvcChampva
       end
 
       ##
+      # Builds the attachment_ids array for PDI number resubmissions.
+      # All documents (main form and supporting docs) are labeled "CVA Bene Response".
+      #
+      # @param [String] _form_id The mapped form ID (unused, all docs get same label)
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_pdi_resubmission_attachment_ids(_form_id, parsed_form_data, applicant_rounded_number)
+        supporting_doc_count = parsed_form_data['supporting_docs']&.count.to_i
+        total_doc_count = applicant_rounded_number + supporting_doc_count
+        Array.new(total_doc_count) { 'CVA Bene Response' }
+      end
+
+      ##
       # Add a blank page to the PDF with stamped metadata if the form allows it.
       #
       # This method checks if the form has a `stamp_metadata` method that returns a hash.
@@ -884,12 +896,15 @@ module IvcChampva
       def add_blank_doc_and_stamp(form, parsed_form_data)
         # Only triggers if the form in question has a method that returns values
         # we want to stamp.
-        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
-          blank_page_path = IvcChampva::Attachments.get_blank_page
+        if form.methods.include?(:stamp_metadata)
           stamps = form.stamp_metadata
-          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
-          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
-          add_supporting_doc(parsed_form_data, att)
+
+          if !stamps.nil? && stamps.is_a?(Hash)
+            blank_page_path = IvcChampva::Attachments.get_blank_page
+            IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+            att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
+            add_supporting_doc(parsed_form_data, att)
+          end
         end
       end
 
