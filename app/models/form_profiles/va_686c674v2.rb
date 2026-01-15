@@ -49,8 +49,6 @@ class FormProfiles::VA686c674v2 < FormProfile
   private
 
   def prefill_form_address
-    return {} unless user.authorize :va_profile, :access_to_v2?
-
     begin
       mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
     rescue

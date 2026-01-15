@@ -36,8 +36,6 @@ class FormProfiles::VA686c674 < FormProfile
   private
 
   def prefill_form_address
-    return {} unless user.authorize :va_profile, :access_to_v2?
-
     redis_prefill = VAProfileRedis::V2::ContactInformation.for_user(user)
 
     mailing_address = redis_prefill&.mailing_address if user.icn.present? || user.vet360_id.present?

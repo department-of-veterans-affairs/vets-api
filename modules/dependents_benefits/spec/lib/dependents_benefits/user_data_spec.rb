@@ -49,7 +49,6 @@ RSpec.describe DependentsBenefits::UserData do
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive(:track_user_data_error)
     allow(monitor).to receive(:track_user_data_warning)
-    allow(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true)
   end
 
   describe '#initialize' do

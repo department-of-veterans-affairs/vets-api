@@ -358,7 +358,6 @@ class FormProfile
 
   # doing this (below) instead of `@vet360_contact_info ||= Settings...` to cache nil too
   def vet360_contact_info
-    # ICN is required. vet360_id was removed in ContactInformationV2
     return {} unless user.authorize :va_profile, :access_to_v2?
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
