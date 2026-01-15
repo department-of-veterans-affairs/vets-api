@@ -128,6 +128,54 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
         expect(response).to have_http_status(:no_content)
       end
     end
+
+    context 'when required attributes are missing' do
+      before do
+        allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
+      end
+
+      it 'does not send email when claim_status is missing' do
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          email: 'test@test.com', first_name: 'test'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not send email when email is missing and user has no email' do
+        user_without_email = build(:user, :loa3, user_details.merge(email: nil))
+        sign_in_as(user_without_email)
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          claim_status: 'ELIGIBLE', first_name: 'test'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not send email when first_name is missing and user has no first_name' do
+        user_without_name = build(:user, :loa3, user_details.merge(first_name: nil))
+        sign_in_as(user_without_name)
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          claim_status: 'ELIGIBLE', email: 'test@test.com'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'logs warning with attribute presence info' do
+        expect(Rails.logger).to receive(:warn).with(
+          '1990E TOE confirmation email skipped due to missing attributes',
+          hash_including(
+            status_present: false,
+            email_present: true,
+            first_name_present: true
+          )
+        )
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          email: 'test@test.com', first_name: 'test'
+        }
+      end
+    end
   end
 
   describe 'GET /meb_api/v0/forms_claim_letter' do

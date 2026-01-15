@@ -95,13 +95,27 @@ module MebApi
       end
 
       def send_confirmation_email
-        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+        return head :no_content unless Flipper.enabled?(:form1990meb_confirmation_email)
 
         status = params[:claim_status]
         email = params[:email] || @current_user.email
         first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
 
-        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
+        if status.blank? || email.blank? || first_name.blank?
+          Rails.logger.warn(
+            '1990 confirmation email skipped due to missing attributes',
+            {
+              status_present: status.present?,
+              email_present: email.present?,
+              first_name_present: first_name.present?
+            }
+          )
+          StatsD.increment('api.meb.confirmation_email.skipped', tags: ['form:1990meb', 'reason:missing_attributes'])
+          return render json: { error: 'Missing required attributes for confirmation email' },
+                        status: :unprocessable_entity
+        end
+
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name)
       end
 
       def submit_enrollment_verification
