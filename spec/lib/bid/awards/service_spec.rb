@@ -2,11 +2,13 @@
 
 require 'rails_helper'
 require 'bid/awards/service'
-require 'bid/awards/support/current_awards_response'
+require_relative 'support/current_awards_response'
 
 RSpec.describe BID::Awards::Service do
   let(:user) { create(:evss_user, :loa3) }
   let(:service) { BID::Awards::Service.new(user) }
+
+  include_context 'BID Awards CurrentAwardsResponse'
 
   describe '#get_awards_pension' do
     let(:faraday_response) { double('faraday_connection') }
@@ -36,11 +38,13 @@ RSpec.describe BID::Awards::Service do
     end
 
     context 'with a successful submission' do
-      include_context 'BID Awards CurrentAwardsResponse'
-
       it 'successfully receives a list of current awards' do
-        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
-          double('response', status: 200, body: mock_response_body, success?: true)
+        # Mock the service to return the mock response
+        allow(service).to receive(:perform).and_return(
+          OpenStruct.new(
+            status: 200,
+            body: mock_response_body
+          )
         )
 
         response = service.get_current_awards
