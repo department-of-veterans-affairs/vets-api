@@ -463,24 +463,66 @@ RSpec.describe FormProfile, type: :model do
               allow(Rails.logger).to receive(:warn)
             end
 
-            it 'prefills net worth limit' do
+            it 'prefills net worth limit with default value when using get_current_awards' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
-                VCR.use_cassette('bid/awards/get_awards_pension') do
-                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
-                end
+                # Mock get_current_awards to return IP award line type
+                mock_response_body = {
+                  'Award' => {
+                    'AwardEventList' => {
+                      'awardEvents' => [
+                        {
+                          'awardLineList' => {
+                            'awardLines' => [
+                              {
+                                'awardLineType' => 'IP',
+                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+                allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                  OpenStruct.new(body: mock_response_body)
+                )
+
+                prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
               end
             end
 
-            it 'prefills 1 when user is in receipt of pension' do
+            it 'prefills 1 when user is in receipt of pension (IP award line type)' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
-                VCR.use_cassette('bid/awards/get_awards_pension') do
-                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                # Mock get_current_awards to return IP award line type with effective date before today
+                mock_response_body = {
+                  'Award' => {
+                    'AwardEventList' => {
+                      'awardEvents' => [
+                        {
+                          'awardLineList' => {
+                            'awardLines' => [
+                              {
+                                'awardLineType' => 'IP',
+                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+                allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                  OpenStruct.new(body: mock_response_body)
+                )
 
-                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
-                end
+                prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
               end
             end
 
