@@ -118,7 +118,7 @@ module IvcChampva
       args&.first
     end
 
-    def respond_to_missing?(_)
+    def respond_to_missing?(_method_name, _include_private = false)
       true
     end
 
