@@ -1,0 +1,45 @@
+{
+    "veteranInformation": {
+        "fullName": {
+            "first": "first6789012345678901234END",
+            "middle": "e",
+            "last": "last56789012345678901234END"
+        },
+        "vaFileNumber": "12312312",
+        "dateOfBirth": "1999-01-01"
+    },
+    "employmentInformation": {
+        "employerName": "Name of employer Name of employer Name of employer Name of employer Name of employer Name of empEND",
+        "employerAddress": {
+            "state": "AL",
+            "postalCode": "12345",
+            "country": "US",
+            "street": "Street addressStreet addreEND",
+            "street2": "Street address line 2StreEND",
+            "city": "CityCityCityCitEND"
+        },
+        "beginningDateOfEmployment": "1999-01-01",
+        "typeOfWorkPerformed": "What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What END",
+        "amountEarnedLast12MonthsOfEmployment": 999999998.01,
+        "timeLostLast12MonthsOfEmployment": "999999998.01",
+        "hoursWorkedDaily": 24,
+        "hoursWorkedWeekly": 168,
+        "concessions": "What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or END"
+    },
+    "militaryDutyStatus": {
+        "currentDutyStatus": "What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current END",
+        "veteranDisabilitiesPreventMilitaryDuties": true
+    },
+    "benefitEntitlementPayments": {
+        "sickRetirementOtherBenefits": true,
+        "typeOfBenefit": "ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype END",
+        "grossMonthlyAmountOfBenefit": 999999998.01,
+        "dateBenefitBegan": "1999-01-01",
+        "dateFirstPaymentIssued": "1999-01-01",
+        "remarks": "You can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this END"
+    },
+    "certification": {
+        "signature": "your full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nEND",
+        "certified": true
+    }
+}
