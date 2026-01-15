@@ -18,6 +18,7 @@ module UnifiedHealthData
       start_date, end_date = date_range
       labs_data = fetch_labs_data(user, start_date, end_date)
       log_success(labs_data, start_date, end_date)
+      StatsD.gauge('unified_health_data.labs_refresh_job.labs_count', labs_data.size)
       labs_data.size
     rescue => e
       log_error(e)

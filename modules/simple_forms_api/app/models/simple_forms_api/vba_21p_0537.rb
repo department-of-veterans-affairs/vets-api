@@ -39,7 +39,6 @@ module SimpleFormsApi
 
     def desired_stamps
       stamp_items = [
-        { coords: [500, 645], text: data['in_reply_refer_to'], page: 0, font_size: 9 },
         { coords: [50, 245], text: data.dig('recipient', 'signature'), page: 2 }
       ]
 

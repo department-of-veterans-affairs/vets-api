@@ -29,11 +29,12 @@ x-app: &common
 
 services:
   clamav:
-    image: clamav/clamav:1.3.0
+    image: clamav/clamav
     ports:
       - 33100:3310
     volumes:
      - shared-vol:/vets-api
+    platform: linux/amd64
   redis:
     image: redis:6.2-alpine
     ports:

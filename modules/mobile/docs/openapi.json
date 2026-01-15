@@ -3510,139 +3510,6 @@
         "summary": "/v0/efolder/documents/{documentId}/download"
       }
     },
-    "/v0/claim-letter/documents": {
-      "get": {
-        "description": "Returns the user's list of documents from lighthouse",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimLetterDocuments"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/401"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/claim-letter/documents"
-      }
-    },
-    "/v0/claim-letter/documents/{document_id}/download": {
-      "post": {
-        "description": "returns requested document",
-        "parameters": [
-          {
-            "description": "File name of the document to be returned.",
-            "in": "query",
-            "name": "file_name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "ID of the document to be returned.",
-            "in": "path",
-            "name": "document_id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "format": "binary",
-                  "type": "string"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/claim-letter/documents/{documentId}/download"
-      }
-    },
     "/v0/enrollment-status": {
       "get": {
         "description": "Returns the user's VA enrollment status.",
@@ -6445,7 +6312,7 @@
     },
     "/v0/messaging/health/messages/{id}/thread": {
       "get": {
-        "description": "Gets a list of message summaries that are related to the message of the passed id and older than the message of \nthe id provided. Does <strong>not</strong> include the message of the passed id itself.\n",
+        "description": "Gets a list of message summaries that are related to the message of the passed id and older than the message of\nthe id provided. Does <strong>not</strong> include the message of the passed id itself.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
@@ -6497,7 +6364,7 @@
     },
     "/v1/messaging/health/messages/{id}/thread": {
       "get": {
-        "description": "Gets a list of message summaries that are related to the message of the passed id regardless of their age in \nrelation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> \ninclude the message of the passed id itself.\n",
+        "description": "Gets a list of message summaries that are related to the message of the passed id regardless of their age in\nrelation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong>\ninclude the message of the passed id itself.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
@@ -8041,7 +7908,7 @@
                 "Using Overridden Address": {
                   "value": {
                     "addressLine1": "1493 Martin Luther King Rd",
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -8060,7 +7927,7 @@
                       "deliveryPointValidation": "CONFIRMED",
                       "residentialDeliveryIndicator": "RESIDENTIAL"
                     },
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -8138,7 +8005,7 @@
                 "Using Overridden Address": {
                   "value": {
                     "addressLine1": "1493 Martin Luther King Rd",
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -8158,7 +8025,7 @@
                       "deliveryPointValidation": "CONFIRMED",
                       "residentialDeliveryIndicator": "RESIDENTIAL"
                     },
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -19929,61 +19796,6 @@
           }
         }
       },
-      "ClaimLetterDocuments": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "id",
-                "type",
-                "attributes"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
-                  "description": "document id"
-                },
-                "type": {
-                  "type": "string",
-                  "example": "claim_letter_document"
-                },
-                "attributes": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "docType",
-                    "typeDescription",
-                    "receivedAt"
-                  ],
-                  "properties": {
-                    "docType": {
-                      "type": "string",
-                      "example": 1215
-                    },
-                    "typeDescription": {
-                      "type": "string",
-                      "example": "DMC - Debt Increase Letter"
-                    },
-                    "receivedAt": {
-                      "type": "datetime",
-                      "example": "2024-09-13T178:32:24Z"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
       "EnrollmentStatus": {
         "type": "object",
         "additionalProperties": false,
@@ -25239,10 +25051,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -25531,7 +25343,8 @@
             "additionalProperties": false,
             "required": [
               "isUserAtPretransitionedOhFacility",
-              "isUserFacilityReadyForInfoAlert"
+              "isUserFacilityReadyForInfoAlert",
+              "isUserFacilityMigratingToOh"
             ],
             "properties": {
               "isUserAtPretransitionedOhFacility": {
@@ -25543,6 +25356,11 @@
                 "type": "boolean",
                 "example": false,
                 "description": "Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition."
+              },
+              "isUserFacilityMigratingToOh": {
+                "type": "boolean",
+                "example": false,
+                "description": "Indicates whether the user is associated with a facility that is migrating to Oracle Health."
               }
             }
           }
@@ -25587,10 +25405,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -26042,10 +25860,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -26206,10 +26024,10 @@
               "addressPou": {
                 "type": "string",
                 "enum": [
-                  "RESIDENCE/CHOICE",
+                  "RESIDENCE",
                   "CORRESPONDENCE"
                 ],
-                "example": "RESIDENCE/CHOICE"
+                "example": "RESIDENCE"
               },
               "addressType": {
                 "type": "string",
@@ -26308,7 +26126,7 @@
                   },
                   "addressPou": {
                     "type": "string",
-                    "example": "RESIDENCE/CHOICE"
+                    "example": "RESIDENCE"
                   },
                   "addressType": {
                     "type": "string",

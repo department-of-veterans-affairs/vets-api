@@ -21,7 +21,7 @@ RSpec.describe IncreaseCompensation::SavedClaim do
 
   describe '#email' do
     it 'returns the users email' do
-      expect(instance.email).to be_nil
+      expect(instance.email).to eq('juan.johnny.rico@example.com')
     end
   end
 

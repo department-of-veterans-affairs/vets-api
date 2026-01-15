@@ -17,11 +17,20 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
 
+  # Update HigherLevelReviews with upstream processing error statuses with their Central Mail status
+  mgr.register('42 */6 * * *', 'AppealsApi::HigherLevelReviewUploadErrorStatusBatch')
+
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
 
+  # Update NoticeOfDisagreements with upstream processing error statuses with their Central Mail status
+  mgr.register('24 */6 * * *', 'AppealsApi::NoticeOfDisagreementUploadErrorStatusBatch')
+
   # Update SupplementalClaim statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
+
+  # Update SupplementalClaims with upstream processing error statuses with their Central Mail status
+  mgr.register('36 */6 * * *', 'AppealsApi::SupplementalClaimUploadErrorStatusBatch')
 
   # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
@@ -86,6 +95,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Send metrics to datadog related to 526 submission 0781 in-progress forms and submission
   mgr.register('0 3 * * *', 'Form0781StateSnapshotJob')
+
+  # Send metrics to datadog related to 526 new conditions workflow in-progress forms
+  mgr.register('0 3 * * *', 'Form526NewConditionsStateSnapshotJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
@@ -168,7 +180,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
-  mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
@@ -237,6 +248,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Daily job that sends notification emails to Pega of missing form statuses
+  mgr.register('0 0 * * *', 'IvcChampva::NotifyPegaMissingFormStatusJob')
+
   # Every day job at 1:30am that sends IVC CHAMPVA form insights data to DataDog
   mgr.register('30 1 * * *', 'IvcChampva::InsightsDatadogJob')
 
@@ -246,14 +260,14 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily job to clean up IvcChampvaForm records older than 60 days
   mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
-  # Every 15min job that syncs ARP's allowlist
-  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
-
   # Expire stale POA request records every night at 12:30 AM
   mgr.register('30 0 * * *', 'AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob')
 
   # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
   mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
+
+  # Delete old BenefitsIntake records 60 days or older
+  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
@@ -268,6 +282,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
+
+  # Engine version: Upload PDF copies of notification emails to VBMS
+  mgr.register('30 0 * * *', 'DecisionReviews::UploadNotificationPdfsJob')
 
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionsCleanupJob')
@@ -287,4 +304,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Hourly job to cache facility names for UHD prescriptions
   # Runs at 37 minutes past the hour to avoid resource contention
   mgr.register('37 * * * *', 'UnifiedHealthData::FacilityNameCacheJob')
+
+  # Process buffered Unique User Metrics events every 10 minutes
+  mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
 }

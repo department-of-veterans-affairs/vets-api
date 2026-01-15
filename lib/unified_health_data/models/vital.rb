@@ -19,8 +19,11 @@ module UnifiedHealthData
     attribute :name, String
     attribute :type, String # based on LOINC code
     attribute :date, String
+    attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :measurement, String
     attribute :location, String
     attribute :notes, String, array: true
+
+    default_sort_by sort_date: :desc
   end
 end

@@ -67,6 +67,11 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
     )
   end
 
+  after do
+    # Clean up mocks to prevent test pollution in parallel runs
+    RSpec::Mocks.space.reset_all
+  end
+
   context 'accredited_representative_portal_lighthouse_api_key is not set' do
     before do
       allow(Flipper).to receive(:enabled?).with(
@@ -116,6 +121,11 @@ RSpec.describe AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob do
       allow(Flipper).to receive(:enabled?).with(
         :accredited_representative_portal_lighthouse_api_key
       ).and_return(true)
+
+      # Mock the API key configuration that BenefitsIntakeService requires
+      allow(Settings.accredited_representative_portal.lighthouse.benefits_intake).to(
+        receive(:api_key).and_return('test-api-key')
+      )
     end
 
     it 'performs using ARP BenefitsIntakeService' do

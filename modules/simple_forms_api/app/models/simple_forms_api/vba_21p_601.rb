@@ -87,9 +87,12 @@ module SimpleFormsApi
     def get_form_identity
       # Using relationship as the identity tracker, which is a standard field
       relationship = data.dig('claimant', 'relationship_to_deceased')
-      return 'unknown' unless relationship
 
-      relationship.downcase.gsub(/\s+/, '_')
+      return 'unknown' unless relationship
+      # If user entered freeform text, just track as "other":
+      return 'other' unless relationship.in?(%w[executor creditor])
+
+      relationship
     end
 
     def format_ssn_for_file_number

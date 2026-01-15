@@ -31,7 +31,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#form_id' do
     it 'returns the correct form ID' do
-      expect(claim.form_id).to eq('28-1900-V2')
+      expect(claim.form_id).to eq('28-1900')
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       allow(StatsD).to receive(:increment)
       claim.save!
 
-      tags = ['form_id:28-1900-V2', 'doctype:10']
+      tags = ['form_id:28-1900', 'doctype:10']
       expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
     end
   end
@@ -82,28 +82,19 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     context 'when email_type is a confirmation type' do
       it 'sends VBMS confirmation email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_vbms]
-        )
-
+        expect(notification_email).to receive(:deliver).with(:confirmation_vbms)
         claim.send_email(:confirmation_vbms)
       end
 
       it 'sends Lighthouse confirmation email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::CONFIRMATION_EMAIL_TEMPLATES[:confirmation_lighthouse]
-        )
-
+        expect(notification_email).to receive(:deliver).with(:confirmation_lighthouse)
         claim.send_email(:confirmation_lighthouse)
       end
     end
 
     context 'when email_type is not a confirmation type' do
       it 'sends error email' do
-        expect(notification_email).to receive(:deliver).with(
-          SavedClaim::VeteranReadinessEmploymentClaim::ERROR_EMAIL_TEMPLATE
-        )
-
+        expect(notification_email).to receive(:deliver).with(:error)
         claim.send_email(:error)
       end
     end
@@ -152,7 +143,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
         it 'sends confirmation email' do
           allow(Flipper).to receive(:enabled?)
-            .with(:vre_use_new_vfs_notification_library)
+            .with(:vre_use_new_vfs_notification_library, claim)
             .and_return(false)
           expect(claim).to receive(:send_vbms_lighthouse_confirmation_email)
             .with('VBMS', 'confirmation_vbms_email_template_id')
@@ -211,7 +202,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'Legacy notification strategy' do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:vre_use_new_vfs_notification_library)
+          .with(:vre_use_new_vfs_notification_library, claim)
           .and_return(false)
       end
 

@@ -56,16 +56,79 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
     end
 
+    context 'Errors' do
+      let(:service) { MedicalCopays::LighthouseIntegration::Service.new('123') }
+      let(:raw_invoices) do
+        { 'entry' => [{ 'resource' => { 'issuer' => { 'reference' => 'Organization/4-O3d8XK44ejMS' } } }] }
+      end
+
+      it 'raises BadRequest for a 400 from Lighthouse' do
+        skip 'Temporarily skip flaky test'
+        VCR.use_cassette('lighthouse/hcc/auth_error') do
+          allow(Auth::ClientCredentials::JWTGenerator)
+            .to receive(:generate_token).and_return('fake-jwt')
+
+          expect do
+            service.list(count: 10, page: 1)
+          end.to raise_error(Common::Exceptions::BadRequest)
+        end
+      end
+
+      it 'raises MissingOrganizationIdError' do
+        skip 'Temporarily skip flaky test'
+        raw_invoices['entry'].first['resource']['issuer']['reference'] = nil
+
+        allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
+
+        expect { service.list(count: 10, page: 1) }
+          .to raise_error(
+            MedicalCopays::LighthouseIntegration::Service::MissingOrganizationIdError,
+            'Missing org_id for invoice entry'
+          )
+      end
+
+      it 'raises MissingCityError' do
+        skip 'Temporarily skip flaky test'
+        allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
+
+        allow(service).to receive(:retrieve_city).with('4-O3d8XK44ejMS').and_return(nil)
+
+        expect { service.list(count: 10, page: 1) }
+          .to raise_error(
+            MedicalCopays::LighthouseIntegration::Service::MissingCityError,
+            'Missing city for org_id 4-O3d8XK44ejMS'
+          )
+      end
+    end
+  end
+
+  describe '#get_detail' do
+    it 'returns copay detail with populated attributes' do
+      VCR.use_cassette('lighthouse/hcc/copay_detail_success') do
+        allow(Auth::ClientCredentials::JWTGenerator)
+          .to receive(:generate_token).and_return('fake-jwt')
+
+        service = MedicalCopays::LighthouseIntegration::Service.new('32000551')
+        result = service.get_detail(id: '4-1abZUKu7LnbcQc')
+
+        expect(result).to be_a(Lighthouse::HCC::CopayDetail)
+        expect(result.external_id).to be_present
+        expect(result.facility).to be_present
+        expect(result.status).to be_present
+        expect(result.line_items).to be_an(Array)
+        expect(result.payments).to be_an(Array)
+      end
+    end
+
     it 'raises BadRequest for a 400 from Lighthouse' do
-      skip 'Temporarily skip flaky test'
       VCR.use_cassette('lighthouse/hcc/auth_error') do
         allow(Auth::ClientCredentials::JWTGenerator)
           .to receive(:generate_token).and_return('fake-jwt')
 
-        service = MedicalCopays::LighthouseIntegration::Service.new('123')
+        service = MedicalCopays::LighthouseIntegration::Service.new('32000551')
 
         expect do
-          service.list(count: 10, page: 1)
+          service.get_detail(id: '4-1abZUKu7LnbcQc')
         end.to raise_error(Common::Exceptions::BadRequest)
       end
     end

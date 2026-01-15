@@ -91,12 +91,8 @@ module DecisionReviews
       raise Common::Exceptions::NotImplemented
     end
 
-    def enabled?
-      raise Common::Exceptions::NotImplemented
-    end
-
     def should_perform?
-      enabled? && records_to_update.present?
+      records_to_update.present?
     rescue => e
       StatsD.increment("#{statsd_prefix}.error")
       Rails.logger.error("#{log_prefix} error", { message: e.message })
@@ -166,7 +162,6 @@ module DecisionReviews
 
     def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
-      return true unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
       secondary_forms = record.appeal_submission&.secondary_appeal_forms
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []

@@ -7,21 +7,11 @@ module V0
     skip_before_action :load_user
 
     def create
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
-
       if claim.save
-        if Flipper.enabled?(:vre_modular_api)
-          Rails.logger.info 'Submitting VR&E claim via modular VRE API'
-          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
-        else
-          Rails.logger.info 'Submitting VR&E claim via legacy VRE API'
-          VRE::Submit1900Job.perform_async(claim.id, encrypted_user)
-        end
+        submission_id = setup_form_submission_tracking(claim, user_account)
+        VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        # FIXME: revert to this with issue CVE-2253
-        # clear_saved_form(claim.form_id)
-        clear_saved_form('28-1900')
-        clear_saved_form('28-1900-V2')
+        clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")
@@ -33,6 +23,35 @@ module V0
     end
 
     private
+
+    def user_account
+      @user_account ||= UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
+    end
+
+    def claim
+      @claim ||= SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
+    end
+
+    def setup_form_submission_tracking(claim, user_account)
+      submission = claim.form_submissions.create(
+        form_type: claim.form_id,
+        user_account:
+      )
+
+      if submission.persisted?
+        Rails.logger.info('VR&E Form Submission created',
+                          claim_id: claim.id,
+                          form_type: claim.form_id,
+                          submission_id: submission.id)
+        submission.id
+      else
+        Rails.logger.warn('VR&E Form Submission creation failed - continuing without tracking',
+                          claim_id: claim.id,
+                          form_type: claim.form_id,
+                          errors: submission.errors.full_messages)
+        nil
+      end
+    end
 
     def filtered_params
       if params[:veteran_readiness_employment_claim]

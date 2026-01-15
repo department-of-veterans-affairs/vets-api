@@ -17,7 +17,35 @@ module V0
       render json: data
     end
 
+    def update
+      form_data_present = parsed_form_data.present?
+
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+         params[:metadata].present? &&
+         form_data_present
+        params[:metadata][:sync_modern0781_flow] =
+          parsed_form_data['sync_modern0781_flow'] || parsed_form_data[:sync_modern0781_flow] || false
+      end
+
+      if Flipper.enabled?(:disability_compensation_new_conditions_workflow_metadata) &&
+         params[:metadata].present? &&
+         form_data_present
+        params[:metadata][:new_conditions_workflow] =
+          parsed_form_data['disability_comp_new_conditions_workflow'] || false
+      end
+      super
+    end
+
     private
+
+    def parsed_form_data
+      @parsed_form_data ||= begin
+        form_data = params[:form_data]
+        if form_data.present?
+          form_data.is_a?(String) ? JSON.parse(form_data) : form_data
+        end
+      end
+    end
 
     def form_id
       FormProfiles::VA526ez::FORM_ID
@@ -29,14 +57,15 @@ module V0
 
       # If EVSS's list of rated disabilities does not match our prefilled rated disabilities
       if rated_disabilities_evss.present? &&
-         arr_to_compare(parsed_form_data['ratedDisabilities']) !=
-         arr_to_compare(rated_disabilities_evss.rated_disabilities.map(&:attributes))
+         arr_to_compare(parsed_form_data&.dig('ratedDisabilities')) !=
+         arr_to_compare(rated_disabilities_evss&.rated_disabilities&.map(&:attributes))
 
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
-        evss_rated_disabilities = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
+        # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
+        evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
         parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
       end
 
@@ -50,7 +79,8 @@ module V0
     end
 
     def set_started_form_version(data)
-      if data['started_form_version'].blank? || data['startedFormVersion'].blank?
+      # Only set default if BOTH keys are missing (using && instead of ||)
+      if data['started_form_version'].blank? && data['startedFormVersion'].blank?
         log_started_form_version(data, 'existing IPF missing startedFormVersion')
         data['startedFormVersion'] = '2019'
       end
@@ -76,16 +106,16 @@ module V0
     # temp: for https://github.com/department-of-veterans-affairs/va.gov-team/issues/97932
     # tracking down a possible issue with prefill
     def log_started_form_version(data, location)
-      cloned_data = data.deep_dup
-      cloned_data_as_json = cloned_data.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      # Handle different data structures from different call sites:
+      # - From show method: {formData: ..., metadata: ...} with symbol keys
+      # - From set_started_form_version: raw form data hash with string keys
+      form_data = data[:formData] || data['formData'] || data[:form_data] || data['form_data'] || data
+      started_form_version = form_data&.dig('startedFormVersion') || form_data&.dig(:startedFormVersion) ||
+                             form_data&.dig('started_form_version') || form_data&.dig(:started_form_version)
 
-      if cloned_data_as_json['formData'].present?
-        started_form_version = cloned_data_as_json['formData']['startedFormVersion']
-        message = "Form526 InProgressForm startedFormVersion = #{started_form_version} #{location}"
-        Rails.logger.info(message)
-      end
-
-      if started_form_version.blank?
+      if started_form_version.present?
+        Rails.logger.info("Form526 InProgressForm startedFormVersion = #{started_form_version} #{location}")
+      else
         raise Common::Exceptions::ServiceError.new(
           detail: "no startedFormVersion detected in #{location}",
           source: 'DisabilityCompensationInProgressFormsController#show'
