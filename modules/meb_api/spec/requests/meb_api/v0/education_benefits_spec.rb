@@ -430,12 +430,11 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
 
     context 'when the feature flag is disabled' do
       it 'does not send the confirmation email' do
+        allow(Flipper).to receive(:enabled?).with(:form1990meb_confirmation_email).and_return(false)
         allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
-        Flipper.disable(:form1990meb_confirmation_email)
         post '/meb_api/v0/send_confirmation_email', params: {}
         expect(MebApi::V0::Submit1990mebFormConfirmation).not_to have_received(:perform_async)
         expect(response).to have_http_status(:no_content)
-        Flipper.enable(:form1990meb_confirmation_email)
       end
     end
 
