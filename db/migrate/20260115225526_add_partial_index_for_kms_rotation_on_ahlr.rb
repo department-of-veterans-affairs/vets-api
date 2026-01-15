@@ -12,10 +12,10 @@ class AddPartialIndexForKmsRotationOnAhlr < ActiveRecord::Migration[7.2]
   end
 
   def down
-  safety_assured do
-      execute <<~SQL
-        DROP INDEX CONCURRENTLY IF EXISTS idx_ahlr_kms_rotation_true_id;
-      SQL
+    safety_assured do
+        execute <<~SQL
+          DROP INDEX CONCURRENTLY IF EXISTS idx_ahlr_kms_rotation_true_id;
+        SQL
+      end
     end
-  end
 end
