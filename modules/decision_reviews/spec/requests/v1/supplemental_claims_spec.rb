@@ -94,6 +94,25 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
         expect(saved_claim.uploaded_forms).to be_empty
       end
     end
+
+    it 'adds to the PersonalInformationLog when an exception is thrown' do
+      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
+        expect(personal_information_logs.count).to be 0
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with(error_log_args)
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
+
+        subject
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(personal_information_logs.count).to be >= 1
+        pil = personal_information_logs.first
+        %w[
+          first_name last_name birls_id icn edipi mhv_correlation_id
+          participant_id vet360_id ssn assurance_level birth_date
+        ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+      end
+    end
   end
 
   describe '#create with 4142' do

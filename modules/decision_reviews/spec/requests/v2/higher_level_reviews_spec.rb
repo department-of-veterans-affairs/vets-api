@@ -138,6 +138,28 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
       end
     end
 
+    context 'when an error occurs with the api call' do
+      it 'adds to the PersonalInformationLog' do
+        VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
+          expect(personal_information_logs.count).to be 0
+
+          allow(Rails.logger).to receive(:error)
+          expect(Rails.logger).to receive(:error).with(error_log_args)
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
+
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(personal_information_logs.count).to be >= 1
+          pil = personal_information_logs.first
+          %w[
+            first_name last_name birls_id icn edipi mhv_correlation_id
+            participant_id vet360_id ssn assurance_level birth_date
+          ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+        end
+      end
+    end
+
     context 'when an error occurs in the transaction' do
       shared_examples 'rolledback transaction' do |model|
         before do

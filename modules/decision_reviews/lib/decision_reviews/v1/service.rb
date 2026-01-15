@@ -442,17 +442,20 @@ module DecisionReviews
       def handle_error(error:, message: nil)
         save_and_log_error(error:, message:)
         source_hash = { source: "#{error.class} raised in #{self.class}" }
+
         raise case error
               when Faraday::ParsingError
                 DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
-                if ERROR_MAP.key?(error.status)
-                  ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
-                elsif error.status == 403
+                error_status = error.status
+
+                if ERROR_MAP.key?(error_status)
+                  ERROR_MAP[error_status].new(source_hash.merge(detail: error.body))
+                elsif error_status == 403
                   Common::Exceptions::Forbidden.new source_hash
                 else
-                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
-                                                            original_status: error.status, original_body: error.body)
+                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error_status}", response_values: source_hash,
+                                                            original_status: error_status, original_body: error.body)
                 end
               else
                 error

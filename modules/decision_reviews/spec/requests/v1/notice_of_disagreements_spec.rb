@@ -157,6 +157,34 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
       end
     end
 
+    it 'adds to the PersonalInformationLog when an exception is thrown and logs to StatsD and logger' do
+      VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with(error_log_args)
+
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
+
+        expect(personal_information_logs.count).to be 0
+
+        subject
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(personal_information_logs.count).to be >= 1
+
+        pil = personal_information_logs.first
+        %w[
+          first_name last_name birls_id icn edipi mhv_correlation_id
+          participant_id vet360_id ssn assurance_level birth_date
+        ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+
+        # check that transaction rolled back / records were not persisted / evidence upload job was not queued up
+        expect(AppealSubmission.count).to eq 0
+        expect(AppealSubmissionUpload.count).to eq 0
+        expect(SavedClaim.count).to eq 0
+      end
+    end
+
     context 'when an error occurs in wrapped code' do
       shared_examples 'rolledback transaction' do |model|
         before do
