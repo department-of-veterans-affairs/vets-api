@@ -881,5 +881,84 @@ RSpec.describe Users::Profile do
         end
       end
     end
+
+    describe 'mpi_profile integration with oh_migration_info' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
+
+      before do
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
+        allow(user).to receive_messages(
+          birth_date_mpi: '1980-01-01',
+          last_name_mpi: 'Doe',
+          gender_mpi: 'M',
+          given_names: ['John'],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          va_treatment_facility_ids: %w[516 517],
+          va_patient?: true,
+          mhv_account_state: 'OK',
+          active_mhv_ids: ['12345']
+        )
+      end
+
+      context 'when user has facilities in oh_migrations_list' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list)
+            .and_return('2026-03-03:[516,Columbus VA],[517,Toledo VA]')
+        end
+
+        it 'includes oh_migration_info in mpi_profile' do
+          expect(mpi_profile_result).to have_key(:oh_migration_info)
+        end
+
+        it 'returns migration info for matching facilities' do
+          expect(mpi_profile_result[:oh_migration_info]).to be_an(Array)
+          expect(mpi_profile_result[:oh_migration_info].length).to eq(1)
+        end
+
+        it 'includes facilities matching user va_treatment_facility_ids' do
+          facility_ids = mpi_profile_result[:oh_migration_info].first[:facilities].map { |f| f[:id] }
+          expect(facility_ids).to contain_exactly('516', '517')
+        end
+
+        it 'includes migration_date in response' do
+          expect(mpi_profile_result[:oh_migration_info].first[:migration_date]).to eq('March 3, 2026')
+        end
+
+        it 'includes migration_status in response' do
+          expect(mpi_profile_result[:oh_migration_info].first[:migration_status]).to be_present
+        end
+
+        it 'includes phases in response' do
+          expect(mpi_profile_result[:oh_migration_info].first[:phases]).to be_a(Hash)
+        end
+      end
+
+      context 'when user has no facilities in oh_migrations_list' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list)
+            .and_return('2026-03-03:[999,Other VA]')
+        end
+
+        it 'returns empty array for oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to eq([])
+        end
+      end
+
+      context 'when oh_migrations_list is nil' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(nil)
+        end
+
+        it 'returns empty array for oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to eq([])
+        end
+      end
+
+      # NOTE: Error handling for get_oh_migration_info is tested in
+      # spec/lib/mhv/oh_facilities_helper/service_spec.rb
+      # The service method rescues all errors and returns []
+    end
   end
 end
