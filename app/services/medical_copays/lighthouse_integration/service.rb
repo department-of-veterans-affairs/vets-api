@@ -7,6 +7,7 @@ require 'lighthouse/healthcare_cost_and_coverage/encounter/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication/service'
 require 'lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service'
+require 'lighthouse/healthcare_cost_and_coverage/organization/service'
 require 'concurrent-ruby'
 
 module MedicalCopays
@@ -17,20 +18,38 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
 
+      class MissingOrganizationIdError < StandardError; end
+      class MissingCityError < StandardError; end
+
       def initialize(icn)
         @icn = icn
       end
 
       def list(count:, page:)
         raw_invoices = invoice_service.list(count:, page:)
-        entries = raw_invoices['entry'].map do |entry|
-          Lighthouse::HCC::Invoice.new(entry)
+
+        entries = raw_invoices.fetch('entry').map do |entry|
+          resource = entry.fetch('resource')
+
+          org_ref = resource.dig('issuer', 'reference').to_s
+          parts = org_ref.split('/')
+
+          org_id = parts.include?('Organization') ? parts.last : nil
+          raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
+
+          org_city = retrieve_city(org_id)
+          raise MissingCityError, "Missing city for org_id #{org_id}" if org_city.blank?
+
+          enriched_resource = resource.merge('city' => org_city, 'facility_id' => org_id)
+          enriched_entry = entry.merge('resource' => enriched_resource)
+
+          Lighthouse::HCC::Invoice.new(enriched_entry)
         end
 
         Lighthouse::HCC::Bundle.new(raw_invoices, entries)
       rescue => e
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.message}")
-        raise e
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        raise
       end
 
       def get_detail(id:)
@@ -57,6 +76,11 @@ module MedicalCopays
       end
 
       private
+
+      def retrieve_city(org_id)
+        org_data = organization_service.read(org_id)
+        org_data.dig('entry', 0, 'resource', 'address', 0, 'city')
+      end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
         account_future = Concurrent::Promises.future { fetch_account(invoice_data) }
@@ -198,6 +222,10 @@ module MedicalCopays
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def organization_service
+        @organization_service ||= ::Lighthouse::HealthcareCostAndCoverage::Organization::Service.new(@icn)
       end
 
       def invoice_service
