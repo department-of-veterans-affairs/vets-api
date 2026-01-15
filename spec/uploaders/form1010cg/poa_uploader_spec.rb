@@ -128,7 +128,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
 
       it 'stores file in aws' do
         VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", store_vcr_options) do
-        expect(subject.filename).to be_nil
+          expect(subject.filename).to be_nil
           expect(subject.file).to be_nil
           expect(subject.versions).to eq({})
 
