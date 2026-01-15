@@ -108,14 +108,14 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
           claim_status: 'ELIGIBLE', email: 'test@test.com', first_name: 'test'
         }
         expect(MebApi::V0::Submit1990emebFormConfirmation).to have_received(:perform_async)
-          .with('ELIGIBLE', 'test@test.com', 'TEST')
+          .with('ELIGIBLE', 'test@test.com', 'TEST', user.icn)
       end
 
       it 'uses current user email and name when params not provided' do
         allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
         post '/meb_api/v0/forms_send_confirmation_email', params: { claim_status: 'ELIGIBLE' }
         expect(MebApi::V0::Submit1990emebFormConfirmation).to have_received(:perform_async)
-          .with('ELIGIBLE', user.email, 'HERBERT')
+          .with('ELIGIBLE', user.email, 'HERBERT', user.icn)
       end
     end
 
