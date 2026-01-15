@@ -359,7 +359,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       allow(mock_form).to receive(:respond_to?).with(:track_delegate_form).and_return(true)
 
       # Stub the controller methods to bypass the complex PDF generation flow
-      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:generate_ohi_form).and_return([mock_form])
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:generate_ohi_form)
+                                                              .and_return([mock_form])
       allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:fill_ohi_and_return_path)
                                                               .and_return('/tmp/test.pdf')
       allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:create_custom_attachment).and_return({})

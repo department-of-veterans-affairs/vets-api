@@ -8,7 +8,6 @@ RSpec.describe BGSV2::Marriages do
   let(:proc_id) { '3828033' }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
-  let(:spouse_payload) { build(:spouse) }
   let(:spouse_payload_v2) { build(:spouse_v2) }
 
   describe '#create' do
