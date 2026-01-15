@@ -4,6 +4,7 @@ require 'vets/model'
 require 'bid/awards/service'
 
 class FormProfiles::VA686c674v2 < FormProfile
+  include PensionAwardHelper
   class DependentInformation
     include Vets::Model
 
@@ -73,41 +74,6 @@ class FormProfiles::VA686c674v2 < FormProfile
     )&.last(4)
   end
 
-  # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
-  # Needed for FE to differentiate between 200 response and error
-  def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
-    case awards_pension[:is_in_receipt_of_pension]
-    when true
-      1
-    when false
-      0
-    else
-      -1
-    end
-  end
-
-  # @return [Integer] the net worth limit for pension, default is 163,699 as of 2026
-  # Default will be cached in future enhancement
-  def net_worth_limit
-    awards_pension[:net_worth_limit] || 163_699
-  end
-
-  # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
-  def awards_pension
-    @awards_pension ||= begin
-      response = pension_award_service.get_awards_pension
-      response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
-    rescue => e
-      payload = {
-        user_account_uuid: user&.user_account_uuid,
-        error: e.message,
-        form_id:
-      }
-      Rails.logger.warn('Failed to retrieve awards pension data', payload)
-      {}
-    end
-  end
-
   ##
   # This method retrieves the dependents from the BGS service and maps them to the DependentInformation model.
   # If no dependents are found or if they are not active for benefits, it returns an empty array.
@@ -171,6 +137,19 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   def monitor
     @monitor ||= Dependents::Monitor.new(nil)
+  end
+
+  ##
+  # Implementation of abstract method from PensionAwardHelper
+  # Tracks pension award errors using the monitor service
+  #
+  # @param error [Exception] The error that occurred during pension award retrieval
+  def track_pension_award_error(error)
+    monitor.track_event('warn', 'Failed to retrieve awards pension data', 'awards_pension_error', {
+                          user_account_uuid: user&.user_account_uuid,
+                          error: error.message,
+                          form_id:
+                        })
   end
 
   ##
