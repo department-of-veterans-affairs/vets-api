@@ -262,7 +262,8 @@ module PdfFill
               key: 'VBA21535[0].#subform[1].' \
                    'Title_Of_State_Or_Tribal_Official_Delegated_Responsibility_To_Apply_For_Federal_Funds[0]',
               question_text: 'Title of State or Tribal Official',
-              limit: 90
+              limit: 90,
+              question_num: 17
             },
             'dateSigned' => {
               key: 'VBA21535[0].#subform[1].DATE_SIGNED[0]',
@@ -275,6 +276,7 @@ module PdfFill
           'remarks' => {
             key: 'VBA21535[0].#subform[1].Remarks[0]',
             question_text: 'Remarks',
+            question_num: 18,
             limit: 2000
           }
         }.freeze

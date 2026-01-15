@@ -8,9 +8,9 @@
         "ssn": "321321321",
         "vaFileNumber": "43243243",
         "fullName": {
-            "first": "First or gi",
+            "first": "First or given name",
             "middle": "M",
-            "last": "Last or family na"
+            "last": "Last or family name"
         }
     },
     "burialInformation": {
