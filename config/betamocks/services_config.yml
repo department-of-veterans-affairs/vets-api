@@ -1143,6 +1143,12 @@
         :uid_location: "query"
         :uid_locator: "patient-id"
     - :method: :get
+      :path: "/v1/medicalrecords/immunizations"
+      :file_path: "mhv/uhd/vaccines"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+    - :method: :get
       :path: "/v1/medicalrecords/ccd"
       :file_path: "mhv/uhd/ccd"
       :cache_multiple_responses:
