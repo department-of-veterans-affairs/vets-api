@@ -8,8 +8,9 @@
 #
 # See: https://operations.osmfoundation.org/policies/nominatim/
 Geocoder.configure(
-  lookup: :nominatim, # OpenStreetMap Nominatim geocoding service (default)
+  lookup: :mapbox, # OpenStreetMap Nominatim geocoding service (default)
   timeout: 5,
   units: :mi,
-  http_headers: { 'User-Agent' => 'va.gov incomplete address validation' }
+  dataset: 'mapbox.places-permanent'
+  # api_key: Settings.DETERMINE_WHERE
 )

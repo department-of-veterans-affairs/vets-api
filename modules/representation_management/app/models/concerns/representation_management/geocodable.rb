@@ -28,6 +28,7 @@ module RepresentationManagement
       self.location = "POINT(#{result.longitude} #{result.latitude})"
 
       # Save fallback geolocation timestamp
+      self.fallback_location_updated_at = Time.current
 
       save!
       true
