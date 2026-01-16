@@ -17,10 +17,22 @@ module AccreditedRepresentativePortal
     end
 
     def icn
+      validate_params
+
       claimant_profile.present? or
         raise Common::Exceptions::RecordNotFound, 'Claimant not found'
 
       claimant_profile.icn
+    end
+
+    def validate_params
+      unless [@first_name, @last_name, @ssn, @birth_date].all?(&:present?)
+        missing_params = []
+        %w[first_name last_name ssn birth_date].each do |param|
+          missing_params << param if instance_values[param].blank?
+        end
+        raise ActionController::BadRequest, "Missing parameters: #{missing_params.join(',')}"
+      end
     end
 
     def self.get_icn(first_name, last_name, ssn, birth_date)

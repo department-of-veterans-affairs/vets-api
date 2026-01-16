@@ -149,6 +149,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         )
       end
 
+      before do
+        allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).with(
+          'Claimanty', 'Jane', '011223344', '1996-08-26'
+        ).and_return('123498767V234859')
+      end
+
       it 'submits an intent to file' do
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
           post('/accredited_representative_portal/v0/intent_to_file', params: survivor_params)
