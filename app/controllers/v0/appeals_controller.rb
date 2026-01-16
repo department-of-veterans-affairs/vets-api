@@ -6,7 +6,11 @@ module V0
 
     def index
       appeals_response = appeals_service.get_appeals(current_user)
-      render json: appeals_response.body
+      if Flipper.enabled?(:appeals_response_status)
+        render json: appeals_response.body, status: appeals_response.status
+      else
+        render json: appeals_response.body
+      end
     end
   end
 end

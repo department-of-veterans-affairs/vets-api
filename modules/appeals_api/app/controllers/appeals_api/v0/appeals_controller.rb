@@ -16,7 +16,11 @@ module AppealsApi
           'Consumer' => consumer,
           'VA-User' => requesting_va_user
         )
-        render(json: appeals_response.body)
+        if Flipper.enabled?(:appeals_response_status)
+          render(json: appeals_response.body, status: appeals_response.status)
+        else
+          render(json: appeals_response.body)
+        end
       end
 
       private
