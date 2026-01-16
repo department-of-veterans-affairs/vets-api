@@ -239,7 +239,7 @@ module Vass
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
         increment_statsd('otc_authentication_success')
-        render json: { data: { token: jwt_token, expiresIn: 3600, tokenType: 'Bearer' } }, status: :ok
+        render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
       end
 
       ##
@@ -423,10 +423,10 @@ module Vass
       #
       def render_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
         error = { code:, detail: }
-        error[:retryAfter] = retry_after if retry_after
-        error[:attemptsRemaining] = attempts_remaining if attempts_remaining
+        error[:retry_after] = retry_after if retry_after
+        error[:attempts_remaining] = attempts_remaining if attempts_remaining
 
-        render json: { errors: [error] }, status:
+        render_camelized_json({ errors: [error] }, status:)
       end
 
       ##
@@ -473,8 +473,8 @@ module Vass
       #
       def render_otc_success_response
         otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
-        render json: { data: { message: 'OTC sent to registered email address', expiresIn: otc_expiry_seconds } },
-               status: :ok
+        render_camelized_json({ data: { message: 'OTC sent to registered email address',
+                                        expires_in: otc_expiry_seconds } })
       end
 
       ##
