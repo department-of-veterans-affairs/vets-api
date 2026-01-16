@@ -186,13 +186,6 @@ RSpec.describe SignIn::UserLoader do
             expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user_icn, :sis)
           end
         end
-
-        it 'sets the cerner eligibility cookie correctly' do
-          user = subject
-          expect(cookies['CERNER_ELIGIBLE']).to eq(
-            { value: user.cerner_eligible?, domain: IdentitySettings.sign_in.info_cookie_domain }
-          )
-        end
       end
     end
 

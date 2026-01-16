@@ -2,8 +2,6 @@
 
 module SignIn
   class UserLoader
-    CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
-
     attr_reader :access_token, :request_ip, :cookies
 
     def initialize(access_token:, request_ip:, cookies:)
@@ -25,7 +23,7 @@ module SignIn
       user
     end
 
-    def reload_user # rubocop:disable Metrics/MethodLength
+    def reload_user
       validate_account_and_session
       user_identity.uuid = access_token.user_uuid
       current_user.uuid = access_token.user_uuid
@@ -38,7 +36,6 @@ module SignIn
       current_user.validate_mpi_profile
       current_user.create_mhv_account_async
       current_user.provision_cerner_async(source: :sis)
-      set_cerner_eligibility_cookie
 
       context = {
         user_uuid: current_user.uuid,
@@ -53,13 +50,6 @@ module SignIn
 
     def validate_account_and_session
       raise Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
-    end
-
-    def set_cerner_eligibility_cookie
-      cookies.permanent[CERNER_ELIGIBLE_COOKIE_NAME] = {
-        value: current_user.cerner_eligible?,
-        domain: IdentitySettings.sign_in.info_cookie_domain
-      }
     end
 
     def user_attributes
