@@ -676,6 +676,23 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
     end
 
+    context 'with VA proposed appointment' do
+      it 'is set to service name value if it exists' do
+        appt = appointment_by_id(proposed_va_id)
+        expect(appt.friendly_location_name).to eq('Friendly Name Optometry')
+      end
+
+      it 'is set to location name value if service_name does not exist' do
+        appt = appointment_by_id(proposed_va_id, without: [:service_name])
+        expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
+      end
+
+      it 'is set to nil when location name and service name are absent' do
+        appt = appointment_by_id(proposed_va_id, without: %i[location service_name])
+        expect(appt.friendly_location_name).to be_nil
+      end
+    end
+
     context 'with CC appointment request' do
       it 'is set to location name' do
         appt = appointment_by_id(proposed_cc_id)
