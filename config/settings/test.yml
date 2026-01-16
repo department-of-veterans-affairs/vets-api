@@ -217,8 +217,8 @@ claims_api:
         secret_key:  path/to/fake/key.pem
     host: https://sandbox-api.va.gov
     url: https://fakedomainandsubdomain.com
-    use_ssl: false
     use_mocks: true
+    use_ssl: false
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
