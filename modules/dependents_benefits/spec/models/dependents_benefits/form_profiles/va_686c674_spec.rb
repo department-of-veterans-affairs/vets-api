@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../fixtures/form_profile/va_686c674_spec_data'
-require 'bgs/dependent_v2_service'
+require 'bgs/dependent_service'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -369,7 +369,7 @@ RSpec.describe FormProfile, type: :model do
 
             it 'handles blank dependents data' do
               # Test line 160: when dependents.blank? or dependents[:persons].blank?, sets @dependents_information to []
-              allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+              allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
               allow(dependent_service).to receive(:get_dependents).and_return(nil)
 
               result = form_profile.prefill
@@ -574,8 +574,8 @@ RSpec.describe FormProfile, type: :model do
 
     describe '#prefill_dependents_information' do
       it 'sets empty array when dependents is blank' do
-        dependent_service = instance_double(BGS::DependentV2Service)
-        allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+        dependent_service = instance_double(BGS::DependentService)
+        allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
         allow(dependent_service).to receive(:get_dependents).and_return(nil)
 
         va686c674_form_profile.send(:prefill_dependents_information)
