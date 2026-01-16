@@ -11,6 +11,7 @@ module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate, if: :skip_authentication?
+      skip_before_action :verify_authenticity_token, if: :skip_authentication?
       before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
@@ -186,7 +187,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007 vba_40_1330m].include?(form_id)
 
         [file_path, metadata, form]
       end

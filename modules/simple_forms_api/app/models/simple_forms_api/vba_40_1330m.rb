@@ -2,8 +2,6 @@
 
 module SimpleFormsApi
   class VBA401330m < BaseForm
-    STATS_KEY = 'api.simple_forms_api.40_1330m'
-
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
@@ -62,8 +60,10 @@ module SimpleFormsApi
     end
 
     def track_user_identity(confirmation_number)
-      StatsD.increment("#{STATS_KEY}.submission")
-      Rails.logger.info('Simple forms api - 40-1330M submission', confirmation_number:)
+      StatsD.increment('api.simple_forms_api.40_1330m.submission')
+      Rails.logger.info('Simple forms api - 40-1330M submission', {
+                          confirmation_number:
+                        })
     end
 
     private
@@ -113,9 +113,9 @@ module SimpleFormsApi
 
     def applicant_phone
       [
-        data['applicant_phone']&.gsub(/\D/, '')&.[](0..2),
-        data['applicant_phone']&.gsub(/\D/, '')&.[](3..5),
-        data['applicant_phone']&.gsub(/\D/, '')&.[](6..9)
+        data['applicant_phone']&.gsub('-', '')&.[](0..2),
+        data['applicant_phone']&.gsub('-', '')&.[](3..5),
+        data['applicant_phone']&.gsub('-', '')&.[](6..9)
       ]
     end
   end

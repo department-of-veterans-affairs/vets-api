@@ -137,7 +137,7 @@ RSpec.describe SimpleFormsApi::VBA401330m do
       expect(StatsD).to receive(:increment).with('api.simple_forms_api.40_1330m.submission')
       expect(Rails.logger).to receive(:info).with(
         'Simple forms api - 40-1330M submission',
-        confirmation_number: confirmation_number
+        { confirmation_number: }
       )
 
       form.track_user_identity(confirmation_number)
