@@ -9,7 +9,7 @@ require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
 require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
-require 'bgs/service'
+require 'bgsv2/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
@@ -2585,7 +2585,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         it 'supports adding a dependency claim' do
           allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
           allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
-          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+          allow_any_instance_of(BGSV2::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
           VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
             expect(subject).to validate(
               :post,

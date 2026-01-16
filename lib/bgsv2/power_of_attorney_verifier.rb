@@ -11,7 +11,11 @@ module BGSV2
       @current_poa ||= @veteran.power_of_attorney
     end
 
-    def current_poa_code
+    # TODO: Refactor other calls so expiration is always checked & argument can be removed
+    def current_poa_code(respect_expiration: false)
+      return nil if respect_expiration && current_poa.try(:end_date).present? && Date.strptime(current_poa.end_date,
+                                                                                               '%m/%d/%Y')
+
       current_poa.try(:code)
     end
 
