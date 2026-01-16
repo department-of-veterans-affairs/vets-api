@@ -224,7 +224,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(StatsD).to have_received(:increment).with(
             'api.vass.controller.appointments.create.failure',
-            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error:missing_session_data'))
+            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
           ).at_least(:once)
         end
       end
