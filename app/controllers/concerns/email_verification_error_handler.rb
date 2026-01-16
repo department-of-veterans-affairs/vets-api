@@ -1,41 +1,8 @@
 # frozen_string_literal: true
 
-# EmailVerificationErrorHandler Concern
-#
-# This concern provides specialized error handling for email verification operations.
-# It handles the specific error scenarios that can occur during email verification
-# workflow and provides consistent logging and responses.
-#
-# ## Usage:
-#   include EmailVerificationErrorHandler
-#
-#   def create
-#     handle_verification_errors('send verification email') do
-#       # Email verification logic here
-#     end
-#   end
-#
-# ## Email Verification Specific Error Types:
-# - Common::Exceptions::BackendServiceException → 503 Service Unavailable
-# - Common::Exceptions::TooManyRequests → 429 Too Many Requests
-# - Generic exceptions → 500 Internal Server Error
-#
-# ## Logging:
-# All errors are logged with email verification context including:
-# - user_uuid (non-PII identifier)
-# - verification operation context
-# - rate limiting information when applicable
-# - verification status (needed/not needed)
-#
-# Note: Email addresses are NOT logged to protect user privacy.
-#
 module EmailVerificationErrorHandler
   extend ActiveSupport::Concern
 
-  # Handle errors specific to email verification operations
-  #
-  # @param verification_operation [String] Description of the verification operation
-  # @yield Block containing the email verification logic to execute
   def handle_verification_errors(verification_operation)
     yield
   rescue Common::Exceptions::BackendServiceException => e
@@ -49,10 +16,6 @@ module EmailVerificationErrorHandler
     render_verification_internal_error
   end
 
-  # Log successful email verification operations
-  #
-  # @param verification_operation [String] Description of the operation
-  # @param verification_data [Hash] Email verification specific data
   def log_verification_success(verification_operation, **verification_data)
     log_data = email_verification_log_data.merge(verification_data)
 
@@ -76,7 +39,6 @@ module EmailVerificationErrorHandler
       error_class: error.class.name
     )
 
-    # Only add rate limit info if the method exists and doesn't raise an error
     begin
       if respond_to?(:get_email_verification_rate_limit_info)
         log_data[:rate_limit_info] =
@@ -111,7 +73,6 @@ module EmailVerificationErrorHandler
     }, status: :service_unavailable
   end
 
-  # Render email verification rate limit error with retry information
   def render_verification_rate_limit_error(exception = nil)
     retry_after = if exception.respond_to?(:retry_after) && exception.retry_after
                     exception.retry_after
