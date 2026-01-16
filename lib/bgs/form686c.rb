@@ -13,7 +13,7 @@ require_relative 'vnp_veteran'
 require_relative 'children'
 require_relative '../bid/awards/service'
 
-module BGSV2
+module BGS
   class Form686c
     include Vets::SharedLogging
 
@@ -188,7 +188,7 @@ module BGSV2
     # rubocop:enable Metrics/MethodLength
 
     def bgs_service
-      BGSV2::Service.new(@user)
+      BGS::Service.new(@user)
     end
 
     def bid_service

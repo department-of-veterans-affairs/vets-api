@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgsv2/vnp_veteran'
+require 'bgs/vnp_veteran'
 
-RSpec.describe BGSV2::VnpVeteran do
+RSpec.describe BGS::VnpVeteran do
   let(:user_object) { create(:evss_user, :loa3) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
@@ -72,7 +72,7 @@ RSpec.describe BGSV2::VnpVeteran do
     context 'married veteran' do
       it 'returns a VnpPersonAddressPhone object' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -109,9 +109,9 @@ RSpec.describe BGSV2::VnpVeteran do
     context 'default location id' do
       it 'returns 347 when BGS::Service#find_regional_offices returns nil' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          expect_any_instance_of(BGSV2::Service).to receive(:find_regional_offices).and_return nil
+          expect_any_instance_of(BGS::Service).to receive(:find_regional_offices).and_return nil
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -124,10 +124,10 @@ RSpec.describe BGSV2::VnpVeteran do
 
       it 'returns 347 when BGS::Service#get_regional_office_by_zip_code returns an invalid regional office' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          expect_any_instance_of(BGSV2::Service)
+          expect_any_instance_of(BGS::Service)
             .to receive(:get_regional_office_by_zip_code).and_return 'invalid regional office'
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -175,19 +175,19 @@ RSpec.describe BGSV2::VnpVeteran do
         zip_prefix_nbr: '04102'
       }
       VCR.use_cassette('bgs/vnp_veteran/create') do
-        expect_any_instance_of(BGSV2::Service).to receive(:create_person)
+        expect_any_instance_of(BGS::Service).to receive(:create_person)
           .with(a_hash_including(vet_person_hash))
           .and_call_original
 
-        expect_any_instance_of(BGSV2::Service).to receive(:create_phone)
+        expect_any_instance_of(BGS::Service).to receive(:create_phone)
           .with(anything, anything, a_hash_including(formatted_payload_v2))
           .and_call_original
 
-        expect_any_instance_of(BGSV2::Service).to receive(:create_address)
+        expect_any_instance_of(BGS::Service).to receive(:create_address)
           .with(a_hash_including(expected_address))
           .and_call_original
 
-        BGSV2::VnpVeteran.new(
+        BGS::VnpVeteran.new(
           proc_id: '12345',
           payload: all_flows_payload_v2,
           user: user_object,
@@ -202,7 +202,7 @@ RSpec.describe BGSV2::VnpVeteran do
       it 'sets ssn to User#ssn' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
           user_object = create(:evss_user, :loa3, ssn: '123456789')
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -210,9 +210,9 @@ RSpec.describe BGSV2::VnpVeteran do
           )
           expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                       include(service: 'bgs'))
-          expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
+          expect(Rails.logger).to receive(:info).with('[BGS::Service] log_and_return called',
                                                       anything).at_least(:once)
-          expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
+          expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
           vnp_veteran.create
         end
       end
@@ -221,7 +221,7 @@ RSpec.describe BGSV2::VnpVeteran do
         it 'logs an error' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
-            vnp_veteran = BGSV2::VnpVeteran.new(
+            vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
               payload: all_flows_payload_v2,
               user: user_object,
@@ -230,9 +230,9 @@ RSpec.describe BGSV2::VnpVeteran do
 
             expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                         include(service: 'bgs'))
-            expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
+            expect(Rails.logger).to receive(:info).with('[BGS::Service] log_and_return called',
                                                         anything).at_least(:once)
-            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
+            expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
             vnp_veteran.create
           end
         end
@@ -242,18 +242,18 @@ RSpec.describe BGSV2::VnpVeteran do
         it 'logs an error to Sentry' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
             allow_any_instance_of(User).to receive(:ssn).and_return('********')
-            vnp_veteran = BGSV2::VnpVeteran.new(
+            vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
               payload: all_flows_payload_v2,
               user: user_object,
               claim_type: '130DPNEBNADJ'
             )
-            expect(Rails.logger).to receive(:info).with('[BGSV2::Service] log_and_return called',
+            expect(Rails.logger).to receive(:info).with('[BGS::Service] log_and_return called',
                                                         anything).at_least(:once)
             expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.',
                                                         include(service: 'bgs'))
             expect(Rails.logger).to receive(:error).with('SSN is redacted!', include(service: 'bgs'))
-            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
+            expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
             vnp_veteran.create
           end
         end
@@ -271,10 +271,10 @@ RSpec.describe BGSV2::VnpVeteran do
         expected_address = { cntry_nm: 'United Kingdom' }
 
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          expect_any_instance_of(BGSV2::Service).to receive(:create_address)
+          expect_any_instance_of(BGS::Service).to receive(:create_address)
             .with(a_hash_including(expected_address))
             .and_call_original
-          BGSV2::VnpVeteran.new(
+          BGS::VnpVeteran.new(
             proc_id: '12345',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -295,10 +295,10 @@ RSpec.describe BGSV2::VnpVeteran do
         expected_address = { cntry_nm: 'Antarctica' }
 
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          expect_any_instance_of(BGSV2::Service).to receive(:create_address)
+          expect_any_instance_of(BGS::Service).to receive(:create_address)
             .with(a_hash_including(expected_address))
             .and_call_original
-          BGSV2::VnpVeteran.new(
+          BGS::VnpVeteran.new(
             proc_id: '12345',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -322,10 +322,10 @@ RSpec.describe BGSV2::VnpVeteran do
                              mlty_post_office_type_cd: 'APO' }
 
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          expect_any_instance_of(BGSV2::Service).to receive(:create_address)
+          expect_any_instance_of(BGS::Service).to receive(:create_address)
             .with(a_hash_including(expected_address))
             .and_call_original
-          BGSV2::VnpVeteran.new(
+          BGS::VnpVeteran.new(
             proc_id: '12345',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -336,12 +336,12 @@ RSpec.describe BGSV2::VnpVeteran do
     end
 
     context 'claim_type_end_product parameter' do
-      let(:bgs_service) { BGSV2::Service.new(user_object) }
+      let(:bgs_service) { BGS::Service.new(user_object) }
       let(:benefit_claims) { double('BenefitClaims') }
       let(:mock_services) { BGS::Services.new(external_uid: '123', external_key: '123') }
 
       before do
-        allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+        allow(BGS::Service).to receive(:new).and_return(bgs_service)
         allow(bgs_service).to receive_messages(create_participant: {}, find_benefit_claim_type_increment: {},
                                                create_address: {}, get_regional_office_by_zip_code: {},
                                                find_regional_offices: {}, create_person: {}, create_phone: {})
@@ -359,9 +359,9 @@ RSpec.describe BGSV2::VnpVeteran do
 
       context 'when claim_type_end_product is provided' do
         it 'uses the provided claim_type_end_product and does not call find_benefit_claim_type_increment' do
-          expect_any_instance_of(BGSV2::Service).not_to receive(:find_benefit_claim_type_increment)
+          expect_any_instance_of(BGS::Service).not_to receive(:find_benefit_claim_type_increment)
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -375,11 +375,11 @@ RSpec.describe BGSV2::VnpVeteran do
 
       context 'when claim_type_end_product is not provided' do
         it 'calls find_benefit_claim_type_increment to determine the end product code' do
-          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+          expect_any_instance_of(BGS::Service).to receive(:find_benefit_claim_type_increment)
             .with('130DPNEBNADJ')
             .and_return('139')
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -392,11 +392,11 @@ RSpec.describe BGSV2::VnpVeteran do
 
       context 'when claim_type_end_product is nil' do
         it 'calls find_benefit_claim_type_increment to determine the end product code' do
-          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+          expect_any_instance_of(BGS::Service).to receive(:find_benefit_claim_type_increment)
             .with('130DPNEBNADJ')
             .and_return('139')
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,
@@ -410,11 +410,11 @@ RSpec.describe BGSV2::VnpVeteran do
 
       context 'when claim_type_end_product is an empty string' do
         it 'calls find_benefit_claim_type_increment to determine the end product code' do
-          expect_any_instance_of(BGSV2::Service).to receive(:find_benefit_claim_type_increment)
+          expect_any_instance_of(BGS::Service).to receive(:find_benefit_claim_type_increment)
             .with('130DPNEBNADJ')
             .and_return('139')
 
-          vnp_veteran = BGSV2::VnpVeteran.new(
+          vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload_v2,
             user: user_object,

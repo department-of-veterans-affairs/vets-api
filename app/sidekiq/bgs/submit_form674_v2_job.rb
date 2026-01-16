@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/form674'
+require 'bgs/form674'
 require 'dependents/monitor'
 require 'vets/shared_logging'
 
@@ -133,7 +133,7 @@ module BGS
 
       claim_data = normalize_names_and_addresses!(claim.formatted_674_data(vet_info))
 
-      BGSV2::Form674.new(user, claim).submit(claim_data)
+      BGS::Form674.new(user, claim).submit(claim_data)
     end
 
     def send_confirmation_email

@@ -2,7 +2,7 @@
 
 require_relative 'service'
 
-module BGSV2
+module BGS
   class VnpBenefitClaim
     def initialize(proc_id:, veteran:, user:)
       @user = user
@@ -34,7 +34,7 @@ module BGSV2
     end
 
     def bgs_service
-      BGSV2::Service.new(@user)
+      BGS::Service.new(@user)
     end
   end
 end

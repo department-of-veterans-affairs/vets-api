@@ -2,7 +2,7 @@
 
 require_relative 'service'
 
-module BGSV2
+module BGS
   class DependentHigherEdAttendance
     def initialize(proc_id:, payload:, user:, student:)
       @proc_id = proc_id
@@ -47,7 +47,7 @@ module BGSV2
     end
 
     def bgs_service
-      @bgs_service ||= BGSV2::Service.new(@user)
+      @bgs_service ||= BGS::Service.new(@user)
     end
   end
 end

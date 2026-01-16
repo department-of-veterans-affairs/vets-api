@@ -12,7 +12,7 @@ graph TD
     CreateRecords --> DB1[(DB: BGS::Submission<br/>form_id: '686C-674'<br/>saved_claim_id)]
     DB1 --> DB2[(DB: BGS::SubmissionAttempt<br/>linked to Submission)]
     
-    DB2 --> CallBGS[Call BGS Service<br/>BGSV2::Service.new]
+    DB2 --> CallBGS[Call BGS Service<br/>BGS::Service.new]
     CallBGS --> CreateProc[create_proc<br/>proc_state: 'Started']
     CreateProc --> GetProcId[Get proc_id from response]
     

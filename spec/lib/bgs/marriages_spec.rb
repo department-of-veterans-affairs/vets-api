@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgsv2/marriages'
+require 'bgs/marriages'
 
-RSpec.describe BGSV2::Marriages do
+RSpec.describe BGS::Marriages do
   let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -14,7 +14,7 @@ RSpec.describe BGSV2::Marriages do
     context 'adding a spouse' do
       it 'returns hash for spouse who lives with veteran' do
         VCR.use_cassette('bgs/dependents/create/spouse/lives_with_veteran') do
-          dependents = BGSV2::Marriages.new(
+          dependents = BGS::Marriages.new(
             proc_id:,
             payload: spouse_payload_v2,
             user: user_object
@@ -35,7 +35,7 @@ RSpec.describe BGSV2::Marriages do
 
       it 'returns hash for spouse who has different address (separated)' do
         VCR.use_cassette('bgs/dependents/create') do
-          dependents = BGSV2::Marriages.new(
+          dependents = BGS::Marriages.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object
@@ -73,11 +73,11 @@ RSpec.describe BGSV2::Marriages do
         }
 
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
-          expect_any_instance_of(BGSV2::Service).to receive(:create_person)
+          expect_any_instance_of(BGS::Service).to receive(:create_person)
             .with(a_hash_including(spouse_vet_hash))
             .and_call_original
 
-          BGSV2::Marriages.new(
+          BGS::Marriages.new(
             proc_id:,
             payload: spouse_payload_v2,
             user: user_object

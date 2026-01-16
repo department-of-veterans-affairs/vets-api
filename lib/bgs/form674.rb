@@ -12,7 +12,7 @@ require_relative 'vnp_veteran'
 require_relative 'dependent_higher_ed_attendance'
 require_relative '../bid/awards/service'
 
-module BGSV2
+module BGS
   class Form674
     include Vets::SharedLogging
 
@@ -167,7 +167,7 @@ module BGSV2
     end
 
     def bgs_service
-      BGSV2::Service.new(@user)
+      BGS::Service.new(@user)
     end
 
     def bid_service

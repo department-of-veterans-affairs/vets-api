@@ -3,7 +3,7 @@
 require_relative 'service'
 require 'bgs/monitor'
 
-module BGSV2
+module BGS
   class VnpVeteran
     def initialize(proc_id:, payload:, user:, claim_type:, claim_type_end_product: nil)
       @user = user
@@ -119,7 +119,7 @@ module BGSV2
     end
 
     def bgs_service
-      BGSV2::Service.new(@user)
+      BGS::Service.new(@user)
     end
 
     def monitor

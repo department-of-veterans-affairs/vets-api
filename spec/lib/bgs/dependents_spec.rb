@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgsv2/dependents'
+require 'bgs/dependents'
 
-RSpec.describe BGSV2::Dependents do
+RSpec.describe BGS::Dependents do
   let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -13,7 +13,7 @@ RSpec.describe BGSV2::Dependents do
     context 'reporting a death' do
       it 'returns a hash with a spouse type death' do
         VCR.use_cassette('bgs/dependents/create/death') do
-          dependents = BGSV2::Dependents.new(
+          dependents = BGS::Dependents.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object
@@ -34,7 +34,7 @@ RSpec.describe BGSV2::Dependents do
     context 'reporting a divorce' do
       it 'returns an hash with divorce data' do
         VCR.use_cassette('bgs/dependents/create') do
-          dependents = BGSV2::Dependents.new(
+          dependents = BGS::Dependents.new(
             proc_id:,
             payload: all_flows_payload_v2,
             user: user_object

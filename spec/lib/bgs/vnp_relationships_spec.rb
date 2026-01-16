@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgsv2/vnp_relationships'
+require 'bgs/vnp_relationships'
 
-RSpec.describe BGSV2::VnpRelationships do
+RSpec.describe BGS::VnpRelationships do
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:veteran_hash) { { vnp_participant_id: '146189' } }
@@ -33,7 +33,7 @@ RSpec.describe BGSV2::VnpRelationships do
 
           dependent_array = [child]
 
-          dependents = BGSV2::VnpRelationships.new(
+          dependents = BGS::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -68,7 +68,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [divorce]
-          dependents = BGSV2::VnpRelationships.new(
+          dependents = BGS::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -106,7 +106,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [death]
-          dependents = BGSV2::VnpRelationships.new(
+          dependents = BGS::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -143,7 +143,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGSV2::VnpRelationships.new(
+          dependents = BGS::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -179,11 +179,11 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGSV2::VnpRelationships.new(proc_id:,
-                                                   veteran: veteran_hash,
-                                                   dependents: dependent_array,
-                                                   step_children: [],
-                                                   user: user_object).create_all
+          dependents = BGS::VnpRelationships.new(proc_id:,
+                                                 veteran: veteran_hash,
+                                                 dependents: dependent_array,
+                                                 step_children: [],
+                                                 user: user_object).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',

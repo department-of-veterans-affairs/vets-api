@@ -2,7 +2,7 @@
 
 require_relative 'service'
 
-module BGSV2
+module BGS
   class Marriages
     def initialize(proc_id:, payload:, user:)
       @user = user
@@ -91,7 +91,7 @@ module BGSV2
     end
 
     def bgs_service
-      @bgs_service = BGSV2::Service.new(@user)
+      @bgs_service = BGS::Service.new(@user)
     end
 
     def live_with_vet?

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgsv2/student_school'
+require 'bgs/student_school'
 
-RSpec.describe BGSV2::StudentSchool do
+RSpec.describe BGS::StudentSchool do
   let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3829729' }
   let(:vnp_participant_id) { '149471' }
@@ -98,7 +98,7 @@ RSpec.describe BGSV2::StudentSchool do
           hash_including(student_params_v2)
         )
 
-        BGSV2::StudentSchool.new(
+        BGS::StudentSchool.new(
           proc_id:,
           vnp_participant_id:,
           payload: all_flows_v2_payload,
