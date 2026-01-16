@@ -205,11 +205,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.success',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
           end
         end
@@ -222,11 +222,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.error',
-              tags: array_including('org:067', 'benefit_type:compensation', 'reason:unprocessableentity')
+              tags: array_including('benefit_type:compensation', 'reason:unprocessableentity')
             )
           end
         end
@@ -239,11 +239,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.error',
-              tags: array_including('org:067', 'benefit_type:compensation', 'reason:serviceunavailable')
+              tags: array_including('benefit_type:compensation', 'reason:serviceunavailable')
             )
           end
         end
@@ -257,11 +257,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.error',
-              tags: array_including('org:067', 'benefit_type:compensation', 'reason:argument_error')
+              tags: array_including('benefit_type:compensation', 'reason:argument_error')
             )
           end
         end
@@ -271,16 +271,36 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
             allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
               .and_raise(StandardError, 'something went wrong')
 
-            # Perform the request normally, don't expect it to raise
             post('/accredited_representative_portal/v0/intent_to_file', params:)
 
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.attempt',
-              tags: array_including('org:067', 'benefit_type:compensation')
+              tags: array_including('benefit_type:compensation')
             )
             expect(datadog_instance).to have_received(:track_count).with(
               'ar.itf.submit.error',
-              tags: array_including('org:067', 'benefit_type:compensation', 'reason:standarderror')
+              tags: array_including('benefit_type:compensation', 'reason:standarderror')
+            )
+          end
+        end
+
+        context 'when poa_code lookup fails' do
+          before do
+            allow_any_instance_of(
+              AccreditedRepresentativePortal::V0::IntentToFileController
+            ).to receive(:power_of_attorney_holder).and_raise(StandardError)
+          end
+
+          it 'still submits the ITF and tracks metrics without org tag' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+            end
+
+            expect(response).to have_http_status(:created)
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.success',
+              tags: array_including('benefit_type:compensation', 'org_resolve:failed')
             )
           end
         end

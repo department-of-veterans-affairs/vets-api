@@ -176,12 +176,23 @@ module AccreditedRepresentativePortal
         )
       end
 
+      # ---- FIXED: defensive, failure-safe Datadog tags ----
       def default_tags
+        org = organization
+
         [
-          "org:#{power_of_attorney_holder&.poa_code}",
+          ("org:#{org}" if org.present?),
+          ('org_resolve:failed' if org.nil?),
           "benefit_type:#{params[:benefitType]}"
-        ]
+        ].compact
       end
+
+      def organization
+        power_of_attorney_holder&.poa_code
+      rescue
+        nil
+      end
+      # ----------------------------------------------------
 
       def normalize_error(error)
         return 'unknown_error' if error.blank? || error['title'].blank?
