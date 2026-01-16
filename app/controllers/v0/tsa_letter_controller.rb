@@ -25,18 +25,15 @@ module V0
     end
 
     def download
+      download_service = ClaimsEvidenceApi::Service::Files.new
       send_data(
-        service.get_tsa_letter(params[:id]),
+        download_service.download(params[:id], params[:version_id]),
         type: 'application/pdf',
         filename: 'VETS Safe Travel Outreach Letter.pdf'
       )
     end
 
     private
-
-    def service
-      Efolder::Service.new(@current_user)
-    end
 
     def most_recent_letter(files)
       return { data: nil } if files.blank?
