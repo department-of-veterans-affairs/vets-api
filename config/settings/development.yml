@@ -1829,8 +1829,8 @@ vass:
   client_secret: fake_client_secret
   jwt_secret: development-jwt-secret-key-not-for-production
   mock: true
-  rate_limit_max_attempts: 3
   rate_limit_expiry: 7
+  rate_limit_max_attempts: 3
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
