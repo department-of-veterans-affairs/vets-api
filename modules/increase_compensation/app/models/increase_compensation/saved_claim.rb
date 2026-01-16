@@ -90,9 +90,12 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
-      signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
-      # Pdf Stamper changes the file name so change it back here
-      FileUtils.mv(signed_path, pdf_path, force: true)
+      if form
+        # test fails because form is nil
+        signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
+        # Pdf Stamper changes the file name so change it back here
+        FileUtils.mv(signed_path, pdf_path, force: true)
+      end
       pdf_path
     end
 
