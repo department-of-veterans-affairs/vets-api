@@ -1,7 +1,4 @@
-# ADR-003: Data Storage Approach for GCIO Submissions
-
-## Status
-Accepted
+# ADR-003: Data Storage Approach for GCIO Form Intake Submissions
 
 ## Context
 
@@ -41,15 +38,15 @@ vets-api already has established patterns:
 
 ## Decision
 
-**Create a new `GcioSubmission` model** following existing patterns from `FormSubmissionAttempt`, with a one-to-many relationship from `FormSubmission`.
+**Create a new `FormIntakeSubmission` model** following existing patterns from `FormSubmissionAttempt`, with a one-to-many relationship from `FormSubmission`.
 
 ### Database Schema
 
 ```ruby
-# db/migrate/YYYYMMDDHHMMSS_create_gcio_submissions.rb
-class CreateGcioSubmissions < ActiveRecord::Migration[7.0]
+# db/migrate/YYYYMMDDHHMMSS_create_form_intake_submissions.rb
+class CreateFormIntakeSubmissions < ActiveRecord::Migration[7.0]
   def change
-    create_table :gcio_submissions do |t|
+    create_table :form_intake_submissions do |t|
       t.references :form_submission, null: false, foreign_key: true, index: true
       
       # Status tracking
@@ -57,7 +54,7 @@ class CreateGcioSubmissions < ActiveRecord::Migration[7.0]
       t.integer :retry_count, default: 0, null: false
       
       # GCIO identifiers
-      t.string :gcio_submission_id
+      t.string :form_intake_submission_id
       t.string :gcio_tracking_number
       
       # Encrypted fields (using Lockbox)
@@ -73,9 +70,9 @@ class CreateGcioSubmissions < ActiveRecord::Migration[7.0]
       t.timestamps
     end
     
-    add_index :gcio_submissions, :aasm_state
-    add_index :gcio_submissions, :gcio_submission_id, unique: true, where: "gcio_submission_id IS NOT NULL"
-    add_index :gcio_submissions, :created_at
+    add_index :form_intake_submissions, :aasm_state
+    add_index :form_intake_submissions, :form_intake_submission_id, unique: true, where: "form_intake_submission_id IS NOT NULL"
+    add_index :form_intake_submissions, :created_at
   end
 end
 ```
@@ -83,8 +80,8 @@ end
 ### Model Implementation
 
 ```ruby
-# app/models/gcio_submission.rb
-class GcioSubmission < ApplicationRecord
+# app/models/form_intake_submission.rb
+class FormIntakeSubmission < ApplicationRecord
   include AASM
   
   belongs_to :form_submission
@@ -129,8 +126,8 @@ class GcioSubmission < ApplicationRecord
   
   def log_status_change
     Rails.logger.info(
-      'GcioSubmission state change',
-      gcio_submission_id: id,
+      'FormIntakeSubmission state change',
+      form_intake_submission_id: id,
       form_submission_id: form_submission_id,
       form_type: form_submission.form_type,
       from_state: aasm.from_state,
@@ -150,7 +147,7 @@ class GcioSubmission < ApplicationRecord
   end
   
   def notify_on_failure
-    Gcio::FailureNotificationJob.perform_async(id)
+    FormIntake::FailureNotificationJob.perform_async(id)
   end
 end
 ```
@@ -162,7 +159,7 @@ end
 class FormSubmission < ApplicationRecord
   # ... existing code ...
   
-  has_many :gcio_submissions, dependent: :nullify
+  has_many :form_intake_submissions, dependent: :nullify
 end
 ```
 
@@ -194,10 +191,10 @@ end
 
 ### Alternative 3: Separate Status Tracking Table
 
-**Approach**: Create `gcio_submission_attempts` separate from `gcio_submissions`.
+**Approach**: Create `form_intake_submission_attempts` separate from `form_intake_submissions`.
 
 ```
-gcio_submissions (1:N) gcio_submission_attempts
+form_intake_submissions (1:N) form_intake_submission_attempts
 ```
 
 **Rejected because**:
@@ -262,9 +259,9 @@ gcio_submissions (1:N) gcio_submission_attempts
 
 ```ruby
 # For common queries
-add_index :gcio_submissions, [:form_submission_id, :aasm_state]
-add_index :gcio_submissions, [:aasm_state, :created_at]
-add_index :gcio_submissions, :last_attempted_at, where: "aasm_state = 'pending'"
+add_index :form_intake_submissions, [:form_submission_id, :aasm_state]
+add_index :form_intake_submissions, [:aasm_state, :created_at]
+add_index :form_intake_submissions, :last_attempted_at, where: "aasm_state = 'pending'"
 ```
 
 ### Data Retention
@@ -275,7 +272,7 @@ namespace :gcio do
   desc 'Archive GCIO submissions older than 7 years'
   task archive_old_submissions: :environment do
     cutoff = 7.years.ago
-    GcioSubmission.where('created_at < ?', cutoff).find_each do |submission|
+    FormIntakeSubmission.where('created_at < ?', cutoff).find_each do |submission|
       # Archive to S3 or data warehouse
       # Then delete from primary DB
     end
@@ -287,22 +284,22 @@ end
 
 ```ruby
 # Count by status
-GcioSubmission.group(:aasm_state).count
+FormIntakeSubmission.group(:aasm_state).count
 
 # Failure rate last 24h
-total = GcioSubmission.where('created_at > ?', 24.hours.ago).count
-failed = GcioSubmission.where('created_at > ?', 24.hours.ago).failed.count
+total = FormIntakeSubmission.where('created_at > ?', 24.hours.ago).count
+failed = FormIntakeSubmission.where('created_at > ?', 24.hours.ago).failed.count
 failure_rate = (failed.to_f / total * 100).round(2)
 
 # Average retry count
-GcioSubmission.where('created_at > ?', 24.hours.ago).average(:retry_count)
+FormIntakeSubmission.where('created_at > ?', 24.hours.ago).average(:retry_count)
 ```
 
 ### Encryption Configuration
 
 ```ruby
 # Follows existing pattern from FormSubmissionAttempt
-class GcioSubmission < ApplicationRecord
+class FormIntakeSubmission < ApplicationRecord
   has_kms_key
   has_encrypted :request_payload, :response, :error_message,
                 key: :kms_key, **lockbox_options
@@ -338,36 +335,22 @@ t.text :request_headers_ciphertext
 
 ```ruby
 # Find all GCIO submissions for a form
-form_submission.gcio_submissions
+form_submission.form_intake_submissions
 
 # Find failed submissions needing review
-GcioSubmission.failed.where('created_at > ?', 1.week.ago)
+FormIntakeSubmission.failed.where('created_at > ?', 1.week.ago)
 
 # Find pending submissions (for monitoring)
-GcioSubmission.pending.where('created_at < ?', 1.day.ago)
+FormIntakeSubmission.pending.where('created_at < ?', 1.day.ago)
 
 # Find by GCIO ID (for webhook callbacks)
-GcioSubmission.find_by(gcio_submission_id: external_id)
+FormIntakeSubmission.find_by(form_intake_submission_id: external_id)
 ```
 
 ### Performance Considerations
 
 - Use `includes(:form_submission)` to avoid N+1
 - Index on `aasm_state` for status filtering
-- Index on `gcio_submission_id` for lookups
+- Index on `form_intake_submission_id` for lookups
 - Partition table if volume is very high
-
-## References
-
-- [FormSubmissionAttempt Model](../../../../app/models/form_submission_attempt.rb)
-- [FormSubmission Model](../../../../app/models/form_submission.rb)
-- [Lockbox Encryption](https://github.com/ankane/lockbox)
-- [AASM State Machine](https://github.com/aasm/aasm)
-
-## Review
-
-- **Author**: Architecture Team
-- **Date**: 2026-01-09
-- **Reviewers**: Platform Team, Backend Team, Security Team
-- **Next Review**: 2026-04-09 (90 days)
 

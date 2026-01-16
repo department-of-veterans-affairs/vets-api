@@ -1,12 +1,12 @@
-# C4 Architecture Diagrams - GCIO Integration
+# C4 Architecture Diagrams - GCIO Form Intake Integration
 
 ## Level 1: System Context Diagram
 
-This diagram shows how the GCIO Integration fits within the broader VA.gov ecosystem.
+This diagram shows how the GCIO Form Intake Integration fits within the broader VA.gov ecosystem.
 
 ```mermaid
 C4Context
-    title System Context Diagram - GCIO Integration
+    title System Context Diagram - GCIO Form Intake Integration
 
     Person(veteran, "Veteran", "Submits benefits forms through VA.gov")
     
@@ -15,20 +15,24 @@ C4Context
     }
     
     System_Ext(lighthouse, "Lighthouse Benefits Intake", "VA's document intake system")
-    System_Ext(gcio, "GCIO API", "Government Customer Information Office external API")
+    System_Ext(fwdproxy, "fwdproxy", "Outbound gateway with mTLS")
+    System_Ext(gcio, "GCIO Digitization API", "Form intake API endpoint")
+    System_Ext(ssm, "AWS SSM", "Certificate storage")
     System_Ext(datadog, "DataDog", "Application monitoring and observability")
     System_Ext(vanotify, "VA Notify", "Notification service for emails")
     
     Rel(veteran, vetsapi, "Submits form", "HTTPS/JSON")
     Rel(vetsapi, lighthouse, "Uploads PDF documents", "HTTPS/Multipart")
     Rel(vetsapi, lighthouse, "Polls submission status", "HTTPS/JSON")
-    Rel(vetsapi, gcio, "Sends form data", "HTTPS/JSON")
+    Rel(vetsapi, fwdproxy, "Sends form data", "HTTPS")
+    Rel(fwdproxy, ssm, "Retrieves certificates", "AWS API")
+    Rel(fwdproxy, gcio, "Forwards with mTLS", "HTTPS/mTLS")
     Rel(vetsapi, datadog, "Sends metrics and traces", "StatsD/APM")
     Rel(vetsapi, vanotify, "Sends error notifications", "HTTPS/JSON")
     
     UpdateRelStyle(veteran, vetsapi, $offsetY="-40", $offsetX="-50")
     UpdateRelStyle(vetsapi, lighthouse, $offsetY="-60")
-    UpdateRelStyle(vetsapi, gcio, $offsetY="20")
+    UpdateRelStyle(fwdproxy, gcio, $offsetY="20")
 ```
 
 ## Level 2: Container Diagram
@@ -49,7 +53,8 @@ C4Container
     }
     
     System_Ext(lighthouse, "Lighthouse Benefits Intake API", "Document intake and status")
-    System_Ext(gcio, "GCIO API", "External integration endpoint")
+    System_Ext(fwdproxy, "fwdproxy", "Outbound proxy")
+    System_Ext(gcio, "GCIO Digitization API", "Form intake endpoint")
     System_Ext(datadog, "DataDog APM", "Monitoring and observability")
     
     Rel(veteran, rails, "Submits form", "HTTPS")
@@ -76,27 +81,28 @@ C4Component
 
     Container_Boundary(sidekiq, "Sidekiq Background Workers") {
         Component(polling_job, "BenefitsIntakeStatusJob", "Sidekiq Job", "Polls Lighthouse for submission status updates")
-        Component(gcio_job, "Gcio::SubmitFormDataJob", "Sidekiq Job", "Sends form data to GCIO API with retry logic")
+        Component(gcio_job, "FormIntake::SubmitFormDataJob", "Sidekiq Job", "Sends form data to GCIO digitization API via fwdproxy with retry logic")
     }
     
     Container_Boundary(services, "Service Layer") {
-        Component(gcio_service, "Gcio::Service", "Service Class", "HTTP client for GCIO API integration")
-        Component(gcio_config, "Gcio::Configuration", "Configuration", "API endpoints and settings")
+        Component(gcio_service, "FormIntake::Service", "Service Class", "HTTP client for GCIO digitization API integration via fwdproxy")
+        Component(gcio_config, "FormIntake::Configuration", "Configuration", "API endpoints and settings")
     }
     
     Container_Boundary(models, "Data Models") {
         Component(form_sub_attempt, "FormSubmissionAttempt", "ActiveRecord Model", "Tracks Lighthouse submission status")
-        Component(gcio_submission, "GcioSubmission", "ActiveRecord Model", "Tracks GCIO API submission attempts")
+        Component(form_intake_submission, "FormIntakeSubmission", "ActiveRecord Model", "Tracks GCIO digitization API submission attempts")
         Component(form_submission, "FormSubmission", "ActiveRecord Model", "Stores original form data")
     }
     
     Container_Boundary(handlers, "Event Handlers") {
-        Component(callback, "Gcio::SubmissionHandler", "Handler Class", "Triggered on successful vbms status")
+        Component(callback, "FormIntake::SubmissionHandler", "Handler Class", "Triggered on successful vbms status")
     }
     
     ContainerDb_Ext(postgres, "PostgreSQL", "Database")
     System_Ext(lighthouse, "Lighthouse API", "External")
-    System_Ext(gcio_api, "GCIO API", "External")
+    Container_Ext(fwdproxy, "fwdproxy", "Outbound Proxy")
+    System_Ext(gcio_api, "GCIO Digitization API", "dev-api.digitization.gcio.com")
     Container_Ext(datadog, "DataDog", "Monitoring")
     
     Rel(polling_job, lighthouse, "GET /uploads/report", "HTTPS")
@@ -107,8 +113,8 @@ C4Component
     Rel(gcio_job, gcio_service, "Calls API", "Method call")
     Rel(gcio_service, gcio_config, "Loads config", "Method call")
     Rel(gcio_service, gcio_api, "POST /api/submissions", "HTTPS/JSON")
-    Rel(gcio_job, gcio_submission, "Records attempt", "ActiveRecord")
-    Rel(gcio_submission, postgres, "Persists data", "SQL")
+    Rel(gcio_job, form_intake_submission, "Records attempt", "ActiveRecord")
+    Rel(form_intake_submission, postgres, "Persists data", "SQL")
     Rel(form_submission, postgres, "Reads data", "SQL")
     Rel(gcio_job, datadog, "Tracks metrics", "StatsD")
     Rel(gcio_service, datadog, "Traces requests", "APM")
@@ -126,10 +132,11 @@ sequenceDiagram
     participant S1 as SubmitBenefitsIntakeClaim Job
     participant LH as Lighthouse API
     participant S2 as BenefitsIntakeStatusJob
-    participant H as GcioSubmissionHandler
+    participant H as FormIntakeSubmissionHandler
     participant S3 as SubmitFormDataJob
-    participant GS as Gcio::Service
-    participant GCIO as GCIO API
+    participant GS as FormIntake::Service
+    participant FP as fwdproxy
+    participant GCIO as GCIO Digitization API
     participant DD as DataDog
 
     V->>R: Submit form (POST /api/v1/forms)
@@ -157,12 +164,12 @@ sequenceDiagram
     H->>S3: Enqueue SubmitFormDataJob
     
     S3->>DB: Query FormSubmission for form data
-    S3->>DB: Create GcioSubmission (pending)
+    S3->>DB: Create FormIntakeSubmission (pending)
     S3->>GS: Call submit(form_data)
     GS->>GCIO: POST /api/submissions (JSON payload)
     GCIO-->>GS: 200 OK + submission_id
     GS-->>S3: Return success response
-    S3->>DB: Update GcioSubmission (success)
+    S3->>DB: Update FormIntakeSubmission (success)
     S3->>DD: Log success metrics
     
     Note over S3: If failure, Sidekiq retries
@@ -171,44 +178,45 @@ sequenceDiagram
 
 ## Sequence Diagram: Failure and Retry Flow
 
-This sequence diagram shows what happens when GCIO API calls fail.
+This sequence diagram shows what happens when GCIO digitization API calls fail.
 
 ```mermaid
 sequenceDiagram
     participant S as BenefitsIntakeStatusJob
     participant DB as PostgreSQL
     participant J as SubmitFormDataJob
-    participant GS as Gcio::Service
-    participant GCIO as GCIO API
+    participant GS as FormIntake::Service
+    participant FP as fwdproxy
+    participant GCIO as GCIO Digitization API
     participant DD as DataDog
     participant VN as VA Notify
 
     S->>DB: Update status to vbms
     DB->>J: Enqueue job (attempt 1)
     
-    J->>DB: Create GcioSubmission (pending)
+    J->>DB: Create FormIntakeSubmission (pending)
     J->>GS: Call submit(form_data)
     GS->>GCIO: POST /api/submissions
     GCIO-->>GS: 500 Internal Server Error
     GS-->>J: Raise ServiceError
-    J->>DB: Update GcioSubmission (attempt 1, error)
+    J->>DB: Update FormIntakeSubmission (attempt 1, error)
     J->>DD: Log failure metric
     
     Note over J: Sidekiq retry (exponential backoff)
     Note over J: Wait ~25 seconds
     
-    J->>DB: Update GcioSubmission (attempt 2)
+    J->>DB: Update FormIntakeSubmission (attempt 2)
     J->>GS: Call submit(form_data)
     GS->>GCIO: POST /api/submissions
     GCIO-->>GS: 503 Service Unavailable
     GS-->>J: Raise ServiceError
-    J->>DB: Update GcioSubmission (attempt 2, error)
+    J->>DB: Update FormIntakeSubmission (attempt 2, error)
     J->>DD: Log failure metric
     
     Note over J: Continue retrying...
     Note over J: After 16 retries (~2 days)
     
-    J->>DB: Update GcioSubmission (failed)
+    J->>DB: Update FormIntakeSubmission (failed)
     J->>DD: Log exhaustion metric
     J->>VN: Send failure notification (if configured)
 ```
@@ -238,13 +246,13 @@ flowchart TD
     M -->|No| O[End]
     
     N --> P[Enqueue SubmitFormDataJob]
-    P --> Q[Create GcioSubmission Record]
+    P --> Q[Create FormIntakeSubmission Record]
     Q --> R[Read Form Data from FormSubmission]
-    R --> S[Call Gcio::Service]
+    R --> S[Call FormIntake::Service]
     S --> T{API Response}
     
-    T -->|Success| U[Update GcioSubmission: success]
-    T -->|Failure| V[Update GcioSubmission: retry attempt]
+    T -->|Success| U[Update FormIntakeSubmission: success]
+    T -->|Failure| V[Update FormIntakeSubmission: retry attempt]
     
     V --> W{Retry Count}
     W -->|< 16| X[Sidekiq Retry with Backoff]
@@ -262,16 +270,16 @@ graph LR
     A[FormSubmissionAttempt] -->|has_one| B[FormSubmission]
     B -->|has_many| A
     B -->|belongs_to| C[SavedClaim]
-    B -->|has_many| D[GcioSubmission]
+    B -->|has_many| D[FormIntakeSubmission]
     D -->|belongs_to| B
     
     E[BenefitsIntakeStatusJob] -.->|updates| A
-    F[Gcio::SubmissionHandler] -.->|observes| A
-    F -.->|enqueues| G[Gcio::SubmitFormDataJob]
+    F[FormIntake::SubmissionHandler] -.->|observes| A
+    F -.->|enqueues| G[FormIntake::SubmitFormDataJob]
     G -.->|creates/updates| D
     G -.->|reads| B
-    G -.->|calls| H[Gcio::Service]
-    H -.->|uses| I[Gcio::Configuration]
+    G -.->|calls| H[FormIntake::Service]
+    H -.->|uses| I[FormIntake::Configuration]
     
     style A fill:#e1f5ff
     style B fill:#e1f5ff

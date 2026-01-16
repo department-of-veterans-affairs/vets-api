@@ -1,7 +1,4 @@
-# ADR-001: Submission Trigger Mechanism for GCIO Integration
-
-## Status
-Accepted
+# ADR-001: Submission Trigger Mechanism for GCIO Form Intake Integration
 
 ## Context
 
@@ -35,9 +32,9 @@ The system uses AASM (state machine) callbacks to trigger side effects.
 
 ### Implementation Approach
 
-1. **Create a dedicated handler class** (`Gcio::SubmissionHandler`) that responds to the state transition
+1. **Create a dedicated handler class** (`FormIntake::SubmissionHandler`) that responds to the state transition
 2. **Register the handler** as an AASM callback in `FormSubmissionAttempt`
-3. **Handler enqueues** a Sidekiq job (`Gcio::SubmitFormDataJob`) for async processing
+3. **Handler enqueues** a Sidekiq job (`FormIntake::SubmitFormDataJob`) for async processing
 4. **Configuration-driven** - use Flipper feature flags to control which forms trigger GCIO submissions
 
 ```ruby
@@ -45,15 +42,15 @@ The system uses AASM (state machine) callbacks to trigger side effects.
 event :vbms do
   after do
     simple_forms_enqueue_result_email if should_send_simple_forms_email
-    Gcio::SubmissionHandler.new(self).handle if should_submit_to_gcio?
+    FormIntake::SubmissionHandler.new(self).handle if should_submit_to_gcio?
   end
   transitions from: :pending, to: :vbms
   transitions from: :success, to: :vbms
 end
 
 def should_submit_to_gcio?
-  GCIO_ENABLED_FORMS.include?(form_submission.form_type) &&
-    Flipper.enabled?(:gcio_integration, user_account)
+  FORM_INTAKE_ENABLED_FORMS.include?(form_submission.form_type) &&
+    Flipper.enabled?(:form_intake_integration, user_account)
 end
 ```
 
@@ -121,7 +118,7 @@ end
 
 ### Mitigations
 
-- **Clear naming**: `Gcio::SubmissionHandler` makes purpose explicit
+- **Clear naming**: `FormIntake::SubmissionHandler` makes purpose explicit
 - **Documentation**: ADR and inline comments explain the flow
 - **Testing**: Comprehensive tests for callback behavior
 - **Feature flags**: Can disable quickly if issues arise
@@ -132,8 +129,8 @@ end
 ### Configuration
 
 ```ruby
-# config/initializers/gcio_integration.rb
-GCIO_ENABLED_FORMS = %w[
+# config/initializers/form_intake_integration.rb
+FORM_INTAKE_ENABLED_FORMS = %w[
   21-526EZ
   21-0966
   # Add other forms as needed
@@ -144,7 +141,7 @@ GCIO_ENABLED_FORMS = %w[
 
 ```yaml
 # config/features.yml
-gcio_integration:
+form_intake_integration:
   actor_type: user_account
   description: Enable GCIO API integration for form submissions
 ```
@@ -156,18 +153,4 @@ gcio_integration:
 StatsD.increment('gcio.submission_handler.invoked', tags: ["form_type:#{form_type}"])
 StatsD.increment('gcio.submission_handler.job_enqueued', tags: ["form_type:#{form_type}"])
 ```
-
-## References
-
-- [AASM Documentation](https://github.com/aasm/aasm)
-- [FormSubmissionAttempt Model](../../../../app/models/form_submission_attempt.rb)
-- [BenefitsIntakeStatusJob](../../../../app/sidekiq/benefits_intake_status_job.rb)
-- [Existing Handler Pattern](../../../../lib/lighthouse/benefits_intake/sidekiq/submission_status_job.rb)
-
-## Review
-
-- **Author**: Architecture Team
-- **Date**: 2026-01-09
-- **Reviewers**: Platform Team, Backend Team
-- **Next Review**: 2026-04-09 (90 days)
 

@@ -1,7 +1,4 @@
-# ADR-002: Retry Strategy for GCIO API Submissions
-
-## Status
-Accepted
+# ADR-002: Retry Strategy for GCIO Form Intake Submissions
 
 ## Context
 
@@ -27,7 +24,7 @@ We need a retry strategy that:
 ### Configuration
 
 ```ruby
-class Gcio::SubmitFormDataJob
+class FormIntake::SubmitFormDataJob
   include Sidekiq::Job
   
   # Retry for 2d 1h 47m 12s (same as Lighthouse jobs)
@@ -36,21 +33,21 @@ class Gcio::SubmitFormDataJob
   # Handle retry exhaustion
   sidekiq_retries_exhausted do |msg, _ex|
     form_submission_id = msg['args'].first
-    gcio_submission = GcioSubmission.find_by(form_submission_id: form_submission_id)
+    form_intake_submission = FormIntakeSubmission.find_by(form_submission_id: form_submission_id)
     
-    gcio_submission&.fail!
+    form_intake_submission&.fail!
     
     Rails.logger.error(
-      'Gcio::SubmitFormDataJob retries exhausted',
+      'FormIntake::SubmitFormDataJob retries exhausted',
       form_submission_id: form_submission_id,
-      gcio_submission_id: gcio_submission&.id,
+      form_intake_submission_id: form_intake_submission&.id,
       error: msg['error_message']
     )
     
     StatsD.increment('gcio.submit_form_data_job.exhausted')
     
     # Send failure notification if configured
-    Gcio::FailureNotificationJob.perform_async(form_submission_id) if Flipper.enabled?(:gcio_failure_notifications)
+    FormIntake::FailureNotificationJob.perform_async(form_submission_id) if Flipper.enabled?(:form_intake_failure_notifications)
   end
 end
 ```
@@ -79,7 +76,7 @@ end
 ### Error Classification
 
 ```ruby
-module Gcio
+module FormIntake
   class SubmitFormDataJob
     # Errors that should NOT retry
     NON_RETRYABLE_ERRORS = [
@@ -92,17 +89,17 @@ module Gcio
     
     def perform(form_submission_id)
       # ... job logic ...
-    rescue Gcio::ServiceError => e
+    rescue FormIntake::ServiceError => e
       if NON_RETRYABLE_ERRORS.include?(e.status_code)
         # Mark as failed immediately, don't retry
-        gcio_submission.fail!
+        form_intake_submission.fail!
         Rails.logger.error('Non-retryable GCIO error', error: e, status: e.status_code)
         StatsD.increment('gcio.non_retryable_error', tags: ["status:#{e.status_code}"])
         return # Don't re-raise, prevents retry
       end
       
       # For retryable errors, update attempt count and re-raise
-      gcio_submission.increment_retry_count!
+      form_intake_submission.increment_retry_count!
       raise # Let Sidekiq handle retry
     end
   end
@@ -218,7 +215,7 @@ end
 
 ### Database Tracking
 
-Each retry updates the `GcioSubmission` record:
+Each retry updates the `FormIntakeSubmission` record:
 
 ```ruby
 def increment_retry_count!
@@ -259,17 +256,4 @@ end
 | 503 | Yes | Service unavailable, transient |
 | 504 | Yes | Gateway timeout, transient |
 | Network | Yes | Connection issues, transient |
-
-## References
-
-- [Sidekiq Retry Documentation](https://github.com/sidekiq/sidekiq/wiki/Error-Handling)
-- [Existing Lighthouse Job Pattern](../../../../app/sidekiq/lighthouse/submit_benefits_intake_claim.rb)
-- [Exponential Backoff Best Practices](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
-
-## Review
-
-- **Author**: Architecture Team
-- **Date**: 2026-01-09
-- **Reviewers**: Platform Team, Backend Team
-- **Next Review**: 2026-04-09 (90 days)
 
