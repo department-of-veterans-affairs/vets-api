@@ -139,6 +139,57 @@ describe VAOS::V2::MobileFacilityService do
         end
       end
     end
+
+    context 'using VPG' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration, user).and_return(false)
+      end
+
+      context 'with a single facility id arg' do
+        let(:facility_id) { '653' }
+
+        before do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_vpg_200', cassette_options) do
+            @response = subject.get_scheduling_configurations(facility_id)
+          end
+        end
+
+        it 'returns a scheduling configuration with the correct id' do
+          expect(@response.dig(:data, 0, :facility_id)).to eq(facility_id)
+        end
+      end
+
+      context 'with multiple facility ids arg' do
+        let(:facility_ids) { '653,687' }
+
+        before do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_vpg_200', cassette_options) do
+            @response = subject.get_scheduling_configurations(facility_ids)
+          end
+        end
+
+        it 'returns scheduling configurations with the correct ids' do
+          expect(@response[:data].any? { |config| config[:facility_id] == '653' }).to be(true)
+          expect(@response[:data].any? { |config| config[:facility_id] == '687' }).to be(true)
+        end
+      end
+
+      context 'with multiple facility ids and cc enabled args' do
+        let(:facility_ids) { '523,534' }
+
+        before do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_vpg_200',
+                           cassette_options) do
+            @response = subject.get_scheduling_configurations(facility_ids, true)
+          end
+        end
+
+        it 'returns scheduling configuration with the correct id' do
+          expect(@response[:data].any? { |config| config[:facility_id] == '523' }).to be(true)
+          expect(@response[:data].any? { |config| config[:facility_id] == '534' }).to be(true)
+        end
+      end
+    end
   end
 
   describe '#get_facilities' do
