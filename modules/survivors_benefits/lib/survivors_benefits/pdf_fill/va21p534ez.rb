@@ -138,6 +138,8 @@ module SurvivorsBenefits
       #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
       def self.signature_overlay_coordinates(pdf_path = TEMPLATE)
         doc = HexaPDF::Document.open(pdf_path)
+        return unless doc
+
         field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
         widget = field&.each_widget&.first
         return unless widget
@@ -163,8 +165,8 @@ module SurvivorsBenefits
       end
 
       def self.claimant_full_name(form_data)
-        [form_data.dig('claimantFullName', 'first'),
-         form_data.dig('claimantFullName', 'last')].compact_blank.join(' ')
+        [form_data&.dig('claimantFullName', 'first'),
+         form_data&.dig('claimantFullName', 'last')].compact_blank.join(' ')
       end
 
       def self.stamp_pdf(pdf_path, signature_text, coordinates)
