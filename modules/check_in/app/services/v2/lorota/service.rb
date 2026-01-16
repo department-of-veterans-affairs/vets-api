@@ -143,9 +143,9 @@ module V2
       end
 
       def parse_check_in_response_data(raw_data)
-        parsed_data = begin
-          Oj.load(raw_data.body)
-        rescue
+        rescue Oj::ParseError, EncodingError
+          Rails.logger.warn({ message: 'Check-in LoROTA response parse failure', 
+            check_in_uuid: check_in.uuid })
           {}
         end
         appointments = parsed_data.dig('payload', 'appointments') || []
