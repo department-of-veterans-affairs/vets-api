@@ -215,6 +215,7 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
+        secret_key: "/srv/vets-api/secret/claims_api_bd_secret.key"
     service_url: ~
     token_host: https://qa.lighthouse.va.gov
     use_mocks: true
