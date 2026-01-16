@@ -211,7 +211,7 @@ module Mobile
         end
 
         def valid_doc?(obj)
-          obj.filename.nil? && obj.document_id.nil?
+          !obj.filename.nil? && !obj.document_id.nil?
         end
 
         def valid_doc_obj(obj)
