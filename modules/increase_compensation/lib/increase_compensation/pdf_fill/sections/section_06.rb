@@ -9,7 +9,7 @@ module IncreaseCompensation
       # Section configuration hash
       KEY = {
         'signature' => {
-          key: 'form1[0].#subform[4].Signature[0]'
+          key: 'form1[0].#subform[4].SignatureField11[0]'
         },
         'signatureDate' => {
           'month' => {

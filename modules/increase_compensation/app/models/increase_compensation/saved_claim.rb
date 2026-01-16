@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
+require 'increase_compensation/pdf_stamper'
 require 'pdf_fill/filler'
 
 module IncreaseCompensation
@@ -88,7 +89,11 @@ module IncreaseCompensation
     # @return [String] Path to the generated PDF file
     #
     def to_pdf(file_name = nil, fill_options = {})
-      ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
+      # Pdf Stamper changes the file name so change it back here
+      FileUtils.mv(signed_path, pdf_path, force: true)
+      pdf_path
     end
 
     ##
