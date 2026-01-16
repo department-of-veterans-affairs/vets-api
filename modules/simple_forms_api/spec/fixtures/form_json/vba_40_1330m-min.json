@@ -22,6 +22,13 @@
   },
   "applicant_phone": "5035551234",
   "applicant_email": "a@b.com",
+  "veteran_service_periods": [
+    {
+      "branch": "Army",
+      "date_entered": "1965-06-15",
+      "date_separated": "1969-08-22"
+    }
+  ],
   "statement_of_truth_signature": "A B",
   "statement_of_truth_certified": true
 }

@@ -27,6 +27,19 @@
   "applicant_phone": "503-555-1234",
   "applicant_email": "jane.smith@example.com",
   "applicant_relationship_to_veteran": "Spouse",
+  "veteran_service_periods": [
+    {
+      "branch": "Army",
+      "date_entered": "1965-06-15",
+      "date_separated": "1969-08-22"
+    },
+    {
+      "branch": "Army Reserve",
+      "date_entered": "1969-09-01",
+      "date_separated": "1975-09-01"
+    }
+  ],
+  "medallion_count": "1",
   "cemetery_location": "Private Cemetery",
   "statement_of_truth_signature": "Jane Smith",
   "statement_of_truth_certified": true
