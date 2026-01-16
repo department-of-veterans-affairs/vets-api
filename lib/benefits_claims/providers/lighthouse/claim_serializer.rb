@@ -47,22 +47,21 @@ module BenefitsClaims
             attributes['claimPhaseDates'] =
               Serializers::PhaseDatesSerializer.serialize(dto.claim_phase_dates)
           end
-          if dto.supporting_documents&.any?
-            attributes['supportingDocuments'] =
-              Serializers::SupportingDocumentsSerializer.serialize(dto.supporting_documents)
-          end
+
+          # Always include array attributes (even if empty) for consistent API responses
+          # The DTO defaults ensure these are always arrays, never nil
+          attributes['supportingDocuments'] =
+            Serializers::SupportingDocumentsSerializer.serialize(dto.supporting_documents)
+
+          # evidenceSubmissions is special - it's added by controller based on feature flags,
+          # not from Lighthouse API. Only include if present.
           attributes['evidenceSubmissions'] = dto.evidence_submissions if dto.evidence_submissions&.any?
-          if dto.contentions&.any?
-            attributes['contentions'] =
-              Serializers::ContentionsSerializer.serialize(dto.contentions)
-          end
-          attributes['events'] = Serializers::EventsSerializer.serialize(dto.events) if dto.events&.any?
-          attributes['issues'] = Serializers::IssuesSerializer.serialize(dto.issues) if dto.issues&.any?
-          attributes['evidence'] = Serializers::EvidenceSerializer.serialize(dto.evidence) if dto.evidence&.any?
-          if dto.tracked_items&.any?
-            attributes['trackedItems'] =
-              Serializers::TrackedItemsSerializer.serialize(dto.tracked_items)
-          end
+
+          attributes['contentions'] = Serializers::ContentionsSerializer.serialize(dto.contentions)
+          attributes['events'] = Serializers::EventsSerializer.serialize(dto.events)
+          attributes['issues'] = Serializers::IssuesSerializer.serialize(dto.issues)
+          attributes['evidence'] = Serializers::EvidenceSerializer.serialize(dto.evidence)
+          attributes['trackedItems'] = Serializers::TrackedItemsSerializer.serialize(dto.tracked_items)
         end
       end
     end
