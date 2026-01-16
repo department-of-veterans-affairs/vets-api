@@ -125,11 +125,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :request_otc, params:, format: :json
       end
 
-      it 'logs StatsD metric' do
-        expect(StatsD).to receive(:increment).with('api.vass.infrastructure.session.otc.generated',
-                                                   tags: ['service:vass'])
-        post :request_otc, params:, format: :json
-      end
     end
 
     context 'with missing parameters' do
@@ -347,12 +342,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :request_otc, params:, format: :json
       end
 
-      it 'increments StatsD metric for failed OTC send' do
-        expect(StatsD).to receive(:increment).with('api.vass.service.vanotify.send_otp',
-                                                   tags: ['service:vass', 'status:failed'])
-        post :request_otc, params:, format: :json
-      end
-
       context 'with different VANotify error status codes' do
         before do
           allow(session_model).to receive(:generate_and_save_otc).and_return('123456')
@@ -445,11 +434,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :authenticate_otc, params:, format: :json
       end
 
-      it 'logs StatsD metric' do
-        expect(StatsD).to receive(:increment).with('api.vass.infrastructure.session.jwt.created',
-                                                   tags: ['service:vass'])
-        post :authenticate_otc, params:, format: :json
-      end
     end
 
     context 'with invalid OTC' do

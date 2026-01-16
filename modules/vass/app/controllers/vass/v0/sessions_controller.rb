@@ -175,7 +175,6 @@ module Vass
       def complete_otc_creation(session)
         increment_rate_limit(session.uuid)
         log_vass_event(action: 'otc_generated', uuid: session.uuid)
-        track_infrastructure_metric(SESSION_OTC_GENERATED)
       end
 
       ##
@@ -233,7 +232,6 @@ module Vass
       def handle_successful_authentication(session, jwt_token)
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
-        track_infrastructure_metric(SESSION_JWT_CREATED)
         render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
       end
 
@@ -252,7 +250,6 @@ module Vass
           status_code: error.status_code,
           contact_method: session.contact_method
         )
-        track_infrastructure_metric(VANOTIFY_SEND_OTP, additional_tags: { status: 'failed' })
         status = map_vanotify_status_to_http_status(error.status_code)
         render_error_response(
           code: 'notification_error',

@@ -13,8 +13,8 @@ module Vass
   # Controller Metrics (7 endpoints × 2 outcomes = 14 metrics):
   #   Each endpoint tracks: .success, .failure
   #
-  # Infrastructure Metrics (7 metrics):
-  #   OTC lifecycle, rate limiting, JWT creation, VANotify
+  # Infrastructure Metrics (4 metrics):
+  #   OTC lifecycle (expired/invalid), rate limiting (generation/validation)
   #
   # Tags (consistent across all metrics):
   #   - service:vass (always present)
@@ -53,11 +53,6 @@ module Vass
     APPOINTMENTS_TOPICS = "#{CONTROLLER_PREFIX}.appointments.topics".freeze
 
     # ========================================
-    # Infrastructure Metrics - VANotify
-    # ========================================
-    VANOTIFY_SEND_OTP = "#{SERVICE_PREFIX}.vanotify.send_otp".freeze
-
-    # ========================================
     # Infrastructure Metrics - Rate Limiting
     # ========================================
     RATE_LIMIT_GENERATION_EXCEEDED = "#{INFRASTRUCTURE_PREFIX}.rate_limit.generation.exceeded".freeze
@@ -66,9 +61,7 @@ module Vass
     # ========================================
     # Infrastructure Metrics - Session/OTC
     # ========================================
-    SESSION_OTC_GENERATED = "#{INFRASTRUCTURE_PREFIX}.session.otc.generated".freeze
     SESSION_OTC_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otc.expired".freeze
     SESSION_OTC_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otc.invalid".freeze
-    SESSION_JWT_CREATED = "#{INFRASTRUCTURE_PREFIX}.session.jwt.created".freeze
   end
 end
