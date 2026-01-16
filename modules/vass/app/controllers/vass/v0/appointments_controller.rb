@@ -35,7 +35,10 @@ module Vass
 
         render_availability_result(result)
         track_success(APPOINTMENTS_AVAILABILITY)
-      rescue => e
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
         track_failure(APPOINTMENTS_AVAILABILITY, error_type: e.class.name)
         raise
       end
@@ -64,7 +67,10 @@ module Vass
         topics = map_agent_skills_to_topics(agent_skills)
         render_camelized_json({ data: { topics: } })
         track_success(APPOINTMENTS_TOPICS)
-      rescue => e
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
         track_failure(APPOINTMENTS_TOPICS, error_type: e.class.name)
         raise
       end
@@ -103,7 +109,10 @@ module Vass
           error_status: :not_found
         )
         track_success(APPOINTMENTS_SHOW)
-      rescue => e
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
         track_failure(APPOINTMENTS_SHOW, error_type: e.class.name)
         raise
       end
@@ -134,7 +143,10 @@ module Vass
           error_status: :unprocessable_entity
         )
         track_success(APPOINTMENTS_CANCEL)
-      rescue => e
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
         track_failure(APPOINTMENTS_CANCEL, error_type: e.class.name)
         raise
       end
@@ -174,7 +186,10 @@ module Vass
           error_status: :unprocessable_entity
         )
         track_success(APPOINTMENTS_CREATE)
-      rescue => e
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
         track_failure(APPOINTMENTS_CREATE, error_type: e.class.name)
         raise
       end

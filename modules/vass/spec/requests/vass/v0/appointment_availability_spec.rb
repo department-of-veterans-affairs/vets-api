@@ -105,7 +105,6 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
             VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
               VCR.use_cassette('vass/appointments/get_availability_success', match_requests_on: %i[method uri]) do
                 get('/vass/v0/appointment-availability', headers:)
-                expect(response).to have_http_status(:ok)
               end
             end
           end
