@@ -49,7 +49,7 @@ module Mobile
           attributes = claim.dig('data', 'attributes')
           phase_change_date = attributes.dig('claimPhaseDates', 'phaseChangeDate')
           events_timeline = events_timeline(attributes)
-          supported_documents = collect_supported_documents(events_timeline)
+          download_eligible_documents = collect_download_eligible_documents(events_timeline)
 
           claim_type = attributes['claimType']
           claim_type_code = attributes['claimTypeCode']
@@ -81,7 +81,7 @@ module Mobile
               claim_type_code:,
               claim_type_base: titles[:claim_type_base],
               display_title: use_generated_titles ? titles[:display_title] : nil,
-              supported_documents:
+              download_eligible_documents:
             }
           )
         end
@@ -197,7 +197,7 @@ module Mobile
           documents.pluck(:upload_date).max
         end
 
-        def collect_supported_documents(events_timeline)
+        def collect_download_eligible_documents(events_timeline)
           document_data = []
 
           events_timeline.each do |event|
