@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <CLAIMS_EVIDENCE_API_URL>folders/files:search
+    body:
+      encoding: US-ASCII
+      string: '{"pageRequest":{"resultsPerPage":10,"page":1},"filters":{"providerData.subject":{"evaluationType":"CONTAINS","value":"[\"VETS Safe Travel Outreach Letter\"]"}},"sort":[]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 06 Oct 2025 17:03:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '43'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-188950051"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {"page":{"totalPages":0, "requestedResultsPerPage":10, "currentPage":1, "totalResults":0}}
+  recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
+recorded_with: VCR 6.3.1
