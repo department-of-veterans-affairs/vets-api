@@ -757,6 +757,7 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
       - launch
     timeout: 30
     use_mocks: false

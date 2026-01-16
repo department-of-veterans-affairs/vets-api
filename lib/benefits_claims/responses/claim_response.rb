@@ -31,6 +31,8 @@ module BenefitsClaims
       attribute :uploaded, Bool
       attribute :friendly_name, String
       attribute :friendly_description, String
+      attribute :activity_description, String
+      attribute :short_description, String
       attribute :can_upload_file, Bool
       attribute :support_aliases, String, array: true
       attribute :documents, String
