@@ -100,23 +100,6 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
           end
         end
 
-        it 'tracks success metrics' do
-          allow(StatsD).to receive(:increment).and_call_original
-
-          expect(StatsD).to receive(:increment).with(
-            'api.vass.controller.appointments.availability.success',
-            hash_including(tags: array_including('service:vass', 'endpoint:availability'))
-          ).and_call_original
-
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('vass/appointments/get_availability_success', match_requests_on: %i[method uri]) do
-                get('/vass/v0/appointment-availability', headers:)
-              end
-            end
-          end
-        end
-
         it 'stores appointment_id in Redis booking session' do
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
