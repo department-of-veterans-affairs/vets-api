@@ -58,14 +58,16 @@ module AccreditedRepresentativePortal
             claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
             saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
             Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
+
+            # ✅ Make power_of_attorney_holder safe for nil
             SavedClaimClaimantRepresentative.create!(
               saved_claim:,
               claimant_type:,
               claimant_id: icn_temporary_identifier.id,
-              power_of_attorney_holder_type: power_of_attorney_holder.type,
-              power_of_attorney_holder_poa_code: power_of_attorney_holder.poa_code,
+              power_of_attorney_holder_type: power_of_attorney_holder&.type,
+              power_of_attorney_holder_poa_code: power_of_attorney_holder&.poa_code,
               accredited_individual_registration_number:
-                claimant_representative.accredited_individual_registration_number
+                claimant_representative&.accredited_individual_registration_number
             )
           end
 
@@ -164,10 +166,8 @@ module AccreditedRepresentativePortal
       end
 
       def power_of_attorney_holder
-        claimant_representative.power_of_attorney_holder
+        claimant_representative&.power_of_attorney_holder
       end
-
-      ### Monitoring / Datadog helpers ###
 
       def ar_monitoring
         AccreditedRepresentativePortal::Monitoring.new(
@@ -176,15 +176,21 @@ module AccreditedRepresentativePortal
         )
       end
 
-      # ---- FIXED: defensive, failure-safe Datadog tags ----
       def default_tags
-        org = organization
+        org_tag = 'org_resolve:failed'
+
+        # Only try to access poa_code if power_of_attorney_holder exists
+        begin
+          poa_code = power_of_attorney_holder&.poa_code
+          org_tag = "org:#{poa_code}" if poa_code.present?
+        rescue
+          # fallback tag already set
+        end
 
         [
-          ("org:#{org}" if org.present?),
-          ('org_resolve:failed' if org.nil?),
+          org_tag,
           "benefit_type:#{params[:benefitType]}"
-        ].compact
+        ]
       end
 
       def organization
@@ -192,7 +198,6 @@ module AccreditedRepresentativePortal
       rescue
         nil
       end
-      # ----------------------------------------------------
 
       def normalize_error(error)
         return 'unknown_error' if error.blank? || error['title'].blank?
