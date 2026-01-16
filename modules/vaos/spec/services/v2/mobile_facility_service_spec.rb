@@ -19,7 +19,10 @@ describe VAOS::V2::MobileFacilityService do
   describe '#get_scheduling_configurations' do
     context 'using CSCS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                  instance_of(User)).and_return(false)
       end
 
       context 'with a single facility id arg' do
@@ -82,7 +85,10 @@ describe VAOS::V2::MobileFacilityService do
 
     context 'using MFS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                  instance_of(User)).and_return(false)
       end
 
       context 'with a single facility id arg' do
@@ -142,7 +148,8 @@ describe VAOS::V2::MobileFacilityService do
 
     context 'using VPG' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration,
+                                                  instance_of(User)).and_return(false)
       end
 
       context 'with a single facility id arg' do

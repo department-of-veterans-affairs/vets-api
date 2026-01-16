@@ -21,6 +21,8 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration,
                                                     instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
         end
 
         context 'has access and is given single facility id' do
@@ -80,6 +82,8 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
       context 'with MFS' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_cscs_migration,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(false)
         end
 
@@ -151,7 +155,8 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(JSON.parse(response.body)['data'].size).to eq(1)
-              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations', { strict: false })
+              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations',
+                                                              { strict: false })
             end
           end
         end
@@ -164,7 +169,8 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
               expect(response).to have_http_status(:ok)
               data = JSON.parse(response.body)['data']
               expect(data.size).to eq(2)
-              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations', { strict: false })
+              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations',
+                                                              { strict: false })
             end
           end
         end
@@ -177,7 +183,8 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
               expect(response).to have_http_status(:ok)
               data = JSON.parse(response.body)['data']
               expect(data.size).to eq(2)
-              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations', { strict: false })
+              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations',
+                                                              { strict: false })
             end
           end
         end
@@ -190,8 +197,9 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
                   headers: inflection_header
               expect(response).to have_http_status(:ok)
               data = JSON.parse(response.body)['data']
-              expect(data.size).to eq(1)
-              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations', { strict: false })
+              expect(data.size).to eq(2)
+              expect(response.body).to match_camelized_schema('vaos/v2/vpg_scheduling_configurations',
+                                                              { strict: false })
             end
           end
         end
