@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 15 Jan 2026 21:21:33 GMT
+      - Thu, 15 Jan 2026 21:45:17 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -31,7 +31,7 @@ http_interactions:
       Ratelimit-Remaining:
       - '239'
       Ratelimit-Reset:
-      - '27'
+      - '43'
       Ratelimit-Limit:
       - '240'
       X-Ratelimit-Remaining-Minute:
@@ -43,31 +43,33 @@ http_interactions:
       Pragma:
       - no-cache
       Etag:
-      - W/"420-2p9VhhoX3kxn70HUpGSghpB3rzM:dtagent10323250822043923XVuO"
+      - W/"420-ygZPl00hWs33b0adCE+Mq6W9FUM:dtagent10323250822043923XVuO"
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-1161074163"
+      - dtSInfo;desc="0", dtRpid;desc="-1363060209"
       X-Envoy-Upstream-Service-Time:
-      - '181'
+      - '371'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 4839def6-ea95-4c4c-b528-e9e61971d383#1578418
+      - 4839def6-ea95-4c4c-b528-e9e61971d383#1580208
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
       string: '{"access_token":"fake_token_here","token_type":"Bearer","scope":"system/Form526.read
         system/Form526.write","expires_in":300,"state":null}'
-  recorded_at: Thu, 15 Jan 2026 21:21:34 GMT
+  recorded_at: Thu, 15 Jan 2026 21:45:17 GMT
 - request:
     method: post
     uri: "<FES_BASE_URL>/form526-establishment-service/v1/validate"
     body:
       encoding: UTF-8
-      string: '{"form526":{"veteran":{"firstName":"John","lastName":"Doe"},"disabilities":[{"name":"Hearing
-        Loss"}]}}'
+      string: '{"data":{"serviceTransactionId":"claims-api-6913cb91-f077-4368-baf3-1bb642ffc0dd-1755612075","claimantParticipantId":"600049703","veteranParticipantId":"600049703","form526":{"serviceInformation":{"servicePeriods":[{"serviceBranch":"AIR\\n
+        Force","activeDutyBeginDate":"2015-11-14","activeDutyEndDate":"2018-11-30"}]},"veteran":{"currentMailingAddress":{"addressLine1":"1234
+        Couch Street","country":"USA","zipFirstFive":"12345","addressType":"DOMESTIC","city":"Portland","state":"OR"}},"disabilities":[{"name":"hearing
+        loss","disabilityActionType":"NEW","approximateBeginDate":{"year":2017,"month":7}}],"claimDate":"2025-08-19"}}}'
     headers:
       Va-Eauth-Pid:
       - '600043201'
@@ -86,7 +88,7 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Thu, 15 Jan 2026 21:21:33 GMT
+      - Thu, 15 Jan 2026 21:45:18 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -94,18 +96,19 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-905323001", dtSInfo;desc="0"
+      - dtRpid;desc="439160301", dtSInfo;desc="0"
       Pragma:
       - no-cache
       Cache-Control:
       - no-cache, no-store
       X-Envoy-Upstream-Service-Time:
-      - '80'
+      - '107'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"errors":[{"detail":"Http Message Not Readable (Unrecognized Property)","status":400,"title":"Bad
-        Request","instance":"ed60fab7-4d2e-48bc-8666-5d2c36da9a0b","diagnostics":"Kw77aQkC04tOtvoQ0FRaH0B/bgmZA7ghxDs3V51bdwgdktEfIjWSBKPWfPpAIB30ervPPX+tUDCxIc8R4mtDVxnjEplRBnqBHfOXlfBppNLVn94Vlo/9joXgse2Ez2SIKR633JNP/ctiXACz21AM6Gex3Kf2t8AOgz8CKhMaEnD+vUtajZerItuxoosjIO7eFVTd8Ys18uWt7DAkffOrhdJ+mFbOMZsvTckqPcbVlLMA5z/ag8Rlyb7A8uFJPuIdQ62P5JswgTQQFHWN7UPUD+RvlgCSQCwWkY6ZJGAEjMXJD3yXUVCFQ3Mm6zJUaTuAgB8tju2Ig3JIjv8scVWlc1zOa8836yf5fOkmFFGEVhVUTggRL2cHRp6B2hbnHjV6rUZg7ZzDLD0vlFTq6pAe+jYo3gnKrOow2ctZ/eU0Edw9U87vwG/oTxlHfTQ0bfZ96Y3aIPnyfqoZPzKbJZSYO7SiEeiarr2wW4I/oTyLD6u/92gWySfkYU7UTF4Io8m+q6mqqxCkUFasXgtg/dgrFht2g29cBZ7f4zk0jSD6aO1NdwAwBoydkkCy0/F2jFGgKOYcH7PlzPjtmDteqps4ADqRBBX2ymrEHmd3Zo8/wxI+0ghO5VzXmbHLGHvR159hS6rKoU65lY9hbLeDQcV5L1FBgqmwhcXoYvrofOBySd3sp7kXpNR6JccVlv6N9dpwsky/PSwQaRlFzs5tCTd2TrJXRCijFSAG2v2nbvQV9rRCxTVetWXRb6hjebHbOh3OmgNtzsHsQLNOUxxmk4Aw59xEYbmiQvtr/YxnVGp40dTWU2fw5zdptfKw04mecE396aFEFcRehKRs9CG78cdB2vYCh5oZcb/i473wfJU84GjLq+IVLmPTeGCnKhJyf4dIKCq/iuzZAIiYEJPz5b/art/TcCa/nQrGhb/TMT8TFkSizF0wn0kfTw/kLGgJ2QNfZm/14++g1PKPnAMnHgFK3nXZXAGGhVHLSj4kCS5tlo1+c9VX02wgNL792n5WL6ietxwT2azgSRdi7HQyy/qcLFbDXoEbVR5+VPUfByZNfSHjO1NdOiW7vqn5X1QHq+HEYxWJxK99gZwdHl4T0SCV2P4nS9mzSX2B1DBkZppRnn6cpR5nvNBZGNgCm2Xv2Z/LXdTkKiy9Fal1sKtWOB4rJ9fHJL8iqVjsJ+01jcDQbeHYlrFgDREBMIenmp2YiK2BsobBXwLzRf/Fe1/0VWqjk0R79ZovoKtoE59yBHKGx/4oMgAA8tp6DQ=="}]}'
-  recorded_at: Thu, 15 Jan 2026 21:21:34 GMT
+      string: '{"data":{"valid":false,"errors":[{"status":"400","title":"Invalid service
+        period branch name","detail":"Provided service period branch name is not valid:
+        AIR\\n Force","source":{"pointer":"/data/form526/serviceInformation/servicePeriods/0/serviceBranch"}}]}}'
+  recorded_at: Thu, 15 Jan 2026 21:45:18 GMT
 recorded_with: VCR 6.4.0
