@@ -84,18 +84,13 @@ module MebApi
         email = params[:email] || @current_user.email
         first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
 
-        if status.blank? || email.blank? || first_name.blank?
-          Rails.logger.warn(
-            '1990E TOE confirmation email skipped due to missing attributes',
-            {
-              status_present: status.present?,
-              email_present: email.present?,
-              first_name_present: first_name.present?
-            }
-          )
-          StatsD.increment('api.meb.confirmation_email.skipped', tags: ['form:1990emeb', 'reason:missing_attributes'])
-          return render json: { error: 'Missing required attributes for confirmation email' },
-                        status: :unprocessable_entity
+        missing_attributes = []
+        missing_attributes << 'claim_status' if status.blank?
+        missing_attributes << 'email' if email.blank?
+        missing_attributes << 'first_name' if first_name.blank?
+
+        if missing_attributes.any?
+          return log_missing_email_attributes('1990emeb', missing_attributes, status, email, first_name)
         end
 
         MebApi::V0::Submit1990emebFormConfirmation.perform_async(status, email, first_name)

@@ -473,7 +473,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
 
       it 'logs warning with attribute presence info' do
         expect(Rails.logger).to receive(:warn).with(
-          '1990 confirmation email skipped due to missing attributes',
+          '1990meb confirmation email skipped due to missing attributes',
           hash_including(
             status_present: false,
             email_present: true,

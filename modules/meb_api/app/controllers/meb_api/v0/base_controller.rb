@@ -32,6 +32,16 @@ module MebApi
         MebApi::DGI::Claimant::Service.new(@current_user)
       end
 
+      def log_missing_email_attributes(form_tag, missing_attributes, status, email, first_name)
+        Rails.logger.warn(
+          "#{form_tag} confirmation email skipped due to missing attributes",
+          { status_present: status.present?, email_present: email.present?, first_name_present: first_name.present? }
+        )
+        StatsD.increment('api.meb.confirmation_email.skipped', tags: ["form:#{form_tag}", 'reason:missing_attributes'])
+        render json: { error: 'Missing required attributes for confirmation email', missing_attributes: },
+               status: :unprocessable_entity
+      end
+
       def log_submission_error(error, log_message)
         cached_error_class = error.class.name
         cached_response_body = error.body if error.respond_to?(:body)
@@ -43,7 +53,8 @@ module MebApi
           request_id: request.request_id
         }
 
-        # Only log response details for ClientError (downstream service failures)
+        # Only log response details for ClientError (downstream service failures).
+        # Response body truncated to 250 chars to limit log size while preserving debug context.
         if error.is_a?(Common::Client::Errors::ClientError)
           log_params[:status] = error.status
           log_params[:response_body] = cached_response_body&.to_s&.truncate(250) if cached_response_body.present?

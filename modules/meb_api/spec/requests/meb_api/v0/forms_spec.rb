@@ -164,7 +164,7 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
 
       it 'logs warning with attribute presence info' do
         expect(Rails.logger).to receive(:warn).with(
-          '1990E TOE confirmation email skipped due to missing attributes',
+          '1990emeb confirmation email skipped due to missing attributes',
           hash_including(
             status_present: false,
             email_present: true,
