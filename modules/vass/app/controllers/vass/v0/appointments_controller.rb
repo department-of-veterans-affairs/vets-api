@@ -31,10 +31,12 @@ module Vass
             veteran_id: @current_veteran_id,
             data: { appointment_id: result[:data][:appointment_id] }
           )
+          track_success(APPOINTMENTS_AVAILABILITY)
+        else
+          track_availability_scenario(result[:status])
         end
 
         render_availability_result(result)
-        track_success(APPOINTMENTS_AVAILABILITY)
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
              Vass::Errors::AuthenticationError,
@@ -195,6 +197,28 @@ module Vass
       end
 
       private
+
+      ##
+      # Tracks infrastructure metrics for availability check scenarios.
+      # Different scenarios indicate different operational states:
+      # - no_cohorts: Veteran outside all cohort windows
+      # - next_cohort: Booking window not yet open
+      # - already_booked: Veteran already has appointment in current cohort
+      # - no_slots_available: In valid window but zero bookable slots (capacity issue)
+      #
+      # @param status [Symbol] Result status from get_current_cohort_availability
+      #
+      def track_availability_scenario(status)
+        metric = case status
+                 when :available_slots then nil
+                 when :no_cohorts then AVAILABILITY_NO_COHORTS
+                 when :next_cohort then AVAILABILITY_NEXT_COHORT
+                 when :already_booked then AVAILABILITY_ALREADY_BOOKED
+                 when :no_slots_available then AVAILABILITY_NO_SLOTS
+                 end
+
+        track_infrastructure_metric(metric) if metric
+      end
 
       ##
       # Retrieves appointment_id from Redis booking session.

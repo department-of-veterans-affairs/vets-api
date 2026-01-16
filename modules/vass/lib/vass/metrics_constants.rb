@@ -63,5 +63,13 @@ module Vass
     # ========================================
     SESSION_OTC_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otc.expired".freeze
     SESSION_OTC_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otc.invalid".freeze
+
+    # ========================================
+    # Infrastructure Metrics - Availability Scenarios
+    # ========================================
+    AVAILABILITY_NO_COHORTS = "#{INFRASTRUCTURE_PREFIX}.availability.no_cohorts".freeze
+    AVAILABILITY_NEXT_COHORT = "#{INFRASTRUCTURE_PREFIX}.availability.next_cohort".freeze
+    AVAILABILITY_ALREADY_BOOKED = "#{INFRASTRUCTURE_PREFIX}.availability.already_booked".freeze
+    AVAILABILITY_NO_SLOTS = "#{INFRASTRUCTURE_PREFIX}.availability.no_slots_available".freeze
   end
 end
