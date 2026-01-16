@@ -6,7 +6,6 @@ module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Representative < ApplicationRecord
-      include RepresentationManagement::Geocodable
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
@@ -117,11 +116,6 @@ module Veteran
       end
 
       private
-
-      # Override from Geocodable concern to use representative_id instead of id
-      def geocoding_record_id
-        representative_id
-      end
 
       #
       # Checks if the rep's address has changed compared to a new address hash.
