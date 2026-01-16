@@ -71,7 +71,7 @@ module Dependents
     end
 
     def track_submission_exhaustion(msg, email = nil)
-      additional_context = default_payload.merge({ error: msg })
+      additional_context = default_payload.merge({ error: msg&.error_message })
       if email
         # if an email address is present it means an email has been sent by vanotify
         # this means the silent failure is avoided.

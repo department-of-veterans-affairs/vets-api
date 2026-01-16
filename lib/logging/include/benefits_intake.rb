@@ -93,7 +93,7 @@ module Logging
           "#{submission_stats_key}.exhausted",
           claim: claim || msg['args'].first,
           user_account_uuid:,
-          error: msg,
+          error: msg&.error_message,
           call_location: caller_locations.second
         )
 
