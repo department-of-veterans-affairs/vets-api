@@ -3,8 +3,13 @@
 require 'vets/model'
 require 'bid/awards/service'
 
+# Form profile for VA 686c-674v2
+# This class handles prefilling form data for 686c-674v2,
+# including dependent information and address details from various VA services.
 class FormProfiles::VA686c674v2 < FormProfile
   include PensionAwardHelper
+
+  # Model representing dependent information for the 686c-674v2 form
   class DependentInformation
     include Vets::Model
 
@@ -15,6 +20,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     attribute :award_indicator, String
   end
 
+  # Model representing address information for the 686c-674v2 form
   class FormAddress
     include Vets::Model
 
@@ -32,6 +38,8 @@ class FormProfiles::VA686c674v2 < FormProfile
   attribute :form_address, FormAddress
   attribute :dependents_information, DependentInformation, array: true
 
+  # Prefills the form with user data from various VA services
+  # @return [void]
   def prefill
     prefill_form_address
     prefill_dependents_information
@@ -39,6 +47,8 @@ class FormProfiles::VA686c674v2 < FormProfile
     super
   end
 
+  # Returns metadata configuration for the form
+  # @return [Hash] metadata including version, prefill status, and return URL
   def metadata
     {
       version: 0,
@@ -49,6 +59,8 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   private
 
+  # Prefills the form address using mailing address from VA Profile
+  # @return [void]
   def prefill_form_address
     begin
       mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
@@ -67,6 +79,8 @@ class FormProfiles::VA686c674v2 < FormProfile
     )
   end
 
+  # Returns the last four digits of the VA file number or SSN
+  # @return [String, nil] the last four digits of file number or SSN
   def va_file_number_last_four
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     (
@@ -127,14 +141,20 @@ class FormProfiles::VA686c674v2 < FormProfile
     )
   end
 
+  # Returns the BGS dependent service instance
+  # @return [BGS::DependentV2Service] service for retrieving dependent information
   def dependent_service
     @dependent_service ||= BGS::DependentV2Service.new(user)
   end
 
+  # Returns the BID Awards pension service instance
+  # @return [BID::Awards::Service] service for retrieving pension award information
   def pension_award_service
     @pension_award_service ||= BID::Awards::Service.new(user)
   end
 
+  # Returns the dependents monitor instance for logging
+  # @return [Dependents::Monitor] monitor for tracking dependent events
   def monitor
     @monitor ||= Dependents::Monitor.new(nil)
   end
