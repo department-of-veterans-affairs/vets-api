@@ -171,6 +171,7 @@ The solution uses **AASM (state machine) callbacks** to trigger form intake subm
 - **Tracing**: DataDog APM for request tracking
 - **Logging**: Structured Rails logs at each step
 - **Monitoring**: Sidekiq UI for queue health
+- **Correlation**: All metrics and logs include `benefits_intake_uuid` to correlate Lighthouse PDF submission with GCIO JSON submission
 
 ### Retry Strategy
 
@@ -252,6 +253,38 @@ FORM_INTAKE_ENABLED_FORMS = %w[
 - **Audit Trail**: Complete submission history with timestamps
 - **Access Control**: Feature flags limit who can trigger submissions
 - **Monitoring**: All actions logged for security review
+- **Traceability**: Benefits Intake UUID tracked in all logs and metrics for end-to-end correlation
+
+### UUID Correlation for Tracking
+
+**Critical Requirement**: All logging and metrics must include the `benefits_intake_uuid` to enable correlation between:
+- The original PDF submission to Lighthouse Benefits Intake
+- The subsequent JSON form data submission to GCIO
+
+**Implementation**:
+```ruby
+# In FormIntake::SubmissionHandler
+Rails.logger.info(
+  'FormIntake handler invoked',
+  form_submission_id: form_submission.id,
+  form_type: form_submission.form_type,
+  benefits_intake_uuid: form_submission_attempt.benefits_intake_uuid
+)
+
+# In FormIntake::SubmitFormDataJob
+StatsD.increment('gcio.submit_form_data_job.attempt', tags: [
+  "form_type:#{form_type}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
+])
+
+Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', benefits_intake_uuid)
+```
+
+**Benefits**:
+- Track complete journey from PDF upload → GCIO JSON submission
+- Debug issues by correlating Lighthouse and GCIO logs
+- Generate reports linking both submission types
+- Monitor end-to-end success rates
 
 ### Forward Proxy Architecture
 
@@ -363,5 +396,4 @@ Detailed technical documentation is organized as follows:
 - [Lighthouse Benefits Intake API Docs](https://developer.va.gov/explore/api/benefits-intake/docs)
 - [fwdproxy Configuration PR](https://github.com/department-of-veterans-affairs/vsp-platform-fwdproxy/pull/816)
 - [DataDog Dashboard](https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking)
-- [Existing Lighthouse Polling Implementation](../../../app/sidekiq/benefits_intake_status_job.rb)
 

@@ -53,6 +53,9 @@ class CreateFormIntakeSubmissions < ActiveRecord::Migration[7.0]
       t.string :aasm_state, null: false, default: 'pending'
       t.integer :retry_count, default: 0, null: false
       
+      # Correlation UUID from Lighthouse Benefits Intake submission
+      t.string :benefits_intake_uuid, null: false
+      
       # GCIO identifiers
       t.string :form_intake_submission_id
       t.string :gcio_tracking_number
@@ -71,6 +74,7 @@ class CreateFormIntakeSubmissions < ActiveRecord::Migration[7.0]
     end
     
     add_index :form_intake_submissions, :aasm_state
+    add_index :form_intake_submissions, :benefits_intake_uuid
     add_index :form_intake_submissions, :form_intake_submission_id, unique: true, where: "form_intake_submission_id IS NOT NULL"
     add_index :form_intake_submissions, :created_at
   end
@@ -238,6 +242,7 @@ form_intake_submissions (1:N) form_intake_submission_attempts
 - **Relationship integrity**: Foreign keys prevent orphaned records
 - **Index optimization**: Indexes support common query patterns
 - **Manual remediation**: Can identify and resubmit failed records
+- **UUID correlation**: Stores `benefits_intake_uuid` for end-to-end tracking from Lighthouse to GCIO
 
 ### Negative
 

@@ -182,21 +182,24 @@ end
 ### Monitoring Metrics
 
 ```ruby
-# Track each attempt
+# Track each attempt - include benefits_intake_uuid for correlation with Lighthouse submission
 StatsD.increment('gcio.submit_form_data_job.attempt', tags: [
   "form_type:#{form_type}",
-  "attempt:#{retry_count}"
+  "attempt:#{retry_count}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
 ])
 
 # Track by error type
 StatsD.increment('gcio.submit_form_data_job.error', tags: [
   "status:#{status_code}",
-  "retryable:#{retryable}"
+  "retryable:#{retryable}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
 ])
 
 # Track exhaustion
 StatsD.increment('gcio.submit_form_data_job.exhausted', tags: [
-  "form_type:#{form_type}"
+  "form_type:#{form_type}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
 ])
 ```
 
@@ -207,6 +210,10 @@ def perform(form_submission_id)
   Datadog::Tracing.trace('gcio.submit_form_data_job') do |span|
     span.set_tag('form_submission_id', form_submission_id)
     span.set_tag('retry_count', retry_count)
+    
+    # Include benefits_intake_uuid for correlation with Lighthouse submission
+    span.set_tag('benefits_intake_uuid', benefits_intake_uuid)
+    span.set_tag('form_type', form_type)
     
     # ... job logic ...
   end
@@ -224,6 +231,49 @@ def increment_retry_count!
     last_error_message: error_message,
     last_attempted_at: Time.current
   )
+end
+```
+
+### Benefits Intake UUID Correlation
+
+Store and use the `benefits_intake_uuid` from the Lighthouse submission for tracking:
+
+```ruby
+# In FormIntakeSubmission model
+class FormIntakeSubmission < ApplicationRecord
+  belongs_to :form_submission
+  
+  # Delegate to get the benefits_intake_uuid
+  def benefits_intake_uuid
+    form_submission.form_submission_attempts
+                   .order(created_at: :desc)
+                   .first&.benefits_intake_uuid
+  end
+end
+
+# In FormIntake::SubmitFormDataJob
+def perform(form_submission_id)
+  @form_submission = FormSubmission.find(form_submission_id)
+  @benefits_intake_uuid = latest_benefits_intake_uuid
+  
+  # Include in all logging and metrics
+  Rails.logger.info(
+    'FormIntake job started',
+    form_submission_id: form_submission_id,
+    benefits_intake_uuid: @benefits_intake_uuid
+  )
+  
+  StatsD.increment('gcio.submit_form_data_job.attempt', tags: [
+    "form_type:#{@form_submission.form_type}",
+    "benefits_intake_uuid:#{@benefits_intake_uuid}"
+  ])
+end
+
+def latest_benefits_intake_uuid
+  @form_submission.form_submission_attempts
+                  .where(aasm_state: 'vbms')
+                  .order(created_at: :desc)
+                  .first&.benefits_intake_uuid
 end
 ```
 

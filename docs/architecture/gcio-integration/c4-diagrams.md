@@ -170,8 +170,9 @@ sequenceDiagram
     GCIO-->>GS: 200 OK + submission_id
     GS-->>S3: Return success response
     S3->>DB: Update FormIntakeSubmission (success)
-    S3->>DD: Log success metrics
+    S3->>DD: Log success metrics (includes benefits_intake_uuid)
     
+    Note over S3: All logs/metrics include benefits_intake_uuid<br/>for correlation with Lighthouse submission
     Note over S3: If failure, Sidekiq retries
     
 ```
@@ -200,7 +201,7 @@ sequenceDiagram
     GCIO-->>GS: 500 Internal Server Error
     GS-->>J: Raise ServiceError
     J->>DB: Update FormIntakeSubmission (attempt 1, error)
-    J->>DD: Log failure metric
+    J->>DD: Log failure metric (includes benefits_intake_uuid)
     
     Note over J: Sidekiq retry (exponential backoff)
     Note over J: Wait ~25 seconds
@@ -211,13 +212,13 @@ sequenceDiagram
     GCIO-->>GS: 503 Service Unavailable
     GS-->>J: Raise ServiceError
     J->>DB: Update FormIntakeSubmission (attempt 2, error)
-    J->>DD: Log failure metric
+    J->>DD: Log failure metric (includes benefits_intake_uuid)
     
     Note over J: Continue retrying...
     Note over J: After 16 retries (~2 days)
     
     J->>DB: Update FormIntakeSubmission (failed)
-    J->>DD: Log exhaustion metric
+    J->>DD: Log exhaustion metric (includes benefits_intake_uuid)
     J->>VN: Send failure notification (if configured)
 ```
 

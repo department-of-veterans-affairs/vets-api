@@ -149,8 +149,23 @@ form_intake_integration:
 ### Monitoring
 
 ```ruby
-# In handler
-StatsD.increment('gcio.submission_handler.invoked', tags: ["form_type:#{form_type}"])
-StatsD.increment('gcio.submission_handler.job_enqueued', tags: ["form_type:#{form_type}"])
+# In handler - include benefits_intake_uuid for correlation
+StatsD.increment('gcio.submission_handler.invoked', tags: [
+  "form_type:#{form_type}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
+])
+
+StatsD.increment('gcio.submission_handler.job_enqueued', tags: [
+  "form_type:#{form_type}",
+  "benefits_intake_uuid:#{benefits_intake_uuid}"
+])
+
+# Also log with UUID for pairing/tracking
+Rails.logger.info(
+  'FormIntake handler invoked',
+  form_submission_id: form_submission_id,
+  form_type: form_type,
+  benefits_intake_uuid: benefits_intake_uuid
+)
 ```
 
