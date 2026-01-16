@@ -18,7 +18,7 @@ graph TD
     Check686c -->|Yes| Skip686c[Early Exit]
     Check686c -->|No| DB686c1[(DB: BGSFormSubmission<br/>find_or_create)]
     DB686c1 --> DB686c2[(DB: BGSFormSubmissionAttempt<br/>create)]
-    DB686c2 --> Submit686c[Call BGSV2::Form686c.submit<br/>Creates vnp_veteran, relationships,<br/>vnp_benefit_claim, BenefitClaim]
+    DB686c2 --> Submit686c[Call BGS::Form686c.submit<br/>Creates vnp_veteran, relationships,<br/>vnp_benefit_claim, BenefitClaim]
     Submit686c --> Success686c{Success?}
     
     %% Success Coordination Subgraph for BGS686cJob
@@ -64,7 +64,7 @@ graph TD
     Check674 -->|Yes| Skip674[Early Exit]
     Check674 -->|No| DB6741[(DB: BGSFormSubmission<br/>find_or_create)]
     DB6741 --> DB6742[(DB: BGSFormSubmissionAttempt<br/>create)]
-    DB6742 --> Submit674[Call BGSV2::Form674.submit<br/>Creates school attendance records]
+    DB6742 --> Submit674[Call BGS::Form674.submit<br/>Creates school attendance records]
     Submit674 --> Success674{Success?}
     Success674 -->|Yes| SuccessCoord674[Success Coordination<br/>Same as BGS686cJob]
     Success674 -->|No| FailureCoord674[Failure Coordination<br/>Same as BGS686cJob]
@@ -105,7 +105,7 @@ graph TD
 - **Parallel Execution**: All created jobs run in parallel
 - **Early Exit**: Jobs check parent group status before processing
 - **Two Submission Types**:
-  - **BGS Jobs**: Submit directly to BGSV2 service
+  - **BGS Jobs**: Submit directly to BGS service
   - **Claims Jobs**: Generate PDF and upload to Lighthouse Benefits Intake
 - **Success Coordination**: Uses pessimistic locking to coordinate sibling completion
 - **Failure Coordination**: Permanent failures or retry exhaustion trigger backup job
