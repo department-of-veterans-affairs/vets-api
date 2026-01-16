@@ -14,7 +14,7 @@ RSpec.describe PdfFill::Forms::Va21p530a do
     factory: :fake_saved_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
-    test_data_types: %w[simple],
+    test_data_types: %w[simple maximal],
     fill_options: {
       sign: false
     }
