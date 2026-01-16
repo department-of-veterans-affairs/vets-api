@@ -87,22 +87,6 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         end
 
         it 'creates appointment successfully' do
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
-              post('/vass/v0/appointment',
-                   params: appointment_params.to_json,
-                   headers:)
-
-              expect(response).to have_http_status(:ok)
-              json_response = JSON.parse(response.body)
-
-              expect(json_response['data']).to be_present
-              expect(json_response['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
-            end
-          end
-        end
-
-        it 'tracks success metrics' do
           allow(StatsD).to receive(:increment).and_call_original
 
           expect(StatsD).to receive(:increment).with(
@@ -115,6 +99,12 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
               post('/vass/v0/appointment',
                    params: appointment_params.to_json,
                    headers:)
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+
+              expect(json_response['data']).to be_present
+              expect(json_response['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
             end
           end
         end
@@ -179,6 +169,8 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         end
 
         it 'returns bad request error' do
+          allow(StatsD).to receive(:increment)
+
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -191,16 +183,6 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           expect(json_response['errors'].first['detail']).to eq(
             'Appointment session not found. Please check availability first.'
           )
-        end
-
-        it 'tracks failure metrics' do
-          allow(StatsD).to receive(:increment)
-
-          post('/vass/v0/appointment',
-               params: appointment_params.to_json,
-               headers:)
-
-          expect(response).to have_http_status(:bad_request)
 
           expect(StatsD).to have_received(:increment).with(
             'api.vass.controller.appointments.create.failure',

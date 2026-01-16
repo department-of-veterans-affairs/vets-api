@@ -69,6 +69,13 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
 
     context 'when user is authenticated' do
       it 'returns available topics successfully' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.appointments.topics.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:topics'))
+        ).and_call_original
+
         VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success',
                            match_requests_on: %i[method uri]) do
@@ -87,22 +94,6 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
             expect(first_topic).to have_key('topicName')
             expect(first_topic['topicId']).to be_present
             expect(first_topic['topicName']).to be_present
-          end
-        end
-      end
-
-      it 'tracks success metrics' do
-        allow(StatsD).to receive(:increment).and_call_original
-
-        expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.appointments.topics.success',
-          hash_including(tags: array_including('service:vass', 'endpoint:topics'))
-        ).and_call_original
-
-        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success',
-                           match_requests_on: %i[method uri]) do
-            get('/vass/v0/topics', headers:)
           end
         end
       end

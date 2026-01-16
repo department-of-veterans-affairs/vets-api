@@ -76,6 +76,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns available slots status with appointment data' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.availability.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:availability'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
               VCR.use_cassette('vass/appointments/get_availability_success', match_requests_on: %i[method uri]) do
@@ -88,23 +95,6 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
                 expect(json_response['data']['appointmentId']).to be_present
                 expect(json_response['data']['availableSlots']).to be_an(Array)
                 expect(json_response['data']['availableSlots']).not_to be_empty
-              end
-            end
-          end
-        end
-
-        it 'tracks success metrics' do
-          allow(StatsD).to receive(:increment).and_call_original
-
-          expect(StatsD).to receive(:increment).with(
-            'api.vass.controller.appointments.availability.success',
-            hash_including(tags: array_including('service:vass', 'endpoint:availability'))
-          ).and_call_original
-
-          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('vass/appointments/get_availability_success', match_requests_on: %i[method uri]) do
-                get('/vass/v0/appointment-availability', headers:)
               end
             end
           end
