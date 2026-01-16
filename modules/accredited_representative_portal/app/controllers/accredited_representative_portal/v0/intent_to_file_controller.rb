@@ -59,15 +59,14 @@ module AccreditedRepresentativePortal
             saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
             Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
 
-            # ✅ Make power_of_attorney_holder safe for nil
             SavedClaimClaimantRepresentative.create!(
               saved_claim:,
               claimant_type:,
               claimant_id: icn_temporary_identifier.id,
-              power_of_attorney_holder_type: power_of_attorney_holder&.type,
-              power_of_attorney_holder_poa_code: power_of_attorney_holder&.poa_code,
+              power_of_attorney_holder_type: power_of_attorney_holder.type,
+              power_of_attorney_holder_poa_code: power_of_attorney_holder.poa_code,
               accredited_individual_registration_number:
-                claimant_representative&.accredited_individual_registration_number
+                claimant_representative.accredited_individual_registration_number
             )
           end
 
@@ -166,7 +165,7 @@ module AccreditedRepresentativePortal
       end
 
       def power_of_attorney_holder
-        claimant_representative&.power_of_attorney_holder
+        claimant_representative.power_of_attorney_holder
       end
 
       def ar_monitoring
@@ -176,16 +175,11 @@ module AccreditedRepresentativePortal
         )
       end
 
+      # ---- Defensive Datadog tags only ----
       def default_tags
         org_tag = 'org_resolve:failed'
-
-        # Only try to access poa_code if power_of_attorney_holder exists
-        begin
-          poa_code = power_of_attorney_holder&.poa_code
-          org_tag = "org:#{poa_code}" if poa_code.present?
-        rescue
-          # fallback tag already set
-        end
+        poa_code = organization
+        org_tag = "org:#{poa_code}" if poa_code.present?
 
         [
           org_tag,
@@ -193,6 +187,7 @@ module AccreditedRepresentativePortal
         ]
       end
 
+      # nil-safe retrieval for monitoring only
       def organization
         power_of_attorney_holder&.poa_code
       rescue

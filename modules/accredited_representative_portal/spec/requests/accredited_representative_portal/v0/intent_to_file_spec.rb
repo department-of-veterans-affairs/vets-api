@@ -286,31 +286,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
         context 'when poa_code lookup fails' do
           before do
-            # 1️⃣ Simulate POA lookup failure
-            allow_any_instance_of(AccreditedRepresentativePortal::V0::IntentToFileController)
-              .to receive(:power_of_attorney_holder).and_return(nil)
-
-            # 2️⃣ Stub claimant_representative to respond to methods used
-            fake_claimant = double(
-              'ClaimantRepresentative',
-              type: 'vso',
-              poa_code: nil,
-              accredited_individual_registration_number: 'fake123'
-            )
-            allow_any_instance_of(AccreditedRepresentativePortal::V0::IntentToFileController)
-              .to receive(:claimant_representative).and_return(fake_claimant)
-
-            # 3️⃣ Stub SavedClaim::BenefitsClaims::IntentToFile.create!
-            allow(AccreditedRepresentativePortal::SavedClaim::BenefitsClaims::IntentToFile)
-              .to receive(:create!)
-              .and_return(double('IntentToFile', id: 'fake_itf_id'))
-
-            # 4️⃣ Stub SavedClaimClaimantRepresentative.create!
-            allow(AccreditedRepresentativePortal::SavedClaimClaimantRepresentative)
-              .to receive(:create!).and_return(true)
-
-            # 5️⃣ Stub Datadog monitoring
-            allow(datadog_instance).to receive(:track_count)
+            # only affect Datadog tags
+            allow_any_instance_of(
+              AccreditedRepresentativePortal::V0::IntentToFileController
+            ).to receive(:organization).and_return(nil)
           end
 
           it 'still submits the ITF and tracks metrics without org tag' do
