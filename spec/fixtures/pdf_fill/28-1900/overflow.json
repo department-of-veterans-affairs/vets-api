@@ -1,7 +1,4 @@
 {
-  "useEva": true,
-  "useTelecounseling": true,
-  "appointmentTimePreferences": ["morning"],
   "yearsOfEducation": "12",
   "isMoving": true,
   "newAddress": {
@@ -35,5 +32,7 @@
     "ssn": "796-10-4437",
     "VAFileNumber": "88246556",
     "dob": "1950-10-04"
-  }
+  },
+  "privacyAgreementAccepted": false,
+  "signatureDate": "2025-06-25"
 }

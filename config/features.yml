@@ -337,6 +337,9 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_claims_duty_to_assist:
+    actor_type: user
+    description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -540,6 +543,10 @@ features:
     description: When enabled, use the title generator to insert claim titles into claim list responses.
   cst_use_claim_title_generator_mobile:
     description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
+  cst_multi_claim_provider:
+    actor_type: user
+    description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -654,9 +661,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_service_common_exceptions_enabled:
-    actor_type: user
-    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -806,10 +810,10 @@ features:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
-  disability_compensation_0781_supporting_documents_enhancement:
+  disability_526_supporting_evidence_enhancement:
     actor_type: user
     description: >
-      Enables content and design enhancements for Form 0781 supporting documents
+      Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
@@ -2068,6 +2072,9 @@ features:
     actor_type: user
     description: Allows us to toggle duplicate modals for the 686C-674
     enable_in_development: true
+  va_dependents_no_ssn:
+    actor_type: user
+    description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -2319,10 +2326,6 @@ features:
   notification_center:
     actor_type: user
     description: Enable Notification Center
-    enable_in_development: true
-  nod_part3_update:
-    actor_type: user
-    description: NOD update to latest form, part III box 11
     enable_in_development: true
   nod_browser_monitoring_enabled:
     actor_type: user
@@ -2644,6 +2647,9 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  form_10282_sftp_debug:
+    actor_type: user
+    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
