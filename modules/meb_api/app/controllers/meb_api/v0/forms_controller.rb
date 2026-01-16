@@ -11,6 +11,10 @@ module MebApi
       before_action :check_forms_flipper
       before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
+      FORM_TYPE = MebApi::ConfirmationEmailConfig::FORM_1990EMEB
+      FORM_TAG = MebApi::ConfirmationEmailConfig::TAG_1990EMEB
+      FLIPPER_KEY = :form1990emeb_confirmation_email
+
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response.claimant_id
@@ -77,19 +81,36 @@ module MebApi
       end
 
       def send_confirmation_email
-        return head :no_content unless Flipper.enabled?(:form1990emeb_confirmation_email)
+        log_confirmation_email_request(FORM_TAG, FLIPPER_KEY)
 
-        status = params[:claim_status]
+        unless Flipper.enabled?(FLIPPER_KEY)
+          log_confirmation_email_skipped(FORM_TAG, 'flipper_disabled')
+          return head :no_content
+        end
+
         email = params[:email] || @current_user.email
-        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+        if email.blank?
+          log_confirmation_email_skipped(FORM_TAG, 'email_missing', params[:claim_status])
+          return head :no_content
+        end
 
-        MebApi::V0::Submit1990emebFormConfirmation.perform_async(status, email, first_name)
+        dispatch_confirmation_email(email)
       end
 
       private
 
       def set_type
         @form_type = params['type'] == 'ToeSubmission' ? 'toe' : params['type']&.capitalize
+      end
+
+      def dispatch_confirmation_email(email)
+        MebApi::V0::Submit1990emebFormConfirmation.perform_async(
+          params[:claim_status],
+          email,
+          params[:first_name]&.upcase || @current_user.first_name&.upcase,
+          @current_user.icn
+        )
+        log_confirmation_email_dispatched(FORM_TAG, params[:claim_status])
       end
 
       def valid_claimant_response?(response)

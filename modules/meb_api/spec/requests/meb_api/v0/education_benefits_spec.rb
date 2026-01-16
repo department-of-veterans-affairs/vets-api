@@ -365,7 +365,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           claim_status: 'ELIGIBLE', email: 'test@test.com', first_name: 'test'
         }
         expect(MebApi::V0::Submit1990mebFormConfirmation).to have_received(:perform_async)
-          .with('ELIGIBLE', 'test@test.com', 'TEST')
+          .with('ELIGIBLE', 'test@test.com', 'TEST', user.icn)
       end
     end
 
