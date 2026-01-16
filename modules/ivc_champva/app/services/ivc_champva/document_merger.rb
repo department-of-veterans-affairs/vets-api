@@ -69,13 +69,8 @@ module IvcChampva
       # Return original files if no merge rules apply
       return build_no_merge_result unless should_merge?
 
-      # Group files by merge rules
       grouped_files = group_files_by_merge_rules
-
-      # Process each group
       merged_results = process_grouped_files(grouped_files)
-
-      # Build final result
       build_merge_result(merged_results)
     rescue => e
       Rails.logger.error("IVC ChampVA DocumentMerger - Error during merge process: #{e.message}")
@@ -94,7 +89,6 @@ module IvcChampva
       return false unless Flipper.enabled?(:champva_document_merging, @current_user)
       return false unless MERGE_RULES.key?(@legacy_form_id)
 
-      # Check if any specific merge rules are enabled for this form
       MERGE_RULES[@legacy_form_id].any? do |_rule_name, rule_config|
         return true if Flipper.enabled?(rule_config[:flipper_toggle], @current_user)
       end
@@ -177,7 +171,6 @@ module IvcChampva
             }
           end
         else
-          # Process merge rule
           merge_result = process_merge_rule(rule_name, files)
           results.concat(merge_result) if merge_result
         end
@@ -197,13 +190,10 @@ module IvcChampva
 
       Rails.logger.info "IVC ChampVA DocumentMerger - Processing rule '#{rule_name}' with #{files.length} files"
 
-      # Create batches based on max_docs constraint (e.g., pairs of front/back)
       file_batches = create_rule_based_batches(files, rule_config[:max_docs_merged])
 
-      # Merge each batch
       results = []
       file_batches.each_with_index do |batch, batch_index|
-        # Create size-based chunks within each batch if needed
         size_chunks = create_size_based_chunks(batch)
 
         size_chunks.each_with_index do |chunk, chunk_index|
@@ -267,10 +257,7 @@ module IvcChampva
     def merge_file_chunk(rule_name, rule_config, file_chunk, batch_index, chunk_index)
       return nil if file_chunk.empty?
 
-      # Generate merged file path
       merged_file_path = generate_merged_file_path(rule_config[:merged_attachment_id], batch_index, chunk_index)
-
-      # Extract file paths for PdfCombiner
       file_paths_to_merge = file_chunk.map { |f| f[:file_path] }
 
       Rails.logger.info "IVC ChampVA DocumentMerger - Merging #{file_paths_to_merge.length} files " \
