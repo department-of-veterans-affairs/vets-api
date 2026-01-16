@@ -1562,6 +1562,10 @@ features:
     actor_type: user
     description: Enables V2 status mapping for prescriptions (consolidates VistA/Oracle Health statuses into simplified groups)
     enable_in_development: false
+  mhv_medications_enable_krames_html_sanitization:
+    actor_type: user
+    description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
+    enable_in_development: false
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
