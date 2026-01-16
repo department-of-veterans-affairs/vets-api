@@ -13015,11 +13015,26 @@
                   },
                   "downloadEligibleDocuments": {
                     "type": "array",
-                    "description": "List of document IDs eligible for download",
+                    "description": "List of documents eligible for download",
+                    "nullable": true,
                     "items": {
-                      "type": "string"
-                    },
-                    "nullable": true
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "documentId",
+                        "filename"
+                      ],
+                      "properties": {
+                        "documentId": {
+                          "type": "string",
+                          "description": "Uuid for the document"
+                        },
+                        "filename": {
+                          "type": "string",
+                          "description": "Filename of the document"
+                        }
+                      }
+                    }
                   }
                 }
               }
