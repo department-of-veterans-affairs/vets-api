@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MPI_URL>/"
+    uri: "<MPI_URL>"
     body:
       encoding: ASCII-8BIT
       string: !binary |-

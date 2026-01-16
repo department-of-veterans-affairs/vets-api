@@ -43,6 +43,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::DisabilityCompensationFormsCo
         },
         form526: {
           form526: {
+            isVaEmployee: false,
+            standardClaim: false,
             veteran: {
               currentlyVAEmployee: false
             },
@@ -70,7 +72,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::DisabilityCompensationFormsCo
 
       before do
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
-        allow_any_instance_of(SavedClaim::DisabilityCompensation::Form526AllClaim).to receive(:save).and_return(true)
+        allow_any_instance_of(AccreditedRepresentativePortal::SavedClaim::BenefitsClaims::DisabilityCompensation).to receive(:save).and_return(true)
         allow_any_instance_of(Form526Submission).to receive(:save!).and_return(true)
         allow_any_instance_of(Form526Submission).to receive(:start).and_return('test-job-id')
         allow(UserAccount).to receive(:find_by).and_return(veteran_user_account)
@@ -120,6 +122,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::DisabilityCompensationFormsCo
           },
           form526: {
             form526: {
+              isVaEmployee: false,
+              standardClaim: false,
               veteran: {
                 currentlyVAEmployee: false
               },
@@ -134,7 +138,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::DisabilityCompensationFormsCo
 
       before do
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
-        allow_any_instance_of(SavedClaim::DisabilityCompensation::Form526AllClaim).to receive(:save).and_return(true)
+        allow_any_instance_of(AccreditedRepresentativePortal::SavedClaim::BenefitsClaims::DisabilityCompensation).to receive(:save).and_return(true)
         allow(UserAccount).to receive(:find_by).and_return(veteran_user_account)
       end
 

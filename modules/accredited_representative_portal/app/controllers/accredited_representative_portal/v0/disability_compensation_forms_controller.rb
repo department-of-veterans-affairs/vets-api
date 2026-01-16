@@ -25,7 +25,7 @@ module AccreditedRepresentativePortal
           @current_user
         )
 
-        saved_claim = ::SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+        saved_claim = AccreditedRepresentativePortal::SavedClaim::BenefitsClaims::DisabilityCompensation.from_hash(form_content)
         if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
           saved_claim.metadata = add_0781_metadata(form_content['form526'])
         end
