@@ -12916,7 +12916,8 @@
                   "claimType",
                   "everPhaseBack",
                   "currentPhaseBack",
-                  "claimTypeCode"
+                  "claimTypeCode",
+                  "downloadEligibleDocuments"
                 ],
                 "properties": {
                   "dateFiled": {
@@ -13010,6 +13011,14 @@
                     "type": "string",
                     "description": "Formatted title for display",
                     "example": "Claim for compensation",
+                    "nullable": true
+                  },
+                  "downloadEligibleDocuments": {
+                    "type": "array",
+                    "description": "List of document IDs eligible for download",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   }
                 }
