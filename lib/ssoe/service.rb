@@ -12,6 +12,7 @@ module SSOe
     configuration SSOe::Configuration
 
     STATSD_KEY_PREFIX = 'api.ssoe'
+
     CONNECTION_ERRORS = [
       Faraday::ConnectionFailed,
       Faraday::TimeoutError,
@@ -30,13 +31,13 @@ module SSOe
         parse_response(raw_response.body)
       end
     rescue Common::Client::Errors::ClientError => e
-      raise SSOe::Errors::RequestError, "#{e.class} - #{e.message}"
+      raise SSOe::Errors::RequestError, "[SSOe][Service] #{e.class} - #{e.message}"
     rescue *CONNECTION_ERRORS => e
-      raise SSOe::Errors::ServerError, "#{e.class} - #{e.message}"
+      raise SSOe::Errors::ServerError, "[SSOe][Service] #{e.class} - #{e.message}"
     rescue SSOe::Errors::Error
       raise
     rescue => e
-      raise SSOe::Errors::Error, "#{e.class} - #{e.message}"
+      raise SSOe::Errors::Error, "[SSOe][Service] #{e.class} - #{e.message}"
     end
 
     private
@@ -60,21 +61,22 @@ module SSOe
 
     def parse_response(response_body)
       parsed = Hash.from_xml(Ox.dump(response_body))
+
       check_for_fault(parsed)
 
       icn = parsed.dig('Envelope', 'Body', 'getSSOeTraitsByCSPIDResponse', 'icn')
       return { success: true, icn: } if icn.present?
 
-      raise SSOe::Errors::ParsingError, 'Unable to parse SOAP response'
+      raise SSOe::Errors::ParsingError, '[SSOe][Service] Unable to parse SOAP response'
     end
 
     def check_for_fault(parsed)
-      if parsed.dig('Envelope', 'Body', 'Fault')
-        fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
-        fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
+      return unless parsed.dig('Envelope', 'Body', 'Fault')
 
-        raise SSOe::Errors::ParsingError, "SOAP Fault: #{fault_code} - #{fault_string}"
-      end
+      fault_code = parsed.dig('Envelope', 'Body', 'Fault', 'faultcode') || 'UnknownError'
+      fault_string = parsed.dig('Envelope', 'Body', 'Fault', 'faultstring') || 'Unable to parse SOAP response'
+
+      raise SSOe::Errors::ParsingError, "[SSOe][Service] SOAP Fault - #{fault_string} (Code: #{fault_code})"
     end
   end
 end

@@ -24,8 +24,11 @@ module Identity
       response = SSOe::Service.new.get_traits(credential_method:, credential_id:, user:, address:)
 
       log_success_or_failure(cache_key, credential_method, credential_id, response)
-    rescue SSOe::Errors::Error, Sidekiq::AttrPackageError => e
-      log_failure("#{self.class} error: #{e.class} - #{e.message}", credential_method, credential_id)
+    rescue SSOe::Errors::Error => e
+      log_failure("SSOe service error: #{e.class} - #{e.message}", credential_method, credential_id, e)
+      raise
+    rescue Sidekiq::AttrPackageError => e
+      log_failure("AttrPackage error: #{e.class} - #{e.message}", credential_method, credential_id, e)
       raise
     end
 
