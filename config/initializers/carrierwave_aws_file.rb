@@ -13,7 +13,7 @@ Rails.application.config.after_initialize do
           content_md5 bucket_key_enabled
         ].freeze
 
-        def store(new_file) # rubocop:disable Metrics/MethodLength
+        def store(new_file)
           if new_file.is_a?(self.class)
             new_file.move_to(path)
           elsif Aws::S3.const_defined?(:TransferManager)
