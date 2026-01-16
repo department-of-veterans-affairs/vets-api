@@ -266,7 +266,7 @@ module Vass
       # @param error_type [Symbol] Type of error (:rate_limit, :identity_validation, etc.)
       #
       def handle_request_otc_error(error, session, error_type)
-        track_failure(SESSIONS_REQUEST_OTC, error:)
+        track_failure(SESSIONS_REQUEST_OTC, error_type: error.class.name)
         case error_type
         when :rate_limit then handle_rate_limit_error_for_generation(session, error)
         when :identity_validation
@@ -286,7 +286,7 @@ module Vass
       # @param error_type [Symbol] Type of error (:rate_limit, :authentication, :vass_api)
       #
       def handle_authenticate_otc_error(error, session, error_type)
-        track_failure(SESSIONS_AUTHENTICATE_OTC, error:)
+        track_failure(SESSIONS_AUTHENTICATE_OTC, error_type: error.class.name)
         case error_type
         when :rate_limit then handle_validation_rate_limit_error(session, error)
         when :authentication then handle_invalid_otc(session)

@@ -124,7 +124,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(redis_client).to receive(:increment_rate_limit).with(identifier: uuid)
         post :request_otc, params:, format: :json
       end
-
     end
 
     context 'with missing parameters' do
@@ -433,7 +432,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(session_model).to receive(:validate_and_generate_jwt).and_return(jwt_token)
         post :authenticate_otc, params:, format: :json
       end
-
     end
 
     context 'with invalid OTC' do

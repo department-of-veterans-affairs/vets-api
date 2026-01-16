@@ -11,7 +11,7 @@ module Vass
   #   track_success(APPOINTMENTS_CREATE)
   #
   # @example Track a failure
-  #   track_failure(APPOINTMENTS_CREATE, error: exception)
+  #   track_failure(APPOINTMENTS_CREATE, error_type: exception.class.name)
   #
   # @example Track an infrastructure event
   #   track_infrastructure_metric(SESSION_OTC_GENERATED)
@@ -44,18 +44,19 @@ module Vass
     # Includes error type in tags for error analysis.
     #
     # @param metric_base [String] Base metric name (e.g., APPOINTMENTS_CREATE)
-    # @param error [Exception] The error that occurred
+    # @param error_type [String] Error type identifier
     # @param http_status [Integer, nil] Optional HTTP status (uses response.status if not provided)
     # @param additional_tags [Hash] Optional additional tags
     #
     # @example
-    #   track_failure(APPOINTMENTS_CREATE, error: e)
+    #   track_failure(APPOINTMENTS_CREATE, error_type: e.class.name)
+    #   track_failure(APPOINTMENTS_CREATE, error_type: 'missing_session_data')
     #
-    def track_failure(metric_base, error:, http_status: nil, additional_tags: {})
+    def track_failure(metric_base, error_type:, http_status: nil, additional_tags: {})
       status = http_status || (response.respond_to?(:status) ? response.status : nil)
       tags = build_metric_tags(
         http_status: status,
-        error_type: error.class.name.demodulize,
+        error_type:,
         additional_tags:
       )
 

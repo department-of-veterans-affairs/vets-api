@@ -36,7 +36,7 @@ module Vass
         render_availability_result(result)
         track_success(APPOINTMENTS_AVAILABILITY)
       rescue => e
-        track_failure(APPOINTMENTS_AVAILABILITY, error: e)
+        track_failure(APPOINTMENTS_AVAILABILITY, error_type: e.class.name)
         raise
       end
 
@@ -65,7 +65,7 @@ module Vass
         render_camelized_json({ data: { topics: } })
         track_success(APPOINTMENTS_TOPICS)
       rescue => e
-        track_failure(APPOINTMENTS_TOPICS, error: e)
+        track_failure(APPOINTMENTS_TOPICS, error_type: e.class.name)
         raise
       end
 
@@ -104,7 +104,7 @@ module Vass
         )
         track_success(APPOINTMENTS_SHOW)
       rescue => e
-        track_failure(APPOINTMENTS_SHOW, error: e)
+        track_failure(APPOINTMENTS_SHOW, error_type: e.class.name)
         raise
       end
 
@@ -135,7 +135,7 @@ module Vass
         )
         track_success(APPOINTMENTS_CANCEL)
       rescue => e
-        track_failure(APPOINTMENTS_CANCEL, error: e)
+        track_failure(APPOINTMENTS_CANCEL, error_type: e.class.name)
         raise
       end
 
@@ -175,7 +175,7 @@ module Vass
         )
         track_success(APPOINTMENTS_CREATE)
       rescue => e
-        track_failure(APPOINTMENTS_CREATE, error: e)
+        track_failure(APPOINTMENTS_CREATE, error_type: e.class.name)
         raise
       end
 
@@ -207,8 +207,7 @@ module Vass
       # Handles the missing appointment_id scenario by tracking failure metrics.
       #
       def handle_missing_appointment_id
-        error_obj = StandardError.new('missing_session_data')
-        track_failure(APPOINTMENTS_CREATE, error: error_obj, additional_tags: { error: 'missing_session_data' })
+        track_failure(APPOINTMENTS_CREATE, error_type: 'missing_session_data')
       end
 
       ##
