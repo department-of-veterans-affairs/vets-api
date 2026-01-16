@@ -79,6 +79,28 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                      document_id: nil })
   end
 
+  describe 'download_eligible_documents' do
+    it 'includes download_eligible_documents as nil or a list of document objects' do
+      download_docs = gathering_of_evidence_claim[:download_eligible_documents]
+
+      expect(download_docs).to be_nil.or be_a(Array)
+
+      next unless download_docs
+
+      expect(download_docs).not_to be_empty
+
+      download_docs.each do |doc|
+        expect(doc).to have_key(:document_id)
+        expect(doc).to have_key(:filename)
+
+        document_id = doc[:document_id]
+        filename = doc[:filename]
+        expect(document_id).to be_a(String)
+        expect(filename).to be_a(String)
+      end
+    end
+  end
+
   context 'with claim in phase CLAIM_RECEIVED' do
     let(:claim_received_claim) do
       subject.parse(claim_data[0])
