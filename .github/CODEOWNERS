@@ -396,6 +396,7 @@ app/serializers/disability_contention_serializer.rb @department-of-veterans-affa
 app/serializers/education_benefits_claim_serializer.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/serializers/education_stem_claim_status_serializer.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/serializers/eligible_data_classes_serializer.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+app/serializers/email_verification_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/evss_claim_base_helper.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/evss_claim_detail_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/serializers/evss_claim_list_serializer.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1908,6 +1909,7 @@ spec/serializers/disability_contention_serializer_spec.rb @department-of-veteran
 spec/serializers/education_benefits_claim_serializer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/serializers/education_stem_claim_status_serializer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/serializers/eligible_data_classes_serializer_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+spec/serializers/email_verification_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/evss_claim_detail_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/evss_claim_list_serializer_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/serializers/extract_status_serializer_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
