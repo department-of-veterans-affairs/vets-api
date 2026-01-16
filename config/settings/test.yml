@@ -214,7 +214,9 @@ claims_api:
       ccg:
         aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
+        secret_key: path/to/fake/key.pem
     host: https://staging-api.va.gov
+    ssl: ~
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"

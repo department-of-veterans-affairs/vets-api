@@ -215,7 +215,9 @@ claims_api:
       ccg:
         aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
         client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
+        secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
     host: <%= ENV['claims_api__fes__host'] %>
+    ssl: <%= ENV['claims_api__fes__ssl'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"

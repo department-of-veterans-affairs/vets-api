@@ -215,7 +215,9 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
+        secret_key: "/srv/vets-api/secret/claims_api_fes_secret.key"
     host: https://qa.lighthouse.va.gov
+    ssl: ~
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
