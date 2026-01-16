@@ -24,7 +24,7 @@ module BGSV2
 
     def report_deaths
       @dependents_application['deaths']&.each do |death_info|
-        death = BGSDependentsV2::Death.new(death_info)
+        death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 
         # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
@@ -50,7 +50,7 @@ module BGSV2
     end
 
     def report_divorce
-      divorce = BGSDependentsV2::Divorce.new(@dependents_application['report_divorce'])
+      divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'])
       formatted_info = divorce.format_info
       participant = bgs_service.create_participant(@proc_id)
       bgs_service.create_person(person_params(divorce, participant, formatted_info))

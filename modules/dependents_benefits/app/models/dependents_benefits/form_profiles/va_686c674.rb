@@ -208,9 +208,9 @@ module DependentsBenefits
     # Returns a BGS dependent service instance for the current user
     # Memoized to avoid creating multiple instances
     #
-    # @return [BGS::DependentV2Service] Service for retrieving dependent information
+    # @return [BGS::DependentService] Service for retrieving dependent information
     def dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(user)
+      @dependent_service ||= BGS::DependentService.new(user)
     end
 
     ##
