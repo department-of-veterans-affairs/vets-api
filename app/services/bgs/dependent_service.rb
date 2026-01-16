@@ -5,7 +5,7 @@ require 'dependents/monitor'
 require 'vets/shared_logging'
 
 module BGS
-  class DependentV2Service
+  class DependentService
     include Vets::SharedLogging
 
     attr_reader :first_name,
@@ -182,17 +182,17 @@ module BGS
     # Tracks progress via monitor and raises PDFSubmissionError on failure so caller can handle fallback.
     def submit_pdf_job(claim:)
       @monitor = init_monitor(claim&.id)
-      @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
+      @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
                            "#{STATS_KEY}.submit_pdf.begin")
       form_id = submit_claim_via_claims_evidence(claim)
       submit_attachments_via_claims_evidence(form_id, claim)
 
-      @monitor.track_event('info', 'BGS::DependentV2Service#submit_pdf_job completed',
+      @monitor.track_event('info', 'BGS::DependentService#submit_pdf_job completed',
                            "#{STATS_KEY}.submit_pdf.completed")
     rescue => e
       error = Flipper.enabled?(:dependents_log_vbms_errors) ? e.message : '[REDACTED]'
       @monitor.track_event('warn',
-                           'BGS::DependentV2Service#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
+                           'BGS::DependentService#submit_pdf_job failed, submitting to Lighthouse Benefits Intake',
                            "#{STATS_KEY}.submit_pdf.failure", error:)
       raise PDFSubmissionError
     end
@@ -246,7 +246,7 @@ module BGS
 
     # Upload each persistent attachment via ClaimsEvidenceApi, stamping PDFs and sending them.
     def submit_attachments_via_claims_evidence(form_id, claim)
-      Rails.logger.info("BGS::DependentV2Service claims evidence upload of #{form_id} claim_id #{claim.id} attachments")
+      Rails.logger.info("BGS::DependentService claims evidence upload of #{form_id} claim_id #{claim.id} attachments")
       stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
       claim.persistent_attachments.each do |pa|
         doctype = pa.document_type
@@ -309,7 +309,7 @@ module BGS
           @file_number = bgs_person[:file_nbr]
         else
           @monitor.track_event('warn',
-                               'BGS::DependentV2Service#get_form_hash_686c missing bgs_person file_nbr',
+                               'BGS::DependentService#get_form_hash_686c missing bgs_person file_nbr',
                                "#{STATS_KEY}.file_number.missing",
                                { bgs_person_present: bgs_person.present? ? 'yes' : 'no' })
           @file_number = nil
@@ -328,7 +328,7 @@ module BGS
       # fall back to using Lighthouse and want to still generate the PDF.
       rescue
         @monitor.track_event('warn',
-                             'BGS::DependentV2Service#get_form_hash_686c failed',
+                             'BGS::DependentService#get_form_hash_686c failed',
                              "#{STATS_KEY}.get_form_hash.failure", { error: 'Could not retrieve file number from BGS' })
       end
 
@@ -340,11 +340,11 @@ module BGS
       bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
 
       if bgs_person.present?
-        @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by PID',
+        @monitor.track_event('info', 'BGS::DependentService#get_form_hash_686c found bgs_person by PID',
                              "#{STATS_KEY}.find_by_participant_id")
       else
         bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
-        @monitor.track_event('info', 'BGS::DependentV2Service#get_form_hash_686c found bgs_person by ssn',
+        @monitor.track_event('info', 'BGS::DependentService#get_form_hash_686c found bgs_person by ssn',
                              "#{STATS_KEY}.find_by_ssn")
       end
 
@@ -388,7 +388,7 @@ module BGS
     rescue => e
       # We don't have a claim id accessible yet
       @monitor = init_monitor(nil)
-      @monitor.track_event('warn', 'BGS::DependentV2Service#get_user_email failed to get va_profile_email',
+      @monitor.track_event('warn', 'BGS::DependentService#get_user_email failed to get va_profile_email',
                            "#{STATS_KEY}.get_va_profile_email.failure", { error: e.message })
       nil
     end
