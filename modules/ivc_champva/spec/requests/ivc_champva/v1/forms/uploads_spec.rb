@@ -53,6 +53,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow(Flipper).to receive(:enabled?)
             .with(:champva_retry_logic_refactor, @current_user)
             .and_return(champva_retry_logic_refactor_state)
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_update_datadog_tracking, @current_user)
+            .and_return(false)
         end
 
         forms.each do |form|
@@ -211,6 +214,77 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
       end
+    end
+  end
+
+  describe '#submit with champva_update_datadog_tracking enabled' do
+    let(:form_with_track_submission) { 'vha_10_10d.json' }
+
+    before do
+      # Mirror the setup from the passing tests, but enable champva_update_datadog_tracking
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_send_to_ves, @current_user)
+        .and_return(true)
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_retry_logic_refactor, @current_user)
+        .and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_update_datadog_tracking, @current_user)
+        .and_return(true)
+    end
+
+    it 'calls track_submission on form models that respond to it' do
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                     form_with_track_submission)
+      data = JSON.parse(fixture_path.read)
+
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      # Allow all StatsD calls, but specifically check for the .submission call
+      allow(StatsD).to receive(:increment).and_call_original
+
+      post '/ivc_champva/v1/forms', params: data
+
+      expect(response).to have_http_status(:ok)
+      # Verify track_submission was called by checking the StatsD increment
+      expect(StatsD).to have_received(:increment).with(
+        'api.ivc_champva_form.10_10d.submission',
+        hash_including(:tags)
+      )
+    end
+
+    it 'does not call track_submission on form models that do not respond to it' do
+      # 10-7959A does not have track_submission implemented (method_missing returns a hash, not StatsD calls)
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
+      data = JSON.parse(fixture_path.read)
+
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      # Allow all StatsD calls so we can verify later
+      allow(StatsD).to receive(:increment).and_call_original
+
+      post '/ivc_champva/v1/forms', params: data
+
+      expect(response).to have_http_status(:ok)
+      # Verify track_submission was NOT called (7959A doesn't have it implemented)
+      expect(StatsD).not_to have_received(:increment).with(
+        'api.ivc_champva_form.10_7959a.submission',
+        anything
+      )
     end
   end
 
