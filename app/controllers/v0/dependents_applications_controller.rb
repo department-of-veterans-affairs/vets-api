@@ -94,7 +94,7 @@ module V0
     end
 
     def create_dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(current_user)
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
 
     def dependency_verification_service

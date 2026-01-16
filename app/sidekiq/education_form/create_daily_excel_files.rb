@@ -45,6 +45,25 @@ module EducationForm
     def perform
       return unless Flipper.enabled?(:form_10282_sftp_upload)
 
+      if Flipper.enabled?(:form_10282_sftp_debug)
+        begin
+          log_info('Form10282SFTPDebug: Begin')
+
+          filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_test.txt"
+          options = Settings.form_10282.sftp
+          writer = SFTPWriter::Factory.get_writer(options).new(options, logger:)
+          bytes_sent = writer.write('This is only a test', filename)
+
+          log_info("Form10282SFTPDebug: wrote #{bytes_sent} to remote server")
+          log_info('Form10282SFTPDebug: Success')
+        rescue => e
+          log_info('Form10282SFTPDebug: ERROR')
+          log_info("Form10282SFTPDebug: #{e.class.name}, #{e.message}")
+        end
+
+        return
+      end
+
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
       excel_file_event = ExcelFileEvent.build_event(filename)

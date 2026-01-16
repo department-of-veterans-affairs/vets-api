@@ -38,6 +38,15 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
           generator.send(:extract_form_data)
         end.to raise_error(NotImplementedError, 'Subclasses must implement extract_form_data')
       end
+
+      describe '#claim_class' do
+        it 'raises NotImplementedError' do
+          allow(generator).to receive(:claim_class).and_call_original
+          expect do
+            generator.send(:claim_class)
+          end.to raise_error(NotImplementedError, 'Subclasses must implement claim_class')
+        end
+      end
     end
 
     describe '#create_claim' do
