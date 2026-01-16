@@ -152,7 +152,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
           assert_schema_conform(404)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Resource not found',
-                                                              'detail' => 'Resource not found',
+                                                              'detail' => 'Claim not found',
                                                               'code' => '404', 'status' => '404' }] })
         end
       end
