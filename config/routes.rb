@@ -311,7 +311,6 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
-    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'

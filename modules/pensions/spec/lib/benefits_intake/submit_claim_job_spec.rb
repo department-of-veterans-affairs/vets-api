@@ -327,38 +327,38 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       it 'logs a distinct error when only claim_id provided' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
-          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

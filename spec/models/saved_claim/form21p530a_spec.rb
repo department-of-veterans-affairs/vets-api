@@ -40,17 +40,17 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'rejects first name longer than 12 characters' do
-        form['veteranInformation']['fullName']['first'] = 'A' * 13
+        form['veteranInformation']['fullName']['first'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 12')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects last name longer than 18 characters' do
-        form['veteranInformation']['fullName']['last'] = 'A' * 19
+        form['veteranInformation']['fullName']['last'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 18')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects invalid SSN format' do
@@ -81,12 +81,6 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
         expect(claim.errors.full_messages.join).to include('is greater than: 3')
-      end
-
-      it 'rejects invalid postalCodeExtension format' do
-        form['burialInformation']['recipientOrganization']['address']['postalCodeExtension'] = '12345' # Too long
-        expect(claim).not_to be_valid
-        expect(claim.errors.full_messages.join).to include('pattern')
       end
 
       it 'requires veteran full name' do
@@ -156,16 +150,33 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
 
   describe '#to_pdf' do
     let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_pdf_path) { '/tmp/test_form_stamped.pdf' }
+    let(:parsed_form_data) do
+      {
+        'certification' => {
+          'signature' => 'John Doe'
+        }
+      }
+    end
 
     before do
       allow(PdfFill::Filler).to receive(:fill_form).and_return(pdf_path)
+      allow(PdfFill::Forms::Va21p530a).to receive(:stamp_signature).and_return(stamped_pdf_path)
+      allow(claim).to receive(:parsed_form).and_return(parsed_form_data)
     end
 
-    it 'generates PDF' do
+    it 'generates PDF and stamps the signature' do
       result = claim.to_pdf
 
       expect(PdfFill::Filler).to have_received(:fill_form).with(claim, nil, {})
-      expect(result).to eq(pdf_path)
+      expect(PdfFill::Forms::Va21p530a).to have_received(:stamp_signature).with(pdf_path, parsed_form_data)
+      expect(result).to eq(stamped_pdf_path)
+    end
+
+    it 'passes file_name to the filler' do
+      claim.to_pdf('custom-file-name')
+
+      expect(PdfFill::Filler).to have_received(:fill_form).with(claim, 'custom-file-name', {})
     end
 
     it 'passes fill_options to the filler' do

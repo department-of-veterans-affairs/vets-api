@@ -87,12 +87,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
-  after_initialize do
-    if form.present?
-      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
-    end
-  end
-
   def initialize(args)
     @sent_to_lighthouse = false
     super
@@ -301,11 +295,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
     if CONFIRMATION_EMAIL_TEMPLATES.key?(email_type)
-      VRE::NotificationEmail.new(id).deliver(CONFIRMATION_EMAIL_TEMPLATES[email_type])
       Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
     else
-      VRE::NotificationEmail.new(id).deliver(ERROR_EMAIL_TEMPLATE)
       Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     end
   end

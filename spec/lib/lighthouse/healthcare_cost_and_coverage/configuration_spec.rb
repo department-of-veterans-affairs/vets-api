@@ -14,7 +14,8 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
       access_token: double(
         client_id: 'client_id',
         rsa_key: 'rsa_key',
-        aud_claim_url: 'aud_claim_url'
+        aud_claim_url: 'aud_claim_url',
+        kid: '123'
       ),
       scopes: ['scope1']
     )
@@ -59,7 +60,6 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
       allow(Settings.betamocks).to receive(:recording).and_return(false)
 
       config.instance_variable_set(:@token_service, nil)
-      config.instance_variable_set(:@conn, nil)
     end
 
     describe '#get' do
@@ -68,11 +68,8 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
         svc = double('Auth::ClientCredentials::Service', get_token: 'token')
         allow(Auth::ClientCredentials::Service).to receive(:new).and_return(svc)
 
-        # fresh Faraday connection per example
-        conn = double('Faraday::Connection')
-        config.instance_variable_set(:@conn, conn)
-
-        expect(conn).to receive(:get).with('/foo', nil, hash_including('Authorization' => 'Bearer token'))
+        expect_any_instance_of(Faraday::Connection).to receive(:get)
+          .with('/foo', nil, hash_including('Authorization' => 'Bearer token'))
         config.get('/foo', icn: '43000199')
       end
     end
@@ -82,10 +79,8 @@ RSpec.describe Lighthouse::HealthcareCostAndCoverage::Configuration do
         svc = double('Auth::ClientCredentials::Service', get_token: 'token')
         allow(Auth::ClientCredentials::Service).to receive(:new).and_return(svc)
 
-        conn = double('Faraday::Connection')
-        config.instance_variable_set(:@conn, conn)
-
-        expect(conn).to receive(:post).with('/foo', { bar: 1 }, hash_including('Authorization' => 'Bearer token'))
+        expect_any_instance_of(Faraday::Connection).to receive(:post)
+          .with('/foo', { bar: 1 }, hash_including('Authorization' => 'Bearer token'))
         config.post('/foo', { bar: 1 }, icn: '43000199')
       end
     end

@@ -32,26 +32,41 @@ module AccreditedRepresentativePortal
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
+      # Temporary for additional logging - errors not getting caught by Datadog
       def create
         parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
+        Rails.logger.info('ARP ITF: Created intent to file in Benefits Claims')
 
         if parsed_response['errors'].present?
+          Rails.logger.warn("ARP ITF: Error response - error_count: #{parsed_response['errors']&.count}")
           raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
-          icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
-          saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create(form: form.to_json)
-          claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
-          SavedClaimClaimantRepresentative.create(
-            saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
-            power_of_attorney_holder_type: claimant_representative.power_of_attorney_holder.type,
-            power_of_attorney_holder_poa_code: claimant_representative.power_of_attorney_holder.poa_code,
-            accredited_individual_registration_number: claimant_representative.accredited_individual_registration_number
-          )
+          SavedClaim::BenefitsClaims::IntentToFile.transaction do
+            icn_temporary_identifier = IcnTemporaryIdentifier.save_icn(icn)
+            Rails.logger.info('ARP ITF: IcnTemporaryIdentifier created')
+            claimant_type = params[:benefitType] == 'survivor' ? :dependent : :veteran
+            saved_claim = SavedClaim::BenefitsClaims::IntentToFile.create!(form: form.to_json)
+            Rails.logger.info('ARP ITF: SavedClaim::BenefitsClaims::IntentToFile created')
+            SavedClaimClaimantRepresentative.create!(
+              saved_claim:, claimant_type:, claimant_id: icn_temporary_identifier.id,
+              power_of_attorney_holder_type: power_of_attorney_holder.type,
+              power_of_attorney_holder_poa_code: power_of_attorney_holder.poa_code,
+              accredited_individual_registration_number:
+                claimant_representative.accredited_individual_registration_number
+            )
+          end
+          Rails.logger.info('ARP ITF: SavedClaimClaimantRepresentative created')
           render json: parsed_response, status: :created
         end
       rescue ArgumentError => e
+        Rails.logger.warn('ARP ITF: ArgumentError during ITF creation')
         render json: { error: e.message }, status: :bad_request
+      rescue => e
+        Rails.logger.error("ARP ITF: ERROR - #{e.class}: #{e.message.truncate(100)}")
+        raise
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -61,7 +76,6 @@ module AccreditedRepresentativePortal
           veteran: {
             ssn: params[:veteranSsn],
             dateOfBirth: params[:veteranDateOfBirth],
-            postalCode: params[:postalCode],
             vaFileNumber: params[:vaFileNumber],
             name: {
               first: params[:veteranFullName][:first],
@@ -112,6 +126,8 @@ module AccreditedRepresentativePortal
           params[:veteranSsn],
           params[:veteranDateOfBirth]
         )
+      rescue Common::Exceptions::RecordNotFound => e
+        raise Common::Exceptions::BadRequest.new(detail: e.message)
       end
 
       def validate_file_type
@@ -129,6 +145,10 @@ module AccreditedRepresentativePortal
           power_of_attorney_holder_memberships:
             @current_user.power_of_attorney_holder_memberships
         )
+      end
+
+      def power_of_attorney_holder
+        claimant_representative.power_of_attorney_holder
       end
     end
   end

@@ -76,6 +76,19 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
       end
     end
 
+    context 'veteran cannot be found' do
+      before do
+        allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
+          Common::Exceptions::RecordNotFound, 'Claimant not found'
+        )
+      end
+
+      it 'returns 400' do
+        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
     context 'rep does not have POA for veteran' do
       let(:poa_check_vcr_response) { '200_empty_response' }
       let(:test_user) { create(:representative_user, email: 'notallowed@example.com') }
@@ -103,8 +116,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         benefitType: 'compensation',
         veteranFullName: { first: 'Derrick', last: 'Reid' },
         veteranSsn: '666468765',
-        veteranDateOfBirth: '1976-01-16',
-        postalCode: '12345'
+        veteranDateOfBirth: '1976-01-16'
       }
     end
 
