@@ -543,6 +543,10 @@ features:
     description: When enabled, use the title generator to insert claim titles into claim list responses.
   cst_use_claim_title_generator_mobile:
     description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
+  cst_multi_claim_provider:
+    actor_type: user
+    description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -657,9 +661,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_service_common_exceptions_enabled:
-    actor_type: user
-    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
