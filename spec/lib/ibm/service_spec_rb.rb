@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'common/file_helpers'
+require 'ibm/service'
+require 'pdf_utilities/pdf_validator'
+
+RSpec.describe Ibm::Service do
+  let(:service) { Ibm::Service.new }
+  let(:valid_guid) { '123e4567-e89b-12d3-a456-426614174000' }
+  let(:valid_form) { { 'field1' => 'value1', 'field2' => 'value2' }.to_json }
+
+  describe '#upload_form' do
+    context 'with valid parameters' do
+      it 'performs a PUT request to the correct URL' do
+        stub_request(:put, "#{Ibm::Configuration.instance.service_path}/#{valid_guid}")
+          .with(
+            body: valid_form,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+          .to_return(status: 200, body: '', headers: {})
+
+        response = service.upload_form(form: valid_form, guid: valid_guid)
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context 'with invalid JSON form' do
+      it 'raises JSON::ParserError' do
+        invalid_form = '{invalid_json: true'
+
+        expect {
+          service.upload_form(form: invalid_form, guid: valid_guid)
+        }.to raise_error(JSON::ParserError)
+      end
+    end
+  end
+
+  describe '#upload_url' do
+    it 'returns the correct upload URL' do
+      expected_url = "#{Ibm::Configuration.instance.service_path}/#{valid_guid}"
+      expect(service.upload_url(guid: valid_guid)).to eq(expected_url)
+    end
+  end
+end
