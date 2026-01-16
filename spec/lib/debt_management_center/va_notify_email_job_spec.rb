@@ -5,6 +5,20 @@ require 'sidekiq/testing'
 require 'debt_management_center/sidekiq/va_notify_email_job'
 
 RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
+  describe '#perform' do
+    it 'deletes the cache key after sending email' do
+      cache_key = 'test_cache_key'
+      va_notify_client = instance_double(VaNotify::Service)
+      allow(VaNotify::Service).to receive(:new).and_return(va_notify_client)
+      allow(va_notify_client).to receive(:send_email)
+      allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return({ email: 'test@example.com' })
+
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+
+      described_class.new.perform(nil, 'template_id', nil, { 'cache_key' => cache_key })
+    end
+  end
+
   context 'with retries exhausted' do
     subject(:config) { described_class }
 
@@ -30,6 +44,17 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
         "#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure"
       )
       expect(Rails.logger).to receive(:error).with(expected_log_message)
+      config.sidekiq_retries_exhausted_block.call(job, exception)
+    end
+
+    it 'deletes redis cache_key when retries expire' do
+      cache_key = 'test_cache_key_123'
+      job = { 'args' => [nil, nil, nil, { 'cache_key' => cache_key }] }
+
+      expect(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:error)
+
       config.sidekiq_retries_exhausted_block.call(job, exception)
     end
 
