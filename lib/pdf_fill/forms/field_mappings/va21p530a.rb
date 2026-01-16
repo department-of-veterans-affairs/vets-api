@@ -94,6 +94,7 @@ module PdfFill
             'placeOfBirth' => {
               key: 'VBA21535[0].#subform[0].Veterans_Place_Of_Birth[0]',
               question_num: 6,
+              limit: 60,
               question_text: 'Veteran\'s Place of Birth (City and State)'
             },
             'dateOfDeath' => {
@@ -137,11 +138,13 @@ module PdfFill
               'placeEnteredService' => {
                 key: 'VBA21535[0].#subform[0].PLACE_ENTERED_SERVICE[%iterator%]',
                 question_num: 8,
+                limit: 40,
                 question_text: 'Place Entered Service'
               },
               'rankAtSeparation' => {
                 key: 'VBA21535[0].#subform[0].GRADE_RANK_OR_RATING_WHEN_SEPARATED_FROM_SERVICE[%iterator%]',
                 question_num: 9,
+                limit: 70,
                 question_text: 'Grade, Rank or Rating When Separated'
               },
               'dateLeftService' => {
@@ -152,6 +155,7 @@ module PdfFill
               'placeLeftService' => {
                 key: 'VBA21535[0].#subform[0].PLACE_LEFT_ACTIVE_SERVICE[%iterator%]',
                 question_num: 9,
+                limit: 40,
                 question_text: 'Place Left Active Service'
               }
             },
@@ -160,6 +164,7 @@ module PdfFill
                    'If-Veteran_Served_Under_Name_Other_Than_That_Shown_In_Item_1_' \
                    'Give_Full_Name_And_Service_Renedered_Under_That_Name[0]',
               question_num: 10,
+              limit: 125,
               question_text: 'If Veteran Served Under Name Other than that Shown in Item 1'
             }
           },
@@ -169,17 +174,20 @@ module PdfFill
             'nameOfStateCemeteryOrTribalOrganization' => {
               key: 'VBA21535[0].#subform[0].Name_Of_State_Claiming_Internment_Allowance[0]',
               question_num: 11,
+              limit: 75,
               question_text: 'Name of State Claiming Internment Allowance'
             },
             'placeOfBurial' => {
               'stateCemeteryOrTribalCemeteryName' => {
                 key: 'VBA21535[0].#subform[0].STATE_CEMETERY_NAME[0]',
                 question_num: 12,
+                limit: 65,
                 question_text: 'State Cemetery Name'
               },
               'stateCemeteryOrTribalCemeteryLocation' => {
                 key: 'VBA21535[0].#subform[0].STATE_CEMETERY_LOCATION[0]',
                 question_num: 12,
+                limit: 85,
                 question_text: 'State Cemetery Location'
               }
             },
@@ -192,11 +200,13 @@ module PdfFill
               'name' => {
                 key: 'VBA21535[0].#subform[0].RECIPIENT_ORGANIZATION_NAME_FULL_NAME_OF_PAYEE[0]',
                 question_num: 14,
+                limit: 50,
                 question_text: 'Recipient Organization Name (Full Name of Payee)'
               },
               'phoneNumber' => {
                 key: 'VBA21535[0].#subform[0].RECIPIENT_ORGANIZATION_PHONE_NUMBER_Include_Area_Code[0]',
                 question_num: 15,
+                limit: 40,
                 question_text: 'Recipient Organization Phone Number (Include Area Code)'
               },
               'address' => {
@@ -251,7 +261,9 @@ module PdfFill
             'titleOfStateOrTribalOfficial' => {
               key: 'VBA21535[0].#subform[1].' \
                    'Title_Of_State_Or_Tribal_Official_Delegated_Responsibility_To_Apply_For_Federal_Funds[0]',
-              question_text: 'Title of State or Tribal Official'
+              question_text: 'Title of State or Tribal Official',
+              limit: 90,
+              question_num: 17
             },
             'dateSigned' => {
               key: 'VBA21535[0].#subform[1].DATE_SIGNED[0]',
@@ -263,7 +275,9 @@ module PdfFill
           # REMARKS
           'remarks' => {
             key: 'VBA21535[0].#subform[1].Remarks[0]',
-            question_text: 'Remarks'
+            question_text: 'Remarks',
+            question_num: 18,
+            limit: 2000
           }
         }.freeze
       end
