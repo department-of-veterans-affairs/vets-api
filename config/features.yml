@@ -337,6 +337,9 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_update_datadog_tracking:
+    actor_type: user
+    description: Enables updated Datadog tracking for IVC CHAMPVA form submissions
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
