@@ -4,6 +4,21 @@ require 'rails_helper'
 
 RSpec.describe SupportingEvidenceAttachment, type: :model do
   describe '#obscured_filename' do
+    context 'for a filename exceeding the maximum length' do
+      let(:long_filename) { "#{'a' * 300}.pdf" } # 300 characters + extension
+      let(:attachment) do
+        build(
+          :supporting_evidence_attachment,
+          file_data: { filename: long_filename }.to_json
+        )
+      end
+
+      it 'truncates the filename to a safe length' do
+        expect(attachment.obscured_filename.length).to be <= 255
+        expect(attachment.obscured_filename).to end_with('.pdf')
+      end
+    end
+
     context 'for a filename longer than five characters' do
       context 'for a filename containing letters' do
         let(:attachment) do
