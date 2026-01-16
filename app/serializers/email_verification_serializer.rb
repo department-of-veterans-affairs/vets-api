@@ -6,19 +6,12 @@ class EmailVerificationSerializer
   set_type :email_verification
   set_id :id
 
-  # NOTE: We intentionally do NOT declare conditional attributes with `attribute`
-  # because FastJsonapi will always include them (with nil) once declared.
-  #
-  # Instead, we build the attributes hash manually in serializable_hash
-  # based on the response-type flags passed to the constructor.
-
   RESPONSE_TYPE_ATTRIBUTES = {
     status: %i[needs_verification],
     sent: %i[email_sent template_type],
     verified: %i[verified verified_at]
   }.freeze
 
-  # Store the response type flags
   attr_reader :response_type_flags
 
   def initialize(resource, options = {})
@@ -34,10 +27,7 @@ class EmailVerificationSerializer
 
     data_node = data[:data] || data['data']
 
-    if data_node
-      # Always use symbol keys to match test expectations
-      data_node[:attributes] = attrs
-    end
+    data_node[:attributes] = attrs if data_node
 
     data
   end
@@ -52,7 +42,6 @@ class EmailVerificationSerializer
     return enabled.first if enabled.size == 1
     return nil if enabled.empty?
 
-    # If you want to be strict and catch misuse:
     raise ArgumentError,
           'EmailVerificationSerializer expects exactly one of ' \
           "#{RESPONSE_TYPE_ATTRIBUTES.keys.join(', ')} to be true, got: #{enabled.inspect}"
