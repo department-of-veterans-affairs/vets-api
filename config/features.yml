@@ -337,6 +337,9 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_claims_duty_to_assist:
+    actor_type: user
+    description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -540,6 +543,10 @@ features:
     description: When enabled, use the title generator to insert claim titles into claim list responses.
   cst_use_claim_title_generator_mobile:
     description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
+  cst_multi_claim_provider:
+    actor_type: user
+    description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -654,9 +661,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_service_common_exceptions_enabled:
-    actor_type: user
-    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -805,6 +809,20 @@ features:
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
+    enable_in_development: true
+  disability_526_supporting_evidence_enhancement:
+    actor_type: user
+    description: >
+      Enables content and design enhancements for supporting evidence
+      in the 526 disability compensation workflow.
+    enable_in_development: false
+  disability_compensation_new_conditions_workflow_metadata:
+    actor_type: user
+    description: enables adding new conditions workflow indicator to in progress 526 forms
+    enable_in_development: true
+  disability_compensation_new_conditions_stats_job:
+    actor_type: user
+    description: enables the job that reports new conditions workflow in-progress form stats to Datadog
     enable_in_development: true
   disability_526_send_form526_submitted_email:
     actor_type: user
@@ -1329,9 +1347,6 @@ features:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
-  mhv_va_health_chat_enabled:
-    actor_type: user
-    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_aal_notice:
     actor_type: user
     description: Enables AAL help content on the My HealtheVet landing page.
@@ -1557,6 +1572,16 @@ features:
   mhv_email_confirmation:
     actor_type: user
     description: Enables/disables email confirmation alerts on MHV and My VA pages
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
+  mhv_vaccine_lighthouse_name_logging:
+    actor_type: user
+    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: true
+  mhv_vaccine_mobile_return_empty_location_data:
+    actor_type: user
+    description: Returns empty response for mobile health locations endpoint when enabled
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1886,6 +1911,10 @@ features:
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
+  meb_1995_rudisill_access:
+    actor_type: user
+    description: Enable Rudisill review option on form 22-1995
+    enable_in_development: true
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
@@ -2043,6 +2072,9 @@ features:
     actor_type: user
     description: Allows us to toggle duplicate modals for the 686C-674
     enable_in_development: true
+  va_dependents_no_ssn:
+    actor_type: user
+    description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -2280,6 +2312,10 @@ features:
   virtual_agent_use_sts_authentication:
     actor_type: user
     description: Use STS authentication for the virtual agent chatbot application
+  virtual_agent_use_v2_chatbot:
+    actor_type: user
+    description: Use the V2 version of the virtual agent chatbot
+    enable_in_development: true
   virtual_agent_chatbot_session_persistence_enabled:
     actor_type: user
     description: Gate replay/persistence behavior for Virtual Agent (reuse conversation, watermark replay, token reuse)
@@ -2290,10 +2326,6 @@ features:
   notification_center:
     actor_type: user
     description: Enable Notification Center
-    enable_in_development: true
-  nod_part3_update:
-    actor_type: user
-    description: NOD update to latest form, part III box 11
     enable_in_development: true
   nod_browser_monitoring_enabled:
     actor_type: user
@@ -2356,6 +2388,10 @@ features:
   pension_extras_redesign_enabled:
     actor_type: user
     description: Enable the new overflow design
+    enable_in_development: true
+  pension_rating_alert_logging_enabled:
+    actor_type: user
+    description: Enable Datadog logging for disability rating alert in pension form
     enable_in_development: true
   employment_questionnaires_form_enabled:
     enable_in_development: true
@@ -2611,6 +2647,9 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  form_10282_sftp_debug:
+    actor_type: user
+    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
@@ -2632,6 +2671,9 @@ features:
   my_va_browser_monitoring:
     actor_type: user
     description: Enables Datadog Real-Time User Monitoring in the MyVA dashboard application.
+  profile_browser_monitoring:
+    actor_type: user
+    description: Enables Datadog Real-Time User Monitoring in va.gov Profile.
   va_online_scheduling_mental_health_history_filtering:
     actor_type: user
     enable_in_development: true
@@ -2751,9 +2793,13 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
+    
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
+  accredited_representative_portal_delete_benefits_intake:
+    actor_type: user
+    description: If enabled, delete AccreditedRepresentativePortal::SavedClaim::BenefitsIntake records older than 60 days
   send_poa_to_corpdb:
     actor_type: user
     description: Controls whether the SendPoaToCorpDbJob is enqueued for new POA requests

@@ -18,8 +18,24 @@ module Sidekiq
 
       def upload_to_s3!
         s3_resource = new_s3_resource
-        obj = s3_resource.bucket(s3_bucket).object(@file_name)
-        obj.upload_file(@file_path_and_name, content_type: 'application/json')
+
+        if Aws::S3.const_defined?(:TransferManager)
+          # Use TransferManager for efficient multipart uploads
+          options = {
+            content_type: 'application/json',
+            multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
+          }
+          Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
+            @file_path_and_name,
+            bucket: s3_bucket,
+            key: @file_name,
+            **options
+          )
+        else
+          # Fall back to basic upload
+          obj = s3_resource.bucket(s3_bucket).object(@file_name)
+          obj.upload_file(@file_path_and_name, content_type: 'application/json')
+        end
       end
 
       def s3_bucket
