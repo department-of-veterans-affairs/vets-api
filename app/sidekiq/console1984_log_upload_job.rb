@@ -9,6 +9,8 @@ class Console1984LogUploadJob
   sidekiq_options queue: :default, retry: 1
 
   def perform
+    return true if Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+
     date = Date.yesterday
     start_time = date.beginning_of_day
     end_time = date.end_of_day
@@ -66,22 +68,16 @@ class Console1984LogUploadJob
 
 def upload_to_s3(file_path, filename)
     s3_key = "console1984/#{filename}"
-
-    s3_client = Aws::S3::Client.new(
-      region: AWS_REGION,
-      access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+    manager = Aws::S3::TransferManager.new(
+      client: Aws::S3::Client.new(region: AWS_REGION)
     )
-
-    File.open(file_path, 'rb') do |file|
-      s3_client.put_object(
-        bucket: CONSOLE_LOGS_S3_BUCKET,
-        key: s3_key,
-        body: file,
-        content_type: 'application/json',
-        server_side_encryption: 'AES256'
-      )
-      end
+    manager.upload(
+      file_path,
+      bucket: CONSOLE_LOGS_S3_BUCKET,
+      key: s3_key,
+      content_type: 'application/json',
+      server_side_encryption: 'AES256'
+    )
   rescue Aws::S3::Errors::ServiceError => e
     Rails.logger.error "Console access logs upload failed for #{filename}: #{e.message}"
     raise
