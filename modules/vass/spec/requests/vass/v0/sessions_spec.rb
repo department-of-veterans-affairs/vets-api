@@ -40,7 +40,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
     # Stub the template_id method to return our test template ID
     template_id_stub = double('template_id', vass_otp_email: 'vass-otp-email-template-id')
-    vanotify_api_key = '11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
+    vanotify_api_key = 'name-11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
     allow(Settings.vanotify.services.va_gov).to receive_messages(
       api_key: vanotify_api_key,
       template_id: template_id_stub
