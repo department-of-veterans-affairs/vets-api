@@ -7,8 +7,6 @@ require 'lighthouse/auth/client_credentials/service'
 module ClaimsApi
   module V2
     module Form526EstablishmentService
-      ##
-      #
       class Configuration < ::Common::Client::Configuration::REST
         API_SCOPES = %w[system/Form526.read system/Form526.write].freeze
         TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token' # FES uses same auth server as BD
