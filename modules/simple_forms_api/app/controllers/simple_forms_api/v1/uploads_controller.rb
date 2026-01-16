@@ -52,6 +52,10 @@ module SimpleFormsApi
         render response
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
+      rescue Common::Exceptions::BaseError
+        # Re-raise BaseError exceptions to let the framework's ExceptionHandling concern
+        # convert them to appropriate HTTP status codes (e.g., ParameterMissing -> 400)
+        raise
       rescue => e
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end

@@ -1306,6 +1306,21 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     end
   end
 
+  describe 'POST /simple_forms_api/v1/simple_forms' do
+    context 'when form_number parameter is missing' do
+      before { sign_in }
+
+      it 'returns HTTP 400 Bad Request' do
+        post '/simple_forms_api/v1/simple_forms', params: {}
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['title']).to include('Missing parameter')
+      end
+    end
+  end
+
   describe '#form_id' do
     let(:controller) { SimpleFormsApi::V1::UploadsController.new }
 
