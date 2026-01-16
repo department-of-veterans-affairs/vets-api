@@ -8,7 +8,7 @@ module Dependents
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id, user = nil)
-      @va_profile_email = user&.va_profile_email
+      @va_profile_email = user&.icn.present? ? user&.va_profile_email : nil
       @user_first_name = user&.first_name
       super(saved_claim_id, service_name: 'dependents')
     end

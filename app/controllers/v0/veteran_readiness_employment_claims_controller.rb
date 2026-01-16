@@ -66,6 +66,8 @@ module V0
     end
 
     def encrypted_user
+      va_profile_email = current_user&.icn.present? ? current_user.va_profile_email : nil
+
       user_struct = OpenStruct.new(
         participant_id: current_user.participant_id,
         pid: current_user.participant_id,
@@ -77,7 +79,7 @@ module V0
         uuid: current_user.uuid,
         icn: current_user.icn,
         first_name: current_user.first_name,
-        va_profile_email: current_user.va_profile_email
+        va_profile_email:
       )
       KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json)
     end
