@@ -21,6 +21,10 @@ accredited_representative_portal:
         stale_sla: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__stale_sla'] %>
       use_mocks: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__use_mocks'] %>
       version: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__version'] %>
+active_record_encryption:
+  primary_key:  <%= ENV['active_record_encryption__primary_key'] %>
+  deterministic_key:  <%= ENV['active_record_encryption__deterministic_key'] %>
+  key_derivation_salt:  <%= ENV['active_record_encryption__key_derivation_salt'] %>
 adapted_housing:
   prefill: true
 argocd:

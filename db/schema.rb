@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_16_141743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,8 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
-
-  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -732,6 +730,40 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
+  create_table "console1984_commands", force: :cascade do |t|
+    t.text "statements"
+    t.bigint "sensitive_access_id"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sensitive_access_id"], name: "index_console1984_commands_on_sensitive_access_id"
+    t.index ["session_id", "created_at", "sensitive_access_id"], name: "on_session_and_sensitive_chronologically"
+  end
+
+  create_table "console1984_sensitive_accesses", force: :cascade do |t|
+    t.text "justification"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_console1984_sensitive_accesses_on_session_id"
+  end
+
+  create_table "console1984_sessions", force: :cascade do |t|
+    t.text "reason"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_console1984_sessions_on_created_at"
+    t.index ["user_id", "created_at"], name: "index_console1984_sessions_on_user_id_and_created_at"
+  end
+
+  create_table "console1984_users", force: :cascade do |t|
+    t.string "username", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_console1984_users_on_username"
+  end
+
   create_table "debt_transaction_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "transactionable_type", null: false
     t.uuid "transactionable_id", null: false
@@ -804,7 +836,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
-    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
     t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
@@ -1319,6 +1350,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1326,7 +1358,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1335,11 +1366,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
@@ -1512,9 +1543,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
+    t.uuid "user_account_id"
     t.uuid "bpd_uuid"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.uuid "user_account_id"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true

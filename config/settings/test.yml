@@ -20,6 +20,10 @@ accredited_representative_portal:
         stale_sla: 10
       use_mocks: false
       version: v1
+active_record_encryption:
+  primary_key: Jhm5UbpDiP08qT2pW6EguvojkLSZjJdw
+  deterministic_key: lRZb6GdKZX5L7zzuEe6osyDDC6V7R5PJ
+  key_derivation_salt: IdWoSgvha0ZyWLZPA4RLkYOMTbITYcKP
 adapted_housing:
   prefill: true
 argocd:
