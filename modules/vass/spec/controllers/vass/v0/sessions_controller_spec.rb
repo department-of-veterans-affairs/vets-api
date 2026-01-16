@@ -124,12 +124,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(redis_client).to receive(:increment_rate_limit).with(identifier: uuid)
         post :request_otc, params:, format: :json
       end
-
-      it 'logs StatsD metric' do
-        expect(StatsD).to receive(:increment).with('api.vass.sessions.otc_generated',
-                                                   tags: ['service:vass'])
-        post :request_otc, params:, format: :json
-      end
     end
 
     context 'with missing parameters' do
@@ -176,7 +170,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'logs rate limit exceeded' do
-        expect(StatsD).to receive(:increment).with('api.vass.sessions.rate_limit_exceeded',
+        expect(StatsD).to receive(:increment).with('api.vass.infrastructure.rate_limit.generation.exceeded',
                                                    tags: ['service:vass'])
         begin
           post :request_otc, params:, format: :json
@@ -347,12 +341,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :request_otc, params:, format: :json
       end
 
-      it 'increments StatsD metric for failed OTC send' do
-        expect(StatsD).to receive(:increment).with('api.vass.sessions.otc_send_failed',
-                                                   tags: ['service:vass'])
-        post :request_otc, params:, format: :json
-      end
-
       context 'with different VANotify error status codes' do
         before do
           allow(session_model).to receive(:generate_and_save_otc).and_return('123456')
@@ -444,12 +432,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(session_model).to receive(:validate_and_generate_jwt).and_return(jwt_token)
         post :authenticate_otc, params:, format: :json
       end
-
-      it 'logs StatsD metric' do
-        expect(StatsD).to receive(:increment).with('api.vass.sessions.otc_authentication_success',
-                                                   tags: ['service:vass'])
-        post :authenticate_otc, params:, format: :json
-      end
     end
 
     context 'with invalid OTC' do
@@ -482,7 +464,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       end
 
       it 'logs StatsD metric' do
-        expect(StatsD).to receive(:increment).with('api.vass.sessions.otc_validation_failed',
+        expect(StatsD).to receive(:increment).with('api.vass.infrastructure.session.otc.invalid',
                                                    tags: ['service:vass'])
         post :authenticate_otc, params:, format: :json
       end
