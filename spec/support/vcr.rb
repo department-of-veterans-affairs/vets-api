@@ -17,7 +17,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<EVSS_DVP_BASE_URL>') { Settings.evss.dvp.url }
-  c.filter_sensitive_data('<FES_BASE_URL>') { Settings.claims_api.fes.url }
+  c.filter_sensitive_data('<FES_BASE_URL>') { Settings.claims_api.fes.service_url }
   c.filter_sensitive_data('<FARADAY_VERSION>') { Faraday::Connection::USER_AGENT }
   c.filter_sensitive_data('<DISABILITY_MAX_RATINGS_URI>') { Settings.disability_max_ratings_api.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }

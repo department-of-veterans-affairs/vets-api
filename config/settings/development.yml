@@ -215,7 +215,10 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
-    host: https://qa.lighthouse.va.gov
+    service_url: ~
+    token_host: https://qa.lighthouse.va.gov
+    use_mocks: true
+    use_ssl: false
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"

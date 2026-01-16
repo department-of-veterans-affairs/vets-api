@@ -215,8 +215,8 @@ claims_api:
         aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
         secret_key:  path/to/fake/key.pem
-    host: https://sandbox-api.va.gov
-    url: https://fakedomainandsubdomain.com
+    service_url: https://fakedomainandsubdomain.com
+    token_host: https://sandbox-api.va.gov
     use_mocks: true
     use_ssl: false
   pdf_generator_526:

@@ -61,9 +61,10 @@ module ClaimsApi
       private
 
       def client
-        base_url = "#{Settings.claims_api.fes.url}/form526-establishment-service/v1"
+        hostname = Settings.claims_api.fes.service_url
+        raise StandardError, 'FES host URL missing' if hostname.blank?
 
-        raise StandardError, 'FES host URL missing' if Settings.claims_api.fes.url.blank?
+        base_url = "#{hostname}/form526-establishment-service/v1"
 
         Faraday.new(base_url,
                     ssl: { verify: Settings.claims_api&.fes&.use_ssl != false },
