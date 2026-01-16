@@ -1,33 +1,11 @@
 # frozen_string_literal: true
 
-# EmailVerificationRateLimited concern provides Redis-based rate limiting
-# specifically for email verification operations.
-#
-# This concern is tailored specifically for email verification with:
-# - Pre-configured limits: 1 email per 5 minutes, 5 emails per 24 hours
-# - Email verification-specific error messages and logging
-# - Automatic rate limit reset upon successful verification
-#
-# Usage:
-#   class EmailVerificationController < ApplicationController
-#     include EmailVerificationRateLimited
-#
-#     def create
-#       enforce_email_verification_rate_limit!
-#       # ... send email logic
-#       increment_email_verification_rate_limit!
-#     end
-#   end
-#
 module EmailVerificationRateLimited
   extend ActiveSupport::Concern
 
   VERIFICATION_EMAIL_LIMITS = {
-    per_period: 1,
-    period: 5.minutes,
-    daily_limit: 5,
-    daily_period: 24.hours,
-    redis_namespace: 'email_verification_rate_limit'
+    per_period: 1, period: 5.minutes, daily_limit: 5,
+    daily_period: 24.hours, redis_namespace: 'email_verification_rate_limit'
   }.freeze
 
   def enforce_email_verification_rate_limit!
@@ -40,16 +18,11 @@ module EmailVerificationRateLimited
     exception = Common::Exceptions::TooManyRequests.new(
       detail: build_verification_rate_limit_message
     )
-
-    # Set retry_after header for HTTP 429 responses
     response.headers['Retry-After'] = retry_after.to_s if response
 
     raise exception
   end
 
-  # Check if email verification rate limit is exceeded
-  #
-  # @return [Boolean] true if rate limit exceeded
   def email_verification_rate_limit_exceeded?
     verification_period_count >= VERIFICATION_EMAIL_LIMITS[:per_period] ||
       verification_daily_count >= VERIFICATION_EMAIL_LIMITS[:daily_limit]
@@ -74,9 +47,6 @@ module EmailVerificationRateLimited
     clear_verification_rate_limit_cache
   end
 
-  # Get current email verification rate limit information
-  #
-  # @return [Hash] Rate limit statistics
   def get_email_verification_rate_limit_info
     {
       period_count: verification_period_count,
@@ -107,7 +77,6 @@ module EmailVerificationRateLimited
     ttl_period = verification_redis.ttl(verification_period_key)
     ttl_daily = verification_redis.ttl(verification_daily_key)
 
-    # Return the larger of the two TTLs
     [ttl_period, ttl_daily, 0].max
   end
 
@@ -123,14 +92,11 @@ module EmailVerificationRateLimited
     return '0 seconds' if seconds <= 0
 
     if seconds < 60
-      # Display exact seconds (under 1 minute)
       "#{seconds} second#{'s' unless seconds == 1}"
-    elsif seconds < 3600 # 60 * 60 = 3600 seconds in an hour
-      # Round up to nearest minute to avoid "0 minutes" display
+    elsif seconds < 3600
       minutes = (seconds / 60.0).ceil
       "#{minutes} minute#{'s' unless minutes == 1}"
     else
-      # Round up to nearest hour for long waits (daily limit hit)
       hours = (seconds / 3600.0).ceil
       "#{hours} hour#{'s' unless hours == 1}"
     end

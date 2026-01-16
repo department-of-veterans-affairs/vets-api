@@ -120,16 +120,17 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
           email_verification_rate_limit_exceeded?: true,
           time_until_next_verification_allowed: 240
         )
-        allow(controller).to receive(:get_email_verification_rate_limit_info).and_return({
-                                                                                           period_count: 1,
-                                                                                           daily_count: 3,
-                                                                                           max_per_period: 1,
-                                                                                           max_daily: 5,
-                                                                                           period_minutes: 5,
-                                                                                           time_until_next_email: 240
-                                                                                         })
-        allow(controller).to receive(:build_verification_rate_limit_message)
-          .and_return('Rate limit exceeded message')
+        allow(controller).to receive_messages(
+          get_email_verification_rate_limit_info: {
+            period_count: 1,
+            daily_count: 3,
+            max_per_period: 1,
+            max_daily: 5,
+            period_minutes: 5,
+            time_until_next_email: 240
+          },
+          build_verification_rate_limit_message: 'Rate limit exceeded message'
+        )
       end
 
       it 'raises TooManyRequests exception' do
@@ -161,16 +162,17 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
             time_until_next_verification_allowed: 240,
             log_email_verification_rate_limit_denial: nil
           )
-          allow(controller_no_response).to receive(:get_email_verification_rate_limit_info).and_return({
-                                                                                                         period_count: 1,
-                                                                                                         daily_count: 3,
-                                                                                                         max_per_period: 1,
-                                                                                                         max_daily: 5,
-                                                                                                         period_minutes: 5,
-                                                                                                         time_until_next_email: 240
-                                                                                                       })
-          allow(controller_no_response).to receive(:build_verification_rate_limit_message)
-            .and_return('Rate limit exceeded message')
+          allow(controller_no_response).to receive_messages(
+            get_email_verification_rate_limit_info: {
+              period_count: 1,
+              daily_count: 3,
+              max_per_period: 1,
+              max_daily: 5,
+              period_minutes: 5,
+              time_until_next_email: 240
+            },
+            build_verification_rate_limit_message: 'Rate limit exceeded message'
+          )
         end
 
         it 'does not attempt to set headers and still raises exception' do
@@ -293,22 +295,22 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
 
   describe '#time_until_next_verification_allowed' do
     it 'returns the larger of period and daily TTLs' do
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:period').and_return(120)
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:daily').and_return(300)
+      allow(redis_client).to receive(:ttl).and_return(120).with('test-uuid-123:email_verification:period')
+      allow(redis_client).to receive(:ttl).and_return(300).with('test-uuid-123:email_verification:daily')
 
       expect(controller.send(:time_until_next_verification_allowed)).to eq(300)
     end
 
     it 'returns period TTL when it is larger' do
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:period').and_return(400)
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:daily').and_return(200)
+      allow(redis_client).to receive(:ttl).and_return(400).with('test-uuid-123:email_verification:period')
+      allow(redis_client).to receive(:ttl).and_return(200).with('test-uuid-123:email_verification:daily')
 
       expect(controller.send(:time_until_next_verification_allowed)).to eq(400)
     end
 
     it 'returns 0 when both TTLs are negative' do
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:period').and_return(-1)
-      allow(redis_client).to receive(:ttl).with('test-uuid-123:email_verification:daily').and_return(-2)
+      allow(redis_client).to receive(:ttl).and_return(-1).with('test-uuid-123:email_verification:period')
+      allow(redis_client).to receive(:ttl).and_return(-2).with('test-uuid-123:email_verification:daily')
 
       expect(controller.send(:time_until_next_verification_allowed)).to eq(0)
     end
@@ -316,7 +318,10 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
 
   describe '#build_verification_rate_limit_message' do
     before do
-      allow(controller).to receive(:time_until_next_verification_allowed).and_return(300)
+      allow(controller).to receive_messages(
+        time_until_next_verification_allowed: 300,
+        format_verification_time_duration: '5 minutes'
+      )
       allow(controller).to receive(:format_verification_time_duration).with(300).and_return('5 minutes')
     end
 
