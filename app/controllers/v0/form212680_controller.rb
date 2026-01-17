@@ -107,7 +107,11 @@ module V0
     def handle_general_error(error, claim)
       Rails.logger.error(
         'Form212680: error submitting claim',
-        { error: error.message, backtrace: error.backtrace, claim_errors: defined?(claim) && claim&.errors&.full_messages }
+        {
+          error: error.message,
+          backtrace: error.backtrace,
+          claim_errors: defined?(claim) && claim&.errors&.full_messages
+        }
       )
       raise
     end
