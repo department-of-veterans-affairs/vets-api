@@ -24,8 +24,15 @@ module V0
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
-    rescue JSON::ParserError
+    rescue JSON::ParserError => e
+      Rails.logger.error('Form210779: JSON parse error in form data', error: e.message)
       raise Common::Exceptions::ParameterMissing, 'form'
+    rescue => e
+      Rails.logger.error(
+        'Form210779: error submitting claim',
+        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
+      )
+      raise
     end
 
     def download_pdf
@@ -41,6 +48,8 @@ module V0
                 disposition: 'attachment'
     rescue ActiveRecord::RecordNotFound
       raise Common::Exceptions::RecordNotFound, params[:guid]
+    rescue => e
+      handle_pdf_generation_error(e)
     ensure
       File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
@@ -65,6 +74,17 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_0779_enabled, current_user)
+    end
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error('Form210779: Error generating PDF', error: error.message, backtrace: error.backtrace)
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
     end
   end
 end
