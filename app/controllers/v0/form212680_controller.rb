@@ -9,28 +9,15 @@ module V0
     before_action :check_feature_enabled
 
     def create
-      claim = saved_claim_class.new(form: filtered_params)
-      Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{current_user&.uuid}"
-      if claim.save
-        # NOTE: we are not calling process_attachments! because we are not submitting yet
-        StatsD.increment("#{stats_key}.success")
-        Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} " \
-                          "UserID=#{current_user&.uuid}"
-        clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
-      else
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
+      claim = build_and_save_claim!
+      handle_successful_claim(claim)
+
+      clear_saved_form(claim.form_id)
+      render json: SavedClaimSerializer.new(claim)
     rescue JSON::ParserError => e
-      Rails.logger.error('Form212680: JSON parse error in form data', error: e.message)
-      raise Common::Exceptions::ParameterMissing, 'form'
+      handle_json_parse_error(e)
     rescue => e
-      Rails.logger.error(
-        'Form212680: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
+      handle_general_error(e, claim)
     end
 
     # get /v0/form212680/download_pdf/{guid}
@@ -91,6 +78,38 @@ module V0
           status: '500'
         }]
       }, status: :internal_server_error
+    end
+
+    def build_and_save_claim!
+      claim = saved_claim_class.new(form: filtered_params)
+      Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{current_user&.uuid}"
+
+      if claim.save
+        # NOTE: we are not calling process_attachments! because we are not submitting yet
+        claim
+      else
+        StatsD.increment("#{stats_key}.failure")
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+    end
+
+    def handle_successful_claim(claim)
+      StatsD.increment("#{stats_key}.success")
+      Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} " \
+                        "UserID=#{current_user&.uuid}"
+    end
+
+    def handle_json_parse_error(error)
+      Rails.logger.error('Form212680: JSON parse error in form data', error: error.message)
+      raise Common::Exceptions::ParameterMissing, 'form'
+    end
+
+    def handle_general_error(error, claim)
+      Rails.logger.error(
+        'Form212680: error submitting claim',
+        { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
+      )
+      raise
     end
   end
 end
