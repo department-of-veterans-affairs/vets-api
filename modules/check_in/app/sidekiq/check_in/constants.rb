@@ -52,5 +52,10 @@ module CheckIn
     OH_STATSD_CLAIM_CREATE_ERROR = 'api.oracle_health.travel_claim.claim.create.error'
     OH_STATSD_EXPENSE_ADD_ERROR = 'api.oracle_health.travel_claim.expense.add.error'
     OH_STATSD_CLAIM_SUBMIT_ERROR = 'api.oracle_health.travel_claim.claim.submit.error'
+
+    # Check-in eligibility and demographics tracking
+    STATSD_CHECKIN_DATA_RETRIEVED = 'api.check_in.data.retrieved'
+    STATSD_CHECKIN_ELIGIBILITY = 'api.check_in.appointment.eligibility'
+    STATSD_CHECKIN_DEMOGRAPHICS_STATUS = 'api.check_in.demographics.status'
   end
 end
