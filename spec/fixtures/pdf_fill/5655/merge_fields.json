@@ -1,0 +1,167 @@
+{
+  "personalIdentification": {
+    "ssn": "4437",
+    "fileNumber": "796111863",
+    "fsrReason": "Automatically Approved"
+  },
+  "personalData": {
+    "veteranFullName": "Mark  Webb",
+    "address": "1200 Park Ave, c/o Pixar, Emeryville, CA, 94608, US",
+    "telephoneNumber": "(510) 922-4444",
+    "dateOfBirth": "10/04/1950",
+    "married": 1,
+    "spouseFullName": "  ",
+    "agesOfOtherDependents": "12",
+    "employmentHistory": [
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Full time",
+        "from": "03/2020",
+        "to": "",
+        "present": true,
+        "employerName": "Dan's Wizard Hole",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      }
+    ],
+    "veteranCurrentEmployment": {
+      "kindOfJob": "Full time",
+      "fromDate": "03/2020",
+      "employerName": "Dan's Wizard Hole  "
+    }
+  },
+  "income": [
+    {
+      "veteranOrSpouse": "VETERAN",
+      "monthlyGrossSalary": "3313.00",
+      "deductions": {
+        "taxes": "853.50",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "853.50",
+      "netTakeHomePay": "2459.50",
+      "otherIncome": {
+        "name": "",
+        "amount": "0.00"
+      },
+      "totalMonthlyNetIncome": "2459.50"
+    },
+    {
+      "veteranOrSpouse": "SPOUSE",
+      "monthlyGrossSalary": "0.00",
+      "deductions": {
+        "taxes": "0.00",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "0.00",
+      "netTakeHomePay": "0.00",
+      "otherIncome": {
+        "name": "",
+        "amount": "0.00"
+      },
+      "totalMonthlyNetIncome": "0.00"
+    }
+  ],
+  "veteranIncome": {
+    "veteranOrSpouse": "VETERAN",
+    "monthlyGrossSalary": "3313.00",
+    "deductions": {
+      "taxes": "853.50",
+      "retirement": "0.00",
+      "socialSecurity": "0.00",
+      "otherDeductions": {
+        "name": "",
+        "amount": "0.00"
+      }
+    },
+    "totalDeductions": "853.50",
+    "netTakeHomePay": "2459.50",
+    "otherIncome": {
+      "name": "",
+      "amount": "0.00"
+    },
+    "totalMonthlyNetIncome": "2459.50"
+  },
+  "spouseIncome": {
+    "veteranOrSpouse": "SPOUSE",
+    "monthlyGrossSalary": "0.00",
+    "deductions": {
+      "taxes": "0.00",
+      "retirement": "0.00",
+      "socialSecurity": "0.00",
+      "otherDeductions": {
+        "name": "",
+        "amount": "0.00"
+      }
+    },
+    "totalDeductions": "0.00",
+    "netTakeHomePay": "0.00",
+    "otherIncome": {
+      "name": "",
+      "amount": "0.00"
+    },
+    "totalMonthlyNetIncome": "0.00"
+  },
+  "expenses": {
+    "rentOrMortgage": "0.00",
+    "food": "0.00",
+    "utilities": "0.00",
+    "otherLivingExpenses": {
+      "name": "",
+      "amount": "0.00"
+    },
+    "expensesInstallmentContractsAndOtherDebts": "0.00",
+    "totalMonthlyExpenses": "0.00"
+  },
+  "discretionaryIncome": {
+    "netMonthlyIncomeLessExpenses": "2459.50",
+    "amountCanBePaidTowardDebt": "0.00"
+  },
+  "assets": {
+    "cashInBank": "500.00",
+    "cashOnHand": "0.00",
+    "usSavingsBonds": "0.00",
+    "stocksAndOtherBonds": "0.00",
+    "realEstateOwned": "0.00",
+    "totalAssets": "500.00"
+  },
+  "installmentContractsAndOtherDebts": [],
+  "totalOfInstallmentContractsAndOtherDebts": {
+    "originalAmount": "0.00",
+    "unpaidBalance": "0.00",
+    "amountDueMonthly": "0.00",
+    "amountPastDue": "0.00"
+  },
+  "additionalData": {
+    "bankruptcy": {
+      "hasBeenAdjudicatedBankrupt": 1
+    },
+    "additionalComments": ""
+  },
+  "applicantCertifications": {
+    "veteranSignature": "Mark  Webb",
+    "veteranDateSigned": "07/25/2023"
+  },
+  "streamlined": {
+    "value": true,
+    "type": "short"
+  }
+}
+
