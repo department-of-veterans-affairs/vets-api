@@ -24,7 +24,7 @@ RSpec.describe 'V0::Form212680', type: :request do
         expect(response).to have_http_status(:ok)
         expect(metrics.collect(&:source)).to include(
           'saved_claim.create:1|c|#form_id:21-2680,doctype:540',
-          'api.form212680.success:1|c',
+          'api.form212680.success:1|c|#form:21-2680',
           'api.rack.request:1|c|#controller:v0/form212680,action:create,' \
           'source_app:21-2680-house-bound-status,status:200'
         )
