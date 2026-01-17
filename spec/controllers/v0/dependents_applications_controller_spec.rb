@@ -65,6 +65,14 @@ RSpec.describe V0::DependentsApplicationsController do
         expect(response).to have_http_status(:ok)
       end
 
+      it 'sets the user account on the claim' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post(:create, params: test_form_v2, as: :json)
+        end
+        claim = SavedClaim::DependencyClaim.last
+        expect(claim.user_account).to eq(user.user_account)
+      end
+
       context 'when claim is pension related' do
         it 'tracks pension related submission' do
           allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(true)

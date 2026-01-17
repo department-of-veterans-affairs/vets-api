@@ -40,10 +40,7 @@ module IncomeAndAssets
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim_attributes = { form: filtered_params[:form] }
-        claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
-
-        claim = claim_class.new(**claim_attributes)
+        claim = create_claim(filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -72,6 +69,18 @@ module IncomeAndAssets
       end
 
       private
+
+      # Creates a new claim instance with the provided form parameters.
+      #
+      # @param form_params [String] The form data string for the claim.
+      # @return [Claim] A new instance of the claim class initialized with the given attributes.
+      #   If the current user has an associated user account, it is included in the claim attributes.
+      def create_claim(form_params)
+        claim_attributes = { form: form_params }
+        claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+        claim_class.new(**claim_attributes)
+      end
 
       # Raises an exception if the income and assets flipper flag isn't enabled.
       def check_flipper_flag
