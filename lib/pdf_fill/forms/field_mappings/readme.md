@@ -9,7 +9,7 @@ Use the `pdf:extract_fields` rake task to generate field mappings from PDF templ
 ### Basic Usage
 
 ```bash
-bundle exec rake pdf:extract_fields[lib/pdf_fill/forms/pdfs/10-10EZ.pdf]
+bundle exec rake pdf:extract_fields\[lib/pdf_fill/forms/pdfs/10-10EZ.pdf\]
 ```
 
 This will create a JSON file with extracted field data at:

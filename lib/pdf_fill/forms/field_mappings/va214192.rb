@@ -81,7 +81,11 @@ module PdfFill
               key: 'F[0].Page_1[0].completeaddress[0]'
             },
             'typeOfWorkPerformed' => {
-              key: 'F[0].Page_1[0].TypeOfWork[0]'
+              key: 'F[0].Page_1[0].TypeOfWork[0]',
+              question_num: 9,
+              question_text: 'TYPE OF WORK PERFORMED',
+              limit: 50
+
             },
             'beginningDateOfEmployment' => {
               'month' => {
@@ -137,10 +141,16 @@ module PdfFill
               limit: 3
             },
             'concessions' => {
-              key: 'F[0].Page_1[0].Concessions[0]'
+              key: 'F[0].Page_1[0].Concessions[0]',
+              question_num: 13,
+              question_text: 'CONCESSIONS',
+              limit: 250
             },
             'terminationReason' => {
-              key: 'F[0].Page_1[0].ReasonVeteranNotWorking[0]'
+              key: 'F[0].Page_1[0].ReasonVeteranNotWorking[0]',
+              limit: 120,
+              question_num: 14,
+              question_text: 'REASON FOR TERMINATION OF EMPLOYMENT'
             },
             'dateLastWorked' => {
               'month' => {
@@ -171,13 +181,19 @@ module PdfFill
               }
             },
             'lastPaymentGrossAmount' => {
-              key: 'F[0].Page_1[0].grossamount[0]'
+              key: 'F[0].Page_1[0].grossamount[0]',
+              limit: 13,
+              question_text: 'GROSS AMOUNT OF LAST PAYMENT',
+              question_num: 15
             },
             'lumpSumPaymentMade' => {
               key: 'F[0].Page_1[0].RadioButtonList[0]'
             },
             'grossAmountPaid' => {
-              key: 'F[0].Page_1[0].grossamount[1]'
+              key: 'F[0].Page_1[0].grossamount[1]',
+              limit: 16,
+              question_text: 'Lump Sum GROSS AMOUNT PAID',
+              question_num: 16
             },
             'datePaid' => {
               'month' => {
@@ -196,7 +212,10 @@ module PdfFill
           },
           'militaryDutyStatus' => {
             'currentDutyStatus' => {
-              key: 'F[0].Page_1[0].VeteransCurrentDutyStatus[0]'
+              key: 'F[0].Page_1[0].VeteransCurrentDutyStatus[0]',
+              question_num: 17,
+              question_text: 'VETERAN\'S CURRENT DUTY STATUS',
+              limit: 180
             },
             'veteranDisabilitiesPreventMilitaryDuties' => {
               key: 'F[0].Page_1[0].RadioButtonList[1]'
@@ -207,7 +226,10 @@ module PdfFill
               key: 'F[0].#subform[1].RadioButtonList[0]'
             },
             'typeOfBenefit' => {
-              key: 'F[0].#subform[1].TYPEOFBENEFIT[0]'
+              key: 'F[0].#subform[1].TYPEOFBENEFIT[0]',
+              limit: 250,
+              question_num: 19,
+              question_text: 'TYPE OF BENEFIT'
             },
             'grossMonthlyAmountOfBenefit' => {
               'thousands' => {
@@ -266,7 +288,10 @@ module PdfFill
               }
             },
             'remarks' => {
-              key: 'F[0].#subform[1].TYPEOFBENEFIT[1]'
+              key: 'F[0].#subform[1].TYPEOFBENEFIT[1]',
+              question_text: 'REMARKS',
+              question_num: 22,
+              limit: 1200
             }
           },
           'certification' => {
