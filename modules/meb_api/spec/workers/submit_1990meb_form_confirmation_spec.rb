@@ -84,7 +84,7 @@ describe MebApi::V0::Submit1990mebFormConfirmation, type: :worker do
     end
 
     it 'logs the error via Vets::SharedLogging' do
-      expect_any_instance_of(described_class).to receive(:log_exception_to_rails).with(error)
+      expect_any_instance_of(described_class).to receive(:log_exception_to_rails).with(error, 'error', "text")
 
       described_class.new.perform('PENDING', email, first_name)
     end
