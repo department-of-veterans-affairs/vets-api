@@ -6,7 +6,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
   let(:reloader) { RepresentationManagement::VSOReloader.new }
   let(:invididual_type_attorney) { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_ATTORNEY }
   let(:invididual_type_claim)    { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_CLAIM_AGENT }
-  let(:invididual_type_representative)      { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
+  let(:invididual_type_representative) { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
 
   describe '#find_or_initialize_by_id' do
     context 'new record' do
@@ -215,7 +215,8 @@ RSpec.describe RepresentationManagement::BaseReloader do
 
     context 'individual_types accumulate without duplication' do
       it 'accumulates types across calls and never duplicates' do
-        payload = { 'Registration Num' => 'UT1', 'First Name' => 'X', 'Last Name' => 'Y', 'POA Code' => 'BBB', 'ogc_id' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
+        payload = { 'Registration Num' => 'UT1', 'First Name' => 'X', 'Last Name' => 'Y', 'POA Code' => 'BBB',
+                    'ogc_id' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
 
         out1 = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
         out1.save
@@ -258,11 +259,13 @@ RSpec.describe RepresentationManagement::BaseReloader do
 
       expect(rows.size).to eq 2
       expect(rows).to include(
-        { 'Registration Num' => 'A1', 'First Name' => 'June', 'Last Name' => 'Park', 'POA Code' => '9G-B', 'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
+        { 'Registration Num' => 'A1', 'First Name' => 'June', 'Last Name' => 'Park', 'POA Code' => '9G-B',
+          'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
       )
 
       expect(rows).to include(
-        { 'Registration Num' => 'A2', 'First Name' => 'Leo', 'Last Name' => 'Ng', 'POA Code' => 'FDN', 'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373b' }
+        { 'Registration Num' => 'A2', 'First Name' => 'Leo', 'Last Name' => 'Ng', 'POA Code' => 'FDN',
+          'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373b' }
       )
 
       expect(rows.first).not_to have_key('')
@@ -281,7 +284,8 @@ RSpec.describe RepresentationManagement::BaseReloader do
       allow(conn).to receive(:post).and_return(double(body: html))
 
       rows = reloader.send(:fetch_data, 'caexcellist.asp')
-      expect(rows).to eq([{ 'Registration Num' => 'B1', 'First Name' => 'Ann', 'Last Name' => 'Lee', 'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }])
+      expect(rows).to eq([{ 'Registration Num' => 'B1', 'First Name' => 'Ann', 'Last Name' => 'Lee',
+                            'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }])
     end
 
     it 'returns empty array when only headers exist' do

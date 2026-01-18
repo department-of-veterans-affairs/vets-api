@@ -43,10 +43,8 @@ module RepresentationManagement
       end.compact.uniq
     end
 
-    private
-
     def ogc_id(hash_object)
-      hash_object['AccrAttorneyId'] || hash_object['AccrClaimAgentId'] || hash_object['AccrRepresentativeId'] || hash_object['VSOID']
+      hash_object['AccrAttorneyId'] || hash_object['AccrClaimAgentId'] || hash_object['AccrRepresentativeId'] || hash_object['VSOID'] # rubocop:disable Layout/LineLength
     end
   end
 end
