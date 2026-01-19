@@ -20,6 +20,10 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
     }
   end
 
+  after do
+    Form1010cg::Attachment.delete_all
+  end
+
   def make_upload_request_with(file_fixture_path, content_type)
     request_options = {
       headers:,
@@ -40,8 +44,12 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
 
     context 'with JPG' do
       let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
+      # Cache ID from VCR cassette - must match for S3 URL consistency
+      let(:carrierwave_cache_id) { '1619206365-340201329057824-0002-6154' }
 
       before do
+        # Stub CarrierWave cache_id to match VCR cassette URLs
+        allow(CarrierWave).to receive(:generate_cache_id).and_return(carrierwave_cache_id)
         expect(SecureRandom).to receive(:uuid).and_call_original
         expect(SecureRandom).to receive(:uuid).and_return(form_attachment_guid) # when FormAttachment is initalized
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
@@ -65,8 +73,12 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
 
     context 'with PDF' do
       let(:form_attachment_guid) { '834d9f51-d0c7-4dc2-9f2e-9b722db98069' }
+      # Cache ID from VCR cassette - must match for S3 URL consistency
+      let(:carrierwave_cache_id) { '1619206361-354509863784495-0001-7383' }
 
       before do
+        # Stub CarrierWave cache_id to match VCR cassette URLs
+        allow(CarrierWave).to receive(:generate_cache_id).and_return(carrierwave_cache_id)
         expect(SecureRandom).to receive(:uuid).and_call_original
         expect(SecureRandom).to receive(:uuid).and_return(form_attachment_guid) # when FormAttachment is initalized
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
