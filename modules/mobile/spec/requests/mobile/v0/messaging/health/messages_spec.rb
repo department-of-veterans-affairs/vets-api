@@ -212,7 +212,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           it 'passes poll_for_status=true on create with attachments when is_oh_triage_group=true' do
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
@@ -251,7 +251,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             # NOTE: NO query param is_oh_triage_group - it's only inside the JSON string
@@ -269,7 +269,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_reply_with_attachment)
-              .with(kind_of(String), kind_of(Hash), poll_for_status: true)
+              .with(kind_of(String), kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages/674838/reply',
@@ -286,7 +286,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages',
@@ -302,10 +302,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                  .merge(is_oh_triage_group: false)
             stringified_message = message_with_oh_flag.to_json
 
-            # Should NOT receive poll_for_status: true
+            # Should NOT receive is_oh: true
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: false)
+              .with(kind_of(Hash), is_oh: false)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages',
