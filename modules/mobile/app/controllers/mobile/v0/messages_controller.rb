@@ -148,12 +148,9 @@ module Mobile
       end
 
       def build_create_client_response(message, create_message_params)
-        if message.uploads.blank?
-          return client.post_create_message(message_params.to_h,
-                                            poll_for_status: oh_triage_group?)
-        end
+        return client.post_create_message(message_params.to_h, is_oh: oh_triage_group?) if message.uploads.blank?
 
-        client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+        client.post_create_message_with_attachment(create_message_params, is_oh: oh_triage_group?)
       rescue Common::Client::Errors::Serialization => e
         Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
                                                                     error_body: e&.body,
@@ -163,12 +160,10 @@ module Mobile
 
       def build_reply_client_response(message, create_message_params)
         if message.uploads.blank?
-          return client.post_create_message_reply(params[:id], message_params.to_h,
-                                                  poll_for_status: oh_triage_group?)
+          return client.post_create_message_reply(params[:id], message_params.to_h, is_oh: oh_triage_group?)
         end
 
-        client.post_create_message_reply_with_attachment(params[:id], create_message_params,
-                                                         poll_for_status: oh_triage_group?)
+        client.post_create_message_reply_with_attachment(params[:id], create_message_params, is_oh: oh_triage_group?)
       end
 
       def message_counts(resource)

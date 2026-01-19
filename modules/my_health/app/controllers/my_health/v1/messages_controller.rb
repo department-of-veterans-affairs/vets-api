@@ -114,31 +114,30 @@ module MyHealth
       end
 
       def create_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message(message_params_h, poll_for_status: oh_triage_group?) if message.uploads.blank?
+        return client.post_create_message(message_params_h, is_oh: oh_triage_group?) if message.uploads.blank?
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint')
-          client.post_create_message_with_lg_attachments(create_message_params, poll_for_status: oh_triage_group?)
+          client.post_create_message_with_lg_attachments(create_message_params, is_oh: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint')
-          client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+          client.post_create_message_with_attachment(create_message_params, is_oh: oh_triage_group?)
         end
       end
 
       def reply_client_response(message, message_params_h, create_message_params)
         if message.uploads.blank?
-          return client.post_create_message_reply(params[:id], message_params_h,
-                                                  poll_for_status: oh_triage_group?)
+          return client.post_create_message_reply(params[:id], message_params_h, is_oh: oh_triage_group?)
         end
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
           client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params,
-                                                              poll_for_status: oh_triage_group?)
+                                                              is_oh: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
           client.post_create_message_reply_with_attachment(params[:id], create_message_params,
-                                                           poll_for_status: oh_triage_group?)
+                                                           is_oh: oh_triage_group?)
         end
       end
 
