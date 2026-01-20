@@ -18,7 +18,7 @@ module BGSV2
     end
 
     def report_adult_children_attending_school
-      adult_attending_school = BGSDependentsV2::AdultChildAttendingSchool.new(@student)
+      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student)
       formatted_info = adult_attending_school.format_info
       participant = bgs_service.create_participant(@proc_id)
 

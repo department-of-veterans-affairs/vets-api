@@ -54,8 +54,10 @@ module Vass
       #   }
       #
       def topics
-        topics_list = @appointments_service.get_agent_skills || []
-        render json: { data: { topics: topics_list } }, status: :ok
+        response = @appointments_service.get_agent_skills
+        agent_skills = response.dig('data', 'agent_skills') || []
+        topics = map_agent_skills_to_topics(agent_skills)
+        render_camelized_json({ data: { topics: } })
       end
 
       ##
@@ -149,7 +151,7 @@ module Vass
         response = save_appointment_with_service(appointment_id)
         render_vass_response(
           response,
-          success_data: ->(r) { { appointmentId: r.dig('data', 'appointmentId') } },
+          success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
           error_code: 'appointment_save_failed',
           error_message: 'Failed to save appointment',
           error_status: :unprocessable_entity
@@ -278,14 +280,14 @@ module Vass
       # @param status [Symbol] HTTP status
       #
       def render_error(code, detail, status)
-        render json: {
-          errors: [
-            {
-              code:,
-              detail:
-            }
-          ]
-        }, status:
+        render_camelized_json({
+                                errors: [
+                                  {
+                                    code:,
+                                    detail:
+                                  }
+                                ]
+                              }, status:)
       end
 
       ##
@@ -317,12 +319,12 @@ module Vass
       # @param data [Hash] Appointment data with available slots
       #
       def render_available_slots(data)
-        render json: {
-          data: {
-            appointmentId: data[:appointment_id],
-            availableSlots: data[:available_slots]
-          }
-        }, status: :ok
+        render_camelized_json({
+                                data: {
+                                  appointment_id: data[:appointment_id],
+                                  available_slots: data[:available_slots]
+                                }
+                              })
       end
 
       ##
@@ -331,17 +333,17 @@ module Vass
       # @param data [Hash] Existing appointment data
       #
       def render_already_booked(data)
-        render json: {
-          errors: [{
-            code: 'appointment_already_booked',
-            detail: 'already scheduled',
-            appointment: {
-              appointmentId: data[:appointment_id],
-              dtStartUTC: data[:start_utc],
-              dtEndUTC: data[:end_utc]
-            }
-          }]
-        }, status: :conflict
+        render_camelized_json({
+                                errors: [{
+                                  code: 'appointment_already_booked',
+                                  detail: 'already scheduled',
+                                  appointment: {
+                                    appointment_id: data[:appointment_id],
+                                    dt_start_utc: data[:start_utc],
+                                    dt_end_utc: data[:end_utc]
+                                  }
+                                }]
+                              }, status: :conflict)
       end
 
       ##
@@ -352,15 +354,30 @@ module Vass
       def render_next_cohort(data)
         next_cohort = data[:next_cohort]
 
-        render json: {
-          data: {
-            message: data[:message],
-            nextCohort: {
-              cohortStartUtc: next_cohort[:cohort_start_utc],
-              cohortEndUtc: next_cohort[:cohort_end_utc]
-            }
+        render_camelized_json({
+                                data: {
+                                  message: data[:message],
+                                  next_cohort: {
+                                    cohort_start_utc: next_cohort[:cohort_start_utc],
+                                    cohort_end_utc: next_cohort[:cohort_end_utc]
+                                  }
+                                }
+                              })
+      end
+
+      ##
+      # Maps agent skills from VASS API to topic format expected by frontend.
+      #
+      # @param agent_skills [Array<Hash>] Agent skills from VASS
+      # @return [Array<Hash>] Topics with topic_id and topic_name
+      #
+      def map_agent_skills_to_topics(agent_skills)
+        agent_skills.map do |skill|
+          {
+            'topic_id' => skill['skill_id'],
+            'topic_name' => skill['skill_name']
           }
-        }, status: :ok
+        end
       end
 
       ##
@@ -394,7 +411,7 @@ module Vass
       def render_vass_response(response, success_data:, error_code:, error_message:, error_status:)
         if response['success']
           data = success_data.is_a?(Proc) ? success_data.call(response) : success_data
-          render json: { data: }, status: :ok
+          render_camelized_json({ data: })
         else
           render_error(error_code, error_message, error_status)
         end

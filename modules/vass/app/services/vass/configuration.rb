@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/snakecase'
 require 'vass/response_middleware'
 
 module Vass
@@ -52,13 +55,19 @@ module Vass
       @__conn_pool__[server_url] ||= Faraday.new(url: server_url, headers: base_request_headers,
                                                  request: request_options) do |conn|
         conn.use(:breakers, service_name:)
+        conn.request :camelcase # Transform outgoing snake_case to camelCase
         conn.request :json
-        # VASS-specific error handling: intercepts HTTP 200 responses with success: false
-        # Must come BEFORE :json so it runs AFTER json parsing (middleware runs in reverse)
-        conn.response :vass_errors
-        conn.response :json
-        conn.response :raise_custom_error, error_prefix: service_name, include_request: true
+        # Response middleware runs in reverse order (bottom-up):
+        # 1. betamocks (if enabled) returns mock responses
+        # 2. raise_custom_error handles error responses
+        # 3. snakecase transforms keys from camelCase to snake_case (with string keys, not symbols)
+        # 4. vass_errors checks for HTTP 200 with success: false (must run before snakecase)
+        # 5. json_parser parses JSON string to Ruby hash
         conn.response :betamocks if mock_enabled?
+        conn.response :raise_custom_error, error_prefix: service_name, include_request: true
+        conn.response :snakecase, symbolize: false
+        conn.response :vass_errors
+        conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
     end
