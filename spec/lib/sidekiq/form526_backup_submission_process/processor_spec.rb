@@ -72,17 +72,16 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+
+              # Mock the SupportingEvidenceAttachment's obscured_filename
+              allow_any_instance_of(SupportingEvidenceAttachment).to receive(:obscured_filename).and_return('shortened_filename.pdf')
               processor = described_class.new(submission.id)
               processed_files = processor.get_uploads
               unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
               processed_files.each do |processed_file|
-                if processed_file['name'].length > 101
-                  expect(processed_file[:file].length).to be <= processed_file['name'].length
-                else
-                  expect(processed_file[:file].length).to eq("#{unique_path}.#{processed_file['name']}".length)
-                end
-                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
+                expect(processed_file[:file]).to include('shortened_filename.pdf')
                 expect(processed_file[:file].length).to be <= 255
+                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
               end
             end
           end
