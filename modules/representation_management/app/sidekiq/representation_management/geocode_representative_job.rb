@@ -16,11 +16,7 @@ module RepresentationManagement
       model_class = model_class_name.constantize
       record = model_class.find(record_id)
 
-      if record.geocode_and_update_location!
-        Rails.logger.info("Successfully geocoded #{model_class_name}##{record_id}")
-      else
-        Rails.logger.info("No geocodable address for #{model_class_name}##{record_id}")
-      end
+      record.geocode_and_update_location!
     rescue ActiveRecord::RecordNotFound => e
       Rails.logger.error("Record not found for #{model_class_name}##{record_id}: #{e.message}")
       # Don't retry if record doesn't exist

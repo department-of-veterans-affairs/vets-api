@@ -69,8 +69,6 @@ module RepresentationManagement
         delay_seconds = index * RATE_LIMIT_SECONDS
         GeocodeRepresentativeJob.perform_in(delay_seconds.seconds, 'AccreditedIndividual', record_id)
       end
-
-      Rails.logger.info("Enqueued #{@records_needing_geocoding.size} geocoding jobs")
     rescue => e
       log_error("Error enqueueing geocoding jobs: #{e.message}", send_to_slack: true)
     end

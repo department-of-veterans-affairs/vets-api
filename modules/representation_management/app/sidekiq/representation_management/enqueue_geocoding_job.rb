@@ -13,14 +13,10 @@ module RepresentationManagement
       total_count = 0
 
       # Process Veteran::Service::Representative records
-      veteran_count = enqueue_for_model(Veteran::Service::Representative, :representative_id, total_count)
-      total_count += veteran_count
+      enqueue_for_model(Veteran::Service::Representative, :representative_id, total_count)
 
       # Process AccreditedIndividual records
-      individual_count = enqueue_for_model(AccreditedIndividual, :id, total_count)
-      total_count += individual_count
-
-      Rails.logger.info("Enqueued #{total_count} geocoding jobs")
+      enqueue_for_model(AccreditedIndividual, :id, total_count)
     end
 
     private
