@@ -231,6 +231,7 @@ module Vass
         appointment_id = session_data&.fetch(:appointment_id, nil)
 
         unless appointment_id
+          log_vass_event(action: 'missing_booking_session', veteran_uuid: @current_veteran_id, level: :warn)
           render_error(
             'missing_session_data',
             'Appointment session not found. Please check availability first.',
@@ -278,6 +279,7 @@ module Vass
         edipi = veteran_metadata&.fetch(:edipi, nil)
 
         unless edipi
+          log_vass_event(action: 'missing_edipi', veteran_uuid: @current_veteran_id, level: :error)
           return render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
         end
 
@@ -332,7 +334,13 @@ module Vass
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
           render_error(error_code, message, :unprocessable_entity)
         else
-          Rails.logger.error("Unexpected availability status: #{status}")
+          Rails.logger.error({
+                               service: 'vass',
+                               component: 'appointments_controller',
+                               action: 'unexpected_availability_status',
+                               status: status.to_s,
+                               timestamp: Time.current.iso8601
+                             })
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
         end
       end

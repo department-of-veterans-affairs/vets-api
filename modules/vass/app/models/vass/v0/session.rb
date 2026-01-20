@@ -282,7 +282,15 @@ module Vass
         # Retrieve veteran metadata from Redis (stored during create flow)
         metadata = redis_client.veteran_metadata(uuid:)
 
-        return false unless metadata
+        unless metadata
+          Rails.logger.error({
+                               service: 'vass',
+                               component: 'session',
+                               action: 'metadata_not_found',
+                               timestamp: Time.current.iso8601
+                             })
+          return false
+        end
 
         redis_client.save_session(
           session_token: auth_token,
