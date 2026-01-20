@@ -64,7 +64,7 @@ RSpec.describe MedicalExpenseReports::V0::ClaimsController, type: :request do
 
     it 'logs an error' do
       error = StandardError.new('Mock Error')
-      allow(MedicalExpenseReports::SavedClaim).to receive(:find_by!).and_raise(error)
+      allow(MedicalExpenseReports::SavedClaim).to receive(:find_by).and_raise(error)
 
       expect(monitor).to receive(:track_show_error).once
 
@@ -75,7 +75,7 @@ RSpec.describe MedicalExpenseReports::V0::ClaimsController, type: :request do
 
     it 'returns a serialized claim' do
       claim = build(:medical_expense_reports_claim)
-      allow(MedicalExpenseReports::SavedClaim).to receive(:find_by!).and_return(claim)
+      allow(MedicalExpenseReports::SavedClaim).to receive(:find_by).and_return(claim)
       mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
       allow_any_instance_of(MedicalExpenseReports::V0::ClaimsController)
         .to receive(:last_form_submission_attempt).and_return(mock_attempt)
