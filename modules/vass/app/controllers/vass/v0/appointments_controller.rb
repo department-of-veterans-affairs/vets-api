@@ -334,13 +334,7 @@ module Vass
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
           render_error(error_code, message, :unprocessable_entity)
         else
-          Rails.logger.error({
-                               service: 'vass',
-                               component: 'appointments_controller',
-                               action: 'unexpected_availability_status',
-                               status: status.to_s,
-                               timestamp: Time.current.iso8601
-                             })
+          log_vass_event(action: 'unexpected_availability_status', level: :error, status: status.to_s)
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
         end
       end

@@ -360,12 +360,14 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
           expect(json_response['errors'].first['code']).to eq('internal_error')
           expect(json_response['errors'].first['detail']).to eq('An unexpected error occurred')
 
-          expect(Rails.logger).to have_received(:error).with(hash_including(
-                                                               service: 'vass',
-                                                               component: 'appointments_controller',
-                                                               action: 'unexpected_availability_status',
-                                                               status: 'unexpected_status'
-                                                             ))
+          expect(Rails.logger).to have_received(:error).with(
+            a_string_including(
+              '"service":"vass"',
+              '"controller":"appointments"',
+              '"action":"unexpected_availability_status"',
+              '"status":"unexpected_status"'
+            )
+          )
         end
       end
     end
