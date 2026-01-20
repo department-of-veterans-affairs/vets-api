@@ -1,4 +1,4 @@
-# app/jobs/console1984_log_upload_job.rb
+# frozen_string_literal: true
 
 class Console1984LogUploadJob
   include Sidekiq::Job
@@ -9,34 +9,67 @@ class Console1984LogUploadJob
   sidekiq_options queue: :default, retry: 1
 
   def perform
-    return true if Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+    return true unless valid_environment?
 
-    date = Date.yesterday
-    start_time = date.beginning_of_day
-    end_time = date.end_of_day
+    create_log_file
+    upload_to_s3
 
-    filename = "console1984_logs_#{date}.json"
-    file_path = Rails.root.join('tmp', 'console_access_logs', filename)
-
-    begin
-      log_file(file_path, start_time, end_time)
-      upload_to_s3(file_path, filename)
-
-      Rails.logger.info "Successfully uploaded #{filename} to S3"
-    end
+    Rails.logger.info "Successfully uploaded #{filename} to S3"
   end
 
   private
 
-  def log_file(file_path, start_time, end_time)
+  def valid_environment?
+    Rails.env.development? || Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+  end
+
+  def create_log_file
+    File.open(file_path, 'w') do |file|
+      file.write(JSON.pretty_generate(sessions_data))
+    end
+  end
+
+  def upload_to_s3
+    transfer_manager.upload(
+      file_path,
+      bucket: CONSOLE_LOGS_S3_BUCKET,
+      key: "console1984/#{filename}",
+      content_type: 'application/json',
+      server_side_encryption: 'AES256'
+    )
+  rescue Aws::S3::Errors::ServiceError => e
+    Rails.logger.error "Console access logs upload failed for #{filename}: #{e.message}"
+    raise
+  end
+
+  def transfer_manager
+    @manager ||= Aws::S3::TransferManager.new(
+      client: Aws::S3::Client.new(region: AWS_REGION)
+    )
+  end
+
+  def yesterday
+    @yesterday ||= Date.yesterday
+  end
+
+
+  def yesterday_range
+    yesterday.beginning_of_day..yesterday.end_of_day
+  end
+
+  def filename
+    "console1984_logs_#{yesterday}.json"
+  end
+
+  def file_path
+    Rails.root.join('tmp', 'console_access_logs', filename)
+  end
+
+  def sessions_data
     sessions = Console1984::Session
-      .where(created_at: start_time..end_time)
+      .where(created_at: yesterday_range)
       .includes(:user, commands: :sensitive_access)
       .map { |session| session_to_json(session) }
-
-    File.open(file_path, 'w') do |file|
-      file.write(JSON.pretty_generate(sessions))
-    end
   end
 
   def session_to_json(session)
@@ -64,22 +97,5 @@ class Console1984LogUploadJob
         justification: command.sensitive_access.justification
       } : nil
     }
-  end
-
-def upload_to_s3(file_path, filename)
-    s3_key = "console1984/#{filename}"
-    manager = Aws::S3::TransferManager.new(
-      client: Aws::S3::Client.new(region: AWS_REGION)
-    )
-    manager.upload(
-      file_path,
-      bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: s3_key,
-      content_type: 'application/json',
-      server_side_encryption: 'AES256'
-    )
-  rescue Aws::S3::Errors::ServiceError => e
-    Rails.logger.error "Console access logs upload failed for #{filename}: #{e.message}"
-    raise
   end
 end
