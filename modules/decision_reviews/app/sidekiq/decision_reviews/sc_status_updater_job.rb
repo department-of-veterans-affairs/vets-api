@@ -7,7 +7,12 @@ module DecisionReviews
     private
 
     def records_to_update
-      @supplemental_claims ||= ::SavedClaim::SupplementalClaim.where(delete_date: nil).order(created_at: :asc).to_a
+      @supplemental_claims ||=
+        ::SavedClaim::SupplementalClaim
+        .includes(appeal_submission: %i[appeal_submission_uploads secondary_appeal_forms])
+        .where(delete_date: nil)
+        .order(created_at: :asc)
+        .to_a
     end
 
     def statsd_prefix
