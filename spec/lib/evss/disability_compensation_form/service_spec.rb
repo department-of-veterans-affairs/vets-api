@@ -61,7 +61,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
   describe '#submit_form' do
     let(:valid_form_content) do
-      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+      File.read 'spec/support/disability_compensation_form/submit_all_claim/uploads.json'
     end
 
     context 'with a 503 error' do
