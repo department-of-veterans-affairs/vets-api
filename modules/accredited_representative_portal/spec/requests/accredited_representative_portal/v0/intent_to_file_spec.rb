@@ -186,5 +186,125 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         end
       end
     end
+
+    # ------------------- DATADOG MONITORING TESTS -------------------
+    describe 'Datadog monitoring' do
+      let(:datadog_instance) { instance_double(AccreditedRepresentativePortal::Monitoring) }
+
+      before do
+        allow(AccreditedRepresentativePortal::Monitoring).to receive(:new).and_return(datadog_instance)
+        allow(datadog_instance).to receive(:track_count)
+      end
+
+      context 'when submitting an ITF' do
+        context 'success' do
+          it 'tracks a success metric' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+            end
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.attempt',
+              tags: array_including('benefit_type:compensation')
+            )
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.success',
+              tags: array_including('benefit_type:compensation')
+            )
+          end
+        end
+
+        context 'failure with 422' do
+          it 'tracks an error metric with reason unprocessableentity' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_422_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+            end
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.attempt',
+              tags: array_including('benefit_type:compensation')
+            )
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.error',
+              tags: array_including('benefit_type:compensation', 'reason:unprocessableentity')
+            )
+          end
+        end
+
+        context 'failure with 503' do
+          it 'tracks an error metric with reason serviceunavailable' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_503_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+            end
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.attempt',
+              tags: array_including('benefit_type:compensation')
+            )
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.error',
+              tags: array_including('benefit_type:compensation', 'reason:serviceunavailable')
+            )
+          end
+        end
+
+        context 'failure with ArgumentError' do
+          it 'tracks an error metric with reason argument_error' do
+            allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
+              .and_raise(ArgumentError, 'bad argument')
+
+            post('/accredited_representative_portal/v0/intent_to_file', params:)
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.attempt',
+              tags: array_including('benefit_type:compensation')
+            )
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.error',
+              tags: array_including('benefit_type:compensation', 'reason:argument_error')
+            )
+          end
+        end
+
+        context 'failure with generic error' do
+          it 'tracks an error metric with normalized reason from exception class' do
+            allow_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
+              .and_raise(StandardError, 'something went wrong')
+
+            post('/accredited_representative_portal/v0/intent_to_file', params:)
+
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.attempt',
+              tags: array_including('benefit_type:compensation')
+            )
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.error',
+              tags: array_including('benefit_type:compensation', 'reason:standarderror')
+            )
+          end
+        end
+
+        context 'when poa_code lookup fails' do
+          before do
+            # only affect Datadog tags
+            allow_any_instance_of(
+              AccreditedRepresentativePortal::V0::IntentToFileController
+            ).to receive(:organization).and_return(nil)
+          end
+
+          it 'still submits the ITF and tracks metrics without org tag' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+            end
+
+            expect(response).to have_http_status(:created)
+            expect(datadog_instance).to have_received(:track_count).with(
+              'ar.itf.submit.success',
+              tags: array_including('benefit_type:compensation', 'org_resolve:failed')
+            )
+          end
+        end
+      end
+    end
   end
 end
