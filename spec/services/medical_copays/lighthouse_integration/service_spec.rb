@@ -3,6 +3,128 @@
 require 'rails_helper'
 
 RSpec.describe MedicalCopays::LighthouseIntegration::Service do
+  describe 'StatsD metrics' do
+    let(:service) { described_class.new('123') }
+
+    describe '#list' do
+      let(:raw_invoices) do
+        {
+          'entry' => [
+            {
+              'resource' => {
+                'id' => 'invoice-1',
+                'issuer' => { 'reference' => 'Organization/org-123' }
+              }
+            }
+          ],
+          'link' => [],
+          'total' => 1
+        }
+      end
+      let(:mock_bundle) { instance_double(Lighthouse::HCC::Bundle) }
+
+      context 'on success' do
+        before do
+          allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
+          allow(service).to receive(:retrieve_city).and_return('Tampa')
+          allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
+          allow(Lighthouse::HCC::Bundle).to receive(:new).and_return(mock_bundle)
+        end
+
+        it 'increments initiated metric' do
+          expect { service.list(count: 10, page: 1) }
+            .to trigger_statsd_increment('api.mcp.lighthouse.list.initiated')
+        end
+
+        it 'increments success metric' do
+          expect { service.list(count: 10, page: 1) }
+            .to trigger_statsd_increment('api.mcp.lighthouse.list.success')
+        end
+
+        it 'measures latency' do
+          expect { service.list(count: 10, page: 1) }
+            .to trigger_statsd_measure('api.mcp.lighthouse.list.latency')
+        end
+      end
+
+      context 'on failure' do
+        before do
+          allow(service).to receive(:invoice_service).and_raise(StandardError.new('API error'))
+        end
+
+        it 'increments initiated metric' do
+          expect { service.list(count: 10, page: 1) rescue nil }
+            .to trigger_statsd_increment('api.mcp.lighthouse.list.initiated')
+        end
+
+        it 'increments failure metric' do
+          expect { service.list(count: 10, page: 1) rescue nil }
+            .to trigger_statsd_increment('api.mcp.lighthouse.list.failure')
+        end
+
+        it 'does not increment success metric' do
+          expect(StatsD).not_to receive(:increment).with('api.mcp.lighthouse.list.success')
+          service.list(count: 10, page: 1) rescue nil
+        end
+      end
+    end
+
+    describe '#get_detail' do
+      let(:invoice_data) { { 'id' => 'invoice-1', 'account' => { 'reference' => 'Account/acc-1' } } }
+      let(:mock_detail) { instance_double(Lighthouse::HCC::CopayDetail) }
+
+      context 'on success' do
+        before do
+          allow(service).to receive(:invoice_service).and_return(double(read: invoice_data))
+          allow(service).to receive(:fetch_invoice_dependencies).and_return(
+            { account: {}, charge_items: {}, payments: [] }
+          )
+          allow(service).to receive(:fetch_charge_item_dependencies).and_return(
+            { encounters: {}, medication_dispenses: {} }
+          )
+          allow(service).to receive(:fetch_medications).and_return({})
+          allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
+        end
+
+        it 'increments initiated metric' do
+          expect { service.get_detail(id: 'invoice-1') }
+            .to trigger_statsd_increment('api.mcp.lighthouse.detail.initiated')
+        end
+
+        it 'increments success metric' do
+          expect { service.get_detail(id: 'invoice-1') }
+            .to trigger_statsd_increment('api.mcp.lighthouse.detail.success')
+        end
+
+        it 'measures latency' do
+          expect { service.get_detail(id: 'invoice-1') }
+            .to trigger_statsd_measure('api.mcp.lighthouse.detail.latency')
+        end
+      end
+
+      context 'on failure' do
+        before do
+          allow(service).to receive(:invoice_service).and_raise(StandardError.new('API error'))
+        end
+
+        it 'increments initiated metric' do
+          expect { service.get_detail(id: 'invoice-1') rescue nil }
+            .to trigger_statsd_increment('api.mcp.lighthouse.detail.initiated')
+        end
+
+        it 'increments failure metric' do
+          expect { service.get_detail(id: 'invoice-1') rescue nil }
+            .to trigger_statsd_increment('api.mcp.lighthouse.detail.failure')
+        end
+
+        it 'does not increment success metric' do
+          expect(StatsD).not_to receive(:increment).with('api.mcp.lighthouse.detail.success')
+          service.get_detail(id: 'invoice-1') rescue nil
+        end
+      end
+    end
+  end
+
   describe '#list' do
     it 'returns a list of invoices' do
       skip 'Temporarily skip flaky test'
