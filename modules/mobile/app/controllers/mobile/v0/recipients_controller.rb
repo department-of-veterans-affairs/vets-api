@@ -20,13 +20,14 @@ module Mobile
 
         resource.records = resource.records.reject(&:blocked_status)
         resource.records = resource.records.select(&:preferred_team)
+
+        # Apply same logic as va.gov - sets health_care_system_name on each record
+        resource = MyHealth::FacilitiesHelper.set_health_care_system_names(resource)
+
         resource = resource.sort(params[:sort])
 
-        resource.metadata[:care_systems] = if Flipper.enabled?(:mhv_secure_messaging_612_care_systems_fix, @user)
-                                             get_unique_care_systems612_fix(resource.records)
-                                           else
-                                             get_unique_care_systems(resource.records)
-                                           end
+        # Extract unique care systems for metadata
+        resource.metadata[:care_systems] = extract_unique_care_systems(resource.records)
 
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }
@@ -35,44 +36,13 @@ module Mobile
 
       private
 
-      def get_unique_care_systems(all_recipients)
-        unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-        map_care_systems(unique_care_system_ids)
-      end
-
-      def get_unique_care_systems612_fix(all_recipients)
-        unique_care_system_ids = all_recipients.uniq(&:station_number).map(&:station_number)
-        included_complex_systems = MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS.keys & unique_care_system_ids
-        unique_care_system_ids -= included_complex_systems
-        care_system_map = map_care_systems(unique_care_system_ids)
-        included_complex_systems.each do |system_id|
-          care_system_map << {
-            station_number: system_id,
-            health_care_system_name: MyHealth::FacilitiesHelper::COMPLICATED_SYSTEMS[system_id]
-          }
-        end
-        care_system_map
-      end
-
-      def map_care_systems(unique_care_system_ids)
-        unique_care_system_names = fetch_facility_names(unique_care_system_ids)
-        unique_care_system_ids.zip(unique_care_system_names).map do |system|
+      def extract_unique_care_systems(all_recipients)
+        all_recipients.uniq(&:station_number).map do |team|
           {
-            station_number: system[0],
-            health_care_system_name: system[1] || system[0]
+            station_number: team.station_number,
+            health_care_system_name: team.health_care_system_name
           }
         end
-      end
-
-      def fetch_facility_names(unique_care_system_ids)
-        Mobile::FacilitiesHelper.get_facility_names(unique_care_system_ids)
-      rescue => e
-        # log the error but don't prevent allrecipients from being returned
-        StatsD.increment('mobile.sm.allrecipients.facilities_lookup.failure')
-        Rails.logger.error('Lighthouse Facilities API error for allrecipients',
-                           error: e.message, user_uuid: @current_user&.uuid)
-        # Return nil for each facility so fallback to station_number occurs
-        Array.new(unique_care_system_ids.size)
       end
     end
   end
