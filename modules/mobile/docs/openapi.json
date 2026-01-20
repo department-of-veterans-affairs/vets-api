@@ -6329,7 +6329,7 @@
     },
     "/v0/messaging/health/messages/{id}/thread": {
       "get": {
-        "description": "Gets a list of message summaries that are related to the message of the passed id and older than the message of \nthe id provided. Does <strong>not</strong> include the message of the passed id itself.\n",
+        "description": "Gets a list of message summaries that are related to the message of the passed id and older than the message of\nthe id provided. Does <strong>not</strong> include the message of the passed id itself.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
@@ -6381,7 +6381,7 @@
     },
     "/v1/messaging/health/messages/{id}/thread": {
       "get": {
-        "description": "Gets a list of message summaries that are related to the message of the passed id regardless of their age in \nrelation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> \ninclude the message of the passed id itself.\n",
+        "description": "Gets a list of message summaries that are related to the message of the passed id regardless of their age in\nrelation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong>\ninclude the message of the passed id itself.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/InflectionHeader"
@@ -7925,7 +7925,7 @@
                 "Using Overridden Address": {
                   "value": {
                     "addressLine1": "1493 Martin Luther King Rd",
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -7944,7 +7944,7 @@
                       "deliveryPointValidation": "CONFIRMED",
                       "residentialDeliveryIndicator": "RESIDENTIAL"
                     },
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -8022,7 +8022,7 @@
                 "Using Overridden Address": {
                   "value": {
                     "addressLine1": "1493 Martin Luther King Rd",
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -8042,7 +8042,7 @@
                       "deliveryPointValidation": "CONFIRMED",
                       "residentialDeliveryIndicator": "RESIDENTIAL"
                     },
-                    "addressPou": "RESIDENCE/CHOICE",
+                    "addressPou": "RESIDENCE",
                     "addressType": "DOMESTIC",
                     "city": "Fulton",
                     "countryCodeIso3": "USA",
@@ -9718,12 +9718,14 @@
             "type": "string"
           },
           "source": {
-            "type": {
-              "anyOf": [
-                "string",
-                "object"
-              ]
-            }
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              }
+            ]
           },
           "meta": {
             "type": "object",
@@ -25083,10 +25085,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -25437,10 +25439,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -25892,10 +25894,10 @@
           "addressPou": {
             "type": "string",
             "enum": [
-              "RESIDENCE/CHOICE",
+              "RESIDENCE",
               "CORRESPONDENCE"
             ],
-            "example": "RESIDENCE/CHOICE"
+            "example": "RESIDENCE"
           },
           "addressType": {
             "type": "string",
@@ -26056,10 +26058,10 @@
               "addressPou": {
                 "type": "string",
                 "enum": [
-                  "RESIDENCE/CHOICE",
+                  "RESIDENCE",
                   "CORRESPONDENCE"
                 ],
-                "example": "RESIDENCE/CHOICE"
+                "example": "RESIDENCE"
               },
               "addressType": {
                 "type": "string",
@@ -26158,7 +26160,7 @@
                   },
                   "addressPou": {
                     "type": "string",
-                    "example": "RESIDENCE/CHOICE"
+                    "example": "RESIDENCE"
                   },
                   "addressType": {
                     "type": "string",
