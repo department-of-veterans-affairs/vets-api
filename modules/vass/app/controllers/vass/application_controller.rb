@@ -217,5 +217,51 @@ module Vass
     def validate_required_params_in!(param_hash, *param_names)
       param_names.each { |param| param_hash.require(param) }
     end
+
+    ##
+    # Renders JSON response with keys transformed to camelCase for frontend API contract.
+    # Maintains Rails snake_case conventions internally while providing camelCase externally.
+    #
+    # @param data [Hash, Array] Data to render (keys will be camelized)
+    # @param status [Symbol] HTTP status symbol (defaults to :ok)
+    #
+    def render_camelized_json(data, status: :ok)
+      render json: camelize_keys(data), status:
+    end
+
+    ##
+    # Recursively transforms hash keys from snake_case to camelCase.
+    # Handles nested hashes and arrays. Non-hash/array values pass through unchanged.
+    # Preserves acronyms like UTC in uppercase.
+    #
+    # @param obj [Object] Object to transform (Hash, Array, or other)
+    # @return [Object] Transformed object with camelized keys, or nil if input is nil
+    #
+    def camelize_keys(obj)
+      return nil if obj.nil?
+
+      case obj
+      when Hash
+        obj.transform_keys { |key| camelize_with_acronyms(key.to_s) }
+           .transform_values { |value| camelize_keys(value) }
+      when Array
+        obj.map { |item| camelize_keys(item) }
+      else
+        obj
+      end
+    end
+
+    ##
+    # Camelizes a string key while preserving common acronyms in uppercase.
+    #
+    # @param key [String] The key to camelize
+    # @return [String] Camelized key with acronyms preserved
+    #
+    def camelize_with_acronyms(key)
+      camelized = key.camelize(:lower)
+      # Preserve UTC acronym in uppercase for specific patterns
+      # startUTC, endUTC (standalone fields from appointment data)
+      camelized.gsub(/\A(start|end)Utc\z/, '\1UTC')
+    end
   end
 end

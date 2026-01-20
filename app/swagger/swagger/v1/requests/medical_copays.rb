@@ -51,6 +51,14 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :string,
                          example: 'TEST VAMC'
 
+                property :city,
+                         type: :string,
+                         example: 'Tampa'
+
+                property :facilityId,
+                         type: :string,
+                         example: '1234'
+
                 property :externalId,
                          type: :string,
                          example: '675-K3FD983'
@@ -73,6 +81,11 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :number,
                          format: :float,
                          example: 0.0
+
+                property :lastUpdatedAt,
+                         type: :string,
+                         format: :'date-time',
+                         example: '2012-11-01T04:00:00.000+00:00'
               end
             end
           end
