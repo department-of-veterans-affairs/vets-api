@@ -87,6 +87,13 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         end
 
         it 'creates appointment successfully' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.create.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:create'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
               post('/vass/v0/appointment',
@@ -162,6 +169,8 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         end
 
         it 'returns bad request error' do
+          allow(StatsD).to receive(:increment)
+
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -174,6 +183,11 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           expect(json_response['errors'].first['detail']).to eq(
             'Appointment session not found. Please check availability first.'
           )
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.vass.controller.appointments.create.failure',
+            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
+          ).at_least(:once)
         end
       end
 
