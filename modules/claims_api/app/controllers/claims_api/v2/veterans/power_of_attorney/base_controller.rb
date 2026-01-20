@@ -120,6 +120,7 @@ module ClaimsApi
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
           add_dependent_to_auth_headers(headers) if allow_dependent_claimant?
+          add_file_number_to_headers(headers)
 
           headers
         end
@@ -135,6 +136,14 @@ module ClaimsApi
                              last_name: claimant.family_name
                            }
                          })
+        end
+
+        # This matches the addition in the V1 and used in the dependent assignmment service
+        def add_file_number_to_headers(headers)
+          file_number = ClaimsApi::VeteranFileNumberLookupService.new(
+            target_veteran.ssn, target_veteran.participant_id
+          ).check_file_number_exists!
+          headers.merge!({ file_number: })
         end
 
         def validation_success(form_number)
