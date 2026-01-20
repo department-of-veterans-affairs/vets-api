@@ -39,6 +39,7 @@ module Vass
     def authenticate_jwt
       token = extract_token_from_header
       unless token
+        log_auth_failure('missing_token')
         render_unauthorized('Missing authentication token')
         return
       end
@@ -46,10 +47,15 @@ module Vass
       payload = decode_jwt(token)
       @current_veteran_id = payload['sub']
 
-      render_unauthorized('Invalid token: missing veteran_id') unless @current_veteran_id
+      unless @current_veteran_id
+        log_auth_failure('missing_veteran_id')
+        render_unauthorized('Invalid token: missing veteran_id')
+      end
     rescue JWT::ExpiredSignature
+      log_auth_failure('expired_token')
       render_unauthorized('Token has expired')
     rescue JWT::DecodeError => e
+      log_auth_failure('invalid_token', error_class: e.class.name)
       render_unauthorized("Invalid token: #{e.message}")
     end
 
@@ -89,6 +95,25 @@ module Vass
     #
     def jwt_secret
       Settings.vass.jwt_secret
+    end
+
+    ##
+    # Logs JWT authentication failures without PHI.
+    #
+    # @param reason [String] Failure reason
+    # @param error_class [String, nil] Optional error class name
+    #
+    def log_auth_failure(reason, error_class: nil)
+      log_data = {
+        service: 'vass',
+        component: 'jwt_authentication',
+        action: 'auth_failure',
+        reason:,
+        timestamp: Time.current.iso8601
+      }
+      log_data[:error_class] = error_class if error_class
+
+      Rails.logger.warn(log_data)
     end
 
     ##
