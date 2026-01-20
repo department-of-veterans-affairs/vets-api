@@ -10,6 +10,8 @@ module Vass
   # - Session data (EDIPI, veteran_id) after successful OTC verification
   #
   class RedisClient
+    include Vass::Logging
+
     attr_reader :settings
 
     ##
@@ -146,13 +148,7 @@ module Vass
       begin
         Oj.load(cached).with_indifferent_access
       rescue Oj::ParseError
-        Rails.logger.error({
-                             service: 'vass',
-                             component: 'redis_client',
-                             action: 'json_parse_failed',
-                             key_type: 'veteran_metadata',
-                             timestamp: Time.current.iso8601
-                           })
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'veteran_metadata')
         nil
       end
     end
@@ -261,13 +257,7 @@ module Vass
       begin
         Oj.load(cached).with_indifferent_access
       rescue Oj::ParseError
-        Rails.logger.error({
-                             service: 'vass',
-                             component: 'redis_client',
-                             action: 'json_parse_failed',
-                             key_type: 'session_data',
-                             timestamp: Time.current.iso8601
-                           })
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'session_data')
         nil
       end
     end

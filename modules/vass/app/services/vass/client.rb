@@ -14,6 +14,7 @@ module Vass
   class Client < Common::Client::Base
     extend Forwardable
     include Common::Client::Concerns::Monitoring
+    include Vass::Logging
 
     GRANT_TYPE = 'client_credentials'
     STATSD_KEY_PREFIX = 'api.vass'
@@ -195,13 +196,7 @@ module Vass
       if cached_token.present?
         @current_oauth_token = cached_token
       else
-        Rails.logger.info({
-                            service: 'vass',
-                            component: 'client',
-                            action: 'oauth_cache_miss',
-                            correlation_id: @correlation_id,
-                            timestamp: Time.current.iso8601
-                          })
+        log_vass_event(action: 'oauth_cache_miss', correlation_id: @correlation_id)
         @current_oauth_token = mint_oauth_token
         redis_client.save_token(token: @current_oauth_token)
       end
@@ -218,15 +213,8 @@ module Vass
       resp = oauth_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error({
-                             service: 'vass',
-                             component: 'client',
-                             action: 'oauth_token_missing',
-                             correlation_id: @correlation_id,
-                             status: resp.status,
-                             has_body: resp.body.present?,
-                             timestamp: Time.current.iso8601
-                           })
+        log_vass_event(action: 'oauth_token_missing', level: :error, correlation_id: @correlation_id,
+                       status: resp.status, has_body: resp.body.present?)
         raise Vass::ServiceException.new('VA900',
                                          { detail: 'OAuth auth missing access_token' }, 502)
       end
@@ -293,25 +281,12 @@ module Vass
     # ------------ Logging helpers ------------
 
     def log_auth_retry
-      Rails.logger.error({
-                           service: 'vass',
-                           component: 'client',
-                           action: 'auth_retry',
-                           correlation_id: @correlation_id,
-                           timestamp: Time.current.iso8601
-                         })
+      log_vass_event(action: 'auth_retry', level: :error, correlation_id: @correlation_id)
     end
 
     def log_auth_error(error_type, status_code)
-      Rails.logger.error({
-                           service: 'vass',
-                           component: 'client',
-                           action: 'auth_failed',
-                           correlation_id: @correlation_id,
-                           error_type:,
-                           status_code:,
-                           timestamp: Time.current.iso8601
-                         })
+      log_vass_event(action: 'auth_failed', level: :error, correlation_id: @correlation_id,
+                     error_type:, status_code:)
     end
 
     ##

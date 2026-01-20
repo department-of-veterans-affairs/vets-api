@@ -21,6 +21,8 @@ module Vass
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
     class Session
+      include Vass::Logging
+
       # Valid contact methods for OTC delivery
       VALID_CONTACT_METHODS = %w[email].freeze
 
@@ -283,12 +285,7 @@ module Vass
         metadata = redis_client.veteran_metadata(uuid:)
 
         unless metadata
-          Rails.logger.error({
-                               service: 'vass',
-                               component: 'session',
-                               action: 'metadata_not_found',
-                               timestamp: Time.current.iso8601
-                             })
+          log_vass_event(action: 'metadata_not_found', level: :error)
           return false
         end
 

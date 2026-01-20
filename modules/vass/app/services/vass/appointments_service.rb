@@ -24,6 +24,8 @@ module Vass
   #   @return [Vass::Client] VASS API client instance
   #
   class AppointmentsService
+    include Vass::Logging
+
     attr_reader :edipi, :correlation_id, :client
 
     ##
@@ -364,14 +366,7 @@ module Vass
     # @param method_name [String] Name of the method that raised the error
     #
     def log_error(error, method_name)
-      Rails.logger.error({
-                           service: 'vass',
-                           component: 'appointments_service',
-                           action: method_name,
-                           error_class: error.class.name,
-                           correlation_id:,
-                           timestamp: Time.current.iso8601
-                         })
+      log_vass_event(action: method_name, level: :error, error_class: error.class.name, correlation_id:)
     end
 
     ##
@@ -472,13 +467,7 @@ module Vass
     def normalize_vass_date(date)
       Date.strptime(date, '%m/%d/%Y')
     rescue ArgumentError, TypeError
-      Rails.logger.error({
-                           service: 'vass',
-                           component: 'appointments_service',
-                           action: 'date_parse_failed',
-                           correlation_id:,
-                           timestamp: Time.current.iso8601
-                         })
+      log_vass_event(action: 'date_parse_failed', level: :error, correlation_id:)
       raise Vass::Errors::ValidationError, 'Invalid date format from VASS API'
     end
 

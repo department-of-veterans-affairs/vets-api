@@ -418,11 +418,9 @@ RSpec.describe Vass::V0::Session, type: :model do
       allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return(nil)
 
       allow(Rails.logger).to receive(:error).and_call_original
-      expect(Rails.logger).to receive(:error).with(hash_including(
-                                                     service: 'vass',
-                                                     component: 'session',
-                                                     action: 'metadata_not_found'
-                                                   )).and_call_original
+      expect(Rails.logger).to receive(:error)
+        .with(a_string_including('"service":"vass"', '"component":"session"', '"action":"metadata_not_found"'))
+        .and_call_original
 
       expect(redis_client).not_to receive(:save_session)
       expect(session.create_authenticated_session(session_token:)).to be false

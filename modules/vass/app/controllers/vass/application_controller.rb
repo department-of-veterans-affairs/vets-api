@@ -7,6 +7,8 @@ module Vass
   # PHI SAFETY: All error handlers use static messages only. Never log or render exception.message
   # as it may contain patient health information. Only log safe context: error type, class, action.
   class ApplicationController < ::ApplicationController
+    include Vass::Logging
+
     service_tag 'vass'
 
     skip_before_action :authenticate
@@ -145,30 +147,6 @@ module Vass
         action: action_name,
         timestamp: Time.current.iso8601
       }.to_json)
-    end
-
-    ##
-    # Logs VASS events with optional metadata (no PHI).
-    #
-    # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
-    # @param vass_uuid [String, nil] VASS Veteran UUID (optional)
-    # @param level [Symbol] Log level (:debug, :info, :warn, :error, :fatal)
-    # @param metadata [Hash] Additional metadata to include
-    #
-    def log_vass_event(action:, vass_uuid: nil, level: :info, **metadata)
-      valid_levels = %i[debug info warn error fatal]
-      level = :info unless valid_levels.include?(level)
-
-      log_data = {
-        service: 'vass',
-        action:,
-        controller: controller_name,
-        timestamp: Time.current.iso8601
-      }
-      log_data[:vass_uuid] = vass_uuid if vass_uuid
-      log_data.merge!(metadata)
-
-      Rails.logger.public_send(level, log_data.to_json)
     end
 
     # Render error response in JSON:API format
