@@ -874,6 +874,7 @@ maintenance:
     form107959f2: ~
     form21p0537: ~
     form21p601: ~
+    form_upload_benefits_intake: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -1823,21 +1824,21 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
-  api_url: <%= ENV['vass__api_url'] %>
-  auth_url: https://login.microsoftonline.us
-  client_id: <%= ENV['vass__client_id'] %>
-  client_secret: <%= ENV['vass__client_secret'] %>
-  jwt_secret: 'development-jwt-secret-key-not-for-production'
-  mock: <%= ENV['vass__mock'] %>
-  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
-  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
+  api_url: https://fake-api.com
+  auth_url: https://fake-auth-url.com
+  client_id: fake_client_id
+  client_secret: fake_client_secret
+  jwt_secret: development-jwt-secret-key-not-for-production
+  mock: true
+  rate_limit_expiry: 7
+  rate_limit_max_attempts: 3
   redis_otc_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
-  scope: <%= ENV['vass__scope'] %>
+  scope: 1
   service_name: VASS-API
-  subscription_key: <%= ENV['vass__subscription_key'] %>
-  tenant_id: <%= ENV['vass__tenant_id'] %>
+  subscription_key: fake_subscription_key
+  tenant_id: fake_tenant_id
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: ~

@@ -337,6 +337,9 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_update_datadog_tracking:
+    actor_type: user
+    description: Enables updated Datadog tracking for IVC CHAMPVA form submissions
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
@@ -1061,6 +1064,9 @@ features:
   form21_4138_confirmation_email:
     actor_type: user
     description: Enables form 21-4138 email submission confirmation (VaNotify)
+  form21_4140_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4140 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1125,6 +1131,9 @@ features:
   form214138:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4138
+  form214140:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4140
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -1554,6 +1563,10 @@ features:
     actor_type: user
     description: when this flag is on the count will not be incremented for ipe
     enable_in_development: true
+  mhv_medications_enable_krames_html_sanitization:
+    actor_type: user
+    description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
+    enable_in_development: false
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
