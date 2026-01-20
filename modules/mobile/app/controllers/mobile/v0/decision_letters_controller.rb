@@ -17,6 +17,8 @@ module Mobile
         log_decision_letters(list) if Flipper.enabled?(:mobile_claims_log_decision_letter_sent)
 
         render json: Mobile::V0::DecisionLetterSerializer.new(list)
+      rescue Common::Exceptions::ExternalServerInternalServerError => e
+        raise Common::Exceptions::BadGateway.new(errors: [{ title: e.class.to_s, detail: e.message }])
       end
 
       def download
@@ -25,6 +27,8 @@ module Mobile
         service.get_letter(document_id) do |data, mime_type, disposition, filename|
           send_data(data, type: mime_type, disposition:, filename:)
         end
+      rescue Common::Exceptions::ExternalServerInternalServerError => e
+        raise Common::Exceptions::BadGateway.new(errors: [{ title: e.class.to_s, detail: e.message }])
       end
 
       private
