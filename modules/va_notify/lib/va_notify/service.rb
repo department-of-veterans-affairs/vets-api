@@ -245,7 +245,7 @@ module VaNotify
 
       uri_segments[4]
     rescue NoMethodError, TypeError => e
-      Rails.logger.info('Unable to derive VANotify service_id', error: e.message)
+      Rails.logger.info('Unable to derive VANotify service_id', error: e.class.name)
       nil
     end
   end
