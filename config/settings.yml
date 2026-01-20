@@ -220,7 +220,7 @@ claims_api:
     ssl: <%= ENV['claims_api__fes__ssl'] %>
     token_host: <%= ENV['claims_api__fes__token_host'] %>
     use_mocks: <%= ENV['claims_api__fes__use_mocks'] %>
-    use_ssl: <%= ENV['claims_api__fes__use_ssl'] %>
+    ssl: <%= ENV['claims_api__fes__ssl'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"

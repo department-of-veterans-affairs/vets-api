@@ -219,7 +219,7 @@ claims_api:
     service_url: ~
     token_host: https://qa.lighthouse.va.gov
     use_mocks: true
-    use_ssl: false
+    ssl: false
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
