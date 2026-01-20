@@ -55,14 +55,7 @@ module MedicalCopays
 
       def get_detail(id:)
         invoice_data = invoice_service.read(id)
-
-        org_ref = invoice_data.dig('issuer', 'reference')
-        org_address = nil
-        if org_ref
-          org_id = org_ref.split('/').last
-          org_address = retrieve_organization_address(org_id) if org_id
-        end
-
+        org_address = fetch_organization_address(invoice_data)
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
@@ -89,9 +82,9 @@ module MedicalCopays
       def retrieve_organization_address(org_id)
         org_data = organization_service.read(org_id)
         address = org_data.dig('entry', 0, 'resource', 'address', 0)
-        
+
         return nil unless address
-        
+
         {
           address1: address.dig('line', 0),
           address2: address.dig('line', 1),
@@ -135,6 +128,19 @@ module MedicalCopays
         response.dig('entry', 0, 'resource')
       rescue => e
         Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.message}" }
+        nil
+      end
+
+      def fetch_organization_address(invoice_data)
+        org_ref = invoice_data.dig('issuer', 'reference')
+        return nil unless org_ref
+
+        org_id = org_ref.split('/').last
+        return nil unless org_id
+
+        retrieve_organization_address(org_id)
+      rescue => e
+        Rails.logger.warn { "Failed to fetch organization address: #{e.message}" }
         nil
       end
 
