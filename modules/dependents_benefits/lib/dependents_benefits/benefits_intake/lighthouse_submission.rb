@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-# require 'central_mail/service'
-# require 'benefits_intake_service/service'
-# require 'pdf_utilities/datestamp_pdf'
-# require 'pdf_info'
-# require 'simple_forms_api_submission/metadata_validator'
+# For MVP this is fine, but certainly need to get off of the old LH service and DatestampPDF
+# - these should be near top of the list for after MVP
 
 module DependentsBenefits
   module BenefitsIntake

@@ -11,11 +11,6 @@ module DependentsBenefits
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
 
-    # Make sure Rails autoloads lib/ properly
-    initializer :append_lib_to_autoload_paths do |_app|
-      ActiveSupport::Dependencies.autoload_paths << root.join('lib')
-    end
-
     # So that the app-wide migration command notices our engine's migrations.
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -31,10 +26,23 @@ module DependentsBenefits
         require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
         require 'dependents_benefits/benefits_intake/submission_handler'
 
-        # Register our Pension Benefits Intake Submission Handler
+        # Register our Dependents Benefits Intake Submission Handler
         ::BenefitsIntake::SubmissionStatusJob.register_handler(DependentsBenefits::FORM_ID_V2,
                                                                DependentsBenefits::BenefitsIntake::SubmissionHandler)
       end
     end
+
+    # can should something like below be included?
+    # initializer 'burials.pdf_fill.register_form' do |app|
+    #   app.config.to_prepare do
+    #     require 'pdf_fill/filler'
+    #     require 'burials/pdf_fill/va21p530ez'
+
+    #     # Register our Burial Pdf Fill form
+    #     ::PdfFill::Filler.register_form(Burials::PdfFill::Forms::Va21p530ez::FORM_ID,
+    #                                     Burials::PdfFill::Forms::Va21p530ez)
+    #   end
+    # end
+
   end
 end

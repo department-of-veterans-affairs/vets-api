@@ -4,6 +4,8 @@ require 'lighthouse/benefits_intake/submission_handler/saved_claim'
 require 'dependents_benefits/monitor'
 require 'dependents_benefits/notification_email'
 
+# Is this used in MVP, since the LH job is still using the old service?
+
 module DependentsBenefits
   module BenefitsIntake
     # @see BenefitsIntake::SubmissionHandler::SavedClaim

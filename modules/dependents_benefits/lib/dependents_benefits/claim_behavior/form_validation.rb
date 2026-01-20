@@ -15,10 +15,12 @@ module DependentsBenefits
       def form_matches_schema
         return unless form_is_string
 
+        # what is the result of this - can the schemas be moved to this module from vets-json-schema
         schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
 
         schema_errors = validate_schema(schema)
         unless schema_errors.empty?
+          # change this to a specific function, so the stats key is not passed as a param
           monitor.track_error_event('Dependents Benefits schema failed validation.', "#{stats_key}.schema_error",
                                     form_id:, errors: schema_errors)
         end
@@ -30,6 +32,7 @@ module DependentsBenefits
         end
 
         unless validation_errors.empty?
+          # change this to a specific function, so the stats key is not passed as a param
           monitor.track_error_event('Dependents Benefits form did not pass validation.',
                                     "#{stats_key}.validation_error",
                                     form_id:, guid:, errors: validation_errors)

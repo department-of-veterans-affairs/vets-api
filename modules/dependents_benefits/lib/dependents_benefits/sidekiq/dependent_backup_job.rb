@@ -32,6 +32,8 @@ module DependentsBenefits::Sidekiq
     # Service-specific submission logic for Lighthouse upload
     # @return [ServiceResponse] Must respond to success? and error methods
     def submit_to_service
+      # Do not want to limit the 'backup' to only/specifically LH.
+      # Should the LH job inherit from this scaffolding job?
       lighthouse_submission = DependentsBenefits::BenefitsIntake::LighthouseSubmission.new(saved_claim, user_data)
       @uuid = lighthouse_submission.initialize_service
       update_submission_attempt_uuid

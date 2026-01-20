@@ -74,7 +74,7 @@ module DependentsBenefits
       #
       # @return [Boolean] true if the submission is pension related, false otherwise
       def pension_related_submission?
-        return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension)
+        return false unless Flipper.enabled?(:va_dependents_net_worth_and_pension) # should this be removed now?
 
         # We can determine pension-related submission by checking if
         # household income or student income info was asked on the form

@@ -90,6 +90,7 @@ module DependentsBenefits
       monitor = DependentsBenefits::Monitor.new
       monitor.track_error_event("Error sending #{status} notification email", 'notification_failure',
                                 error: e, claim_id: claim.id)
+      # NotificationEmail will have monitored this failure.  Is this needed?
       raise e
     end
 

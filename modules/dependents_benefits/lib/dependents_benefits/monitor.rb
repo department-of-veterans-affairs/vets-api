@@ -19,6 +19,8 @@ module DependentsBenefits
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_benefits.submit_benefits_intake_claim'
 
+    # lots of different keys, should these be tags instead?
+
     # statsd key for backup jobs (Lighthouse)
     BACKUP_JOB_STATS_KEY = 'app.dependents_benefits.submit_backup_job'
 

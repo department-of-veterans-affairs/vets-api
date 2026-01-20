@@ -24,8 +24,9 @@ module DependentsBenefits
       def show
         dependents = create_dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
-        render json: DependentsSerializer.new(dependents)
+        render json: DependentsSerializer.new(dependents) # can/should this serializer be in the module
       rescue => e
+        # change this to a specific function, so the stats key is not passed as a param
         monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
@@ -85,7 +86,7 @@ module DependentsBenefits
           :report_child18_or_older_is_not_attending_school,
           :statement_of_truth_signature,
           :statement_of_truth_certified,
-          'view:selectable686_options': {},
+          'view:selectable686_options': {}, # why is this needed?
           dependents_application: {},
           supporting_documents: []
         )
@@ -101,11 +102,6 @@ module DependentsBenefits
         claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
 
         DependentsBenefits::PrimaryDependencyClaim.new(**claim_attributes)
-      end
-
-      # Returns the stats key for dependents application events
-      def stats_key
-        'api.dependents_application'
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.

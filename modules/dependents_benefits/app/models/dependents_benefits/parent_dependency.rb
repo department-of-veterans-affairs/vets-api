@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# require_dependency?
 require_dependency 'dependents_benefits/claim_behavior'
 
 module DependentsBenefits

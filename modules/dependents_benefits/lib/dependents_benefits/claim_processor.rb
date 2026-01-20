@@ -46,6 +46,7 @@ module DependentsBenefits
     def enqueue_submissions
       monitor.track_processor_info('Starting claim submission processing', 'start', parent_claim_id:)
 
+      # will want an extensible way to add/remove jobs other than inline and increment
       jobs_enqueued = 0
       DependentsBenefits::Sidekiq::BGS::BGSFormJob.perform_async(parent_claim_id)
       jobs_enqueued += 1
