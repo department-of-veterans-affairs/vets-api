@@ -99,15 +99,6 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
         subject.perform(record_ids)
       end
-
-      it 'logs the number of geocoding jobs enqueued' do
-        allow(Rails.logger).to receive(:error)
-        allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in)
-
-        expect(Rails.logger).to receive(:info).with('Enqueued 1 geocoding jobs')
-
-        subject.perform(record_ids)
-      end
     end
 
     context 'when validate_address raises an exception' do
@@ -265,14 +256,6 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
 
           subject.perform(record_ids)
         end
-
-        it 'logs the total number of geocoding jobs enqueued' do
-          allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in)
-
-          expect(Rails.logger).to receive(:info).with('Enqueued 3 geocoding jobs')
-
-          subject.perform(record_ids)
-        end
       end
 
       context 'with mixed success and failure validations' do
@@ -299,14 +282,6 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
           expect(RepresentationManagement::GeocodeRepresentativeJob)
             .to receive(:perform_in).once
             .with(0.seconds, 'AccreditedIndividual', individual2.id)
-
-          subject.perform(record_ids)
-        end
-
-        it 'logs the correct count of geocoding jobs' do
-          allow(RepresentationManagement::GeocodeRepresentativeJob).to receive(:perform_in)
-
-          expect(Rails.logger).to receive(:info).with('Enqueued 1 geocoding jobs')
 
           subject.perform(record_ids)
         end
