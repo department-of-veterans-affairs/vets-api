@@ -20,7 +20,7 @@ module RepresentationManagement
       poa_code = hash_object['POA Code']&.gsub(/\W/, '')
       rep.poa_code = poa_code
       rep.individual_type = individual_type
-      rep.ogc_id = ogc_id(hash_object)
+      rep.ogc_id = ogc_id(hash_object) if rep.ogc_id.blank? 
       rep.phone = hash_object['Phone'] if rep.phone.blank?
       rep.first_name = hash_object['First Name'] if rep.first_name.blank?
       rep.last_name = hash_object['Last Name']&.strip if rep.last_name.blank?
