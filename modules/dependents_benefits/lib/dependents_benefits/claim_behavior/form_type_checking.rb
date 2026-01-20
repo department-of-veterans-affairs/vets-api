@@ -62,7 +62,11 @@ module DependentsBenefits
 
         FORM674 if submittable_674?
       rescue => e
-        monitor.track_unknown_claim_type(e)
+        monitor.track_unknown_claim_type(
+          'Unknown Dependents form type for claim',
+          claim_id: id,
+          error: e
+        )
         nil
       end
 
