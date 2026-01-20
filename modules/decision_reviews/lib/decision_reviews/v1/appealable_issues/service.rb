@@ -23,6 +23,45 @@ module DecisionReviews
 
         STATSD_KEY_PREFIX = 'api.decision_reviews.appealable_issues'
 
+        # Schema validation options for migrating from old Caseflow API to new Lighthouse API:
+        #
+        # OPTION 1 (RECOMMENDED): Update existing schema in vets-json-schema repo
+        #   - Update DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1 schema
+        #   - Change type enum from ["contestableIssue"] to ["contestableIssue", "appealableIssue"]
+        #   - Both old Caseflow API and new Lighthouse API use same schema
+        #   - Supports gradual migration via feature flag
+        #   - Less maintenance, DRY principle
+        #
+        # OPTION 2: Create separate schema
+        #   - Create new DECISION-REVIEW-GET-APPEALABLE-ISSUES-RESPONSE-200_V1 schema
+        #   - Type enum only contains ["appealableIssue"]
+        #   - Better separation of concerns between old/new APIs
+        #   - More schemas to maintain
+        #   - Clear distinction in code which API is being used
+        #
+        # Current implementation uses test schema with both enum values for local validation
+        TEST_APPEALABLE_ISSUES_SCHEMA = JSON.parse(
+          File.read(
+            File.join(__dir__, 'test_appealable_issues_schema.json')
+          )
+        ).freeze
+        ZIP_REGEX = /^\d{5}(-\d{4})?$/
+        NO_ZIP_PLACEHOLDER = '00000'
+
+        ERROR_MAP = {
+          504 => Common::Exceptions::GatewayTimeout,
+          503 => Common::Exceptions::ServiceUnavailable,
+          502 => Common::Exceptions::BadGateway,
+          500 => Common::Exceptions::ExternalServerInternalServerError,
+          429 => Common::Exceptions::TooManyRequests,
+          422 => Common::Exceptions::UnprocessableEntity,
+          413 => Common::Exceptions::PayloadTooLarge,
+          404 => Common::Exceptions::ResourceNotFound,
+          403 => Common::Exceptions::Forbidden,
+          401 => Common::Exceptions::Unauthorized,
+          400 => Common::Exceptions::BadRequest
+        }.freeze
+
         ##
         # Get appealable issues for higher level reviews
         # Uses 'compensation' as the default benefit type since it's the most common
@@ -54,7 +93,7 @@ module DecisionReviews
         #
         def get_supplemental_claim_issues(user:, benefit_type: 'compensation')
           with_monitoring_and_error_handling do
-            path = "contestable_issues/supplemental_claims?benefit_type=#{benefit_type}"
+            # path = "contestable_issues/supplemental_claims?benefit_type=#{benefit_type}"
             common_log_params = { key: :get_contestable_issues, form_id: '995', user_uuid: user.uuid,
                                   upstream_system: 'Lighthouse (New Appealable Issues API)' }
             begin
@@ -70,7 +109,10 @@ module DecisionReviews
               raise e
             end
 
-            handle_response(response, 'supplemental_claim_issues')
+            # handle_response(response, 'supplemental_claim_issues')
+            handle_response(response, ' (SC_V1)')
+
+# binding.pry
           end
         end
 
@@ -88,17 +130,17 @@ module DecisionReviews
               icn: user.icn.presence,
               receipt_date:
             )
-            handle_response(response, 'supplemental_claim_issues')
+            handle_response(response, 'supplemental_claim_issues', 'SC_V1')
           end
         end
 
-        def handle_response(response, error_key)
+        def handle_response(response, error_key = '')
           raise_schema_error_unless_200_status response.status
-          # validate_against_schema(
-          #   json: response.body,
-          #   schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
-          #   append_to_error_class: ' (NOD_V1)'
-          # )
+          validate_against_schema(
+            json: response.body,
+            schema: TEST_APPEALABLE_ISSUES_SCHEMA,
+            append_to_error_class: " #{error_key}"
+          )
           response
         end
 
@@ -111,29 +153,71 @@ module DecisionReviews
           handle_error(error: e)
         end
 
-        def handle_error(error:, message: nil)
-        # save_and_log_error(error:, message:)
-        source_hash = { source: "#{error.class} raised in #{self.class}" }
-        raise case error
-              when Faraday::ParsingError
-                DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
-              when Common::Client::Errors::ClientError
-                Sentry.set_extras(body: error.body, status: error.status)
-                if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
-                  ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
-                elsif error.status == 403
-                  Common::Exceptions::Forbidden.new source_hash
-                else
-                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
-                                                            original_status: error.status, original_body: error.body)
-                end
-              else
-                error
-              end
+        def save_error_details(error)
+          PersonalInformationLog.create!(
+            error_class: "#{self.class.name}#save_error_details exception #{error.class} (DECISION_REVIEW_V1)",
+            data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
+          )
         end
 
-        def common_exceptions_flag_enabled?
-          Flipper.enabled? :decision_review_service_common_exceptions_enabled
+        def log_error_details(error:, message: nil)
+          info = {
+            message:,
+            error_class: error.class,
+            error:
+          }
+          ::Rails.logger.info(info)
+        end
+
+        def error_log_params(error)
+          log_params = { is_success: false, response_error: error }
+          log_params[:body] = error.body if error.try(:status) == 422
+          log_params
+        end
+
+        def handle_error(error:, message: nil)
+          save_and_log_error(error:, message:)
+          source_hash = { source: "#{error.class} raised in #{self.class}" }
+
+          raise case error
+                when Faraday::ParsingError
+                  DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
+                when Common::Client::Errors::ClientError
+                  error_status = error.status
+
+                  if ERROR_MAP.key?(error_status)
+                    ERROR_MAP[error_status].new(source_hash.merge(detail: error.body))
+                  elsif error_status == 403
+                    Common::Exceptions::Forbidden.new source_hash
+                  else
+                    DecisionReviews::V1::ServiceException.new(key: "DR_#{error_status}", response_values: source_hash,
+                                                              original_status: error_status, original_body: error.body)
+                  end
+                else
+                  error
+                end
+        end
+
+        def save_and_log_error(error:, message:)
+          save_error_details(error)
+          log_error_details(error:, message:)
+        end
+
+        def validate_against_schema(json:, schema:, append_to_error_class:)
+# binding.pry
+          errors = JSONSchemer.schema(schema).validate(json).to_a
+          return if errors.empty?
+
+          raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
+        rescue => e
+          PersonalInformationLog.create!(
+            error_class: "#{self.class.name}#validate_against_schema exception #{e.class}#{append_to_error_class}",
+            data: {
+              json:, schema:, errors:,
+              error: Class.new.include(FailedRequestLoggable).exception_hash(e)
+            }
+          )
+          raise
         end
 
         def raise_schema_error_unless_200_status(status)
@@ -142,22 +226,20 @@ module DecisionReviews
           raise Common::Exceptions::SchemaValidationErrors, ["expecting 200 status received #{status}"]
         end
 
-        def validate_against_schema(json:, schema:, append_to_error_class:)
-          # Implement schema validation similar to your existing service
-          # This is a placeholder - use your existing schema validation logic
-          Rails.logger.debug("Schema validation for #{schema}#{append_to_error_class}")
+        def remove_pii_from_json_schemer_errors(errors)
+          errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
         end
 
-        def log_formatted(**params)
-          Rails.logger.info("Decision Reviews Appealable Issues API", params)
-        end
+        # def log_formatted(**params)
+        #   Rails.logger.info("Decision Reviews Appealable Issues API", params)
+        # end
 
-        def error_log_params(error)
-          {
-            is_success: false,
-            response_error: error
-          }
-        end
+        # def error_log_params(error)
+        #   {
+        #     is_success: false,
+        #     response_error: error
+        #   }
+        # end
       end
     end
   end
