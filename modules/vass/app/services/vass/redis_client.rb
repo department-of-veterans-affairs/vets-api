@@ -146,7 +146,13 @@ module Vass
       begin
         Oj.load(cached).with_indifferent_access
       rescue Oj::ParseError
-        Rails.logger.error('VASS RedisClient failed to parse veteran metadata from cache')
+        Rails.logger.error({
+                             service: 'vass',
+                             component: 'redis_client',
+                             action: 'json_parse_failed',
+                             key_type: 'veteran_metadata',
+                             timestamp: Time.current.iso8601
+                           })
         nil
       end
     end
@@ -255,7 +261,13 @@ module Vass
       begin
         Oj.load(cached).with_indifferent_access
       rescue Oj::ParseError
-        Rails.logger.error('VASS RedisClient failed to parse session data from cache')
+        Rails.logger.error({
+                             service: 'vass',
+                             component: 'redis_client',
+                             action: 'json_parse_failed',
+                             key_type: 'session_data',
+                             timestamp: Time.current.iso8601
+                           })
         nil
       end
     end

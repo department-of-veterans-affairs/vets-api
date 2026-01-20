@@ -195,6 +195,13 @@ module Vass
       if cached_token.present?
         @current_oauth_token = cached_token
       else
+        Rails.logger.info({
+                            service: 'vass',
+                            component: 'client',
+                            action: 'oauth_cache_miss',
+                            correlation_id: @correlation_id,
+                            timestamp: Time.current.iso8601
+                          })
         @current_oauth_token = mint_oauth_token
         redis_client.save_token(token: @current_oauth_token)
       end
@@ -211,11 +218,14 @@ module Vass
       resp = oauth_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error('VassClient OAuth token response missing access_token', {
+        Rails.logger.error({
+                             service: 'vass',
+                             component: 'client',
+                             action: 'oauth_token_missing',
                              correlation_id: @correlation_id,
                              status: resp.status,
                              has_body: resp.body.present?,
-                             body_keys: resp.body&.keys
+                             timestamp: Time.current.iso8601
                            })
         raise Vass::ServiceException.new('VA900',
                                          { detail: 'OAuth auth missing access_token' }, 502)
@@ -283,14 +293,24 @@ module Vass
     # ------------ Logging helpers ------------
 
     def log_auth_retry
-      Rails.logger.error('VassClient 401 error - retrying authentication', correlation_id: @correlation_id)
+      Rails.logger.error({
+                           service: 'vass',
+                           component: 'client',
+                           action: 'auth_retry',
+                           correlation_id: @correlation_id,
+                           timestamp: Time.current.iso8601
+                         })
     end
 
     def log_auth_error(error_type, status_code)
-      Rails.logger.error('VassClient authentication failed', {
+      Rails.logger.error({
+                           service: 'vass',
+                           component: 'client',
+                           action: 'auth_failed',
                            correlation_id: @correlation_id,
                            error_type:,
-                           status_code:
+                           status_code:,
+                           timestamp: Time.current.iso8601
                          })
     end
 

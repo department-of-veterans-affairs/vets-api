@@ -365,12 +365,13 @@ module Vass
     #
     def log_error(error, method_name)
       Rails.logger.error({
-        service: 'vass_appointments_service',
-        method: method_name,
-        error_class: error.class.name,
-        correlation_id:,
-        timestamp: Time.current.iso8601
-      }.to_json)
+                           service: 'vass',
+                           component: 'appointments_service',
+                           action: method_name,
+                           error_class: error.class.name,
+                           correlation_id:,
+                           timestamp: Time.current.iso8601
+                         })
     end
 
     ##
@@ -472,14 +473,13 @@ module Vass
       Date.strptime(date, '%m/%d/%Y')
     rescue ArgumentError, TypeError
       Rails.logger.error({
-        service: 'vass_appointments_service',
-        action: 'date_parse_failed',
-        message: 'Failed to parse date from VASS API',
-        date_value: date,
-        correlation_id:,
-        timestamp: Time.current.iso8601
-      }.to_json)
-      raise Vass::Errors::ValidationError, "Invalid date format: #{date}"
+                           service: 'vass',
+                           component: 'appointments_service',
+                           action: 'date_parse_failed',
+                           correlation_id:,
+                           timestamp: Time.current.iso8601
+                         })
+      raise Vass::Errors::ValidationError, 'Invalid date format from VASS API'
     end
 
     ##
