@@ -9,9 +9,12 @@ class Lighthouse::HCC::InvoiceSerializer
 
   attributes :url,
              :facility,
+             :facility_id,
+             :city,
              :external_id,
              :latest_billing_ref,
              :current_balance,
              :previous_balance,
-             :previous_unpaid_balance
+             :previous_unpaid_balance,
+             :last_updated_at
 end

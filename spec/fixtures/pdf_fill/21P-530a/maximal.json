@@ -1,0 +1,55 @@
+{
+    "veteranInformation": {
+        "dateOfDeath": "2026-01-01",
+        "dateOfBirth": "2026-01-01",
+        "placeOfBirth": {
+            "city": "City of birthCity of birthCity of birthCity of birthCity of birthCity of birthCity of birthCity of birthCity of birth"
+        },
+        "ssn": "321321321",
+        "vaFileNumber": "43243243",
+        "fullName": {
+            "first": "First or given name",
+            "middle": "M",
+            "last": "Last or family name"
+        }
+    },
+    "burialInformation": {
+        "nameOfStateCemeteryOrTribalOrganization": "Organization nameOrganization nameOrganization nameOrganization nameOrganization nameOrganization nameOrganization nameOrganization name",
+        "dateOfBurial": "2026-01-01",
+        "placeOfBurial": {
+            "stateCemeteryOrTribalCemeteryName": "Cemetery Name Cemetery Name Cemetery Name Cemetery Name Cemetery Name Cemetery Name Cemetery Name ",
+            "stateCemeteryOrTribalCemeteryLocation": "CityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCity, Alabama"
+        },
+        "recipientOrganization": {
+            "name": "Full nameFull nameFull nameFull nameFull nameFull nameFull nameFull nameFull nameFull nameFull name",
+            "phoneNumber": "2312312345",
+            "address": {
+                "streetAndNumber": "123 Street addressStreet addressStreet addressStreet addressStreet addressStreet addressStreet addre",
+                "aptOrUnitNumber": "Stree",
+                "city": "CityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCityCity",
+                "state": "State province or regionState province or regionState province or regionState province or re",
+                "country": "AF",
+                "postalCode": "Postal codePostal codePostal codePostal codePostal codePostal codePostal codePostal codePostal codePostal code"
+            }
+        }
+    },
+    "veteranServicePeriods": {
+        "periods": [
+            {
+                "placeEnteredService": "Place the Veteran entered active servicePlace the Veteran entered active servicePlace the Veteran entered active servicePlace the Veteran entered active servicePlace the Veteran entered active service",
+                "placeLeftService": "Place the Veteran separated active servicePlace the Veteran separated active servicePlace the Veteran separated active servicePlace the Veteran separated active service",
+                "rankAtSeparation": "Grade, rank, or ratingGrade, rank, or ratingGrade, rank, or ratingGrade, rank, or ratingGrade, rank, or ratingGrade, rank, or rating",
+                "dateEnteredService": "1999-01-01",
+                "dateLeftService": "2027-01-01",
+                "serviceBranch": "Space Force"
+            }
+        ],
+        "servedUnderDifferentName": "First or given name 방탄소년단 방탄소년단middle namemiddle námemid  방탄소년단last or family namelast , Service Periods: Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy).Please list which service periods the Veteran served under this name (ex. Navy)."
+    },
+    "certification": {
+        "signature": "Your full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full name",
+        "titleOfStateOrTribalOfficial": "Enter your titleEnter your titleEnter your titleEnter your titleEnter your titleEnter your titleEnter your titleEnter your titleEnter your title",
+        "certified": true
+    },
+    "remarks": "Provide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your applicationProvide any additional remarks about your application"
+}
