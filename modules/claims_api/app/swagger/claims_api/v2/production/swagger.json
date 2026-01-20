@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "584d4afb-25f0-465c-88c6-bd7f7c132af1",
+                        "id": "5dbbd463-cb44-4f60-a62f-3044ff44dab7",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -528,7 +528,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2026-01-18"
+                              "anticipatedSeparationDate": "2026-01-11"
                             },
                             "confinements": [
                               {
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "55741cd3-5d05-4fb4-8487-41885335657a",
+                        "id": "263aae58-9bed-45e4-b1f1-741187f33332",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -738,7 +738,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2026-01-18",
+                                "activeDutyEndDate": "2026-01-11",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -759,7 +759,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2026-01-18"
+                              "anticipatedSeparationDate": "2026-01-11"
                             },
                             "confinements": [
                               {
@@ -4090,7 +4090,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2026-01-18",
+                              "activeDutyEndDate": "2026-01-11",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4111,7 +4111,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2026-01-18"
+                            "anticipatedSeparationDate": "2026-01-11"
                           },
                           "confinements": [
                             {
@@ -8126,7 +8126,15 @@
                                   "uploadDate": {
                                     "format": "date",
                                     "type": "string",
-                                    "description": "Date and time document was uploaded",
+                                    "description": "Date document was uploaded",
+                                    "example": "2023-04-14",
+                                    "nullable": true
+                                  },
+                                  "uploadDateTime": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "description": "Date and time document was uploaded in UTC format",
+                                    "example": "2023-04-14T13:54:52Z",
                                     "nullable": true
                                   }
                                 }
@@ -9715,7 +9723,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "51af0312-2d9e-4be6-9b71-044174c4bad5",
+                    "id": "f3a97b97-c1a8-4476-bdf4-893746c1473d",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -12569,7 +12577,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "747aa735-0d44-4bd9-8870-e7fd98b4e2c5",
+                    "id": "ed627a56-f0fa-43b8-b035-1cf46174e8af",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14066,7 +14074,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4aec675e-17df-4c5a-b28e-4cc1ba74e95e",
+                    "id": "ba41dd1d-4c1d-418c-8618-80effbd931f5",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14914,10 +14922,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d1ba4d61-f363-449c-8e72-5648dff880bc",
+                    "id": "d8696243-2878-4493-aa06-510ada32ee09",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2026-01-16 20:31:24 UTC",
+                      "createdAt": "2026-01-09 21:20:30 UTC",
                       "representative": {
                         "poaCode": "074"
                       },
