@@ -34,7 +34,7 @@ module BGSV2
     def current_poa_code(respect_expiration: false)
       if respect_expiration && current_poa.try(:end_date).present?
         expiration_date = Date.strptime(current_poa.end_date, '%m/%d/%Y')
-        return nil if expiration_date < Date.zone.today
+        return nil if expiration_date < Time.zone.today
       end
 
       current_poa.try(:code)
