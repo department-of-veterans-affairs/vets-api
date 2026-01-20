@@ -43,7 +43,7 @@ class SupportingEvidenceAttachment < FormAttachment
       # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
       obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
       truncated_filename = (filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..])
-      truncated_filename = truncated_filename[0..MAX_FILENAME_LENGTH] # Ensure total length is well within 255 characters
+      truncated_filename = truncated_filename[0..MAX_FILENAME_LENGTH] # Ensure total length is within 255 characters
       truncated_filename + extension
     else
       original_filename[0..MAX_FILENAME_LENGTH] # Truncate if the filename is short but still too long
