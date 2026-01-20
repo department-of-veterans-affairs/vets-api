@@ -294,7 +294,7 @@ RSpec.describe IncreaseCompensation::Monitor do
         it 'logs sidekiq job exhaustion' do
           notification = double(IncreaseCompensation::NotificationEmail)
 
-          msg = { 'args' => [claim.id, current_user.uuid] }
+          msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
 
           log = "#{message_prefix} submission to LH exhausted!"
           payload = {
@@ -310,11 +310,8 @@ RSpec.describe IncreaseCompensation::Monitor do
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
-            :error,
-            log,
-            "#{submission_stats_key}.exhausted",
-            call_location: anything,
-            **payload
+            :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload,
+                                                              error: 'Final error message'
           )
 
           monitor.track_submission_exhaustion(msg, claim)
@@ -323,7 +320,7 @@ RSpec.describe IncreaseCompensation::Monitor do
 
       context 'without a claim parameter' do
         it 'logs sidekiq job exhaustion' do
-          msg = { 'args' => [claim.id, current_user.uuid] }
+          msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
 
           log = "#{message_prefix} submission to LH exhausted!"
           payload = {
@@ -339,11 +336,8 @@ RSpec.describe IncreaseCompensation::Monitor do
           expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
-            :error,
-            log,
-            "#{submission_stats_key}.exhausted",
-            call_location: anything,
-            **payload
+            :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload,
+                                                              error: 'Final error message'
           )
 
           monitor.track_submission_exhaustion(msg, nil)
