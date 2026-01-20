@@ -250,29 +250,6 @@ module Vass
       end
 
       ##
-      # Handles VASS API errors.
-      #
-      # @param exception [Vass::Errors::VassApiError] The exception
-      #
-      def handle_vass_api_error(exception)
-        handle_error(exception, 'vass_api_error', 'External service error', :bad_gateway)
-      end
-
-      ##
-      # Handles service errors (timeouts, network issues).
-      #
-      # @param exception [Vass::Errors::ServiceError] The exception
-      #
-      def handle_service_error(exception)
-        handle_error(
-          exception,
-          'service_error',
-          'Unable to process request with appointment service',
-          :service_unavailable
-        )
-      end
-
-      ##
       # Handles missing parameter errors from Rails params.require().
       #
       # @param exception [ActionController::ParameterMissing] The exception
@@ -317,26 +294,6 @@ module Vass
       #
       def permitted_params
         params.permit(:correlation_id, :appointment_id, :dtStartUtc, :dtEndUtc, topics: [])
-      end
-
-      ##
-      # Handles errors by logging and rendering appropriate response.
-      #
-      # @param error [Exception] Error object
-      # @param code [String] Error code
-      # @param detail [String] Error detail message
-      # @param status [Symbol] HTTP status
-      #
-      def handle_error(error, code, detail, status)
-        Rails.logger.error({
-          service: 'vass',
-          controller: 'appointments',
-          action: action_name,
-          error_class: error.class.name,
-          timestamp: Time.current.iso8601
-        }.to_json)
-
-        render_error(code, detail, status)
       end
 
       ##
