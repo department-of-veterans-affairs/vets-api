@@ -20,6 +20,10 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
     }
   end
 
+  after do
+    Form1010cg::Attachment.delete_all
+  end
+
   def make_upload_request_with(file_fixture_path, content_type)
     request_options = {
       headers:,

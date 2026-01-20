@@ -9,9 +9,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   include ActiveSupport::Testing::TimeHelpers
   include FhirResourceBuilder
 
-  subject do
-    described_class.new
-  end
+  subject { described_class.new }
 
   before do
     allow(Rails.cache).to receive(:exist?).and_return(false)
@@ -202,9 +200,9 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.refill_status).to eq('discontinued')
       end
 
-      it 'maps active to "expired" when no refills remaining' do
+      it 'maintains active status to "active" when no refills remaining' do
         result = subject.parse(fhir_resource(status: 'active', refills: 0, dispense_status: nil))
-        expect(result.refill_status).to eq('expired')
+        expect(result.refill_status).to eq('active')
       end
 
       it 'maps active to "refillinprocess" when most recent dispense is in-progress' do
