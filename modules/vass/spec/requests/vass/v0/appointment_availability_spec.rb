@@ -192,8 +192,8 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
               expect(json_response['errors'].first['detail']).to eq('already scheduled')
               expect(json_response['errors'].first['appointment']).to be_present
               expect(json_response['errors'].first['appointment']['appointmentId']).to be_present
-              expect(json_response['errors'].first['appointment']['dtStartUTC']).to be_present
-              expect(json_response['errors'].first['appointment']['dtEndUTC']).to be_present
+              expect(json_response['errors'].first['appointment']['dtStartUtc']).to be_present
+              expect(json_response['errors'].first['appointment']['dtEndUtc']).to be_present
             end
           end
         end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :spouse_v2, class: 'BGSDependentsV2::Spouse' do
+  factory :spouse_v2, class: 'BGSDependents::Spouse' do
     initialize_with do
       {
         'view:selectable686_options' => {
