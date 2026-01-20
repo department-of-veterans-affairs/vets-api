@@ -9,6 +9,7 @@ module V0
     before_action :check_feature_enabled
 
     def create
+      claim = nil
       claim = build_and_save_claim!
       handle_successful_claim(claim)
 
