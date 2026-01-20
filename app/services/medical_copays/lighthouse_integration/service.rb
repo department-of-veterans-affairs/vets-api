@@ -37,7 +37,8 @@ module MedicalCopays
           org_id = parts.include?('Organization') ? parts.last : nil
           raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
-          org_city = retrieve_city(org_id)
+          org_address = retrieve_organization_address(org_id)
+          org_city = org_address[:city] if org_address
           raise MissingCityError, "Missing city for org_id #{org_id}" if org_city.blank?
 
           enriched_resource = resource.merge('city' => org_city, 'facility_id' => org_id)
@@ -55,6 +56,13 @@ module MedicalCopays
       def get_detail(id:)
         invoice_data = invoice_service.read(id)
 
+        org_ref = invoice_data.dig('issuer', 'reference')
+        org_address = nil
+        if org_ref
+          org_id = org_ref.split('/').last
+          org_address = retrieve_organization_address(org_id) if org_id
+        end
+
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
@@ -66,7 +74,8 @@ module MedicalCopays
           encounters: charge_item_deps[:encounters],
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
-          payments: invoice_deps[:payments]
+          payments: invoice_deps[:payments],
+          facility_address: org_address
         )
       rescue => e
         Rails.logger.error(
@@ -77,9 +86,20 @@ module MedicalCopays
 
       private
 
-      def retrieve_city(org_id)
+      def retrieve_organization_address(org_id)
         org_data = organization_service.read(org_id)
-        org_data.dig('entry', 0, 'resource', 'address', 0, 'city')
+        address = org_data.dig('entry', 0, 'resource', 'address', 0)
+        
+        return nil unless address
+        
+        {
+          address1: address.dig('line', 0),
+          address2: address.dig('line', 1),
+          address3: address.dig('line', 2),
+          city: address['city'],
+          state: address['state'],
+          zip: address['postalCode']
+        }
       end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
