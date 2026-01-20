@@ -36,7 +36,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
                 mock_ccg(scopes) do |auth_header|
                   mock_poa_verifier_call(method: :current_poa_code, return_value: nil)
                   get get_poa_path, headers: auth_header
-                  puts response.body
                   expect(response).to have_http_status(:ok)
                 end
               end
@@ -176,7 +175,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
   def mock_poa_verifier_call(method:, return_value:, method_args: anything)
     dbl = instance_double(BGSV2::PowerOfAttorneyVerifier)
-    # Intercepting `new` here since we don't have a cascade of VCR casettes recorded for all the HTTP
+    # Intercepting `new` here since we don't have a cascade of VCR cassettes recorded for all the HTTP
     # calls invoked when initializing & using BGSV2::PowerOfAttorneyVerifier
     allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
     allow(dbl).to receive(method).with(method_args).and_return(return_value)

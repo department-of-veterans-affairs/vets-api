@@ -19,6 +19,16 @@ module ClaimsApi
         FORM_NUMBER_INDIVIDUAL = '2122A'
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
+        ##
+        # Retrieves the current Power of Attorney (POA) information for a veteran.
+        #
+        # Queries BGS to determine if the veteran has an active POA, respecting any expiration dates.
+        # If a POA exists, fetches the representative's details (name, phone, type) from the database.
+        #
+        # @return [JSON] When no POA exists, returns an empty data object: { data: {} }
+        # @return [JSON] When POA exists, returns formatted POA details including representative
+        #   information and POA code, serialized via PowerOfAttorneyBlueprint
+        #
         def show
           poa_code = BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
