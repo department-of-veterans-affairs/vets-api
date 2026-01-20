@@ -9,7 +9,7 @@ describe Vass::AppointmentsService do
   let(:edipi) { '1234567890' }
   let(:correlation_id) { 'test-correlation-id' }
   let(:veteran_id) { 'vet-123' }
-  let(:appointment_id) { 'appt-abc123' }
+  let(:appointment_id) { 'e61e1a40-1e63-f011-bec2-001dd80351ea' }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -68,8 +68,8 @@ describe Vass::AppointmentsService do
             )
 
             expect(result['success']).to be true
-            expect(result['data']['availableTimeSlots']).to be_an(Array)
-            expect(result['data']['appointmentDuration']).to eq(30)
+            expect(result['data']['available_time_slots']).to be_an(Array)
+            expect(result['data']['appointment_duration']).to eq(30)
           end
         end
       end
@@ -93,7 +93,7 @@ describe Vass::AppointmentsService do
             result = subject.save_appointment(appointment_params:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq('appt-abc123')
+            expect(result['data']['appointment_id']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
           end
         end
       end
@@ -135,8 +135,8 @@ describe Vass::AppointmentsService do
             result = subject.get_appointment(appointment_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['appointmentId']).to eq(appointment_id)
-            expect(result['data']['agentNickname']).to eq('Dr. Smith')
+            expect(result['data']['appointment_id']).to eq(appointment_id)
+            expect(result['data']['agent_nickname']).to eq('Agent Smith')
           end
         end
       end
@@ -151,7 +151,7 @@ describe Vass::AppointmentsService do
             result = subject.get_appointments(veteran_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['veteranId']).to eq(veteran_id)
+            expect(result['data']['veteran_id']).to eq(veteran_id)
             expect(result['data']['appointments']).to be_an(Array)
             expect(result['data']['appointments'].length).to eq(2)
           end
@@ -166,11 +166,11 @@ describe Vass::AppointmentsService do
       {
         'success' => true,
         'data' => {
-          'firstName' => 'John',
-          'lastName' => 'Doe',
-          'dateOfBirth' => '1990-01-15',
+          'first_name' => 'John',
+          'last_name' => 'Doe',
+          'date_of_birth' => '1990-01-15',
           'edipi' => edipi,
-          'notificationEmail' => 'john.doe@example.com'
+          'notification_email' => 'john.doe@example.com'
         }
       }
     end
@@ -182,8 +182,8 @@ describe Vass::AppointmentsService do
             result = subject.get_veteran_info(veteran_id:)
 
             expect(result['success']).to be true
-            expect(result['data']['firstName']).to eq('John')
-            expect(result['data']['lastName']).to eq('Doe')
+            expect(result['data']['first_name']).to eq('John')
+            expect(result['data']['last_name']).to eq('Doe')
             expect(result['data']['edipi']).to eq(edipi)
           end
         end
@@ -208,8 +208,8 @@ describe Vass::AppointmentsService do
         result = service_with_mock_client.get_veteran_info(veteran_id:)
 
         expect(result['success']).to be true
-        expect(result['data']['firstName']).to eq('John')
-        expect(result['data']['lastName']).to eq('Doe')
+        expect(result['data']['first_name']).to eq('John')
+        expect(result['data']['last_name']).to eq('Doe')
         expect(result['contact_method']).to eq('email')
         expect(result['contact_value']).to eq('john.doe@example.com')
       end
@@ -219,11 +219,11 @@ describe Vass::AppointmentsService do
           {
             'success' => true,
             'data' => {
-              'firstName' => 'John',
-              'lastName' => 'Doe',
-              'dateOfBirth' => '1990-01-15',
+              'first_name' => 'John',
+              'last_name' => 'Doe',
+              'date_of_birth' => '1990-01-15',
               'edipi' => edipi,
-              'notificationEmail' => nil
+              'notification_email' => nil
             }
           }
         end
@@ -245,16 +245,15 @@ describe Vass::AppointmentsService do
       end
 
       context 'when API response is invalid' do
-        let(:invalid_response) do
-          {
-            'success' => false,
-            'message' => 'Veteran not found'
-          }
-        end
-
         before do
-          allow(client).to receive(:get_veteran).and_return(
-            double(body: invalid_response, status: 200)
+          # Client now validates responses and raises ServiceException for invalid responses
+          allow(client).to receive(:get_veteran).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              200,
+              { 'success' => false, 'message' => 'Veteran not found' }
+            )
           )
         end
 
@@ -271,14 +270,108 @@ describe Vass::AppointmentsService do
     context 'when successful' do
       it 'retrieves available agent skills' do
         VCR.use_cassette('vass/oauth_token_success') do
-          VCR.use_cassette('vass/get_agent_skills_success') do
+          VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success') do
             result = subject.get_agent_skills
 
             expect(result['success']).to be true
-            expect(result['data']['agentSkills']).to be_an(Array)
-            expect(result['data']['agentSkills'].length).to eq(4)
-            expect(result['data']['agentSkills'].first['skillName']).to eq('Mental Health Counseling')
+            expect(result['data']['agent_skills']).to be_an(Array)
+            expect(result['data']['agent_skills'].length).to eq(3)
+            expect(result['data']['agent_skills'].first['skill_name']).to eq('Benefits')
           end
+        end
+      end
+    end
+
+    context 'when client encounters errors' do
+      let(:client) { instance_double(Vass::Client) }
+      let(:service_with_mock_client) do
+        service = described_class.build(edipi:, correlation_id:)
+        allow(service).to receive(:client).and_return(client)
+        service
+      end
+
+      context 'when VASS API returns unsuccessful response' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'VASS API returned an unsuccessful response' },
+              503,
+              { 'success' => false, 'message' => 'Service temporarily unavailable' }
+            )
+          )
+        end
+
+        it 'raises VassApiError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::VassApiError, /VASS API error/)
+        end
+      end
+
+      context 'when request times out' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Exceptions::GatewayTimeout.new
+          )
+        end
+
+        it 'raises ServiceError with timeout message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /Request timeout/)
+        end
+      end
+
+      context 'when network error occurs' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Common::Client::Errors::ClientError.new('Connection refused', 500)
+          )
+        end
+
+        it 'raises ServiceError with HTTP error message' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::ServiceError, /HTTP error/)
+        end
+      end
+
+      context 'when VASS API returns 401 unauthorized' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Authentication failed' },
+              401,
+              { 'success' => false, 'message' => 'Unauthorized' }
+            )
+          )
+        end
+
+        it 'raises AuthenticationError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::AuthenticationError, /Authentication failed/)
+        end
+      end
+
+      context 'when VASS API returns 404 not found' do
+        before do
+          allow(client).to receive(:get_agent_skills).and_raise(
+            Vass::ServiceException.new(
+              Vass::Errors::ERROR_KEY_VASS_ERROR,
+              { detail: 'Resource not found' },
+              404,
+              { 'success' => false, 'message' => 'Not found' }
+            )
+          )
+        end
+
+        it 'raises NotFoundError' do
+          expect do
+            service_with_mock_client.get_agent_skills
+          end.to raise_error(Vass::Errors::NotFoundError, /Resource not found/)
         end
       end
     end

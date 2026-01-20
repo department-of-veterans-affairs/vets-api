@@ -165,6 +165,8 @@ module PdfFill
           postal = addr['postalCode'].to_s
 
           # Split ZIP code into first 5 and extension if present
+          # The front end only accepts 5-digit zip codes for US addresses so
+          # we should rethink how we handle this for non-US addresses
           if postal.include?('-')
             parts = postal.split('-')
             addr['postalCode'] = parts[0]

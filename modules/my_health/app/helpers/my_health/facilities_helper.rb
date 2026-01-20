@@ -7,14 +7,14 @@ module MyHealth
     module_function
 
     COMPLICATED_SYSTEMS = {
-      '528' => 'VA New York state health care (multiple facilities)',
-      '589' => 'VA Kansas and Missouri health care (multiple facilities)',
-      '620' => 'VA Hudson Valley New York health care (multiple facilities)',
-      '626' => 'VA Tennessee health care (multiple facilities)',
-      '636' => 'VA Nebraska and Iowa health care (multiple facilities)',
-      '657' => 'VA Missouri and Illinois health care (multiple facilities)',
-      '612' => 'VA Northern California (multiple facilities)',
-      '612A4' => 'VA Northern California (multiple facilities)'
+      '528' => 'VA New York State Healthcare (multiple facilities)',
+      '589' => 'VA Kansas and Missouri Healthcare (multiple facilities)',
+      '620' => 'VA Hudson Valley New York Healthcare (multiple facilities)',
+      '626' => 'VA Tennessee Healthcare (multiple facilities)',
+      '636' => 'VA Nebraska and Iowa Healthcare (multiple facilities)',
+      '657' => 'VA Missouri and Illinois Healthcare (multiple facilities)',
+      '612' => 'VA Northern California Healthcare (multiple facilities)',
+      '612A4' => 'VA Northern California Healthcare (multiple facilities)'
     }.freeze
     def set_health_care_system_names(all_triage_teams_collection)
       triage_teams = all_triage_teams_collection.records
