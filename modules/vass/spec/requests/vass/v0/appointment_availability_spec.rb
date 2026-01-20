@@ -315,6 +315,11 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns unauthorized status' do
+          allow(Rails.logger).to receive(:error).and_call_original
+          expect(Rails.logger).to receive(:error)
+            .with(a_string_including('"service":"vass"', '"action":"missing_edipi"', veteran_id))
+            .and_call_original
+
           get('/vass/v0/appointment-availability', headers:)
 
           expect(response).to have_http_status(:unauthorized)

@@ -172,6 +172,11 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
       it 'returns too many requests status' do
         # Rate limit check happens before any API calls, so no cassettes needed
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"action":"rate_limit_exceeded"', uuid))
+          .and_call_original
+
         post '/vass/v0/request-otc', params:, as: :json
 
         expect(response).to have_http_status(:too_many_requests)
@@ -264,6 +269,10 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
 
       it 'returns unauthorized status' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"invalid_otc"',
+                                                                       uuid)).and_call_original
+
         invalid_params = params.deep_merge(session: { otc: '999999' })
         post '/vass/v0/authenticate-otc', params: invalid_params, as: :json
 
@@ -300,12 +309,42 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
     context 'with expired OTC' do
       it 'returns unauthorized status' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"otc_expired"',
+                                                                       uuid)).and_call_original
+
         post '/vass/v0/authenticate-otc', params:, as: :json
 
         expect(response).to have_http_status(:unauthorized)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'][0]['code']).to eq('otc_expired')
+      end
+    end
+
+    context 'when validation rate limit is exceeded' do
+      before do
+        redis_client = Vass::RedisClient.build
+        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        # Exceed validation rate limit
+        5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
+      end
+
+      it 'returns too many requests status with account_locked code' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"action":"validation_rate_limit_exceeded"'))
+          .and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:too_many_requests)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'][0]['code']).to eq('account_locked')
+        expect(json_response['errors'][0]['detail']).to eq('Too many failed attempts. Please request a new OTC.')
+        expect(json_response['errors'][0]['retryAfter']).to be_a(Integer)
       end
     end
   end

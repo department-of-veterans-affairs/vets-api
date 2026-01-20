@@ -339,7 +339,7 @@ module Vass
       def check_rate_limit(identifier)
         return unless redis_client.rate_limit_exceeded?(identifier:)
 
-        log_rate_limit_exceeded
+        log_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_GENERATION_EXCEEDED)
         raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC generation'
       end
@@ -462,8 +462,10 @@ module Vass
       ##
       # Logs rate limit exceeded (no PHI).
       #
-      def log_rate_limit_exceeded
-        log_vass_event(action: 'rate_limit_exceeded', level: :warn)
+      # @param identifier [String] Identifier (UUID) for the rate limit
+      #
+      def log_rate_limit_exceeded(identifier)
+        log_vass_event(action: 'rate_limit_exceeded', vass_uuid: identifier, level: :warn)
       end
 
       ##
@@ -475,7 +477,7 @@ module Vass
       def check_validation_rate_limit(identifier)
         return unless redis_client.validation_rate_limit_exceeded?(identifier:)
 
-        log_validation_rate_limit_exceeded
+        log_validation_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_VALIDATION_EXCEEDED)
         raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC validation attempts'
       end
@@ -524,11 +526,11 @@ module Vass
       ##
       # Handles generation rate limit errors.
       #
-      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param session [Vass::V0::Session] Session instance
       # @param _error [Vass::Errors::RateLimitError] Error (unused)
       #
-      def handle_generation_rate_limit_error(_session, _error)
-        log_rate_limit_exceeded
+      def handle_generation_rate_limit_error(session, _error)
+        log_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
         render_error_response(
           code: 'rate_limit_exceeded',
@@ -541,11 +543,11 @@ module Vass
       ##
       # Handles validation rate limit errors.
       #
-      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param session [Vass::V0::Session] Session instance
       # @param _error [Vass::Errors::RateLimitError] Error (unused)
       #
-      def handle_validation_rate_limit_error(_session, _error)
-        log_validation_rate_limit_exceeded
+      def handle_validation_rate_limit_error(session, _error)
+        log_validation_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
         render_error_response(
           code: 'account_locked',
@@ -558,8 +560,10 @@ module Vass
       ##
       # Logs validation rate limit exceeded (no PHI).
       #
-      def log_validation_rate_limit_exceeded
-        log_vass_event(action: 'validation_rate_limit_exceeded', level: :warn)
+      # @param identifier [String] Identifier (UUID) for the rate limit
+      #
+      def log_validation_rate_limit_exceeded(identifier)
+        log_vass_event(action: 'validation_rate_limit_exceeded', vass_uuid: identifier, level: :warn)
       end
     end
   end
