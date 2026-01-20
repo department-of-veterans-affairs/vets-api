@@ -1154,6 +1154,7 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     def can_prefill_vaprofile(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
+      expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access_to_v2?).and_return(yes)
     end
 
     def strip_required(schema)
@@ -1336,8 +1337,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a user that can prefill mdot' do
       before do
-        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
+        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to be(true)
       end
 
@@ -1440,10 +1442,13 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'when VA Profile returns 404', :skip_va_profile do
+      before do
+        expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(true)
+      end
+
       it 'returns default values' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
-          can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
           expect(output['currently_active_duty']).to be(false)
           expect(output['currently_active_duty_hash']).to match({ yes: false })
@@ -1498,9 +1503,10 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 0994' do
         before do
-          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
         end
 
         it 'prefills 0994' do
@@ -1620,6 +1626,7 @@ RSpec.describe FormProfile, type: :model do
         before do
           allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
           expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
@@ -2293,7 +2300,6 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
                                                .and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                 VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
