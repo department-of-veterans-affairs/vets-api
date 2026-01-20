@@ -28,11 +28,11 @@ module Lighthouse
       attribute :payments, Hash, array: true
 
       attribute :facility_address1, String
-      attribute :facility_address2, String  
+      attribute :facility_address2, String
       attribute :facility_address3, String
       attribute :facility_city, String
       attribute :facility_state, String
-      attribute :facility_zip, String 
+      attribute :facility_zip, String
 
       def initialize(attrs = {})
         @invoice_data = attrs[:invoice_data]
@@ -83,7 +83,7 @@ module Lighthouse
 
       def assign_facility_address
         return unless @facility_address
-        
+
         @facility_address1 = @facility_address[:address1]
         @facility_address2 = @facility_address[:address2]
         @facility_address3 = @facility_address[:address3]
