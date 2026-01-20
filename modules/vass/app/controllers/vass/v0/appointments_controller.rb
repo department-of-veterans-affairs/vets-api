@@ -231,7 +231,7 @@ module Vass
         appointment_id = session_data&.fetch(:appointment_id, nil)
 
         unless appointment_id
-          log_vass_event(action: 'missing_booking_session', veteran_uuid: @current_veteran_id, level: :warn)
+          log_vass_event(action: 'missing_booking_session', vass_uuid: @current_veteran_id, level: :warn)
           render_error(
             'missing_session_data',
             'Appointment session not found. Please check availability first.',
@@ -279,7 +279,7 @@ module Vass
         edipi = veteran_metadata&.fetch(:edipi, nil)
 
         unless edipi
-          log_vass_event(action: 'missing_edipi', veteran_uuid: @current_veteran_id, level: :error)
+          log_vass_event(action: 'missing_edipi', vass_uuid: @current_veteran_id, level: :error)
           return render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
         end
 

@@ -173,7 +173,7 @@ module Vass
       #
       def complete_otc_creation(session)
         increment_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_generated', veteran_uuid: session.uuid)
+        log_vass_event(action: 'otc_generated', vass_uuid: session.uuid)
       end
 
       ##
@@ -183,7 +183,7 @@ module Vass
       # @param error [Vass::Errors::IdentityValidationError] Error
       #
       def handle_identity_validation_error(session, _error)
-        log_vass_event(action: 'identity_validation_failed', veteran_uuid: session.uuid, level: :warn)
+        log_vass_event(action: 'identity_validation_failed', vass_uuid: session.uuid, level: :warn)
         render_error_response(
           code: 'invalid_credentials',
           detail: 'Unable to verify identity. Please check your information.',
@@ -198,7 +198,7 @@ module Vass
       # @param error [Vass::Errors::MissingContactInfoError] Error
       #
       def handle_missing_contact_info_error(session, _error)
-        log_vass_event(action: 'missing_contact_info', veteran_uuid: session.uuid, level: :error)
+        log_vass_event(action: 'missing_contact_info', vass_uuid: session.uuid, level: :error)
         render_error_response(
           code: 'missing_contact_info',
           detail: 'No contact information available for this veteran.',
@@ -213,7 +213,7 @@ module Vass
       # @param error [Exception] Error
       #
       def handle_vass_api_error(session, error)
-        log_vass_event(action: 'vass_api_error', veteran_uuid: session.uuid, level: :error,
+        log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                        error_class: error.class.name)
         render_error_response(
           code: 'service_error',
@@ -230,7 +230,7 @@ module Vass
       #
       def handle_successful_authentication(session, jwt_token)
         reset_validation_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_authenticated', veteran_uuid: session.uuid)
+        log_vass_event(action: 'otc_authenticated', vass_uuid: session.uuid)
         render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
       end
 
@@ -243,7 +243,7 @@ module Vass
       def handle_vanotify_error(session, error)
         log_vass_event(
           action: 'vanotify_error',
-          veteran_uuid: session.uuid,
+          vass_uuid: session.uuid,
           level: :error,
           error_class: error.class.name,
           status_code: error.status_code,
@@ -290,7 +290,7 @@ module Vass
         when :rate_limit then handle_validation_rate_limit_error(session, error)
         when :authentication then handle_invalid_otc(session)
         when :vass_api
-          log_vass_event(action: 'vass_api_error', veteran_uuid: session.uuid, level: :error,
+          log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                          error_class: error.class.name)
           render_error_response(code: 'service_error', detail: 'VASS service error', status: :bad_gateway)
         end
@@ -395,7 +395,7 @@ module Vass
       # @return [Boolean] false
       #
       def handle_expired_otc(session)
-        log_vass_event(action: 'otc_expired', veteran_uuid: session.uuid, level: :warn)
+        log_vass_event(action: 'otc_expired', vass_uuid: session.uuid, level: :warn)
         track_infrastructure_metric(SESSION_OTC_EXPIRED)
         render_error_response(
           code: 'otc_expired',
@@ -439,7 +439,7 @@ module Vass
       # @param uuid [String] Veteran UUID
       #
       def log_invalid_otc(uuid)
-        log_vass_event(action: 'invalid_otc', veteran_uuid: uuid, level: :warn)
+        log_vass_event(action: 'invalid_otc', vass_uuid: uuid, level: :warn)
       end
 
       ##

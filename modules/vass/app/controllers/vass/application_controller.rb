@@ -151,11 +151,11 @@ module Vass
     # Logs VASS events with optional metadata (no PHI).
     #
     # @param action [String] Action name (e.g., 'otp_generated', 'identity_validation_failed')
-    # @param uuid [String, nil] Session UUID (optional)
+    # @param vass_uuid [String, nil] VASS Veteran UUID (optional)
     # @param level [Symbol] Log level (:debug, :info, :warn, :error, :fatal)
     # @param metadata [Hash] Additional metadata to include
     #
-    def log_vass_event(action:, uuid: nil, level: :info, **metadata)
+    def log_vass_event(action:, vass_uuid: nil, level: :info, **metadata)
       valid_levels = %i[debug info warn error fatal]
       level = :info unless valid_levels.include?(level)
 
@@ -165,7 +165,7 @@ module Vass
         controller: controller_name,
         timestamp: Time.current.iso8601
       }
-      log_data[:uuid] = uuid if uuid
+      log_data[:vass_uuid] = vass_uuid if vass_uuid
       log_data.merge!(metadata)
 
       Rails.logger.public_send(level, log_data.to_json)
