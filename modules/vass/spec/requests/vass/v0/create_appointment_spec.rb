@@ -212,7 +212,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: topics')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -237,7 +237,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtStartUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -262,7 +262,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtEndUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 

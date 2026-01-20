@@ -167,7 +167,7 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       it 'renders invalid token error' do
         get :index
         json_response = JSON.parse(response.body)
-        expect(json_response['errors'][0]['detail']).to include('Invalid token')
+        expect(json_response['errors'][0]['detail']).to eq('Invalid or malformed token')
       end
 
       it 'logs authentication failure with error class' do
@@ -204,7 +204,7 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       it 'renders missing veteran_id error' do
         get :index
         json_response = JSON.parse(response.body)
-        expect(json_response['errors'][0]['detail']).to eq('Invalid token: missing veteran_id')
+        expect(json_response['errors'][0]['detail']).to eq('Invalid or malformed token')
       end
 
       it 'logs authentication failure' do
@@ -231,7 +231,7 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       it 'renders decode error' do
         get :index
         json_response = JSON.parse(response.body)
-        expect(json_response['errors'][0]['detail']).to include('Invalid token')
+        expect(json_response['errors'][0]['detail']).to eq('Invalid or malformed token')
       end
 
       it 'logs authentication failure with error class' do

@@ -135,7 +135,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_parameter')
-        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: uuid')
+        expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
       end
 
       it 'does not fetch veteran info when parameters are missing' do
@@ -487,7 +487,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_parameter')
-        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
+        expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
       end
     end
   end

@@ -49,14 +49,14 @@ module Vass
 
       unless @current_veteran_id
         log_auth_failure('missing_veteran_id')
-        render_unauthorized('Invalid token: missing veteran_id')
+        render_unauthorized('Invalid or malformed token')
       end
     rescue JWT::ExpiredSignature
       log_auth_failure('expired_token')
       render_unauthorized('Token has expired')
     rescue JWT::DecodeError => e
       log_auth_failure('invalid_token', error_class: e.class.name)
-      render_unauthorized("Invalid token: #{e.message}")
+      render_unauthorized('Invalid or malformed token')
     end
 
     private

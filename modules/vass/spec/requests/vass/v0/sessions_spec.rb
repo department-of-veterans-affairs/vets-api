@@ -294,7 +294,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_parameter')
-        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
+        expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
       end
     end
 

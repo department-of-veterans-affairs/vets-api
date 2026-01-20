@@ -253,10 +253,10 @@ module Vass
       ##
       # Handles missing parameter errors from Rails params.require().
       #
-      # @param exception [ActionController::ParameterMissing] The exception
+      # @param _exception [ActionController::ParameterMissing] The exception (unused)
       #
-      def handle_parameter_missing(exception)
-        render_error('missing_parameter', exception.message, :bad_request)
+      def handle_parameter_missing(_exception)
+        render_error('missing_parameter', 'Required parameter is missing', :bad_request)
       end
 
       ##
