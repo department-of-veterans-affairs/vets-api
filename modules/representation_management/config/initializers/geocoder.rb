@@ -5,5 +5,5 @@ Geocoder.configure(
   timeout: 5,
   units: :mi,
   dataset: 'mapbox.places-permanent'
-  # api_key: Settings.DETERMINE_WHERE
+  # api_key: Settings.representation_management.geocoder.mapbox.api_key
 )
