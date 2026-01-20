@@ -15,12 +15,14 @@ module RepresentationManagement
       return false if address.blank?
 
       result = Geocoder.search(address).first
-      return false if result.first.blank?
+      return false if result.blank?
 
-      # Save any partial city/state and zip data for display
-      self.city = raw_address['city'] if raw_address['city'].present?
-      self.state_code = raw_address['state_code'] if raw_address['state_code'].present?
-      self.zip_code = raw_address['zip_code'] if raw_address['zip_code'].present?
+      # Save any partial city/state and zip data for display if raw_address exists
+      if raw_address.present?
+        self.city = raw_address['city'] if raw_address['city'].present?
+        self.state_code = raw_address['state_code'] if raw_address['state_code'].present?
+        self.zip_code = raw_address['zip_code'] if raw_address['zip_code'].present?
+      end
 
       self.lat = result.latitude
       self.long = result.longitude
@@ -44,11 +46,17 @@ module RepresentationManagement
       # Representatives/Attorneys: address_line1, address_line2, address_line3, city, state_code, zip_code
       # Agents: address_line1, address_line2, address_line3, zip_code, work_country
 
+      # Use raw_address hash if available, otherwise use model attributes directly
+      address_hash = raw_address || {}
       fields = %w[address_line1 address_line2 address_line3 city state_code zip_code work_country]
 
-      fields.map { |field| raw_address[field].to_s.strip }
-            .reject(&:empty?)
-            .join(' ')
+      # Build address from hash or attributes
+      parts = fields.map do |field|
+        value = address_hash[field] || (respond_to?(field) ? send(field) : nil)
+        value.to_s.strip
+      end
+
+      parts.reject(&:empty?).join(' ').presence
     end
 
     #
