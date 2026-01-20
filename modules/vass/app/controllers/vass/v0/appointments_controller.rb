@@ -67,8 +67,8 @@ module Vass
         response = @appointments_service.get_agent_skills
         agent_skills = response.dig('data', 'agent_skills') || []
         topics = map_agent_skills_to_topics(agent_skills)
-        render_camelized_json({ data: { topics: } })
         track_success(APPOINTMENTS_TOPICS)
+        render_camelized_json({ data: { topics: } })
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
              Vass::Errors::AuthenticationError,
@@ -103,6 +103,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.get_appointment(appointment_id:)
+        track_success(APPOINTMENTS_SHOW)
         render_vass_response(
           response,
           success_data: ->(r) { r['data'] },
@@ -110,7 +111,6 @@ module Vass
           error_message: 'Appointment not found',
           error_status: :not_found
         )
-        track_success(APPOINTMENTS_SHOW)
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
              Vass::Errors::AuthenticationError,
@@ -137,6 +137,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.cancel_appointment(appointment_id:)
+        track_success(APPOINTMENTS_CANCEL)
         render_vass_response(
           response,
           success_data: { appointmentId: appointment_id },
@@ -144,7 +145,6 @@ module Vass
           error_message: 'Failed to cancel appointment',
           error_status: :unprocessable_entity
         )
-        track_success(APPOINTMENTS_CANCEL)
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
              Vass::Errors::AuthenticationError,
@@ -180,6 +180,7 @@ module Vass
         return handle_missing_appointment_id unless appointment_id
 
         response = save_appointment_with_service(appointment_id)
+        track_success(APPOINTMENTS_CREATE)
         render_vass_response(
           response,
           success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
@@ -187,7 +188,6 @@ module Vass
           error_message: 'Failed to save appointment',
           error_status: :unprocessable_entity
         )
-        track_success(APPOINTMENTS_CREATE)
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
              Vass::Errors::AuthenticationError,

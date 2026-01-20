@@ -38,8 +38,8 @@ module Vass
         check_all_rate_limits(session.uuid)
         process_otc_creation(session)
         complete_otc_creation(session)
-        render_otc_success_response
         track_success(SESSIONS_REQUEST_OTC)
+        render_otc_success_response
       rescue Vass::Errors::RateLimitError => e
         handle_request_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::IdentityValidationError => e
@@ -73,8 +73,8 @@ module Vass
 
         jwt_token = session.validate_and_generate_jwt
         session.create_authenticated_session(token: jwt_token)
-        handle_successful_authentication(session, jwt_token)
         track_success(SESSIONS_AUTHENTICATE_OTC)
+        handle_successful_authentication(session, jwt_token)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::AuthenticationError => e
