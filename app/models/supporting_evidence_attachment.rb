@@ -6,6 +6,7 @@ class SupportingEvidenceAttachment < FormAttachment
   ATTACHMENT_UPLOADER_CLASS = SupportingEvidenceAttachmentUploader
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
+  MAX_FILENAME_LENGTH = 100
 
   # this uploads the file to S3 through its parent class
   # the final filename comes from the uploader once the file is successfully uploaded to S3
@@ -42,10 +43,10 @@ class SupportingEvidenceAttachment < FormAttachment
       # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
       obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
       truncated_filename = (filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..])
-      truncated_filename = truncated_filename[0, 250] # Ensure total length is within 255 characters
+      truncated_filename = truncated_filename[0..MAX_FILENAME_LENGTH] # Ensure total length is well within 255 characters
       truncated_filename + extension
     else
-      original_filename[0, 255] # Truncate if the filename is short but still too long
+      original_filename[0..MAX_FILENAME_LENGTH] # Truncate if the filename is short but still too long
     end
   end
 end
