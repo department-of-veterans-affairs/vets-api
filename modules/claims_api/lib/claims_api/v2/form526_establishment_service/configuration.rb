@@ -46,7 +46,7 @@ module ClaimsApi
         # @return [Auth::ClientCredentials::Service] Service used to generate access tokens.
         #
         def token_service
-          url = "#{settings.host}/#{TOKEN_PATH}"
+          url = "#{settings.token_host}/#{TOKEN_PATH}"
           fes_client_id = settings.auth.ccg.client_id
           aud_claim_url = settings.auth.ccg.aud_claim_url
           fes_secret_key = settings.auth.ccg.secret_key

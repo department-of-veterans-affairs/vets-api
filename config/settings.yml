@@ -214,7 +214,7 @@ claims_api:
     auth:
       ccg:
         aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
-        client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
+        client_id: <%= ENV['claims_api__fes__auth__ccg__client_id'] %>
         secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
     service_url: <%= ENV['claims_api__fes__service_url'] %>
     ssl: <%= ENV['claims_api__fes__ssl'] %>
