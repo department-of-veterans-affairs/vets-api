@@ -61,6 +61,7 @@ module MebApi
       end
 
       def submit_claim
+        StatsD.increment('api.meb.submit_claim.attempt')
         response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params, response_data)
 
@@ -72,7 +73,7 @@ module MebApi
           }
         }
       rescue => e
-        Rails.logger.error("MEB Forms submit_claim failed: #{e.class} - #{e.message}")
+        log_submission_error(e, 'MEB Forms submit_claim failed')
         raise
       end
 
@@ -82,6 +83,15 @@ module MebApi
         status = params[:claim_status]
         email = params[:email] || @current_user.email
         first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+
+        missing_attributes = []
+        missing_attributes << 'claim_status' if status.blank?
+        missing_attributes << 'email' if email.blank?
+        missing_attributes << 'first_name' if first_name.blank?
+
+        if missing_attributes.any?
+          return log_missing_email_attributes('1990emeb', missing_attributes, status, email, first_name)
+        end
 
         MebApi::V0::Submit1990emebFormConfirmation.perform_async(status, email, first_name)
       end

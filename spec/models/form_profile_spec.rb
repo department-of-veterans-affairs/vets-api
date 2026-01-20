@@ -1839,7 +1839,7 @@ RSpec.describe FormProfile, type: :model do
               let(:form_profile) do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:dependents_data) do
                 { number_of_records: '1', persons: [{
                   award_indicator: 'Y',
@@ -1871,7 +1871,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'returns formatted dependent information' do
                 # Mock the dependent service to return active dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
 
                 result = form_profile.prefill
@@ -1884,7 +1884,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles a dependent information error' do
                 # Mock the dependent service to return an error
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_raise(
                   StandardError.new('Dependent information error')
                 )
@@ -1897,7 +1897,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles missing dependents data' do
                 # Mock the dependent service to return no dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil)
                 result = form_profile.prefill
                 expect(result[:form_data]).to have_key('veteranInformation')
@@ -1910,7 +1910,7 @@ RSpec.describe FormProfile, type: :model do
                 invalid_date_data = dependents_data.dup
                 invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
 
                 result = form_profile.prefill
@@ -1925,7 +1925,7 @@ RSpec.describe FormProfile, type: :model do
                 nil_date_data = dependents_data.dup
                 nil_date_data[:persons][0][:date_of_birth] = nil
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
 
                 result = form_profile.prefill
@@ -2035,7 +2035,7 @@ RSpec.describe FormProfile, type: :model do
               let(:form_profile) do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:dependents_data) do
                 { number_of_records: '1', persons: [{
                   award_indicator: 'Y',
@@ -2067,7 +2067,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'returns formatted dependent information' do
                 # Mock the dependent service to return active dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
 
                 result = form_profile.prefill
@@ -2080,7 +2080,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles a dependent information error' do
                 # Mock the dependent service to return an error
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_raise(
                   StandardError.new('Dependent information error')
                 )
@@ -2093,7 +2093,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles missing dependents data' do
                 # Mock the dependent service to return no dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil)
                 result = form_profile.prefill
                 expect(result[:form_data]).to have_key('veteranInformation')
@@ -2106,7 +2106,7 @@ RSpec.describe FormProfile, type: :model do
                 invalid_date_data = dependents_data.dup
                 invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
 
                 result = form_profile.prefill
@@ -2121,7 +2121,7 @@ RSpec.describe FormProfile, type: :model do
                 nil_date_data = dependents_data.dup
                 nil_date_data[:persons][0][:date_of_birth] = nil
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
 
                 result = form_profile.prefill
@@ -2139,7 +2139,7 @@ RSpec.describe FormProfile, type: :model do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
               let(:contact_info_service) { instance_double(VAProfileRedis::V2::ContactInformation) }
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:email_double) { instance_double(VAProfile::Models::Email, email_address: 'test@example.com') }
               let(:home_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035551234') }
               let(:mobile_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035555678') }
@@ -2153,7 +2153,7 @@ RSpec.describe FormProfile, type: :model do
                                                                 mobile_phone: mobile_phone_double)
 
                 # Mock dependent service to avoid BGS calls
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return({ persons: [] })
 
                 # Mock BID awards service
