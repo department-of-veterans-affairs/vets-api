@@ -128,13 +128,13 @@ module BenefitsClaims
       attribute :evidence_waiver_submitted5103, Bool
       attribute :lighthouse_id, String
       attribute :status, String
-      attribute :supporting_documents, SupportingDocument, array: true
-      attribute :evidence_submissions, EvidenceSubmission, array: true
-      attribute :contentions, Contention, array: true
-      attribute :events, Event, array: true
-      attribute :issues, Issue, array: true
-      attribute :evidence, Evidence, array: true
-      attribute :tracked_items, TrackedItem, array: true
+      attribute :supporting_documents, SupportingDocument, array: true, default: -> { [] }
+      attribute :evidence_submissions, EvidenceSubmission, array: true, default: -> { [] }
+      attribute :contentions, Contention, array: true, default: -> { [] }
+      attribute :events, Event, array: true, default: -> { [] }
+      attribute :issues, Issue, array: true, default: -> { [] }
+      attribute :evidence, Evidence, array: true, default: -> { [] }
+      attribute :tracked_items, TrackedItem, array: true, default: -> { [] }
     end
   end
 end
