@@ -27,6 +27,13 @@ module Lighthouse
       attribute :line_items, Hash, array: true
       attribute :payments, Hash, array: true
 
+      attribute :facility_address1, String
+      attribute :facility_address2, String  
+      attribute :facility_address3, String
+      attribute :facility_city, String
+      attribute :facility_state, String
+      attribute :facility_zip, String 
+
       def initialize(attrs = {})
         @invoice_data = attrs[:invoice_data]
         @account_data = attrs[:account_data]
@@ -35,6 +42,7 @@ module Lighthouse
         @medication_dispenses = attrs[:medication_dispenses] || {}
         @medications = attrs[:medications] || {}
         @payments_data = attrs[:payments] || []
+        @facility_address = attrs[:facility_address]
         assign_attributes
       end
 
@@ -53,6 +61,7 @@ module Lighthouse
         assign_balances
         assign_line_items
         assign_payments
+        assign_facility_address
       end
 
       def assign_balances
@@ -70,6 +79,17 @@ module Lighthouse
       def assign_line_items
         invoice_line_items = @invoice_data['lineItem'] || []
         @line_items = invoice_line_items.map { |li| build_line_item(li) }
+      end
+
+      def assign_facility_address
+        return unless @facility_address
+        
+        @facility_address1 = @facility_address[:address1]
+        @facility_address2 = @facility_address[:address2]
+        @facility_address3 = @facility_address[:address3]
+        @facility_city = @facility_address[:city]
+        @facility_state = @facility_address[:state]
+        @facility_zip = @facility_address[:zip]
       end
 
       def build_line_item(invoice_line_item)

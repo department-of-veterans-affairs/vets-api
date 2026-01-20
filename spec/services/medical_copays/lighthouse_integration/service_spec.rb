@@ -234,7 +234,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         skip 'Temporarily skip flaky test'
         allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
 
-        allow(service).to receive(:retrieve_city).with('4-O3d8XK44ejMS').and_return(nil)
+        allow(service).to receive(:retrieve_organization_address).with('4-O3d8XK44ejMS').and_return(nil)
 
         expect { service.list(count: 10, page: 1) }
           .to raise_error(
@@ -257,6 +257,10 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         expect(result).to be_a(Lighthouse::HCC::CopayDetail)
         expect(result.external_id).to be_present
         expect(result.facility).to be_present
+        expect(result.facility_address1).to be_present
+        expect(result.facility_city).to be_present
+        expect(result.facility_state).to be_present
+        expect(result.facility_zip).to be_present
         expect(result.status).to be_present
         expect(result.line_items).to be_an(Array)
         expect(result.payments).to be_an(Array)
