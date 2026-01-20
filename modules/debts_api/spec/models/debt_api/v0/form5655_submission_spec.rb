@@ -288,6 +288,14 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         form5655_submission.send_failed_form_email
       end
     end
+
+    it 'raises when AttrPackage.create fails' do
+      allow(Sidekiq::AttrPackage).to receive(:create).and_raise(
+        Sidekiq::AttrPackageError.new('create', 'Redis connection failed')
+      )
+
+      expect { form5655_submission.send_failed_form_email }.to raise_error(Sidekiq::AttrPackageError)
+    end
   end
 
   describe '#vba_debt_identifiers' do

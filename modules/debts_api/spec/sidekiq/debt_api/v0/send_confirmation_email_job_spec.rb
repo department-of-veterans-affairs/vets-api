@@ -98,6 +98,14 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
 
         expect { described_class.new.perform(job_params) }.to raise_error(StandardError, 'Test error')
       end
+
+      it 'converts AttrPackageError to ArgumentError to prevent retries' do
+        allow(Sidekiq::AttrPackage).to receive(:create).and_raise(
+          Sidekiq::AttrPackageError.new('create', 'Redis connection failed')
+        )
+
+        expect { described_class.new.perform(job_params) }.to raise_error(ArgumentError, /AttrPackage.*error/)
+      end
     end
 
     context 'with digital dispute submissions' do

@@ -104,6 +104,17 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
           end
         end
       end
+
+      it 'raises when AttrPackage.create fails' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          service = described_class.new(user)
+          allow(Sidekiq::AttrPackage).to receive(:create).and_raise(
+            Sidekiq::AttrPackageError.new('create', 'Redis connection failed')
+          )
+
+          expect { service.submit_financial_status_report(combined_form_data) }.to raise_error(Sidekiq::AttrPackageError)
+        end
+      end
     end
   end
 
