@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/service/search'
+require 'claims_evidence_api/service/files'
 
 module V0
   class TsaLetterController < ApplicationController
@@ -26,8 +27,9 @@ module V0
 
     def download
       download_service = ClaimsEvidenceApi::Service::Files.new
+      letter_response = download_service.download(params[:id], params[:version_id])
       send_data(
-        download_service.download(params[:id], params[:version_id]),
+        letter_response.body,
         type: 'application/pdf',
         filename: 'VETS Safe Travel Outreach Letter.pdf'
       )
