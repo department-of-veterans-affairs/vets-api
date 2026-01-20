@@ -30,7 +30,7 @@ module BID
       end
 
       # This method will retrieve a list of current award events for the user
-      # Mock response can be found: spec/lib/bid/awards/responses/current_awards_response.json
+      # Mock response is defined in: spec/lib/bid/awards/support/current_awards_response.rb (RSpec shared context)
       def get_current_awards
         with_monitoring do
           perform(
