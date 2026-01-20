@@ -1281,6 +1281,28 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           end
         end
 
+        context 'date fields on supporting docs' do
+          it 'adds the uploadDateTime as UTC date format' do
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/v2/claims_show') do
+                allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::SupportingDocuments).to receive(
+                  :get_file_number
+                ).and_return(file_number)
+                expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+                  .to receive(:get_auth_token).and_return('some-value-here')
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_and_icn).and_return(nil)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                first_doc = json_response['data']['attributes'].dig('supportingDocuments', 0)
+                expect(first_doc['uploadDateTime']).to eq('2023-04-14T13:55:00Z')
+              end
+            end
+          end
+        end
+
         context 'it has no documents' do
           let(:bgs_claim) { build(:bgs_response_with_one_lc_status).to_h }
 
