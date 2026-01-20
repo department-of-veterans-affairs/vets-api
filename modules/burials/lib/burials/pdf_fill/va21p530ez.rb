@@ -98,10 +98,69 @@ module Burials
         # The list of section classes for form expansion and key building
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
-        SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
+        # V2 configuration (update as you go)
+        SECTION_CLASSES_V2 = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
+
+        QUESTION_KEY_V2 = [
+          { question_number: '1', question_text: "Deceased Veteran's Name" },
+          { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
+          { question_number: '3', question_text: 'VA File Number' },
+          { question_number: '4', question_text: "Veteran's Date of Birth" },
+          { question_number: '5', question_text: "Veteran's Date of Death" },
+          { question_number: '6', question_text: "Veteran's Date of Burial" },
+          { question_number: '7', question_text: "Claimant's Name" },
+          { question_number: '8', question_text: "Claimant's Social Security Number" },
+          { question_number: '9', question_text: "Claimant's Date of Birth" },
+          { question_number: '10', question_text: "Claimant's Address" },
+          { question_number: '11', question_text: "Claimant's International Phone Number" },
+          { question_number: '12', question_text: 'E-Mail Address' },
+          { question_number: '13', question_text: 'Relationship to Veteran' },
+          { question_number: '14', question_text: 'Military Service Information' },
+          { question_number: '15', question_text: 'Other Names Veteran Served Under' },
+          { question_number: '16', question_text: 'Place of Burial Plot, Interment Site, or Final Resting Place' },
+          { question_number: '17', question_text: 'National or Federal Cemetery' },
+          { question_number: '18', question_text: 'State Cemetery or Tribal Trust Land' },
+          { question_number: '19', question_text: 'Government or Employer Contribution' },
+          { question_number: '20', question_text: "Where Did the Veteran's Death Occur" },
+          { question_number: '21', question_text: 'Burial Allowance Requested' },
+          { question_number: '22', question_text: 'Previously Received Allowance' },
+          { question_number: '23', question_text: 'Burial Expense Responsibility' },
+          { question_number: '24', question_text: 'Plot/Interment Expense Responsibility' },
+          { question_number: '25', question_text: 'Claimant Signature' },
+          { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' }
+        ].freeze
+
+        SECTIONS_V2 = [
+          { label: 'Section I: Deceased Veteran\'s Name', question_nums: ['1'] },
+          { label: 'Section II: Deceased Veteran\'s Social Security Number', question_nums: ['2'] },
+          { label: 'Section III: VA File Number', question_nums: ['3'] },
+          { label: 'Section IV: Veteran\'s Date of Birth', question_nums: ['4'] },
+          { label: 'Section V: Veteran\'s Date of Death', question_nums: ['5'] },
+          { label: 'Section VI: Veteran\'s Date of Burial', question_nums: ['6'] },
+          { label: 'Section VII: Claimant\'s Identification Information', question_nums: %w[7 8 9] },
+          { label: 'Section VIII: Claimant\'s Contact Information', question_nums: %w[10 11 12] },
+          { label: 'Section IX: Relationship to Veteran', question_nums: ['13'] },
+          { label: 'Section X: Military Service Information', question_nums: %w[14 15] },
+          { label: 'Section XI: Burial Information', question_nums: %w[16 17 18] },
+          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[19 20] },
+          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[21 22 23 24] },
+          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[25 26] }
+        ].freeze
 
         # form configuration hash
         KEY = key.freeze
+
+        def key
+          @key ||= begin
+            k = {}
+            section_classes.each { |section| k.merge!(section::KEY) }
+            k.freeze
+          end
+        end
+
+        def section_classes
+          use_v2? ? SECTION_CLASSES_V2 : SECTION_CLASSES
+        end
 
         ##
         # The crux of the class, this method merges all the data that has been converted into @form_data
@@ -115,9 +174,27 @@ module Burials
             @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
           end
 
-          SECTION_CLASSES.each { |section| section.new.expand(@form_data) }
+          section_classes.each { |section| section.new.expand(@form_data) }
 
           @form_data
+        end
+
+        def question_key
+          use_v2? ? QUESTION_KEY_V2 : QUESTION_KEY
+        end
+
+        def sections
+          use_v2? ? SECTIONS_V2 : SECTIONS
+        end
+
+        def template
+          Burials.pdf_path
+        end
+
+        private
+
+        def use_v2?
+          Flipper.enabled?(:burial_pdf_form_alignment)
         end
       end
     end

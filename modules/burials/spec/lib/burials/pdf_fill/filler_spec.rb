@@ -16,6 +16,8 @@ describe PdfFill::Filler, type: :model do
             end
 
             it 'fills the form correctly' do
+              allow(Flipper).to receive(:enabled?).with(:burial_pdf_form_alignment).and_return(false)
+
               if type == 'overflow'
                 # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil

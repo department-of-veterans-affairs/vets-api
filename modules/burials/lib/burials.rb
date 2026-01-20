@@ -12,6 +12,15 @@ module Burials
   # The module path
   MODULE_PATH = 'modules/burials'
 
+  # Path to the PDF - conditionally use 2026 version
+  def self.pdf_path
+    if Flipper.enabled?(:burial_pdf_form_alignment)
+      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
+    else
+      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+    end
+  end
+
   # Path to the PDF
   PDF_PATH = "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
