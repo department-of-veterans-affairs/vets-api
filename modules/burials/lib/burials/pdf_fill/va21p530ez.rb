@@ -101,6 +101,7 @@ module Burials
         # V2 configuration (update as you go)
         SECTION_CLASSES_V2 = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
+        # V2 question key mapping question numbers to descriptive titles for overflow attachment
         QUESTION_KEY_V2 = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
@@ -130,6 +131,7 @@ module Burials
           { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' }
         ].freeze
 
+        # V2 sections grouping question numbers for overflow pages
         SECTIONS_V2 = [
           { label: 'Section I: Deceased Veteran\'s Name', question_nums: ['1'] },
           { label: 'Section II: Deceased Veteran\'s Social Security Number', question_nums: ['2'] },
@@ -150,6 +152,11 @@ module Burials
         # form configuration hash
         KEY = key.freeze
 
+        ##
+        # Returns the dynamic PDF field mapping key based on the current version.
+        # Builds the key by merging all section KEY constants.
+        #
+        # @return [Hash] The PDF field mapping for the current version
         def key
           @key ||= begin
             k = {}
@@ -158,6 +165,11 @@ module Burials
           end
         end
 
+        ##
+        # Returns the section classes to use based on the current version (V1 or V2).
+        # Controlled by the burial_pdf_form_alignment Flipper flag.
+        #
+        # @return [Array<Class>] Array of section classes (V1 or V2)
         def section_classes
           use_v2? ? SECTION_CLASSES_V2 : SECTION_CLASSES
         end
@@ -179,14 +191,28 @@ module Burials
           @form_data
         end
 
+        ##
+        # Returns the question key for overflow pages based on the current version.
+        # Controlled by the burial_pdf_form_alignment Flipper flag.
+        #
+        # @return [Array<Hash>] Array of question mappings with question_number and question_text
         def question_key
           use_v2? ? QUESTION_KEY_V2 : QUESTION_KEY
         end
 
+        ##
+        # Returns the sections configuration for overflow pages based on the current version.
+        # Controlled by the burial_pdf_form_alignment Flipper flag.
+        #
+        # @return [Array<Hash>] Array of section definitions with label and question_nums
         def sections
           use_v2? ? SECTIONS_V2 : SECTIONS
         end
 
+        ##
+        # Returns the PDF template path. Uses Burials module's dynamic path resolution.
+        #
+        # @return [String] Path to the PDF template file
         def template
           Burials.pdf_path
         end
