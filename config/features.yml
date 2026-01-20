@@ -664,6 +664,9 @@ features:
     actor_type: user
     description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_evidence_final_status_field:
+    actor_type: user
+    description: Include finalStatus boolean field in Decision Reviews "show" and "create" endpoint responses
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
@@ -2689,9 +2692,6 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
-  decision_review_evidence_final_status_field:
-    actor_type: user
-    description: Include finalStatus boolean field in Decision Reviews "show" and "create" endpoint responses
   form_10275_release:
     actor_type: user
     description: If enabled, show link to digitized form on SCO page
