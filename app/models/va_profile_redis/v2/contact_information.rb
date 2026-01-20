@@ -28,7 +28,7 @@ module VAProfileRedis
       attr_accessor :user
 
       def self.for_user(user)
-        return {} unless user.authorize :va_profile, :access_to_v2?
+        return nil unless user.authorize :va_profile, :access_to_v2?
 
         contact_info      = new
         contact_info.user = user
