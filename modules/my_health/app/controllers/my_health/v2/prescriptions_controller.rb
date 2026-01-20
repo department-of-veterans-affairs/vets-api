@@ -141,8 +141,15 @@ module MyHealth
 
       def get_recently_requested_prescriptions(prescriptions)
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process',
-                                             'Active: Submitted'].include?(item.disp_status)
+          item.respond_to?(:disp_status) && in_progress_statuses.include?(item.disp_status)
+        end
+      end
+
+      def in_progress_statuses
+        if Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
+          ['In progress']
+        else
+          ['Active: Refill in Process', 'Active: Submitted']
         end
       end
 
@@ -230,11 +237,15 @@ module MyHealth
       end
 
       def count_active_medications(list)
-        active_statuses = [
-          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-          'Active: Parked', 'Active: Submitted'
-        ]
-        list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
+        if Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
+          list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Active' }
+        else
+          active_statuses = [
+            'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+            'Active: Parked', 'Active: Submitted'
+          ]
+          list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
+        end
       end
 
       def count_non_active_medications(list)
@@ -258,7 +269,13 @@ module MyHealth
       end
 
       def count_unknown_status_medications(list)
-        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Unknown' }
+        unknown_status = if Flipper.enabled?(:mhv_medications_v2_status_mapping,
+                                             @current_user)
+                           'Status not available'
+                         else
+                           'Unknown'
+                         end
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == unknown_status }
       end
 
       def remove_pf_pd(data)
