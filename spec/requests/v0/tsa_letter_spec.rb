@@ -126,7 +126,6 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       let(:version_id) { 'nonexistent-version' }
 
       it 'renders 503' do
-        # probably better to catch and convert the response
         VCR.use_cassette('tsa_letters/download_not_found', { match_requests_on: %i[method uri] }) do
           get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
           expect(response).to have_http_status(:service_unavailable)
