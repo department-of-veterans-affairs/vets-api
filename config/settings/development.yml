@@ -217,9 +217,9 @@ claims_api:
         client_id: ~
         secret_key: "/srv/vets-api/secret/claims_api_bd_secret.key"
     service_url: ~
+    ssl: false
     token_host: https://qa.lighthouse.va.gov
     use_mocks: true
-    ssl: false
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
