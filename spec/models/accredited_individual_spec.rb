@@ -458,7 +458,7 @@ RSpec.describe AccreditedIndividual, type: :model do
     end
   end
 
-  describe '#build_geocodable_address' do
+  describe '#formatted_raw_address' do
     context 'with full address available' do
       let(:individual) do
         build(:accredited_individual,
@@ -469,7 +469,7 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
 
       it 'returns the full address string' do
-        expect(individual.send(:build_geocodable_address)).to eq('123 Main St, Springfield, IL, 62701')
+        expect(individual.send(:formatted_raw_address)).to eq('123 Main St Springfield IL 62701')
       end
     end
 
@@ -483,7 +483,7 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
 
       it 'returns city and state' do
-        expect(individual.send(:build_geocodable_address)).to eq('Springfield, IL')
+        expect(individual.send(:formatted_raw_address)).to eq('Springfield IL')
       end
     end
 
@@ -497,7 +497,7 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
 
       it 'returns just the zip code' do
-        expect(individual.send(:build_geocodable_address)).to eq('62701')
+        expect(individual.send(:formatted_raw_address)).to eq('62701')
       end
     end
 
@@ -511,7 +511,7 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
 
       it 'returns nil' do
-        expect(individual.send(:build_geocodable_address)).to be_nil
+        expect(individual.send(:formatted_raw_address)).to be_nil
       end
     end
 
@@ -525,7 +525,7 @@ RSpec.describe AccreditedIndividual, type: :model do
       end
 
       it 'returns address without zip' do
-        expect(individual.send(:build_geocodable_address)).to eq('123 Main St, Springfield, IL')
+        expect(individual.send(:formatted_raw_address)).to eq('123 Main St Springfield IL')
       end
 
       describe '#validate_address' do
