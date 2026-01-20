@@ -11,7 +11,6 @@ module Lighthouse
   module BenefitsIntake
     class SubmitCentralForm686cV2Job
       include Sidekiq::Job
-      include SentryLogging
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID_V2 = '686C-674-V2'
@@ -258,8 +257,7 @@ module Lighthouse
         claim.send_failure_email(email)
       rescue => e
         # If we fail in the above failure events, this is a critical error and silent failure.
-        v2 = true
-        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
+        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg: })
         StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job::STATSD_KEY_PREFIX}}.silent_failure")
       end
 
@@ -276,10 +274,6 @@ module Lighthouse
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
-      end
-
-      def log_cmp_response(response)
-        log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
       end
 
       def valid_claim_data(saved_claim_id, vet_info)

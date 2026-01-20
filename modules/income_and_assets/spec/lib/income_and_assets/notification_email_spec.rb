@@ -5,27 +5,34 @@ require 'income_and_assets/notification_email'
 
 RSpec.describe IncomeAndAssets::NotificationEmail do
   let(:saved_claim) { create(:income_and_assets_claim) }
+  let(:vanotify) { double(send_email: true) }
 
   describe '#deliver' do
     it 'successfully sends an email' do
       expect(IncomeAndAssets::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:income_and_assets).and_call_original
 
-      args = [
-        saved_claim.email,
-        Settings.vanotify.services['21p_0969'].email.submitted.template_id,
-        anything,
-        Settings.vanotify.services['21p_0969'].api_key,
-        { callback_klass: IncomeAndAssets::NotificationCallback.to_s,
-          callback_metadata: anything }
-      ]
-      expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
+      api_key = Settings.vanotify.services['21p_0969'].api_key
+      callback_options = { callback_klass: IncomeAndAssets::NotificationCallback.to_s, callback_metadata: be_a(Hash) }
+
+      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: saved_claim.email,
+          template_id: Settings.vanotify.services['21p_0969'].email.submitted.template_id,
+          personalisation: be_a(Hash)
+        }.compact
+      )
 
       described_class.new(23).deliver(:submitted)
     end
 
     context 'date_received fallback logic' do
       subject { described_class.new(saved_claim.id) }
+
+      before do
+        subject.instance_variable_set(:@claim, saved_claim)
+      end
 
       it 'uses lighthouse_updated_at when available' do
         lighthouse_date = Time.current

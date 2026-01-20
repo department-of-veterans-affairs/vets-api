@@ -6,7 +6,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
-  let(:care_systems_stub) { [{ station_number: '977', health_care_system_name: 'Manila VA Clinic' }] }
 
   before do
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
@@ -36,9 +35,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
     end
 
     it 'responds to GET #all_recipients' do
-      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
-        care_systems_stub
-      )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
         get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
       end
@@ -48,15 +44,34 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
     end
 
     it 'filters out teams with blocked_status == true' do
-      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
-        care_systems_stub
-      )
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_include_blocked') do
         get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
       end
       expect(response).to be_successful
       expect(response.parsed_body['data'].count).to eq(1)
       expect(response).to match_camelized_response_schema('all_triage_teams')
+    end
+
+    it 'responds to GET #all_recipients with requires_oh flipper enabled and returns correct care systems' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+        end
+      end
+
+      parsed_response_meta = response.parsed_body['meta']
+      care_systems = parsed_response_meta['careSystems']
+      expect(care_systems.length).to be(3)
+      # MyHealth::FacilitiesHelper converts non-prod station numbers:
+      # 979 -> 552, 989 -> 442, others unchanged
+      # health_care_system_name comes from API response or COMPLICATED_SYSTEMS lookup
+      expect(care_systems.map { |cs| cs['stationNumber'] }).to contain_exactly('977', '978', '552')
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
     context 'when there are cached triage teams' do
@@ -69,9 +84,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       end
 
       it 'retrieve cached triage teams rather than hitting the service' do
-        allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_unique_care_systems).and_return(
-          care_systems_stub
-        )
         expect do
           get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
           expect(response).to be_successful
@@ -95,18 +107,24 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
       end
 
-      it 'returns a list of the name and station number for each unique care system in meta' do
-        VCR.use_cassette('mobile/lighthouse_facilities/200_facilities_977_978_979') do
-          get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
-        end
+      it 'returns a list of the name and station number for each unique care system with correct healthcare names' do
+        get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
+
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         parsed_response_meta = response.parsed_body['meta']
         care_systems = parsed_response_meta['careSystems']
-        expect(care_systems.length).to be(3)
-        expect(care_systems[0]['healthCareSystemName']).to eq('Manila VA Clinic')
-        expect(care_systems[1]['healthCareSystemName']).to eq('978')
-        expect(care_systems[2]['healthCareSystemName']).to eq('Chalmers P. Wylie Veterans Outpatient Clinic')
+        expect(care_systems.length).to be(10)
+        # Complex systems get correct healthcare system names via MyHealth::FacilitiesHelper
+        # Station 612 maps to 612A4 and gets COMPLICATED_SYSTEMS name
+        care_system_map = care_systems.to_h { |cs| [cs['stationNumber'], cs['healthCareSystemName']] }
+        expect(care_system_map['612A4']).to eq('VA Northern California Healthcare (multiple facilities)')
+        expect(care_system_map['528']).to eq('VA New York State Healthcare (multiple facilities)')
+        expect(care_system_map['589']).to eq('VA Kansas and Missouri Healthcare (multiple facilities)')
+        expect(care_system_map['620']).to eq('VA Hudson Valley New York Healthcare (multiple facilities)')
+        expect(care_system_map['626']).to eq('VA Tennessee Healthcare (multiple facilities)')
+        expect(care_system_map['636']).to eq('VA Nebraska and Iowa Healthcare (multiple facilities)')
+        expect(care_system_map['657']).to eq('VA Missouri and Illinois Healthcare (multiple facilities)')
       end
     end
   end

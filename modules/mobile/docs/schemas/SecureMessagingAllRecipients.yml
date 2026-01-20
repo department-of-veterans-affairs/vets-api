@@ -29,6 +29,7 @@ properties:
             - locationName
             - suggestedNameDisplay
             - healthCareSystemName
+            - ohTriageGroup
           properties:
             triageTeamId:
               type: integer
@@ -52,6 +53,9 @@ properties:
             healthCareSystemName:
               type: string
               example: "VA Health Care System"
+            ohTriageGroup:
+              type: boolean
+              example: true
   meta:
     type: object
     required:
@@ -83,3 +87,10 @@ properties:
           required:
             - stationNumber
             - healthCareSystemName
+          properties:
+            stationNumber:
+              type: string
+              example: "979"
+            healthCareSystemName:
+              type: string
+              example: "VAMC Columbus"

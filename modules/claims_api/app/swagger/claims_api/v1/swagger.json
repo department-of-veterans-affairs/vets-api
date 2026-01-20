@@ -89,7 +89,7 @@
                         "type": {
                           "type": "string",
                           "example": "compensation",
-                          "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                          "description": "For an Intent to File for Survivor's Pension of Dependency and Indemnity Compensation(DIC), use type \"burial\" and include claimant_ssn or participant_claimant_id to identify the surviving dependent of the Veteran.",
                           "enum": [
                             "compensation",
                             "pension",
@@ -409,7 +409,7 @@
                   "errors": [
                     {
                       "status": 422,
-                      "detail": "The property /type did not match the following requirements: {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For type \\\"burial\\\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
+                      "detail": "The property /type did not match the following requirements: {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For an Intent to File for Survivor's Pension of Dependency and Indemnity Compensation(DIC), use type \\\"burial\\\" and include claimant_ssn or participant_claimant_id to identify the surviving dependent of the Veteran.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
                       "source": "/type"
                     }
                   ]
@@ -482,7 +482,7 @@
                           "type": {
                             "type": "string",
                             "example": "compensation",
-                            "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "description": "For an Intent to File for Survivor's Pension of Dependency and Indemnity Compensation(DIC), use type \"burial\" and include claimant_ssn or participant_claimant_id to identify the surviving dependent of the Veteran.",
                             "enum": [
                               "compensation",
                               "pension",
@@ -1135,7 +1135,7 @@
                           "type": {
                             "type": "string",
                             "example": "compensation",
-                            "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "description": "For an Intent to File for Survivor's Pension of Dependency and Indemnity Compensation(DIC), use type \"burial\" and include claimant_ssn or participant_claimant_id to identify the surviving dependent of the Veteran.",
                             "enum": [
                               "compensation",
                               "pension",
@@ -1299,7 +1299,7 @@
                                   "description": "Phone number.",
                                   "type": "string",
                                   "pattern": "^[0-9]{1,14}$",
-                                  "example": "555-5555"
+                                  "example": "5555555"
                                 },
                                 "phoneNumberExt": {
                                   "type": "string",
@@ -1490,7 +1490,7 @@
                                   "description": "Phone number.",
                                   "type": "string",
                                   "pattern": "^[0-9]{1,14}$",
-                                  "example": "555-5555"
+                                  "example": "5555555"
                                 },
                                 "phoneNumberExt": {
                                   "type": "string",
@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "923c54d4-f115-4bb5-8624-4a86b543cff2",
+                    "id": "8c9a9dbe-facc-4010-8d25-8679a91d1f74",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-09-09",
+                      "date_request_accepted": "2025-11-06",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2128,7 +2128,7 @@
                                     "description": "Phone number.",
                                     "type": "string",
                                     "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "example": "5555555"
                                   },
                                   "phoneNumberExt": {
                                     "type": "string",
@@ -2319,7 +2319,7 @@
                                     "description": "Phone number.",
                                     "type": "string",
                                     "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "example": "5555555"
                                   },
                                   "phoneNumberExt": {
                                     "type": "string",
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "77d193e0-6b35-42d8-900b-0831c1b3f66d",
+                    "id": "627ef87f-266a-4999-8334-5e6bdbe4d8b7",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-09-09",
+                      "date_request_accepted": "2025-11-06",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,10 +3181,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "56598f40-9f4a-4e9b-bdb6-307efff74292",
+                    "id": "075dacba-32db-42be-9676-05a69af9a547",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-09-09",
+                      "date_request_accepted": "2025-11-06",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -4099,7 +4099,7 @@
                                     "description": "Phone number.",
                                     "type": "string",
                                     "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "example": "5555555"
                                   },
                                   "phoneNumberExt": {
                                     "type": "string",
@@ -4290,7 +4290,7 @@
                                     "description": "Phone number.",
                                     "type": "string",
                                     "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "example": "5555555"
                                   },
                                   "phoneNumberExt": {
                                     "type": "string",
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9778f65c-fbec-4e96-b150-ee2645a136d4",
+                    "id": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-09-09T04:22:33.972Z",
+                      "updated_at": "2025-11-06T15:47:17.152Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "9778f65c-fbec-4e96-b150-ee2645a136d4",
+                      "token": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d8995f1f-5fa8-476b-8b3f-fbf27c3ac4f4",
+                    "id": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-09-09T04:22:34.377Z",
+                      "updated_at": "2025-11-06T15:47:17.941Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "d8995f1f-5fa8-476b-8b3f-fbf27c3ac4f4",
+                      "token": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
                       "status": "pending",
                       "flashes": []
                     }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d7a9065a-bfdd-4f29-b6c0-542f38937e75",
+                    "id": "1bfdb989-b173-4a11-8ba2-35d1fa04e110",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-09-09T04:22:35.235Z",
+                      "updated_at": "2025-11-06T15:47:19.595Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "5d9c9271-7ed3-49d7-bb26-269bb08212d1",
+                          "id": "8e59dcdf-1b70-44e5-bb07-f0cea4db226d",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -11019,7 +11019,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7c15cfd0-0709-4d27-98fa-2a4757684814",
+                    "id": "e00b3ab5-5822-4d1f-8832-011872882c73",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11052,12 +11052,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "6cbc1fc0-24b1-4dc1-b69f-f6342998fde7",
+                          "id": "c649f762-e097-4bec-8ea8-fb25aa549fe1",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-09-09T04:22:35.843Z"
+                          "uploaded_at": "2025-11-06T15:47:20.751Z"
                         }
                       ]
                     }

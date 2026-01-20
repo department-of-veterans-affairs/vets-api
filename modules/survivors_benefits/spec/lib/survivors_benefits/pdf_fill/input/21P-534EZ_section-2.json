@@ -1,0 +1,28 @@
+{
+  "claimantFullName": {
+    "first": "2A First",
+    "middle": "A",
+    "last": "2A Last"
+  },
+  "claimantRelationship": "SURVIVING_SPOUSE",
+  "claimantSocialSecurityNumber": "987654567",
+  "claimantDateOfBirth": "1900-01-01",
+  "claimantIsVeteran": true,
+  "claimantAddress": {
+    "country": "USA",
+    "street": "2F Mailing Address",
+    "street2": "A123B",
+    "city": "2F City",
+    "state": "VA",
+    "country": "US",
+    "postalCode": "123456789"
+  },
+  "claimantPhone": "1234567890",
+  "claimantInternationalPhone": "+52 123 456 7890",
+  "claimantEmail": "2H Email",
+  "claims": {
+    "DIC": true,
+    "survivorsPension": true,
+    "accruedBenefits": true
+  }
+}

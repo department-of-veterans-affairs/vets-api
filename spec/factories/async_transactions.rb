@@ -10,22 +10,25 @@ FactoryBot.define do
     transaction_status { 'RECEIVED' }
     metadata { '{ "key1": "value1", "key2": "value2" }' }
 
-    factory :address_transaction, class: 'AsyncTransaction::Vet360::AddressTransaction' do
+    factory :address_transaction, class: 'AsyncTransaction::VAProfile::AddressTransaction' do
     end
 
-    factory :email_transaction, class: 'AsyncTransaction::Vet360::EmailTransaction' do
+    factory :email_transaction, class: 'AsyncTransaction::VAProfile::EmailTransaction' do
     end
 
-    factory :telephone_transaction, class: 'AsyncTransaction::Vet360::TelephoneTransaction' do
+    factory :telephone_transaction, class: 'AsyncTransaction::VAProfile::TelephoneTransaction' do
     end
 
-    factory :permission_transaction, class: 'AsyncTransaction::Vet360::PermissionTransaction' do
+    factory :permission_transaction, class: 'AsyncTransaction::VAProfile::PermissionTransaction' do
     end
 
-    factory :initialize_person_transaction, class: 'AsyncTransaction::Vet360::InitializePersonTransaction' do
+    factory :initialize_person_transaction, class: 'AsyncTransaction::VAProfile::InitializePersonTransaction' do
       trait :init_vet360_id do
         source_id { nil }
       end
+    end
+
+    factory :person_options_transaction, class: 'AsyncTransaction::VAProfile::PersonOptionsTransaction' do
     end
 
     factory :va_profile_address_transaction, class: 'AsyncTransaction::VAProfile::AddressTransaction' do
@@ -45,6 +48,9 @@ FactoryBot.define do
       trait :init_vet360_id do
         source_id { nil }
       end
+    end
+
+    factory :va_profile_person_options_transaction, class: 'AsyncTransaction::VAProfile::PersonOptionsTransaction' do
     end
   end
 end

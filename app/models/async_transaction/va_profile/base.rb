@@ -21,16 +21,12 @@ module AsyncTransaction
       #   be it Email, Address, etc.
       #
       def self.last_requested_for_user(user)
-        transactions = where(
+        where(
           status: Base::REQUESTED,
           user_uuid: user.uuid
         ).order(
           created_at: :desc
         ).limit(1)
-
-        return to_s.gsub('VAProfile', 'Vet360').constantize.last_requested.for_user(user) if transactions.blank?
-
-        transactions
       end
 
       # Creates an initial AsyncTransaction record for ongoing tracking
@@ -77,17 +73,16 @@ module AsyncTransaction
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
-        when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
+        when AsyncTransaction::VAProfile::AddressTransaction
           service.get_address_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::EmailTransaction, AsyncTransaction::VAProfile::EmailTransaction
+        when AsyncTransaction::VAProfile::EmailTransaction
           service.get_email_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::TelephoneTransaction, AsyncTransaction::VAProfile::TelephoneTransaction
+        when AsyncTransaction::VAProfile::TelephoneTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::PermissionTransaction, AsyncTransaction::VAProfile::PermissionTransaction
-          service.get_permission_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::InitializePersonTransaction,
-             AsyncTransaction::VAProfile::InitializePersonTransaction
+        when AsyncTransaction::VAProfile::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
+        when AsyncTransaction::VAProfile::PersonOptionsTransaction
+          service.get_person_options_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
           raise
@@ -100,7 +95,7 @@ module AsyncTransaction
       # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
         Base.find_by(user_uuid:, transaction_id:) ||
-          AsyncTransaction::Vet360::Base.find_by!(user_uuid:, transaction_id:)
+          AsyncTransaction::VAProfile::Base.find_by!(user_uuid:, transaction_id:)
       end
 
       def self.update_transaction_from_api(transaction_record, api_response)
@@ -144,6 +139,7 @@ module AsyncTransaction
           Email
           Telephone
           Permission
+          PersonOptions
         ].each do |transaction_type|
           ongoing_transactions += "AsyncTransaction::VAProfile::#{transaction_type}Transaction"
                                   .constantize

@@ -6,3 +6,8 @@ properties:
   emailAddress:
     type: string
     example: "person42@example.com"
+  confirmationDate:
+    type: string
+    example: "2025-01-01T00:00:00Z"
+    format: date-time
+    description: "Confirmation date should only be provided if the email is 'confirmed' by the user"

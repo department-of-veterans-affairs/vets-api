@@ -19,7 +19,7 @@ module DependentsBenefits
       ##
       # Generates a new SavedClaim with the appropriate form_id and extracted data
       #
-      # @return [DependentsBenefits::SavedClaim] The created and validated claim
+      # @return [DependentsBenefits::PrimaryDependencyClaim] The created and validated claim
       # @raise [ActiveRecord::RecordInvalid] if the claim is invalid
       #
       def generate
@@ -48,14 +48,11 @@ module DependentsBenefits
       # Create the SavedClaim with the extracted data
       #
       # @param extracted_data [Hash] The form data specific to this claim type
-      # @return [DependentsBenefits::SavedClaim] The created and validated claim
+      # @return [DependentsBenefits::PrimaryDependencyClaim] The created and validated claim
       # @raise [ActiveRecord::RecordInvalid] if the claim is invalid
       #
       def create_claim(extracted_data)
-        claim = DependentsBenefits::SavedClaim.new(
-          form: extracted_data.to_json,
-          form_id:
-        )
+        claim = claim_class.new(form: extracted_data.to_json)
 
         claim.save!
         claim
@@ -63,25 +60,28 @@ module DependentsBenefits
 
       ##
       # Create a claim group linking the new claim to the parent claim
-      # TODO: Implement claim grouping functionality when requirements are finalized
       #
-      # @param claim [DependentsBenefits::SavedClaim] The newly created claim
+      # @param claim [DependentsBenefits::PrimaryDependencyClaim] The newly created claim
       # @return [void]
       #
       def create_claim_group_item(claim)
-        # Stubbed out - will be implemented when claim grouping requirements are defined
-        Rails.logger.info "TODO: Link claim #{claim.id} to parent #{parent_id}"
+        parent_claim_group = SavedClaimGroup.by_saved_claim_id(parent_id).first!
+        claim_group = SavedClaimGroup.new(claim_group_guid: parent_claim_group.claim_group_guid,
+                                          parent_claim_id: parent_id,
+                                          saved_claim_id: claim.id)
+        claim_group.save!
+
+        claim_group
       end
 
       ##
-      # Return the form_id for this claim type
+      # Return the claim class for this claim type
       # Must be implemented by subclasses
-      #
-      # @return [String] The form_id
+      # @return [Class] The claim class (e.g., DependentsBenefits::PrimaryDependencyClaim)
       # @raise [NotImplementedError] if not implemented by subclass
       #
-      def form_id
-        raise NotImplementedError, 'Subclasses must implement form_id'
+      def claim_class
+        raise NotImplementedError, 'Subclasses must implement claim_class'
       end
     end
   end

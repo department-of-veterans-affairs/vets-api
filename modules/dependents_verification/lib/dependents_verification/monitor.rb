@@ -20,12 +20,19 @@ module DependentsVerification
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.dependents_verification.submit_benefits_intake_claim'
 
-    attr_reader :tags
+    # Allowed context keys for logging
+    ALLOWLIST = %w[
+      callback_klass
+      notification_id
+      notification_type
+      source
+      status
+      status_reason
+      tags
+    ].freeze
 
     def initialize
-      super('dependents-verification')
-
-      @tags = ["form_id:#{form_id}"]
+      super('dependents-verification', allowlist: ALLOWLIST)
     end
 
     ##
@@ -35,8 +42,11 @@ module DependentsVerification
     # @param error [StandardError] The error that occurred during prefill
     # @return [void]
     def track_prefill_error(category, error)
-      submit_event('info', "Form21-0538 #{category} prefill failed. #{error.message}",
-                   "#{claim_stats_key}.prefill_error", { form_id:, tags: })
+      message = "Form21-0538 #{category} prefill failed. #{error.message}"
+      stats_key = "#{claim_stats_key}.prefill_error"
+      context = { error: error.message }
+
+      submit_event(:info, message, stats_key, **context)
     end
 
     ##
@@ -45,8 +55,30 @@ module DependentsVerification
     # @param error [StandardError] The error that occurred during prefill
     # @return [void]
     def track_missing_dependent_info
-      submit_event('info', 'Form21-0538 missing dependent information.',
-                   "#{claim_stats_key}.missing_dependent_info", { form_id:, tags: })
+      message = 'Form21-0538 missing dependent information.'
+      stats_key = "#{claim_stats_key}.missing_dependent_info"
+
+      submit_event(:info, message, stats_key) # no additional context
+    end
+
+    ##
+    # Tracks an error when adding VA profile email to the claim
+    # @param claim [DependentsVerification::SavedClaim] The claim being processed
+    # @param current_user [User] The current user
+    # @param error [StandardError] The error that occurred
+    # @return [void]
+    def track_add_va_profile_email_error(claim, current_user, error)
+      message = "Form21-0538 add VA profile email failed. #{error.message}"
+      stats_key = "#{claim_stats_key}.add_va_profile_email_error"
+      context = {
+        claim_id: claim.id,
+        user_account_uuid: current_user&.uuid,
+        error: error.message,
+        confirmation_number: claim.confirmation_number,
+        form_id: claim.form_id
+      }
+
+      submit_event(:error, message, stats_key, **context)
     end
 
     private

@@ -579,6 +579,116 @@ RSpec.describe Representatives::Update do
           expect(representative.long).to eq(-73.964956)
         end
       end
+
+      context 'when all retries have failed' do
+        it 'updates only email and phone' do
+          service = Representatives::Update.new
+
+          rep_double = instance_double(Veteran::Service::Representative)
+          allow(Veteran::Service::Representative).to receive(:find_by).and_return(rep_double)
+
+          # Make the validation service return nil (address validation failed)
+          validation_stub = instance_double(VAProfile::AddressValidation::V3::Service, candidate: nil)
+          allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+
+          expect(rep_double).to receive(:update) do |attrs|
+            # only email and phone_number should be present
+            expect(attrs.keys.sort).to eq(%i[email phone_number])
+            expect(attrs[:email]).to eq('new@example.com')
+            expect(attrs[:phone_number]).to eq('555-555-5555')
+            true
+          end
+
+          json = [
+            {
+              id: 'rep-1',
+              address: {
+                address_pou: 'RESIDENCE',
+                address_line1: 'Unmatched Place',
+                address_line2: nil,
+                address_line3: nil,
+                city: 'Some City',
+                state: { state_code: 'ZZ' },
+                zip_code5: '99999',
+                zip_code4: nil,
+                country_code_iso3: 'US'
+              },
+              email: 'new@example.com',
+              phone_number: '555-555-5555',
+              address_exists: true,
+              address_changed: true,
+              email_changed: true,
+              phone_number_changed: true
+            }
+          ].to_json
+
+          service.perform(json)
+        end
+      end
+    end
+
+    context 'when spreadsheet has org + PO Box and preprocessing extracts PO Box' do
+      let(:id) { '123abc' }
+      let(:address_exists) { true }
+      let(:address_changed) { true }
+      let(:email_changed) { false }
+      let(:phone_number_changed) { false }
+      let!(:representative) { create_representative }
+      let(:validation_stub) { instance_double(VAProfile::AddressValidation::V3::Service) }
+
+      let(:org_po_address) do
+        {
+          'candidate_addresses' => [
+            {
+              'address_line1' => 'PO Box 25126',
+              'address_line2' => 'DAV- VARO',
+              'city_name' => 'Denver',
+              'zip_code5' => '80225',
+              'geocode' => { 'latitude' => 39.7486, 'longitude' => -104.9963 }
+            }
+          ]
+        }
+      end
+
+      before do
+        allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
+        # First validation attempt will be for original mixed line and we simulate failure (nil)
+        allow(validation_stub).to receive(:candidate).and_return(nil, org_po_address)
+      end
+
+      it 'uses the preprocessor to extract PO Box and updates the representative' do
+        # craft json_data with org on line1 and PO Box on line2
+        rep_json = [
+          {
+            id:,
+            address: {
+              address_pou: 'RESIDENCE',
+              address_line1: 'DAV- VARO PO Box 25126',
+              address_line2: nil,
+              address_line3: nil,
+              city: 'Denver',
+              state: { state_code: 'CO' },
+              zip_code5: '80225',
+              zip_code4: nil,
+              country_code_iso3: 'US'
+            },
+            email: 'test@example.com',
+            phone_number: '999-999-9999',
+            address_exists:,
+            address_changed:,
+            email_changed:,
+            phone_number_changed:
+          }
+        ].to_json
+
+        subject.perform(rep_json)
+        representative.reload
+
+        expect(representative.address_line1).to eq('PO Box 25126')
+        expect(representative.address_line2).to match(/DAV-? VARO/i)
+        expect(representative.lat).to eq(39.7486)
+        expect(representative.long).to eq(-104.9963)
+      end
     end
   end
 end

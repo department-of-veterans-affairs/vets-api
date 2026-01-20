@@ -1,0 +1,20 @@
+{
+  "veteranMarriages": [
+    {
+      "reasonForSeparation": "DIVORCE"
+    },
+    {
+      "reasonForSeparation": "DIVORCE"
+    }
+  ],
+  "veteranHasAdditionalMarriages": false,
+  "spouseMarriages": [
+    {
+      "reasonForSeparation": "DIVORCE"
+    },
+    {
+      "reasonForSeparation": "DIVORCE"
+    }
+  ],
+  "spouseHasAdditionalMarriages": false
+}

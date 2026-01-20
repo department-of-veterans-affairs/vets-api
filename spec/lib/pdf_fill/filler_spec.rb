@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
+# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
+# than it is.
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
@@ -41,31 +43,116 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
+  # NOTE: 21P-0969 is one of the only forms that uses data types that are supported by HexaPDF currently
+  describe '#fill_form_with_hexapdf' do
+    it_behaves_like 'a form filler', {
+      form_id: IncomeAndAssets::FORM_ID,
+      factory: :income_and_assets_claim,
+      use_vets_json_schema: true,
+      input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
+      fill_options: { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
+    }
+  end
+
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
+    before do
+      # We are not testing the pdftk wrapper here, we are testing the fill_form method
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields) do |_instance, _path|
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper)
+        .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
+          FileUtils.mkdir_p(File.dirname(output))
+
+          # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+          FileUtils
+            .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
+          output
+        end
+
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_instance, _a, _b, output|
+        File.write(output, "%PDF-1.4\n% Fake Combined PDF\n")
+        output
+      end
+
+      allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
+        stamped = file_path.sub('.pdf', '_stamped.pdf')
+
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped)
+
+        stamped
+      end
+
+      allow(File).to receive(:delete) # prevent accidental file deletion in tests
+    end
+
     [
-      {
-        form_id: '686C-674',
-        factory: :dependency_claim
-      },
-      {
-        form_id: '686C-674-V2',
-        factory: :dependency_claim_v2
-      }
+      { form_id: '686C-674', factory: :dependency_claim },
+      { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
     ].each do |options|
       it_behaves_like 'a form filler', options
     end
   end
 
+  # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
+    # performance tweaks to speed up tests. Timestamping the methods in filler.rb
+    # identified these as being the bottlenecks
+    before do
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields).and_return(
+        [
+          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
+          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
+        ]
+      )
+
+      # Stub Pdftk fill_form to avoid real PDF generation
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, _template, output, *_args|
+        FileUtils.mkdir_p(File.dirname(output))
+        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
+
+        output
+      end
+
+      # Make stamp_form fast by stubbing out PDFUtilities::DatestampPdf
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |_instance, *_args|
+        # Return a unique tmp file each time to mimic real stamping
+        stamped_path = "tmp/pdfs/fake_stamped_#{SecureRandom.uuid}.pdf"
+        FileUtils.mkdir_p(File.dirname(stamped_path))
+        FileUtils
+          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped_path)
+
+        stamped_path
+      end
+
+      # Stub PDF concatenation to skip real pdftk
+      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_, a, b, output|
+        # Simulate a combined PDF
+        FileUtils.mkdir_p(File.dirname(output))
+        File.write(output, "%PDF-1.4\n% Fake combined PDF of #{File.basename(a)} + #{File.basename(b)}\n%%EOF")
+        output
+      end
+    end
+
     def overflow_file_suffix(extras_redesign, show_jumplinks)
       return '_extras.pdf' unless extras_redesign
 
       show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
     end
 
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 28-1900-V2 21-674 21-674-V2 26-1880 5655
-       22-10216 22-10215 22-10215a 22-1919 22-10275].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 26-1880 5655
+       22-10216 22-10215 22-10215a 22-1919 22-10275 22-10272].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
         form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
@@ -134,6 +221,7 @@ describe PdfFill::Filler, type: :model do
       it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
         # Mock the hash converter and its behavior
         allow(extras_generator).to receive(:text?).once.and_return(true)
+        allow(extras_generator).to receive(:use_hexapdf).and_return(false)
         allow(extras_generator).to receive(:add_text)
         allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 

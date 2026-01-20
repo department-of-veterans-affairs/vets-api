@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module BenefitsIntake
-  ##
   # Validate the required metadata which must accompany an upload:
   #
   # {
@@ -13,10 +12,8 @@ module BenefitsIntake
   #   'docType': String,
   #   'businessLine': String, # optional; enum in BUSINESS_LINE
   # }
-  #
-  # https://developer.va.gov/explore/api/benefits-intake/docs
-  #
   class Metadata
+    # collection of expected businessLine values
     BUSINESS_LINE = {
       CMP: 'Compensation requests such as those related to disability, unemployment, and pandemic claims',
       PMC: 'Pension requests including survivor’s pension',
@@ -30,6 +27,9 @@ module BenefitsIntake
       OTH: 'Other (this value if used, will be treated as CMP)'
     }.freeze
 
+    # create a valid metadata structure
+    #
+    # @return [Hash] valid metadata
     # rubocop:disable Metrics/ParameterLists
     def self.generate(first_name, last_name, file_number, zip_code, source, doc_type, business_line = nil)
       validate({
@@ -44,6 +44,7 @@ module BenefitsIntake
     end
     # rubocop:enable Metrics/ParameterLists
 
+    # conform and validate each provided argument
     def self.validate(metadata)
       validate_first_name(metadata)
         .then { |m| validate_last_name(m) }
@@ -54,6 +55,8 @@ module BenefitsIntake
         .then { |m| validate_business_line(m) }
     end
 
+    # conform and validate the first_name
+    # removes any non alphanumeric character and truncates to 50 characters
     def self.validate_first_name(metadata)
       validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
 
@@ -64,6 +67,8 @@ module BenefitsIntake
       metadata
     end
 
+    # conform and validate the last_name
+    # removes any non alphanumeric character and truncates to 50 characters
     def self.validate_last_name(metadata)
       validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
 
@@ -74,6 +79,8 @@ module BenefitsIntake
       metadata
     end
 
+    # conform and validate the file_number
+    # 8 or 9 digit sequence
     def self.validate_file_number(metadata)
       validate_presence_and_stringiness(metadata['fileNumber'], 'file number')
       unless metadata['fileNumber'].match?(/^\d{8,9}$/)
@@ -83,6 +90,9 @@ module BenefitsIntake
       metadata
     end
 
+    # conform and validate the zip_code
+    # removes non digit characters and checks length is 5 or 9 (with dash)
+    # sets to '00000' if invalid
     def self.validate_zip_code(metadata)
       validate_presence_and_stringiness(metadata['zipCode'], 'zip code')
 
@@ -95,18 +105,21 @@ module BenefitsIntake
       metadata
     end
 
+    # conform and validate the source
     def self.validate_source(metadata)
       validate_presence_and_stringiness(metadata['source'], 'source')
 
       metadata
     end
 
+    # conform and validate the doc_type
     def self.validate_doc_type(metadata)
       validate_presence_and_stringiness(metadata['docType'], 'doc type')
 
       metadata
     end
 
+    # conform and validate the business_line
     def self.validate_business_line(metadata)
       bl = metadata['businessLine']
       if bl
@@ -120,11 +133,13 @@ module BenefitsIntake
       metadata
     end
 
+    # ensure presence and the value is a String
     def self.validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is missing" unless value
       raise ArgumentError, "#{error_label} is not a string" if value.class != String
     end
 
+    # ensure the value is not an empty String
     def self.validate_nonblank(value, error_label)
       raise ArgumentError, "#{error_label} is blank" if value.blank?
     end

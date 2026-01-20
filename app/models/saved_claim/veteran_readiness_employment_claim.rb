@@ -2,19 +2,28 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
 
   FORM = '28-1900'
-  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
-  CONFIRMATION_EMAIL_TEMPLATE_VBMS = Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email
-  CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE =
-    Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email
+  VBMS_CONFIRMATION = :confirmation_vbms
+  LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
+
+  CONFIRMATION_EMAIL_TEMPLATES = {
+    VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                 .email.confirmation_vbms.template_id,
+    LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
+                                       .email.confirmation_lighthouse.template_id
+  }.freeze
+
+  ERROR_EMAIL_TEMPLATE = Settings.vanotify.services.veteran_readiness_and_employment
+                                 .email.error.template_id
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -77,12 +86,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '463' => 'VRE.VBAANC@va.gov',
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
-
-  after_initialize do
-    if form.present?
-      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
-    end
-  end
 
   def initialize(args)
     @sent_to_lighthouse = false
@@ -152,6 +155,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
+
+    Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
+      send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -169,6 +175,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     log_to_statsd('vbms') do
+      Rails.logger.info('Uploading VRE claim to VBMS', { user_uuid: user&.uuid })
       response = uploader.upload!
 
       if response[:vbms_document_series_ref_id].present?
@@ -178,7 +185,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       end
     end
 
-    send_vbms_lighthouse_confirmation_email('VBMS', :confirmation_vbms, CONFIRMATION_EMAIL_TEMPLATE_VBMS)
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
+      send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -212,8 +220,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     process_attachments!
     @sent_to_lighthouse = true
 
-    send_vbms_lighthouse_confirmation_email('Lighthouse', :confirmation_lighthouse,
-                                            CONFIRMATION_EMAIL_TEMPLATE_LIGHTHOUSE)
+    !Flipper.enabled?(:vre_use_new_vfs_notification_library, self) &&
+      send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION])
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -248,33 +256,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
-    if form_id == self.class::FORM
-      validate_form_v1
-    else
-      validate_form_v2
-    end
+    validate_form
   end
 
-  def validate_form_v1
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
-
-    schema_errors = validate_schema(schema)
-    validation_errors = validate_form(schema)
-
-    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
-      schema_v2_errors = validate_schema(schema_v2)
-      v2_errors = validate_form(schema_v2)
-      add_errors_from_form_validation(v2_errors)
-      return schema_v2_errors.empty? && v2_errors.empty?
-    end
-
-    add_errors_from_form_validation(validation_errors)
-
-    schema_errors.empty? && validation_errors.empty?
-  end
-
-  def validate_form_v2
+  def validate_form
     validate_required_fields
     validate_string_fields
     validate_boolean_fields
@@ -297,18 +282,25 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
   # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-  def send_vbms_lighthouse_confirmation_email(service, _email_type, email_template)
-    unless Flipper.enabled?(:vre_use_new_vfs_notification_library)
-      VANotify::EmailJob.perform_async(
-        email,
-        email_template,
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
+  def send_vbms_lighthouse_confirmation_email(service, email_template)
+    VANotify::EmailJob.perform_async(
+      email,
+      email_template,
+      {
+        'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
+        'date' => Time.zone.today.strftime('%B %d, %Y')
+      }
+    )
+    Rails.logger.info("VRE #{service} upload successful. #{service} confirmation email sent.")
+  end
+
+  def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
+    if CONFIRMATION_EMAIL_TEMPLATES.key?(email_type)
+      Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
+    else
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     end
-    Rails.logger.info("VRE Submit1900Job successful. #{service} confirmation email sent.")
   end
 
   def process_attachments!
@@ -331,10 +323,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @email ||= parsed_form['email']
   end
 
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
+  def flipper_id
+    email || guid
+  end
+
   def send_failure_email(email_override = nil)
     recipient_email = email_override || email
     if recipient_email.present?
@@ -442,11 +434,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def validate_email
-    value = email
-    if value.present? && value.is_a?(String) && value.length > 256
+    if email.present? && email.is_a?(String) && email.length > 256
       errors.add('/email', 'must be 256 characters or less')
     end
-    if value.present? && value.is_a?(String) && !value.match?(/.+@.+\..+/i) # pulled from profile email model
+    if email.present? && email.is_a?(String) && !email.match?(/.+@.+\..+/i) # pulled from profile email model
       errors.add('/email', 'must be a valid email address')
     end
   end

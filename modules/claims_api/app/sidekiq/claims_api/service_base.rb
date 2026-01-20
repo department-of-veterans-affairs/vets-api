@@ -23,8 +23,8 @@ module ClaimsApi
                             error: message['error_message'])
 
       classes = %w[ClaimsApi::V1:DisabilityCompensationPdfGenerator
-                   ClaimApi::V2::DisabilityCompensationDockerContainerUpload
-                   ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader].freeze
+                   ClaimApi::V1::Form526EstablishmentUpload
+                   ClaimsApi::DisabilityCompensationBenefitsDocumentsUploader].freeze
 
       claim_id = message&.dig('args', 0)
 
@@ -248,6 +248,10 @@ module ClaimsApi
 
     def fes_mapper_service(auto_claim)
       ClaimsApi::V2::DisabilityCompensationFesMapper.new(auto_claim)
+    end
+
+    def v1_fes_mapper_service(auto_claim)
+      ClaimsApi::V1::DisabilityCompensationFesMapper.new(auto_claim)
     end
 
     def veteran_file_number(auto_claim)

@@ -4,7 +4,7 @@ require 'claims_evidence_api/monitor'
 require 'claims_evidence_api/folder_identifier'
 
 # Representation of a submission to ClaimsEvidence API
-# https://fwdproxy-dev.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/upload
+# https://fwdproxy-prod.vfs.va.gov:4469/api/v1/rest/swagger-ui.html#/File/upload
 #
 # create_table "claims_evidence_api_submissions", force: :cascade do |t|
 #   t.string "form_id", null: false, comment: "form type of the submission"
@@ -35,7 +35,6 @@ class ClaimsEvidenceApi::Submission < Submission
   before_validation { self.form_id ||= saved_claim&.form_id }
 
   after_create { monitor.track_event(:create, **tracking_attributes) }
-  after_update { monitor.track_event(:update, **tracking_attributes) }
   after_destroy { monitor.track_event(:destroy, **tracking_attributes) }
 
   # @see ClaimsEvidenceApi::Monitor::Record
@@ -45,13 +44,14 @@ class ClaimsEvidenceApi::Submission < Submission
 
   # utility function to acquire the tracking attributes for _this_ record
   def tracking_attributes
-    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, document_type: }
+    { id:, file_uuid:, form_id:, saved_claim_id:, persistent_attachment_id:, doctype: }
   end
 
   # retrieve the document_type of the associated evidence [PersistentAttachment|SavedClaim]
   def document_type
     persistent_attachment&.document_type || saved_claim&.document_type
   end
+  alias doctype document_type
 
   # insert values into the reference data field
   # unnamed values will overwrite the reference_data['__'] array

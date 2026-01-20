@@ -8,6 +8,7 @@ UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
   let(:client) { @client }
+  let(:icn) { '1012740022V620959' }
 
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }
@@ -24,22 +25,18 @@ describe BBInternal::Client do
     before do
       allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
       allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+      allow(redis).to receive(:set).with(/study_map_lock:/, 1, any_args).and_return(true)
+      allow(redis).to receive(:del).with(/study_map_lock:/)
     end
   end
 
   before do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
-        client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
+        client = BBInternal::Client.new(session: { user_id: '11375034' })
         client.authenticate
         client
       end
-    end
-  end
-
-  describe 'session' do
-    it 'preserves ICN' do
-      expect(client.session.icn).to equal('1012740022V620959')
     end
   end
 
@@ -65,7 +62,7 @@ describe BBInternal::Client do
     include_context 'redis setup'
 
     before do
-      allow(redis).to receive(:set)
+      allow(redis).to receive(:set).with(study_data_key, any_args)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -109,7 +106,7 @@ describe BBInternal::Client do
 
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(uuid)
+        result = client.request_study(icn, uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
         expect(result).to have_key('studyIdUrn')
@@ -126,7 +123,7 @@ describe BBInternal::Client do
       allow(redis).to receive(:get).with(study_data_key).and_return({}.to_json)
 
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        expect { client.request_study(uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
+        expect { client.request_study(icn, uuid) }.to raise_error(Common::Exceptions::RecordNotFound)
 
         expect(Rails.logger).to have_received(:info)
           .with(message: "[MHV-Images] Study UUID #{uuid} not cached")
@@ -175,13 +172,12 @@ describe BBInternal::Client do
   end
 
   describe '#get_generate_ccd' do
-    let(:icn) { '1000000000V000000' }
     let(:last_name_with_space) { 'DOE SMITH' }
     let(:expected_escaped_last_name) { 'DOE%20SMITH' }
 
     it 'requests a CCD be generated and returns the correct structure' do
       VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
-        ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
+        ccd_list = client.get_generate_ccd(icn, 'DOE')
 
         expect(ccd_list).to be_an(Array)
         expect(ccd_list).not_to be_empty
@@ -497,22 +493,56 @@ describe BBInternal::Client do
     end
   end
 
+  describe '#with_study_map_lock' do
+    include_context 'redis setup'
+
+    let(:lock_key) { "study_map_lock:#{client.session.patient_id}" }
+
+    before do
+      allow(Rails.logger).to receive(:error)
+      allow(client).to receive(:sleep)
+    end
+
+    context 'when lock is acquired successfully' do
+      it 'yields the block and releases the lock' do
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).and_return(true)
+        expect(redis).to receive(:del).with(lock_key)
+
+        expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
+      end
+    end
+
+    context 'when lock is not acquired immediately' do
+      it 'retries and eventually acquires the lock' do
+        # Fail first time, succeed second time
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).and_return(
+          false, true
+        )
+        expect(redis).to receive(:del).with(lock_key)
+        expect(client).to receive(:sleep).with(BBInternal::Client::LOCK_RETRY_DELAY).once
+
+        expect { |b| client.send(:with_study_map_lock, &b) }.to yield_control
+      end
+    end
+
+    context 'when lock cannot be acquired' do
+      it 'logs an error and raises ServiceError' do
+        expect(redis).to receive(:set).with(lock_key, 1, nx: true, ex: BBInternal::Client::LOCK_TTL_SECONDS).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times.and_return(false)
+        expect(redis).not_to receive(:del).with(lock_key)
+        expect(client).to receive(:sleep).with(BBInternal::Client::LOCK_RETRY_DELAY).exactly(BBInternal::Client::LOCK_RETRY_COUNT).times
+
+        expect { client.send(:with_study_map_lock) { 'block content' } }
+          .to raise_error(Common::Exceptions::ServiceError)
+      end
+    end
+  end
+
   describe '#invalid?' do
     let(:session_data) { OpenStruct.new(icn:, patient_id:, expired?: session_expired) }
 
     context 'when session is expired' do
       let(:session_expired) { true }
       let(:icn) { '1000000000V000000' }
-      let(:patient_id) { '12345' }
-
-      it 'returns true' do
-        expect(client.send(:invalid?, session_data)).to be true
-      end
-    end
-
-    context 'when session has no icn' do
-      let(:session_expired) { false }
-      let(:icn) { nil }
       let(:patient_id) { '12345' }
 
       it 'returns true' do

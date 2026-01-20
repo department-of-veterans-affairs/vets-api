@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'unique_user_events'
+
 module MyHealth
   module V1
     class PrescriptionsController < RxController
@@ -29,28 +31,34 @@ module MyHealth
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
+
+        # Log unique user event for prescriptions accessed
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
+        )
+
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
 
       def show
         id = params[:id].try(:to_i)
-        resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                     get_single_rx_from_grouped_list(collection_resource.data, id)
-                   else
-                     client.get_rx_details(id)
-                   end
+        resource = get_single_rx_from_grouped_list(collection_resource.data, id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                    { meta: client.get_rx_details(id).metadata }
-                  else
-                    { meta: resource.metadata }
-                  end
+        options = { meta: client.get_rx_details(id).metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def refill
         client.post_refill_rx(params[:id])
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
         head :no_content
       end
 
@@ -77,6 +85,13 @@ module MyHealth
           Rails.logger.debug { "Error refilling prescription with ID #{id}: #{e.message}" }
           failed_ids << id
         end
+
+        # Log unique user event for prescription refill requested
+        UniqueUserEvents.log_event(
+          user: current_user,
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+        )
+
         render json: { successful_ids:, failed_ids: }
       end
 
@@ -180,7 +195,6 @@ module MyHealth
       end
 
       def resource_data_modifications(resource)
-        display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         # according to business logic filter for all medications is the only list that should contain PD meds
         resource.records = if params[:filter].blank? && display_pending_meds
@@ -189,8 +203,7 @@ module MyHealth
                              # TODO: remove this line when PF and PD are allowed on va.gov
                              resource.records = remove_pf_pd(resource.data)
                            end
-        resource.records = group_prescriptions(resource.data) if display_grouping
-        resource.records = filter_non_va_meds(resource.data)
+        resource.records = group_prescriptions(resource.data)
       end
 
       def set_filter_metadata(list, non_modified_collection)

@@ -81,6 +81,10 @@ module HCA
     def perform
       return unless Flipper.enabled?(:hca_health_facilities_update_job)
 
+      import_facilities
+    end
+
+    def import_facilities(run_sync: false)
       Rails.logger.info("[HCA] - Job started with #{StdInstitutionFacility.count} existing facilities.")
 
       ActiveRecord::Base.transaction do
@@ -89,7 +93,7 @@ module HCA
 
         import_institutions_from_csv(data)
 
-        HCA::HealthFacilitiesImportJob.perform_async
+        run_sync ? HCA::HealthFacilitiesImportJob.new.perform : HCA::HealthFacilitiesImportJob.perform_async
         Rails.logger.info("[HCA] - Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")

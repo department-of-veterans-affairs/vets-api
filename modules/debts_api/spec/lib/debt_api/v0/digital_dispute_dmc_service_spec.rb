@@ -47,8 +47,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeDmcService do
         ).and_return(true)
 
         described_class.new(user, submission).call!
-
-        expect(submission.reload).to be_submitted
       end
 
       it 'handles multiple PDFs' do
@@ -70,7 +68,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeDmcService do
         ).and_return(true)
 
         described_class.new(user, submission).call!
-        expect(submission.reload).to be_submitted
       end
     end
 

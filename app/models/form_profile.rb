@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'string_helpers'
-require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 require 'vets/model'
+require 'vets/shared_logging'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -84,7 +84,7 @@ end
 
 class FormProfile
   include Vets::Model
-  include SentryLogging
+  include Vets::SharedLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
@@ -96,11 +96,12 @@ class FormProfile
     dependents: %w[686C-674 686C-674-V2],
     dependents_verification: %w[21-0538],
     dispute_debt: ['DISPUTE-DEBT'],
-    edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
-            22-10297],
+    edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
+            22-10297 22-0803 22-10272 22-10278],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    form_mock_prefill: ['FORM-MOCK-PREFILL'],
     form_upload: %w[
       21P-4185-UPLOAD
       21-651-UPLOAD
@@ -131,9 +132,10 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
+    memorials: %w[1330M],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
-    vre_readiness: %w[28-1900 28-1900-V2]
+    vre_readiness: %w[28-1900]
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -142,6 +144,7 @@ class FormProfile
     '10-7959C' => ::FormProfiles::VHA107959c,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
+    '1330M' => ::FormProfiles::VA1330m,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
     '21-0538' => DependentsVerification::FormProfiles::VA210538,
@@ -149,20 +152,22 @@ class FormProfile
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21P-0537' => ::FormProfiles::VA21p0537,
     '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
     '21P-527EZ' => Pensions::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-601' => ::FormProfiles::VA21p601,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
+    '22-0803' => ::FormProfiles::VA0803,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-10272' => ::FormProfiles::VA10272,
     '22-10297' => ::FormProfiles::VA10297,
+    '22-10278' => ::FormProfiles::VA10278,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
-    '22-1990N' => ::FormProfiles::VA1990n,
-    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
@@ -170,15 +175,16 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '28-1900' => ::FormProfiles::VA281900,
-    '28-1900-V2' => ::FormProfiles::VA281900v2,
     '28-8832' => ::FormProfiles::VA288832,
     '40-10007' => ::FormProfiles::VA4010007,
     '5655' => ::FormProfiles::VA5655,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '686C-674' => ::FormProfiles::VA686c674,
+    '21-2680' => ::FormProfiles::VA212680,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'FORM-MOCK-PREFILL' => ::FormProfiles::FormMockPrefill,
     'MDOT' => ::FormProfiles::MDOT,
     '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
@@ -222,6 +228,11 @@ class FormProfile
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
+
+    if form_id == '686C-674-V2' && Flipper.enabled?(:dependents_module_enabled, user)
+      return DependentsBenefits::FormProfiles::VA686c674.new(form_id:, user:)
+    end
+
     FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
   end
 
@@ -240,7 +251,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    form_id = form_id.downcase if %w[1010EZ 1330M].include?(form_id) # handle case sensitivity for specific forms
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -293,7 +304,7 @@ class FormProfile
 
     military_information_data
   rescue => e
-    log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
+    log_exception_to_rails(e)
 
     {}
   end

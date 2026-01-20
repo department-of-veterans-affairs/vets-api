@@ -3,12 +3,10 @@
 require 'central_mail/service'
 require 'common/exceptions'
 require 'vba_documents/upload_error'
-require 'vba_documents/webhooks_registrations'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
-    include Webhooks
 
     attribute :s3_deleted, default: false
 
@@ -39,10 +37,13 @@ module VBADocuments
     # Central Mail is working to improve upload endpoint performance, so this should be revisited at a later date
     UPLOAD_TIMEOUT_RETRY_LIMIT = 3
 
+    MAX_UPSTREAM_ERROR_AGE_DAYS = 14
+
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES).not_final_success }
     scope :not_final_success, lambda {
       where("metadata -> '#{FINAL_SUCCESS_STATUS_KEY}' IS NULL AND created_at >= '#{VBMS_STATUS_DEPLOYMENT_DATE}'")
     }
+    scope :upstream_processing_error, -> { where(status: 'error', code: 'DOC202') }
 
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
@@ -136,12 +137,12 @@ module VBADocuments
     end
 
     def in_final_status?
-      # TODO: Improve true/false classification for submissions in "error" status
-      #       Non-recoverable errors should return true and recoverable errors false
       return true if status == 'vbms' ||
                      status == 'expired' ||
                      (status == 'success' && metadata[FINAL_SUCCESS_STATUS_KEY].present?) ||
-                     (status == 'error' && code.start_with?('DOC1')) # non-upstream errors only
+                     (status == 'error' && code.start_with?('DOC1')) || # non-upstream errors only
+                     (status == 'error' && code == 'DOC202' &&
+                       (Time.zone.now - created_at) / 1.day > MAX_UPSTREAM_ERROR_AGE_DAYS)
 
       false
     end
@@ -268,6 +269,12 @@ module VBADocuments
       # before persisting, check if the upload is moving from an error state to
       # to a non-error state and clear out the old error fields
       if status_changed?(from: 'error')
+        # log any emms upstream processing errors that get resolved
+        if code == 'DOC202'
+          Rails.logger.info('VBADocuments::UploadSubmission upstream processing error resolved',
+                            { guid:, code:, detail: })
+        end
+
         self.code = nil
         self.detail = nil
       end
@@ -288,22 +295,8 @@ module VBADocuments
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
 
-      # get the message to record the status change web hook
-      if Settings.vba_documents.v2_enabled
-        msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
-        params = { consumer_id:, consumer_name:,
-                   event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: }
-        Webhooks::Utilities.record_notifications(**params)
-      end
-
       # set new current status
       @current_status = to
-    end
-
-    def format_msg(event, from_status, to_status, guid)
-      api = Webhooks::Utilities.event_to_api_name[event]
-      { api_name: api, guid:, event:, status_from: from_status, status_to: to_status,
-        epoch_time: Time.now.to_i }
     end
   end
 end

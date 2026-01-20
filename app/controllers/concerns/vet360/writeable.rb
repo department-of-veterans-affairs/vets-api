@@ -47,7 +47,10 @@ module Vet360
         params[:validation_key] ||= params[:override_validation_key]
 
         # Ensures the address_pou is valid
-        params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
+        if params[:address_pou] == 'RESIDENCE/CHOICE'
+          params[:address_pou] = 'RESIDENCE'
+          Rails.logger.info('RESIDENCE/CHOICE POU conversion detected')
+        end
       else
         model = "VAProfile::Models::#{type.capitalize}"
       end
@@ -76,6 +79,7 @@ module Vet360
     end
 
     def write_valid_record!(http_verb, type, record)
+      Rails.logger.info('Contact Info', http_verb, type)
       # This will be removed after the upgrade. Permission was removed in the upgraded service.
       # Permissions are not used in ContactInformationV1 either.
       service.send("#{http_verb}_#{type.downcase}", record)

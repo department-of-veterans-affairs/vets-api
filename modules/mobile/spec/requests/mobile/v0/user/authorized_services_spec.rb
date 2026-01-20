@@ -8,20 +8,29 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
 
   let!(:user) { sis_user(vha_facility_ids: [402, 555]) }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
-  end
+  let(:meta) { response.parsed_body['meta'] }
 
   describe 'GET /mobile/v0/user/authorized-services' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
+    end
+
     it 'includes a hash with all available services and a boolean value of if the user has access' do
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
       expect(attributes['authorizedServices']).to eq(
-        { 'appeals' => true,
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
           'appointments' => true,
           'claims' => true,
           'decisionLetters' => true,
@@ -29,6 +38,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'directDepositBenefitsUpdate' => true,
           'disabilityRating' => true,
           'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
           'lettersAndDocuments' => true,
           'militaryServiceHistory' => true,
           'paymentHistory' => true,
@@ -38,6 +48,224 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'secureMessaging' => false,
           'userProfileUpdate' => true,
           'secureMessagingOracleHealthEnabled' => false,
+          'medicationsOracleHealthEnabled' => false }
+      )
+    end
+
+    it 'includes properly set meta flags for user not at pretransitioned or actively migrating oh facility' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
+      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '321, 654'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+      expect(meta).to eq({ 'isUserAtPretransitionedOhFacility' => false,
+                           'isUserFacilityReadyForInfoAlert' => false,
+                           'isUserFacilityMigratingToOh' => false })
+    end
+
+    it 'includes properly set meta flags for user at pretransitioned oh facility but not ready for info alert' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
+      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '555'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta).to eq({
+                           'isUserAtPretransitionedOhFacility' => true,
+                           'isUserFacilityReadyForInfoAlert' => false,
+                           'isUserFacilityMigratingToOh' => true
+                         })
+    end
+
+    it 'includes properly set meta flags for user at pretransitioned oh facility and ready for info alert' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612, 555'
+      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '321, 654'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta).to eq({
+                           'isUserAtPretransitionedOhFacility' => true,
+                           'isUserFacilityReadyForInfoAlert' => true,
+                           'isUserFacilityMigratingToOh' => false
+                         })
+    end
+
+    it 'includes properly set meta flags for actively migrating facility' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612'
+      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '555'
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta).to eq({
+                           'isUserAtPretransitionedOhFacility' => false,
+                           'isUserFacilityReadyForInfoAlert' => false,
+                           'isUserFacilityMigratingToOh' => true
+                         })
+    end
+  end
+
+  describe 'when OH flippers are enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(true)
+    end
+
+    it 'includes a hash with only some OH services enabled if app version matches' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '2.99.99' }),
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => true }
+      )
+    end
+
+    it 'includes a hash with all OH services enabled if app version is high enough' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '3.0.0' }),
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => true,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => true,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => true }
+      )
+    end
+
+    it 'includes a hash with all OH services disabled if Big Red Button(TM) is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '3.0.0' }),
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => false }
+      )
+    end
+
+    it 'includes a hash with all OH services disabled if app version is not high enough' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers({ 'App-Version' => '2.0.0' }),
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
+          'medicationsOracleHealthEnabled' => false }
+      )
+    end
+
+    it 'includes a hash with all OH services disabled if app version not in headers' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']).to eq(
+        { 'allergiesOracleHealthEnabled' => false,
+          'appeals' => true,
+          'appointments' => true,
+          'claims' => true,
+          'decisionLetters' => true,
+          'directDepositBenefits' => true,
+          'directDepositBenefitsUpdate' => true,
+          'disabilityRating' => true,
+          'genderIdentity' => true,
+          'labsAndTestsEnabled' => false,
+          'lettersAndDocuments' => true,
+          'militaryServiceHistory' => true,
+          'paymentHistory' => true,
+          'preferredName' => true,
+          'prescriptions' => false,
+          'scheduleAppointments' => true,
+          'secureMessaging' => false,
+          'userProfileUpdate' => true,
+          'secureMessagingOracleHealthEnabled' => true,
           'medicationsOracleHealthEnabled' => false }
       )
     end

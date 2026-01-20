@@ -5,10 +5,17 @@ on: # `on` parses to `true` in ruby
   pull_request:
     paths:
       # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#patterns-to-match-file-paths
+      - lib/lighthouse/benefits_intake/**/*.rb
+      - lib/logging/**/*.rb
+      - lib/pdf_utilities/exception_handling.rb
+      - lib/pdf_utilities/pdf_stamper.rb
+      - lib/veteran_facing_services/**/*.rb
       - modules/burials/**/*.rb
       - modules/claims_evidence_api/**/*.rb
-      - modules/pensions/**/*.rb
+      - modules/dependents_benefits/**/*.rb
       - modules/income_and_assets/**/*.rb
+      - modules/medical_expense_reports/**/*.rb
+      - modules/pensions/**/*.rb
       
 permissions:
   contents: read
@@ -26,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 

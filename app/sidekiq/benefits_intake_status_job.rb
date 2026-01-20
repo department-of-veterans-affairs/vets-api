@@ -24,18 +24,50 @@ class BenefitsIntakeStatusJob
   end
 
   def perform
+    StatsD.increment("#{STATS_KEY}.job.started")
     Rails.logger.info('BenefitsIntakeStatusJob started')
-    pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
-                                                            .includes(:form_submission).to_a
 
-    form_ids = BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS.keys.map(&:to_s)
-    pending_form_submission_attempts.reject! { |pfsa| form_ids.include?(pfsa.form_submission.form_type) }
-
-    total_handled, result = batch_process(pending_form_submission_attempts)
-    Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
+    begin
+      process_pending_submissions
+    rescue => e
+      handle_job_failure(e)
+      raise
+    end
   end
 
   private
+
+  def process_pending_submissions
+    pending_form_submission_attempts = fetch_pending_attempts
+
+    total_handled, result = batch_process(pending_form_submission_attempts)
+
+    record_job_result(result, total_handled)
+  end
+
+  def fetch_pending_attempts
+    pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
+                                            .includes(:form_submission).to_a
+
+    form_ids = BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS.keys.map(&:to_s)
+    pending_attempts.reject { |pfsa| form_ids.include?(pfsa.form_submission.form_type) }
+  end
+
+  def record_job_result(result, total_handled)
+    if result
+      StatsD.increment("#{STATS_KEY}.job.completed")
+      Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:)
+    else
+      StatsD.increment("#{STATS_KEY}.job.failed")
+    end
+  end
+
+  def handle_job_failure(exception)
+    StatsD.increment("#{STATS_KEY}.job.failed")
+    Rails.logger.error('BenefitsIntakeStatusJob failed with exception',
+                       class: self.class.name,
+                       message: exception.message)
+  end
 
   def batch_process(pending_form_submission_attempts)
     total_handled = 0

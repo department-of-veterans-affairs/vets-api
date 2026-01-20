@@ -28,6 +28,7 @@ module Mobile
 
       def email_params
         params.permit(
+          :confirmation_date,
           :email_address,
           :effective_start_date,
           :id,

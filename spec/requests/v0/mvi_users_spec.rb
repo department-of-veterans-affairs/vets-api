@@ -74,6 +74,29 @@ RSpec.describe 'V0::MVIUsers', type: :request do
           end
         end
       end
+
+      context 'when MPI return an error' do
+        let(:user) { build(:user_with_no_ids) }
+        let(:expected_error_message) { 'MPI add_person_proxy error' }
+        let(:expected_log_message) { '[V0][MPIUsersController] submit error' }
+
+        before do
+          sign_in_as(user)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'returns a 422 with the expected errors' do
+          VCR.use_cassette('mpi/add_person/add_person_internal_error_request') do
+            post "/v0/mvi_users/#{valid_form_id}"
+            json_response = JSON.parse(response.body)
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(json_response['errors'].first['error_message']).to eq(expected_error_message)
+            expect(Rails.logger).to have_received(:error).with(expected_log_message,
+                                                               error_message: expected_error_message).once
+          end
+        end
+      end
     end
   end
 end

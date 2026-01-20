@@ -69,7 +69,7 @@ module AppealsApi
 
     def pdf_structure(pdf_version)
       Object.const_get(
-        "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{pdf_version.upcase}::Structure"
+        "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{pdf_version.capitalize}::Structure"
       ).new(self)
     end
 

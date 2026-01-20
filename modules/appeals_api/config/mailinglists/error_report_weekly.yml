@@ -1,14 +1,13 @@
 common:
-   - michael.hobson@adhocteam.us
-   - kristen.brown@adhocteam.us
-   - mmcdonald@technatomy.com
-   - pstevens@technatomy.com
-   - alattimore@technatomy.com
+   - eshvimmer@deloitte.com
+   - slamsal@deloitte.com
+   - mughumman@deloitte.com
+   - mbavanaka@deloitte.com
+   - mihobson@deloitte.com
+   - alan.lattimore@pingwind.com
 development:
 staging:
 sandbox:
 production:
   - matthew.self2@va.gov
   - janet.coutinho@va.gov
-  - drew.fisher@adhocteam.us
-  - heather.roy@zerodelta365.com

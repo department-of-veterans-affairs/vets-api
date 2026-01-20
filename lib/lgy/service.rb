@@ -2,11 +2,12 @@
 
 require 'lgy/configuration'
 require 'common/client/base'
+require 'vets/shared_logging'
 
 module LGY
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include SentryLogging
+    include Vets::SharedLogging
     configuration LGY::Configuration
     STATSD_KEY_PREFIX = 'api.lgy'
     SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
@@ -98,6 +99,7 @@ module LGY
         { message: e.message, status: e.status, body: e.body },
         { team: 'vfs-ebenefits' }
       )
+
       raise e
     end
 

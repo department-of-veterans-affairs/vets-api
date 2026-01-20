@@ -12,6 +12,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
+  before do
+    allow_any_instance_of(BenefitsIntakeService::Utilities::ConvertToPdf)
+      .to receive(:converted_filename)
+      .and_return('tmp/converted_file.pdf')
+  end
+
   context 'veteran with a foreign address' do
     describe 'submission and document metadata' do
       before do
@@ -112,6 +118,93 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       subject
         .new(submission.id, get_upload_location_on_instantiation: false)
         .get_form526_pdf
+    end
+
+    describe '#get_form526_pdf claimDate handling' do
+      let(:created_at_time) { Time.zone.local(2023, 7, 15, 14, 30, 0) }
+      let(:submission_with_claim_date) { create(:form526_submission, :with_everything, user_account:) }
+      let(:submission_without_claim_date) { create(:form526_submission, user_account:) }
+      let!(:captured_form_json) { {} }
+
+      before do
+        # Mock the response so we don't make actual API calls
+        klass = LighthouseGeneratePdfProvider
+        allow_any_instance_of(klass).to receive(:generate_526_pdf) do |_instance, form_json, _transaction_id|
+          # Capture the form_json that's being sent (mutate the existing hash rather than reassigning)
+          captured_form_json.replace(JSON.parse(form_json))
+          Faraday::Response.new(status: 200, body: '526pdf')
+        end
+      end
+
+      context 'when submission has no claimDate in the form' do
+        it 'sets claimDate to the formatted submission created_at date' do
+          # Set the created_at time for the submission
+          submission_without_claim_date.update!(created_at: created_at_time)
+
+          processor = subject.new(submission_without_claim_date.id, get_upload_location_on_instantiation: false)
+          processor.get_form526_pdf
+
+          # Verify claimDate was set to the formatted created_at date
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+        end
+      end
+
+      context 'when submission has nil claimDate in the form' do
+        it 'sets claimDate to the formatted submission created_at date' do
+          # Modify the form to have nil claimDate
+          form_data = JSON.parse(submission_with_claim_date.form_json)
+          form_data['form526']['claimDate'] = nil
+          submission_with_claim_date.update!(
+            form_json: form_data.to_json,
+            created_at: created_at_time
+          )
+
+          processor = subject.new(submission_with_claim_date.id, get_upload_location_on_instantiation: false)
+          processor.get_form526_pdf
+
+          # Verify claimDate was set to the formatted created_at date
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+        end
+      end
+
+      context 'when submission has empty string claimDate in the form' do
+        it 'sets claimDate to the formatted submission created_at date' do
+          # Modify the form to have empty claimDate
+          form_data = JSON.parse(submission_with_claim_date.form_json)
+          form_data['form526']['claimDate'] = ''
+          submission_with_claim_date.update!(
+            form_json: form_data.to_json,
+            created_at: created_at_time
+          )
+
+          processor = subject.new(submission_with_claim_date.id, get_upload_location_on_instantiation: false)
+          processor.get_form526_pdf
+
+          # Verify claimDate was set to the formatted created_at date
+          expect(captured_form_json['form526']['claimDate']).to eq('2023-07-15')
+        end
+      end
+
+      it 'formats the submission created_at date as YYYY-MM-DD' do
+        # Test different created_at dates to ensure proper formatting
+        test_dates = [
+          Time.zone.local(2023, 1, 1),    # New Year's Day
+          Time.zone.local(2023, 12, 31),  # New Year's Eve
+          Time.zone.local(2023, 2, 28),   # End of February (non-leap year)
+          Time.zone.local(2024, 2, 29)    # Leap year February 29th
+        ]
+
+        expected_formats = %w[2023-01-01 2023-12-31 2023-02-28 2024-02-29]
+
+        test_dates.each_with_index do |test_date, index|
+          submission_without_claim_date.update!(created_at: test_date)
+
+          processor = subject.new(submission_without_claim_date.id, get_upload_location_on_instantiation: false)
+          processor.get_form526_pdf
+
+          expect(captured_form_json['form526']['claimDate']).to eq(expected_formats[index])
+        end
+      end
     end
   end
 

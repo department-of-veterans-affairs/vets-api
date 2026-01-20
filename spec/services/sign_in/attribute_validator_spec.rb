@@ -33,7 +33,8 @@ RSpec.describe SignIn::AttributeValidator do
           auto_uplevel:,
           mhv_icn:,
           mhv_credential_uuid:,
-          edipi:
+          edipi:,
+          digest:
         }
       end
       let(:logingov_uuid) { nil }
@@ -71,6 +72,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:identifier_type) { MPI::Constants::IDME_UUID }
       let(:mpi_service) { instance_double(MPI::Service) }
       let(:sign_in_logger) { instance_double(SignIn::Logger) }
+      let(:digest) { 'some-digest-value' }
 
       before do
         allow(MPI::Service).to receive(:new).and_return(mpi_service)
@@ -165,6 +167,46 @@ RSpec.describe SignIn::AttributeValidator do
         end
       end
 
+      shared_examples 'mpi call to update correlation record' do
+        context 'and user has an existing UserVerification' do
+          let!(:user_verification) do
+            case service_name
+            when SignIn::Constants::Auth::IDME
+              create(:idme_user_verification, idme_uuid:, credential_attributes_digest:)
+            when SignIn::Constants::Auth::LOGINGOV
+              create(:logingov_user_verification, logingov_uuid:, credential_attributes_digest:)
+            when SignIn::Constants::Auth::MHV
+              create(:mhv_user_verification, mhv_uuid:, backing_idme_uuid: idme_uuid, credential_attributes_digest:)
+            when SignIn::Constants::Auth::DSLOGON
+              create(:dslogon_user_verification, dslogon_uuid: edipi, backing_idme_uuid: idme_uuid,
+                                                 credential_attributes_digest:)
+            end
+          end
+
+          let(:expected_log_payload) do
+            { user_verification_id: user_verification.id }
+          end
+
+          let(:credential_attributes_digest) { 'some-digest-value' }
+
+          context 'and credential attributes have changed' do
+            let(:credential_attributes_digest) { 'some-other-digest-value' }
+
+            it 'makes an mpi call to update correlation record' do
+              subject
+              expect(mpi_service).to have_received(:update_profile)
+            end
+          end
+
+          context 'and credential attributes have not changed' do
+            it 'does not make an mpi call to update correlation record' do
+              subject
+              expect(mpi_service).not_to have_received(:update_profile)
+            end
+          end
+        end
+      end
+
       shared_examples 'mpi versus credential mismatch' do
         let(:mpi_birth_date) { birth_date }
         let(:mpi_first_name) { first_name }
@@ -201,7 +243,9 @@ RSpec.describe SignIn::AttributeValidator do
 
         shared_examples 'attribute mismatch behavior' do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) { "Attribute mismatch, #{attribute} in credential does not match MPI attribute" }
+          let(:expected_error_message) do
+            "Attribute mismatch, #{attribute} in credential does not match MPI attribute"
+          end
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_params) do
             {
@@ -226,10 +270,7 @@ RSpec.describe SignIn::AttributeValidator do
                                                                   type: service_name })
           end
 
-          it 'makes an mpi call to update correlation record' do
-            subject
-            expect(mpi_service).to have_received(:update_profile).with(expected_params)
-          end
+          it_behaves_like 'mpi call to update correlation record'
         end
 
         context 'and attribute mismatch is first_name' do
@@ -295,15 +336,34 @@ RSpec.describe SignIn::AttributeValidator do
                 birth_date:,
                 given_names: [first_name],
                 family_name: last_name,
-                sec_id:)
+                sec_id:,
+                full_mvi_ids:)
         end
 
         shared_examples 'a missing sec_id' do
           let(:expected_sec_id_log) { 'mpi record missing sec_id' }
 
-          it 'logs that the sec_id is missing' do
-            subject
-            expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log), icn:)
+          context 'and sec_id identifier is completely missing' do
+            let(:expected_pce_status) { false }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
+          end
+
+          context 'and sec_id identifier is missing due to PCE status' do
+            let(:expected_pce_status) { true }
+            let(:full_mvi_ids) { ['some-sec-id^PN^200PROV^USDVA^PCE'] }
+
+            it 'logs that the sec_id is missing' do
+              subject
+              expect(sign_in_logger).to have_received(:info).with(a_string_including(expected_sec_id_log),
+                                                                  icn:,
+                                                                  pce_status: expected_pce_status)
+            end
           end
         end
 
@@ -315,6 +375,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:participant_ids) { ['some-participant-id'] }
         let(:birls_ids) { ['some-birls-id'] }
         let(:sec_id) { 'some-sec-id' }
+        let(:full_mvi_ids) { ['some-full-mvi-ids'] }
 
         context 'and mpi record exists for user' do
           it_behaves_like 'mpi attribute validations'
@@ -342,11 +403,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:update_status) { :ok }
 
             it_behaves_like 'mpi versus credential mismatch'
-
-            it 'makes an mpi call to update correlation record' do
-              subject
-              expect(mpi_service).to have_received(:update_profile)
-            end
+            it_behaves_like 'mpi call to update correlation record'
 
             context 'and mpi record does not have a sec_id' do
               let(:sec_id) { nil }

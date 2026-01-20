@@ -19,7 +19,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -74,7 +74,6 @@ jobs:
         run: git fetch origin master
 
       - name: Check ENV diff for aws_ssm_custom lookups
-        shell: bash
         run: |
 
           diff_output=$(git diff origin/master config/settings.yml)
@@ -87,6 +86,11 @@ jobs:
           new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
             grep '^+' | grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
+          if [[ -z "$new_env_keys" ]]; then
+            echo "No ENV variables found in changes."
+            exit 0
+          fi
+
           keys=()
           for line in $new_env_keys; do
             # Remove any quotes that might be present
@@ -98,6 +102,8 @@ jobs:
           for key in "${keys[@]}"; do
             echo "  - $key"
           done
+
+          echo "PARAM_STORE_VARS=true" >> $GITHUB_ENV
 
           invalid_parameters=()
 
@@ -175,7 +181,7 @@ jobs:
         run: exit 1
 
       - name: Respond to PR if no invalid parameters are found
-        if: env.INVALID_PARAMETERS == ''
+        if: env.INVALID_PARAMETERS == '' && env.PARAM_STORE_VARS == 'true'
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |

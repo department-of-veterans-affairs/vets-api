@@ -1,0 +1,8 @@
+{
+  "bankAccount": {
+    "bankName": "11A Financial Institution",
+    "accountType": "CHECKING",
+    "routingNumber": "123123123",
+    "accountNumber": "2342342342"
+  }
+}

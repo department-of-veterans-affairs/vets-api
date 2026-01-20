@@ -64,7 +64,15 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::ATTORNEYS).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
-      allow(entity_counts).to receive(:count_report).and_return('Count report generated successfully')
+      allow(entity_counts).to receive_messages(
+        count_report: 'Count report generated successfully',
+        current_api_counts: {
+          agents: 1,
+          attorneys: 1,
+          representatives: 0,
+          veteran_service_organizations: 0
+        }
+      )
 
       # Mock API responses
       allow(client).to receive(:get_accredited_entities)
@@ -274,7 +282,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     before do
       # Initialize instance variables that the method expects
       job.instance_variable_set(:@agent_ids, [])
-      job.instance_variable_set(:@agent_json_for_address_validation, [])
+      job.instance_variable_set(:@agent_ids_for_address_validation, [])
+      job.instance_variable_set(:@processing_error_types, [])
 
       # Only stub external dependencies, not methods on the object under test
       allow(client).to receive(:get_accredited_entities)
@@ -366,7 +375,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:update_agents)
 
       # The real implementation should add to the validation array
-      expect(job.instance_variable_get(:@agent_json_for_address_validation)).not_to be_empty
+      expect(job.instance_variable_get(:@agent_ids_for_address_validation)).not_to be_empty
     end
   end
 
@@ -417,7 +426,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     before do
       # Initialize instance variables
       job.instance_variable_set(:@attorney_ids, [])
-      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+      job.instance_variable_set(:@attorney_ids_for_address_validation, [])
+      job.instance_variable_set(:@processing_error_types, [])
 
       # Mock external dependencies only
       allow(client).to receive(:get_accredited_entities)
@@ -503,7 +513,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       job.send(:update_attorneys)
 
-      expect(job.instance_variable_get(:@attorney_json_for_address_validation))
+      expect(job.instance_variable_get(:@attorney_ids_for_address_validation))
         .not_to be_empty
     end
   end
@@ -616,17 +626,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   describe '#validate_agent_addresses' do
     before do
       # Set up the instance variable that the method will use
-      agent_data = [
-        { id: 1, address: { address_line1: '123 Main St' } },
-        { id: 2, address: { address_line1: '456 Oak Ave' } }
-      ]
-      job.instance_variable_set(:@agent_json_for_address_validation, agent_data)
+      agent_ids = [1, 2]
+      job.instance_variable_set(:@agent_ids_for_address_validation, agent_ids)
     end
 
     it 'queues address validation jobs for agents' do
       # Verify that the job is scheduled with the correct parameters
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@agent_json_for_address_validation).to_json)
+        .with(0.minutes, [1, 2])
 
       # Call the method
       job.send(:validate_agent_addresses)
@@ -641,7 +648,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'does nothing when there are no agent addresses to validate' do
-      job.instance_variable_set(:@agent_json_for_address_validation, [])
+      job.instance_variable_set(:@agent_ids_for_address_validation, [])
 
       # Should not create a batch
       expect(Sidekiq::Batch).not_to receive(:new)
@@ -653,17 +660,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   describe '#validate_attorney_addresses' do
     before do
       # Set up the instance variable that the method will use
-      attorney_data = [
-        { id: 3, address: { address_line1: '789 Pine St', city: 'Anytown' } },
-        { id: 4, address: { address_line1: '321 Elm St', city: 'Somewhere' } }
-      ]
-      job.instance_variable_set(:@attorney_json_for_address_validation, attorney_data)
+      attorney_ids = [3, 4]
+      job.instance_variable_set(:@attorney_ids_for_address_validation, attorney_ids)
     end
 
     it 'queues address validation jobs for attorneys' do
       # Verify that the job is scheduled with the correct parameters
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@attorney_json_for_address_validation).to_json)
+        .with(0.minutes, [3, 4])
 
       # Call the method
       job.send(:validate_attorney_addresses)
@@ -678,7 +682,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'does nothing when there are no attorney addresses to validate' do
-      job.instance_variable_set(:@attorney_json_for_address_validation, [])
+      job.instance_variable_set(:@attorney_ids_for_address_validation, [])
 
       # Should not create a batch
       expect(Sidekiq::Batch).not_to receive(:new)
@@ -688,7 +692,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   end
 
   describe '#validate_addresses' do
-    let(:records) { [{ id: 1 }, { id: 2 }, { id: 3 }] }
+    let(:record_ids) { [1, 2, 3] }
     let(:description) { 'Test description' }
 
     before do
@@ -700,18 +704,18 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
 
     it 'sets batch description' do
-      job.send(:validate_addresses, records, description)
+      job.send(:validate_addresses, record_ids, description)
       expect(batch).to have_received(:description=).with(description)
     end
 
-    it 'queues jobs with individual slices' do
-      job.send(:validate_addresses, records, description)
+    it 'queues jobs with individual IDs' do
+      job.send(:validate_addresses, record_ids, description)
       expect(RepresentationManagement::AccreditedIndividualsUpdate)
         .to have_received(:perform_in)
-        .with(0.minutes, records.to_json)
+        .with(0.minutes, record_ids)
     end
 
-    context 'when records are empty' do
+    context 'when record IDs are empty' do
       it 'does not create a batch' do
         job.send(:validate_addresses, [], description)
         expect(batch).not_to have_received(:description=)
@@ -729,7 +733,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
         expect(Rails.logger).to receive(:error)
           .with("#{error_text_heading} #{error_text_message}")
 
-        job.send(:validate_addresses, records, description)
+        job.send(:validate_addresses, record_ids, description)
       end
     end
   end
@@ -761,9 +765,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expected_keys = %i[
         individual_type registration_number poa_code ogc_id
-        first_name middle_initial last_name address_line1
-        address_line2 address_line3 zip_code country_code_iso3
-        country_name phone email raw_address
+        first_name middle_initial last_name
+        phone email raw_address
       ]
 
       expect(result.keys).to include(*expected_keys)
@@ -810,9 +813,8 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expected_keys = %i[
         individual_type registration_number poa_code ogc_id
-        first_name middle_initial last_name address_line1
-        address_line2 address_line3 city state_code
-        zip_code phone email raw_address
+        first_name middle_initial last_name
+        phone email raw_address
       ]
 
       expect(result.keys).to include(*expected_keys)
@@ -823,8 +825,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       expect(result[:first_name]).to eq('Bob')
       expect(result[:middle_initial]).to eq('C')
       expect(result[:last_name]).to eq('Johnson')
-      expect(result[:city]).to eq('Anytown')
-      expect(result[:state_code]).to eq('CA')
       expect(result[:raw_address]).to be_a(Hash)
       expect(result[:raw_address]['address_line1']).to eq('321 Pine St')
     end
@@ -890,13 +890,22 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.instance_variable_set(:@force_update_types, [])
       job.instance_variable_set(:@vso_ids, [])
       job.instance_variable_set(:@representative_ids, [])
-      job.instance_variable_set(:@representative_json_for_address_validation, [])
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
       job.instance_variable_set(:@accreditation_ids, [])
       job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@expected_counts, {})
+      job.instance_variable_set(:@count_mismatch_types, [])
+      job.instance_variable_set(:@processing_error_types, [])
 
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::REPRESENTATIVES).and_return(true)
       allow(entity_counts).to receive(:valid_count?).with(RepresentationManagement::VSOS).and_return(true)
+      allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                        agents: 0,
+                                                                        attorneys: 0,
+                                                                        representatives: 1,
+                                                                        veteran_service_organizations: 1
+                                                                      })
 
       # Mock VSO API responses
       allow(client).to receive(:get_accredited_entities)
@@ -1021,6 +1030,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       job.instance_variable_set(:@vso_ids, [])
+      job.instance_variable_set(:@processing_error_types, [])
 
       allow(client).to receive(:get_accredited_entities)
         .with(type: RepresentationManagement::VSOS, page: 1)
@@ -1141,8 +1151,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       job.instance_variable_set(:@representative_ids, [])
-      job.instance_variable_set(:@representative_json_for_address_validation, [])
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
       job.instance_variable_set(:@rep_to_vso_associations, {})
+      job.instance_variable_set(:@processing_error_types, [])
 
       allow(client).to receive(:get_accredited_entities)
         .with(type: RepresentationManagement::REPRESENTATIVES, page: 1)
@@ -1190,7 +1201,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       job.send(:update_reps)
 
-      expect(job.instance_variable_get(:@representative_json_for_address_validation)).not_to be_empty
+      expect(job.instance_variable_get(:@representative_ids_for_address_validation)).not_to be_empty
     end
 
     context 'when an error occurs' do
@@ -1201,6 +1212,11 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(/Error updating representatives: API error/)
         job.send(:update_reps)
+      end
+
+      it 'adds representatives to processing_error_types' do
+        job.send(:update_reps)
+        expect(job.instance_variable_get(:@processing_error_types)).to include(RepresentationManagement::REPRESENTATIVES)
       end
     end
   end
@@ -1449,11 +1465,6 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       expect(result[:first_name]).to eq('judy')
       expect(result[:middle_initial]).to eq('M')
       expect(result[:last_name]).to eq('aalaam')
-      expect(result[:address_line1]).to eq('123 Work St')
-      expect(result[:address_line2]).to eq('Apt 2')
-      expect(result[:city]).to eq('Work City')
-      expect(result[:state_code]).to eq('CA')
-      expect(result[:zip_code]).to eq('12345')
       expect(result[:phone]).to eq('555-1234')
       expect(result[:email]).to eq('judy@example.com')
     end
@@ -1461,16 +1472,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
   describe '#validate_rep_addresses' do
     before do
-      rep_data = [
-        { id: 1, address: { address_line1: '123 Rep St' } },
-        { id: 2, address: { address_line1: '456 Rep Ave' } }
-      ]
-      job.instance_variable_set(:@representative_json_for_address_validation, rep_data)
+      rep_ids = [1, 2]
+      job.instance_variable_set(:@representative_ids_for_address_validation, rep_ids)
     end
 
     it 'queues address validation jobs for representatives' do
       expect(RepresentationManagement::AccreditedIndividualsUpdate).to receive(:perform_in)
-        .with(0.minutes, job.instance_variable_get(:@representative_json_for_address_validation).to_json)
+        .with(0.minutes, [1, 2])
 
       job.send(:validate_rep_addresses)
     end
@@ -1490,6 +1498,9 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       allow(job).to receive(:log_to_slack_channel)
       job.instance_variable_set(:@report, String.new)
       job.instance_variable_set(:@start_time, 2.minutes.ago)
+      job.instance_variable_set(:@processing_error_types, [])
+      job.instance_variable_set(:@count_mismatch_types, [])
+      job.instance_variable_set(:@expected_counts, {})
     end
 
     it 'calculates duration and appends it to the report' do
@@ -1608,7 +1619,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@agent_ids, [])
-        job.instance_variable_set(:@agent_json_for_address_validation, [])
+        job.instance_variable_set(:@agent_ids_for_address_validation, [])
 
         allow(client).to receive(:get_accredited_entities)
           .with(type: RepresentationManagement::AGENTS, page: 1)
@@ -1690,7 +1701,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@attorney_ids, [])
-        job.instance_variable_set(:@attorney_json_for_address_validation, [])
+        job.instance_variable_set(:@attorney_ids_for_address_validation, [])
 
         allow(client).to receive(:get_accredited_entities)
           .with(type: RepresentationManagement::ATTORNEYS, page: 1)
@@ -1780,7 +1791,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       before do
         job.instance_variable_set(:@representative_ids, [])
-        job.instance_variable_set(:@representative_json_for_address_validation, [])
+        job.instance_variable_set(:@representative_ids_for_address_validation, [])
         job.instance_variable_set(:@rep_to_vso_associations, {})
 
         allow(client).to receive(:get_accredited_entities)
@@ -1875,265 +1886,431 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     end
   end
 
-  describe '#individual_representative_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:rep) do
+  # These methods were removed as part of address validation refactoring
+  # Address validation now uses IDs instead of JSON objects
+
+  describe 'deletion safeguards for processing errors' do
+    let!(:current_agent) { create(:accredited_individual, :claims_agent) }
+    let!(:old_agent) { create(:accredited_individual, :claims_agent) }
+    let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
+
+    before do
+      allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report',
+        current_api_counts: {
+          agents: 2,
+          attorneys: 0,
+          representatives: 0,
+          veteran_service_organizations: 0
+        }
+      )
+
+      # Mock empty responses for other types
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::ATTORNEYS, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::VSOS, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::REPRESENTATIVES, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+      # Mock deletion relations
+      org_relation = double('ActiveRecord::Relation')
+      allow(AccreditedOrganization).to receive(:where).and_return(org_relation)
+      allow(org_relation).to receive(:not).and_return(org_relation)
+      allow(org_relation).to receive(:find_each)
+
+      acc_relation = double('ActiveRecord::Relation')
+      allow(Accreditation).to receive(:where).and_return(acc_relation)
+      allow(acc_relation).to receive(:not).and_return(acc_relation)
+      allow(acc_relation).to receive(:find_each)
+    end
+
+    context 'when API error occurs during agent processing' do
+      before do
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_raise(StandardError.new('API connection failed'))
+      end
+
+      it 'does not delete any agents' do
+        expect { job.perform }.not_to change(AccreditedIndividual.where(individual_type: 'claims_agent'), :count)
+
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(old_agent.id)
+      end
+
+      it 'logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Error updating agents/)
+        job.perform
+      end
+    end
+
+    context 'when API error occurs during VSO processing' do
+      let!(:current_vso) { create(:accredited_organization) }
+      let!(:old_vso) { create(:accredited_organization) }
+
+      before do
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::VSOS, page: 1)
+          .and_raise(StandardError.new('VSO API timeout'))
+
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 0,
+                                                                          attorneys: 0,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 2
+                                                                        })
+      end
+
+      it 'does not delete any VSOs' do
+        expect { job.perform }.not_to change(AccreditedOrganization, :count)
+
+        expect(AccreditedOrganization).to exist(current_vso.id)
+        expect(AccreditedOrganization).to exist(old_vso.id)
+      end
+
+      it 'logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Error updating VSOs: VSO API timeout/)
+        job.perform
+      end
+    end
+  end
+
+  describe 'deletion safeguards for count mismatches' do
+    let!(:current_attorney) { create(:accredited_individual, :attorney) }
+    let!(:old_attorney1) { create(:accredited_individual, :attorney) }
+    let!(:old_attorney2) { create(:accredited_individual, :attorney) }
+    let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
+    let(:attorney1_data) do
       {
-        'id' => 'ea154c64-bf20-47e0-9866-86ae988776a8',
-        'veteransServiceOrganization' => {
-          'name' => 'Less Law Firm',
-          'poa' => 'JQ8',
-          'number' => 210,
-          'id' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
-        },
-        'lastName' => 'aalaam',
-        'firstName' => 'judy',
-        'middleName' => 'M',
-        'workAddress1' => '123 Work St',
-        'workAddress2' => 'Apt 2',
-        'workAddress3' => '',
-        'workCity' => 'Work City',
+        'id' => 'atty-1',
+        'number' => 'A001',
+        'poa' => 'ABC',
+        'firstName' => 'Jane',
+        'lastName' => 'Doe',
+        'workAddress1' => '123 St',
+        'workCity' => 'City',
         'workState' => 'CA',
         'workZip' => '12345'
       }
     end
 
-    it 'creates a JSON object for representative address validation' do
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '123 Work St',
-                               address_line2: 'Apt 2',
-                               address_line3: '',
-                               city: 'Work City',
-                               state: { state_code: 'CA' },
-                               zip_code5: '12345'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      rep['workAddress2'] = nil
-      rep['workAddress3'] = nil
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      rep['workAddress2'] = ''
-      rep['workAddress3'] = ''
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_representative_json, different_record, rep)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address][:state]).to eq({ state_code: 'CA' })
-    end
-
-    it 'handles missing address fields gracefully' do
-      rep['workCity'] = nil
-      rep['workState'] = nil
-      rep['workZip'] = nil
-
-      result = job.send(:individual_representative_json, record, rep)
-
-      expect(result[:address]).to include(
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
+    before do
+      allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report'
       )
+
+      # Mock empty responses for other types
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::AGENTS, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::VSOS, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::REPRESENTATIVES, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+      # Mock deletion relations
+      org_relation = double('ActiveRecord::Relation')
+      allow(AccreditedOrganization).to receive(:where).and_return(org_relation)
+      allow(org_relation).to receive(:not).and_return(org_relation)
+      allow(org_relation).to receive(:find_each)
+
+      acc_relation = double('ActiveRecord::Relation')
+      allow(Accreditation).to receive(:where).and_return(acc_relation)
+      allow(acc_relation).to receive(:not).and_return(acc_relation)
+      allow(acc_relation).to receive(:find_each)
+    end
+
+    context 'when processed count decreases by more than 20%' do
+      before do
+        # API says there should be 10 attorneys
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 0,
+                                                                          attorneys: 10,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 0
+                                                                        })
+
+        # But we only process 1 (90% decrease - way beyond 20% threshold)
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [attorney1_data] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        attorney_record = instance_double(AccreditedIndividual, id: current_attorney.id, raw_address: nil)
+        allow(AccreditedIndividual).to receive(:find_or_create_by)
+          .with(hash_including(individual_type: 'attorney'))
+          .and_return(attorney_record)
+        allow(attorney_record).to receive(:update)
+      end
+
+      it 'does not delete any attorneys' do
+        expect { job.perform }.not_to change(AccreditedIndividual.where(individual_type: 'attorney'), :count)
+
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+        expect(AccreditedIndividual).to exist(old_attorney1.id)
+        expect(AccreditedIndividual).to exist(old_attorney2.id)
+      end
+
+      it 'logs a count mismatch error' do
+        expect(Rails.logger).to receive(:error).with(/Count mismatch for attorneys: expected 10, processed 1/)
+        job.perform
+      end
+    end
+
+    context 'when processed count is within 20% tolerance' do
+      before do
+        # API says there should be 10 attorneys
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 0,
+                                                                          attorneys: 10,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 0
+                                                                        })
+
+        # We process 9 (10% decrease, within 20% tolerance)
+        items = (1..9).map do |i|
+          {
+            'id' => "atty-new-#{i}",
+            'number' => "A#{i}",
+            'poa' => 'ABC',
+            'firstName' => 'Test',
+            'lastName' => "Attorney#{i}",
+            'workAddress1' => '123 St',
+            'workCity' => 'City',
+            'workState' => 'CA',
+            'workZip' => '12345'
+          }
+        end
+
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => items }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        # Mock the new records
+        items.each_with_index do |item, idx|
+          record = instance_double(AccreditedIndividual, id: 5000 + idx, raw_address: nil)
+          allow(AccreditedIndividual).to receive(:find_or_create_by)
+            .with(hash_including(individual_type: 'attorney', ogc_id: item['id']))
+            .and_return(record)
+          allow(record).to receive(:update)
+        end
+      end
+
+      it 'does not trigger count mismatch protection' do
+        # Since 9 out of 10 is a 10% decrease (within 20% tolerance),
+        # count mismatch protection should NOT be triggered
+        job.perform
+        expect(job.instance_variable_get(:@count_mismatch_types)).not_to include(:attorneys)
+      end
+
+      it 'does not log a count mismatch error' do
+        expect(Rails.logger).not_to receive(:error).with(/Count mismatch/)
+        job.perform
+      end
     end
   end
 
-  describe '#individual_agent_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:agent) do
-      {
-        'id' => '123',
-        'number' => 'A123',
-        'poa' => 'ABC',
-        'firstName' => 'John',
-        'middleName' => 'A',
-        'lastName' => 'Doe',
-        'workAddress1' => '123 Main St',
-        'workAddress2' => 'Apt 456',
-        'workAddress3' => '',
-        'workZip' => '12345',
-        'workCountry' => 'USA',
-        'workPhoneNumber' => '555-1234',
-        'workEmailAddress' => 'john@example.com'
-      }
-    end
+  describe 'deletion safeguards with force_update_types' do
+    let!(:current_agent) { create(:accredited_individual, :claims_agent) }
+    let!(:old_agent) { create(:accredited_individual, :claims_agent) }
+    let!(:current_attorney) { create(:accredited_individual, :attorney) }
+    let!(:old_attorney) { create(:accredited_individual, :attorney) }
+    let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
 
-    it 'creates a JSON object for agent address validation' do
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '123 Main St',
-                               address_line2: 'Apt 456',
-                               address_line3: '',
-                               city: nil,
-                               state: { state_code: nil },
-                               zip_code5: '12345'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      agent['workAddress2'] = nil
-      agent['workAddress3'] = nil
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      agent['workAddress2'] = ''
-      agent['workAddress3'] = ''
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_agent_json, different_record, agent)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address][:state]).to eq({ state_code: nil })
-    end
-
-    it 'handles missing address fields gracefully' do
-      agent['workAddress1'] = nil
-      agent['workZip'] = nil
-
-      result = job.send(:individual_agent_json, record, agent)
-
-      expect(result[:address]).to include(
-        address_line1: nil,
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
+    before do
+      allow(RepresentationManagement::AccreditationApiEntityCount).to receive(:new).and_return(entity_counts)
+      allow(entity_counts).to receive_messages(
+        save_api_counts: nil,
+        valid_count?: true,
+        count_report: 'Count report'
       )
+
+      # Mock empty responses
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::VSOS, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+      allow(client).to receive(:get_accredited_entities)
+        .with(type: RepresentationManagement::REPRESENTATIVES, page: 1)
+        .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+      # Mock deletion relations
+      org_relation = double('ActiveRecord::Relation')
+      allow(AccreditedOrganization).to receive(:where).and_return(org_relation)
+      allow(org_relation).to receive(:not).and_return(org_relation)
+      allow(org_relation).to receive(:find_each)
+
+      acc_relation = double('ActiveRecord::Relation')
+      allow(Accreditation).to receive(:where).and_return(acc_relation)
+      allow(acc_relation).to receive(:not).and_return(acc_relation)
+      allow(acc_relation).to receive(:find_each)
+    end
+
+    context 'when forcing agents with processing error on agents' do
+      before do
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 2,
+                                                                          attorneys: 0,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 0
+                                                                        })
+
+        # Agent processing fails
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_raise(StandardError.new('Agent API failed'))
+      end
+
+      it 'does not delete any agents despite force update' do
+        expect do
+          job.perform([RepresentationManagement::AGENTS])
+        end.not_to change(AccreditedIndividual.where(individual_type: 'claims_agent'), :count)
+
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(old_agent.id)
+      end
+
+      it 'does not affect attorneys' do
+        expect do
+          job.perform([RepresentationManagement::AGENTS])
+        end.not_to change(AccreditedIndividual.where(individual_type: 'attorney'), :count)
+      end
+    end
+
+    context 'when forcing multiple types with error on one type only' do
+      let(:attorney_data) do
+        {
+          'id' => 'atty-current',
+          'number' => 'A001',
+          'poa' => 'ABC',
+          'firstName' => 'Jane',
+          'lastName' => 'Doe',
+          'workAddress1' => '123 St',
+          'workCity' => 'City',
+          'workState' => 'CA',
+          'workZip' => '12345'
+        }
+      end
+
+      before do
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 2,
+                                                                          attorneys: 1,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 0
+                                                                        })
+
+        # Agent processing fails
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_raise(StandardError.new('Agent API failed'))
+
+        # Attorney processing succeeds
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [attorney_data] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::ATTORNEYS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        allow(AccreditedIndividual).to receive(:find_or_create_by)
+          .with(hash_including(individual_type: 'attorney'))
+          .and_return(current_attorney)
+        allow(current_attorney).to receive(:update)
+        allow(current_attorney).to receive(:raw_address)
+      end
+
+      it 'protects agents from deletion' do
+        expect do
+          job.perform([RepresentationManagement::AGENTS, RepresentationManagement::ATTORNEYS])
+        end.not_to change(AccreditedIndividual.where(individual_type: 'claims_agent'), :count)
+
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(old_agent.id)
+      end
+
+      it 'allows normal deletion for attorneys' do
+        expect do
+          job.perform([RepresentationManagement::AGENTS, RepresentationManagement::ATTORNEYS])
+        end.to change(AccreditedIndividual.where(individual_type: 'attorney'), :count).by(-1)
+
+        expect(AccreditedIndividual).to exist(current_attorney.id)
+        expect(AccreditedIndividual).not_to exist(old_attorney.id)
+      end
+    end
+
+    context 'when forcing agents with count mismatch on agents' do
+      let(:agent_data) do
+        {
+          'id' => 'agent-current',
+          'number' => 'A001',
+          'poa' => 'ABC',
+          'firstName' => 'John',
+          'lastName' => 'Doe',
+          'workAddress1' => '123 St',
+          'workZip' => '12345',
+          'workCountry' => 'USA'
+        }
+      end
+
+      before do
+        # API says 10 agents exist
+        allow(entity_counts).to receive(:current_api_counts).and_return({
+                                                                          agents: 10,
+                                                                          attorneys: 0,
+                                                                          representatives: 0,
+                                                                          veteran_service_organizations: 0
+                                                                        })
+
+        # But we only process 1 (simulating disconnection)
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 1)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [agent_data] }))
+        allow(client).to receive(:get_accredited_entities)
+          .with(type: RepresentationManagement::AGENTS, page: 2)
+          .and_return(instance_double(Faraday::Response, body: { 'items' => [] }))
+
+        allow(AccreditedIndividual).to receive(:find_or_create_by)
+          .with(hash_including(individual_type: 'claims_agent'))
+          .and_return(current_agent)
+        allow(current_agent).to receive(:update)
+        allow(current_agent).to receive(:raw_address)
+      end
+
+      it 'does not delete any agents despite force update' do
+        expect do
+          job.perform([RepresentationManagement::AGENTS])
+        end.not_to change(AccreditedIndividual.where(individual_type: 'claims_agent'), :count)
+
+        expect(AccreditedIndividual).to exist(current_agent.id)
+        expect(AccreditedIndividual).to exist(old_agent.id)
+      end
+
+      it 'logs a count mismatch error' do
+        expect(Rails.logger).to receive(:error).with(/Count mismatch for agents: expected 10, processed 1/)
+        job.perform([RepresentationManagement::AGENTS])
+      end
     end
   end
 
-  describe '#individual_attorney_json' do
-    let(:record) { instance_double(AccreditedIndividual, id: 42) }
-    let(:attorney) do
-      {
-        'id' => '789',
-        'number' => 'B789',
-        'poa' => 'GHI',
-        'firstName' => 'Bob',
-        'middleName' => 'C',
-        'lastName' => 'Johnson',
-        'workAddress1' => '321 Pine St',
-        'workAddress2' => 'Suite 789',
-        'workAddress3' => '',
-        'workCity' => 'Anytown',
-        'workState' => 'CA',
-        'workZip' => '98765',
-        'workNumber' => '555-9876',
-        'emailAddress' => 'bob@example.com'
-      }
-    end
-
-    it 'creates a JSON object for attorney address validation' do
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result).to eq({
-                             id: 42,
-                             address: {
-                               address_pou: 'RESIDENCE/CHOICE',
-                               address_line1: '321 Pine St',
-                               address_line2: 'Suite 789',
-                               address_line3: '',
-                               city: 'Anytown',
-                               state: { state_code: 'CA' },
-                               zip_code5: '98765'
-                             }
-                           })
-    end
-
-    it 'handles nil address fields gracefully' do
-      attorney['workAddress2'] = nil
-      attorney['workAddress3'] = nil
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:address_line2]).to be_nil
-      expect(result[:address][:address_line3]).to be_nil
-    end
-
-    it 'handles empty string address fields' do
-      attorney['workAddress2'] = ''
-      attorney['workAddress3'] = ''
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:address_line2]).to eq('')
-      expect(result[:address][:address_line3]).to eq('')
-    end
-
-    it 'uses the record ID in the output' do
-      different_record = instance_double(AccreditedIndividual, id: 999)
-
-      result = job.send(:individual_attorney_json, different_record, attorney)
-
-      expect(result[:id]).to eq(999)
-    end
-
-    it 'structures state as a nested hash with state_code' do
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address][:state]).to eq({ state_code: 'CA' })
-    end
-
-    it 'handles missing address fields gracefully' do
-      attorney['workCity'] = nil
-      attorney['workState'] = nil
-      attorney['workZip'] = nil
-
-      result = job.send(:individual_attorney_json, record, attorney)
-
-      expect(result[:address]).to include(
-        city: nil,
-        state: { state_code: nil },
-        zip_code5: nil
-      )
-    end
-  end
+  # Method removed - see comment on individual_representative_json
 end

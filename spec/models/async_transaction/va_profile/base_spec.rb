@@ -82,7 +82,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.start' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :legacy_icn) }
     let(:address) { build(:va_profile_address, :mobile) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
@@ -97,6 +97,10 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.fetch_transaction' do
+    let(:user) { build(:user, :loa3) }
+    let(:service) { VAProfile::ContactInformation::V2::Service.new(user) }
+    let(:transaction_id) { '95ea4993-ade7-4ce9-a584-9a4f8a34e0e0' }
+
     it 'raises an error if passed unrecognized transaction' do
       # Instead of simply calling Struct.new('Surprise'), we need to check that it hasn't been defined already
       # in order to prevent the following warning:
@@ -106,6 +110,24 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       expect do
         AsyncTransaction::VAProfile::Base.fetch_transaction(surprise_struct, nil)
       end.to raise_exception(RuntimeError)
+    end
+
+    context 'with PersonOptionsTransaction' do
+      let(:person_options_transaction) do
+        build(:person_options_transaction, transaction_id:)
+      end
+
+      before do
+        allow(service).to receive(:get_person_options_transaction_status)
+          .with(transaction_id)
+          .and_return(double(transaction: double(status: 'COMPLETED_SUCCESS')))
+      end
+
+      it 'calls get_person_options_transaction_status' do
+        expect(service).to receive(:get_person_options_transaction_status).with(transaction_id)
+
+        AsyncTransaction::VAProfile::Base.fetch_transaction(person_options_transaction, service)
+      end
     end
   end
 
@@ -148,6 +170,29 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
         expect(transactions.size).to eq(1)
         expect(transactions.first.transaction_id).to eq(transaction.transaction_id)
       end
+    end
+  end
+
+  describe '.last_ongoing_transactions_for_user' do
+    let(:user) { create(:user, :loa3) }
+
+    before do
+      # Create multiple transaction types in requested status
+      create(:address_transaction, user_uuid: user.uuid, status: 'requested')
+      create(:email_transaction, user_uuid: user.uuid, status: 'requested')
+      create(:telephone_transaction, user_uuid: user.uuid, status: 'requested')
+      create(:person_options_transaction, user_uuid: user.uuid, status: 'requested')
+
+      # Create completed ones that shouldn't be returned
+      create(:person_options_transaction, user_uuid: user.uuid, status: 'completed')
+      create(:address_transaction, user_uuid: user.uuid, status: 'completed')
+    end
+
+    it 'returns only requested transactions' do
+      transactions = AsyncTransaction::VAProfile::Base.last_ongoing_transactions_for_user(user)
+
+      expect(transactions.length).to eq(4)
+      expect(transactions.all? { |t| t.status == 'requested' }).to be true
     end
   end
 end

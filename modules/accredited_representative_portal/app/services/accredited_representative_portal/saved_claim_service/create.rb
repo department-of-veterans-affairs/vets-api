@@ -6,6 +6,7 @@ module AccreditedRepresentativePortal
       Error = Class.new(RuntimeError)
       UnknownError = Class.new(Error)
       WrongAttachmentsError = Class.new(Error)
+      TooManyRequestsError = Class.new(Error)
 
       class RecordInvalidError < Error
         attr_reader :record
@@ -18,6 +19,7 @@ module AccreditedRepresentativePortal
       end
 
       class << self
+        # rubocop:disable Metrics/MethodLength
         def perform(
           type:, metadata:, attachment_guids:,
           claimant_representative:
@@ -35,6 +37,16 @@ module AccreditedRepresentativePortal
                 end
               end
 
+              # Persist the saved_claim so it has an id. The claimant
+              # representative record references saved_claim_id as NOT NULL,
+              # so creating the representative before saving the claim would
+              # leave saved_claim_id nil and raise PG::NotNullViolation.
+              begin
+                saved_claim.save!
+              rescue ActiveRecord::RecordInvalid => e
+                raise RecordInvalidError, e.record
+              end
+
               create!(saved_claim, claimant_representative)
 
               SubmitBenefitsIntakeClaimJob.new.perform(
@@ -46,11 +58,20 @@ module AccreditedRepresentativePortal
         # Expose a discrete set of known exceptions. Expose any remaining with a
         # catch-all unknown exception.
         #
-        rescue RecordInvalidError, WrongAttachmentsError, BenefitsIntakeService::Service::InvalidDocumentError
+        rescue RecordInvalidError, WrongAttachmentsError, ::BenefitsIntakeService::Service::InvalidDocumentError
           raise
+        rescue Common::Client::Errors::ClientError => e
+          if e.message&.match(/429/)
+            # We are reraising this particular error so vets-website can display a specific message to
+            # the user while we continue to have rate-limiting issues
+            raise TooManyRequestsError
+          else
+            raise UnknownError
+          end
         rescue
           raise UnknownError
         end
+        # rubocop:enable Metrics/MethodLength
 
         private
 

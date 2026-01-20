@@ -3,7 +3,9 @@
 require 'zero_silent_failures/monitor'
 
 module BenefitsIntake
+  # Handler for BenefitsIntake::SubmissionStatusJob
   module SubmissionHandler
+    # generic handler for SavedClaim types
     class SavedClaim
       # constructor
       # @param saved_claim_id [Integer] the database id of the claim
@@ -15,8 +17,9 @@ module BenefitsIntake
         }
       end
 
-      # Define in subclasses to return a list of pending FormSubmissionAttempts
-      # or Lighthouse::SubmissionAttempts.
+      # Define in subclasses to return a list of pending attempts
+      # @see FormSubmissionAttempts
+      # @see Lighthouse::SubmissionAttempts
       #
       # @return [Array] an array of pending records
       def self.pending_attempts
@@ -27,7 +30,7 @@ module BenefitsIntake
       #
       # @param result [String] the resulting state of a submission
       # @param call_location [CallLocation] where the result is being determined
-      # @param **additional_context [Mixed] additional information to be logged
+      # @param additional_context [Mixed] additional information to be logged
       def handle(result, call_location: nil, **additional_context)
         @call_location = call_location
         @additional_context = context.merge(additional_context)
@@ -49,7 +52,6 @@ module BenefitsIntake
       # @param submission [Hash] The submission data, expected to contain an 'attributes' hash with relevant keys.
       # @param submission_attempt [Object] The submission attempt record to be updated. Must respond to
       #   `lighthouse_updated_at=`, `error_message=`, `fail!`, and `vbms!`.
-      #
       def update_attempt_record(status, submission, submission_attempt)
         submission_attempt.lighthouse_updated_at = submission.dig('attributes', 'updated_at')
 

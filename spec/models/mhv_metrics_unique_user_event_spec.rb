@@ -120,7 +120,6 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       allow(Rails.logger).to receive(:debug)
       allow(described_class).to receive(:key_cached?)
       allow(described_class).to receive(:mark_key_cached)
-      allow(described_class).to receive(:create!)
     end
 
     context 'with invalid parameters' do
@@ -147,7 +146,6 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
         result = described_class.record_event(user_id:, event_name:)
 
         expect(result).to be(false)
-        expect(described_class).not_to have_received(:create!)
         expect(Rails.logger).to have_received(:debug)
           .with('UUM: Event found in cache', { user_id:, event_name: })
       end
@@ -159,15 +157,28 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       end
 
       context 'and record is successfully created' do
+        let(:insert_result) { double('InsertResult', rows: [[user_id, event_name]]) }
+
         before do
-          allow(described_class).to receive(:create!).with(user_id:, event_name:).and_return(true)
+          allow(described_class).to receive(:insert)
+            .with(
+              { user_id:, event_name: },
+              unique_by: %i[user_id event_name],
+              returning: %i[user_id event_name]
+            )
+            .and_return(insert_result)
         end
 
         it 'returns true and logs success' do
           result = described_class.record_event(user_id:, event_name:)
 
           expect(result).to be(true)
-          expect(described_class).to have_received(:create!).with(user_id:, event_name:)
+          expect(described_class).to have_received(:insert)
+            .with(
+              { user_id:, event_name: },
+              unique_by: %i[user_id event_name],
+              returning: %i[user_id event_name]
+            )
           expect(described_class).to have_received(:mark_key_cached).with(cache_key)
           expect(Rails.logger).to have_received(:debug)
             .with('UUM: New unique event recorded', { user_id:, event_name: })
@@ -175,8 +186,16 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
       end
 
       context 'and record already exists in database' do
+        let(:insert_result) { double('InsertResult', rows: []) }
+
         before do
-          allow(described_class).to receive(:create!).and_raise(ActiveRecord::RecordNotUnique)
+          allow(described_class).to receive(:insert)
+            .with(
+              { user_id:, event_name: },
+              unique_by: %i[user_id event_name],
+              returning: %i[user_id event_name]
+            )
+            .and_return(insert_result)
           allow(Rails.logger).to receive(:debug)
         end
 
@@ -188,6 +207,56 @@ RSpec.describe MHVMetricsUniqueUserEvent, type: :model do
           expect(Rails.logger).to have_received(:debug)
             .with('UUM: Duplicate event found in database', { user_id:, event_name: })
         end
+      end
+    end
+
+    context 'integration test with real database' do
+      let(:test_user_id) { SecureRandom.uuid }
+      let(:test_event_name) { 'integration_test_event' }
+
+      before do
+        # Ensure cache is clear for this specific key
+        Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+      end
+
+      after do
+        # Cleanup test data and cache
+        described_class.where(user_id: test_user_id).delete_all
+        Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+      end
+
+      it 'returns correct values for new vs duplicate inserts' do
+        # First insert with cache clear - should return true (new event)
+        Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+        result1 = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
+        expect(result1).to be(true), 'First insert should return true for new event'
+
+        # Second insert with cache clear - should return false (duplicate)
+        Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+        result2 = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
+        expect(result2).to be(false), 'Duplicate insert should return false'
+
+        # Subsequent inserts should also return false
+        3.times do
+          Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+          result = described_class.record_event(user_id: test_user_id, event_name: test_event_name)
+          expect(result).to be(false), 'Multiple duplicate inserts should all return false'
+        end
+
+        # Verify only one record exists (INSERT ON CONFLICT prevented duplicates)
+        records = described_class.where(user_id: test_user_id, event_name: test_event_name)
+        expect(records.count).to eq(1)
+        expect(records.first.created_at).to be_present
+      end
+
+      it 'does not raise exceptions on duplicate inserts' do
+        # Verify no ActiveRecord::RecordNotUnique exceptions are raised
+        expect do
+          5.times do
+            Rails.cache.delete("#{test_user_id}:#{test_event_name}", namespace: 'unique_user_metrics')
+            described_class.record_event(user_id: test_user_id, event_name: test_event_name)
+          end
+        end.not_to raise_error
       end
     end
   end

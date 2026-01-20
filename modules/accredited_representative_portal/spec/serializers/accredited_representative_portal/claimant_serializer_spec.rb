@@ -37,14 +37,23 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantSerializer, type: :serial
     )
   end
 
+  before do
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+  end
+
   around do |example|
     VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
       example.run
     end
-  end
-
-  before do
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
   end
 
   describe '#city' do

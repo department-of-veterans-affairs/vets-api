@@ -4,13 +4,20 @@ require 'date'
 require 'concurrent'
 require 'chatbot/report_to_cxi'
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/constants'
+require 'vets/shared_logging'
 
 module V0
   module Chatbot
     class ClaimStatusController < SignIn::ServiceAccountApplicationController
       include IgnoreNotFound
+      include Vets::SharedLogging
+      include ::Chatbot::RequiresEdipi
+
       service_tag 'chatbot'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
+
+      before_action :ensure_edipi_present
 
       def index
         render json: {
@@ -30,29 +37,41 @@ module V0
 
       def icn
         @icn ||= @service_account_access_token.user_attributes['icn']
+        if @icn.blank?
+          render json: { error: 'Unauthorized: ICN not found' }, status: :unauthorized
+          return
+        end
+
+        @icn
       end
 
       def poll_claims_from_lighthouse
-        raw_claim_list = lighthouse_service.get_claims['data']
         cxi_reporting_service = ::Chatbot::ReportToCxi.new
-        conversation_id = params[:conversation_id]
-        if conversation_id.blank?
-          Rails.logger.error(
-            'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' \
-            'conversation_id is missing in parameters'
-          )
-          raise ActionController::ParameterMissing, 'conversation_id'
-        end
+        conversation_id = conversation_id_or_error
+        claims = []
 
         begin
+          raw_claim_list = lighthouse_service.get_claims['data']
           claims = order_claims_lighthouse(raw_claim_list)
-          report_or_error(cxi_reporting_service, conversation_id)
-          claims
+        rescue Common::Exceptions::ResourceNotFound => e
+          log_no_claims_found(e)
+          claims = []
         rescue Faraday::ClientError => e
-          report_or_error(cxi_reporting_service, conversation_id)
-          service_exception_handler(error)
+          service_exception_handler(e)
           raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'
+        ensure
+          report_or_error(cxi_reporting_service, conversation_id) if conversation_id.present?
         end
+
+        claims
+      end
+
+      def conversation_id_or_error
+        conversation_id = params[:conversation_id]
+        return conversation_id if conversation_id.present?
+
+        Rails.logger.error(conversation_id_missing_message)
+        raise ActionController::ParameterMissing, 'conversation_id'
       end
 
       def get_claim_from_lighthouse(id)
@@ -83,7 +102,7 @@ module V0
         tracked_items = claim.dig('data', 'attributes', 'trackedItems')
         return unless tracked_items
 
-        tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+        tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
         claim
       end
 
@@ -98,26 +117,52 @@ module V0
       end
 
       def order_claims_lighthouse(claims)
-        claims
+        Array(claims)
           .sort_by do |claim|
-          Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
-                        '%Y-%m-%d').to_time.to_i
+            Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
+                          '%Y-%m-%d').to_time.to_i
         end
           .reverse
       end
 
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the claim(s).'
-        log_exception_to_sentry(exception, 'context' => context)
+        log_exception_to_rails(exception, 'error', context)
         render nothing: true, status: :service_unavailable
       end
 
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
-        log_exception_to_sentry(exception, 'context' => context)
+        log_exception_to_rails(exception, 'error', context)
+      end
+
+      def log_no_claims_found(exception)
+        Rails.logger.info(
+          'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' \
+          "no claims returned by Lighthouse: #{exception.message}"
+        )
+      end
+
+      def conversation_id_missing_message
+        'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' \
+          'conversation_id is missing in parameters'
       end
 
       class ServiceException < RuntimeError; end
+
+      def mpi_profile
+        @mpi_profile ||= fetch_mpi_profile
+      end
+
+      def fetch_mpi_profile
+        MPI::Service.new.find_profile_by_identifier(
+          identifier_type: MPI::Constants::ICN,
+          identifier: icn
+        )&.profile
+      rescue => e
+        Rails.logger.error("Error fetching MPI profile for ICN. Error: #{e.message}")
+        nil
+      end
     end
   end
 end

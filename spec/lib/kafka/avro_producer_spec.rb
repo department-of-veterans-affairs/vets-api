@@ -7,7 +7,7 @@ require 'kafka/schema_registry/service'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
-  let(:topic) { 'submission_trace_form_status_change_test' }
+  let(:topic) { 'submission_trace_form_status_change' }
   let(:valid_payload) do
     {
       'priorId' => nil,
@@ -27,7 +27,7 @@ describe Kafka::AvroProducer do
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
       response = Kafka::SchemaRegistry::Service.new.subject_version(
-        'submission_trace_form_status_change_test', 'latest'
+        'submission_trace_form_status_change', 'latest'
       )
 
       schema = response['schema']
@@ -81,7 +81,7 @@ describe Kafka::AvroProducer do
             avro_producer.produce(topic, valid_payload)
             avro_producer.produce('submission_trace_mock_test', valid_test_payload)
             expect(avro_producer.producer.client.messages.length).to eq(2)
-            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
+            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change')
             expect(topic_1_messages.length).to eq(1)
             expect(topic_1_messages[0][:payload]).to be_a(String)
           end
@@ -186,7 +186,7 @@ describe Kafka::AvroProducer do
 
   describe '#encode_payload' do
     it 'encodes the payload using the specified schema' do
-      avro_producer.instance_variable_set(:@schema_id, 5)
+      avro_producer.instance_variable_set(:@schema_id, 7)
       encoder = Avro::IO::BinaryEncoder.new(StringIO.new)
       datum_writer = Avro::IO::DatumWriter.new(schema)
 

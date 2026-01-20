@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s 10282 10216 10215 10297 10275].each do |form_type|
+  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 1919 0839 10275 8794 0976 10272].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -42,6 +42,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect(
         described_class.find(education_benefits_claim.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(education_benefits_claim)
+    end
+  end
+
+  describe 'token' do
+    it 'automatically generates a unique token' do
+      expect(education_benefits_claim.token).not_to be_nil
     end
   end
 
@@ -156,23 +162,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    context 'with a form type of 1990e' do
-      subject do
-        create(:va1990e)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'chapter33' => true,
-            'form_type' => '1990e'
-          )
-        )
-      end
-    end
-
     context 'with a form type of 5490' do
       subject do
         create(:va5490)
@@ -185,22 +174,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           submission_attributes.merge(
             'chapter35' => true,
             'form_type' => '5490'
-          )
-        )
-      end
-    end
-
-    context 'with a form type of 1990n' do
-      subject do
-        create(:va1990n)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'form_type' => '1990n'
           )
         )
       end
@@ -325,9 +298,223 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'appends 22- to passed in array' do
-      form_types = %w[1990s 10203]
-      form_headers = %w[22-1990s 22-10203]
+      form_types = %w[10203]
+      form_headers = %w[22-10203]
       expect(described_class.form_headers(form_types)).to eq(form_headers)
+    end
+  end
+
+  describe '#region' do
+    it 'returns the region for the claim' do
+      expect(education_benefits_claim.region).to be_a(Symbol)
+      expect(EducationForm::EducationFacility::REGIONS).to include(education_benefits_claim.region)
+    end
+  end
+
+  describe '#unprocessed' do
+    it 'returns claims without processed_at' do
+      processed = create(:va1990).education_benefits_claim
+      processed.update!(processed_at: Time.zone.now)
+
+      unprocessed1 = create(:va1990).education_benefits_claim
+      unprocessed2 = create(:va1995).education_benefits_claim
+
+      expect(described_class.unprocessed).to include(unprocessed1, unprocessed2)
+      expect(described_class.unprocessed).not_to include(processed)
+    end
+  end
+
+  describe '#set_region' do
+    it 'sets regional_processing_office if not already set' do
+      saved_claim = create(:va1990)
+      claim = saved_claim.education_benefits_claim
+      claim.regional_processing_office = nil
+      claim.save!
+
+      expect(claim.regional_processing_office).not_to be_nil
+      expect(claim.regional_processing_office).to eq(claim.region.to_s)
+    end
+
+    it 'does not override existing regional_processing_office' do
+      saved_claim = create(:va1990)
+      claim = saved_claim.education_benefits_claim
+      claim.regional_processing_office = 'custom_region'
+      claim.save!
+
+      expect(claim.regional_processing_office).to eq('custom_region')
+    end
+  end
+
+  describe '#open_struct_form' do
+    it 'returns an OpenStruct with confirmation number' do
+      result = education_benefits_claim.open_struct_form
+      expect(result).to be_a(OpenStruct)
+      expect(result.confirmation_number).to match(/^V-EBC-/)
+    end
+
+    it 'memoizes the result' do
+      result1 = education_benefits_claim.open_struct_form
+      result2 = education_benefits_claim.open_struct_form
+      expect(result1.object_id).to eq(result2.object_id)
+    end
+
+    context 'with form type 1990' do
+      it 'transforms the form correctly' do
+        saved_claim = create(:va1990)
+        claim = saved_claim.education_benefits_claim
+        result = claim.open_struct_form
+
+        expect(result.confirmation_number).to match(/^V-EBC-/)
+      end
+    end
+  end
+
+  describe '#transform_form' do
+    context 'with form type 1990' do
+      it 'calls generate_benefits_to_apply_to' do
+        saved_claim = create(:va1990)
+        claim = saved_claim.education_benefits_claim
+        claim.open_struct_form
+        tours = claim.instance_variable_get(:@application).toursOfDuty
+
+        if tours&.any?
+          tour_with_selected = tours.find(&:applyPeriodToSelected)
+          expect(tour_with_selected&.benefitsToApplyTo).to be_present if tour_with_selected
+        end
+      end
+    end
+
+    context 'with form type 5490' do
+      it 'calls copy_from_previous_benefits when currentSameAsPrevious is true' do
+        saved_claim = create(:va5490)
+        claim = saved_claim.education_benefits_claim
+        result = claim.open_struct_form
+
+        expect(result).to be_a(OpenStruct)
+      end
+    end
+  end
+
+  describe '#generate_benefits_to_apply_to' do
+    it 'generates benefits string for tours with applyPeriodToSelected' do
+      saved_claim = create(:va1990)
+      claim = saved_claim.education_benefits_claim
+      claim.open_struct_form
+      tours = claim.instance_variable_get(:@application).toursOfDuty
+
+      if tours&.any?
+        tour_with_selected = tours.find(&:applyPeriodToSelected)
+        expect(tour_with_selected&.benefitsToApplyTo).to be_present if tour_with_selected
+      end
+    end
+  end
+
+  describe '#selected_benefits' do
+    context 'with form type 1990' do
+      it 'returns all application types from parsed_form' do
+        saved_claim = create(:va1990)
+        claim = saved_claim.education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits).to be_a(Hash)
+        expect(benefits.keys).to be_a(Array)
+      end
+    end
+
+    context 'with form type 0994' do
+      it 'returns vettec benefit' do
+        claim = create(:va0994_minimum_form).education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits['vettec']).to be(true)
+      end
+    end
+
+    context 'with form type 10297' do
+      it 'returns vettec benefit' do
+        claim = create(:va10297_simple_form).education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits['vettec']).to be(true)
+      end
+    end
+
+    context 'with form type 1995' do
+      context 'with chapter33 post911 benefit' do
+        it 'returns chapter33 benefit' do
+          claim = create(:va1995_ch33_post911).education_benefits_claim
+          benefits = claim.selected_benefits
+
+          expect(benefits['chapter33']).to be(true)
+        end
+      end
+
+      context 'with chapter33 fry scholarship benefit' do
+        it 'returns chapter33 benefit' do
+          claim = create(:va1995_ch33_fry).education_benefits_claim
+          benefits = claim.selected_benefits
+
+          expect(benefits['chapter33']).to be(true)
+        end
+      end
+
+      context 'with transfer of entitlement benefit' do
+        it 'returns transfer_of_entitlement benefit' do
+          claim = create(:va1995).education_benefits_claim
+          benefits = claim.selected_benefits
+
+          expect(benefits['transfer_of_entitlement']).to be(true)
+        end
+      end
+
+      context 'with other benefit' do
+        it 'returns the benefit' do
+          saved_claim = create(:va1995)
+          claim = saved_claim.education_benefits_claim
+          benefits = claim.selected_benefits
+
+          expect(benefits).to be_a(Hash)
+        end
+      end
+    end
+
+    context 'with form type 5490' do
+      it 'returns the benefit' do
+        saved_claim = create(:va5490)
+        claim = saved_claim.education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits).to be_a(Hash)
+      end
+    end
+
+    context 'with form type 5495' do
+      it 'returns the benefit' do
+        saved_claim = create(:va5495)
+        claim = saved_claim.education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits).to be_a(Hash)
+      end
+    end
+
+    context 'with form type 10203' do
+      it 'returns the benefit' do
+        saved_claim = create(:va10203)
+        claim = saved_claim.education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits).to be_a(Hash)
+      end
+    end
+
+    context 'with form type without benefit field' do
+      it 'returns empty hash' do
+        claim = create(:va10282).education_benefits_claim
+        benefits = claim.selected_benefits
+
+        expect(benefits).to eq({})
+      end
     end
   end
 end

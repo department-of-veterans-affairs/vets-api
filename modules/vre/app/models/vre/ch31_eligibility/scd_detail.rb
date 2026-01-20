@@ -7,7 +7,7 @@ module VRE
 
       attribute :code, String
       attribute :name, String
-      attribute :percentage, Integer
+      attribute :percentage, String
     end
   end
 end

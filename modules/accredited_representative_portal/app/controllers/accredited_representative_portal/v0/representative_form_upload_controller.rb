@@ -18,11 +18,20 @@ module AccreditedRepresentativePortal
         deny_access_unless_form_enabled(form_id)
       end
 
+      ATTEMPT_METRIC_SUBMIT = 'ar.claims.form_upload.submit.attempt'
+      SUCCESS_METRIC_SUBMIT = 'ar.claims.form_upload.submit.success'
+      ERROR_METRIC_SUBMIT = 'ar.claims.form_upload.submit.error'
+
       # rubocop:disable Metrics/MethodLength
       def submit
-        ar_monitoring(with_organization: true).trace('ar.claims.form_upload.submit') do |span|
-          service = SavedClaimService::Create
+        monitoring = ar_monitoring(with_organization: true)
+        monitoring.trace('ar.claims.form_upload.submit') do |span|
+          monitoring.track_count(
+            ATTEMPT_METRIC_SUBMIT,
+            tags: ["form_id:#{form_id}"]
+          )
 
+          service = SavedClaimService::Create
           saved_claim = service.perform(
             type: form_class,
             metadata:,
@@ -38,6 +47,11 @@ module AccreditedRepresentativePortal
           span.set_tag('form_submission.confirmation_number', confirmation_number)
           trace_key_tags(span, form_id:, org: organization)
 
+          monitoring.track_count(
+            SUCCESS_METRIC_SUBMIT,
+            tags: ["form_id:#{form_id}"]
+          )
+
           send_confirmation_email(saved_claim)
           render json: {
             confirmationNumber: confirmation_number,
@@ -45,12 +59,31 @@ module AccreditedRepresentativePortal
           }
         rescue service::RecordInvalidError => e
           span.set_tag('error.specific_reason', 'record_invalid')
+          monitoring.track_count(
+            ERROR_METRIC_SUBMIT,
+            tags: ['reason:record_invalid', "form_id:#{form_id}"]
+          )
           raise Common::Exceptions::ValidationErrors, e.record
         rescue service::WrongAttachmentsError => e
           span.set_tag('error.specific_reason', 'wrong_attachments')
+          monitoring.track_count(
+            ERROR_METRIC_SUBMIT,
+            tags: ['reason:wrong_attachments', "form_id:#{form_id}"]
+          )
           raise Common::Exceptions::UnprocessableEntity, detail: e.message
+        rescue service::TooManyRequestsError
+          span.set_tag('error.specific_reason', 'too_many_requests')
+          monitoring.track_count(
+            ERROR_METRIC_SUBMIT,
+            tags: ['reason:too_many_requests', "form_id:#{form_id}"]
+          )
+          raise Common::Exceptions::ServiceUnavailable, detail: 'Temporary system issue'
         rescue service::UnknownError => e
           span.set_tag('error.specific_reason', 'unknown_error')
+          monitoring.track_count(
+            ERROR_METRIC_SUBMIT,
+            tags: ['reason:unknown_error', "form_id:#{form_id}"]
+          )
           raise Common::Exceptions::InternalServerError, e.cause
         end
       end
@@ -153,14 +186,15 @@ module AccreditedRepresentativePortal
       # rubocop:enable Metrics/MethodLength
 
       def ar_monitoring(with_organization:)
-        org_tag = "org:#{organization}" if with_organization
+        org_tag = ("org:#{organization}" if with_organization && organization.present?)
 
-        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+        AccreditedRepresentativePortal::Monitoring.new(
           AccreditedRepresentativePortal::Monitoring::NAME,
           default_tags: [
             "controller:#{controller_name}",
             "action:#{action_name}",
-            org_tag
+            org_tag,
+            ('org_resolve:failed' if with_organization && org_tag.nil?)
           ].compact
         )
       end
@@ -171,6 +205,8 @@ module AccreditedRepresentativePortal
 
       def organization
         claimant_representative&.power_of_attorney_holder&.poa_code
+      rescue AccreditedRepresentativePortal::ClaimantRepresentative::Finder::Error
+        nil
       end
 
       def trace_key_tags(span, **tags)

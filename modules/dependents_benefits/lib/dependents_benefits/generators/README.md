@@ -17,14 +17,14 @@ The generators in this folder handle the process of splitting a combined 686c-67
 1. **Initialize** with form data and parent claim ID
 2. **Extract** relevant form data for the specific claim type
 3. **Create** a new `SavedClaim` with the extracted data
-4. **Link** the new claim to the parent claim (TODO: implement grouping)
+4. **Link** the new claim to the parent claim
 
 ## Usage
 
 Generators should be subclassed from `DependentClaimGenerator` and implement:
 
 - `extract_form_data` - Extract relevant data for the specific claim type
-- `form_id` - Return the appropriate form ID (e.g., '686C-674', '21-674')
+- `claim_class` - Return the appropriate form class (e.g., 'AddRemoveDependent', 'SchoolAttendanceApproval')
 
 ```ruby
 class Form686cGenerator < DependentClaimGenerator
@@ -34,8 +34,8 @@ class Form686cGenerator < DependentClaimGenerator
     # Extract 686c-specific data from @form_data
   end
 
-  def form_id
-    '686C-674'
+  def claim_class
+    AddRemoveDependent
   end
 end
 
@@ -46,12 +46,10 @@ claim = generator.generate
 
 ## Implementation Notes
 
-- Each generator creates a separate `DependentsBenefits::SavedClaim` record
+- Each generator creates a separate `DependentsBenefits::PrimaryDependencyClaim` record
 - Form data is stored as JSON in the `form` field
 - Claims are validated before saving
-- Claim grouping functionality is planned but not yet implemented
 
 ## Future Work
 
-- Implement claim grouping to link related claims
 - Differentiate validation for extracted form data by using multiple vets-json-schema schemas

@@ -22,6 +22,14 @@ module RepresentationManagement
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
     ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
+    # Map internal types to their expected report labels
+    TYPE_LABELS = {
+      agents: 'Agents',
+      attorneys: 'Attorneys',
+      representatives: 'VSO Representatives',
+      veteran_service_organizations: 'Veteran Service Organizations'
+    }.freeze
+
     # The total number of representatives and organizations parsed from the GCLAWS API
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = -0.20 # -20% maximum decrease allowed (negative value for decrease)
@@ -74,11 +82,12 @@ module RepresentationManagement
       report = "Accreditation API Entity Counts Report:\n"
       TYPES.each do |type|
         type = type.to_sym
+        label = TYPE_LABELS[type]
         current_count = current_api_counts[type]
         previous_count = current_db_counts[type]
         change_percentage = percentage_change(previous_count, current_count)
 
-        report += "#{type.to_s.humanize}: Current: #{current_count}, Previous: #{previous_count}, " \
+        report += "#{label}: Current: #{current_count}, Previous: #{previous_count}, " \
                   "Change: #{change_percentage}%\n"
       end
       report << db_record_count_report
@@ -87,16 +96,16 @@ module RepresentationManagement
       log_error("Error generating count report: #{e.message}")
     end
 
+    # @return [Hash] The current counts from the API for all entity types
+    def current_api_counts
+      @current_api_counts ||= get_counts_from_api
+    end
+
     private
 
     # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
     def client
       RepresentationManagement::GCLAWS::Client
-    end
-
-    # @return [Hash] The current counts from the API for all entity types
-    def current_api_counts
-      @current_api_counts ||= get_counts_from_api
     end
 
     # Fetches entity counts from the GCLAWS API

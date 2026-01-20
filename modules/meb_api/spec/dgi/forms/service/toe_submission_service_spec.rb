@@ -100,24 +100,17 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         allow(faraday_response).to receive(:env)
       end
 
-      context 'Feature toe_light_house_dgi_direct_deposit=true' do
-        before do
-          Flipper.enable(:toe_light_house_dgi_direct_deposit)
-        end
+      it 'Lighthouse returns a status of 200' do
+        VCR.use_cassette('dgi/forms/submit_toe_claim') do
+          response = service.submit_claim(ActionController::Parameters.new(claimant_params),
+                                          ActionController::Parameters.new(dd_params_lighthouse))
 
-        it 'Lighthouse returns a status of 200' do
-          VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params_lighthouse))
-
-            expect(response.status).to eq(200)
-          end
+          expect(response.status).to eq(200)
         end
       end
 
-      context 'Feature CH35 toe_light_house_dgi_direct_deposit=true' do
+      context 'Feature CH35' do
         before do
-          Flipper.enable(:toe_light_house_dgi_direct_deposit)
           claimant_params[:form]['@type'] = 'Chapter35'
         end
 
@@ -125,21 +118,6 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
                                             ActionController::Parameters.new(dd_params_lighthouse))
-            expect(response.status).to eq(200)
-          end
-        end
-      end
-
-      context 'Feature toe_light_house_dgi_direct_deposit=false' do
-        before do
-          Flipper.disable(:toe_light_house_dgi_direct_deposit)
-        end
-
-        it 'EVSS returns a status of 200' do
-          VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params))
-
             expect(response.status).to eq(200)
           end
         end

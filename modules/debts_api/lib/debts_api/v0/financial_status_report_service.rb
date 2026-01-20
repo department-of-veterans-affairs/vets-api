@@ -20,7 +20,7 @@ module DebtsApi
   # Allows users to submit financial status reports, and download copies of completed reports.
   #
   class V0::FinancialStatusReportService < DebtManagementCenter::BaseService
-    include SentryLogging
+    include Vets::SharedLogging
 
     class FSRNotFoundInRedis < StandardError; end
     class FSRInvalidRequest < StandardError; end
@@ -250,7 +250,7 @@ module DebtsApi
         # Instead use #validate! to raise an ActiveModel::ValidationError error which contains a more detailed message
         fsr.validate!
       rescue ActiveModel::ValidationError => e
-        log_exception_to_sentry(e, { fsr_attributes: fsr.attributes, fsr_response: response.to_h })
+        log_exception_to_rails(e)
       end
     end
 

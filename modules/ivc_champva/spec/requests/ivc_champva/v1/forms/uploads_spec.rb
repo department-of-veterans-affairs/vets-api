@@ -35,6 +35,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                            application_uuid: 'test-uuid')
     allow(ves_request).to receive(:transaction_uuid=)
     allow(ves_request).to receive(:to_json).and_return('{}')
+    allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
   end
 
   after do
@@ -52,6 +53,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow(Flipper).to receive(:enabled?)
             .with(:champva_retry_logic_refactor, @current_user)
             .and_return(champva_retry_logic_refactor_state)
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_update_datadog_tracking, @current_user)
+            .and_return(false)
         end
 
         forms.each do |form|
@@ -94,7 +98,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             controller = IvcChampva::V1::UploadsController.new
             allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
                                                   call_upload_form: [[200], nil],
-                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                  get_file_paths_and_metadata: [['path'], {}],
                                                   params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
@@ -152,7 +156,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
               allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
-                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
+                                                    get_file_paths_and_metadata: [['path'], {}],
                                                     params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
@@ -210,6 +214,77 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
       end
+    end
+  end
+
+  describe '#submit with champva_update_datadog_tracking enabled' do
+    let(:form_with_track_submission) { 'vha_10_10d.json' }
+
+    before do
+      # Mirror the setup from the passing tests, but enable champva_update_datadog_tracking
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_send_to_ves, @current_user)
+        .and_return(true)
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_retry_logic_refactor, @current_user)
+        .and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_update_datadog_tracking, @current_user)
+        .and_return(true)
+    end
+
+    it 'calls track_submission on form models that respond to it' do
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                     form_with_track_submission)
+      data = JSON.parse(fixture_path.read)
+
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      # Allow all StatsD calls, but specifically check for the .submission call
+      allow(StatsD).to receive(:increment).and_call_original
+
+      post '/ivc_champva/v1/forms', params: data
+
+      expect(response).to have_http_status(:ok)
+      # Verify track_submission was called by checking the StatsD increment
+      expect(StatsD).to have_received(:increment).with(
+        'api.ivc_champva_form.10_10d.submission',
+        hash_including(:tags)
+      )
+    end
+
+    it 'does not call track_submission on form models that do not respond to it' do
+      # 10-7959A does not have track_submission implemented (method_missing returns a hash, not StatsD calls)
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
+      data = JSON.parse(fixture_path.read)
+
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      # Allow all StatsD calls so we can verify later
+      allow(StatsD).to receive(:increment).and_call_original
+
+      post '/ivc_champva/v1/forms', params: data
+
+      expect(response).to have_http_status(:ok)
+      # Verify track_submission was NOT called (7959A doesn't have it implemented)
+      expect(StatsD).not_to have_received(:increment).with(
+        'api.ivc_champva_form.10_7959a.submission',
+        anything
+      )
     end
   end
 
@@ -275,6 +350,27 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       post '/ivc_champva/v1/forms/10-10d-ext', params: data_with_docs
 
       expect(response).to have_http_status(:internal_server_error)
+    end
+
+    it 'tracks the delegate form' do
+      # Create a mock form instance that will be returned by generate_ohi_form
+      mock_form = instance_double(IvcChampva::VHA107959cRev2025)
+      allow(mock_form).to receive(:track_delegate_form)
+      allow(mock_form).to receive(:respond_to?).with(:track_delegate_form).and_return(true)
+
+      # Stub the controller methods to bypass the complex PDF generation flow
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:generate_ohi_form)
+                                                              .and_return([mock_form])
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:fill_ohi_and_return_path)
+                                                              .and_return('/tmp/test.pdf')
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:create_custom_attachment).and_return({})
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:add_supporting_doc)
+      allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:submit).and_return(nil)
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      # Verify the method was called with the correct parent form ID
+      expect(mock_form).to have_received(:track_delegate_form).with('vha_10_10d')
     end
   end
 
@@ -710,39 +806,19 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           }
         end
 
-        it 'sets main claim sheet to default form_id and preserves supporting doc types' do
-          # Mock the supporting documents in the database
-          record1 = double('Record1', created_at: 1.day.ago, file: double(id: 'file1'))
-          record2 = double('Record2', created_at: Time.zone.now, file: double(id: 'file2'))
-          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
-          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
-
-          # Mock tracking methods but let stamp_metadata work naturally
+        it 'labels all documents including main claim sheet as CVA Bene Response' do
+          # Mock tracking methods
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
 
-          # Mock the PDF operations to avoid file creation
-          allow(IvcChampva::Attachments).to receive(:get_blank_page).and_return('/tmp/blank.pdf')
-          allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
-          allow(controller).to receive(:create_custom_attachment)
-            .and_return(
-              'confirmation_code' => 'stamped_doc_code',
-              'attachment_id' => 'CVA Bene Response'
-            )
-
-          # Mock the stamped doc record for the dynamically created confirmation code
-          stamped_record = double('StampedRecord', created_at: 2.hours.ago, file: double(id: 'stamped_file'))
-          allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-            .with(guid: 'stamped_doc_code')
-            .and_return(stamped_record)
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
 
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
-          # Verify: main claim sheet gets default form_id, supporting docs retain their types
-          # The stamped doc gets added with "CVA Bene Response" by the actual stamp_metadata logic
-          # Note: The stamped doc is added before supporting docs are sorted by creation date
-          expect(attachment_ids).to eq(['vha_10_7959a', 'Medical Records', 'CVA Bene Response', 'EOB'])
+          # Verify: all documents (1 main form + 2 supporting docs) get "CVA Bene Response"
+          expect(attachment_ids).to eq(['CVA Bene Response', 'CVA Bene Response', 'CVA Bene Response'])
           expect(form).to be_a(IvcChampva::VHA107959a)
         end
       end
@@ -776,10 +852,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
 
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
+
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
           # Verify: main claim sheet gets "CVA Reopen", supporting docs retain their types
-          # For claim control number, stamp_metadata should return nil (no stamped doc)
           expect(attachment_ids).to eq(['CVA Reopen', 'Medical Records', 'EOB'])
           expect(form).to be_a(IvcChampva::VHA107959a)
         end
@@ -815,6 +893,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_user_identity)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_current_user_loa)
           allow_any_instance_of(IvcChampva::VHA107959a).to receive(:track_email_usage)
+
+          # Ensure DTA flag is off so no extra stamped doc is added
+          allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
 
           attachment_ids, form = controller.send(:get_attachment_ids_and_form, parsed_form_data)
 
@@ -874,6 +955,108 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(metadata['claim_status']).to eq('resubmission')
           end
         end
+      end
+    end
+  end
+
+  describe '#build_pdi_resubmission_attachment_ids' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    it 'labels all documents as CVA Bene Response for PDI resubmissions' do
+      parsed_form_data = {
+        'supporting_docs' => [
+          { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' },
+          { 'confirmation_code' => 'code2', 'attachment_id' => 'EOB' }
+        ]
+      }
+      applicant_rounded_number = 1
+
+      result = controller.send(:build_pdi_resubmission_attachment_ids, 'vha_10_7959a', parsed_form_data,
+                               applicant_rounded_number)
+
+      # 1 main form + 2 supporting docs = 3 total, all "CVA Bene Response"
+      expect(result).to eq(['CVA Bene Response', 'CVA Bene Response', 'CVA Bene Response'])
+    end
+
+    it 'handles submissions with no supporting docs' do
+      parsed_form_data = { 'supporting_docs' => nil }
+      applicant_rounded_number = 1
+
+      result = controller.send(:build_pdi_resubmission_attachment_ids, 'vha_10_7959a', parsed_form_data,
+                               applicant_rounded_number)
+
+      # Just 1 main form
+      expect(result).to eq(['CVA Bene Response'])
+    end
+
+    it 'handles multiple main form pages' do
+      parsed_form_data = {
+        'supporting_docs' => [
+          { 'confirmation_code' => 'code1', 'attachment_id' => 'Medical Records' }
+        ]
+      }
+      applicant_rounded_number = 2
+
+      result = controller.send(:build_pdi_resubmission_attachment_ids, 'vha_10_7959a', parsed_form_data,
+                               applicant_rounded_number)
+
+      # 2 main form pages + 1 supporting doc = 3 total
+      expect(result).to eq(['CVA Bene Response', 'CVA Bene Response', 'CVA Bene Response'])
+    end
+  end
+
+  describe '7959A PDI resubmission end-to-end S3 upload' do
+    let(:base_fixture) do
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
+      JSON.parse(fixture_path.read)
+    end
+    let(:pdi_resubmission_data) do
+      base_fixture.merge(
+        'form_number' => '10-7959A',
+        'claim_status' => 'resubmission',
+        'pdi_or_claim_number' => 'PDI number',
+        'identifying_number' => 'PDI123456'
+      )
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_resubmission_attachment_ids).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_claims_duty_to_assist).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_retry_logic_refactor, anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, anything).and_return(false)
+
+      # Mock supporting document records (uses confirmation_codes from fixture)
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+
+      # Mock IvcChampvaForm
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+    end
+
+    it 'uploads documents to S3 with all documents labeled CVA Bene Response' do
+      s3_uploads = []
+
+      # Capture all S3 put_object calls to verify attachment_ids
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object) do |_client, params|
+        s3_uploads << params[:metadata]
+        double('response', context: double('context', http_response: double('http_response', status_code: 200)))
+      end
+
+      post '/ivc_champva/v1/forms', params: pdi_resubmission_data
+
+      expect(response).to have_http_status(:ok)
+
+      # Filter out any uploads without attachment_id (like metadata JSON)
+      doc_uploads = s3_uploads.select { |m| m&.key?('attachment_id') }
+
+      # All document uploads should have "CVA Bene Response" attachment_id
+      expect(doc_uploads).not_to be_empty
+      doc_uploads.each do |upload|
+        expect(upload['attachment_id']).to eq('CVA Bene Response')
       end
     end
   end
@@ -963,6 +1146,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
   describe '#get_file_paths_and_metadata' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_send_ves_to_pega, anything).and_return(false)
+    end
 
     form_numbers_and_classes.each do |form_number, form_class|
       context "when form_number is #{form_number}" do
@@ -1523,6 +1710,122 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         end.not_to raise_error
 
         expect(Rails.logger).to have_received(:error).with('Error validating MPI profiles: MPI service error')
+      end
+    end
+  end
+
+  describe '#generate_ves_json_file' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_form) { double('Form', form_id: 'vha_10_10d', uuid: 'test-uuid-123') }
+    let(:mock_ves_request) { double('VesRequest') }
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(mock_ves_request)
+      allow(mock_ves_request).to receive(:to_json).and_return('{"test": "data"}')
+      allow(File).to receive(:write)
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+    end
+
+    it 'generates VES JSON file and returns file path' do
+      expected_path = Rails.root.join("tmp/#{mock_form.uuid}_#{mock_form.form_id}_ves.json").to_s
+      result = controller.send(:generate_ves_json_file, mock_form, parsed_form_data)
+
+      expect(result).to eq(expected_path)
+      expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+      expect(File).to have_received(:write).with(
+        expected_path,
+        '{"test": "data"}'
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        "VES JSON file generated for form #{mock_form.form_id}: #{expected_path}"
+      )
+    end
+
+    context 'when VES data generation fails' do
+      before do
+        allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+          .and_raise(StandardError.new('VES formatting error'))
+      end
+
+      it 'logs the error and returns nil' do
+        result = controller.send(:generate_ves_json_file, mock_form, parsed_form_data)
+
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:error)
+          .with('Error generating VES JSON file for form vha_10_10d: VES formatting error')
+        expect(File).not_to have_received(:write)
+      end
+    end
+  end
+
+  describe '#get_file_paths_and_metadata VES JSON integration' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:parsed_form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
+    let(:mock_form) { double('Form', form_id: 'vha_10_10d', uuid: 'test-uuid-123', data: {}, metadata: {}) }
+
+    before do
+      allow(controller).to receive(:instance_variable_get).with('@current_user').and_return(nil)
+      allow(controller).to receive_messages(get_attachment_ids_and_form: [['doc1'], mock_form],
+                                            should_generate_ves_json?: false)
+      allow(controller).to receive(:generate_ves_json_file)
+      allow(IvcChampva::FormVersionManager).to receive(:get_legacy_form_id).and_return('vha_10_10d')
+      allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('test_path.pdf')
+      allow(IvcChampva::MetadataValidator).to receive(:validate).and_return({})
+      allow(mock_form).to receive(:handle_attachments).and_return(['test_path.pdf'])
+    end
+
+    context 'when VES JSON generation conditions are met' do
+      let(:expected_ves_path) { Rails.root.join('tmp', 'test-uuid-123_vha_10_10d_ves.json').to_s }
+
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(true)
+        allow(controller).to receive(:generate_ves_json_file).and_return(expected_ves_path)
+      end
+
+      it 'generates VES JSON file and adds it to file_paths and attachment_ids' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:should_generate_ves_json?).with('vha_10_10d')
+        expect(controller).to have_received(:generate_ves_json_file).with(mock_form, parsed_form_data)
+        expect(file_paths).to include(expected_ves_path)
+        expect(metadata['attachment_ids']).to include('VES JSON')
+      end
+    end
+
+    context 'when VES JSON generation conditions are not met' do
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(false)
+      end
+
+      it 'does not generate VES JSON file' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:should_generate_ves_json?).with('vha_10_10d')
+        expect(controller).not_to have_received(:generate_ves_json_file)
+        expect(file_paths).not_to include('VES JSON')
+        expect(metadata['attachment_ids']).not_to include('VES JSON')
+      end
+    end
+
+    context 'when VES JSON generation fails' do
+      before do
+        allow(controller).to receive(:should_generate_ves_json?).with('vha_10_10d').and_return(true)
+        allow(controller).to receive(:generate_ves_json_file).and_return(nil)
+      end
+
+      it 'does not add VES JSON to file_paths or attachment_ids' do
+        file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+
+        expect(controller).to have_received(:generate_ves_json_file).with(mock_form, parsed_form_data)
+        expect(file_paths).not_to include(nil)
+        expect(metadata['attachment_ids']).not_to include('VES JSON')
       end
     end
   end

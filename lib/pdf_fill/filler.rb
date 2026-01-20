@@ -5,6 +5,7 @@ require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/pdf_post_processor'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va2141422024'
+require 'pdf_fill/forms/va214192'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
@@ -15,19 +16,29 @@ require 'pdf_fill/forms/va1010ezr'
 require 'pdf_fill/forms/va686c674'
 require 'pdf_fill/forms/va686c674v2'
 require 'pdf_fill/forms/va281900'
-require 'pdf_fill/forms/va281900v2'
 require 'pdf_fill/forms/va288832'
+require 'pdf_fill/forms/va210779'
 require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va21674v2'
 require 'pdf_fill/forms/va210538'
+require 'pdf_fill/forms/va21p530a'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_fill/forms/va220839'
+require 'pdf_fill/forms/va220803'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
+require 'pdf_fill/forms/va228794'
+require 'pdf_fill/forms/va220976'
+require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
+require 'pdf_fill/forms/va212680'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
+require 'pdf_fill/processors/va228794_processor'
+require 'pdf_fill/processors/va220839_processor'
+require 'pdf_fill/processors/va220976_processor'
 require 'utilities/date_parser'
 require 'forwardable'
 
@@ -64,26 +75,34 @@ module PdfFill
     {
       '21-4142' => PdfFill::Forms::Va214142,
       '21-4142-2024' => PdfFill::Forms::Va2141422024,
+      '21-4192' => PdfFill::Forms::Va214192,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
       '21-8940' => PdfFill::Forms::Va218940,
+      '21P-530A' => PdfFill::Forms::Va21p530a,
+      '21-2680' => PdfFill::Forms::Va212680,
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '10-10EZ' => PdfFill::Forms::Va1010ez,
       '10-10EZR' => PdfFill::Forms::Va1010ezr,
       '686C-674' => PdfFill::Forms::Va686c674,
       '686C-674-V2' => PdfFill::Forms::Va686c674v2,
       '28-1900' => PdfFill::Forms::Va281900,
-      '28-1900-V2' => PdfFill::Forms::Va281900v2,
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
       '21-674-V2' => PdfFill::Forms::Va21674v2,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
+      '22-0839' => PdfFill::Forms::Va220839,
+      '22-0803' => PdfFill::Forms::Va220803,
+      '22-0976' => PdfFill::Forms::Va220976,
+      '21-0779' => PdfFill::Forms::Va210779,
+      '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
       '22-10215' => PdfFill::Forms::Va2210215,
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
+      '22-10272' => PdfFill::Forms::Va2210272,
       '22-10275' => PdfFill::Forms::Va2210275
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
@@ -178,6 +197,25 @@ module PdfFill
     end
 
     ##
+    # Fills a form using HexaPDF instead of PDFtk
+    #
+    # @param template_path [String] The path to the PDF template.
+    # @param output_path [String] The path to save the filled PDF.
+    # @param hash_data [Hash] The data to fill in the form.
+    #
+    # @return [None]
+    #
+    def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      doc = HexaPDF::Document.open(template_path)
+      form = doc.acro_form
+      raise 'No AcroForm found in PDF template.' if form.nil?
+
+      form.fill(hash_data)
+
+      doc.write(output_path)
+    end
+
+    ##
     # Processes a form by filling it with data and saving it to a file.
     #
     # @param form_id [String] The form ID.
@@ -194,28 +232,46 @@ module PdfFill
         fill_options[:show_jumplinks] = Flipper.enabled?(:pdf_fill_redesign_overflow_jumplinks)
       end
 
-      # Handle 22-10215 overflow with continuation sheets
-      if form_id == '22-10215' && form_data['programs'] && form_data['programs'].length > 16
-        return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension, fill_options)
+      # more complex logic is handled by a dedicated 'processor' class
+      case form_id
+      when '22-10215'
+        if form_data['programs'] && form_data['programs'].length > 16
+          return process_form_with_continuation_sheets(form_id, form_data, form_class, file_name_extension,
+                                                       fill_options)
+        end
+      when '22-0839'
+        return PdfFill::Processors::VA220839Processor.new(form_data, self, file_name_extension).process
+      when '22-0976'
+        return PdfFill::Processors::VA220976Processor.new(form_data, self, file_name_extension).process
+      when '22-8794'
+        return PdfFill::Processors::VA228794Processor.new(form_data, self, file_name_extension).process
       end
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
+
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
+
       submit_date = Utilities::DateParser.parse(
         fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
-                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path, file_path, new_hash, flatten: Rails.env.production?
-      )
+
+      if fill_options.fetch(:use_hexapdf, false)
+        fill_form_with_hexapdf(template_path, file_path, new_hash)
+      else
+        unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
+                                 EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
+        (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+          template_path, file_path, new_hash, flatten: Rails.env.production?
+        )
+      end
 
       file_path = stamp_form(file_path, submit_date) if should_stamp_form?(form_id, fill_options, submit_date)
       combine_extras(file_path, hash_converter.extras_generator, form_class)
@@ -253,10 +309,11 @@ module PdfFill
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS,
             label_width: form_class::DEFAULT_LABEL_WIDTH,
-            show_jumplinks: fill_options.fetch(:show_jumplinks, false)
+            show_jumplinks: fill_options.fetch(:show_jumplinks, false),
+            use_hexapdf: fill_options.fetch(:use_hexapdf, false)
           )
         else
-          ExtrasGenerator.new
+          ExtrasGenerator.new(use_hexapdf: fill_options.fetch(:use_hexapdf, false))
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end

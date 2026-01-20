@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mobile/v0/exceptions/custom_errors'
+require 'unique_user_events'
 
 module Mobile
   module V0
@@ -16,19 +17,14 @@ module Mobile
         partial_errors = partial_errors(failures)
         status = get_response_status(failures)
         page_appointments, page_meta_data = paginate(appointments)
-        page_meta_data[:meta].merge!(partial_errors) unless partial_errors.nil?
-        page_meta_data[:meta].merge!(
-          upcoming_appointments_count: upcoming_appointments_count(appointments),
-          upcoming_days_limit: UPCOMING_DAYS_LIMIT
-        )
 
-        # Only attempt to count travel pay eligible appointments if include_claims flag is true
-        if include_claims?
-          page_meta_data[:meta].merge!(
-            travel_pay_eligible_count: travel_pay_eligible_count(appointments),
-            travel_pay_days_limit: TRAVEL_PAY_DAYS_LIMIT
-          )
-        end
+        build_page_metadata(page_meta_data, appointments, partial_errors)
+
+        # Log unique user event for appointments accessed
+        UniqueUserEvents.log_event(
+          user: @current_user,
+          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+        )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
@@ -47,6 +43,28 @@ module Mobile
       end
 
       private
+
+      # Builds the page metadata including counts and limits
+      #
+      # @param page_meta_data [Hash] the pagination metadata hash
+      # @param appointments [Array] the list of appointments
+      # @param partial_errors [Hash, nil] the partial errors hash if present
+      # @return [void] modifies page_meta_data in place
+      def build_page_metadata(page_meta_data, appointments, partial_errors)
+        page_meta_data[:meta].merge!(partial_errors) unless partial_errors.nil?
+        page_meta_data[:meta].merge!(
+          upcoming_appointments_count: upcoming_appointments_count(appointments),
+          upcoming_days_limit: UPCOMING_DAYS_LIMIT
+        )
+
+        # Only attempt to count travel pay eligible appointments if include_claims flag is true
+        if include_claims?
+          page_meta_data[:meta].merge!(
+            travel_pay_eligible_count: travel_pay_eligible_count(appointments),
+            travel_pay_days_limit: TRAVEL_PAY_DAYS_LIMIT
+          )
+        end
+      end
 
       def validated_params
         @validated_params ||= begin

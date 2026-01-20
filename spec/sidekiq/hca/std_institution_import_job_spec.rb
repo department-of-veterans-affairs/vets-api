@@ -175,6 +175,16 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
 
         described_class.new.perform
       end
+
+      it 'runs HCA::HealthFacilitiesImportJob immediately when specified' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
+
+        mock_health_facilities_job = instance_double(HCA::HealthFacilitiesImportJob)
+        expect(HCA::HealthFacilitiesImportJob).to receive(:new).and_return(mock_health_facilities_job)
+        expect(mock_health_facilities_job).to receive(:perform)
+
+        described_class.new.import_facilities(run_sync: true)
+      end
     end
   end
 end

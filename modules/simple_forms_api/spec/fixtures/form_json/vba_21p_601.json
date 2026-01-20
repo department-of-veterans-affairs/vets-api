@@ -1,0 +1,165 @@
+{
+  "formNumber": "21P-601",
+  "veteran": {
+    "fullName": {
+      "first": "Robert",
+      "middle": "James",
+      "last": "Thompson"
+    },
+    "ssn": {
+      "first3": "123",
+      "middle2": "45",
+      "last4": "6789"
+    },
+    "vaFileNumber": "987654321"
+  },
+  "beneficiary": {
+    "fullName": {
+      "first": "Robert",
+      "middle": "James",
+      "last": "Thompson"
+    },
+    "dateOfDeath": {
+      "month": "06",
+      "day": "15",
+      "year": "2024"
+    },
+    "isVeteran": true
+  },
+  "claimant": {
+    "fullName": {
+      "first": "Sarah",
+      "middle": "Anne",
+      "last": "Thompson"
+    },
+    "ssn": {
+      "first3": "555",
+      "middle2": "66",
+      "last4": "7778"
+    },
+    "vaFileNumber": "",
+    "dateOfBirth": {
+      "month": "03",
+      "day": "22",
+      "year": "1970"
+    },
+    "relationshipToDeceased": "spouse",
+    "address": {
+      "street": "456 Memorial Drive",
+      "street2": "Apt 301",
+      "city": "Richmond",
+      "state": "VA",
+      "country": "USA",
+      "zipCode": {
+        "first5": "23220",
+        "last4": ""
+      }
+    },
+    "phone": {
+      "areaCode": "804",
+      "prefix": "555",
+      "lineNumber": "1234"
+    },
+    "email": "sarah.thompson@email.com",
+    "signature": "Sarah Anne Thompson",
+    "signatureDate": {
+      "month": "10",
+      "day": "01",
+      "year": "2025"
+    }
+  },
+  "inReplyReferTo": "123456789",
+  "survivingRelatives": {
+    "hasSpouse": false,
+    "hasChildren": true,
+    "hasParents": false,
+    "hasNone": false,
+    "wantsToWaiveSubstitution": false,
+    "relatives": [
+      {
+        "fullName": {
+          "first": "Michael",
+          "middle": "Robert",
+          "last": "Thompson"
+        },
+        "relationship": "child",
+        "dateOfBirth": {
+          "month": "08",
+          "day": "10",
+          "year": "1995"
+        },
+        "address": {
+          "street": "789 Oak Street",
+          "street2": "",
+          "city": "Arlington",
+          "state": "VA",
+          "country": "USA",
+          "zipCode": {
+            "first5": "22201",
+            "last4": ""
+          }
+        }
+      },
+      {
+        "fullName": {
+          "first": "Emily",
+          "middle": "Grace",
+          "last": "Thompson"
+        },
+        "relationship": "child",
+        "dateOfBirth": {
+          "month": "11",
+          "day": "22",
+          "year": "1998"
+        },
+        "address": {
+          "street": "123 Pine Avenue",
+          "street2": "Unit 5B",
+          "city": "Alexandria",
+          "state": "VA",
+          "country": "USA",
+          "zipCode": {
+            "first5": "22314",
+            "last4": ""
+          }
+        }
+      }
+    ]
+  },
+  "expenses": {
+    "expensesList": [
+      {
+        "provider": "Virginia Hospital Center",
+        "expenseType": "Hospital care",
+        "amount": "15000",
+        "isPaid": true,
+        "paidBy": "Sarah Thompson"
+      },
+      {
+        "provider": "Dr. James Mitchell",
+        "expenseType": "Physician services",
+        "amount": "2500",
+        "isPaid": true,
+        "paidBy": "Sarah Thompson"
+      },
+      {
+        "provider": "Richmond Funeral Home",
+        "expenseType": "Funeral services",
+        "amount": "8500",
+        "isPaid": true,
+        "paidBy": ""
+      }
+    ],
+    "otherDebts": [
+      {
+        "debtType": "Credit card debt",
+        "debtAmount": "3500"
+      },
+      {
+        "debtType": "Car loan",
+        "debtAmount": "12000"
+      }
+    ]
+  },
+  "remarks": "The veteran passed away while receiving treatment for service-connected disability. Hospital expenses were paid by the surviving spouse using family savings. Funeral services were covered by life insurance proceeds. Requesting reimbursement for all medical and funeral expenses listed above."
+}

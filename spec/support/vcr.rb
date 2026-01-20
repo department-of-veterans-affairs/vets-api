@@ -8,7 +8,9 @@ VCR.configure do |c|
 
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
+  c.filter_sensitive_data('<BENEFITS_INTAKE_SERVICE_API_KEY>') { Settings.benefits_intake_service.api_key }
   c.filter_sensitive_data('<CLAIMS_API_BD_URL>') { Settings.claims_api.benefits_documents.host }
+  c.filter_sensitive_data('<CLAIMS_EVIDENCE_API_URL>') { Settings.claims_evidence_api.base_url }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
   c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
@@ -81,12 +83,18 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
-  c.filter_sensitive_data('<TRAVEL_CLAIM_API_URL>') { Settings.check_in.travel_reimbursement_api_v2.claims_url_v2 }
+  c.filter_sensitive_data('<TRAVEL_CLAIM_API_URL>') { TravelClaim::Configuration.instance.base_path }
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM>') { Settings.hca.endpoint }
   c.filter_sensitive_data('<CASEFLOW_API_HOST>') { Settings.caseflow.host }
+  c.filter_sensitive_data('<DGI_VETS_URL>') { Settings.dgi.vets.url }
+  c.filter_sensitive_data('<LIGHTHOUSE_HCC_HOST>') do
+    Settings.lighthouse.healthcare_cost_and_coverage.host
+  end
+  c.filter_sensitive_data('<VASS_AUTH_URL>') { Settings.vass.auth_url }
+  c.filter_sensitive_data('<VASS_API_URL>') { Settings.vass.api_url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

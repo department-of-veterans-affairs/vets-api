@@ -1384,33 +1384,80 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
       end
+    end
 
+    describe '#validate_form_526' do
       context 'form 526 validation endpoint' do
         let(:path) { '/services/claims/v1/forms/526/validate' }
 
-        it 'returns a successful response when valid' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              VCR.use_cassette('claims_api/bgs/claims/claims') do
-                VCR.use_cassette('claims_api/v1/disability_comp/validate') do
-                  post path, params: data, headers: headers.merge(auth_header)
-                  parsed = JSON.parse(response.body)
-                  expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
-                  expect(parsed['data']['attributes']['status']).to eq('valid')
+        context 'flipper sends to evss' do
+          it 'returns a successful response when valid' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/brd/countries') do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
+                  VCR.use_cassette('claims_api/v1/disability_comp/validate') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    parsed = JSON.parse(response.body)
+
+                    expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+                    expect(parsed['data']['attributes']['status']).to eq('valid')
+                  end
+                end
+              end
+            end
+          end
+
+          it 'returns a list of errors when invalid hitting EVSS' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/brd/countries') do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
+                  VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    parsed = JSON.parse(response.body)
+
+                    expect(parsed['errors'][0]['title']).to eq('Backend Service Exception')
+                  end
                 end
               end
             end
           end
         end
 
-        it 'returns a list of errors when invalid hitting EVSS' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              VCR.use_cassette('claims_api/bgs/claims/claims') do
-                VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
-                  post path, params: data, headers: headers.merge(auth_header)
-                  parsed = JSON.parse(response.body)
-                  expect(parsed['errors'][0]['title']).to eq('Internal server error')
+        context 'flipper sends to FES' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+          end
+
+          it 'returns a successful response when valid' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/brd/countries') do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
+                  VCR.use_cassette('claims_api/v1/disability_comp/fes/validate/valid') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['disabilities'][0].delete('specialIssues')
+
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    parsed = JSON.parse(response.body)
+
+                    expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+                    expect(parsed['data']['attributes']['status']).to eq('valid')
+                  end
+                end
+              end
+            end
+          end
+
+          it 'returns an error when the data is invalid' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/brd/countries') do
+                VCR.use_cassette('claims_api/bgs/claims/claims') do
+                  VCR.use_cassette('claims_api/v1/disability_comp/fes/validate/invalid') do
+                    # it fails because specialIssues included in our submission fail with the new FES service
+                    post path, params: data, headers: headers.merge(auth_header)
+
+                    expect(response).to have_http_status(:unprocessable_entity)
+                  end
                 end
               end
             end

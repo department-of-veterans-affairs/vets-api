@@ -11,15 +11,18 @@ module ClaimsApi
     end
 
     def concatenate_zip_code(nested_address_object)
-      zip_first_five = nested_address_object&.dig('zipFirstFive') || ''
-      zip_last_four = nested_address_object&.dig('zipLastFour') || ''
-      international_zip = nested_address_object&.dig('internationalPostalCode')
-      if zip_last_four.present?
-        "#{zip_first_five}-#{zip_last_four}"
-      elsif international_zip.present?
-        international_zip
+      country = nested_address_object&.dig('country')
+
+      if country == 'USA'
+        zip_first_five = nested_address_object&.dig('zipFirstFive') || ''
+        zip_last_four = nested_address_object['zipLastFour'] || ''
+        if zip_last_four.present?
+          "#{zip_first_five}-#{zip_last_four}"
+        else
+          zip_first_five.presence
+        end
       else
-        zip_first_five
+        nested_address_object&.dig('internationalPostalCode')
       end
     end
 
@@ -86,6 +89,10 @@ module ClaimsApi
     def build_disability_item(disability, approximate_date, service_relevance, exposure = nil)
       { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure,
         serviceRelevance: service_relevance }.compact
+    end
+
+    def handle_yes_no(pay)
+      pay ? 'YES' : 'NO'
     end
   end
 end

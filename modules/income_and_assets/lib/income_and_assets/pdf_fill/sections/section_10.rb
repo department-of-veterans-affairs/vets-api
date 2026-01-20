@@ -50,7 +50,6 @@ module IncomeAndAssets
             'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
           'ownedPortionValueOverflow' => {
-            key: "ownedPortionValueOverflow[#{ITERATOR}]", # frozen_string_literal: true
             limit: 14,
             dollar: true,
             question_num: 10,
@@ -81,7 +80,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         assets = form_data['unreportedAssets']
-        form_data['unreportedAsset'] = assets&.length ? 0 : 1
+        form_data['unreportedAsset'] = radio_yesno(assets&.length)
         form_data['unreportedAssets'] = assets&.map { |item| expand_item(item) }
       end
 

@@ -18,17 +18,16 @@ module BGSV2
     end
 
     def report_adult_children_attending_school
-      adult_attending_school = BGSDependentsV2::AdultChildAttendingSchool.new(@student)
+      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student)
       formatted_info = adult_attending_school.format_info
       participant = bgs_service.create_participant(@proc_id)
 
       bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
       send_address(adult_attending_school, participant, adult_attending_school.address)
-
       @dependents = adult_attending_school.serialize_dependent_result(
         participant,
         'Child',
-        'Biological',
+        formatted_info['relationship_to_student'] || 'Biological',
         {
           type: '674',
           dep_has_income_ind: formatted_info['dependent_income']

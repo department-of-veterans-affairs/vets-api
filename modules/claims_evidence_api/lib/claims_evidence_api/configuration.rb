@@ -7,6 +7,9 @@ require 'faraday/multipart'
 module ClaimsEvidenceApi
   # HTTP client configuration for the {ClaimsEvidenceApi::Service::Base},
   class Configuration < Common::Client::Configuration::REST
+    self.open_timeout = Settings.claims_evidence_api.timeout.open || 30
+    self.read_timeout = Settings.claims_evidence_api.timeout.read || 30
+
     # @return [Config::Options] Settings for benefits_claims API.
     def service_settings
       Settings.claims_evidence_api
@@ -26,7 +29,8 @@ module ClaimsEvidenceApi
 
     # @return [Hash] The basic headers required for any API call
     def self.base_request_headers
-      super.merge('Authorization' => "Bearer #{ClaimsEvidenceApi::JwtGenerator.new.encode_jwt}")
+      headers = {}
+      super.merge(headers)
     end
 
     # Creates a connection with json parsing and breaker functionality.

@@ -43,21 +43,13 @@ module V0
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
-      log_in_progress_form if current_user
-
       begin
         result = health_care_application.process!
       rescue HCA::SOAPParser::ValidationError
         raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
       end
 
-      if current_user
-        if Flipper.enabled?(:hca_in_progress_form_delete_async)
-          DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid)
-        else
-          clear_in_progress_form
-        end
-      end
+      DeleteInProgressFormJob.perform_in(5.minutes, FORM_ID, current_user.uuid) if current_user
 
       if result[:id]
         render json: HealthCareApplicationSerializer.new(result)
@@ -114,70 +106,12 @@ module V0
 
     private
 
-    def log_in_progress_form
-      return unless Flipper.enabled?(:hca_in_progress_form_logging)
-
-      in_progress_form = InProgressForm.form_for_user(FORM_ID, current_user)
-      Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}] " \
-                        "- HealthCareApplication has InProgressForm: #{!in_progress_form.nil?}")
-    end
-
-    def clear_in_progress_form
-      in_progress_form_before = nil
-      if Flipper.enabled?(:hca_in_progress_form_logging)
-        in_progress_form_before = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}, " \
-                          "form_submission_id: #{health_care_application.form_submission_id_string}] - " \
-                          "InProgressForm exists before attempted delete: #{!in_progress_form_before.nil?}")
-
-      end
-
-      clear_saved_form(FORM_ID)
-
-      if Flipper.enabled?(:hca_in_progress_form_logging) && in_progress_form_before
-        in_progress_form_after = InProgressForm.form_for_user(FORM_ID, current_user)
-        Rails.logger.info("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}]" \
-                          "[ipf_id_before:#{in_progress_form_before&.id}, ipf_id_after:#{in_progress_form_after&.id}]" \
-                          " - InProgressForm successfully deleted: #{in_progress_form_after.nil?}")
-        increment_in_progress_metric(in_progress_form_after)
-      end
-    rescue => e
-      Rails.logger.warn("[10-10EZ][#{user_uuid},#{user_account_id}][#{hca_id}] - " \
-                        "Failed to clear saved form: #{e.message}")
-    end
-
-    def increment_in_progress_metric(in_progress_form_after)
-      metric_text = if in_progress_form_after.nil?
-                      'in_progress_form_deleted'
-                    else
-                      'in_progress_form_not_deleted'
-                    end
-      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{metric_text}",
-                       tags: [hca_id, user_uuid, user_account_id])
-    end
-
-    def hca_id
-      "health_care_application_id:#{health_care_application.id}"
-    end
-
-    def user_uuid
-      user_uuid = current_user.uuid || 'none'
-
-      "user_uuid:#{user_uuid}"
-    end
-
-    def user_account_id
-      user_account_id = current_user&.user_account&.id || 'none'
-
-      "user_account_id:#{user_account_id}"
-    end
-
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
     end
 
     def import_facilities_if_empty
-      HCA::StdInstitutionImportJob.new.perform unless HealthFacility.exists?
+      HCA::StdInstitutionImportJob.new.import_facilities(run_sync: true) unless HealthFacility.exists?
     end
 
     def record_submission_attempt

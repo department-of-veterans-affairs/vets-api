@@ -6,6 +6,10 @@ require 'evss/disability_compensation_auth_headers' # required to build a Form52
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }
 
+  # Use existing fixture simple.pdf as test input
+  let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
+  let(:test_pdf) { Rails.root.join('tmp', 'test_output.pdf') }
+
   before do
     Sidekiq::Job.clear_all
     # Make Job use old CentralMail route for all tests
@@ -14,7 +18,21 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     # This is to ensure that the 2024 4142 template is
     # not used in tests unless explicitly enabled
     allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
+
+    # Stub out pdf methods as they are not needed for these tests and are cpu expensive
+    FileUtils.cp(fixture_pdf, test_pdf)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:fill_form_template)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_signature_stamp)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_vagov_timestamp)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:submission_date_stamp)
+      .and_return(test_pdf.to_s)
   end
+
+  # Clean up the test output file
+  after { FileUtils.rm_f(test_pdf) }
 
   #######################
   ## CentralMail Route ##

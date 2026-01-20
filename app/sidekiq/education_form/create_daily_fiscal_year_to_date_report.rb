@@ -14,7 +14,7 @@ module EducationForm
     }.freeze
 
     FORM_TYPES = EducationBenefitsClaim::FORM_TYPES.reject do |form_type|
-      %w[10282 10216 10215 10297 1919 0839 10275 8794].include?(form_type)
+      %w[10282 10216 10215 10297 1919 0839 10275 8794 0976 10278 1990e 0803 10272].include?(form_type)
     end.freeze
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
@@ -59,7 +59,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      %w[1990n 0993].exclude?(form_type)
+      %w[0993].exclude?(form_type)
     end
 
     def calculate_submissions(range_type: :year, status: :processed)

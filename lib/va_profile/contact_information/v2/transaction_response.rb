@@ -115,7 +115,6 @@ module VAProfile
           end
         rescue => e
           log_exception_to_sentry(e)
-          log_exception_to_rails(e)
         end
       end
 
@@ -150,7 +149,6 @@ module VAProfile
           end
         rescue => e
           log_exception_to_sentry(e)
-          log_exception_to_rails(e)
         end
       end
 
@@ -202,6 +200,11 @@ module VAProfile
       end
 
       class PermissionTransactionResponse < TransactionResponse; end
+
+      # PersonOptionsTransactionResponse handles transactions from the VAProfile Person Settings API.
+      # While not Contact Information, it's included in this module to leverage the existing transaction
+      # infrastructure and maintain consistency with other VAProfile transaction types
+      class PersonOptionsTransactionResponse < TransactionResponse; end
     end
   end
 end

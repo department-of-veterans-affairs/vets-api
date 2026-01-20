@@ -42,9 +42,21 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               'start' => '2024-11-21T18:00:00Z',
               'isLatest' => true,
               'lastRetrieved' => '2025-02-10T14:35:44Z',
-              'modality' => 'OV',
+              'modality' => 'communityCareEps',
+              'location' => {
+                'id' => 'Aq7wgAux',
+                'type' => 'appointments',
+                'attributes' => {
+                  'name' => 'Test Medical Complex',
+                  'timezone' => {
+                    'timeZoneId' => 'America/New_York'
+                  }
+                }
+              },
               'provider' => {
                 'id' => 'test-provider-id',
+                'name' => 'Timothy Bob',
+                'practice' => 'test-provider-org-name',
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
@@ -52,7 +64,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
                 }
-              }
+              },
+              'past' => true,
+              'referralId' => '12345'
             }
           }
         }
@@ -80,6 +94,16 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
       end
 
       context 'when a booked appointment corresponding to the referral is not found' do
+        let(:perform_request) do
+          lambda do
+            VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path]) do
+                get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+              end
+            end
+          end
+        end
+
         it 'returns a 404 error' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path]) do
@@ -89,9 +113,51 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             end
           end
         end
+
+        it 'logs EPS error with sanitized context' do
+          allow(Rails.logger).to receive(:error)
+
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+            end
+          end
+
+          # The service logs the error when processing real VCR responses
+          # Verify controller name comes from RequestStore (set by controller's before_action)
+          expected_controller_name = 'VAOS::V2::EpsAppointmentsController'
+          # Verify station_number comes from user object
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: EPS service error',
+            {
+              service: 'EPS',
+              method: 'get_appointment',
+              error_class: 'Eps::ServiceException',
+              timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              eps_trace_id: '1dba6dccb4a50f0c512d5bd661ebc013',
+              code: 'VAOS_404',
+              upstream_status: 404,
+              upstream_body: '{\"name\": \"Not Found\"}'
+            }
+          )
+        end
       end
 
       context 'when the upstream service returns a 500 error' do
+        let(:perform_request) do
+          lambda do
+            VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
+                get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+              end
+            end
+          end
+        end
+
         it 'returns a 502 error' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
@@ -100,6 +166,37 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:bad_gateway)
             end
           end
+        end
+
+        it 'logs EPS error with sanitized context' do
+          allow(Rails.logger).to receive(:error)
+
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+            end
+          end
+
+          # The service logs the error when processing real VCR responses
+          # Verify controller name comes from RequestStore (set by controller's before_action)
+          expected_controller_name = 'VAOS::V2::EpsAppointmentsController'
+          # Verify station_number comes from user object
+          expected_station_number = current_user.va_treatment_facility_ids&.first
+
+          expect(Rails.logger).to have_received(:error).with(
+            'Community Care Appointments: EPS service error',
+            {
+              service: 'EPS',
+              method: 'get_appointment',
+              error_class: 'Eps::ServiceException',
+              timestamp: a_string_matching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/),
+              controller: expected_controller_name,
+              station_number: expected_station_number,
+              code: 'VAOS_502',
+              upstream_status: 500,
+              upstream_body: '{\"isFault\": true,\"isTemporary\": true,\"name\": \"Internal Server Error\"}'
+            }
+          )
         end
       end
 
@@ -116,22 +213,81 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         end
       end
 
+      context 'location data' do
+        it 'includes location key in response when provider data is available' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+                expect(response).to have_http_status(:success)
+                response_data = JSON.parse(response.body)
+
+                expect(response_data['data']['attributes']).to have_key('location')
+
+                location = response_data['data']['attributes']['location']
+                expect(location).to be_present
+                expect(location['id']).to be_present
+                expect(location['type']).to eq('appointments')
+                expect(location['attributes']).to be_present
+                expect(location['attributes']['name']).to eq('Test Medical Complex')
+                expect(location['attributes']['timezone']).to be_present
+                expect(location['attributes']['timezone']['timeZoneId']).to eq('America/New_York')
+              end
+            end
+          end
+        end
+
+        it 'handles missing provider data gracefully' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:success)
+              response_data = JSON.parse(response.body)
+
+              expect(response_data['data']['attributes']['location']).to be_nil
+            end
+          end
+        end
+      end
+
       context 'when response contains error field' do
+        let(:perform_request) do
+          lambda do
+            # Raise Eps::ServiceException with proper BackendServiceException parameters
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
+              .and_raise(Eps::ServiceException.new(
+                           'VAOS_400',
+                           { code: 'VAOS_400', detail: 'conflict' },
+                           400,
+                           '{"error": "conflict", "id": "qdm61cJ5"}'
+                         ))
+
+            get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+          end
+        end
+
         it 'returns a 400 error' do
-          # Mock the appointment service to raise the exception we added for error field handling
-          error_env = OpenStruct.new(
-            status: 400,
-            body: '{"error": "conflict", "id": "qdm61cJ5"}',
-            url: 'https://api.wellhive.com/care-navigation/v1'
-          )
-          exception = VAOS::Exceptions::BackendServiceException.new(error_env)
-
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
-            .and_raise(exception)
-
-          get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
-
+          perform_request.call
           expect(response).to have_http_status(:bad_request)
+        end
+
+        it 'logs EPS error with sanitized context', skip: 'Rails duplicate logging' do
+          allow(Rails.logger).to receive(:error)
+
+          perform_request.call
+
+          # The global exception handler logs BackendServiceException differently
+          expect(Rails.logger).to have_received(:error).with(
+            a_string_including('BackendServiceException'),
+            hash_including(
+              title: 'Bad Request',
+              detail: 'conflict',
+              code: 'VAOS_400',
+              status: '400'
+            )
+          )
         end
       end
     end

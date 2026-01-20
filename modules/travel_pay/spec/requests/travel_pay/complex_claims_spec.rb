@@ -174,6 +174,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         post('/travel_pay/v0/complex_claims', params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end
@@ -347,6 +350,9 @@ RSpec.describe TravelPay::V0::ComplexClaimsController, type: :request do
         patch("/travel_pay/v0/complex_claims/#{claim_id}/submit", params: {})
 
         expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        expect(body['errors'].first['detail'])
+          .to include('Travel Pay complex claim endpoint unavailable per feature toggle')
       end
     end
   end

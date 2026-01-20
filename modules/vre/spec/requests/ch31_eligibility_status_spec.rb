@@ -31,20 +31,20 @@ RSpec.describe 'VRE::V0::Ch31EligibilityStatus', type: :request do
       end
     end
 
-    context 'when eligibility not authorized for user' do
+    context 'when eligibility forbidden for user' do
       let(:user) { create(:user, icn: '1234') }
 
-      it 'returns 3 response' do
+      it 'returns 403 response' do
         VCR.use_cassette('vre/ch31_eligibility/403') do
           get '/vre/v0/ch31_eligibility_status'
           expect(response).to have_http_status(:forbidden)
           message = JSON.parse(response.body)['errors'].first['detail']
-          expect(message).to eq('Not Authorized')
+          expect(message).to eq('Forbidden')
         end
       end
     end
 
-    context 'when upstream service is unavailable' do
+    context 'when upstream service is not available' do
       let(:user) { create(:user, icn: '1012667145V762142') }
 
       it 'returns 503 response' do

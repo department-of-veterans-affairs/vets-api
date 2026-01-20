@@ -250,12 +250,6 @@ RSpec.describe SAML::URLService do
           end
         end
 
-        it 'has sign out url: slo_url' do
-          expect(subject.slo_url)
-            .to be_a_saml_url(expected_logout_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'slo')
-        end
-
         context 'redirect urls' do
           let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}' } }
 
@@ -518,12 +512,6 @@ RSpec.describe SAML::URLService do
           end
         end
 
-        it 'has sign out url: slo_url' do
-          expect(subject.slo_url)
-            .to be_a_saml_url(expected_logout_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'slo')
-        end
-
         context 'redirect urls' do
           let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}' } }
 
@@ -594,7 +582,7 @@ RSpec.describe SAML::URLService do
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
       with_settings(IdentitySettings.saml_ssoe,
-                    relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
+                    relay: "http://#{slug_id}.vfs.va.gov/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end

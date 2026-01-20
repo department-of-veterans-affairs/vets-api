@@ -25,6 +25,7 @@ module Mobile
       EMAIL_KEYS = %i[
         id
         email_address
+        confirmation_date
         updated_at
       ].freeze
 

@@ -60,7 +60,7 @@ paths:
       summary: /
   /v0/appeal/{id}:
     get:
-      description: Returns info on all user's claims and appeals for mobile overview
+      description: Returns info on all user's claims and appeals for the mobile overview
         page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
       parameters:
         - description: Appeal Id
@@ -1359,13 +1359,23 @@ paths:
     get:
       description: Returns a list of user's debts.
       parameters:
+        - description: When true, returns the count of the list of the user's debts
+            only. When false (default), returns the full list of the user's debts.
+          example: true
+          in: query
+          name: countOnly
+          required: false
+          schema:
+            type: boolean
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: ./schemas/Debts.yml
+                oneOf:
+                  - $ref: ./schemas/Debts.yml
+                  - $ref: ./schemas/DebtsCount.yml
           description: OK
         '400':
           $ref: '#/components/responses/400'
@@ -1767,88 +1777,6 @@ paths:
       security:
         - Bearer: []
       summary: /v0/efolder/documents/{documentId}/download
-  /v0/claim-letter/documents:
-    get:
-      description: Returns the user's list of documents from lighthouse
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/ClaimLetterDocuments.yml
-          description: OK
-        '400':
-          $ref: '#/components/responses/401'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/claim-letter/documents
-  /v0/claim-letter/documents/{document_id}/download:
-    post:
-      description: returns requested document
-      parameters:
-        - description: File name of the document to be returned.
-          in: query
-          name: file_name
-          required: true
-          schema:
-            type: string
-        - description: ID of the document to be returned.
-          in: path
-          name: document_id
-          required: true
-          schema:
-            type: string
-            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/pdf:
-              schema:
-                format: binary
-                type: string
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/claim-letter/documents/{documentId}/download
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
@@ -2124,6 +2052,50 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       summary: /v0/health/allergy-intolerances
+  /v1/health/allergy-intolerances:
+    get:
+      description: >
+        Retrieves a Unified Health Data list of the user's known allergies related to medication, food, or other substances
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested. Defaults to 1.
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/AllergyIntolerancesV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v1/health/allergy-intolerances
   /v0/health/labs-and-tests:
     get:
       description: >
@@ -2827,6 +2799,38 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/folders/{id}
+    delete:
+      description: Delete a secure messaging folder
+      parameters:
+        - description: The folder ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/folders/{id}
   /v0/messaging/health/folders/{id}/messages:
     get:
       description: |
@@ -2851,18 +2855,6 @@ paths:
           required: false
           schema:
             type: string
-        - description: The page number requested
-          example: 1
-          in: query
-          name: page
-          schema:
-            type: integer
-        - description: The number of records to return per page. Defaults to 100
-          example: 10
-          in: query
-          name: perPage
-          schema:
-            type: integer
         - description: Whether or not to use this API's cache or fetch records from
             the upstream service. Defaults to true.
           example: true
@@ -3045,6 +3037,46 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{id}
+    patch:
+      description: Update an existing draft message (alias for PUT)
+      parameters:
+        - description: The id of the draft that is to be updated
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                body: the updated message
+              type: object
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/message_drafts/{id}
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
@@ -3089,7 +3121,7 @@ paths:
         - Bearer: []
       summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft
   /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
-    post:
+    put:
       description: Edit a draft message that was a reply to an existing message
       parameters:
         - description: The id of the message that will be replied to
@@ -3367,6 +3399,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/messages/{id}
+  /v0/messaging/health/messages/{id}/move:
     patch:
       description: Moves a secure message to a specified folder
       parameters:
@@ -3378,7 +3411,7 @@ paths:
             type: string
         - description: The id of the folder that the message is to be moved to
           in: query
-          name: folder_id,
+          name: folder_id
           required: true
           schema:
             type: string
@@ -3531,7 +3564,7 @@ paths:
   /v0/messaging/health/messages/{id}/thread:
     get:
       description: |
-        Gets a list of message summaries that are related to the message of the passed id and older than the message of 
+        Gets a list of message summaries that are related to the message of the passed id and older than the message of
         the id provided. Does <strong>not</strong> include the message of the passed id itself.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
@@ -3564,8 +3597,8 @@ paths:
   /v1/messaging/health/messages/{id}/thread:
     get:
       description: |
-        Gets a list of message summaries that are related to the message of the passed id regardless of their age in 
-        relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> 
+        Gets a list of message summaries that are related to the message of the passed id regardless of their age in
+        relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong>
         include the message of the passed id itself.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
@@ -4177,6 +4210,103 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/travel-pay/claims
+  /v0/travel-pay/claims/{id}:
+    get:
+      description: Retrieve details for a specific travel pay claim by ID.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The unique identifier for the travel pay claim
+          example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/TravelPayClaimDetails.yml
+          description: Travel pay claim details retrieved successfully
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/travel-pay/claims/{id}
+  /v0/travel-pay/claims/{claim_id}/documents/{document_id}:
+    get:
+      description: Download a specific document associated with a travel pay claim.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The unique identifier for the travel pay claim
+          example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          in: path
+          name: claim_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: The unique identifier for the document to download
+          example: 'doc1-decision-letter'
+          in: path
+          name: document_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: Document downloaded successfully
+          headers:
+            Content-Disposition:
+              description: Indicates the file should be downloaded with the specified filename
+              schema:
+                type: string
+                example: 'attachment; filename="DecisionLetter.pdf"'
+            Content-Type:
+              description: The MIME type of the document
+              schema:
+                type: string
+                example: 'application/pdf'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/travel-pay/claims/{claim_id}/documents/{document_id}
   /v0/user:
     get:
       description: |
@@ -4442,7 +4572,7 @@ paths:
               Using Overridden Address:
                 value:
                   addressLine1: 1493 Martin Luther King Rd
-                  addressPou: RESIDENCE/CHOICE
+                  addressPou: RESIDENCE
                   addressType: DOMESTIC
                   city: Fulton
                   countryCodeIso3: USA
@@ -4458,7 +4588,7 @@ paths:
                     confidenceScore: 100
                     deliveryPointValidation: CONFIRMED
                     residentialDeliveryIndicator: RESIDENTIAL
-                  addressPou: RESIDENCE/CHOICE
+                  addressPou: RESIDENCE
                   addressType: DOMESTIC
                   city: Fulton
                   countryCodeIso3: USA
@@ -4516,7 +4646,7 @@ paths:
               Using Overridden Address:
                 value:
                   addressLine1: 1493 Martin Luther King Rd
-                  addressPou: RESIDENCE/CHOICE
+                  addressPou: RESIDENCE
                   addressType: DOMESTIC
                   city: Fulton
                   countryCodeIso3: USA
@@ -4533,7 +4663,7 @@ paths:
                     confidenceScore: 100
                     deliveryPointValidation: CONFIRMED
                     residentialDeliveryIndicator: RESIDENTIAL
-                  addressPou: RESIDENCE/CHOICE
+                  addressPou: RESIDENCE
                   addressType: DOMESTIC
                   city: Fulton
                   countryCodeIso3: USA
@@ -5157,6 +5287,156 @@ paths:
       security:
         - Bearer: []
       summary: /v1/health/immunizations
+  /v1/health/labs-and-tests:
+    get:
+      description: Returns a list of lab and test results for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: Start date for filtering lab results (ISO 8601 format)
+          in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date
+        - description: End date for filtering lab results (ISO 8601 format)
+          in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/LabsAndTestsV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/labs-and-tests
+  /v1/health/rx/prescriptions:
+    get:
+      description: Returns a paginated list of prescriptions for given user (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested
+          in: query
+          name: page[number]
+          required: false
+          schema:
+            type: integer
+        - description: The number of records to return per page
+          in: query
+          name: page[size]
+          required: false
+          schema:
+            type: integer
+        - description: Sort field for prescriptions
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/PrescriptionsV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/rx/prescriptions
+  /v1/health/rx/prescriptions/refill:
+    put:
+      description: Refill prescriptions (v1)
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - stationNumber
+                  - id
+                properties:
+                  stationNumber:
+                    type: string
+                    description: The station number for the prescription
+                  id:
+                    type: string
+                    description: The prescription ID
+        description: Array of orders to refill, each with stationNumber and id
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/v1/PrescriptionRefillV1.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v1/health/rx/prescriptions/refill
 
 components:
   securitySchemes:

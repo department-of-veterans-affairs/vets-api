@@ -1,7 +1,7 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
-require 'claims_api/v2/lighthouse_military_address_validator'
+require 'claims_api/lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
@@ -1010,8 +1010,7 @@ module ClaimsApi
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
-      def validate_required_values_for_federal_activation(activation_date, separation_date)
+      def validate_required_values_for_federal_activation(activation_date, separation_date) # rubocop:disable Metrics/MethodLength
         activation_form_obj_desc = 'serviceInformation/federalActivation/'
         reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
         reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardService/'
@@ -1042,7 +1041,6 @@ module ClaimsApi
                                  source: reserves_unit_form_obj_desc)
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']

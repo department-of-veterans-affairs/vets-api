@@ -6,27 +6,19 @@ module SignIn
 
     def show
       authorize access_token, policy_class: SignIn::UserInfoPolicy
+      user_info = SignIn::UserInfoGenerator.new(user: current_user).perform
 
-      render json: user_info_json, status: :ok
+      if user_info.valid?
+        render json: user_info.serializable_hash, status: :ok
+      else
+        error = user_info.errors.full_messages.join(', ')
+
+        Rails.logger.error('[SignIn][UserInfoController] Invalid user_info', error:)
+        render json: { error: }, status: :bad_request
+      end
     end
 
     private
-
-    def user_info_json
-      {
-        sub: current_user.uuid,
-        credential_uuid: user_verification.credential_identifier,
-        icn: current_user.icn,
-        sec_id: current_user.sec_id,
-        first_name: current_user.first_name,
-        last_name: current_user.last_name,
-        email:
-      }
-    end
-
-    def email
-      user_verification&.user_credential_email&.credential_email
-    end
 
     def user_verification
       current_user.user_verification

@@ -13,7 +13,7 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
-  attr_accessor :skip_exipry_update, :real_user_uuid
+  attr_accessor :real_user_uuid
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
   attribute :user_uuid, CleanUUID.new
@@ -47,8 +47,7 @@ class InProgressForm < ApplicationRecord
 
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 21-526EZ 5655].include?(form.form_id) }
-  before_save :set_expires_at, unless: :skip_exipry_update
+  before_create :set_expires_at
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy lambda { |ipf|
@@ -57,9 +56,15 @@ class InProgressForm < ApplicationRecord
                 }
   after_save :log_hca_email_diff
 
-  def self.form_for_user(form_id, user)
-    user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
-    user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+  def self.form_for_user(form_id, user, with_lock: false)
+    if Flipper.enabled?(:in_progress_form_atomicity, user)
+      scope = with_lock ? lock : all
+      user_uuid_form = scope.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = scope.find_by(form_id:, user_account: user.user_account) if user.user_account
+    else
+      user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+      user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
+    end
     user_uuid_form || user_account_form
   end
 
@@ -92,22 +97,28 @@ class InProgressForm < ApplicationRecord
 
   ##
   # Determines an expiration duration based on the UI form_id.
-  # If the in_progress_form_custom_expiration feature is enabled,
-  # the method can additionally return custom expiration durations whose values
-  # are passed in as Strings from the UI.
   #
   # @return [ActiveSupport::Duration] an instance of ActiveSupport::Duration
   #
   def expires_after
-    @expires_after ||=
-      if Flipper.enabled?(:in_progress_form_custom_expiration)
-        custom_expires_after
-      else
-        default_expires_after
-      end
+    @expires_after ||= case form_id
+                       when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
+                         1.year
+                       else
+                         60.days
+                       end
+  end
+
+  def next_expires_at
+    skippable_forms = %w[21P-527EZ 21-526EZ 5655]
+    skippable_forms.include?(form_id) ? expires_at : (Time.current + expires_after)
   end
 
   private
+
+  def set_expires_at
+    self.expires_at ||= Time.current + expires_after
+  end
 
   def log_hca_email_diff
     HCA::LogEmailDiffJob.perform_async(id, real_user_uuid, user_account_id) if form_id == '1010ez'
@@ -115,32 +126,5 @@ class InProgressForm < ApplicationRecord
 
   def serialize_form_data
     self.form_data = form_data.to_json unless form_data.is_a?(String)
-  end
-
-  def set_expires_at
-    self.expires_at = Time.current + expires_after
-  end
-
-  def skip_exipry_update_check
-    self.skip_exipry_update = expires_at.present?
-  end
-
-  def days_till_expires
-    @days_till_expires ||= JSON.parse(form_data)['days_till_expires']
-  end
-
-  def default_expires_after
-    case form_id
-    when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
-      1.year
-    else
-      60.days
-    end
-  end
-
-  def custom_expires_after
-    options = { form_id:, days_till_expires: }
-
-    FormDurations::Worker.build(options).get_duration
   end
 end

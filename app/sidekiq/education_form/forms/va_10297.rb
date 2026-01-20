@@ -42,58 +42,26 @@ module EducationForm::Forms
       both: 'Both'
     }.freeze
 
-    def applicant_name
-      @applicant.applicantFullName
-    end
-
     def applicant_ssn
       @applicant.ssn
     end
 
-    def applicant_va_file_number
-      @applicant.vaFileNumber
-    end
-
-    def new_bank_info?
-      @applicant.bankAccount&.routingNumber.present? ||
-        @applicant.bankAccount&.accountNumber.present? ||
-        @applicant.bankAccount&.accountType.present?
-    end
-
     def bank_routing_number
-      if @applicant.bankAccount&.routingNumber.present?
-        @applicant.bankAccount.routingNumber
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankRoutingNumber
-      end
+      @applicant.bankAccount&.routingNumber
     end
 
     def bank_account_number
-      if @applicant.bankAccount&.accountNumber.present?
-        @applicant.bankAccount.accountNumber
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankAccountNumber
-      end
+      @applicant.bankAccount&.accountNumber
     end
 
     def bank_account_type
-      if @applicant.bankAccount&.accountType.present?
-        @applicant.bankAccount.accountType
-      elsif !new_bank_info?
-        @applicant.prefillBankAccount&.bankAccountType
-      end
+      @applicant.bankAccount&.accountType
     end
 
     def education_level_name
-      return '' if @applicant.highestLevelofEducation.blank?
+      return '' if @applicant.highestLevelOfEducation.blank?
 
-      EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
-    end
-
-    def course_type_name(course_type)
-      return '' if course_type.blank?
-
-      COURSE_TYPE_TEXT[course_type.to_sym]
+      EDUCATION_TEXT[@applicant.highestLevelOfEducation.to_sym]
     end
 
     def high_tech_area_name
@@ -110,12 +78,10 @@ module EducationForm::Forms
     end
 
     def get_program_block(program)
-      program.providerAddress
+      formatted_address = full_address_with_street2(program.providerAddress, indent: true)
       [
         ["\n  Provider name: ", program.providerName].join,
-        "\n  Location:",
-        ["\n    City: ", program.providerAddress.city].join,
-        ["\n    State: ", program.providerAddress.state].join
+        ["\n  Address: ", formatted_address].join
       ].join
     end
 
@@ -126,7 +92,7 @@ module EducationForm::Forms
       @applicant.trainingProviders.providers.each do |program|
         program_blocks.push(get_program_block(program))
       end
-      program_blocks.push(["\n  Planned start date: ", @applicant.trainingProviders.plannedStartDate].join)
+      program_blocks.push(["\n\n  Planned start date: ", @applicant.trainingProviders.plannedStartDate].join)
 
       program_blocks.join("\n")
     end
@@ -134,7 +100,7 @@ module EducationForm::Forms
     def full_address_with_street2(address, indent: false)
       return '' if address.nil?
 
-      seperator = indent ? "\n        " : "\n"
+      seperator = indent ? "\n           " : "\n"
       [
         address.street,
         address.street2,

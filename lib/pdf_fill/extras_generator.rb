@@ -2,8 +2,11 @@
 
 module PdfFill
   class ExtrasGenerator
-    def initialize
+    attr_reader :use_hexapdf
+
+    def initialize(options = {})
       @generate_blocks = []
+      @use_hexapdf = options.fetch(:use_hexapdf, false)
     end
 
     def placeholder_text

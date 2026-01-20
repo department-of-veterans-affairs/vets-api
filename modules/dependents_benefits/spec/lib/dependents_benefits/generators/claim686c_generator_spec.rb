@@ -4,15 +4,15 @@ require 'rails_helper'
 require 'dependents_benefits/generators/claim686c_generator'
 
 RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model do
-  let(:form_data) { create(:dependents_claim).parsed_form }
-  let(:parent_id) { 123 }
-  let(:generator) { described_class.new(form_data, parent_id) }
-
-  describe '#form_id' do
-    it 'returns the correct form_id for 686c' do
-      expect(generator.send(:form_id)).to eq('21-686c')
-    end
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
+
+  let(:parent_claim) { create(:dependents_claim) }
+  let(:form_data) { parent_claim.parsed_form }
+  let(:parent_id) { parent_claim.id }
+  let(:generator) { described_class.new(form_data, parent_id) }
 
   describe '#extract_form_data' do
     let(:extracted_data) { generator.send(:extract_form_data) }
@@ -48,20 +48,27 @@ RSpec.describe DependentsBenefits::Generators::Claim686cGenerator, type: :model 
   end
 
   describe '#generate' do
+    let!(:parent_claim_group) do
+      create(:saved_claim_group,
+             claim_group_guid: parent_claim.guid,
+             parent_claim_id: parent_claim.id,
+             saved_claim_id: parent_claim.id)
+    end
+
     it 'creates a 686c claim' do
       created_claim = generator.generate
-      expect(created_claim.form_id).to eq('21-686c')
+      expect(created_claim.form_id).to eq('21-686C')
 
       parsed_form = JSON.parse(created_claim.form)
       expect(parsed_form['veteran_information']).to eq(form_data['veteran_information'])
-    end
 
-    it 'logs a TODO message for claim linking' do
-      expect(Rails.logger).to receive(:info).with(match(/Skipping tracking PDF overflow/),
-                                                  instance_of(Hash)).at_least(:once)
-      expect(Rails.logger).to receive(:info).with(match(/Stamping PDF/)).at_least(:once)
-      expect(Rails.logger).to receive(:info).with(match(/TODO: Link claim \d+ to parent #{parent_id}/)).once
-      generator.generate
+      # Verify that a new claim group was created linking the new claim to the parent
+      new_claim_group = SavedClaimGroup.find_by(
+        parent_claim_id: parent_claim.id,
+        saved_claim_id: created_claim.id
+      )
+      expect(new_claim_group).to be_present
+      expect(new_claim_group.claim_group_guid).to eq(parent_claim.guid)
     end
   end
 end

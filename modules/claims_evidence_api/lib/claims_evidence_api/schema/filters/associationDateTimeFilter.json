@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/associationDateTimeFilter.json",
+  "description" : "Filters results on range for AssociationDateTime.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "BETWEEN" ],
+      "type" : "string"
+    },
+    "value" : {
+      "description" : "This is a stringified json array of dates",
+      "example" : "\"[\\\"2020-10-09\\\",\\\"2020-10-11\\\"]\"",
+      "type" : "string"
+    }
+  },
+  "title" : "Document Association Date Filter Request",
+  "type" : "object"
+}

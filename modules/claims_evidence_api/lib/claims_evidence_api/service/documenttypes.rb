@@ -18,6 +18,13 @@ module ClaimsEvidenceApi
         perform :get, 'documenttypes', {}
       end
 
+      private
+
+      # @see ClaimsEvidenceApi::Service::Base#endpoint
+      def endpoint
+        'documenttypes'
+      end
+
       # end DocumentTypes
     end
 

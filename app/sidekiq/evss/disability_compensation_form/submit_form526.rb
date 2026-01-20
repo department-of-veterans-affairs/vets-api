@@ -3,7 +3,6 @@
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
-require 'sentry_logging'
 require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 
@@ -42,18 +41,18 @@ module EVSS
         begin
           job_exhausted(msg, STATSD_KEY_PREFIX)
         rescue => e
-          log_exception_to_sentry(e)
+          log_error(msg, e)
         end
 
         # Submit under different birls if avail
         begin
           submission = Form526Submission.find msg['args'].first
           next_birls_jid = submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-            silence_errors_and_log_to_sentry: true,
-            extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
+            silence_errors_and_log: true,
+            extra_content_for_logs: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
           )
         rescue => e
-          log_exception_to_sentry(e)
+          log_error(msg, e)
         end
 
         # if no more unused birls to attempt submit with, give up, let vet know
@@ -65,17 +64,32 @@ module EVSS
             Form526SubmissionFailedEmailJob.perform_async(params)
           end
         rescue => e
-          log_exception_to_sentry(e)
+          log_error(msg, e)
         end
       end
       # :nocov:
+
+      # Class method to log errors that occur in the sidekiq_retries_exhausted callback
+      #
+      # @param msg [Hash] The Sidekiq message containing job metadata
+      # @param error [Exception] The error that occurred
+      #
+      def self.log_error(msg, error)
+        log_error_info = {}
+        log_error_info[:job_class] = msg['class'].demodulize
+        log_error_info[:job_id] = msg['jid']
+        log_error_info[:submission_id] = msg['args'].first
+        log_error_info[:error_message] = error.message
+        log_error_info[:original_job_failure_reason] = msg['error_message']
+      ensure
+        Rails.logger.error('SubmitForm526#sidekiq_retries_exhausted error', log_error_info)
+      end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
       # @param submission_id [Integer] The {Form526Submission} id
       def perform(submission_id)
-        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
         return if fail_submission_feature_enabled?(submission)
@@ -108,7 +122,14 @@ module EVSS
       # send submission data to either EVSS or Lighthouse (LH)
       def choose_service_provider(submission, service)
         if submission.claims_api? # not needed once fully migrated to LH
-          send_submission_data_to_lighthouse(submission, submission.account.icn)
+          icn = submission.account.icn
+
+          if icn.blank?
+            Rails.logger.error("SubmitForm526#choose_service_provider ICN is null for submission #{submission.id}")
+            raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+          end
+
+          send_submission_data_to_lighthouse(submission, icn)
         else
           service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
         end
@@ -235,8 +256,8 @@ module EVSS
                Flipper.enabled?(:disability_compensation_fail_submission,
                                 OpenStruct.new({ flipper_id: submission.user_uuid }))
           submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-            silence_errors_and_log_to_sentry: true,
-            extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
+            silence_errors_and_log: true,
+            extra_content_for_logs: { job_class: self.class.to_s.demodulize, job_id: jid }
           )
         end
       end

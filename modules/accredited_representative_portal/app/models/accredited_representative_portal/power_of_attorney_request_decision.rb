@@ -5,7 +5,7 @@ module AccreditedRepresentativePortal
     self.inheritance_column = nil
     include PowerOfAttorneyRequestResolution::Resolving
 
-    enum declination_reason: {
+    enum :declination_reason, {
       HEALTH_RECORDS_WITHHELD: 0,
       ADDRESS_CHANGE_WITHHELD: 1,
       BOTH_WITHHELD: 2,

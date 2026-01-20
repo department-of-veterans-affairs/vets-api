@@ -7,6 +7,7 @@ require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
 require 'vets/collection'
+require 'vets/shared_logging'
 
 module BB
   ##
@@ -15,7 +16,7 @@ module BB
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
     include Common::Client::Concerns::StreamingClient
-    include SentryLogging
+    include Vets::SharedLogging
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -137,13 +138,8 @@ module BB
     end
 
     def get_session_tagged
-      Sentry.set_tags(error: 'mhv_session')
-
       BB::Configuration.custom_base_path = APIGW_BASE_PATH
-      env = perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
-
-      Sentry.get_current_scope.tags.delete(:error)
-      env
+      perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
     end
 
     def cache_key(action)

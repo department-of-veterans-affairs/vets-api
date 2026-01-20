@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "type": "array",
+  "items": {
+      "type": "object",
+      "properties": {
+        "acknowledgement_date": {
+          "type": ["string", "null"]
+        },
+        "claim_id": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "delete_date": {
+          "type": ["string", "null"]
+        },
+        "document_type": {
+          "type": "string"
+        },
+        "failed_date": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "lighthouse_upload": {
+          "type": "boolean"
+        },
+        "tracked_item_id": {
+          "type": ["integer", "null"]
+        },
+        "tracked_item_display_name": {
+          "type": ["string", "null"]
+        },
+        "upload_status": {
+          "type": ["string", "null"],
+          "enum": ["CREATED", "QUEUED", "IN_PROGESS", "FAILED", "SUCCESS", null]
+        },
+        "va_notify_status": {
+          "type": ["string", "null"],
+          "enum": ["FAILED", "SUCCESS", null]
+        }
+      },
+      "required": [
+        "claim_id",
+        "created_at",
+        "document_type",
+        "failed_date",
+        "file_name",
+        "id",
+        "lighthouse_upload"
+      ]
+    }
+}

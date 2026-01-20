@@ -17,7 +17,7 @@
   "incomeNetWorthDateRange": {
     "from": "01/01/2020",
     "to": "12/31/2020",
-    "useDateReceivedByVA": false
+    "useDateReceivedByVA": "Off"
   },
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
@@ -589,7 +589,7 @@
       "expectedIncomeOverflow": "$123,567.90",
       "waivedGrossMonthlyIncomeOverflow": "$123,456.78",
       "paymentResumeDateOverflow": "04/01/2026",
-      "paymentWillNotResume": 0,
+      "paymentWillNotResume": "Off",
       "paymentWillResumeOverflow": "YES"
     },
     {
@@ -606,7 +606,7 @@
       "expectedIncome": {},
       "paymentResumeDate": null,
       "paymentResumeDateOverflow": null,
-      "paymentWillNotResume": 1,
+      "paymentWillNotResume": "1",
       "paymentWillResumeOverflow": "NO"
     }
   ],

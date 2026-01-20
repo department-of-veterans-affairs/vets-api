@@ -8,20 +8,27 @@ The Unified Health Data service provides a unified interface to retrieve health 
 lib/unified_health_data/
 ├── README.md                    # This file
 ├── service.rb                   # Main service class
+├── client.rb                   # Main client class
 ├── configuration.rb             # Service configuration
 ├── reference_range_formatter.rb # Lab result formatting utilities
 ├── models/                      # Data models using Vets::Model
 │   ├── clinical_notes.rb       # Clinical notes model
+│   ├── condition.rb             # Condition model
 │   ├── lab_or_test.rb          # Lab results and tests model
-│   ├── prescription.rb         # Prescription model
-│   └── prescription_attributes.rb # Prescription attributes
+│   └── prescription.rb         # Prescription model
 ├── adapters/                    # Data source adapters
-│   ├── clinical_notes_adapter.rb          # Clinical notes parser (V2 namespace)
+│   ├── clinical_notes_adapter.rb          # Clinical notes parser 
+│   ├── conditions_adapter.rb          # Conditions parser 
+│   ├── labs_or_test_adapter.rb          # Labs and tests parser
 │   ├── prescriptions_adapter.rb           # Main prescription parser
 │   ├── vista_prescription_adapter.rb      # VistA medication parser
 │   └── oracle_health_prescription_adapter.rb # Oracle Health FHIR parser
 ├── serializers/                # API response serializers
-│   └── clinical_notes_serializer.rb       # Clinical notes serialization
+│   ├── clinical_notes_serializer.rb       # Clinical notes serialization
+│   ├── conditions_serializer.rb          # Conditions serialization 
+│   ├── labs_or_test_serializer.rb          # Labs and tests serialization
+│   ├── prescriptions_serializer.rb           # Main prescription serialization
+│   └── prescriptions_refills_serializer.rb     # Prescription refills serialization
 └── logging.rb                  # Logging utilities
 ```
 
@@ -76,6 +83,7 @@ The prescription adapters map fields from different data sources to a unified mo
 | `is_trackable` | `isTrackable` | `false` (default) | Boolean | Can shipment be tracked |
 | `instructions` | `sig` | `dosageInstruction[0].text` | String | Patient instructions |
 | `facility_phone_number` | `cmopDivisionPhone` | (not available) | String | Pharmacy phone number |
+| `disp_status` | `dispStatus` | (not available) | String | Detailed dispensing status from VistA |
 
 ### Status Mapping (Oracle Health → Mobile API)
 
@@ -95,7 +103,6 @@ The VistA response contains additional fields that are not currently mapped but 
 - `notRefillableDisplayMessage` - User-friendly refill restriction message
 - `providerFirstName`, `providerLastName` - Prescribing provider
 - `divisionName` - VA division name
-- `dispStatus` - Detailed dispensing status
 - `ndc` - National Drug Code
 - `category` - Medication category (e.g., "Rx Medication")
 - `orderableItem` - Orderable item name
@@ -226,14 +233,6 @@ The Prescription model provides aliases to match Mobile API serializer expectati
 - Large responses are streamed to prevent memory issues
 - Monitoring and metrics are collected via StatsD integration with `api.uhd` prefix
 
-## Feature Flags
-
-The service uses Flipper feature flags for:
-- `mhv_accelerated_delivery_uhd_filtering_enabled` - Controls lab result filtering
-- `mhv_accelerated_delivery_uhd_ch_enabled` - Chemistry lab results
-- `mhv_accelerated_delivery_uhd_sp_enabled` - Surgical pathology results
-- `mhv_accelerated_delivery_uhd_mb_enabled` - Microbiology results
-
 ## Configuration
 
 The service uses `UnifiedHealthData::Configuration` for:
@@ -257,16 +256,13 @@ For testing individual components:
 
 ```ruby
 # Test model creation
-attrs = UnifiedHealthData::PrescriptionAttributes.new({
-  prescription_name: 'Test Drug',
-  refill_remaining: 3,
-  is_refillable: true
-})
-
 prescription = UnifiedHealthData::Prescription.new({
   id: '12345',
   type: 'Prescription',
-  attributes: attrs
+  prescription_name: 'Test Drug',
+  refill_remaining: 3,
+  is_refillable: true,
+  instructions: 'Take as directed'
 })
 
 # Test adapter parsing - VistA
@@ -277,8 +273,52 @@ result = vista_adapter.parse(vista_medication_data)
 oracle_adapter = UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter.new
 result = oracle_adapter.parse(fhir_medication_request)
 
-# Test clinical notes adapter (V2 namespace)
-notes_adapter = UnifiedHealthData::V2::Adapters::ClinicalNotesAdapter.new
+# Test clinical notes adapter 
+notes_adapter = UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
 result = notes_adapter.parse(document_reference_data)
 ```
 
+## Running the API locally
+
+In order to run the API locally, you can bypass authentication by adding a stub `test_user` and skipping authentication in the controller you are testing.
+
+For example, if you want to test the `labs_and_tests_controller` in the `my_health` module (`modules/my_health/app/controllers/my_health/v2/labs_and_tests_controller.rb`), it would look like this:
+
+```ruby
+module MyHealth
+  module V2
+    class LabsAndTestsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
+      skip_before_action :authenticate # Add this
+
+      def index
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+        labs = service.get_labs(start_date:, end_date:)
+        serialized_labs = UnifiedHealthData::LabOrTestSerializer.new(labs).serializable_hash[:data]
+        render json: serialized_labs,
+               status: :ok
+      end
+
+      private
+
+      def service
+      # Add a test user
+        test_user = OpenStruct.new( 
+          mhv_correlation_id: REDACTED, # Get the MHV ID of a test user
+          icn: 'REDACTED', # Get the ICN of a test user
+          edipi: '10000000',
+          last_name: 'Tester',
+          uuid: '12345',
+          flipper_id: '12345'
+        )
+        # Instantiate the service with your `test_user` rather than the `@current_user`
+        UnifiedHealthData::Service.new(test_user)
+      end
+    end
+  end
+end
+```
+
+You can then hit the expected endpoint (either in the browser or from a locally running vets-website). If using betamocks in the `vets-api-mockdata` repo, ensure you have a `default.yml` response added.

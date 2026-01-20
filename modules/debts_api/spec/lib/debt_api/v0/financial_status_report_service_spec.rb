@@ -11,8 +11,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     mock_pdf_fill
   end
 
-  it 'inherits SentryLogging' do
-    expect(described_class.ancestors).to include(SentryLogging)
+  it 'inherits Vets::SharedLogging' do
+    expect(described_class.ancestors).to include(Vets::SharedLogging)
   end
 
   def mock_sharepoint_upload
@@ -239,26 +239,12 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       subject { described_class.new(user_data) }
 
       before do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry) do |_self, arg1, arg2|
-          expect(arg1).to be_instance_of(ActiveModel::ValidationError)
-          expect(arg1.message).to eq('Validation failed: Filenet can\'t be blank')
-          expect(arg2).to eq(
-            {
-              fsr_attributes: {
-                uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                filenet_id: nil
-              },
-              fsr_response: {
-                response_body: {
-                  'status' => 'Document created successfully and uploaded to File Net.'
-                }
-              }
-            }
-          )
-        end
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_rails).with(
+          an_instance_of(ActiveModel::ValidationError)
+        )
       end
 
-      it 'logs to sentry' do
+      it 'logs to rails' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             res = subject.submit_vba_fsr(valid_form_data)
@@ -394,11 +380,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
             VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
               expect { service.submit_vha_fsr(form_submission) }
                 .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-                error_details = e.errors.first
-                expect(error_details.status).to eq('400')
-                expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
-                expect(error_details.code).to eq('SHAREPOINT_PDF_400')
-                expect(error_details.source).to eq('SharepointRequest')
+                  error_details = e.errors.first
+                  expect(error_details.status).to eq('400')
+                  expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+                  expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+                  expect(error_details.source).to eq('SharepointRequest')
               end
             end
           end

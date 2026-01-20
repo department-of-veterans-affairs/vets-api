@@ -1,0 +1,137 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_HCC_HOST>/oauth2/health-care-costs-coverage/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<CLIENT_ASSERTION>&scope=system%2FChargeItem.read+system%2FInvoice.read+system%2FPaymentReconciliation.read+system%2FMedicationDispense.read+system%2FEncounter.read+system%2FAccount.read+system%2FMedication.read+launch&launch=<LAUNCH>0%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Nov 2025 14:14:48 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Reset:
+      - '13'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"57d-bVuXeZlfu6xjmZG99FJ2u7juw5E:dtagent10321250808084810r9+A"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-307625577"
+      X-Envoy-Upstream-Service-Time:
+      - '766'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 54b83c80-2263-4277-8e60-c4c67c05bdaf#1356992
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJ4YzdLOHROOFpnUnV3RVhLZFVtbGR0YTRfcjByTUhLc0d5NEFQdklOWUdZIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmJrNENJS2laX1Rub20xM1I1czNkMGZFUUhuXzBhVUVDR1dIcFdLVXltbzAiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXMxMXRibHJkdEN5aTFaWjJwOCIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2hlYWx0aC1jYXJlLWNvc3RzLWNvdmVyYWdlIiwiaWF0IjoxNzYyMzUyMDg3LCJleHAiOjE3NjIzNTIzODcsImNpZCI6IjBvYTE2bXQ1Z2t1bVJhc29nMnA4Iiwic2NwIjpbImxhdW5jaCIsInN5c3RlbS9QYXltZW50UmVjb25jaWxpYXRpb24ucmVhZCIsInN5c3RlbS9BY2NvdW50LnJlYWQiLCJzeXN0ZW0vQ2hhcmdlSXRlbS5yZWFkIiwic3lzdGVtL0VuY291bnRlci5yZWFkIiwic3lzdGVtL01lZGljYXRpb24ucmVhZCIsInN5c3RlbS9JbnZvaWNlLnJlYWQiLCJzeXN0ZW0vTWVkaWNhdGlvbkRpc3BlbnNlLnJlYWQiXSwic3ViIjoiMG9hMTZtdDVna3VtUmFzb2cycDgiLCJsYWJlbCI6IkdDSU92YWdvdkR5ZXIifQ.e9CZZxlyEx-_7fJeIUyC4XIT5rdXnSjK0-aBBkF1aY46GYIe16_IIbr9yvvCaWPzNOWje5R0SDCDGabroeOYS2RUMIZqc89VIuH2_AqT6yROqmFyfM2SXQS6FPOTCp_cpjUvKQXK-OyW7vTnv4uqh68Mk1S2OuRaJ3wOmBZrED-tI-D_XG_VUiAF7jnKmrG0O5AWWQFARyM_qcP9wKjaX8aVmexQBo7yp94KHX8a1su6DfkWH_S2tOg4xFnw8p_kGp9WS97P7IAGOC2Y4anT2YrkayEV3OxUYrJxiFTyPcu4ZC7NsAcA2nKuj6bg9SVcjlOwfDkPG6zfkeftPcAM4Q","token_type":"Bearer","scope":"launch
+        system/PaymentReconciliation.read system/Account.read system/ChargeItem.read
+        system/Encounter.read system/Medication.read system/Invoice.read system/MedicationDispense.read","expires_in":300,"state":null,"patient":"123"}'
+  recorded_at: Wed, 05 Nov 2025 14:14:48 GMT
+- request:
+    method: get
+    uri: "https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Nov 2025 14:14:49 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '191'
+      Connection:
+      - keep-alive
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '12'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1109535407", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '100'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <Correlation-Id>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","link":[{"url":"https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&patient=123","relation":"self"}],"entry":[]}'
+  recorded_at: Wed, 05 Nov 2025 14:14:49 GMT
+recorded_with: VCR 6.3.1

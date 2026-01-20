@@ -24,8 +24,6 @@ module DebtsApi
         end
 
         def get_streamlined_data
-          update_streamlined_tracking_metrics
-
           {
             'value' => streamlined_short_form? || streamlined_long_form?,
             'type' => if streamlined_short_form?
@@ -84,11 +82,6 @@ module DebtsApi
           return false if @form['selected_debts_and_copays'].empty?
 
           debt_below_vha_limit? && total_waiver_and_copay_debts
-        end
-
-        def update_streamlined_tracking_metrics
-          tracking_label = "full_transform.#{streamlined? ? 'has' : 'no'}_streamlined_data"
-          StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{tracking_label}")
         end
 
         def are_liquid_assets_below_gmt_threshold?

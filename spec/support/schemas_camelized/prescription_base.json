@@ -91,6 +91,9 @@
         },
         "isTrackable": {
           "type": "boolean"
+        },
+        "pharmacyPhoneNumber": {
+          "type": ["string", "null"]
         }
       }
     },

@@ -48,6 +48,7 @@ module V0
       def email_address_params
         params.permit(
           :email_address,
+          :confirmation_date,
           :id,
           :transaction_id
         )

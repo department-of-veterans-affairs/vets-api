@@ -58,9 +58,7 @@ RSpec.describe ClaimsEvidenceApi::Configuration do
 
   describe '#base_request_headers' do
     it 'returns expected headers' do
-      expect_any_instance_of(ClaimsEvidenceApi::JwtGenerator).to receive(:encode_jwt).and_call_original
-
-      expected = base.base_request_headers.merge({ 'Authorization' => /Bearer .+/ })
+      expected = base.base_request_headers # no additional headers
 
       headers = config.base_request_headers
       expect(headers).to match(hash_including(**expected))

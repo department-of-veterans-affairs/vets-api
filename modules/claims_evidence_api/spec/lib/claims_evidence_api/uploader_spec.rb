@@ -4,25 +4,28 @@ require 'rails_helper'
 require 'claims_evidence_api/uploader'
 
 RSpec.describe ClaimsEvidenceApi::Uploader do
-  let(:created_at) { Time.zone.now }
+  let(:created_at) { Time.current }
   let(:claim) { build(:fake_saved_claim, id: 23, created_at:) }
   let(:pa) { build(:claim_evidence, id: 42, created_at:) }
   let(:submission) { build(:claims_evidence_submission) }
   let(:attempt) { build(:claims_evidence_submission_attempt) }
-
   let(:monitor) { ClaimsEvidenceApi::Monitor::Uploader.new }
   let(:service) { ClaimsEvidenceApi::Service::Files.new }
   let(:stamper) { PDFUtilities::PDFStamper.new([]) }
   let(:pdf_path) { 'path/to/pdf.pdf' }
   let(:content_source) { 'VA.gov' }
-  let(:va_received_at) { DateTime.parse(claim.created_at.to_s).strftime('%Y-%m-%d') }
-
+  let(:va_received_at) { DateTime.parse(claim.created_at.to_s).in_time_zone(ClaimsEvidenceApi::TIMEZONE).strftime('%Y-%m-%d') }
   let(:folder_identifier) { 'VETERAN:SSN:123456789' }
   let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
-
   # stamping is stubbed, but will raise an error if the provided stamp_set is invalid
   let(:claim_stamp_set) { [anything] }
   let(:attachment_stamp_set) { [anything] }
+
+  around do |example|
+    Timecop.freeze(Time.now.utc) do
+      example.run
+    end
+  end
 
   before do
     allow(ClaimsEvidenceApi::Monitor::Uploader).to receive(:new).and_return monitor
@@ -36,6 +39,20 @@ RSpec.describe ClaimsEvidenceApi::Uploader do
 
     allow(PersistentAttachment).to receive(:find_by).with(id: pa.id, saved_claim_id: claim.id).and_return pa
     allow(pa).to receive(:to_pdf).and_return pdf_path
+  end
+
+  describe '#format_datetime' do
+    it 'converts UTC to expected date' do
+      future_utc = 'Tue, 23 Sep 2025 00:44:24.175627000 +0000'
+      expected = '2025-09-22'
+      expect(expected).to eq uploader.send(:format_datetime, future_utc)
+    end
+
+    it 'returns the same day' do
+      same_day = 'Tue, 23 Sep 2025 00:44:24.175627000 -0400'
+      expected = '2025-09-23'
+      expect(expected).to eq uploader.send(:format_datetime, same_day)
+    end
   end
 
   context 'with generating the pdf and stamping' do

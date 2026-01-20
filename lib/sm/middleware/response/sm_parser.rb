@@ -15,7 +15,7 @@ module SM
         def on_complete(env)
           return unless env.response_headers['content-type']&.match?(/\bjson/)
 
-          env[:body] = parse(env.body) if env.body.present?
+          env[:body] = parse(env.body) if env.body.present? || env.body == []
         end
 
         private
@@ -34,7 +34,8 @@ module SM
                   parsed_folders  ||
                   normalize_message(parsed_messages) ||
                   parsed_categories ||
-                  parsed_signature
+                  parsed_signature ||
+                  parsed_status
           @parsed_json = {
             data:,
             errors: @errors,
@@ -55,7 +56,7 @@ module SM
         end
 
         def parsed_threads
-          @parsed_json.is_a?(Array) && @parsed_json.each { |t| return false unless t.key?(:thread_id) }
+          @parsed_json.is_a?(Array) && @parsed_json.all? { |t| t.key?(:thread_id) }
         end
 
         def preferences
@@ -102,6 +103,10 @@ module SM
 
         def parsed_signature
           @parsed_json.key?(:signature_name) ? @parsed_json : @parsed_json[:signature_name]
+        end
+
+        def parsed_status
+          @parsed_json.key?(:status) ? @parsed_json : nil
         end
 
         def split_errors!

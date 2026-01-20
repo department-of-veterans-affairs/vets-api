@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
   let(:default_params) { { start_date: '2015-01-01', end_date: '2015-12-31' } }
@@ -15,6 +16,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
   describe 'GET /my_health/v2/medical_records/immunizations' do
     context 'happy path' do
       before do
+        allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(immunizations_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -22,6 +24,16 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       it 'returns a successful response' do
         expect(response).to be_successful
+      end
+
+      it 'logs unique user events for immunizations/vaccines accessed' do
+        expect(UniqueUserEvents).to have_received(:log_events).with(
+          user: anything,
+          event_names: [
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ACCESSED,
+            UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED
+          ]
+        )
       end
 
       context 'when date parameters are not provided' do
@@ -86,7 +98,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
           # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+          expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -205,7 +217,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
           # Expect logger to receive error
-          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+          expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
         end

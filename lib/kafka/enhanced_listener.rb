@@ -8,7 +8,7 @@ module Kafka
     BROKER_STATUS_MAPPING = {
       'UP' => Datadog::Statsd::OK,
       'INIT' => Datadog::Statsd::WARNING,
-      'TRY_CONNECT' => Datadog::Statsd::WARNING,
+      'CONNECT' => Datadog::Statsd::WARNING,
       'DOWN' => Datadog::Statsd::CRITICAL
     }.freeze
 

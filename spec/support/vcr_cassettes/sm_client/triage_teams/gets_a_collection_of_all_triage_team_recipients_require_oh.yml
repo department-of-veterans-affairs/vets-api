@@ -51,6 +51,70 @@ http_interactions:
           - max-age=16000000; includeSubDomains; preload;
       body:
         encoding: ASCII-8BIT
-        string: '[{"associatedTriageGroups":9,"friendlyTriageTeamPilotFacilities":"979","associatedBlockedTriageGroups":0},{"triageTeam":[{"triageTeamId":4399547,"name":"589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON","stationNumber":"979","blockedStatus":false,"preferredTeam":true,"locationName":"Robert J. Dole VA Medical And Regional Office Center","leadProviderName":"James, Donald","teamName":"SLC10","suggestedNameDisplay":"Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr","healthCareSystemName":"VA Wichita Health Care","groupTypeEnumVal":"PHARMACY","subGroupTypeEnumVal":"ASK_A_PHARMACIST","groupTypePatientDisplay":"Pharmacy","subGroupTypePatientDisplay":"Ask a pharmacist","relationType":"PATIENT","ohTriageGroup":false }]}]'
+        string: '[
+  {
+    "associatedTriageGroups": 9,
+    "friendlyTriageTeamPilotFacilities": "979",
+    "associatedBlockedTriageGroups": 0
+  },
+  {
+    "triageTeam": [
+      {
+        "triageTeamId": 4399547,
+        "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON",
+        "stationNumber": "977",
+        "blockedStatus": false,
+        "preferredTeam": true,
+        "locationName": "Robert J. Dole VA Medical And Regional Office Center",
+        "leadProviderName": "James, Donald",
+        "teamName": "SLC10",
+        "suggestedNameDisplay": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+        "healthCareSystemName": "VA Wichita Health Care",
+        "groupTypeEnumVal": "PHARMACY",
+        "subGroupTypeEnumVal": "ASK_A_PHARMACIST",
+        "groupTypePatientDisplay": "Pharmacy",
+        "subGroupTypePatientDisplay": "Ask a pharmacist",
+        "relationType": "PATIENT",
+        "ohTriageGroup": false
+      },
+      {
+        "triageTeamId": 4399547,
+        "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON",
+        "stationNumber": "978",
+        "blockedStatus": false,
+        "preferredTeam": true,
+        "locationName": "Robert J. Dole VA Medical And Regional Office Center",
+        "leadProviderName": "James, Donald",
+        "teamName": "SLC10",
+        "suggestedNameDisplay": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+        "healthCareSystemName": "VA Wichita Health Care",
+        "groupTypeEnumVal": "PHARMACY",
+        "subGroupTypeEnumVal": "ASK_A_PHARMACIST",
+        "groupTypePatientDisplay": "Pharmacy",
+        "subGroupTypePatientDisplay": "Ask a pharmacist",
+        "relationType": "PATIENT",
+        "ohTriageGroup": false
+      },
+      {
+        "triageTeamId": 4399547,
+        "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON",
+        "stationNumber": "979",
+        "blockedStatus": false,
+        "preferredTeam": true,
+        "locationName": "Robert J. Dole VA Medical And Regional Office Center",
+        "leadProviderName": "James, Donald",
+        "teamName": "SLC10",
+        "suggestedNameDisplay": "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr",
+        "healthCareSystemName": "VA Wichita Health Care",
+        "groupTypeEnumVal": "PHARMACY",
+        "subGroupTypeEnumVal": "ASK_A_PHARMACIST",
+        "groupTypePatientDisplay": "Pharmacy",
+        "subGroupTypePatientDisplay": "Ask a pharmacist",
+        "relationType": "PATIENT",
+        "ohTriageGroup": false
+      }
+    ]
+  }
+]'
     recorded_at: Thu, 06 Mar 2025 15:16:36 GMT
 recorded_with: VCR 6.3.1

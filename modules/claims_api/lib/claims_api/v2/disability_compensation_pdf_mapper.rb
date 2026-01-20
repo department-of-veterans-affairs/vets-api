@@ -738,10 +738,6 @@ module ClaimsApi
         end
       end
 
-      def handle_yes_no(pay)
-        pay ? 'YES' : 'NO'
-      end
-
       def handle_branch(branch)
         { branch: }
       end

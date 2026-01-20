@@ -4,7 +4,6 @@ module VRE
   module Ch31Eligibility
     class Response
       include Vets::Model
-      include Common::Client::Concerns::ServiceStatus
 
       attribute :veteran_profile, VeteranProfile
       attribute :disability_rating, DisabilityRating
@@ -12,6 +11,11 @@ module VRE
       attribute :eligibility_termination_date, String
       attribute :entitlement_details, EntitlementDetails
       attribute :res_case_id, Integer
+      attribute :qualifying_military_service_status, String
+      attribute :character_of_discharge_status, String
+      attribute :disability_rating_status, String
+      attribute :irnd_status, String
+      attribute :eligibility_termination_date_status, String
       attribute :res_eligibility_recommendation, String
 
       def initialize(_status, response = nil)

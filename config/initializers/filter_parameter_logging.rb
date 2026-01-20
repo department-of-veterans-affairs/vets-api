@@ -7,6 +7,7 @@
 ALLOWLIST = %w[
   action
   benefits_intake_uuid
+  bpds_uuid
   call_location
   category
   claim_id
@@ -21,6 +22,7 @@ ALLOWLIST = %w[
   doctype
   document_type
   endDate
+  endpoint
   endpoint_sid
   error
   errors
@@ -38,6 +40,7 @@ ALLOWLIST = %w[
   included
   kafka_payload
   line
+  lookup_service
   message_id
   method
   number
@@ -55,10 +58,12 @@ ALLOWLIST = %w[
   showCompleted
   size
   sort
+  stamp_set
   startDate
   startedFormVersion
   statsd
   status
+  status_code
   submission_id
   tags
   tempfile

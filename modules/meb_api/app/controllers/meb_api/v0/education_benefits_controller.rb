@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'dgi/claimant/service'
+require 'dgi/letters/service'
+require 'dgi/status/service'
 require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/submission/service'
@@ -60,18 +63,8 @@ module MebApi
       end
 
       def submit_claim
-        response_data = nil
-
-        if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
-          begin
-            response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
-          rescue => e
-            Rails.logger.error("BGS service error: #{e}")
-            head :internal_server_error
-            return
-          end
-        end
-
+        StatsD.increment('api.meb.submit_claim.attempt')
+        response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
@@ -81,6 +74,9 @@ module MebApi
             status: response.status
           }
         }
+      rescue => e
+        log_submission_error(e, 'MEB submit_claim failed')
+        raise
       end
 
       def enrollment
@@ -99,13 +95,22 @@ module MebApi
       end
 
       def send_confirmation_email
-        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+        return head :no_content unless Flipper.enabled?(:form1990meb_confirmation_email)
 
         status = params[:claim_status]
         email = params[:email] || @current_user.email
         first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
 
-        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
+        missing_attributes = []
+        missing_attributes << 'claim_status' if status.blank?
+        missing_attributes << 'email' if email.blank?
+        missing_attributes << 'first_name' if first_name.blank?
+
+        if missing_attributes.any?
+          return log_missing_email_attributes('1990meb', missing_attributes, status, email, first_name)
+        end
+
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name)
       end
 
       def submit_enrollment_verification
@@ -167,6 +172,24 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
+      end
+
+      # Fetch unmasked direct deposit if asterisks present. Gracefully handles failures.
+      def fetch_direct_deposit_info
+        return nil if Rails.env.development?
+
+        account_number = params.dig(:education_benefit, :direct_deposit, :direct_deposit_account_number)
+        routing_number = params.dig(:education_benefit, :direct_deposit, :direct_deposit_routing_number)
+        return nil unless account_number&.include?('*') || routing_number&.include?('*')
+
+        DirectDeposit::Client.new(@current_user&.icn).get_payment_info.tap do |response_data|
+          if response_data.nil?
+            Rails.logger.warn('DirectDeposit::Client returned nil response, proceeding without direct deposit info')
+          end
+        end
+      rescue => e
+        Rails.logger.error("Lighthouse direct deposit service error: #{e}")
+        nil
       end
     end
   end

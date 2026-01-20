@@ -10,6 +10,9 @@ module ClaimsEvidenceApi
   # The expected 'contentSource' value for uploads; schema/properties/contentSource
   CONTENT_SOURCE = 'VA.gov'
 
+  # The expected timezone for upload dates
+  TIMEZONE = 'America/New_York'
+
   # Collection of module exceptions
   module Exceptions; end
 

@@ -4,7 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'pdf_utilities/datestamp_pdf'
+require 'pensions/pdf_stamper'
 require 'kafka/concerns/kafka'
 
 module Pensions
@@ -30,7 +30,8 @@ module Pensions
         end
 
         if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
-          user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
+          # TODO: Set this back to claim&.user_account_id once the DB migration is done
+          user_icn = UserAccount.find_by(id: msg['args'].last)&.icn.to_s
 
           Kafka.submit_event(
             icn: user_icn,
@@ -57,7 +58,7 @@ module Pensions
         return if lighthouse_submission_pending_or_success
 
         @form_path = generate_form_pdf
-        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        @attachment_paths = generate_attachment_pdfs
         @metadata = generate_metadata
 
         upload_document
@@ -103,10 +104,18 @@ module Pensions
       # @return [String] path to processed PDF document
       def generate_form_pdf
         if Flipper.enabled?(:pension_extras_redesign_enabled)
-          process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+          pdf_path = @claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true })
+          process_document(pdf_path, :pensions_generated_claim)
         else
-          process_document(@claim.to_pdf)
+          process_document(@claim.to_pdf, :pensions_generated_claim)
         end
+      end
+
+      # Generate the form attachment pdfs
+      #
+      # @return [Array<String>] path to processed PDF document
+      def generate_attachment_pdfs
+        @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :pensions_received_at) }
       end
 
       # Create a monitor to be used for _this_ job
@@ -129,22 +138,11 @@ module Pensions
       # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
       #
       # @param file_path [String] pdf file path
+      # @param stamp_set [String|Symbol] the stamps to apply
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path)
-        document = PDFUtilities::DatestampPdf.new(file_path).run(
-          text: 'VA.GOV',
-          timestamp: @claim.created_at,
-          x: 5,
-          y: 5
-        )
-        document = PDFUtilities::DatestampPdf.new(document).run(
-          text: 'FDC Reviewed - VA.gov Submission',
-          timestamp: @claim.created_at,
-          x: 429,
-          y: 770,
-          text_only: true
-        )
+      def process_document(file_path, stamp_set)
+        document = Pensions::PDFStamper.new(stamp_set).run(file_path, timestamp: @claim.created_at)
 
         @intake_service.valid_document?(document:)
       end

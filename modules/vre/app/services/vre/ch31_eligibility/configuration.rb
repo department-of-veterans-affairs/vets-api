@@ -17,6 +17,12 @@ module VRE
       def service_name
         'RES_CH31_ELIGIBILITY'
       end
+
+      private
+
+      def mock_enabled?
+        ActiveModel::Type::Boolean.new.cast(Settings.res.ch_31_eligibility.mock) || false
+      end
     end
   end
 end

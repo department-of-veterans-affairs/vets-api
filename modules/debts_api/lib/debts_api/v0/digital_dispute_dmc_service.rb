@@ -15,8 +15,6 @@ module DebtsApi
 
       def call!
         send_to_dmc
-
-        @submission.register_success
       rescue => e
         Rails.logger.error <<~LOG
           DigitalDisputeDmcService error: #{e.class} - #{e.message}

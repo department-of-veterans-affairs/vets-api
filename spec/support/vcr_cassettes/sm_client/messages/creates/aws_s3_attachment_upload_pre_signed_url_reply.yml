@@ -1,0 +1,184 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/v1/sm/patient/attachment/presigned-url?attachmentName=sm_file1&fileExtension=jpg"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - N0tIhJp3mM6E22SEn7O4V3bay2IFE2py74ACpMvP
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 19 Sep 2025 15:46:11 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1380'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 113b81e4-85fe-4461-bd96-f9dd4e52b7e9
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - RKAeiFZ9PHMFR4Q=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      Server-Timing:
+      - dtRpid;desc="-153706648", dtSInfo;desc="0"
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Fri, 19 Sep 2025 15:46:11 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '"https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/sm_file1-565ac4fa-d95a-4ea6-afc2-19722f56ad3f.jpg?X-Amz-Security-Token=FwoDYXdzENb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDKyb1Gei03TdD92jGiK1BG5IhaeUhpobZyKmRvHYFqzlkUHrQemfMGCu6bSHBzP9yZZZlsNBXUW2t2iuRWe%2BgK%2B%2FxV8ORm1ZsWJOw6%2Fu6cCSsAjLb5RSj4%2Fx1EB6XrmAd8%2FiGqBG1TcilqTPsJZW8vupfATlcprbnDbr%2F6Ks6U5xEhXVvpDVfXYy3t5RaTCMmj87PqrIQkTpqqSQWl6KSqEs6WpDcg3ALvgdn7kUeSycG0IOtmp2Av%2FOdit0%2B3%2FpV3UZVEvi43s2b6772FGuybXaLbJKZ%2F5mEQ3OL5lNyVZ9rnvigYrLe8sGd0N3PHyCC2cYlVLIcv4NGw6Cv5Dczo%2FpW0aeeVfI5mdgttidyL4eQEDcA0%2BcHhcU%2FI3eDozbb5RBIgwpdn6SlrFIe4rgGy0mq2B6R4cb9U6jgMS94fFUOsL7d9ASPDGUuAQDzFQucxxLaNNqv%2BxgcbriMRCo1MIC2yIuePoCfq3b%2BCaLA%2BPIj4Fifz4IzYQ3yCmslOyz60hhLyk1uADxpt%2Frs9Hgws%2BDVXiByLwKUnxsMdX4ldTzkVh7q4aG%2FVkVU3aXwjp14sAtcAgwljzQ3vBaolFEa%2BOes%2FEM0RZj4%2BJ0%2BDgJJzqM52lH04iS0d4vgXUiStehDlOQ6odKATpr5mZsZc97Ko6wkQ3nai%2BLrNHYiGM7914tl4x%2FneXvwpszn6LkRCs%2FyVrBR8Bz7ihocNwG7zDku0cES%2FAdThSVDbcoYi%2Fj0djVU3moNepnvTzSqv4%2FFAW6UfhJqYooz%2FS1xgYyK905oLCAAwzlK05%2FMd2GuJzGfvcfKdkbQ1fxnhaRSe9pCXinTBJG4XMMW58%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250919T154611Z&X-Amz-SignedHeaders=host&X-Amz-Credential=ASIAR75JXCJZGEYLSHDC%2F20250919%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Expires=600&X-Amz-Signature=802e0ccaf4bfec1d7e6fe4224918307b338e9498081140aed604bf6886919175"'
+  recorded_at: Mon, 01 May 2017 19:25:00 GMT
+- request:
+    method: put
+    uri: https://mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com/attachments/3992130/sm_file1-565ac4fa-d95a-4ea6-afc2-19722f56ad3f.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAR75JXCJZGEYLSHDC/20250919/us-gov-west-1/s3/aws4_request&X-Amz-Date=20250919T154611Z&X-Amz-Expires=600&X-Amz-Security-Token=FwoDYXdzENb//////////wEaDKyb1Gei03TdD92jGiK1BG5IhaeUhpobZyKmRvHYFqzlkUHrQemfMGCu6bSHBzP9yZZZlsNBXUW2t2iuRWe%2BgK%2B/xV8ORm1ZsWJOw6/u6cCSsAjLb5RSj4/x1EB6XrmAd8/iGqBG1TcilqTPsJZW8vupfATlcprbnDbr/6Ks6U5xEhXVvpDVfXYy3t5RaTCMmj87PqrIQkTpqqSQWl6KSqEs6WpDcg3ALvgdn7kUeSycG0IOtmp2Av/Odit0%2B3/pV3UZVEvi43s2b6772FGuybXaLbJKZ/5mEQ3OL5lNyVZ9rnvigYrLe8sGd0N3PHyCC2cYlVLIcv4NGw6Cv5Dczo/pW0aeeVfI5mdgttidyL4eQEDcA0%2BcHhcU/I3eDozbb5RBIgwpdn6SlrFIe4rgGy0mq2B6R4cb9U6jgMS94fFUOsL7d9ASPDGUuAQDzFQucxxLaNNqv%2BxgcbriMRCo1MIC2yIuePoCfq3b%2BCaLA%2BPIj4Fifz4IzYQ3yCmslOyz60hhLyk1uADxpt/rs9Hgws%2BDVXiByLwKUnxsMdX4ldTzkVh7q4aG/VkVU3aXwjp14sAtcAgwljzQ3vBaolFEa%2BOes/EM0RZj4%2BJ0%2BDgJJzqM52lH04iS0d4vgXUiStehDlOQ6odKATpr5mZsZc97Ko6wkQ3nai%2BLrNHYiGM7914tl4x/neXvwpszn6LkRCs/yVrBR8Bz7ihocNwG7zDku0cES/AdThSVDbcoYi/j0djVU3moNepnvTzSqv4/FAW6UfhJqYooz/S1xgYyK905oLCAAwzlK05/Md2GuJzGfvcfKdkbQ1fxnhaRSe9pCXinTBJG4XMMW58=&X-Amz-Signature=802e0ccaf4bfec1d7e6fe4224918307b338e9498081140aed604bf6886919175&X-Amz-SignedHeaders=host
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAFAAUDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EAB0QAAICAwEBAQAAAAAAAAAAAAECAwQFERIGAAf/xAAVAQEBAAAAAAAAAAAAAAAAAAAEBf/EABwRAAIDAQEBAQAAAAAAAAAAAAECAwQSEQUAIv/aAAwDAQACEQMRAD8AMfSZnwPlcmI8h+U4m9HZjc1lrXLFQV41nlUx66dSC4dxoLrvk9aB+m3/AFbXnedHbpSMNzSRlWPVGIqzhlyEILCbjBi46gK5ByGzQejSrwtCa7F9lzJVSXrrLJHsab86VFBVeIMgKqgc+//Z
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - mhv-sysb-sm-attachments.s3.us-gov-west-1.amazonaws.com
+      Content-Type:
+      - image/jpg
+      Content-Length:
+      - '7340032'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - UWtd282f0PyEJy4lNjDag3LW0k9fbLhThuR1i+OH54NnoZM+HrfnxxHNDudsZ2V2RGihgr1EAaGFtjV24+9S9W6QCyCLUac9YlXy3fF8F3I=
+      X-Amz-Request-Id:
+      - 8B7RAVV10TA41X6E
+      Date:
+      - Fri, 19 Sep 2025 15:46:12 GMT
+      X-Amz-Version-Id:
+      - zY4yIj3n4e5gMeeQSlN.66AcIlvngJYB
+      X-Amz-Server-Side-Encryption:
+      - aws:kms
+      X-Amz-Server-Side-Encryption-Aws-Kms-Key-Id:
+      - arn:aws-us-gov:kms:us-gov-west-1:137258013298:key/62a71775-0000-41e3-93eb-baf9df62916d
+      Etag:
+      - '"6578221b7b6bb3f562a567faf44d4093"'
+      X-Amz-Checksum-Crc64nvme:
+      - "++bDQjLxDAY="
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 01 May 2017 19:25:00 GMT
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/5993651/reply/attach"
+    body:
+      encoding: UTF-8
+      string: "-------------RubyMultipartPost-e0c6c2bc5672551c21314211f38fc181\r\nContent-Disposition:
+        form-data; name=\"message\"\r\nContent-Type: application/json\r\n\r\n{\"category\":\"OTHER\",\"body\":\"Continuous
+        Integration\",\"recipientId\":\"613586\",\"subject\":\"CI Run\"}\r\n-------------RubyMultipartPost-e0c6c2bc5672551c21314211f38fc181\r\nContent-Disposition:
+        form-data; name=\"lgAttachments[]\"\r\nContent-Type: application/json\r\n\r\n[{\"attachmentName\":\"sm_file1.jpg\",\"mimeType\":\"image/jpg\",\"size\":7340032,\"lgAttachmentId\":\"sm_file1-565ac4fa-d95a-4ea6-afc2-19722f56ad3f.jpg\"}]\r\n-------------RubyMultipartPost-e0c6c2bc5672551c21314211f38fc181--\r\n"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost-e0c6c2bc5672551c21314211f38fc181
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - N0tIhJp3mM6E22SEn7O4V3bay2IFE2py74ACpMvP
+      Content-Length:
+      - '609'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 19 Sep 2025 15:46:12 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '498'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 47e91264-fc3a-492a-9ec8-c33661c66bd6
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - RKAesEERvHMFdLg=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      Server-Timing:
+      - dtRpid;desc="-131654236", dtSInfo;desc="0"
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Fri, 19 Sep 2025 15:46:12 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":674838,"category":"OTHER","subject":"TESTING 9/19 larage attachment","body":"Continuous
+        Integration","attachment":true,"attachments":{"attachment":[{"id":5994106,"name":"sm_file1.jpg","attachmentSize":7340032}]},"sentDate":"Fri,
+        19 Sep 2025 15:46:12 GMT","senderId":3992130,"senderName":"GUSTAV, HOOPER
+        J","recipientId":5795677,"recipientName":"Oracle Health Direct Message","readReceipt":null,"triageGroupName":null,"proxySenderName":null,"proxySenderType":null,"suggestedNameDisplay":null}'
+  recorded_at: Mon, 01 May 2017 19:25:00 GMT
+recorded_with: VCR 6.3.1

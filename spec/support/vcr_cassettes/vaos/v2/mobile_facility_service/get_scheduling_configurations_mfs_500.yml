@@ -1,0 +1,49 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?ccEnabled=false&facilityIds=489&pageSize=0
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ""
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 500
+        message: Internal Server Error
+      headers:
+        Date:
+          - Wed, 28 Apr 2021 19:07:17 GMT
+        Content-Type:
+          - text/html
+        Content-Length:
+          - "982"
+        Connection:
+          - keep-alive
+        Etag:
+          - '"5fa5087d-3d6"'
+        Set-Cookie:
+          - TS016f4012=stubbed_cookie;
+            Max-Age=900; Path=/
+          - vamfjwtv3=stubbed_token;
+            path=/; SameSite=Lax; HttpOnly
+          - vamftimeoutv1=1619637737; SameSite=Lax; path=/
+      body:
+        encoding: UTF-8
+        string: "need to record vcr cassette"
+    recorded_at: Wed, 28 Apr 2021 19:07:17 GMT
+recorded_with: VCR 6.0.0

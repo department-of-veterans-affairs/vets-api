@@ -14,68 +14,60 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Chemistry Test',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Chemistry Test',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
     let(:sp_record) do
       UnifiedHealthData::LabOrTest.new(
         id: '456',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Surgical Pathology Test',
-          test_code: 'SP',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Surgical Pathology Test',
+        test_code: 'SP',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
     let(:cy_record) do
       UnifiedHealthData::LabOrTest.new(
         id: '789',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Cytology Test',
-          test_code: 'CY',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Cytology Test',
+        test_code: 'CY',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
     let(:mb_record) do
       UnifiedHealthData::LabOrTest.new(
         id: '999',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Microbiology Test',
-          test_code: 'MB',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Microbiology Test',
+        test_code: 'MB',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -113,17 +105,15 @@ RSpec.describe UnifiedHealthData::Logging do
       record_with_no_code = UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Unknown Test',
-          test_code: nil,
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Unknown Test',
+        test_code: nil,
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
 
       records = [ch_record, record_with_no_code, sp_record]
@@ -144,17 +134,15 @@ RSpec.describe UnifiedHealthData::Logging do
       record_with_no_name = UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: '',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: '',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
 
       records = [ch_record, record_with_no_name, sp_record]
@@ -175,17 +163,15 @@ RSpec.describe UnifiedHealthData::Logging do
       record_with_special_chars = UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Test: Blood, Chemistry & More',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Test: Blood, Chemistry & More',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
 
       records = [record_with_special_chars, sp_record]
@@ -208,17 +194,15 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'CH',
-          test_code: 'CH',
-          date_completed: '2023-01-01T10:00:00Z',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'CH',
+        test_code: 'CH',
+        date_completed: '2023-01-01T10:00:00Z',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -266,17 +250,15 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '123',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'Chemistry Test',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'Chemistry Test',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -284,17 +266,15 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '456',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'CH',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'CH',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -302,17 +282,15 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '789',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'SP',
-          test_code: 'SP',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'SP',
+        test_code: 'SP',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -320,17 +298,15 @@ RSpec.describe UnifiedHealthData::Logging do
       UnifiedHealthData::LabOrTest.new(
         id: '999',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: 'ABC',
-          test_code: 'MB',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: 'ABC',
+        test_code: 'MB',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
     end
 
@@ -363,13 +339,13 @@ RSpec.describe UnifiedHealthData::Logging do
 
       # Verify it was called with records having the expected short names
       expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
-        record.attributes.display == 'CH'
+        record.display == 'CH'
       })
       expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
-        record.attributes.display == 'SP'
+        record.display == 'SP'
       })
       expect(logging).to have_received(:log_short_test_name_issue).with(satisfy { |record|
-        record.attributes.display == 'ABC'
+        record.display == 'ABC'
       })
     end
 
@@ -385,17 +361,15 @@ RSpec.describe UnifiedHealthData::Logging do
       empty_name_record = UnifiedHealthData::LabOrTest.new(
         id: '111',
         type: 'DiagnosticReport',
-        attributes: UnifiedHealthData::Attributes.new(
-          display: '',
-          test_code: 'CH',
-          date_completed: '2023-01-01',
-          sample_tested: '',
-          encoded_data: '',
-          location: '',
-          ordered_by: '',
-          observations: [],
-          body_site: ''
-        )
+        display: '',
+        test_code: 'CH',
+        date_completed: '2023-01-01',
+        sample_tested: '',
+        encoded_data: '',
+        location: '',
+        ordered_by: '',
+        observations: [],
+        body_site: ''
       )
 
       records = [empty_name_record]

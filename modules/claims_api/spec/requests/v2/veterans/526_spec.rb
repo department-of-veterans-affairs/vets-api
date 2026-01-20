@@ -27,6 +27,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   before do
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(false)
   end
 
   after do

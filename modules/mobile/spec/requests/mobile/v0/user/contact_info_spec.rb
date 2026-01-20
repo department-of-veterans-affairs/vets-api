@@ -81,6 +81,7 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
     {
       'id' => 318_927,
       'emailAddress' => user.vet360_contact_info.email.email_address, # dynamic value
+      'confirmationDate' => nil,
       'updatedAt' => '2017-04-09T11:52:03.000-06:00'
     }
   end

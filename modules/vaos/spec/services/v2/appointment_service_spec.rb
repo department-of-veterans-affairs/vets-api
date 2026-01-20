@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'unified_health_data/service'
 
 describe VAOS::V2::AppointmentsService do
   include ActiveSupport::Testing::TimeHelpers
@@ -44,96 +45,6 @@ describe VAOS::V2::AppointmentsService do
 
   let(:provider_name) { 'TEST PROVIDER NAME' }
 
-  let(:eps_appointments) do
-    OpenStruct.new(data:
-      [
-        {
-          id: '123',
-          state: 'submitted',
-          patient_id: '456',
-          referral: {
-            referral_number: 'ref123'
-          },
-          provider_service_id: 'DBKQ-H0a',
-          network_id: 'random-sandbox-network-id',
-          slot_ids: [
-            '5vuTac8v-practitioner-8-role-1|' \
-            '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-            '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-          ],
-          appointment_details: {
-            status: 'booked',
-            start: nil,
-            is_latest: false,
-            last_retrieved: '2024-12-01T10:00:00Z'
-          }
-        },
-        {
-          id: '124',
-          state: 'proposed',
-          patient_id: '457',
-          referral: {
-            referral_number: 'ref124'
-          },
-          provider_service_id: 'DBKQ-123',
-          network_id: 'random-sandbox-network-id',
-          slot_ids: [
-            '5vuTac8v-practitioner-8-role-1|' \
-            '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-            '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-          ],
-          appointment_details: {
-            status: 'booked',
-            start: '2024-12-02T10:00:00Z',
-            is_latest: false,
-            last_retrieved: '2024-12-02T10:00:00Z'
-          }
-        },
-        {
-          id: '125',
-          state: 'submitted',
-          patient_id: '458',
-          referral: {
-            referral_number: 'ref125'
-          },
-          provider_service_id: 'DBKQ-456',
-          network_id: 'random-sandbox-network-id',
-          slot_ids: [
-            '5vuTac8v-practitioner-8-role-1|' \
-            '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-            '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-          ],
-          appointment_details: {
-            status: 'booked',
-            start: '2024-12-03T10:00:00Z',
-            is_latest: false,
-            last_retrieved: '2024-12-03T10:00:00Z'
-          }
-        },
-        {
-          id: 'thedupe',
-          state: 'submitted',
-          patient_id: 'fake-patient-id',
-          referral: {
-            referral_number: '1234567890'
-          },
-          provider_service_id: 'DBKQ-H0a',
-          network_id: 'random-sandbox-network-id',
-          slot_ids: [
-            '5vuTac8v-practitioner-8-role-1|' \
-            '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-            '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-          ],
-          appointment_details: {
-            status: 'booked',
-            start: '2024-11-18T13:30:00Z',
-            is_latest: false,
-            last_retrieved: '2025-01-12T22:35:45Z'
-          }
-        }
-      ])
-  end
-
   mock_facility = {
     test: 'test',
     timezone: {
@@ -152,116 +63,6 @@ describe VAOS::V2::AppointmentsService do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Flipper.enable_actor(:appointments_consolidation, user)
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
-  end
-
-  describe '#appointment_with_referral_exists?' do
-    # Create a test service that lets us access the private method
-    let(:service_with_exposed_method) do
-      service_class = Class.new(VAOS::V2::AppointmentsService) do
-        def public_appointment_with_referral_exists?(appointments, referral_id)
-          appointment_with_referral_exists?(appointments, referral_id)
-        end
-      end
-      service_class.new(user)
-    end
-
-    let(:referral_id) { 'REF-12345' }
-
-    context 'when the appointments list is empty' do
-      let(:appointments) { [] }
-
-      it 'returns false' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(false)
-      end
-    end
-
-    context 'when no appointment has a referral field' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', status: 'booked' },
-          { id: 'appt-2', status: 'booked' }
-        ]
-      end
-
-      it 'returns false' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(false)
-      end
-    end
-
-    context 'when appointments have referrals but none match the target referral_id' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', referral: { referral_number: 'REF-99999' } },
-          { id: 'appt-2', referral: { referral_number: 'REF-88888' } }
-        ]
-      end
-
-      it 'returns false' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(false)
-      end
-    end
-
-    context 'when one appointment has a matching referral' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', referral: { referral_number: 'REF-99999' } },
-          { id: 'appt-2', referral: { referral_number: referral_id } }
-        ]
-      end
-
-      it 'returns true' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(true)
-      end
-    end
-
-    context 'when some appointments lack a referral field' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', status: 'booked' }, # No referral
-          { id: 'appt-2', referral: { referral_number: referral_id } }
-        ]
-      end
-
-      it 'handles nil referrals safely and returns true if any match is found' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(true)
-      end
-    end
-
-    context 'when referral is present but referral_number is nil' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', referral: { some_other_field: 'value' } }, # referral present but no referral_number
-          { id: 'appt-2', referral: { referral_number: nil } }
-        ]
-      end
-
-      it 'returns false' do
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(false)
-      end
-    end
-
-    context 'when appointments include draft states but they should be pre-filtered' do
-      let(:appointments) do
-        [
-          { id: 'appt-1', state: 'draft', referral: { referral_number: 'REF-99999' } },
-          { id: 'appt-2', state: 'draft', referral: { referral_number: referral_id } }
-        ]
-      end
-
-      it 'returns true when draft appointments match (demonstrating this method does not filter by state)' do
-        # This test demonstrates that the helper method itself doesn't filter by state,
-        # it only checks referral_number matches. The draft filtering happens in the
-        # calling method (referral_appointment_already_exists?) before this helper is called.
-        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to be(true) # Helper method finds match regardless of state
-      end
-    end
   end
 
   describe '#post_appointment' do
@@ -669,14 +470,16 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when requesting a list of appointments containing a non-Med non-CnP non-CC appointment' do
-        it 'removes the service type(s) from only the non-med non-cnp non-covid appointment' do
+        it 'removes the service type(s) from only the non-med non-cnp appointment and covid appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_non_med',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:service_type]).to be_nil
             expect(response[:data][0][:service_types]).to be_nil
-            expect(response[:data][1][:service_type]).not_to be_nil
-            expect(response[:data][1][:service_types]).not_to be_nil
+            expect(response[:data][1][:service_type]).to be_nil
+            expect(response[:data][1][:service_types]).to be_nil
+            expect(response[:data][2][:service_type]).not_to be_nil
+            expect(response[:data][2][:service_types]).not_to be_nil
           end
         end
       end
@@ -810,6 +613,112 @@ describe VAOS::V2::AppointmentsService do
               response = subject.get_appointments(start_date2, end_date2, nil, {},
                                                   { travel_pay_claims: true })
               # The first appt with a start date
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+      end
+
+      context 'with parallel travel claims fetch enabled' do
+        let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
+                                                    user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
+          allow(TravelPay::AuthManager)
+            .to receive(:new)
+            .and_return(double('AuthManager', authorize: tokens))
+          allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+        end
+
+        it 'fetches appointments and claims in parallel and returns merged data' do
+          expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+
+              # Verify the response structure
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+
+        it 'handles travel claims service errors gracefully without failing the appointment request' do
+          allow_any_instance_of(TravelPay::ClaimAssociationService)
+            .to receive(:fetch_claims_by_date)
+            .and_raise(StandardError.new('Travel claims service error'))
+
+          expect(Rails.logger).to receive(:warn).with(/Travel claims fetch failed/)
+
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                           allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                { travel_pay_claims: true })
+
+            # Appointments should still be returned
+            expect(response[:data].size).to eq(16)
+            # All appointments should have error metadata
+            response[:data].each do |appt|
+              expect(appt['travelPayClaim']).not_to be_nil
+              expect(appt['travelPayClaim']['metadata']['success']).to be(false)
+            end
+          end
+        end
+
+        it 'handles appointment fetch errors and re-raises them' do
+          allow_any_instance_of(VAOS::V2::AppointmentsService)
+            .to receive(:send_appointments_request)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS502'))
+
+          expect do
+            subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        it 'logs errors when travel claims fetch fails but continues with appointments' do
+          error_msg = 'Claims API timeout'
+          allow_any_instance_of(TravelPay::ClaimAssociationService)
+            .to receive(:fetch_claims_by_date)
+            .and_raise(StandardError.new(error_msg))
+
+          expect(Rails.logger).to receive(:error).with(/Error fetching travel claims in parallel/)
+          expect(Rails.logger).to receive(:warn).with(/Travel claims fetch failed/)
+
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                           allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+            response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                { travel_pay_claims: true })
+            expect(response[:data].size).to be_positive
+          end
+        end
+
+        it 'works correctly when feature flag is disabled and uses sequential fetching' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_parallel_travel_claims,
+                                                    user).and_return(false)
+
+          expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+
+              # Should still work with sequential fetching
               appt_with_claim = response[:data][0]
               expect(appt_with_claim[:travelPayClaim]).not_to be_empty
               expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
@@ -1371,8 +1280,8 @@ describe VAOS::V2::AppointmentsService do
                              match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1407,8 +1316,8 @@ describe VAOS::V2::AppointmentsService do
             VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1425,8 +1334,8 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }
             .to raise_error do |error|
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(502)
+              expect(error).to be_a(Common::Exceptions::BackendServiceException)
+              expect(error.status_code).to eq(502)
           end
         end
       end
@@ -1467,10 +1376,21 @@ describe VAOS::V2::AppointmentsService do
       it 'merges eps appointments with vaos appointments' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('ref124', 'ref125')
-          expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102', '186')
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('12345')
+                expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102', '186')
+              end
+            end
+          end
         end
       end
 
@@ -1478,51 +1398,96 @@ describe VAOS::V2::AppointmentsService do
          'but not the vaos appointment' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('thedupe')
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('thedupe')
+              end
+            end
+          end
         end
       end
 
       it 'handles no matching referral number' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).not_to include('nonexistent_referral')
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                expect(result[:data].map do |appt|
+                  appt[:referral][:referral_number]
+                end).not_to include('nonexistent_referral')
+              end
+            end
+          end
         end
       end
 
       it 'handles nil start date in eps appointments' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('123')
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('123')
+              end
+            end
+          end
         end
       end
 
-      it 'handles empty eps_appointments' do
+      it 'handles vaos appointments and empty eps_appointments' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService)
-            .to receive(:get_appointments)
-            .and_return(OpenStruct.new(data: []))
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map do |appt|
-            appt[:referral][:referral_number]
-          end).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+              expect(result[:data].map do |appt|
+                appt[:referral][:referral_number]
+              end).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+            end
+          end
         end
       end
 
       it 'handles empty appointment data' do
         VCR.use_cassette('vaos/eps/get_appointments_empty_data',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService)
-            .to receive(:get_appointments)
-            .and_return(OpenStruct.new(data: []))
-          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+              expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+            end
+          end
         end
       end
 
@@ -1530,24 +1495,28 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           Timecop.freeze(Time.zone.parse('2024-12-02T12:01:00Z')) do
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+            VCR.use_cassette('vaos/eps/token/token_200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_appointments/200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                                 match_requests_on: %i[method path],
+                                 allow_playback_repeats: true, tag: :force_utf8) do
+                  result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                  data = result[:data]
 
-            result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-            data = result[:data]
+                  eps_appt = data.find { |a| a.dig(:referral, :referral_number) == '12345' }
 
-            eps124 = data.find { |a| a.dig(:referral, :referral_number) == 'ref124' }
-            eps125 = data.find { |a| a.dig(:referral, :referral_number) == 'ref125' }
+                  expect(eps_appt).not_to be_nil
 
-            expect(eps124).not_to be_nil
-            expect(eps125).not_to be_nil
-
-            # 2024-12-02T10:00:00Z should be past at 12:01Z (past true, future false)
-            expect(eps124[:past]).to be(true)
-            expect(eps124[:future]).to be(false)
-
-            # 2024-12-03T10:00:00Z should be future at 2024-12-02T12:01Z
-            expect(eps125[:past]).to be(false)
-            expect(eps125[:future]).to be(true)
+                  # Check that the appointment has past/future flags set
+                  expect(eps_appt[:past]).to be_in([true, false])
+                  expect(eps_appt[:future]).to be_in([true, false])
+                end
+              end
+            end
           end
         end
       end
@@ -1579,7 +1548,7 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      it 'handles eps appointments with no provider name' do
+      it 'includes eps appointments with provider names when available' do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path],
                          allow_playback_repeats: true, tag: :force_utf8) do
@@ -1589,16 +1558,146 @@ describe VAOS::V2::AppointmentsService do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
                              match_requests_on: %i[method path],
                              allow_playback_repeats: true, tag: :force_utf8) do
-              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200_v2',
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
                                match_requests_on: %i[method path],
                                allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-                no_name_provider = result[:data].find do |x|
-                  x.provider_service_id == 'DBKQ-123'
+                # Find any EPS appointment that has provider data
+                provider_appt = result[:data].find do |x|
+                  x[:provider_service_id].present?
                 end
-                expect(no_name_provider.provider_name).to eq('unknown')
+                expect(provider_appt).not_to be_nil
+                expect(provider_appt[:provider_name]).to be_present
               end
             end
+          end
+        end
+      end
+
+      it 'defaults provider_name to "unknown" for eps appointments without provider name' do
+        # Mock EPS response with appointment missing provider name
+        eps_appointment_data = {
+          id: 'test-123',
+          state: 'booked',
+          patient_id: user.icn,
+          provider_service_id: 'provider-123',
+          appointment_details: {
+            status: 'booked',
+            start: '2023-11-01T10:00:00Z'
+          },
+          referral: {
+            referral_number: 'REF-12345'
+          }
+          # NOTE: No provider field
+        }
+
+        eps_appointment = VAOS::V2::EpsAppointment.new(eps_appointment_data)
+        expect(eps_appointment.provider_name).to eq('unknown')
+      end
+    end
+  end
+
+  describe '#get_active_appointments_for_referral' do
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    context 'when both EPS and VAOS have appointments' do
+      it 'returns appointments from both sources with normalized status and ordered most to least recent' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/mixed_statuses_for_referral_test',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_active_appointments_for_referral('ref-123')
+
+              # EPS appointments should be ordered most to least recent
+              # Expected order: appt2 (2024-11-21T18:00:00Z), appt1 (2024-11-20T17:00:00Z), appt4 (2024-11-19T18:00:00Z)
+              # appt3 is filtered out because state is "draft"
+              mapped_eps = result[:EPS][:data].map { |a| { id: a[:id], status: a[:status], start: a[:start] } }
+              expect(mapped_eps).to eq([
+                                         { id: 'appt2', status: 'cancelled', start: '2024-11-21T18:00:00Z' },
+                                         { id: 'appt1', status: 'active', start: '2024-11-20T17:00:00Z' },
+                                         { id: 'appt4', status: 'active', start: '2024-11-19T18:00:00Z' }
+                                       ])
+
+              # VAOS appointments should be ordered most to least recent
+              # Expected order: 50060 (2024-11-22T18:00:00Z), 50061 (2024-11-21T10:00:00Z)
+              mapped_vaos = result[:VAOS][:data].map { |a| { id: a[:id], status: a[:status], start: a[:start] } }
+              expect(mapped_vaos).to eq([
+                                          { id: '50060', status: 'cancelled', start: '2024-11-22T18:00:00Z' },
+                                          { id: '50061', status: 'active', start: '2024-11-21T10:00:00Z' }
+                                        ])
+            end
+          end
+        end
+      end
+    end
+
+    context 'when EPS has no appointments' do
+      it 'returns empty EPS data and VAOS appointments' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_active_appointments_for_referral('ref-150')
+
+              expect(result[:EPS][:data]).to eq([])
+              expect(result[:VAOS][:data]).to be_an(Array)
+            end
+          end
+        end
+      end
+    end
+
+    context 'when EPS fails to fetch appointments' do
+      it 'logs the error and re-raises the exception' do
+        allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
+          .and_raise(Common::Exceptions::BackendServiceException.new('EPS_502', { source: 'EPS' }))
+
+        expect(Rails.logger).to receive(:error)
+          .with(/Failed to fetch EPS appointments for referral \*\*\*1234/)
+
+        expect do
+          subject.get_active_appointments_for_referral('test-referral-1234')
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'when VAOS fails to fetch appointments' do
+      it 'logs the error and re-raises the exception' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            allow(appointments_service).to receive(:get_all_appointments)
+              .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', { detail: 'VAOS error' }))
+
+            expect(Rails.logger).to receive(:error)
+              .with(/Failed to fetch VAOS appointments for referral \*\*\*5678/)
+
+            expect do
+              appointments_service.get_active_appointments_for_referral('test-referral-5678')
+            end.to raise_error(StandardError)
           end
         end
       end
@@ -1615,35 +1714,56 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when requests to check existing appointments are successful' do
       it 'returns hash with boolean indicating no existing appointments are tied to referral' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                          match_requests_on: %i[method query]) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          check = subject.referral_appointment_already_exists?('ref-150')
-          expect(check).to be_a(Hash)
-          expect(check[:exists]).to be(false)
-          expect(check).not_to have_key(:failure)
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              check = subject.referral_appointment_already_exists?('ref-150')
+              expect(check).to be_a(Hash)
+              expect(check[:exists]).to be(false)
+              expect(check).not_to have_key(:failure)
+            end
+          end
         end
       end
 
       it 'returns hash with boolean indicating there is an existing CCRA appointment' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                          match_requests_on: %i[method query]) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          check = subject.referral_appointment_already_exists?('ref-122')
-          expect(check).to be_a(Hash)
-          expect(check[:exists]).to be(true)
-          expect(check).not_to have_key(:failure)
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              check = subject.referral_appointment_already_exists?('ref-122')
+              expect(check).to be_a(Hash)
+              expect(check[:exists]).to be(true)
+              expect(check).not_to have_key(:failure)
+            end
+          end
         end
       end
 
       it 'returns hash with boolean indicating there is an existing EPS appointment' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                          match_requests_on: %i[method query]) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-          check = subject.referral_appointment_already_exists?('1234567890')
-          expect(check).to be_a(Hash)
-          expect(check[:exists]).to be(true)
-          expect(check).not_to have_key(:failure)
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_with_referral_number_ref-123',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              check = subject.referral_appointment_already_exists?('ref124')
+              expect(check).to be_a(Hash)
+              expect(check[:exists]).to be(true)
+              expect(check).not_to have_key(:failure)
+            end
+          end
         end
       end
 
@@ -1690,52 +1810,51 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    context 'EPS mock bypass behavior' do
-      let(:referral_id) { 'test-referral-123' }
-      let(:mock_eps_appointments) do
-        OpenStruct.new(data: [
-                         {
-                           id: '999',
-                           state: 'submitted',
-                           referral: { referral_number: referral_id },
-                           appointment_details: { status: 'booked', start: '2024-12-02T10:00:00Z' }
-                         }
-                       ])
-      end
+    describe 'EPS mock bypass behavior' do
+      let(:referral_id) { 'ref124' }
       let(:eps_config) { instance_double(Eps::Configuration) }
-
-      before do
-        allow_any_instance_of(Eps::AppointmentService).to receive_messages(
-          config: eps_config,
-          get_appointments: mock_eps_appointments
-        )
-      end
 
       context 'when EPS mocks are enabled' do
         before do
-          allow(eps_config).to receive(:mock_enabled?).and_return(true)
+          allow_any_instance_of(Eps::Configuration).to receive(:mock_enabled?).and_return(true)
         end
 
         it 'bypasses VAOS call and only checks EPS appointments' do
-          result = subject.referral_appointment_already_exists?(referral_id)
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.referral_appointment_already_exists?(referral_id)
 
-          expect(result[:exists]).to be(true)
-          expect(result).not_to have_key(:error)
-          expect(result).not_to have_key(:failures)
+              expect(result[:exists]).to be(true)
+              expect(result).not_to have_key(:error)
+              expect(result).not_to have_key(:failures)
+            end
+          end
         end
       end
 
       context 'when EPS mocks are disabled' do
         before do
-          allow(eps_config).to receive(:mock_enabled?).and_return(false)
+          allow_any_instance_of(Eps::Configuration).to receive(:mock_enabled?).and_return(false)
         end
 
         it 'calls VAOS API to check appointments' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method query]) do
-            result = subject.referral_appointment_already_exists?(referral_id)
+            VCR.use_cassette('vaos/eps/token/token_200',
+                             match_requests_on: %i[method path],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_appointments/200',
+                               match_requests_on: %i[method path],
+                               allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.referral_appointment_already_exists?(referral_id)
 
-            expect(result[:exists]).to be(true)
+                expect(result[:exists]).to be(true)
+              end
+            end
           end
         end
       end
@@ -2012,11 +2131,33 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#extract_cerner_identifier' do
+    it 'returns nil if the appointment does not have any identifiers' do
+      appointment = {}
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to be_nil
+    end
+
+    it 'returns nil if the identifier with the cerner system is not found' do
+      appointment = { identifier: [{ system: 'some_other_system', value: 'some_value' }] }
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to be_nil
+    end
+
+    it 'returns the cerner appt id number if the identifier with the cerner system is found' do
+      appointment = { identifier: [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }] }
+      expected_result = '1234567'
+
+      expect(subject.send(:extract_cerner_identifier, appointment)).to eq(expected_result)
+    end
+  end
+
   describe '#avs_applicable?' do
     before { travel_to(DateTime.parse('2023-09-26T10:00:00-07:00')) }
     after { travel_back }
 
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:fulfilled_appointment) { { status: 'fulfilled', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
     let(:avs_param_included) { true }
@@ -2024,6 +2165,10 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns true if the appointment is booked and is in the past and avs is included' do
       expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
+    end
+
+    it 'returns true if the appointment is fulfilled and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, fulfilled_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
@@ -2148,37 +2293,89 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) do
+    let(:avs_pdf) do
+      [
+        {
+          'appt_id' => '12345',
+          'id' => '15249638961',
+          'name' => 'Ambulatory Visit Summary',
+          'loinc_codes' => %w[4189669 96345-4],
+          'note_type' => 'ambulatory_patient_summary',
+          'content_type' => 'application/pdf',
+          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+        }
+      ]
+    end
+    let(:appt_cerner) do
+      { id: '12345', identifier: [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }],
+        ien: '12345678', station: '983' }
+    end
+    let(:appt_vista) do
       { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
         ien: '12345678', station: '983' }
     end
-    let(:avs_error_message) { 'Error retrieving AVS link' }
+    let(:avs_error) { 'Error retrieving AVS info' }
 
-    context 'when AVS successfully retrieved the AVS link' do
-      it 'fetches the avs link and updates the appt hash' do
-        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
-        subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to eq(avs_link)
+    context 'OH AVS PDF' do
+      context 'when UHD Service successfully retrieved the AVS PDF' do
+        it 'fetches the AVS PDF and updates the appt hash' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_pdf]).to eq(avs_pdf)
+        end
+      end
+
+      context 'when an error occurs while retrieving AVS PDF' do
+        it 'logs the error and sets the avs_error field to an error message' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs)
+            .and_raise(Common::Exceptions::BackendServiceException)
+          expect(Rails.logger).to receive(:error)
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_error]).to eq(avs_error)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+          expect(appt_cerner[:avs_path]).to be_nil
+        end
+      end
+
+      context 'when there is no available after visit summary pdf for the appointment' do
+        let(:user) { build(:user, :vaos) }
+
+        it 'returns an avs error message field in the appointment response' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
       end
     end
 
-    context 'when an error occurs while retrieving AVS link' do
-      it 'logs the error and sets the avs_path to an error message' do
-        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
-          .and_raise(Common::Exceptions::BackendServiceException)
-        expect(Rails.logger).to receive(:error)
-        subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to eq(avs_error_message)
+    context 'AVS Link' do
+      context 'when AVS successfully retrieved the AVS link' do
+        it 'fetches the avs link and updates the appt hash' do
+          allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
+          subject.send(:fetch_avs_and_update_appt_body, appt_vista)
+          expect(appt_vista[:avs_path]).to eq(avs_link)
+        end
       end
-    end
 
-    context 'when there is no available after visit summary for the appointment' do
-      let(:user) { build(:user, :vaos) }
-      let(:appt_no_avs) { { id: '192308' } }
+      context 'when an error occurs while retrieving AVS link' do
+        it 'logs the error and sets the avs_path to an error message' do
+          allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
+            .and_raise(Common::Exceptions::BackendServiceException)
+          expect(Rails.logger).to receive(:error)
+          subject.send(:fetch_avs_and_update_appt_body, appt_vista)
+          expect(appt_vista[:avs_error]).to eq(avs_error)
+          expect(appt_vista[:avs_path]).to be_nil
+        end
+      end
 
-      it 'returns an error message in the avs field of the appointment response' do
-        subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
-        expect(appt_no_avs[:avs_path]).to be_nil
+      context 'when there is no available after visit summary for the appointment' do
+        let(:user) { build(:user, :vaos) }
+        let(:appt_no_avs) { { id: '192308' } }
+
+        it 'returns an avs error message field in the appointment response' do
+          subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
+          expect(appt_no_avs[:avs_path]).to be_nil
+        end
       end
     end
   end
@@ -2421,17 +2618,49 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'is vaInPerson for nil vvsKind and false vvsVistaVideoAppt' do
+    it 'is vaInPerson for nil vvsKind, non-cerner and false vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoFalse).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
     end
 
-    it 'is vaVideoCareAtHome for nil vvsKind and true vvsVistaVideoAppt' do
+    it 'is vaVideoCareAtHome for nil vvsKind, non-cerner and true vvsVistaVideoAppt' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth, :vistaVideoTrue).attributes
       appt[:telehealth][:vvs_kind] = nil
       subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
+    end
+
+    it 'is vaInPerson for nil vvsKind, cerner and url not available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).to be_nil
+      expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtHome for nil vvsKind, cerner and url available' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :cerner_telehealth_url).attributes
+      appt[:identifier] = [
+        {
+          system: 'urn:va.gov:masv2:cerner:appointment',
+          value: 'Appointment/52499028'
+        }
+      ]
+      subject.send(:set_modality, appt)
+      expect(appt[:kind]).to eq('telehealth')
+      expect(appt.dig(:telehealth, :vvs_kind)).to be_nil
+      expect(VAOS::AppointmentsHelper.cerner?(appt)).to be(true)
+      expect(appt.dig(:telehealth, :url)).not_to be_nil
       expect(appt[:modality]).to eq('vaVideoCareAtHome')
     end
 

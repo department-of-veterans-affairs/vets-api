@@ -6,7 +6,8 @@ module Mobile
     include SignIn::AudienceValidator
 
     service_tag 'mobile-app'
-    validates_access_token_audience IdentitySettings.sign_in.vamobile_client_id
+    validates_access_token_audience [IdentitySettings.sign_in.vamobile_client_id,
+                                     ('vamock-mobile' if MockedAuthentication.mockable_env?)]
 
     before_action :authenticate
     before_action :set_sentry_tags_and_extra_context

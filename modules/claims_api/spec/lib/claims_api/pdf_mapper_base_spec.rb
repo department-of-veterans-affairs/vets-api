@@ -46,7 +46,8 @@ describe ClaimsApi::PdfMapperBase do
 
   describe '#concatenate_zip_code' do
     it 'concatenates first five and last four' do
-      address_object = { 'mailingAddress' => { 'zipFirstFive' => '12345', 'zipLastFour' => '6789' } }
+      address_object = { 'mailingAddress' => { 'country' => 'USA', 'zipFirstFive' => '12345',
+                                               'zipLastFour' => '6789' } }
 
       result = subject.concatenate_zip_code(address_object['mailingAddress'])
 
@@ -54,20 +55,20 @@ describe ClaimsApi::PdfMapperBase do
     end
 
     it 'returns just first five when that is all that is present' do
-      address_object = { 'mailingAddress' => { 'zipFirstFive' => nil, 'zipLastFour' => '',
-                                               'internationalPostalCode' => '10431' } }
-
-      result = subject.concatenate_zip_code(address_object['mailingAddress'])
-
-      expect(result).to eq('10431')
-    end
-
-    it 'returns international postal code when present' do
-      address_object = { 'mailingAddress' => { 'zipFirstFive' => '12345' } }
+      address_object = { 'mailingAddress' => { 'country' => 'USA', 'zipFirstFive' => '12345' } }
 
       result = subject.concatenate_zip_code(address_object['mailingAddress'])
 
       expect(result).to eq('12345')
+    end
+
+    it 'returns international postal code when present' do
+      address_object = { 'mailingAddress' => { 'zipFirstFive' => nil, 'zipLastFour' => '',
+                                               'internationalPostalCode' => '10431', 'country' => 'Australia' } }
+
+      result = subject.concatenate_zip_code(address_object['mailingAddress'])
+
+      expect(result).to eq('10431')
     end
   end
 
@@ -259,6 +260,20 @@ describe ClaimsApi::PdfMapperBase do
                              serviceRelevance: 'Artillery exposure'
                            })
       expect(result).not_to have_key(:exposureOrEventOrInjury)
+    end
+  end
+
+  describe '#handle_yes_no' do
+    it "return 'NO' when sent false" do
+      res = subject.handle_yes_no(false)
+
+      expect(res).to eq('NO')
+    end
+
+    it "return 'YES' when sent true" do
+      res = subject.handle_yes_no(true)
+
+      expect(res).to eq('YES')
     end
   end
 end

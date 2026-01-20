@@ -247,7 +247,7 @@ RSpec.describe Users::Profile do
     end
 
     describe '#va_profile' do
-      context 'when user.mpi is not nil' do
+      context 'when mpi_profile is not nil' do
         it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.birth_date_mpi)
         end
@@ -286,30 +286,164 @@ RSpec.describe Users::Profile do
         it 'includes active_mhv_ids' do
           expect(va_profile[:active_mhv_ids]).to eq(user.active_mhv_ids)
         end
+
+        context 'Oracle Health facility checks' do
+          before do
+            allow(Settings.mhv.oh_facility_checks).to receive_messages(pretransitioned_oh_facilities: '612, 357, 555',
+                                                                       facilities_ready_for_info_alert: '555, 500',
+                                                                       facilities_migrating_to_oh: '321, 654, 777')
+          end
+
+          context 'when user has pre-transitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 999])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+            end
+          end
+
+          context 'when user does not have pretransitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+            end
+          end
+
+          context 'when user has facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[555 999])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to true' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+            end
+          end
+
+          context 'when user does not have facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to false' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+            end
+          end
+
+          context 'when user has facility migrating to OH' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[321 999])
+            end
+
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user does not have facility migrating to OH' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_migrating_to_oh to false' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has multiple facilities including migrating facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[654 999])
+            end
+
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has multiple facilities including OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 555 321 999])
+            end
+
+            it 'correctly identifies all three flags' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has no facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return([])
+            end
+
+            it 'sets all flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has facilities but none match OH facility lists' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[111 222 333])
+            end
+
+            it 'sets all OH facility flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has migrating facility but not other OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[777 111])
+            end
+
+            it 'only sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:user_facility_migrating_to_oh]).to be true
+            end
+          end
+        end
       end
 
-      context 'when user.mpi is nil' do
+      context 'when mpi_profile is nil' do
         let(:user) { build(:user) }
+        let(:ok_status) do
+          Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+        end
 
         it 'returns va_profile as null' do
-          expect(va_profile).to be_nil
+          expect(va_profile).to eq({ status: ok_status })
         end
 
-        it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
+        it 'does not populate the #errors array with the serialized error', :aggregate_failures do
+          external_services_errors = subject.errors.map { |error| error[:external_service] }
 
-          expect(error[:external_service]).to eq 'MVI'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to include 'Not authorized'
-          expect(error[:status]).to eq 401
+          expect(external_services_errors).not_to include 'MVI'
         end
 
-        it 'sets the status to 296' do
-          expect(subject.status).to eq 296
+        it 'logs an error when user is not loa3' do
+          profile_instance = Users::Profile.new(user)
+          expect(Rails.logger).to receive(:warn) do |message, log_arg|
+            expect(message).to eq('Users::Profile external service error')
+            log_hash = JSON.parse(log_arg)
+            expect(log_hash['error']['external_service']).to eq('MVI')
+            expect(log_hash['error']['description']).to eq('User is not LOA3, MPI access denied')
+            expect(log_hash['error']['method']).to eq('mpi_profile')
+          end
+          profile_instance.send(:mpi_profile)
         end
       end
 
-      context 'when user.mpi is not found' do
+      context 'when user.mpi_status is not found' do
         before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
@@ -331,6 +465,14 @@ RSpec.describe Users::Profile do
     end
 
     describe '#veteran_status' do
+      let(:veteran_status_with_nil) do
+        {
+          status: Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok],
+          is_veteran: nil,
+          served_in_military: nil
+        }
+      end
+
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
@@ -401,27 +543,59 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'with a LOA1 user' do
-        let(:user) { build(:user, :loa1) }
-
-        it 'returns va_profile as null' do
-          expect(veteran_status).to be_nil
+      context 'when LOA1 user' do
+        before do
+          user.loa[:current] = 1
         end
 
-        it 'populates the #errors array with the serialized error', :aggregate_failures do
-          VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
-                                                                                     allow_playback_repeats: true) do
-            vaprofile_error = subject.errors.last
+        context 'with blank edipi' do
+          let(:edipi) { nil }
+          let(:expected_object) do
+            { status: ok_status, is_veteran: nil, served_in_military: nil }
+          end
+          let(:ok_status) do
+            Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+          end
 
-            expect(vaprofile_error[:external_service]).to eq 'VAProfile'
-            expect(vaprofile_error[:start_time]).to be_present
-            expect(vaprofile_error[:description]).to include 'VA Profile failure'
-            expect(vaprofile_error[:status]).to eq 401
+          it 'returns nil for veteran_status' do
+            expect(veteran_status).to eq(expected_object)
+          end
+
+          it 'logs skipping message' do
+            expect(Rails.logger).to receive(:info).with(
+              'Skipping VAProfile veteran status call, No EDIPI present',
+              user_uuid: user.uuid,
+              loa: user.loa
+            )
+            Users::Profile.new(user).send(:veteran_status)
+          end
+
+          it 'sets the status to 200 when edipi is blank' do
+            expect(subject.status).to eq 200
           end
         end
+      end
 
-        it 'sets the status to 296' do
-          expect(subject.status).to eq 296
+      context 'when a LOA3 user' do
+        context 'with blank edipi' do
+          let(:edipi) { nil }
+
+          it 'returns object with nils for veteran_status when edipi is blank' do
+            expect(veteran_status).to eq(veteran_status_with_nil)
+          end
+
+          it 'logs skipping message' do
+            expect(Rails.logger).to receive(:info).with(
+              'Skipping VAProfile veteran status call, No EDIPI present',
+              user_uuid: user.uuid,
+              loa: user.loa
+            )
+            Users::Profile.new(user).send(:veteran_status)
+          end
+
+          it 'sets the status to 200 when edipi is blank' do
+            expect(subject.status).to eq 200
+          end
         end
       end
     end
@@ -451,6 +625,18 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info).to have_key(:contact_email_verified)
+          expect(vet360_info[:contact_email_verified]).to be_in([true, false])
+        end
+
+        context 'when email object is nil' do
+          before do
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)
+          end
+
+          it 'returns nil for contact_email_verified when email is nil' do
+            expect(vet360_info[:contact_email_verified]).to be_nil
+          end
         end
 
         it 'sets the status to 200' do
@@ -545,18 +731,22 @@ RSpec.describe Users::Profile do
 
         it 'logs errors for vet360_contact_information' do
           allow(logging_user).to receive(:vet360_contact_info).and_raise(vet360_error)
-          expect(Rails.logger).to receive(:warn) do |log_arg|
+          expect(Rails.logger).to receive(:warn) do |message, log_arg|
+            expect(message).to eq('Users::Profile external service error')
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_va_profile_log_hash)
+            expect(log_hash['error']['method']).to eq('vet360_contact_information')
           end
           logging_profile.send(:vet360_contact_information)
         end
 
         it 'logs errors for veteran_status' do
           allow(logging_user).to receive(:veteran?).and_raise(vet_status_error)
-          expect(Rails.logger).to receive(:warn) do |log_arg|
+          expect(Rails.logger).to receive(:warn) do |message, log_arg|
+            expect(message).to eq('Users::Profile external service error')
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_va_profile_log_hash)
+            expect(log_hash['error']['method']).to eq('veteran_status')
           end
           logging_profile.send(:veteran_status)
         end
@@ -576,11 +766,118 @@ RSpec.describe Users::Profile do
           allow(logging_user).to receive_messages(
             mpi_status: :error, mpi_error:
           )
-          expect(Rails.logger).to receive(:warn) do |log_arg|
+          expect(Rails.logger).to receive(:warn) do |message, log_arg|
+            expect(message).to eq('Users::Profile external service error')
             log_hash = JSON.parse(log_arg)
             expect(log_hash).to include(expected_mpi_log_hash)
+            expect(log_hash['error']['method']).to eq('mpi_profile')
           end
           logging_profile.send(:mpi_profile)
+        end
+      end
+    end
+
+    describe '#scheduling_preferences_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:visn_service) { instance_double(UserVisnService) }
+      let(:result) { users_profile.send(:scheduling_preferences_pilot_eligible) }
+
+      before do
+        allow(UserVisnService).to receive(:new).with(user).and_return(visn_service)
+      end
+
+      context 'when profile_scheduling_preferences feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
+        end
+
+        it 'returns false' do
+          expect(visn_service).not_to receive(:in_pilot_visn?)
+          expect(result).to be false
+        end
+      end
+
+      context 'when profile_scheduling_preferences feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
+        end
+
+        context 'when user is in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(true)
+          end
+
+          it 'returns true' do
+            expect(result).to be true
+          end
+        end
+
+        context 'when user is not in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(false)
+          end
+
+          it 'returns false' do
+            expect(result).to be false
+          end
+        end
+
+        context 'when VISN service raises an error' do
+          let(:error_message) { 'VISN service error' }
+
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_raise(StandardError, error_message)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'logs the error and returns false' do
+            expect(Rails.logger)
+              .to receive(:error)
+              .with("Error checking scheduling preferences pilot eligibility: #{error_message}")
+            expect(result).to be false
+          end
+        end
+      end
+    end
+
+    describe 'mpi_profile integration with scheduling_preferences_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
+
+      before do
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
+        allow(user).to receive_messages(
+          birth_date_mpi: '1980-01-01',
+          last_name_mpi: 'Doe',
+          gender_mpi: 'M',
+          given_names: ['John'],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          va_treatment_facility_ids: %w[402 515],
+          va_patient?: true,
+          mhv_account_state: 'OK',
+          active_mhv_ids: ['12345']
+        )
+      end
+
+      context 'when user is eligible for scheduling preferences pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
+          allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
+        end
+
+        it 'includes scheduling_preferences_pilot_eligible as true in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be true
+        end
+      end
+
+      context 'when user is not eligible for scheduling preferences pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
+        end
+
+        it 'includes scheduling_preferences_pilot_eligible as false in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be false
         end
       end
     end

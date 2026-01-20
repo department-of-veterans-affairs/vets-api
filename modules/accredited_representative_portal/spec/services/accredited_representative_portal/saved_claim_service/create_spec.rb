@@ -16,6 +16,16 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
     allow_any_instance_of(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
       receive(:perform)
     )
+
+    # This removes: SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+    # #<FastImage::UnknownImageType: FastImage::UnknownImageType>
+    allow(FastImage).to receive(:size).and_wrap_original do |original, file|
+      if file.respond_to?(:path) && file.path.end_with?('.pdf')
+        nil
+      else
+        original.call(file)
+      end
+    end
   end
 
   let(:claimant_representative) do
@@ -131,6 +141,30 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             expect(claimant_representative_associated).to(
               be(true)
             )
+          end
+
+          it 'persists the saved claim even when attachments are not persisted' do
+            # Build (not create) attachments so association autosave won't persist the saved_claim
+            form = build(:persistent_attachment_va_form, form_id: '21-686c')
+            doc = build(:persistent_attachment_va_form_documentation, form_id: '21-686c')
+
+            # Stub organize_attachments! to return our in-memory (non-persisted) attachments
+            allow(described_class).to receive(:organize_attachments!).and_return({ form:, documentations: [doc] })
+
+            created = nil
+            # Stub create! and do NOT call through to prevent any DB side-effects
+            allow(
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative
+            ).to receive(:create!).and_wrap_original do |_m, *args|
+              created = args.first
+              # simulate create! returning a record without touching DB
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.new(created)
+            end
+
+            claim = perform
+
+            expect(created[:saved_claim].persisted?).to be(true)
+            expect(created[:saved_claim].id).to eq(claim.id)
           end
         end
       end

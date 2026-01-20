@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions/gateway_timeout'
+require 'vets/shared_logging'
 require_relative 'configuration'
 require_relative 'response'
 require_relative 'token'
@@ -19,6 +20,7 @@ module MDOT
 
   class Client < Common::Client::Base
     include Common::Client::Concerns::Monitoring
+    include Vets::SharedLogging
 
     configuration MDOT::Configuration
 
@@ -85,14 +87,8 @@ module MDOT
       handle_error(e)
     end
 
-    def save_error_details(error)
-      Sentry.set_tags(external_service: self.class.to_s.underscore)
-
-      Sentry.set_extras(
-        url: config.base_path,
-        message: error.message,
-        body: error.try(:body)
-      )
+    def log_error_details(error)
+      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
     end
 
     def raise_backend_exception(key, source = self.class, error = nil)
@@ -122,7 +118,7 @@ module MDOT
     end
 
     def handle_error(error)
-      save_error_details(error)
+      log_error_details(error)
       case error
       when Faraday::ParsingError
         raise_backend_exception('MDOT_502')
