@@ -254,17 +254,17 @@ module VAOS
       def create_direct_scheduling_appointment(params)
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
            Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
-          perform(:post, appointments_base_path_vpg, params, headers)
+          perform_post_appointment_request_vpg(params)
         else
-          perform(:post, appointments_base_path_vaos, params, headers)
+          perform_post_appointment_request_vaos(params)
         end
       end
 
       def create_appointment_request(params)
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
-          perform(:post, appointments_base_path_vpg, params, headers)
+          perform_post_appointment_request_vpg(params)
         else
-          perform(:post, appointments_base_path_vaos, params, headers)
+          perform_post_appointment_request_vaos(params)
         end
       end
 
@@ -1464,13 +1464,17 @@ module VAOS
       def update_appointment_vpg(appt_id, status)
         url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
         body = [VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op]
-        perform(:patch, url_path, body, headers)
+        with_monitoring do
+          perform(:patch, url_path, body, headers)
+        end
       end
 
       def update_appointment_vaos(appt_id, status)
         url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
-        perform(:put, url_path, params, headers)
+        with_monitoring do
+          perform(:put, url_path, params, headers)
+        end
       end
 
       def validate_response_schema(response, contract_name)
@@ -1626,12 +1630,35 @@ module VAOS
       # @param req_params [Hash] The request parameters to be sent with the GET request.
       # @return [Faraday::Response] The API response.
       def perform_appointment_request(req_params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+          perform_get_appointment_request_vpg(req_params)
+        else
+          perform_get_appointment_request_vaos(req_params)
+        end
+      end
+
+      # Splitting `perform_appointment_request` into separate vpg/vaos methods for monitoring purposes
+      def perform_get_appointment_request_vpg(req_params)
         with_monitoring do
-          if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-            perform(:get, appointments_base_path_vpg, req_params, headers)
-          else
-            perform(:get, appointments_base_path_vaos, req_params, headers)
-          end
+          perform(:get, appointments_base_path_vpg, req_params, headers)
+        end
+      end
+
+      def perform_get_appointment_request_vaos(req_params)
+        with_monitoring do
+          perform(:get, appointments_base_path_vaos, req_params, headers)
+        end
+      end
+
+      def perform_post_appointment_request_vpg(req_params)
+        with_monitoring do
+          perform(:post, appointments_base_path_vpg, req_params, headers)
+        end
+      end
+
+      def perform_post_appointment_request_vaos(req_params)
+        with_monitoring do
+          perform(:post, appointments_base_path_vaos, req_params, headers)
         end
       end
 
