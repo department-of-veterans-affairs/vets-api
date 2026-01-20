@@ -2689,7 +2689,7 @@ features:
   show_vye_downtime_alert:
     actor_type: user
     description: If enabled, show the VYE downtime alert on the VYE application
-  decision_reviews_evidence_final_status_field:
+  decision_review_evidence_final_status_field:
     actor_type: user
     description: Include finalStatus boolean field in Decision Reviews "show" and "create" endpoint responses
   form_10275_release:

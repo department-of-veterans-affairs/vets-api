@@ -15,8 +15,8 @@ module AppealsApi
     attribute :appeal_id, &:supportable_id
 
     attribute :final_status, if: proc { |_, _|
-      # The final_status will be serialized only if the :decision_reviews_evidence_final_status_field flag is enabled
-      Flipper.enabled?(:decision_reviews_evidence_final_status_field)
+      # The final_status will be serialized only if the :decision_review_evidence_final_status_field flag is enabled
+      Flipper.enabled?(:decision_review_evidence_final_status_field)
     } do |object, _|
       object.in_final_status?
     end
