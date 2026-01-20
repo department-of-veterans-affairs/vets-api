@@ -16,6 +16,7 @@ module RepresentationManagement
     INDIVIDUAL_TYPE_ATTORNEY = 'attorney'
     INDIVIDUAL_TYPE_CLAIM_AGENT = 'claims_agent'
     INDIVIDUAL_TYPE_VSO_REPRESENTATIVE = 'representative'
+    REPLACEMENT_OGC_ID = '00000000-0000-0000-0000-000000000000'
 
     def perform
       setup_ingestion
@@ -371,7 +372,7 @@ module RepresentationManagement
                                 .pluck(:poa_code, :ogc_id)
                                 .to_h
 
-      vso_orgs.each { |org| org[:ogc_id] = existing_ogc_ids_by_poa[org[:poa_code]] || SecureRandom.uuid }
+      vso_orgs.each { |org| org[:ogc_id] = existing_ogc_ids_by_poa[org[:poa_code]] || REPLACEMENT_OGC_ID }
 
       AccreditedOrganization.import(
         vso_orgs,
