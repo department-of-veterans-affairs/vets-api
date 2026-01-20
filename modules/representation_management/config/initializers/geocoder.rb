@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Geocoder.configure(
-  lookup: :mapbox, # OpenStreetMap Nominatim geocoding service (default)
+  lookup: :mapbox, # Mapbox geocoding service
   timeout: 5,
   units: :mi,
   dataset: 'mapbox.places-permanent'
