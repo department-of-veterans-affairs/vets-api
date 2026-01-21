@@ -20,8 +20,8 @@ module Swagger
                 items type: :object do
                   key :required, %i[item_id option_ids]
                   property :item_id, type: :integer, example: 1,
-                                     description: 'Scheduling preference question identifier'
-                  property :option_ids, type: :array, description: 'Selected options for this preference category' do
+                                     description: 'Scheduling preference item identifier'
+                  property :option_ids, type: :array, description: 'Selected options for this preference item' do
                     items type: :integer, example: 5
                   end
                 end
@@ -33,8 +33,8 @@ module Swagger
         # POST/PUT/DELETE request body schema
         swagger_schema :SchedulingPreferencesRequest do
           key :required, %i[item_id option_ids]
-          property :item_id, type: :integer, example: 1, description: 'Scheduling preference question identifier'
-          property :option_ids, type: :array, description: 'Options to select for this preference category' do
+          property :item_id, type: :integer, example: 1, description: 'Scheduling preference item identifier'
+          property :option_ids, type: :array, description: 'Options to select for this preference item' do
             items type: :integer, example: 5
           end
         end

@@ -1002,7 +1002,7 @@ module Swagger
                             ' or that were just updated to COMPLETED during the course of this request.' \
                             ' The array will be empty if no transactions are pending or updated.' \
                             ' Only the most recent transaction for each profile field will be included' \
-                            ' so there may be up to 5 (Address, Email, Telephone, Permission, Person Options).'
+                            ' so there may be up to 5 (Address, Email, Telephone, Permission, PersonOptions).'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile]
 
@@ -1364,7 +1364,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Creates scheduling preferences for a specific category'
+          key :description, 'Creates scheduling preferences for a specific item'
           key :operationId, 'createSchedulingPreferences'
           key :tags, [:profile]
 
@@ -1392,7 +1392,7 @@ module Swagger
         operation :put do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Updates scheduling preferences for a specific category'
+          key :description, 'Updates scheduling preferences for a specific item'
           key :operationId, 'updateSchedulingPreferences'
           key :tags, [:profile]
 
@@ -1420,7 +1420,7 @@ module Swagger
         operation :delete do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, "Removes all scheduling preferences from Veteran's profile"
+          key :description, "Removes all scheduling preferences from Veteran's profile for a specific item"
           key :operationId, 'deleteSchedulingPreferences'
           key :tags, [:profile]
 
