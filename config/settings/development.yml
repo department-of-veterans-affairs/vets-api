@@ -655,6 +655,9 @@ ivc_forms:
       enabled: true
     old_records_cleanup_job:
       enabled: true
+ssoe:
+  get_traits:
+    base_path: "https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService"
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example

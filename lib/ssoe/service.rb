@@ -21,10 +21,6 @@ module SSOe
     ].freeze
 
     def get_traits(credential_method:, credential_id:, user:, address:)
-      if Rails.env.development?
-        Rails.logger.info('[SSOe::Service::get_traits] Mocked response in development')
-        return { success: true, icn: 'mocked-icn-123456' }
-      end
       with_monitoring do
         raw_response = perform(
           :post,

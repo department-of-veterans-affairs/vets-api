@@ -951,6 +951,9 @@ mhv:
       security: http://mhv-api.example.com
       sm_patient: http://mhv-api.example.com
       usermgmt: http://mhv-api.example.com
+ssoe:
+  get_traits:
+    base_path: "https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService"
   bb:
     collection_caching_enabled: true
     mock: true
