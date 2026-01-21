@@ -174,7 +174,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         # Rate limit check happens before any API calls, so no cassettes needed
         allow(Rails.logger).to receive(:warn).and_call_original
         expect(Rails.logger).to receive(:warn)
-          .with(a_string_including('"service":"vass"', '"action":"rate_limit_exceeded"', uuid))
+          .with(a_string_including('"service":"vass"', '"action":"rate_limit_exceeded"', "\"vass_uuid\":\"#{uuid}"))
           .and_call_original
 
         post '/vass/v0/request-otc', params:, as: :json
@@ -270,8 +270,9 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
-        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"invalid_otc"',
-                                                                       uuid)).and_call_original
+        expect(Rails.logger).to receive(:warn).with(
+          a_string_including('"service":"vass"', '"action":"invalid_otc"', %("vass_uuid":"#{uuid}"))
+        ).and_call_original
 
         invalid_params = params.deep_merge(session: { otc: '999999' })
         post '/vass/v0/authenticate-otc', params: invalid_params, as: :json
@@ -311,7 +312,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
         expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"otc_expired"',
-                                                                       uuid)).and_call_original
+                                                                       %("vass_uuid":"#{uuid}"))).and_call_original
 
         post '/vass/v0/authenticate-otc', params:, as: :json
 
