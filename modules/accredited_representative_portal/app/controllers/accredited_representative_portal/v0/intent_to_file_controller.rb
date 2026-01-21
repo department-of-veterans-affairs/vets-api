@@ -158,6 +158,8 @@ module AccreditedRepresentativePortal
           params[:claimantSsn],
           params[:claimantDateOfBirth]
         )
+      rescue Common::Exceptions::RecordNotFound => e
+        raise Common::Exceptions::BadRequest.new(detail: e.message)
       end
 
       def validate_file_type
