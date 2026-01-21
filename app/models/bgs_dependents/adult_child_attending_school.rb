@@ -27,26 +27,30 @@ module BGSDependents
     attribute :birth_date, String
     attribute :ever_married_ind, String
     attribute :dependent_income, String
+    attribute :relationship_to_student, String
 
     validates :first, presence: true
     validates :last, presence: true
 
+    STUDENT_STATUS = {
+      'stepchild' => 'Stepchild',
+      'biological' => 'Biological',
+      'adopted' => 'Adopted Child'
+    }.freeze
+
     def initialize(dependents_application)
-      @dependents_application = dependents_application
-      @is_v2 = v2?
-      # with v2 handling, dependents_application is one to many hashes within the student_information array
-      @source = @is_v2 ? @dependents_application : @dependents_application['student_name_and_ssn']
+      @source = dependents_application
       @ssn = @source['ssn']
       @full_name = @source['full_name']
       @birth_date = @source['birth_date']
-      @was_married = @is_v2 ? @source['was_married'] : @dependents_application['student_address_marriage_tuition']['was_married'] # rubocop:disable Layout/LineLength
-      @dependent_income = @is_v2 ? @source['student_income'] : @source['dependent_income']
+      @was_married = @source['was_married']
       @ever_married_ind = formatted_boolean(@was_married)
-      @dependent_income = formatted_boolean(@dependent_income)
+      @dependent_income = dependent_income
       @first = @full_name['first']
       @middle = @full_name['middle']
       @last = @full_name['last']
       @suffix = @full_name['suffix']
+      @relationship_to_student = STUDENT_STATUS[@source['relationship_to_student']]
     end
 
     # Sets a hash with AdultChildAttendingSchool attributes
@@ -62,7 +66,15 @@ module BGSDependents
     # @return [Hash] the student's address
     #
     def address
-      @is_v2 ? @source['address'] : @dependents_application['student_address_marriage_tuition']['address']
+      @source['address']
+    end
+
+    def dependent_income
+      if @source['student_income'] == 'NA'
+        nil
+      else
+        @source['student_income']
+      end
     end
   end
 end

@@ -4,6 +4,7 @@ require_relative 'facility_name_resolver'
 require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
+require_relative 'oracle_health_renewability_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -11,6 +12,7 @@ module UnifiedHealthData
       include FhirHelpers
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
+      include OracleHealthRenewabilityHelper
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -68,6 +70,7 @@ module UnifiedHealthData
           dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
           is_refillable: extract_is_refillable(resource, refill_status),
+          is_renewable: extract_is_renewable(resource),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
       end
@@ -243,7 +246,7 @@ module UnifiedHealthData
       end
 
       def extract_refill_date(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense['whenHandedOver'] if dispense&.dig('whenHandedOver')
 
         nil
@@ -399,13 +402,15 @@ module UnifiedHealthData
         # Rule: Expired more than 120 days ago → discontinued
         return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
 
-        # Rule: No refills remaining → expired (UNLESS it's a Non-VA medication)
+        # Rule: Most recent dispense is in-progress → refillinprocess
+        # This takes priority over expired status since an active refill is being processed
+        return 'refillinprocess' if has_in_progress_dispense
+
+        # Rule: No refills remaining AND past expiration date → expired (UNLESS it's a Non-VA medication)
         # Non-VA meds are always reported with 0 refills but should still be 'active' if status is 'active'
         is_non_va = resource && non_va_med?(resource)
-        return 'expired' if refills_remaining.zero? && !is_non_va
-
-        # Rule: Most recent dispense is in-progress → refillinprocess
-        return 'refillinprocess' if has_in_progress_dispense
+        is_past_expiration = expiration_date && expiration_date < Time.current.utc
+        return 'expired' if refills_remaining.zero? && is_past_expiration && !is_non_va
 
         # Default: active
         'active'
@@ -449,7 +454,7 @@ module UnifiedHealthData
       end
 
       def extract_facility_name(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         facility_resolver.resolve_facility_name(dispense)
       end
 
@@ -459,7 +464,7 @@ module UnifiedHealthData
         return quantity if quantity
 
         # Fallback: check contained MedicationDispense
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         return dispense.dig('quantity', 'value') if dispense
 
         nil
@@ -482,7 +487,7 @@ module UnifiedHealthData
       end
 
       def extract_station_number(resource)
-        dispense = find_most_recent_medication_dispense(resource['contained'])
+        dispense = find_most_recent_medication_dispense(resource)
         raw_station_number = dispense&.dig('location', 'display')
         return nil unless raw_station_number
 
@@ -498,6 +503,10 @@ module UnifiedHealthData
 
       def extract_is_refillable(resource, refill_status)
         refillable?(resource, refill_status)
+      end
+
+      def extract_is_renewable(resource)
+        renewable?(resource)
       end
 
       def extract_instructions(resource)

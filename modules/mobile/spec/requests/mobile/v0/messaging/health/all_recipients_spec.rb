@@ -213,13 +213,13 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(care_systems[0]['healthCareSystemName']).to eq('Manila VA Clinic')
         expect(care_systems[1]['healthCareSystemName']).to eq('978')
         expect(care_systems[2]['healthCareSystemName']).to eq('Chalmers P. Wylie Veterans Outpatient Clinic')
-        expect(care_systems[3]['healthCareSystemName']).to eq('VA New York state health care (multiple facilities)')
-        expect(care_systems[4]['healthCareSystemName']).to eq('VA Kansas and Missouri health care (multiple facilities)')
-        expect(care_systems[5]['healthCareSystemName']).to eq('VA Hudson Valley New York health care (multiple facilities)')
-        expect(care_systems[6]['healthCareSystemName']).to eq('VA Tennessee health care (multiple facilities)')
-        expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
-        expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois health care (multiple facilities)')
-        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California (multiple facilities)')
+        expect(care_systems[3]['healthCareSystemName']).to eq('VA New York State Healthcare (multiple facilities)')
+        expect(care_systems[4]['healthCareSystemName']).to eq('VA Kansas and Missouri Healthcare (multiple facilities)')
+        expect(care_systems[5]['healthCareSystemName']).to eq('VA Hudson Valley New York Healthcare (multiple facilities)')
+        expect(care_systems[6]['healthCareSystemName']).to eq('VA Tennessee Healthcare (multiple facilities)')
+        expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa Healthcare (multiple facilities)')
+        expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois Healthcare (multiple facilities)')
+        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California Healthcare (multiple facilities)')
         # rubocop:enable Layout/LineLength
       end
     end

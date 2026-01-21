@@ -730,7 +730,8 @@ RSpec.describe FormProfile, type: :model do
       'bankName' => 'WELLS FARGO BANK',
       'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
-      'syncModern0781Flow' => true
+      'syncModern0781Flow' => true,
+      'disabilityCompNewConditionsWorkflow' => true
     }
   end
   let(:vfeedback_tool_expected) do
@@ -760,23 +761,22 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v21_2680_expected) do
-    { veteranInformation: {
-      veteranFullName: {
+    { userInformation: {
+      fullName: {
         first: 'Abraham',
         last: 'Lincoln',
         suffix: 'Jr.'
       },
-      veteranDob: '1809-02-12',
+      dob: '1809-02-12',
       phoneNumber: '3035551234',
       email: user.va_profile_email,
-      veteranAddress: {
+      address: {
         street: '140 Rock Creek Rd',
         city: 'Washington',
         state: 'DC',
         country: 'USA',
         postalCode: '20011'
-      },
-      veteranSsn: '796111863'
+      }
     } }
   end
 
@@ -807,6 +807,39 @@ RSpec.describe FormProfile, type: :model do
     }
   end
   let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => va_profile_address.street,
+              'addressLine2' => va_profile_address.street2,
+              'city' => va_profile_address.city,
+              'stateCode' => va_profile_address.state,
+              'countryName' => va_profile_address.country,
+              'zipCode5' => va_profile_address.postal_code
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '3035551234',
+            'mobilePhone' => mobile_phone,
+            'emailAddressText' => user.va_profile_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
+  let(:vform_mock_prefill_expected) do
     {
       'data' => {
         'attributes' => {
@@ -1139,7 +1172,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS', 'FORM-MOCK-PREFILL'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1303,6 +1336,7 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a user that can prefill mdot' do
       before do
+        expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to be(true)
@@ -1465,6 +1499,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 0994' do
         before do
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
@@ -1481,6 +1516,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with VA Profile and ppiu prefill for 0994' do
         before do
           can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
@@ -1585,7 +1621,9 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 10203' do
         before do
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
@@ -1601,20 +1639,26 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper enabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 0
             }
+            v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+            v22_10203_expected['schoolCity'] = 'NORFOLK'
+            v22_10203_expected['schoolState'] = 'VA'
+            v22_10203_expected['schoolCountry'] = 'USA'
           end
 
           it 'prefills 10203 with VA Profile and entitlement information' do
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('sob/ch33_status/200') do
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
                   VCR.use_cassette('gi_client/gets_the_institution_details') do
-                    expect(SOB::DGI::Service).to receive(:new).with(user.ssn).and_call_original
+                    expect(SOB::DGI::Service).to receive(:new).with(ssn: user.ssn, include_enrollments: true)
+                                                              .and_call_original
 
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
@@ -1631,8 +1675,9 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 10
@@ -1706,6 +1751,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           before do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
           end
 
@@ -1800,7 +1846,7 @@ RSpec.describe FormProfile, type: :model do
               let(:form_profile) do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:dependents_data) do
                 { number_of_records: '1', persons: [{
                   award_indicator: 'Y',
@@ -1832,7 +1878,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'returns formatted dependent information' do
                 # Mock the dependent service to return active dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
 
                 result = form_profile.prefill
@@ -1845,7 +1891,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles a dependent information error' do
                 # Mock the dependent service to return an error
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_raise(
                   StandardError.new('Dependent information error')
                 )
@@ -1858,7 +1904,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles missing dependents data' do
                 # Mock the dependent service to return no dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil)
                 result = form_profile.prefill
                 expect(result[:form_data]).to have_key('veteranInformation')
@@ -1871,7 +1917,7 @@ RSpec.describe FormProfile, type: :model do
                 invalid_date_data = dependents_data.dup
                 invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
 
                 result = form_profile.prefill
@@ -1886,7 +1932,7 @@ RSpec.describe FormProfile, type: :model do
                 nil_date_data = dependents_data.dup
                 nil_date_data[:persons][0][:date_of_birth] = nil
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
 
                 result = form_profile.prefill
@@ -1906,6 +1952,10 @@ RSpec.describe FormProfile, type: :model do
           end
 
           context 'with a 686c-674 v1 form' do
+            before do
+              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+            end
+
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -1918,6 +1968,7 @@ RSpec.describe FormProfile, type: :model do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 expect_prefilled('686C-674-V2')
               end
             end
@@ -1929,6 +1980,7 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
@@ -1996,7 +2048,7 @@ RSpec.describe FormProfile, type: :model do
               let(:form_profile) do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:dependents_data) do
                 { number_of_records: '1', persons: [{
                   award_indicator: 'Y',
@@ -2023,12 +2075,13 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
               it 'returns formatted dependent information' do
                 # Mock the dependent service to return active dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(dependents_data)
 
                 result = form_profile.prefill
@@ -2041,7 +2094,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles a dependent information error' do
                 # Mock the dependent service to return an error
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_raise(
                   StandardError.new('Dependent information error')
                 )
@@ -2054,7 +2107,7 @@ RSpec.describe FormProfile, type: :model do
 
               it 'handles missing dependents data' do
                 # Mock the dependent service to return no dependents
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil)
                 result = form_profile.prefill
                 expect(result[:form_data]).to have_key('veteranInformation')
@@ -2067,7 +2120,7 @@ RSpec.describe FormProfile, type: :model do
                 invalid_date_data = dependents_data.dup
                 invalid_date_data[:persons][0][:date_of_birth] = 'invalid-date'
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(invalid_date_data)
 
                 result = form_profile.prefill
@@ -2082,7 +2135,7 @@ RSpec.describe FormProfile, type: :model do
                 nil_date_data = dependents_data.dup
                 nil_date_data[:persons][0][:date_of_birth] = nil
 
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return(nil_date_data)
 
                 result = form_profile.prefill
@@ -2100,13 +2153,16 @@ RSpec.describe FormProfile, type: :model do
                 FormProfiles::VA686c674v2.new(user:, form_id: '686C-674-V2')
               end
               let(:contact_info_service) { instance_double(VAProfileRedis::V2::ContactInformation) }
-              let(:dependent_service) { instance_double(BGS::DependentV2Service) }
+              let(:dependent_service) { instance_double(BGS::DependentService) }
               let(:email_double) { instance_double(VAProfile::Models::Email, email_address: 'test@example.com') }
               let(:home_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035551234') }
               let(:mobile_phone_double) { instance_double(VAProfile::Models::Telephone, formatted_phone: '5035555678') }
 
               before do
                 # Mock VAProfile contact info for both user and form profile usage
+                # allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
+                #   contact_info_service
+                # )
                 allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
                   contact_info_service
                 )
@@ -2114,7 +2170,7 @@ RSpec.describe FormProfile, type: :model do
                                                                 mobile_phone: mobile_phone_double)
 
                 # Mock dependent service to avoid BGS calls
-                allow(BGS::DependentV2Service).to receive(:new).with(user).and_return(dependent_service)
+                allow(BGS::DependentService).to receive(:new).with(user).and_return(dependent_service)
                 allow(dependent_service).to receive(:get_dependents).and_return({ persons: [] })
 
                 # Mock BID awards service
@@ -2221,8 +2277,10 @@ RSpec.describe FormProfile, type: :model do
           21-22A
           21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
+          FORM-MOCK-PREFILL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -2238,6 +2296,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           before do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
             expected_veteran_info = v21_526_ez_expected['veteran']
             expected_veteran_info['emailAddress'] = user.va_profile_email
@@ -2253,7 +2312,6 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
                                                .and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                 VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do

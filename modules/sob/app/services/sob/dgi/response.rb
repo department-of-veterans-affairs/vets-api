@@ -21,6 +21,7 @@ module SOB
       attribute :used_entitlement, Entitlement
       attribute :remaining_entitlement, Entitlement
       attribute :entitlement_transferred_out, Entitlement
+      attribute :enrollments, Enrollment, array: true
 
       def initialize(_status, response = nil)
         @claimant = response&.body&.dig('claimant')
@@ -47,6 +48,7 @@ module SOB
         parse_eligibility(benefit['eligibility_results'])
         parse_entitlement(benefit['entitlement_results'])
         parse_toe(benefit['entitlement_transfer_out'])
+        @claimant['enrollments'] = benefit['enrollments']
 
         @claimant
       end
