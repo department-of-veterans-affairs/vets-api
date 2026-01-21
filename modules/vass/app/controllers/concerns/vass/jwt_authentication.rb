@@ -104,16 +104,10 @@ module Vass
     # @param error_class [String, nil] Optional error class name
     #
     def log_auth_failure(reason, error_class: nil)
-      log_data = {
-        service: 'vass',
-        component: 'jwt_authentication',
-        action: 'auth_failure',
-        reason:,
-        timestamp: Time.current.iso8601
-      }
-      log_data[:error_class] = error_class if error_class
+      metadata = { component: 'jwt_authentication', reason: }
+      metadata[:error_class] = error_class if error_class
 
-      Rails.logger.warn(log_data)
+      log_vass_event(action: 'auth_failure', level: :warn, **metadata)
     end
 
     ##

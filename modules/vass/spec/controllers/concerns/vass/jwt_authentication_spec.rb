@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Vass::JwtAuthentication, type: :controller do
   controller(ActionController::Base) do
+    include Vass::Logging
     include Vass::JwtAuthentication
 
     before_action :authenticate_jwt
@@ -71,12 +72,9 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'missing_token'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"missing_token"'))
         get :index
       end
     end
@@ -95,12 +93,9 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure for malformed header' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'missing_token'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"missing_token"'))
         request.headers['Authorization'] = 'invalid-token-format'
         get :index
       end
@@ -133,12 +128,9 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'expired_token'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"expired_token"'))
         get :index
       end
     end
@@ -171,13 +163,10 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure with error class' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'invalid_token',
-                                                      error_class: 'JWT::VerificationError'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"invalid_token"',
+                                   '"error_class":"JWT::VerificationError"'))
         get :index
       end
     end
@@ -208,12 +197,9 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'missing_veteran_id'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"missing_veteran_id"'))
         get :index
       end
     end
@@ -235,13 +221,10 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       end
 
       it 'logs authentication failure with error class' do
-        expect(Rails.logger).to receive(:warn).with(hash_including(
-                                                      service: 'vass',
-                                                      component: 'jwt_authentication',
-                                                      action: 'auth_failure',
-                                                      reason: 'invalid_token',
-                                                      error_class: 'JWT::DecodeError'
-                                                    ))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"invalid_token"',
+                                   '"error_class":"JWT::DecodeError"'))
         get :index
       end
     end
