@@ -60,7 +60,7 @@ describe VAProfile::Models::PersonOption, type: :model do
       it 'is invalid with non-positive item_id' do
         option = described_class.new(item_id: 0, option_id: 5)
         expect(option).not_to be_valid
-        expect(option.errors[:item_id]).to include("must be greater than 0")
+        expect(option.errors[:item_id]).to include('must be greater than 0')
       end
     end
 
@@ -74,7 +74,7 @@ describe VAProfile::Models::PersonOption, type: :model do
       it 'is invalid with non-positive option_id' do
         option = described_class.new(item_id: 1, option_id: -1)
         expect(option).not_to be_valid
-        expect(option.errors[:option_id]).to include("must be greater than 0")
+        expect(option.errors[:option_id]).to include('must be greater than 0')
       end
     end
 

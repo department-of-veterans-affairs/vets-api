@@ -2,18 +2,6 @@
 
 require 'rails_helper'
 
-# Test suite for SchedulingPreferencesController
-#
-# CURRENT SCOPE: Tests controller orchestration logic with mocked dependencies for happy paths
-# 
-# NOT YET TESTED (intentionally deferred for follow-up work to record VCR cassettes):
-# - Parameter validation edge cases (missing/invalid item_id, option_ids)
-# - Service error scenarios (timeouts, 4xx/5xx responses)
-#
-# This test suite focuses on controller responsibilities: authentication, authorization, 
-# service orchestration, and data transformation. Error handling and edge cases will be
-# added in planned follow-up work.
-
 RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller do
   let(:user) { build(:user, :loa3) }
 
@@ -98,42 +86,42 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
         # Mock the GET response for show action
         let(:mock_get_response) do
           double('GetResponse',
-                  status: 200,
-                  person_options: [
-                    double('PersonOption', item_id: 1, option_id: 5),
-                    double('PersonOption', item_id: 2, option_id: 7),
-                    double('PersonOption', item_id: 2, option_id: 11),
-                  ])
+                 status: 200,
+                 person_options: [
+                   double('PersonOption', item_id: 1, option_id: 5),
+                   double('PersonOption', item_id: 2, option_id: 7),
+                   double('PersonOption', item_id: 2, option_id: 11)
+                 ])
         end
-        
+
         before do
           # Don't stub check_pilot_access! - let it pass through normally
           allow(user).to receive(:va_treatment_facility_ids).and_return(['402'])
           allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
-          
+
           # Mock the service get_person_options method for show action
           allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:get_person_options)
-            .and_return(double('response', 
-                              status: 200,
-                              person_options: [
-                                { itemId: 1, optionId: 5 },
-                                { itemId: 2, optionId: 7 },
-                                { itemId: 2, optionId: 11 }
-                              ]))
+            .and_return(double('response',
+                               status: 200,
+                               person_options: [
+                                 { itemId: 1, optionId: 5 },
+                                 { itemId: 2, optionId: 7 },
+                                 { itemId: 2, optionId: 11 }
+                               ]))
 
           # Mock the service update_person_options method for create/update/destroy actions
           allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
             .and_return(double('UpdateResponse', transaction_id: 'txn-123-456'))
-          
+
           # Mock transaction creation and serialization
           mock_transaction = double('Transaction',
-                                  id: 'txn-123-456',
-                                  transaction_id: 'txn-123-456',
-                                  transaction_status: 'RECEIVED')
-          
+                                    id: 'txn-123-456',
+                                    transaction_id: 'txn-123-456',
+                                    transaction_status: 'RECEIVED')
+
           allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start)
             .and_return(mock_transaction)
-          
+
           mock_serializer_hash = {
             data: {
               id: 'txn-123-456',
@@ -146,25 +134,26 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
               }
             }
           }
-          
-          allow(AsyncTransaction::BaseSerializer).to receive(:new).with(mock_transaction)
-            .and_return(double('Serializer', serializable_hash: mock_serializer_hash))
-          
+
+          allow(AsyncTransaction::BaseSerializer).to receive(:new)
+            .with(mock_transaction)
+            .and_return(double('Serializer',
+                               serializable_hash: mock_serializer_hash))
+
           # Mock from_frontend_selection (transforms params to PersonOption objects for create/update/destroy)
           mock_person_options = [double('PersonOption', valid?: true, set_defaults: nil, mark_for_deletion: nil)]
-          allow(VAProfile::Models::PersonOption).to receive(:from_frontend_selection)
-            .and_return(mock_person_options)
-          
-          # Mock to_api_payload (transforms PersonOption objects to API format)  
-          allow(VAProfile::Models::PersonOption).to receive(:to_api_payload)
-            .and_return({ bio: { personOptions: [{ id: 1, optionId: 5 }] } })
-          
+
+          # Mock to_api_payload (transforms PersonOption objects to API format)
+
           # Mock PersonOption model method for data transformation (show action)
-          allow(VAProfile::Models::PersonOption).to receive(:to_frontend_format)
-            .and_return([
+          allow(VAProfile::Models::PersonOption).to receive_messages(
+            from_frontend_selection: mock_person_options,
+            to_api_payload: { bio: { personOptions: [{ id: 1, optionId: 5 }] } },
+            to_frontend_format: [
               { item_id: 1, option_ids: [5] },
               { item_id: 2, option_ids: [7, 11] }
-            ])
+            ]
+          )
         end
 
         context 'when user has facilities in pilot VISNs (actual service test)' do
@@ -234,7 +223,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
           it 'calls the service with correct parameters' do
             expect_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
               .with({ bio: { personOptions: [{ id: 1, optionId: 5 }] } })
-            
+
             post :create, params: valid_params
           end
 
@@ -257,7 +246,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
                   unauthorized_param: 'should be filtered'
                 }
               end.not_to raise_error
-              
+
               expect(response).to have_http_status(:ok)
             end
           end
@@ -313,10 +302,10 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
 
           it 'memoizes the service instance' do
             allow(VAProfile::PersonSettings::Service).to receive(:new).with(user).and_return(mock_service)
-            
+
             service1 = controller_instance.send(:service)
             service2 = controller_instance.send(:service)
-            
+
             expect(service1).to eq(service2)
             expect(VAProfile::PersonSettings::Service).to have_received(:new).once
           end
@@ -347,7 +336,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
             it 'builds person options from frontend selection' do
               expect(VAProfile::Models::PersonOption).to receive(:from_frontend_selection)
                 .with(1, [5, 7])
-              
+
               controller_instance.send(:build_and_validate_person_options)
             end
 
@@ -386,7 +375,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
               expect(mock_person_option2).to receive(:set_defaults).with(user)
               expect(controller_instance).to receive(:validate!).with(mock_person_option)
               expect(controller_instance).to receive(:validate!).with(mock_person_option2)
-              
+
               controller_instance.send(:build_and_validate_person_options)
             end
           end
@@ -397,7 +386,9 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
           let(:person_options_data) { { bio: { personOptions: [{ id: 1, optionId: 5 }] } } }
           let(:mock_service) { instance_double(VAProfile::PersonSettings::Service) }
           let(:mock_response) { instance_double(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse) }
-          let(:mock_transaction) { double('Transaction', id: 'txn-123-456', transaction_id: 'txn-123-456', transaction_status: 'RECEIVED') }
+          let(:mock_transaction) do
+            double('Transaction', id: 'txn-123-456', transaction_id: 'txn-123-456', transaction_status: 'RECEIVED')
+          end
           let(:mock_serializer_hash) { { data: { id: 'txn-123-456', type: 'transaction' } } }
 
           before do
@@ -409,7 +400,9 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
           it 'calls service to update person options' do
             allow(mock_service).to receive(:update_person_options).and_return(mock_response)
             allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start).and_return(mock_transaction)
-            allow(AsyncTransaction::BaseSerializer).to receive(:new).and_return(double('Serializer', serializable_hash: mock_serializer_hash))
+            allow(AsyncTransaction::BaseSerializer).to receive(:new)
+              .and_return(double('Serializer',
+                                 serializable_hash: mock_serializer_hash))
 
             expect(mock_service).to receive(:update_person_options).with(person_options_data)
             controller_instance.send(:write_person_options_and_render_transaction!, person_options_data)
@@ -417,24 +410,27 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
 
           it 'starts a new transaction with user and response' do
             allow(mock_service).to receive(:update_person_options).and_return(mock_response)
-            allow(AsyncTransaction::BaseSerializer).to receive(:new).and_return(double('Serializer', serializable_hash: mock_serializer_hash))
+            allow(AsyncTransaction::BaseSerializer).to receive(:new)
+              .and_return(double('Serializer',
+                                 serializable_hash: mock_serializer_hash))
 
             expect(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start)
               .with(user, mock_response)
               .and_return(mock_transaction)
-            
+
             controller_instance.send(:write_person_options_and_render_transaction!, person_options_data)
           end
 
           it 'renders transaction with BaseSerializer' do
             allow(mock_service).to receive(:update_person_options).and_return(mock_response)
             allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start).and_return(mock_transaction)
-            
-            serializer_instance = instance_double(AsyncTransaction::BaseSerializer, serializable_hash: mock_serializer_hash)
+
+            serializer_instance = instance_double(AsyncTransaction::BaseSerializer,
+                                                  serializable_hash: mock_serializer_hash)
             expect(AsyncTransaction::BaseSerializer).to receive(:new).with(mock_transaction)
-              .and_return(serializer_instance)
+                                                                     .and_return(serializer_instance)
             expect(controller_instance).to receive(:render).with(json: mock_serializer_hash)
-            
+
             controller_instance.send(:write_person_options_and_render_transaction!, person_options_data)
           end
 
@@ -471,8 +467,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
 
           context 'when person option is invalid' do
             before do
-              allow(mock_person_option).to receive(:valid?).and_return(false)
-              allow(mock_person_option).to receive(:errors).and_return(double('Errors', empty?: false))
+              allow(mock_person_option).to receive_messages(valid?: false, errors: double('Errors', empty?: false))
             end
 
             it 'raises ValidationErrors' do

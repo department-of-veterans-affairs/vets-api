@@ -67,14 +67,10 @@ module V0
       end
 
       def build_and_validate_person_options(action: :create)
-        begin
-          person_options = VAProfile::Models::PersonOption.from_frontend_selection(
-            scheduling_preference_params[:item_id],
-            scheduling_preference_params[:option_ids]
-          )
-        rescue ArgumentError => e
-          raise Common::Exceptions::ParameterMissing.new("Invalid parameter: #{e.message}")
-        end
+        person_options = VAProfile::Models::PersonOption.from_frontend_selection(
+          scheduling_preference_params[:item_id],
+          scheduling_preference_params[:option_ids]
+        )
 
         person_options.each do |option|
           option.set_defaults(@current_user)

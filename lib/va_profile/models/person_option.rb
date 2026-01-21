@@ -22,13 +22,17 @@ module VAProfile
       attribute :option_type_code, String
       attribute :option_value_string, String
 
-      validates :item_id, 
+      validates(
+        :item_id,
         presence: true,
         numericality: { greater_than: 0 }
+      )
 
-      validates :option_id,
+      validates(
+        :option_id,
         presence: true,
         numericality: { greater_than: 0 }
+      )
 
       # Sets the effective_end_date to current time to explicitly remove the selected option
       def mark_for_deletion
@@ -40,8 +44,8 @@ module VAProfile
       def self.from_frontend_selection(item_id, option_ids)
         Array(option_ids).map do |option_id|
           new(
-            item_id: Integer(item_id),
-            option_id: Integer(option_id)
+            item_id:,
+            option_id:
           )
         end
       end
