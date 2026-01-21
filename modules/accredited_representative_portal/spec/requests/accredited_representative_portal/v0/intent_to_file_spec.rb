@@ -20,6 +20,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   let(:veteran_query_params) do
     'veteranFirstName=Derrick&veteranLastName=Reid&veteranSsn=666468765&veteranDateOfBirth=1976-01-16'
   end
+  let(:survivor_query_params) do
+    "#{veteran_query_params}&claimantFirstName=Claimanty&claimantLastName=Jane&claimantSsn=666569765\
+    &claimantDateOfBirth=1996-03-16"
+  end
 
   before do
     Flipper.enable :accredited_representative_portal_intent_to_file
@@ -85,6 +89,19 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
       it 'returns 400' do
         get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'non-veteran claimant cannot be found' do
+      before do
+        allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
+          Common::Exceptions::RecordNotFound, 'Claimant not found'
+        )
+      end
+
+      it 'returns 400' do
+        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=survivor&#{survivor_query_params}")
         expect(response).to have_http_status(:bad_request)
       end
     end
