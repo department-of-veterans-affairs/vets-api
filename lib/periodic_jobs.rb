@@ -180,7 +180,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
-  mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
@@ -231,7 +230,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
   # Updates all accredited entities (agents, attorneys, representatives, veteran service organizations)
-  mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
+  # This job is currently disabled until the GCLAWS Accreditation API is up and running
+  # mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
 
   # Sends emails to power of attorney claimants whose request will expire in 30 days
   mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')

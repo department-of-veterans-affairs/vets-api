@@ -337,6 +337,9 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_update_datadog_tracking:
+    actor_type: user
+    description: Enables updated Datadog tracking for IVC CHAMPVA form submissions
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
@@ -1061,6 +1064,9 @@ features:
   form21_4138_confirmation_email:
     actor_type: user
     description: Enables form 21-4138 email submission confirmation (VaNotify)
+  form21_4140_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4140 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1125,6 +1131,9 @@ features:
   form214138:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4138
+  form214140:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4140
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -1417,9 +1426,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
     enable_in_development: true
-  mhv_secure_messaging_612_care_systems_fix:
-    actor_type: user
-    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
   mhv_secure_messaging_medications_renewal_request:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
@@ -1554,6 +1560,10 @@ features:
     actor_type: user
     description: when this flag is on the count will not be incremented for ipe
     enable_in_development: true
+  mhv_medications_enable_krames_html_sanitization:
+    actor_type: user
+    description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
+    enable_in_development: false
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -2171,9 +2181,6 @@ features:
   vre_prefill_name:
     actor_type: user
     description: Enables prefill transformation for veteran name fields in the Chapter 31 form
-  vre_use_new_vfs_notification_library:
-    actor_type: user
-    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2808,4 +2815,6 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
-
+  fmp_benefits_authorization_letter:
+    actor_type: user
+    description: Enables displaying FMP Benefits Authorization letter on Letters page
