@@ -6,9 +6,8 @@ require 'securerandom'
 module SimpleFormsApi
   class OverflowPdfGenerator
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
-    CUTOFF_INDEX = 3685
 
-    def initialize(data, cutoff: CUTOFF_INDEX)
+    def initialize(data, cutoff)
       @data = data || {}
       @cutoff = cutoff
     end

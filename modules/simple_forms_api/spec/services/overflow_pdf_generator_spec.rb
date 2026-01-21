@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'pdf/reader'
 
 RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
-  let(:timestamp) { Time.zone.parse('2024-01-15 14:30:00 UTC') }
+  let(:cutoff) { 3685 }
 
   def pdf_text(path)
     PDF::Reader.new(path).pages.map(&:text).join("\n")
@@ -27,14 +27,14 @@ RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
       end
 
       it 'returns a path to an existing PDF file' do
-        path = described_class.new(data, timestamp).generate
+        path = described_class.new(data, cutoff).generate
         @generated_paths << path
         expect(path).to be_a(String)
         expect(File.exist?(path)).to be(true)
       end
 
-      it 'renders expected header, identity, remarks, and footer timestamp (robust to PDF text extraction spacing)' do
-        path = described_class.new(data, timestamp).generate
+      it 'renders expected header, identity, remarks, and footer cutoff (robust to PDF text extraction spacing)' do
+        path = described_class.new(data, cutoff).generate
         @generated_paths << path
         content = pdf_text(path)
 
@@ -60,7 +60,7 @@ RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
       end
 
       it 'shows VA File Number and does not display SSN (handles collapsed spaces)' do
-        path = described_class.new(data, timestamp).generate
+        path = described_class.new(data, cutoff).generate
         @generated_paths << path
         content = pdf_text(path)
 
@@ -81,7 +81,7 @@ RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
       end
 
       it 'renders Name: Not provided (handles collapsed spaces)' do
-        path = described_class.new(data, timestamp).generate
+        path = described_class.new(data, cutoff).generate
         @generated_paths << path
         content = pdf_text(path)
 
@@ -99,7 +99,7 @@ RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
       end
 
       it 'returns nil' do
-        path = described_class.new(data, timestamp).generate
+        path = described_class.new(data, cutoff).generate
         expect(path).to be_nil
       end
     end
