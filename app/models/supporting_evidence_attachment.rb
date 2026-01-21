@@ -12,10 +12,19 @@ class SupportingEvidenceAttachment < FormAttachment
   # the final filename comes from the uploader once the file is successfully uploaded to S3
   def set_file_data!(file, file_password = nil)
     file_data_json = super
+    parsed_data = JSON.parse(file_data_json)
     au = get_attachment_uploader
+    
+    # Shorten the original filename if it's too long
+    parsed_data['filename'] = shorten_filename(parsed_data['filename']) if parsed_data['filename']
+    
+    # Shorten converted filename if it exists
     if au.converted_exists?
-      self.file_data = JSON.parse(file_data_json).merge('converted_filename' => au.final_filename).to_json
+      original_filename = au.final_filename
+      parsed_data['converted_filename'] = shorten_filename(original_filename)
     end
+    
+    self.file_data = parsed_data.to_json
     file_data
   end
 
@@ -42,11 +51,22 @@ class SupportingEvidenceAttachment < FormAttachment
       # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
       # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
       obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
-      truncated_filename = (filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..])
-      truncated_filename = truncated_filename[0..MAX_FILENAME_LENGTH] # Ensure total length is within 255 characters
-      truncated_filename + extension
+      filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
     else
-      original_filename[0..MAX_FILENAME_LENGTH] # Truncate if the filename is short but still too long
+      original_filename
     end
+  end
+
+  private
+
+  def shorten_filename(filename)
+    return filename if filename.length <= MAX_FILENAME_LENGTH
+
+    # Preserve file extension while shortening
+    extension = File.extname(filename)
+    name_without_ext = File.basename(filename, extension)
+    max_name_length = MAX_FILENAME_LENGTH - extension.length
+    shortened_name = name_without_ext[0, max_name_length]
+    shortened_name + extension
   end
 end

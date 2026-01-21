@@ -13,6 +13,14 @@ RSpec.describe 'V0::UploadSupportingEvidence', type: :request do
   let(:encrypted_pdf_file) do
     fixture_file_upload('password_is_test.pdf', 'application/pdf')
   end
+  let(:long_filename) {
+    "supporting_evidenceaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf" } # Simulate a long filename
+  let(:long_pdf_file) do
+    file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+    # Override the original_filename to simulate a long filename
+    allow(file).to receive(:original_filename).and_return(long_filename)
+    file
+  end
 
   before do
     sign_in_as(user)
@@ -27,6 +35,42 @@ RSpec.describe 'V0::UploadSupportingEvidence', type: :request do
         sea = SupportingEvidenceAttachment.last
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
         expect(sea.get_file&.read).not_to be_nil
+      end
+
+      it 'shortens the filename to the maximum allowed length' do
+        post '/v0/upload_supporting_evidence', params: { supporting_evidence_attachment: { file_data: long_pdf_file } }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = SupportingEvidenceAttachment.last
+        file_data = JSON.parse(attachment.file_data)
+        expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
+        expect(file_data['filename']).to end_with('.pdf')
+      end
+
+      it 'shortens both original and converted filenames when conversion occurs' do
+        # Create a long TIFF filename that will trigger conversion
+        long_tiff_filename = "supporting_evidence_tiff_" + "a" * 120 + ".tiff"
+        long_tiff_file = fixture_file_upload('doctors-note.pdf', 'image/tiff')
+        allow(long_tiff_file).to receive(:original_filename).and_return(long_tiff_filename)
+        allow(long_tiff_file).to receive(:content_type).and_return('image/tiff')
+
+        post '/v0/upload_supporting_evidence', params: { supporting_evidence_attachment: { file_data: long_tiff_file } }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = SupportingEvidenceAttachment.last
+        file_data = JSON.parse(attachment.file_data)
+        
+        # Original filename should be shortened
+        expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
+        expect(file_data['filename']).to end_with('.tiff')
+        expect(file_data['filename']).to include('supporting_evidence_tiff_')
+        
+        # Converted filename should also be shortened
+        # Note: Due to CarrierWave version conditions, conversion may not always happen in test environment
+          expect(file_data['converted_filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
+          expect(file_data['converted_filename']).to start_with('converted_')
       end
     end
 
