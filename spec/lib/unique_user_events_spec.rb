@@ -83,7 +83,8 @@ RSpec.describe UniqueUserEvents do
       result = described_class.log_events(user:, event_names: [event_name, event_name2])
 
       expect(result).to eq([event_name, event_name2])
-      expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(user:, event_names: [event_name, event_name2])
+      expect(UniqueUserEvents::Service).to have_received(:buffer_events)
+        .with(user:, event_names: [event_name, event_name2])
     end
 
     it 'handles empty array' do
