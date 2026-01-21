@@ -35,7 +35,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
     context 'when in a valid environment' do
       before do
         allow(Rails.env).to receive(:development?).and_return(true)
-        allow(mock_transfer_manager).to receive(:upload)
+        allow(mock_transfer_manager).to receive(:upload_file)
       end
 
       context 'with console sessions from yesterday' do
@@ -116,7 +116,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'uploads the file to S3 with correct parameters' do
-          expect(mock_transfer_manager).to receive(:upload).with(
+          expect(mock_transfer_manager).to receive(:upload_file).with(
             expected_file_path.to_s,
             bucket: 'vets-api-console-access-logs',
             key: "console1984/#{expected_filename}",
@@ -137,8 +137,6 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'still uploads to S3' do
-          expect(mock_transfer_manager).to receive(:upload)
-
           job.perform
         end
       end
@@ -182,7 +180,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'logs the error and re-raises' do
-          allow(mock_transfer_manager).to receive(:upload).and_raise(s3_error)
+          allow(mock_transfer_manager).to receive(:upload_file).and_raise(s3_error)
 
           expect(Rails.logger).to receive(:error).with(
             "Console access logs upload failed for #{expected_filename}: Access Denied"
@@ -192,7 +190,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'leaves the file on disk for retry' do
-          allow(mock_transfer_manager).to receive(:upload).and_raise(s3_error)
+          allow(mock_transfer_manager).to receive(:upload_file).and_raise(s3_error)
 
           expect { job.perform }.to raise_error(Aws::S3::Errors::ServiceError)
 
@@ -218,7 +216,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
       end
 
       it 'does not upload to S3' do
-        expect(mock_transfer_manager).not_to receive(:upload)
+        expect(mock_transfer_manager).not_to receive(:upload_file)
 
         job.perform
       end

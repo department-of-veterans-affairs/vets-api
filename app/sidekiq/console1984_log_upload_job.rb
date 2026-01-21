@@ -30,7 +30,7 @@ class Console1984LogUploadJob
   end
 
   def upload_to_s3
-    transfer_manager.upload(
+    transfer_manager.upload_file(
       file_path,
       bucket: CONSOLE_LOGS_S3_BUCKET,
       key: "console1984/#{filename}",
@@ -62,7 +62,7 @@ class Console1984LogUploadJob
   end
 
   def file_path
-    Rails.root.join('tmp', 'console_access_logs', filename)
+    Rails.root.join('tmp', 'console_access_logs', filename).to_s
   end
 
   def sessions_data
