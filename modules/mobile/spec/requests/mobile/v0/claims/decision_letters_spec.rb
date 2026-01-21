@@ -156,31 +156,19 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           end
         end
       end
-    end
 
-    context 'lighthouse benefitsdocuments 500' do
-      it 'index raises 502 (Bad Gateway)' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
-          .and_return(true)
-
-        lighthouse_provider_double = double
-        allow(lighthouse_provider_double).to receive(:get_letters).and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
-        allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
-        get '/mobile/v0/claims/decision-letters', headers: sis_headers
-        assert_schema_conform(502)
-      end
-
-      it 'downloads raises 502 (Bad Gateway)' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
-          .and_return(true)
-
-        lighthouse_provider_double = double
-        allow(lighthouse_provider_double).to receive(:get_letter).and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
-        allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
-        get '/mobile/v0/claims/decision-letters/27832B64-2D88-4DEE-9F6F-DF80E4CAAA87/download', headers: sis_headers
-        assert_schema_conform(502)
+      context 'when Lighthouse Benefits Documents returns 500' do
+        it 'raises 502 (Bad Gateway)' do
+          lighthouse_provider_double = double
+          allow(lighthouse_provider_double).to receive(:get_letters).and_raise(
+            Common::Exceptions::ExternalServerInternalServerError.new
+          )
+          allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
+          get '/mobile/v0/claims/decision-letters', headers: sis_headers
+          assert_schema_conform(502)
+          expect(response.parsed_body.dig('errors', 0, 'title')).to eq('Bad Gateway')
+          expect(response.parsed_body.dig('errors', 0, 'source')).to eq('DecisionLettersController#index')
+        end
       end
     end
 
@@ -264,6 +252,24 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: sis_headers
           assert_schema_conform(404)
         end
+      end
+    end
+
+    context 'when Lighthouse Benefits Documents returns 500' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
+          .and_return(true)
+      end
+
+      it 'raises 502 (Bad Gateway)' do
+        lighthouse_provider_double = double
+        allow(lighthouse_provider_double).to receive(:get_letter).and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+        allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
+        get '/mobile/v0/claims/decision-letters/27832B64-2D88-4DEE-9F6F-DF80E4CAAA87/download', headers: sis_headers
+        assert_schema_conform(502)
+        expect(response.parsed_body.dig('errors', 0, 'title')).to eq('Bad Gateway')
+        expect(response.parsed_body.dig('errors', 0, 'source')).to eq('DecisionLettersController#download')
       end
     end
   end
