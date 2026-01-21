@@ -276,7 +276,6 @@ class FormProfile
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
 
-    # binding.pry
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
