@@ -102,7 +102,6 @@ class Rack::Attack
   throttle('relationships/get', limit: 30, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/vaos/v2/relationships') && req.get?
   end
-
   throttle('ask_va_api/zip_state_validation', limit: ask_va_zip_state_limit, period: ask_va_zip_state_period) do |req|
     req.remote_ip if req.path == '/ask_va_api/v0/zip_state_validation' &&
                      req.post? &&
