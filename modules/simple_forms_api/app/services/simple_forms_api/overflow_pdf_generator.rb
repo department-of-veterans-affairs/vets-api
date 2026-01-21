@@ -84,9 +84,10 @@ module SimpleFormsApi
 
     def overflow_text
       statement = (@data['statement'] || '').to_s
-      return '' unless statement.length > CUTOFF_INDEX + 1
+      cutoff = CUTOFF_INDEX + 1
+      return '' unless statement.length > cutoff
 
-      statement[(CUTOFF_INDEX + 1)..]
+      statement[cutoff..]
     end
 
     def veteran_name_line
