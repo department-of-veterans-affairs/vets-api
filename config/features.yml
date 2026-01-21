@@ -2811,4 +2811,6 @@ features:
   delete_old_education_benefits_job:
     actor_type: user
     description: If enabled, allow the EducationForm::DeleteOldEducationBenefitsClaims job to run as normal
-
+  fmp_benefits_authorization_letter:
+    actor_type: user
+    description: Enables displaying FMP Benefits Authorization letter on Letters page
