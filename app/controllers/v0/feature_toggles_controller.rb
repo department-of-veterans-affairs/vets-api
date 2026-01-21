@@ -5,10 +5,9 @@ module V0
     service_tag 'feature-flag'
     # the feature toggle does not require authentication, but if a user is logged we might use @current_user
     skip_before_action :authenticate
+    before_action :load_user
 
     def index
-      load_user_if_session_exists
-
       if params[:features].present?
         features_params = params[:features].split(',')
         features = feature_toggles_service.get_features(features_params)
@@ -20,28 +19,6 @@ module V0
     end
 
     private
-
-    def load_user_if_session_exists
-      if Flipper.enabled?(:load_feature_toggle_user_if_authed)
-        load_user_safely
-      else
-        load_user
-      end
-    end
-
-    def load_user_safely
-      if session[:token].present?
-        set_session_object
-        set_current_user(false)
-      else
-        @current_user = nil
-        @session_object = nil
-      end
-    rescue => e
-      Rails.logger.debug { "FeatureToggles: Error loading user - #{e.message}" }
-      @current_user = nil
-      @session_object = nil
-    end
 
     def feature_toggles_service
       @feature_toggles_service ||= FeatureTogglesService.new(
