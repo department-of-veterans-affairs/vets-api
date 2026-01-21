@@ -1521,6 +1521,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_16_194743) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
+  create_table "representation_management_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "saved_claim_groups", force: :cascade do |t|
     t.uuid "claim_group_guid", null: false
     t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
