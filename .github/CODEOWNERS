@@ -847,6 +847,7 @@ docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-grou
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group
 docs/setup/setup_with_binstubs.md @department-of-veterans-affairs/backend-review-group
 docs/setup/virtual_machine_access.md @department-of-veterans-affairs/backend-review-group
+docs/setup/new_machine_wsl.md @department-of-veterans-affairs/backend-review-group
 Gemfile @department-of-veterans-affairs/backend-review-group
 Gemfile.lock @department-of-veterans-affairs/backend-review-group
 helmCharts/ @department-of-veterans-affairs/backend-review-group

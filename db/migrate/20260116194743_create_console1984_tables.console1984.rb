@@ -1,5 +1,5 @@
 # This migration comes from console1984 (originally 20210517203931)
-class CreateConsole1984Tables < ActiveRecord::Migration[7.0]
+class CreateConsole1984Tables < ActiveRecord::Migration[7.2]
   def change
     create_table :console1984_sessions do |t|
       t.text :reason
