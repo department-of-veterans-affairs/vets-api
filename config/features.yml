@@ -2181,9 +2181,6 @@ features:
   vre_prefill_name:
     actor_type: user
     description: Enables prefill transformation for veteran name fields in the Chapter 31 form
-  vre_use_new_vfs_notification_library:
-    actor_type: user
-    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
