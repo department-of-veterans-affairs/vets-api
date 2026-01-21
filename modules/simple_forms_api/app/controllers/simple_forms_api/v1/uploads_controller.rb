@@ -11,7 +11,6 @@ module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate, if: :skip_authentication?
-      skip_before_action :verify_authenticity_token, if: :skip_authentication?
       before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
