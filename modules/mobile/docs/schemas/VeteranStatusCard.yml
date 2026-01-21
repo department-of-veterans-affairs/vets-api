@@ -1,0 +1,67 @@
+type: object
+additionalProperties: false
+required:
+  - confirmed
+properties:
+  confirmed:
+    type: boolean
+    description: True or False depending on if the veteran is eligible for a status card
+  fullName:
+    type: object
+    additionalProperties: false
+    description: Displays the user's name when eligible for a status card
+    required:
+      - first
+      - middle
+      - last
+      - suffix
+    properties:
+      first:
+        type: string
+        example: John
+      middle:
+        type: string
+        example: T
+      last:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr
+  userPercentOfDisability:
+    type: integer
+    example: 50
+    description: Displays the veteran's disability rating if eligible for a status card
+  latestServiceHistory:
+    type: object
+    additionalProperties: false
+    required:
+      - branchOfService
+      - latestServiceDateRange
+    description: Displays the veteran's latest service history if eligible for a status card
+    properties:
+      branchOfService:
+        type: string
+        example: Army
+      latestServiceDateRange:
+        type: object
+        additionalProperties: false
+        required:
+          - beginDate
+          - endDate
+        properties:
+          beginDate:
+            type: string
+          endDate:
+            type: string
+  title:
+    type: string
+    example: You're not eligible for a Veteran Status Card.
+    description: Displays an error/warning title when the veteran is ineligible for a status card
+  message:
+    type: string
+    description: Displays an error/warning message when the veteran is ineligible for a status card
+  status:
+    type: string
+    example: warning
+    description: Displays either 'error' or 'warning' when the veteran is ineligible for a status card

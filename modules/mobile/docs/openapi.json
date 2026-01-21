@@ -8995,6 +8995,56 @@
         "summary": "/v0/user/phones"
       }
     },
+    "/v0/veteran_status_card": {
+      "get": {
+        "description": "Retrieve a user Veteran Status Card",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VeteranStatusCard"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/veteran_status_card"
+      }
+    },
     "/v0/vet_verification_status": {
       "get": {
         "description": "Returns the veteran's Title 38 status as 'confirmed' or 'not confirmed'.",
@@ -26529,6 +26579,98 @@
           "extension": {
             "type": "string",
             "example": "4567"
+          }
+        }
+      },
+      "VeteranStatusCard": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "confirmed"
+        ],
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "description": "True or False depending on if the veteran is eligible for a status card"
+          },
+          "fullName": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Displays the user's name when eligible for a status card",
+            "required": [
+              "first",
+              "middle",
+              "last",
+              "suffix"
+            ],
+            "properties": {
+              "first": {
+                "type": "string",
+                "example": "John"
+              },
+              "middle": {
+                "type": "string",
+                "example": "T"
+              },
+              "last": {
+                "type": "string",
+                "example": "Doe"
+              },
+              "suffix": {
+                "type": "string",
+                "example": "Jr"
+              }
+            }
+          },
+          "userPercentOfDisability": {
+            "type": "integer",
+            "example": 50,
+            "description": "Displays the veteran's disability rating if eligible for a status card"
+          },
+          "latestServiceHistory": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "branchOfService",
+              "latestServiceDateRange"
+            ],
+            "description": "Displays the veteran's latest service history if eligible for a status card",
+            "properties": {
+              "branchOfService": {
+                "type": "string",
+                "example": "Army"
+              },
+              "latestServiceDateRange": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "beginDate",
+                  "endDate"
+                ],
+                "properties": {
+                  "beginDate": {
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "title": {
+            "type": "string",
+            "example": "You're not eligible for a Veteran Status Card.",
+            "description": "Displays an error/warning title when the veteran is ineligible for a status card"
+          },
+          "message": {
+            "type": "string",
+            "description": "Displays an error/warning message when the veteran is ineligible for a status card"
+          },
+          "status": {
+            "type": "string",
+            "example": "warning",
+            "description": "Displays either 'error' or 'warning' when the veteran is ineligible for a status card"
           }
         }
       },
