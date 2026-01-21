@@ -5,7 +5,7 @@ module Swagger
     class VeteranStatusCards
       include Swagger::Blocks
 
-      swagger_path '/v0/veteran_status_cards' do
+      swagger_path '/v0/veteran_status_card' do
         operation :get do
           key :description, 'Retrieve a user Veteran Status Card'
           key :operationId, 'veteranStatusCard'
