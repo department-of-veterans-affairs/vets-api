@@ -311,7 +311,7 @@ RSpec.describe Pensions::Monitor do
             claim_id: claim.id,
             user_account_uuid: current_user.uuid,
             confirmation_number: claim.confirmation_number,
-            error: msg,
+            error: msg['error_message'],
             tags: monitor.tags
           }
 

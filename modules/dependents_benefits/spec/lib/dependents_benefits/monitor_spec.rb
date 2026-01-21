@@ -181,7 +181,7 @@ RSpec.describe DependentsBenefits::Monitor do
         msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
         log = "#{message_prefix} submission to LH exhausted!"
 
-        payload = base_payload({ confirmation_number: nil, form_id: nil, error: msg })
+        payload = base_payload({ confirmation_number: nil, form_id: nil, error: msg['error_message'] })
 
         expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
         expect(monitor).to receive(:track_request).with(

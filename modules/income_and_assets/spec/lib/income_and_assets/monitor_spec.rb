@@ -302,7 +302,7 @@ RSpec.describe IncomeAndAssets::Monitor do
             user_account_uuid: current_user.uuid,
             form_id: claim.form_id,
             claim_id: claim.id, # pulled from msg.args
-            error: msg,
+            error: msg['error_message'],
             tags: monitor.tags
           }
 
