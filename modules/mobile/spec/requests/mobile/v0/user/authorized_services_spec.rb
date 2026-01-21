@@ -117,9 +117,12 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
       allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
     end
 
     it 'includes benefitsPushNotification when user has ICN' do
@@ -127,7 +130,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
-      expect(attributes['authorizedServices']['benefitsPushNotification']).to eq(true)
+      expect(attributes['authorizedServices']['benefitsPushNotification']).to be true
     end
 
     context 'when user has no ICN' do
@@ -138,7 +141,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                                                    params: { 'appointmentIEN' => '123', 'locationId' => '123' }
         assert_schema_conform(200)
 
-        expect(attributes['authorizedServices']['benefitsPushNotification']).to eq(false)
+        expect(attributes['authorizedServices']['benefitsPushNotification']).to be false
       end
     end
   end
