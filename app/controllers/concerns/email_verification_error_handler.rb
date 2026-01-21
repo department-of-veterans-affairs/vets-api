@@ -3,6 +3,8 @@
 module EmailVerificationErrorHandler
   extend ActiveSupport::Concern
 
+  DEFAULT_RETRY_AFTER_SECONDS = 300 # 5 minutes
+
   def handle_verification_errors(verification_operation)
     yield
   rescue Common::Exceptions::BackendServiceException => e
@@ -10,7 +12,7 @@ module EmailVerificationErrorHandler
     render_email_service_unavailable_error
   rescue Common::Exceptions::TooManyRequests => e
     log_verification_rate_limit_error(verification_operation, e)
-    render_verification_rate_limit_error
+    render_verification_rate_limit_error(e)
   rescue => e
     log_unexpected_verification_error(verification_operation, e)
     render_verification_internal_error
@@ -77,7 +79,7 @@ module EmailVerificationErrorHandler
     retry_after = if exception.respond_to?(:retry_after) && exception.retry_after
                     exception.retry_after
                   else
-                    300 # Default 5 minutes
+                    DEFAULT_RETRY_AFTER_SECONDS
                   end
 
     response.headers['Retry-After'] = retry_after.to_s
