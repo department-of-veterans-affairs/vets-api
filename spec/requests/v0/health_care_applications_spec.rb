@@ -61,7 +61,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       it 'returns a 404 if user not found' do
         get(rating_info_v0_health_care_applications_path)
-        puts response.body
 
         errors = JSON.parse(response.body)['errors']
         expect(errors.first['title']).to eq('Record not found')
