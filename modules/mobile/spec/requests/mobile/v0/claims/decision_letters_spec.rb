@@ -158,6 +158,32 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
       end
     end
 
+    context 'lighthouse benefitsdocuments 500' do
+      it 'index raises 502 (Bad Gateway)' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
+          .and_return(true)
+
+        lighthouse_provider_double = double
+        allow(lighthouse_provider_double).to receive(:get_letters).and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+        allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
+        get '/mobile/v0/claims/decision-letters', headers: sis_headers
+        assert_schema_conform(502)
+      end
+
+      it 'downloads raises 502 (Bad Gateway)' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:cst_claim_letters_use_lighthouse_api_provider_mobile, anything)
+          .and_return(true)
+
+        lighthouse_provider_double = double
+        allow(lighthouse_provider_double).to receive(:get_letter).and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+        allow(LighthouseClaimLettersProvider).to receive(:new).and_return(lighthouse_provider_double)
+        get '/mobile/v0/claims/decision-letters/27832B64-2D88-4DEE-9F6F-DF80E4CAAA87/download', headers: sis_headers
+        assert_schema_conform(502)
+      end
+    end
+
     context 'with a valid response' do
       context 'with mobile_filter_doc_27_decision_letters_out flag enabled' do
         it 'returns expected decision letters' do

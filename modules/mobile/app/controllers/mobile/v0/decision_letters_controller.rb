@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claim_letters/claim_letter_downloader'
+require 'common/exceptions/serializable_error'
 
 module Mobile
   module V0
@@ -18,17 +19,17 @@ module Mobile
 
         render json: Mobile::V0::DecisionLetterSerializer.new(list)
       rescue Common::Exceptions::ExternalServerInternalServerError => e
-        raise Common::Exceptions::BadGateway.new(errors: [{ title: e.class.to_s, detail: e.message }])
+        # binding.pry
+        raise Common::Exceptions::BadGateway.new(detail: e.message, source: 'DecisionLettersController#index')
       end
 
       def download
         document_id = CGI.unescape(params[:document_id])
-
         service.get_letter(document_id) do |data, mime_type, disposition, filename|
           send_data(data, type: mime_type, disposition:, filename:)
         end
       rescue Common::Exceptions::ExternalServerInternalServerError => e
-        raise Common::Exceptions::BadGateway.new(errors: [{ title: e.class.to_s, detail: e.message }])
+        raise Common::Exceptions::BadGateway.new(detail: e.message, source: 'DecisionLettersController#download')
       end
 
       private
