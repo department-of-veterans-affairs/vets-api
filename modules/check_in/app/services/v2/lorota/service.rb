@@ -143,17 +143,35 @@ module V2
       end
 
       def parse_check_in_response_data(raw_data)
-        parsed_data = begin
-          Oj.load(raw_data.body)
-        rescue Oj::ParseError, EncodingError
-          Rails.logger.warn({ message: 'Check-in LoROTA response parse failure',
-                              check_in_uuid: check_in.uuid })
-          {}
-        end
+        parsed_data = parse_json_with_error_handling(raw_data)
+        extract_response_data(parsed_data)
+      end
 
+      def parse_json_with_error_handling(raw_data)
+        Oj.load(raw_data.body)
+      rescue Oj::ParseError => e
+        log_parsing_error('JSON parsing failed', e)
+        {}
+      rescue EncodingError => e
+        log_parsing_error('Encoding issue detected - possible data corruption', e)
+        {}
+      rescue => e
+        log_parsing_error('Unexpected error parsing check-in response', e)
+        {}
+      end
+
+      def log_parsing_error(message, error)
+        log_method = message.include?('JSON') ? :warn : :error
+        Rails.logger.send(log_method, {
+                            message:,
+                            check_in_uuid: check_in.uuid,
+                            error: error.message
+                          })
+      end
+
+      def extract_response_data(parsed_data)
         appointments = parsed_data.dig('payload', 'appointments') || []
         demographics_status = parsed_data.dig('payload', 'patientDemographicsStatus') || {}
-
         [appointments, demographics_status]
       end
 
