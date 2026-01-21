@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'prawn'
+require 'pdf_fill/extras_generator_v2'
 require 'securerandom'
 
 module SimpleFormsApi
@@ -8,22 +8,71 @@ module SimpleFormsApi
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
     CUTOFF_INDEX = 3685
 
-    def initialize(data, timestamp = Time.current, mask_ssn: true)
+    def initialize(data, timestamp = Time.current)
       @data = data || {}
       @timestamp = timestamp
-      @mask_ssn = mask_ssn
     end
 
     def generate
       text = overflow_text
       return nil if text.blank?
 
-      file_path = build_file_path
-      generate_pdf(file_path, text)
-      file_path
-    rescue StandardError => e
+      gen = PdfFill::ExtrasGeneratorV2.new(
+        form_name: '21-4138',
+        submit_date: @timestamp,
+        start_page: 1,
+        show_jumplinks: false,
+        question_key: [
+          { question_number: '1A', question_text: 'Header' },
+          { question_number: '2A', question_text: 'Name' },
+          { question_number: '2B', question_text: 'Identifier' },
+          { question_number: '3A', question_text: 'Remarks (continued)' }
+        ]
+      )
+
+      # 1A. Header
+      gen.add_text(
+        HEADER,
+        question_num: 1,
+        question_suffix: 'A',
+        question_text: 'Header',
+        question_type: 'free_text',
+        show_suffix: true
+      )
+
+      # 2A. Name
+      gen.add_text(
+        veteran_name_line,
+        question_num: 2,
+        question_suffix: 'A',
+        question_text: 'Name',
+        question_type: 'free_text',
+        show_suffix: true
+      )
+
+      # 2B. Identifier
+      gen.add_text(
+        id_line,
+        question_num: 2,
+        question_suffix: 'B',
+        question_text: 'Identifier',
+        question_type: 'free_text',
+        show_suffix: true
+      )
+
+      # 3A. Remarks (continued)
+      gen.add_text(
+        text,
+        question_num: 3,
+        question_suffix: 'A',
+        question_text: 'Remarks (continued)',
+        question_type: 'free_text',
+        show_suffix: true
+      )
+
+      gen.generate
+    rescue => e
       Rails.logger.error("Failed to generate overflow PDF: #{e.class} - #{e.message}\n#{e.backtrace&.join("\n")}")
-      FileUtils.rm_f(file_path) if file_path && File.exist?(file_path)
       nil
     end
 
@@ -32,60 +81,36 @@ module SimpleFormsApi
     def overflow_text
       statement = (@data['statement'] || '').to_s
       return '' unless statement.length > CUTOFF_INDEX + 1
-      statement[(CUTOFF_INDEX + 1)..-1]
-    end
 
-    def build_file_path
-      folder = Rails.root.join('tmp', 'pdfs')
-      FileUtils.mkdir_p(folder)
-      folder.join("21-4138_overflow_#{SecureRandom.uuid}.pdf").to_s
-    end
-
-    def generate_pdf(file_path, text)
-      Prawn::Document.generate(file_path, page_size: 'LETTER', margin: 50) do |pdf|
-        pdf.font 'Helvetica'
-
-        # Header
-        pdf.text HEADER, size: 14, style: :bold, align: :center
-        pdf.move_down 15
-
-        # Identity block
-        pdf.text veteran_name_line, size: 10
-        pdf.text id_line, size: 10
-        pdf.move_down 20
-
-        # Overflow content
-        pdf.text 'REMARKS (CONTINUED):', size: 11, style: :bold
-        pdf.move_down 10
-        pdf.text text, size: 10, leading: 2
-      end
+      statement[(CUTOFF_INDEX + 1)..]
     end
 
     def veteran_name_line
-      first = @data.dig('full_name', 'first').to_s
+      first  = @data.dig('full_name', 'first').to_s
       middle = @data.dig('full_name', 'middle').to_s
-      last = @data.dig('full_name', 'last').to_s
-      full_name = [first, middle, last].reject(&:blank?).join(' ')
-      "Name: #{full_name.presence || 'Not provided'}"
+      last   = @data.dig('full_name', 'last').to_s
+      full   = [first, middle, last].compact_blank.join(' ')
+      "Name: #{full.presence || 'Not provided'}"
     end
 
     def id_line
       va_file = @data.dig('id_number', 'va_file_number').to_s.presence
-      ssn = @data.dig('id_number', 'ssn').to_s
+      ssn     = @data.dig('id_number', 'ssn').to_s
 
       if va_file.present?
         "VA File Number: #{va_file}"
       elsif ssn.present?
-        @mask_ssn ? "SSN: XXX-XX-#{ssn[5..8]}" : "SSN: #{format_ssn(ssn)}"
+        "SSN: #{format_ssn(ssn)}"
       else
         'ID: Not provided'
       end
     end
 
     def format_ssn(ssn)
-      s = ssn.gsub(/\D/, '')
-      return ssn unless s.length == 9
-      "#{s[0..2]}-#{s[3..4]}-#{s[5..8]}"
+      digits = ssn.gsub(/\D/, '')
+      return ssn unless digits.length == 9
+
+      "#{digits[0..2]}-#{digits[3..4]}-#{digits[5..8]}"
     end
   end
 end

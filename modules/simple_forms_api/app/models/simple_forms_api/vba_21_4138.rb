@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'simple_forms_api/overflow_pdf_generator'
 
 module SimpleFormsApi
