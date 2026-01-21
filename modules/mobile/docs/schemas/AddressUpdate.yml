@@ -41,8 +41,8 @@ properties:
     nullable: true
   addressPou:
     type: string
-    enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-    example: "RESIDENCE/CHOICE"
+    enum: [ "RESIDENCE", "CORRESPONDENCE" ]
+    example: "RESIDENCE"
   addressType:
     type: string
     enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
