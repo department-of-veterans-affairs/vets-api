@@ -31,6 +31,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
+  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
+
+
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
     t.integer "attorneys"
@@ -804,6 +807,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
+    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
     t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
