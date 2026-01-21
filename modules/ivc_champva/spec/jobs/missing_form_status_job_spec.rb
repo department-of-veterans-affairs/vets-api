@@ -186,7 +186,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
       # Allow all other info logs, but expect the verbose status logs
       allow(Rails.logger).to receive(:info)
-      expect(Rails.logger).to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/).exactly(3).times
+      expect(Rails.logger).to receive(:info)
+        .with(/IVC Forms MissingFormStatusJob - Missing status for Form/).exactly(3).times
 
       job.perform
     end
@@ -268,7 +269,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     # Expect the error to be logged
     expect(Rails.logger).to receive(:error).with(
-      /IVC Forms MissingFormStatusJob - PegaApiError during report check - form_uuid: #{form_uuid}, error: Connection timeout/
+      /PegaApiError during report check - form_uuid: #{form_uuid}, error: Connection timeout/
     )
 
     # Should return false (not reconciled) but not raise an exception
