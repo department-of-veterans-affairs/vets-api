@@ -40,9 +40,6 @@ module SimpleFormsApi
 
     private
 
-    # Prepares paths and copies the base template to a "stamped" working file
-    # Note: We keep the "-stamped.pdf" suffix to satisfy existing specs and indicate this is the stampable copy,
-    # even though stamping is performed at the end on the final merged output.
     def prepare_to_generate_pdf
       generated_form_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-tmp.pdf").to_s
       stamped_template_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-stamped.pdf").to_s
@@ -53,6 +50,8 @@ module SimpleFormsApi
     end
 
     def copy_from_tempfile(stamped_template_path)
+      # Tempfile workaround inspired by this:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
       tempfile = create_tempfile
       FileUtils.touch(tempfile)
       FileUtils.copy_file(tempfile.path, stamped_template_path)
@@ -66,14 +65,12 @@ module SimpleFormsApi
       end
     end
 
-    # Final stamping pass on the merged (or base) PDF using a single canonical timestamp
     def stamp_final_pdf(final_pdf_path, current_loa, timestamp)
       stamper = PdfStamper.new(stamped_template_path: final_pdf_path, form:, current_loa:, timestamp:)
       stamper.stamp_pdf
       final_pdf_path
     end
 
-    # Fills the base PDF using pdftk and removes the working stamped template copy
     def fill_and_generate_pdf(generated_form_path, stamped_template_path)
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
@@ -106,15 +103,19 @@ module SimpleFormsApi
 
     def mapped_data
       template = Rails.root.join('modules', 'simple_forms_api', 'app', 'form_mappings', "#{form_number}.json.erb").read
-      result = ERB.new(template).result_with_hash(form: form)
+      b = binding
+      b.local_variable_set(:data, form)
+      result = ERB.new(template).result(b)
       JSON.parse(escape_json_string(result))
     end
 
     def escape_json_string(str)
-      # Remove control characters that will break the JSON parser:
-      # \u0000-\u001f: ASCII control chars (null, tab, LF, CR, etc)
-      # \u0080-\u009f: Latin-1 supplement control chars
-      # \u2000-\u201f: various Unicode spacing/dashes/quotes that can be problematic
+      # remove characters that will break the json parser
+      # \u0000-\u001f: control characters in the ASCII table,
+      # characters such as null, tab, line feed, and carriage return
+      # \u0080-\u009f: control characters in the Latin-1 Supplement block of Unicode
+      # \u2000-\u201f: various punctuation and other non-printable characters in Unicode,
+      # including various types of spaces, dashes, and quotation marks.
       str.gsub(/[\u0000-\u001f\u0080-\u009f\u2000-\u201f]/, ' ')
     end
   end
