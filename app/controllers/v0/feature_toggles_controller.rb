@@ -22,7 +22,7 @@ module V0
     private
 
     def load_user_if_session_exists
-      if Flipper.enabled?(:load_user_if_authenticated)
+      if Flipper.enabled?(:load_feature_toggle_user_if_authed)
         load_user_safely
       else
         load_user

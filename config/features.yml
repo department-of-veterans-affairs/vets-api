@@ -1269,7 +1269,7 @@ features:
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
-  load_user_if_authenticated:
+  load_feature_toggle_user_if_authed:
     actor_type: user
     description: Prevents FeatureTogglesController Filter Chain Halting
   log_claims_request_origin:
