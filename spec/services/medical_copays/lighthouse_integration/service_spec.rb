@@ -25,8 +25,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       context 'on success' do
         before do
-          allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
-          allow(service).to receive(:retrieve_city).and_return('Tampa')
+          allow(service).to receive_messages(invoice_service: double(list: raw_invoices), retrieve_city: 'Tampa')
           allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
           allow(Lighthouse::HCC::Bundle).to receive(:new).and_return(mock_bundle)
         end
@@ -53,18 +52,30 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         end
 
         it 'increments initiated metric' do
-          expect { service.list(count: 10, page: 1) rescue nil }
+          expect do
+            service.list(count: 10, page: 1)
+          rescue
+            nil
+          end
             .to trigger_statsd_increment('api.mcp.lighthouse.list.initiated')
         end
 
         it 'increments failure metric' do
-          expect { service.list(count: 10, page: 1) rescue nil }
+          expect do
+            service.list(count: 10, page: 1)
+          rescue
+            nil
+          end
             .to trigger_statsd_increment('api.mcp.lighthouse.list.failure')
         end
 
         it 'does not increment success metric' do
           expect(StatsD).not_to receive(:increment).with('api.mcp.lighthouse.list.success')
-          service.list(count: 10, page: 1) rescue nil
+          begin
+            service.list(count: 10, page: 1)
+          rescue
+            nil
+          end
         end
       end
     end
@@ -75,14 +86,12 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       context 'on success' do
         before do
-          allow(service).to receive(:invoice_service).and_return(double(read: invoice_data))
-          allow(service).to receive(:fetch_invoice_dependencies).and_return(
-            { account: {}, charge_items: {}, payments: [] }
+          allow(service).to receive_messages(
+            invoice_service: double(read: invoice_data),
+            fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
+            fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
+            fetch_medications: {}
           )
-          allow(service).to receive(:fetch_charge_item_dependencies).and_return(
-            { encounters: {}, medication_dispenses: {} }
-          )
-          allow(service).to receive(:fetch_medications).and_return({})
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
         end
 
@@ -108,18 +117,30 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         end
 
         it 'increments initiated metric' do
-          expect { service.get_detail(id: 'invoice-1') rescue nil }
+          expect do
+            service.get_detail(id: 'invoice-1')
+          rescue
+            nil
+          end
             .to trigger_statsd_increment('api.mcp.lighthouse.detail.initiated')
         end
 
         it 'increments failure metric' do
-          expect { service.get_detail(id: 'invoice-1') rescue nil }
+          expect do
+            service.get_detail(id: 'invoice-1')
+          rescue
+            nil
+          end
             .to trigger_statsd_increment('api.mcp.lighthouse.detail.failure')
         end
 
         it 'does not increment success metric' do
           expect(StatsD).not_to receive(:increment).with('api.mcp.lighthouse.detail.success')
-          service.get_detail(id: 'invoice-1') rescue nil
+          begin
+            service.get_detail(id: 'invoice-1')
+          rescue
+            nil
+          end
         end
       end
     end

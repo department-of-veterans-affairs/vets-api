@@ -31,8 +31,58 @@ module MedicalCopays
         start_time = Time.current
 
         raw_invoices = invoice_service.list(count:, page:)
+        entries = build_invoice_entries(raw_invoices)
 
-        entries = raw_invoices.fetch('entry').map do |entry|
+        record_success('list', start_time)
+        Lighthouse::HCC::Bundle.new(raw_invoices, entries)
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        raise
+      end
+
+      def get_detail(id:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
+        start_time = Time.current
+
+        copay_detail = build_copay_detail(id)
+
+        record_success('detail', start_time)
+        copay_detail
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
+        Rails.logger.error(
+          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
+        )
+        raise e
+      end
+
+      private
+
+      def record_success(operation, start_time)
+        StatsD.measure("#{STATSD_KEY_PREFIX}.#{operation}.latency", (Time.current - start_time) * 1000)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{operation}.success")
+      end
+
+      def build_copay_detail(id)
+        invoice_data = invoice_service.read(id)
+        invoice_deps = fetch_invoice_dependencies(invoice_data, id)
+        charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
+        medications = fetch_medications(charge_item_deps[:medication_dispenses])
+
+        Lighthouse::HCC::CopayDetail.new(
+          invoice_data:,
+          account_data: invoice_deps[:account],
+          charge_items: invoice_deps[:charge_items],
+          encounters: charge_item_deps[:encounters],
+          medication_dispenses: charge_item_deps[:medication_dispenses],
+          medications:,
+          payments: invoice_deps[:payments]
+        )
+      end
+
+      def build_invoice_entries(raw_invoices)
+        raw_invoices.fetch('entry').map do |entry|
           resource = entry.fetch('resource')
 
           org_ref = resource.dig('issuer', 'reference').to_s
@@ -49,46 +99,7 @@ module MedicalCopays
 
           Lighthouse::HCC::Invoice.new(enriched_entry)
         end
-
-        StatsD.measure("#{STATSD_KEY_PREFIX}.list.latency", (Time.current - start_time) * 1000)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.list.success")
-        Lighthouse::HCC::Bundle.new(raw_invoices, entries)
-      rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
-        raise
       end
-
-      def get_detail(id:)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
-        start_time = Time.current
-
-        invoice_data = invoice_service.read(id)
-
-        invoice_deps = fetch_invoice_dependencies(invoice_data, id)
-        charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
-        medications = fetch_medications(charge_item_deps[:medication_dispenses])
-
-        StatsD.measure("#{STATSD_KEY_PREFIX}.detail.latency", (Time.current - start_time) * 1000)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.success")
-        Lighthouse::HCC::CopayDetail.new(
-          invoice_data:,
-          account_data: invoice_deps[:account],
-          charge_items: invoice_deps[:charge_items],
-          encounters: charge_item_deps[:encounters],
-          medication_dispenses: charge_item_deps[:medication_dispenses],
-          medications:,
-          payments: invoice_deps[:payments]
-        )
-      rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
-        Rails.logger.error(
-          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
-        )
-        raise e
-      end
-
-      private
 
       def retrieve_city(org_id)
         org_data = organization_service.read(org_id)
