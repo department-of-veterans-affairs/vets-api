@@ -133,11 +133,15 @@ module AccreditedRepresentativePortal
       end
 
       def service
-        @service ||= BenefitsClaims::Service.new(icn)
+        @service ||= BenefitsClaims::Service.new(veteran_icn)
       end
 
       def icn
-        @icn ||= ClaimantLookupService.get_icn(
+        params[:benefitType] == 'survivor' ? claimant_icn : veteran_icn
+      end
+
+      def veteran_icn
+        @veteran_icn ||= ClaimantLookupService.get_icn(
           params[:veteranFirstName] || params[:veteranFullName][:first],
           params[:veteranLastName] || params[:veteranFullName][:last],
           params[:veteranSsn],
@@ -145,6 +149,15 @@ module AccreditedRepresentativePortal
         )
       rescue Common::Exceptions::RecordNotFound => e
         raise Common::Exceptions::BadRequest.new(detail: e.message)
+      end
+
+      def claimant_icn
+        @claimant_icn ||= ClaimantLookupService.get_icn(
+          params[:claimantFirstName] || params[:claimantFullName][:first],
+          params[:claimantLastName] || params[:claimantFullName][:last],
+          params[:claimantSsn],
+          params[:claimantDateOfBirth]
+        )
       end
 
       def validate_file_type

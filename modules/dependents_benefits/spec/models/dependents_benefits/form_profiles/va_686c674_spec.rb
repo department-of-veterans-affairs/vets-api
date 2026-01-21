@@ -183,7 +183,10 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with military information data', :skip_va_profile do
       context 'with a user that can prefill VA Profile' do
-        before { can_prefill_vaprofile(true) }
+        before do
+          expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access_to_v2?).and_return(true)
+          can_prefill_vaprofile(true)
+        end
 
         context 'with a 686c-674 form v3 enabled' do
           let(:v686_c_674_v2_expected) do
