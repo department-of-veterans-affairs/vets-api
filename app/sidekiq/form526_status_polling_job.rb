@@ -41,34 +41,42 @@ class Form526StatusPollingJob
 
   def handle_response(response)
     response.body['data']&.each do |submission|
+      final_status = submission.dig('attributes', 'final_status')
       status = submission.dig('attributes', 'status')
       form_submission = Form526Submission.find_by(backup_submitted_claim_id: submission['id'])
 
-      handle_submission(status, form_submission)
+      handle_submission(status, final_status, form_submission)
       @total_handled += 1
     end
   end
 
-  def handle_submission(status, form_submission)
+  def handle_submission(status, final_status, form_submission)
     submission_id = form_submission.id
 
-    if %w[error expired].include? status
-      log_result('failure', submission_id)
-      form_submission.rejected!
-      notify_veteran(submission_id)
-    elsif status == 'vbms'
-      log_result('true_success', submission_id)
-      form_submission.accepted!
-    elsif status == 'success'
-      log_result('paranoid_success', submission_id)
-      form_submission.paranoid_success!
-      # Send Received Email once Backup Path is successful!
-      if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
-        form_submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
+    if final_status
+      if %w[error expired].include? status
+        log_result('failure', submission_id)
+        form_submission.rejected!
+        notify_veteran(submission_id)
+      elsif status == 'vbms'
+        log_result('true_success', submission_id)
+        form_submission.accepted!
+      elsif status == 'success'
+        log_result('paranoid_success', submission_id)
+        form_submission.paranoid_success!
+        # Send Received Email once Backup Path is successful!
+        if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
+          form_submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
+        end
+      else
+        Rails.logger.info(
+          'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
+          status:, submission_id:
+        )
       end
     else
       Rails.logger.info(
-        'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
+        'Final status not yet available from Benefits Intake API for 526 submission',
         status:, submission_id:
       )
     end
