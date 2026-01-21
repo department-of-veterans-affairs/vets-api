@@ -10,7 +10,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
     sign_in_as(user)
   end
 
-  describe 'GET /mobile/v0/veteran_status_cards/:id' do
+  describe 'GET /mobile/v0/veteran_status_card' do
     context 'when veteran is eligible' do
       let(:eligible_response) do
         {
@@ -32,13 +32,13 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       it 'returns a successful response' do
-        get '/mobile/v0/veteran_status_cards/0', headers: sis_headers
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         expect(response).to have_http_status(:ok)
       end
 
       it 'returns the expected data structure', :skip_json_api_validation do
-        get '/mobile/v0/veteran_status_cards/0', headers: sis_headers
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         json = response.parsed_body
         expect(json['confirmed']).to be true
@@ -63,13 +63,13 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       it 'returns a successful response with error details' do
-        get '/mobile/v0/veteran_status_cards/0', headers: sis_headers
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         expect(response).to have_http_status(:ok)
       end
 
       it 'returns the error data structure', :skip_json_api_validation do
-        get '/mobile/v0/veteran_status_cards/0', headers: sis_headers
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         json = response.parsed_body
         expect(json['confirmed']).to be false
@@ -86,7 +86,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       it 'returns an internal server error' do
-        get '/mobile/v0/veteran_status_cards/0', headers: sis_headers
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         expect(response).to have_http_status(:internal_server_error)
       end

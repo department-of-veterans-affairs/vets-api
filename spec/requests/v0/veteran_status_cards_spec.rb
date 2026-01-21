@@ -6,10 +6,10 @@ require 'veteran_status_card/service'
 RSpec.describe 'V0::VeteranStatusCards', type: :request do
   let(:user) { create(:user, :loa3) }
 
-  describe 'GET /v0/veteran_status_cards/:id' do
+  describe 'GET /v0/veteran_status_card' do
     context 'when not logged in' do
       it 'returns unauthorized' do
-        get '/v0/veteran_status_cards/0'
+        get '/v0/veteran_status_card'
 
         expect(response).to have_http_status(:unauthorized)
       end
@@ -39,13 +39,13 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
         end
 
         it 'returns a successful response' do
-          get '/v0/veteran_status_cards/0'
+          get '/v0/veteran_status_card'
 
           expect(response).to have_http_status(:ok)
         end
 
         it 'returns the expected data structure' do
-          get '/v0/veteran_status_cards/0'
+          get '/v0/veteran_status_card'
 
           json = JSON.parse(response.body)
           expect(json['confirmed']).to be true
@@ -70,13 +70,13 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
         end
 
         it 'returns a successful response with error details' do
-          get '/v0/veteran_status_cards/0'
+          get '/v0/veteran_status_card'
 
           expect(response).to have_http_status(:ok)
         end
 
         it 'returns the error data structure' do
-          get '/v0/veteran_status_cards/0'
+          get '/v0/veteran_status_card'
 
           json = JSON.parse(response.body)
           expect(json['confirmed']).to be false
@@ -93,7 +93,7 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
         end
 
         it 'returns an internal server error' do
-          get '/v0/veteran_status_cards/0'
+          get '/v0/veteran_status_card'
 
           expect(response).to have_http_status(:internal_server_error)
         end

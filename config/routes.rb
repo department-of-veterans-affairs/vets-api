@@ -52,7 +52,7 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
-    resources :veteran_status_cards, only: :show
+    resource :veteran_status_card, only: :show
 
     resources :form210779, only: [:create] do
       collection do
