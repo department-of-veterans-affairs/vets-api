@@ -205,7 +205,7 @@
   :base_uri: <%= "#{URI(IdentitySettings.ssoe_get_traits.url).host}:#{URI(IdentitySettings.ssoe_get_traits.url).port}" %>
   :endpoints:
     - :method: :post
-      :path: '/'
+      :path: '/psim_webservice/dev/IdMSSOeWebService'
       :file_path: 'ssoe/get_traits/default'
 
 - :name: 'MHV_Rx'
