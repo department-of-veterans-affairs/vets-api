@@ -2808,4 +2808,7 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
+  delete_old_education_benefits_job:
+    actor_type: user
+    description: If enabled, allow the EducationForm::DeleteOldEducationBenefitsClaims job to run as normal
 

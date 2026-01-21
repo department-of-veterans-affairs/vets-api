@@ -21,6 +21,8 @@ module EducationForm
     ].freeze
 
     def perform
+      return unless Flipper.enabled?(:delete_old_education_benefits_job)
+
       records = SavedClaim.where(form_id: FORM_TYPES).where('delete_date < ?', Time.zone.now)
       logger.info("DeleteOldEducationBenefitsClaims: deleting #{records.count} claims records")
 

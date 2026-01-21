@@ -12,13 +12,32 @@ RSpec.describe EducationForm::DeleteOldEducationBenefitsClaims do
   let!(:claim4) { create(:va0803, delete_date: nil) } # no delete date, should be preserved
 
   describe '#perform' do
-    it 'deletes only the expected records' do
-      Timecop.freeze(DateTime.new(2025, 2, 4)) do
-        expect { subject.perform }
-          .to change(SavedClaim, :count).from(4).to(2)
-          .and change(EducationBenefitsClaim, :count).from(4).to(2)
+    context 'with the flipper enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:delete_old_education_benefits_job).and_return(true)
       end
-      expect(SavedClaim.pluck(:id)).to contain_exactly(claim3.id, claim4.id)
+
+      it 'deletes only the expected records' do
+        Timecop.freeze(DateTime.new(2025, 2, 4)) do
+          expect { subject.perform }
+            .to change(SavedClaim, :count).from(4).to(2)
+            .and change(EducationBenefitsClaim, :count).from(4).to(2)
+        end
+        expect(SavedClaim.pluck(:id)).to contain_exactly(claim3.id, claim4.id)
+      end
+    end
+
+    context 'with the flipper disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:delete_old_education_benefits_job).and_return(false)
+      end
+
+      it 'does nothing' do
+        Timecop.freeze(DateTime.new(2025, 2, 4)) do
+          expect { subject.perform }
+            .not_to change(SavedClaim, :count)
+        end
+      end
     end
   end
 end
