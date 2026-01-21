@@ -5,6 +5,14 @@ module BenefitsClaims
     # Schema path for tracked item content validation
     SCHEMA_PATH = Rails.root.join('lib', 'lighthouse', 'benefits_claims', 'schemas', 'tracked_item_content.json').to_s
 
+    # Loaded JSON schema for validation (eager-loaded, thread-safe)
+    # Removes $schema key to avoid JSON::Schema::SchemaError (gem doesn't support draft-07)
+    SCHEMA = begin
+      schema = JSON.parse(File.read(SCHEMA_PATH))
+      schema.delete('$schema')
+      schema.freeze
+    end
+
     # Default values for content entries
     # All fields are optional; these defaults are merged when looking up entries
     DEFAULTS = {
@@ -38,11 +46,10 @@ module BenefitsClaims
       # Validates all CONTENT entries against the JSON schema
       # @return [Hash<String, Array<String>>] Hash mapping display names to validation errors
       def validate_all_entries
-        schema = load_schema
         errors = {}
 
         CONTENT.each do |display_name, entry|
-          entry_errors = JSON::Validator.fully_validate(schema, entry.deep_stringify_keys)
+          entry_errors = JSON::Validator.fully_validate(SCHEMA, entry.deep_stringify_keys)
           errors[display_name] = entry_errors if entry_errors.any?
         end
 
@@ -53,8 +60,7 @@ module BenefitsClaims
       # @param entry [Hash] The content entry to validate
       # @return [Array<String>] Array of validation error messages
       def validate_entry(entry)
-        schema = load_schema
-        JSON::Validator.fully_validate(schema, entry.deep_stringify_keys)
+        JSON::Validator.fully_validate(SCHEMA, entry.deep_stringify_keys)
       end
 
       # Looks up content override for a given display name
@@ -66,19 +72,6 @@ module BenefitsClaims
         return nil unless entry
 
         DEFAULTS.merge(entry)
-      end
-
-      private
-
-      # Loads the JSON schema, removing $schema key to avoid JSON::Schema::SchemaError
-      # The json-schema gem doesn't support draft-07 by default
-      # @return [Hash] The parsed schema
-      def load_schema
-        @schema ||= begin
-          schema = JSON.parse(File.read(SCHEMA_PATH))
-          schema.delete('$schema') # workaround for JSON::Schema::SchemaError with draft-07
-          schema
-        end
       end
     end
   end
