@@ -16,6 +16,10 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
   end
 
   describe '#create' do
+    let(:decision_review_evidence_final_status_field_enabled) { true }
+
+    before { allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(decision_review_evidence_final_status_field_enabled) }
+
     context 'when corresponding supplemental claim record not found' do
       it 'returns an error' do
         stub_upload_location
@@ -41,7 +45,7 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
           post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
 
           data = JSON.parse(response.body)['data']
-          expect(data['attributes']['finalStatus']).to be false
+          expect(data['attributes']['finalStatus']).to be_falsey
         end
 
         it "returns an error if request 'headers['X-VA-SSN'] and SC record SSNs do not match" do
@@ -51,6 +55,18 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
 
           expect(response).to have_http_status :unprocessable_entity
           expect(response.body).to include "'X-VA-SSN' does not match"
+        end
+
+        context 'when decision review evidence final status field is disabled' do
+          let(:decision_review_evidence_final_status_field_enabled) { false }
+
+          it 'does not show finalStatus field' do
+            stub_upload_location
+            post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
+            data = JSON.parse(response.body)['data']
+
+            expect(data['attributes']).not_to be_key('finalStatus')
+          end
         end
       end
 
@@ -101,6 +117,10 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
   end
 
   describe '#show' do
+    let(:decision_review_evidence_final_status_field_enabled) { true }
+
+    before { allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(decision_review_evidence_final_status_field_enabled) }
+
     it 'successfully requests the evidence submission' do
       get "#{path}#{evidence_submissions.sample.guid}"
       expect(response).to have_http_status(:ok)
@@ -143,6 +163,17 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
       get "#{path}/bueller"
       expect(response).to have_http_status :not_found
       expect(response.body).to include 'Record not found'
+    end
+
+    context 'when decision review evidence final status field is disabled' do
+      let(:decision_review_evidence_final_status_field_enabled) { false }
+
+      it 'does not return finalStatus for an evidence submission' do
+        es = evidence_submissions.sample
+        get "#{path}#{es.guid}"
+        submission = JSON.parse(response.body)['data']
+        expect(submission['attributes']).not_to be_key('finalStatus')
+      end
     end
   end
 end
