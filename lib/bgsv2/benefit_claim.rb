@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'bgsv2/utilities/helpers'
+require 'vets/shared_logging'
 require_relative 'service'
 module BGSV2
   class BenefitClaim
-    include SentryLogging
+    include Vets::SharedLogging
     include BGSV2::Utilities::Helpers
 
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
@@ -37,8 +38,6 @@ module BGSV2
         status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code)
       }
     rescue => e
-      # temporary logging to troubleshoot
-      log_message_to_sentry("BACKUP-LOGGING: #{@proc_id} - #{e.message}", :warn, '', { team: 'vfs-ebenefits' })
       handle_error(e, __method__.to_s)
     end
 

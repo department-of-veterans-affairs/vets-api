@@ -105,18 +105,12 @@ development: &defaults
   charon_response:
     namespace: charon-response
     each_ttl: 3600
-  saml_store:
-    namespace: single-logout-request
-    each_ttl: 43200
   financial_status_report:
     namespace: financial_status_report
     each_ttl: 1800 # 30 minutes
   debt_store:
     namespace: debt
     each_ttl: 3600 # 1 hour
-  pciu_address_dependencies:
-    namespace: pciu-address-dependencies
-    each_ttl: 604800
   va_profile_contact_info_response:
     namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour
@@ -226,6 +220,12 @@ development: &defaults
   travel_pay_store:
     namespace: travel-pay-store
     each_ttl: 3300 # 55 minutes
+  unique_user_metrics:
+    namespace: mhv-uum
+    each_ttl: 86400  # 1 day cache for event existence checks
+  evidence_submission_poll_store:
+    namespace: evidence-submission-poll
+    each_ttl: 60  # 60 seconds cache for evidence submission polling
 test:
   <<: *defaults
   redis:

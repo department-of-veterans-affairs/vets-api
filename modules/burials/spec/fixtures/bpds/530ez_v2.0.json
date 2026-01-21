@@ -1,0 +1,263 @@
+{
+  "_spec": {
+    "namespace": "urn:pension_automation:530ez:v2.0",
+    "namespaceAliases": ["urn:pension_automation:530ez:aug-2022"],
+    "version": "2.0",
+    "sourceVersion": "AUG 2022",
+    "sourceFileName": "VBA-21P-530EZ-ARE.pdf",
+    "sourceSha1": "3c511843c9f56c5aeaca5749c2001e2d53ca50db"
+  },
+  "veteranName": {
+    "blockNumber": "1",
+    "first": "String",
+    "middle": "String",
+    "last": "String"
+  },
+  "veteranSsn": {
+    "blockNumber": "2",
+    "value": "String"
+  },
+  "fileNumber": {
+    "blockNumber": "3",
+    "value": "String"
+  },
+  "veteranDob": {
+    "blockNumber": "4",
+    "month":"String",
+    "day":"String",
+    "year":"String"
+  },
+  "veteranDateOfDeath": {
+    "blockNumber": "5",
+    "month":"String",
+    "day":"String",
+    "year":"String"
+  },
+  "dateOfBurial": {
+    "blockNumber": "6",
+    "month":"String",
+    "day":"String",
+    "year":"String"
+  },
+  "claimantName": {
+    "blockNumber": "7",
+    "first": "String",
+    "middle": "String",
+    "last": "String"
+  },
+  "claimantSsn": {
+    "blockNumber":"8",
+    "value":"String"
+  },
+  "claimantDateOfBirth":{
+    "blockNumber":"9",
+    "month":"String",
+    "day":"String",
+    "year":"String"
+  },
+  "mailingAddress": {
+    "blockNumber": "10",
+    "numberAndStreet": "String",
+    "aptNumber": "String",
+    "city": "String",
+    "state": "String",
+    "country": "String",
+    "zip": "String"
+  },
+  "preferredPhoneNumber": {
+    "blockNumber": "11",
+    "domestic": "String",
+    "international":"String"
+  },
+  "preferredEmail": {
+    "blockNumber": "12",
+    "value": "String"
+  },
+  "relationship": {
+    "blockNumber": "13",
+    "spouse": "Boolean",
+    "child": "Boolean",
+    "parent": "Boolean",
+    "executor": "Boolean",
+    "funeralHome": "Boolean",
+      "relativeOrFriend": "Boolean"
+  },
+  "periodsOfService":
+  [
+    {
+      "enteredService": {
+        "blockNumber": "14A",
+        "date": {
+          "month":"String",
+          "day":"String",
+          "year":"String"
+        },
+        "place": "String"
+      },
+      "serviceNumber": {
+        "blockNumber": "14B",
+        "value": "String"
+      },
+      "separatedFromService": {
+        "blockNumber": "14C",
+        "date": {
+          "month":"String",
+          "day":"String",
+          "year":"String"
+        },
+        "place": "String"
+      },
+      "gradeRankRatingOrgBranch": {
+        "blockNumber": "14D",
+        "value": "String"
+      }
+    }
+  ],
+  "veteranServedUnderNameOther": {
+    "blockNumber": "15",
+    "fullName": "String",
+    "serviceRendered": "String"
+  },
+  "locationOfBurialOrRemains": {
+    "blockNumber": "16",
+    "cemetery":"Boolean",
+    "mausoleum":"Boolean",
+    "privateResidence":"Boolean",
+    "other":"Boolean",
+    "otherSpecified": "String"
+  },
+  "veteranBuriedInFederalCemetery": {
+    "blockNumber": "17",
+    "yes": "Boolean",
+    "no": "Boolean",
+      "cemeteryName": "String"
+  },
+  "veteranBuriedInStateVeteransCemetery": {
+    "blockNumber": "18",
+    "stateCemetery": "Boolean",
+      "tribalTrustLand": "Boolean",
+    "no": "Boolean",
+      "name": "String",
+      "zipCode": "String"
+  },
+  "federalOrStateGovernmentOrEmployerContribute": {
+    "blockNumber": "19A",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "employerContributionAmount": {
+    "blockNumber": "19B",
+    "value": "String"
+  },
+  "burialTypeAllowanceRequested": {
+    "blockNumber": "20A",
+    "nonServiceConnectedDeath": "Boolean",
+    "serviceConnectedDeath": "Boolean",
+    "unclaimedRemains":"Boolean"
+  },
+  "veteranDeathLocation": {
+    "blockNumber": "20B",
+    "nursingHomeNotVa":"Boolean",
+    "vaMedicalCenter": "Boolean",
+    "stateVeteransHome": "Boolean",
+    "nursingHomeUnderVAContract": "Boolean",
+    "other": "Boolean",
+    "otherValueSpecified": "String",
+    "placeOfDeathSpecified": "String"
+  },
+  "previousBurialAllowance": {
+    "blockNumber": "21",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "incurredExpensesVeteranBurial": {
+    "blockNumber": "22A",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "certifiedUnclaimed": {
+    "blockNumber": "22B",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+   "incurExpensesVeteranPlot": {
+    "blockNumber": "23",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "responsibleForTransportation": {
+    "blockNumber": "24",
+    "yes":"Boolean",
+    "no":"Boolean"
+  },
+  "fullyDevelopedClaim": {
+    "blockNumber":"25",
+    "fdcChosen":"Boolean",
+    "fdcNotChosen":"Boolean"
+  },
+  "claimantSignature": {
+    "blockNumber": "25A",
+    "yes": "Boolean",
+    "no": "Boolean",
+    "xMark": "Boolean"
+  },
+  "claimantPrintedName": {
+    "blockNumber":"25B",
+    "value":"String"
+  },
+  "firmOrCorpOrAgencyNameAndAddress": {
+    "blockNumber": "26A",
+    "name": "String",
+    "numberAndStreet": "String",
+    "aptNumber": "String",
+    "city": "String",
+    "state": "String",
+    "country": "String",
+    "zip": "String"
+  },
+  "firmOrCorpOrAgencyPosition": {
+    "blockNumber": "26B",
+    "value": "String"
+  },
+  "witnessSignatureOne": {
+    "blockNumber": "27A",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "witnessAddressOne": {
+    "blockNumber": "27B",
+    "printedName":"String",
+    "numberAndStreet": "String",
+    "aptNumber": "String",
+    "city": "String",
+    "state": "String",
+    "country": "String",
+    "zip": "String"
+  },
+  "witnessSignatureTwo": {
+    "blockNumber": "28A",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "witnessAddressTwo": {
+    "blockNumber": "28B",
+    "printedName":"String",
+    "numberAndStreet": "String",
+    "aptNumber": "String",
+    "city": "String",
+    "state": "String",
+    "country": "String",
+    "zip": "String"
+  },
+  "alternateSignature": {
+    "blockNumber": "29A",
+    "yes": "Boolean",
+    "no": "Boolean"
+  },
+  "alternateSignatureDate": {
+    "blockNumber": "29B",
+    "month":"String",
+    "day":"String",
+    "year":"String"
+  }
+}

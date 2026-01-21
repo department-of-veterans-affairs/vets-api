@@ -20,21 +20,43 @@ RSpec.describe DependentsVerification::SavedClaim do
   end
 
   describe '#email' do
-    it 'returns the users email' do
-      expect(instance.email).to eq('test@example.com')
+    context 'with va_profile_email feature disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(false)
+      end
+
+      it 'returns the users email' do
+        expect(instance.email).to eq('maximal@example.com')
+      end
+    end
+
+    context 'with va_profile_email feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lifestage_va_profile_email).and_return(true)
+      end
+
+      it 'returns the va_profile_email if present' do
+        form_data = instance.parsed_form
+        form_data['va_profile_email'] = 'va_profile@example.com'
+        allow(instance).to receive(:parsed_form).and_return(form_data)
+        expect(instance.email).to eq('va_profile@example.com')
+      end
+
+      it 'returns the users email if va_profile_email is not present' do
+        expect(instance.email).to eq('maximal@example.com')
+      end
     end
   end
 
   describe '#business_line' do
     it 'returns the correct business line' do
-      expect(subject.business_line).to eq('TEST')
+      expect(subject.business_line).to eq('OTH')
     end
   end
 
   describe '#veteran_first_name' do
     it 'returns the first name of the veteran from parsed_form' do
-      allow(instance).to receive(:parsed_form).and_return({ 'veteranFullName' => { 'first' => 'John' } })
-      expect(instance.veteran_first_name).to eq('John')
+      expect(instance.veteran_first_name).to eq('Jane')
     end
 
     it 'returns nil if the key does not exist' do
@@ -45,8 +67,7 @@ RSpec.describe DependentsVerification::SavedClaim do
 
   describe '#veteran_last_name' do
     it 'returns the last name of the veteran from parsed_form' do
-      allow(instance).to receive(:parsed_form).and_return({ 'veteranFullName' => { 'last' => 'Doe' } })
-      expect(instance.veteran_last_name).to eq('Doe')
+      expect(instance.veteran_last_name).to eq('Maximal')
     end
 
     it 'returns nil if the key does not exist' do

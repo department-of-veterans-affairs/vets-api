@@ -54,9 +54,9 @@ module HCA
 
       MEDICARE = 'Medicare'
 
-      def get_ezr_data(icn)
+      def get_ezr_data(user)
         response = with_monitoring do
-          lookup_user_req(icn)
+          lookup_user_req(user.icn)
         end
 
         financial_info = parse_financial_info(response)
@@ -72,7 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_prefill_contacts)
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_emergency_contacts_enabled, user)
 
         OpenStruct.new(ezr_data)
       end
@@ -304,7 +304,7 @@ module HCA
             fullName: {},
             relationship: get_locate_value(association, 'relationship'),
             contactType: get_locate_value(association, 'contactType'),
-            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()\-]/, ''),
+            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()-]/, ''),
             address: get_address_from_association(association)
           }
           fill_contact_full_name_from_association(contact, association)
@@ -373,6 +373,9 @@ module HCA
         NAME_MAPPINGS.each do |mapping|
           contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
         end
+        # When association data gets stored in HL7, it gets converted to all caps.
+        # We need to update certain suffixes before saving it to the contact in order to match the schema.
+        contact[:fullName][:suffix].capitalize! if %w[JR. SR.].include?(contact[:fullName][:suffix])
       end
 
       def parse_insurance_providers(response)

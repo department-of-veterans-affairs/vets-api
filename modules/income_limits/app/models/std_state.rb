@@ -12,4 +12,8 @@ class StdState < ApplicationRecord
 
   has_many :institution_facilities_street, class_name: 'StdInstitutionFacility', foreign_key: 'street_state_id'
   has_many :institution_facilities_mailing, class_name: 'StdInstitutionFacility', foreign_key: 'mailing_state_id'
+
+  scope :with_postal_name, lambda { |postal_name|
+    where(postal_name:)
+  }
 end

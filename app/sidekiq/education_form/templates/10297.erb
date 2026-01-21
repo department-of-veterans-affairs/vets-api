@@ -4,16 +4,18 @@
 VA Form 22-10297
 JAN 2019
 
-APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES
-                   (VET TEC) HIGH TECHNOLOGY PROGRAM
+APPLICATION FOR HIGH TECHNOLOGY VETERANS EDUCATION, TRAINING AND SKILLS
+                   (HITECH VETS) PROGRAM
         -------------------------------------------------------
 
-                        APPLICANT INFORMATION
+                        VETERAN'S INFORMATION
                         ---------------------
 
 Name: <%= full_name(@applicant.applicantFullName) %>
 
-Social Security Number: <%= @applicant.applicantFileNumber %>
+Social Security Number: <%= @applicant.ssn %>
+
+VA File Number: <%= @applicant.vaFileNumber %>
 
 Mailing Address:
 <%= full_address_with_street2(@applicant.mailingAddress) %>
@@ -26,7 +28,7 @@ Mobile Telephone Number: <%= @applicant.contactInfo.mobilePhone %>
 
 Home Telephone Number: <%= @applicant.contactInfo.homePhone %>
 
-Are you a veteran who has completed 3 years (36 months) of active duty?: <%= yesno(@applicant.hasCompletedActiveDuty) %>
+Are you a veteran who has completed 3 years (36 months) of active duty?: <%= yesno(@applicant.veteranStatus) %>
 
 Enter the date you expect to be released from active duty: <%= @applicant.dateReleasedFromActiveDuty %>
 
@@ -41,7 +43,7 @@ Account Type: <%= bank_account_type %>
 
 Account Number: <%= bank_account_number %>
 
-                          COURSE OF STUDY
+                          TRAINING PROVIDER
                           ---------------
 
 VET TEC programs:
@@ -50,13 +52,13 @@ VET TEC programs:
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you working in one, or more, of these high-tech industries now?: <%= yesno(@applicant.isInTechnologyIndustry) %>
 
-Which option(s) best describe your high-tech work experience?
-Check all that apply:
-<%= high_tech_area_name %>
+Are you currently employed?: <%= yesno(@applicant.isEmployed) %>
 
-About how much per year do/did you earn as a high-tech worker?: <%= salary_text %>
+Are you currently working in the high technology industry?: <%= yesno(@applicant.isInTechnologyIndustry) %>
+If yes, select an option: <%= high_tech_area_name %>
+
+What is your current salary range?: <%= salary_text %>
 
 What is your highest level of education?: <%= education_level_name %>
 

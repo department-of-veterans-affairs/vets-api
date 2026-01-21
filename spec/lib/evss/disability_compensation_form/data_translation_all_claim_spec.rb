@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'disability_compensation/factories/api_provider_factory'
 require 'lighthouse/direct_deposit/response'
+require 'disability_compensation/loggers/monitor'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
@@ -567,8 +568,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'bankName' => 'test',
-            'bankAccountType' => 'checking',
+            'bankName' => 'WELLS FARGO BANK',
+            'bankAccountType' => 'CHECKING',
             'bankAccountNumber' => '1234567890',
             'bankRoutingNumber' => '0987654321'
           }
@@ -580,49 +581,77 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'accountType' => 'CHECKING',
           'accountNumber' => '1234567890',
           'routingNumber' => '0987654321',
-          'bankName' => 'test'
+          'bankName' => 'WELLS FARGO BANK'
         }
+      end
+
+      it 'logs the submission was made with banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_with_banking_info)
+          .with(user.uuid)
+
+        subject.send(:translate_banking_info)
       end
     end
 
     context 'when the banking info is redacted' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
-
-      it 'gathers the banking info from Lighthouse DirectDeposit' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
-            'accountType' => 'CHECKING',
-            'accountNumber' => '1234567890',
-            'routingNumber' => '031000503',
-            'bankName' => 'WELLS FARGO BANK'
+      context 'when account number is redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '****567890',
+              'bankRoutingNumber' => '0987654321'
+            }
           }
         end
-      end
-    end
-
-    context 'when not provided banking info' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
-
-      context 'and the Lighthouse DirectDeposit service has the account info' do
-        it 'gathers the banking info from the LH DirectDeposit' do
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-            expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
-              'accountType' => 'CHECKING',
-              'accountNumber' => '1234567890',
-              'routingNumber' => '031000503',
-              'bankName' => 'WELLS FARGO BANK'
-            }
-          end
-        end
-      end
-
-      context 'and the Lighthouse DirectDeposit service does not have the account info' do
-        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
 
         it 'does not set payment information' do
-          expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
+      end
+
+      context 'when routing number is redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '1234567890',
+              'bankRoutingNumber' => '****654321'
+            }
+          }
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+      end
+
+      context 'when both account and routing numbers are redacted' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'bankName' => 'WELLS FARGO BANK',
+              'bankAccountType' => 'CHECKING',
+              'bankAccountNumber' => '****567890',
+              'bankRoutingNumber' => '****654321'
+            }
+          }
+        end
+
+        it 'does not set payment information' do
+          expect(subject.send(:translate_banking_info)).to eq({})
+        end
+      end
+
+      it 'logs the submission was made without banking info' do
+        expect_any_instance_of(DisabilityCompensation::Loggers::Monitor)
+          .to receive(:track_526_submission_without_banking_info)
+          .with(user.uuid)
+
+        subject.send(:translate_banking_info)
       end
     end
   end
@@ -1899,6 +1928,201 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
+  describe '#translate_new_disabilities (name/laterality)' do
+    context 'when sideOfBody is provided' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'NEW',
+                'condition' => 'Knee pain',
+                'sideOfBody' => 'left',
+                'primaryDescription' => 'desc'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'appends laterality to the name' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['name']).to eq('Knee pain, Left')
+      end
+    end
+
+    context 'when sideOfBody is blank' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'NEW',
+                'condition' => 'Knee pain',
+                'sideOfBody' => '',
+                'primaryDescription' => 'desc'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'does not append laterality' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['name']).to eq('Knee pain')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for NEW)' do
+    let(:base_input) do
+      {
+        'form526' => {
+          'newPrimaryDisabilities' => [
+            {
+              'cause' => 'NEW',
+              'condition' => 'Tinnitus',
+              'primaryDescription' => 'desc'
+            }
+          ]
+        }
+      }
+    end
+
+    context 'with full date (YYYY-MM-DD)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-05-10'
+        h
+      end
+
+      it 'includes year, month, and day' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025', 'month' => '05', 'day' => '10')
+      end
+    end
+
+    context 'with year and month only (YYYY-MM-XX)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-05-XX'
+        h
+      end
+
+      it 'includes year and month only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025', 'month' => '05')
+      end
+    end
+
+    context 'with year only (YYYY-XX-XX)' do
+      let(:form_content) do
+        h = base_input.deep_dup
+        h['form526']['newPrimaryDisabilities'][0]['conditionDate'] = '2025-XX-XX'
+        h
+      end
+
+      it 'includes year only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2025')
+      end
+    end
+
+    context 'with no date provided' do
+      let(:form_content) { base_input.deep_dup }
+
+      it 'omits approximateDate' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first).not_to have_key('approximateDate')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for WORSENED)' do
+    context 'captures approximate date for worsened condition' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'WORSENED',
+                'condition' => 'Back',
+                'conditionDate' => '2020-XX-XX',
+                'worsenedDescription' => 'desc',
+                'worsenedEffects' => 'effects'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate with year only' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2020')
+      end
+    end
+  end
+
+  describe '#translate_new_disabilities (approximateDate for VA)' do
+    context 'captures approximate date for condition during VA care' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'VA',
+                'condition' => 'Shoulder',
+                'conditionDate' => '2019-03-XX',
+                'vaMistreatmentDescription' => 'event',
+                'vaMistreatmentLocation' => 'loc',
+                'vaMistreatmentDate' => 'when'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate with year and month' do
+        result = subject.send(:translate_new_primary_disabilities, [])
+        expect(result.first['approximateDate']).to eq('year' => '2019', 'month' => '03')
+      end
+    end
+  end
+
+  describe '#translate_disabilities (approximateDate for SECONDARY)' do
+    context 'captures approximate date for secondary condition' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'ratedDisabilities' => [
+              {
+                'diagnosticCode' => 1234,
+                'disabilityActionType' => 'INCREASE',
+                'name' => 'Primary condition',
+                'ratedDisabilityId' => '1'
+              }
+            ],
+            'newSecondaryDisabilities' => [
+              {
+                'cause' => 'SECONDARY',
+                'condition' => 'Neuropathy',
+                'conditionDate' => '2022-07-15',
+                'causedByDisabilityDescription' => 'secondary desc',
+                'causedByDisability' => 'Primary condition'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'adds approximateDate to the secondary disability' do
+        result = subject.send(:translate_disabilities)
+        secondary = result['disabilities'].first['secondaryDisabilities'].first
+        expect(secondary['approximateDate']).to eq('year' => '2022', 'month' => '07', 'day' => '15')
+      end
+    end
+  end
+
   describe '#translateStartedFormVersion' do
     context 'no startedFormVersion on input form' do
       let(:form_content) do
@@ -2113,6 +2337,153 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'bdd_qualified is false' do
         expect(subject.send(:bdd_qualified?)).to be false
+      end
+    end
+  end
+
+  describe '#get_banking_info' do
+    let(:monitor) { instance_double(DisabilityCompensation::Loggers::Monitor) }
+    let(:service) { double('ppiu_service') }
+
+    before do
+      allow(DisabilityCompensation::Loggers::Monitor).to receive(:new).and_return(monitor)
+      allow(ApiProviderFactory).to receive(:call).and_return(service)
+      allow(monitor).to receive(:track_banking_info_prefilled)
+      allow(monitor).to receive(:track_no_banking_info_on_file)
+      allow(monitor).to receive(:track_banking_info_api_error)
+    end
+
+    context 'when user does not have direct deposit access' do
+      before do
+        allow(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?).and_return(false)
+      end
+
+      it 'returns empty hash without calling API' do
+        expect(service).not_to receive(:get_payment_information)
+        expect(subject.send(:get_banking_info)).to eq({})
+      end
+    end
+
+    context 'when user has direct deposit access' do
+      let(:payment_account) do
+        DisabilityCompensation::ApiProvider::PaymentAccount.new(
+          account_type: 'Checking',
+          account_number: '****5678',
+          financial_institution_routing_number: '123456789',
+          financial_institution_name: 'Test Bank'
+        )
+      end
+
+      before do
+        allow(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?).and_return(true)
+      end
+
+      context 'when banking info is successfully retrieved and valid' do
+        let(:response) do
+          DisabilityCompensation::ApiProvider::PaymentInformationResponse.new(
+            responses: [
+              DisabilityCompensation::ApiProvider::PaymentInformation.new(
+                payment_account:,
+                control_information: {},
+                payment_address: {},
+                payment_type: nil
+              )
+            ]
+          )
+        end
+
+        before do
+          allow(service).to receive(:get_payment_information).and_return(response)
+        end
+
+        it 'returns the banking info' do
+          result = subject.send(:get_banking_info)
+          expect(result).to be_present
+          expect(result['directDeposit']['accountType']).to eq('CHECKING')
+        end
+
+        it 'logs banking info was successfully prefilled' do
+          expect(monitor).to receive(:track_banking_info_prefilled).with(user.uuid)
+          subject.send(:get_banking_info)
+        end
+
+        it 'does not log no banking info on file' do
+          expect(monitor).not_to receive(:track_no_banking_info_on_file)
+          expect(monitor).to receive(:track_banking_info_prefilled)
+          subject.send(:get_banking_info)
+        end
+      end
+
+      context 'when banking info is retrieved but incomplete (missing fields)' do
+        let(:incomplete_payment_account) { DisabilityCompensation::ApiProvider::PaymentAccount.new(account_type: 'Checking') }
+
+        let(:response) do
+          DisabilityCompensation::ApiProvider::PaymentInformationResponse.new(
+            responses: [
+              DisabilityCompensation::ApiProvider::PaymentInformation.new(
+                payment_account: incomplete_payment_account,
+                control_information: {},
+                payment_address: {},
+                payment_type: nil
+              )
+            ]
+          )
+        end
+
+        before do
+          allow(service).to receive(:get_payment_information).and_return(response)
+        end
+
+        it 'returns empty hash when required fields are missing' do
+          expect(subject.send(:get_banking_info)).to eq({})
+        end
+
+        it 'logs no banking info on file when validation fails' do
+          expect(monitor).to receive(:track_no_banking_info_on_file).with(user.uuid)
+          subject.send(:get_banking_info)
+        end
+
+        it 'does not log banking info was prefilled' do
+          expect(monitor).not_to receive(:track_banking_info_prefilled)
+          expect(monitor).to receive(:track_no_banking_info_on_file)
+          subject.send(:get_banking_info)
+        end
+      end
+
+      context 'when API call raises an error' do
+        let(:error_message) { 'Connection timeout to Lighthouse Direct Deposit API' }
+        let(:generic_error_message) { 'Unable to retrieve direct deposit information' }
+
+        before do
+          allow(service).to receive(:get_payment_information).and_raise(StandardError, error_message)
+        end
+
+        it 'logs the API error' do
+          expect(monitor).to receive(:track_banking_info_api_error).with(user.uuid, an_instance_of(StandardError))
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
+
+        it 'logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with(
+            a_string_including('#get_banking_info Failed to retrieve DirectDeposit data')
+          )
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
+
+        it 'raises BadRequest exception' do
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest) do |error|
+            expect(error.errors.first).to eq(generic_error_message)
+          end
+        end
+
+        it 'does not log prefilled or no banking info' do
+          expect(monitor).not_to receive(:track_banking_info_prefilled)
+          expect(monitor).not_to receive(:track_no_banking_info_on_file)
+          expect(monitor).to receive(:track_banking_info_api_error)
+          expect { subject.send(:get_banking_info) }.to raise_error(Common::Exceptions::BadRequest)
+        end
       end
     end
   end

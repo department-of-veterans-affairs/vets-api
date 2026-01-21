@@ -37,7 +37,8 @@
             "senderName",
             "recipientId",
             "recipientName",
-            "readReceipt"
+            "readReceipt",
+            "isOhMessage"
           ],
           "properties": {
             "messageId": {
@@ -90,6 +91,9 @@
                 "null",
                 "string"
               ]
+            },
+            "isOhMessage": {
+              "type": "boolean"
             }
           }
         },
@@ -138,6 +142,17 @@
           "properties": {
             "self": {
               "type": "string"
+            }
+          }
+        },
+        "meta": {
+          "type": "object",
+          "required": [
+            "isUserInTriageTeam"
+          ],
+          "properties": {
+            "isUserInTriageTeam": {
+              "type": "boolean"
             }
           }
         }

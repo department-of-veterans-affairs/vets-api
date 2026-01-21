@@ -129,7 +129,7 @@ module IncomeAndAssets
       def expand(form_data)
         waivers = form_data['incomeReceiptWaivers']
 
-        form_data['incomeReceiptWaiver'] = waivers&.length ? 0 : 1
+        form_data['incomeReceiptWaiver'] = radio_yesno(waivers&.length)
         form_data['incomeReceiptWaivers'] = waivers&.map { |item| expand_item(item) }
       end
 
@@ -144,22 +144,23 @@ module IncomeAndAssets
         recipient_relationship = item['recipientRelationship']
         payment_resume_date = item['paymentResumeDate']
 
-        overflow_fields = %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome]
-
         expanded = item.clone
-        overflow_fields.each do |field|
+        %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome].each do |field|
           expanded["#{field}Overflow"] = item[field]
         end
 
         overrides = {
           'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
-          'expectedIncome' => split_currency_amount_sm(item['expectedIncome']),
+          'expectedIncome' => split_currency_amount_sm(item['expectedIncome'], { 'thousands' => 3 }),
+          'expectedIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['expectedIncome']),
           'paymentResumeDate' => split_date(payment_resume_date),
           'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
-          'paymentWillNotResume' => payment_resume_date ? 0 : 1,
+          'paymentWillNotResume' => checkbox_value(!payment_resume_date),
           'paymentWillResumeOverflow' => payment_resume_date ? 'YES' : 'NO',
-          'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'])
+          'waivedGrossMonthlyIncome' => split_currency_amount_sm(item['waivedGrossMonthlyIncome'],
+                                                                 { 'thousands' => 3 }),
+          'waivedGrossMonthlyIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['waivedGrossMonthlyIncome'])
         }
 
         expanded.merge(overrides)

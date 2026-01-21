@@ -41,12 +41,8 @@ module V0
 
       render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
              content_type: 'text/html'
-    rescue SignIn::Errors::StandardError => e
-      sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
-      handle_pre_login_error(e, client_id)
     rescue => e
-      log_message_to_sentry(e.message, :error)
+      sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr:, operation: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     end
@@ -77,16 +73,17 @@ module V0
       else
         create_login_code(state_payload, user_info, credential_level)
       end
-    rescue SignIn::Errors::StandardError => e
-      sign_in_logger.info('callback error', { errors: e.message,
-                                              client_id: state_payload&.client_id,
-                                              type: state_payload&.type,
-                                              acr: state_payload&.acr })
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
-      handle_pre_login_error(e, state_payload&.client_id)
     rescue => e
-      log_message_to_sentry(e.message, :error)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
+      error_details = {
+        type: state_payload&.type,
+        client_id: state_payload&.client_id,
+        acr: state_payload&.acr
+      }
+      sign_in_logger.info('callback error', error_details.merge(errors: e.message))
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE,
+                       tags: ["type:#{error_details[:type]}",
+                              "client_id:#{error_details[:client_id]}",
+                              "acr:#{error_details[:acr]}"])
       handle_pre_login_error(e, state_payload&.client_id)
     end
 
@@ -101,7 +98,7 @@ module V0
 
       render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
-      sign_in_logger.info('token error', { errors: e.message })
+      sign_in_logger.info('token error', { errors: e.message, grant_type: token_params[:grant_type] })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
       render json: { errors: e }, status: :bad_request
     end
@@ -203,13 +200,13 @@ module V0
     rescue SignIn::Errors::LogoutAuthorizationError,
            SignIn::Errors::SessionNotAuthorizedError,
            SignIn::Errors::SessionNotFoundError => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
       logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
-      sign_in_logger.info('logout error', { errors: e.message })
+      sign_in_logger.info('logout error', { errors: e.message, client_id: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
 
       render json: { errors: e }, status: :bad_request

@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
-require 'active_model'
-require 'common/models/form'
+require 'vets/model'
 require 'common/exceptions'
 
 module VAOS
-  class PreferenceForm < Common::Form
+  class PreferenceForm
+    include Vets::Model
+
     attribute :notification_frequency, String
-    attribute :email_allowed, Boolean
+    attribute :email_allowed, Bool
     attribute :email_address, String
-    attribute :text_msg_allowed, Boolean
+    attribute :text_msg_allowed, Bool
     attribute :text_msg_ph_number, String
     attribute :patient_identifier, Hash # overridden Getter method; this field should be ignored if passed in by FE
     attribute :patient_id, String # overridden Getter method; this field should be ignored if passed in by FE
@@ -34,7 +35,7 @@ module VAOS
     end
 
     def patient_id
-      @user.icn
+      @user.try(:icn)
     end
 
     def patient_identifier

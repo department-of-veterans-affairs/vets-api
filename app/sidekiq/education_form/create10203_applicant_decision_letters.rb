@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module EducationForm
   class FormattingError < StandardError
@@ -8,7 +8,7 @@ module EducationForm
 
   class Create10203ApplicantDecisionLetters
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options queue: 'default',
                     backtrace: true
 

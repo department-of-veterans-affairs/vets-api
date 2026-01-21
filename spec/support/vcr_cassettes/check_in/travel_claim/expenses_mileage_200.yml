@@ -1,0 +1,69 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<TRAVEL_CLAIM_API_URL>/api/v3/expenses/mileage"
+    body:
+      encoding: UTF-8
+      string: '{"claimId":"claim-123","dateIncurred":"2024-01-15","description":"mileage","tripType":"RoundTrip"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_veis_token_123
+      X-BTSSS-Token:
+      - fake_btsss_token_456
+      X-Correlation-ID:
+      - e359e352-10d8-4475-a453-9feec6bb8a10
+      Ocp-Apim-Subscription-Key:
+      - fake_subscription_key
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 27 Aug 2025 22:10:15 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "correlationId": "e359e352-10d8-4475-a453-9feec6bb8a10",
+        "timeStamp": "2025-08-27T22:10:15.6388334Z",
+        "statusCode": 200,
+        "message": "Expense added successfully.",
+        "success": true,
+        "data": {
+            "expenseId": "97d2e536-017e-f011-b4cc-001dd806c742"
+        }
+      }'
+  recorded_at: Wed, 27 Aug 2025 22:10:15 GMT

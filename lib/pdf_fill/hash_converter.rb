@@ -14,6 +14,7 @@ module PdfFill
       @pdftk_form = {}
       @date_strftime = date_strftime
       @extras_generator = extras_generator
+      @use_hexapdf = extras_generator.use_hexapdf
     end
 
     def convert_value(v, key_data, is_overflow = false)
@@ -21,6 +22,11 @@ module PdfFill
         v ? 1 : 0
       elsif key_data.try(:[], :format) == 'date'
         convert_val_as_date(v)
+      elsif v == 'Off' && @extras_generator.use_hexapdf
+        # HexaPDF accepts a certain set of values for checkboxes, one of them being
+        # false, but it converts that value to 'Off' when filling the PDF. This conversion
+        # allows us to maintain interoperability with HexaPDF (uses false) and PDFtk (uses 'Off')
+        false
       else
         convert_val_as_string(v)
       end
@@ -105,22 +111,64 @@ module PdfFill
       end
     end
 
+    def key_from_iterator_else_key(key_from_iterator, key, i)
+      if key_from_iterator&.lambda?
+        key_from_iterator.call(i)
+      else
+        key
+      end
+    end
+
     def set_value(v, key_data, i, from_array_overflow = false)
-      k = key_data[:key]
+      k = key_from_iterator_else_key(key_data[:key_from_iterator], key_data[:key], i)
       new_value = convert_value(v, key_data)
 
       if k.present? && overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
-
-        new_value = placeholder_text
+        # NOTE: Allows for accommodating fields that don't have enough space for the full placeholder text
+        # PDFtk doesn't care and truncates the text at the field limit, but HexaPDF will error out if the text
+        # exceeds the field limit
+        max_length = placeholder_text.length
+        limit = @use_hexapdf ? key_data.fetch(:limit, max_length) : max_length
+        new_value = placeholder_text[0...limit]
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
       end
 
       return if k.blank?
 
-      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
-      @pdftk_form[k] = new_value
+      # Allows the form to handle annoying, consecutively-numbered fields, for example RadioButtonList
+      i = key_data[:iterator_offset].call(i) if key_data[:iterator_offset]&.lambda?
+
+      # If multiple keys(read-only, etc) are mapped to the same value, set the value for each key
+      # Example PDF field data:
+      # {
+      #   "key": "F[0].P3[0].VeteransName[0]",
+      #   "question_text": "SECTION 1 - 1. A. VETERAN'S NAME (Last, First, Middle Name).",
+      #   "options": null,
+      #   "type": "Text"
+      # },
+      # {
+      #   "key": "F[0].P4[0].VeteransName[0]",
+      #   "question_text": "VETERAN'S NAME (Last, First, Middle Name). This is a read only field. It is " \
+      #                    "pre-filled from Page 3.",
+      #   "options": null,
+      #   "type": "Text"
+      # }
+      # Example field mapping:
+      # {
+      #   key: ['F[0].P3[0].VeteransName[0]', 'F[0].P4[0].VeteransName[0]',
+      #   question_text: "VETERAN'S NAME (Last, First, Middle Name)."
+      # }
+      k = k.gsub(ITERATOR, i.to_s) if !k.is_a?(Array) && i.present?
+
+      if k.is_a?(Array)
+        k.each do |key|
+          @pdftk_form[key] = new_value
+        end
+      else
+        @pdftk_form[k] = new_value
+      end
     end
 
     def check_for_overflow(arr, pdftk_keys)

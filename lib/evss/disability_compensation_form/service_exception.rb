@@ -7,8 +7,6 @@ module EVSS
     # Custom exception that maps EVSS 526 errors to error details defined in config/locales/exceptions.en.yml
     #
     class ServiceException < EVSS::ServiceException
-      include SentryLogging
-
       ERROR_MAP = {
         serviceError: 'evss.external_service_unavailable',
         ServiceException: 'evss.external_service_unavailable',

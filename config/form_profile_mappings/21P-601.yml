@@ -1,0 +1,5 @@
+claimant_full_name: [identity_information, full_name]
+claimant_ssn: [identity_information, ssn]
+claimant_address: [contact_information, address]
+claimant_phone: [contact_information, us_phone]
+claimant_email: [contact_information, email]

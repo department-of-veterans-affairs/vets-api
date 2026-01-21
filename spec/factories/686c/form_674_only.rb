@@ -216,7 +216,7 @@ FactoryBot.define do
             },
             'student_income' => true,
             'ssn' => '987654321',
-            'is_parent' => true,
+            'relationship_to_student' => 'adopted',
             'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'student' },
             'birth_date' => '2005-01-01'
           }],
@@ -230,7 +230,6 @@ FactoryBot.define do
             'ssn' => '987654321',
             'va_file_number' => '987654321'
           },
-          'use_v2' => true,
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true
         },

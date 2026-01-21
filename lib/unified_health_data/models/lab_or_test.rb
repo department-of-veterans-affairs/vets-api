@@ -22,25 +22,24 @@ module UnifiedHealthData
     attribute :sample_tested, String
   end
 
-  class Attributes
-    include Vets::Model
-
-    attribute :display, String
-    attribute :test_code, String
-    attribute :date_completed, String
-    attribute :sample_tested, String
-    attribute :encoded_data, String
-    attribute :location, String
-    attribute :ordered_by, String
-    attribute :body_site, String
-    attribute :observations, UnifiedHealthData::Observation, array: true
-  end
-
   class LabOrTest
     include Vets::Model
 
     attribute :id, String
     attribute :type, String
-    attribute :attributes, UnifiedHealthData::Attributes, array: false
+    attribute :display, String
+    attribute :test_code, String
+    attribute :date_completed, String
+    attribute :sort_date, String # Normalized date for sorting (internal use only)
+    attribute :sample_tested, String
+    attribute :encoded_data, String
+    attribute :location, String
+    attribute :ordered_by, String
+    attribute :body_site, String
+    attribute :status, String
+    attribute :source, String
+    attribute :observations, UnifiedHealthData::Observation, array: true
+
+    default_sort_by sort_date: :desc
   end
 end

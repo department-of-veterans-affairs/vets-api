@@ -18,12 +18,18 @@ module Common
       module MHVSessionBasedClient
         extend ActiveSupport::Concern
         include MhvLockedSessionClient
-        include SentryLogging
+        include Vets::SharedLogging
 
         attr_reader :session
 
         def user_key
-          session.user_id
+          if Flipper.enabled?(:mhv_hash_id_for_mhv_session_locking)
+            return nil if session.user_id.nil?
+
+            Digest::SHA256.hexdigest(session.user_id.to_s)
+          else
+            session.user_id
+          end
         end
 
         def invalid?(session)
@@ -68,10 +74,7 @@ module Common
         private
 
         def get_session_tagged
-          Sentry.set_tags(error: 'mhv_session')
-          env = perform(:get, 'session', nil, auth_headers)
-          Sentry.get_current_scope.tags.delete(:error)
-          env
+          perform(:get, 'session', nil, auth_headers)
         end
 
         def token_headers

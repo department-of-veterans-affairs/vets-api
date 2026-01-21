@@ -125,6 +125,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
       context 'message' do
         it 'without attachments' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
             post '/my_health/v1/messaging/messages', params: { message: params }
           end
@@ -134,6 +136,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
+
+          # Verify event logging was called
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          )
         end
 
         it 'without attachments when camel-inflected' do
@@ -160,6 +168,32 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
         end
 
+        it 'with attachments and is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
+        it 'with attachments and is_oh_triage_group param false' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=false', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
         it 'with attachments when camel-inflected' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments, headers: inflection_header
@@ -177,6 +211,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         let(:reply_message_id) { 674_838 }
 
         it 'without attachments' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply", params: { message: params }
           end
@@ -186,6 +222,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
+
+          # Verify event logging was called
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          )
         end
 
         it 'without attachments when camel-inflected' do
@@ -214,6 +256,34 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
         end
 
+        it 'with attachments and is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
+        it 'with attachments and is_oh_triage_group param false' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=false",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
         it 'with attachments when camel-inflected' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/my_health/v1/messaging/messages/#{reply_message_id}/reply",
@@ -226,6 +296,72 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+      end
+
+      context 'timeout extension for OH triage groups' do
+        let(:reply_message_id) { 674_838 }
+
+        it 'extends timeout when is_oh_triage_group=true on create' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            VCR.use_cassette('sm_client/messages/creates/status_sent') do
+              post '/my_health/v1/messaging/messages?is_oh_triage_group=true',
+                   params: { message: params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+            end
+          end
+        end
+
+        it 'extends timeout when is_oh_triage_group=true on reply' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
+                 params: { message: params }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+          end
+        end
+
+        it 'does not extend timeout when is_oh_triage_group=false on create' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=false',
+                 params: { message: params }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+          end
+        end
+
+        it 'does not extend timeout when is_oh_triage_group param is absent on create' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+          end
+        end
+
+        it 'does not extend timeout when is_oh_triage_group=false on reply' do
+          VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=false",
+                 params: { message: params }
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+          end
+        end
+
+        it 'does not extend timeout for non-create/reply actions like show' do
+          VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+            get "/my_health/v1/messaging/messages/#{message_id}?is_oh_triage_group=true"
+
+            expect(response).to be_successful
+            expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
+          end
         end
       end
     end
@@ -306,20 +442,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
       end
-
-      it 'responds to GET #thread when requires_oh_messages param is provided' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
-        end
-
-        expect(response).to be_successful
-
-        json_response = JSON.parse(response.body)
-        data = json_response['data']
-
-        first_message = data.first['attributes']
-        expect(first_message['is_oh_message']).to be(true)
-      end
     end
 
     describe '#destroy' do
@@ -350,18 +472,207 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
     describe 'POST create with large attachments feature flag' do
       let(:attachment_type) { 'image/jpg' }
-      let(:large_upload) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type) }
-      let(:uploads) { [large_upload] }
-      let(:message_params) { attributes_for(:message, subject: 'Large File', body: 'Test') }
-      let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+      let(:uploads) do
+        [
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type)
+        ]
+      end
+      let(:message_params) do
+        attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration')
+      end
+      let(:params) { message_params.slice(:subject, :category, :body, :recipient_id) }
       let(:params_with_attachments) { { message: params, uploads: } }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(flag_enabled)
-        allow(large_upload).to receive(:size).and_return(file_size)
+        allow_any_instance_of(ActionDispatch::Http::UploadedFile).to receive(:size).and_return(7.megabytes)
         allow_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
         allow_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
       end
+
+      context 'mhv_secure_messaging_cerner_pilot flag enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(false)
+        end
+
+        it 'without is_oh_triage_group param' do
+          # when is_oh_triage_group not sent, so the attachments exceeding 6 MB should not be allowed
+          # and the ValidationException is expected to be thrown
+
+          post '/my_health/v1/messaging/messages', params: params_with_attachments
+
+          # Check for validation error response instead of exception
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['detail']).to include('exceeds file size limit')
+        end
+
+        it 'without is_oh_triage_group param and legacy attachment requirements' do
+          allow_any_instance_of(ActionDispatch::Http::UploadedFile).to receive(:size).and_return(5.megabytes)
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+        end
+
+        it 'with is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+      end
+
+      context 'mhv_secure_messaging_large_attachments flag enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(true)
+        end
+
+        it 'with is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
+            post '/my_health/v1/messaging/messages?is_oh_triage_group=true', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+
+        it 'without is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
+            post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+      end
+    end
+
+    describe 'POST reply with large attachments feature flag' do
+      let(:reply_message_id) { 5_993_651 }
+      let(:attachment_type) { 'image/jpg' }
+      let(:uploads) do
+        [
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type)
+        ]
+      end
+      let(:message_params) do
+        attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration')
+      end
+      let(:params) { message_params.slice(:subject, :category, :body, :recipient_id) }
+      let(:params_with_attachments) { { message: params, uploads: } }
+
+      before do
+        allow_any_instance_of(ActionDispatch::Http::UploadedFile).to receive(:size).and_return(7.megabytes)
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_lg_attachments).and_call_original
+        allow_any_instance_of(SM::Client).to receive(:post_create_message_with_attachment).and_call_original
+      end
+
+      context 'mhv_secure_messaging_cerner_pilot flag enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(false)
+        end
+
+        it 'without is_oh_triage_group param' do
+          # when is_oh_triage_group not sent, so the attachments exceeding 6 MB should not be allowed
+          # and the ValidationException is expected to be thrown
+          post "/my_health/v1/messaging/messages/#{reply_message_id}/reply", params: params_with_attachments
+
+          # Check for validation error response instead of exception
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['detail']).to include('exceeds file size limit')
+        end
+
+        it 'without is_oh_triage_group param and legacy attachment requirements' do
+          allow_any_instance_of(ActionDispatch::Http::UploadedFile).to receive(:size).and_return(5.megabytes)
+
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post '/my_health/v1/messaging/messages/674838/reply', params: params_with_attachments
+          end
+          expect(response).to be_successful
+        end
+
+        it 'with is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+      end
+
+      context 'mhv_secure_messaging_large_attachments flag enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_large_attachments).and_return(true)
+        end
+
+        it 'with is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).to receive(:poll_message_status).and_return({ status: 'SENT' })
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply?is_oh_triage_group=true",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+
+        it 'without is_oh_triage_group param' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_reply') do
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply",
+                 params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+      end
+    end
+  end
+
+  context 'with authorized and requires_oh_messages flipper enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, anything).and_return(true)
+    end
+
+    let(:thread_id) { 3_188_782 }
+
+    it 'responds to GET #thread when requires_oh_messages flipper is provided' do
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+        end
+      end
+      expect(response).to be_successful
+
+      json_response = JSON.parse(response.body)
+      data = json_response['data']
+
+      first_message = data.first['attributes']
+      expect(first_message['is_oh_message']).to be(true)
     end
   end
 end

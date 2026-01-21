@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents/monitor'
+
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
@@ -9,46 +11,40 @@ module V0
       dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
-      log_exception_to_sentry(e)
+      monitor.track_event(:error, e.message, 'dependents_controller.show_error')
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def create
-      if Flipper.enabled?(:va_dependents_v2, current_user)
-        form = dependent_params.to_json
-        use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
-        claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
-      else
-        use_v2 = nil
-        claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
-      end
+      claim = create_claim(dependent_params.to_json)
+
+      monitor.track_create_attempt(claim, current_user)
 
       # Populate the form_start_date from the IPF if available
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.form_start_date = in_progress_form.created_at if in_progress_form
 
       unless claim.save
-        StatsD.increment("#{stats_key}.failure")
-        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
+        monitor.track_create_validation_error(in_progress_form, claim, current_user)
+        log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim
       end
 
       claim.process_attachments!
 
-      # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+      dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+      log_submitted(in_progress_form, claim)
+      claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
-
       render json: SavedClaimSerializer.new(claim)
+    rescue => e
+      monitor.track_create_error(in_progress_form, claim, current_user, e)
+      raise e
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -64,18 +60,52 @@ module V0
         :report_death,
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
+        :statement_of_truth_signature,
+        :statement_of_truth_certified,
         'view:selectable686_options': {},
         dependents_application: {},
         supporting_documents: []
       )
     end
 
+    # Creates a new claim instance with the provided form parameters.
+    #
+    # @param form_params [String] The JSON string for the claim form.
+    # @return [Claim] A new instance of the claim class initialized with the given attributes.
+    #   If the current user has an associated user account, it is included in the claim attributes.
+    def create_claim(form_params)
+      claim_attributes = { form: form_params }
+      claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+      SavedClaim::DependencyClaim.new(**claim_attributes)
+    end
+
+    ##
+    # Include validation error on in_progress_form metadata.
+    # `noop` if in_progress_form is `blank?`
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [SavedClaim::DependencyClaim]
+    #
+    # @return [void]
+    def log_validation_error_to_metadata(in_progress_form, claim)
+      return if in_progress_form.blank?
+
+      metadata = in_progress_form.metadata || {}
+      metadata['submission'] ||= {}
+      metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
+      in_progress_form.update(metadata:)
+    end
+
+    def log_submitted(in_progress_form, claim)
+      monitor.track_create_success(in_progress_form, claim, current_user)
+      if claim.pension_related_submission?
+        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+      end
+    end
+
     def create_dependent_service
-      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
-                               BGS::DependentV2Service.new(current_user)
-                             else
-                               BGS::DependentService.new(current_user)
-                             end
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
 
     def dependency_verification_service
@@ -84,6 +114,10 @@ module V0
 
     def stats_key
       'api.dependents_application'
+    end
+
+    def monitor(claim_id = nil)
+      @monitor ||= Dependents::Monitor.new(claim_id)
     end
   end
 end

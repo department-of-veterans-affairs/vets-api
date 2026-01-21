@@ -33,32 +33,55 @@ module TravelPay
     # @returns
     # appointments: [VAOS::Appointment + travelPayClaim]
 
-    def associate_appointments_to_claims(params = {})
-      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
-      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
-      client_params = {
-        page_size: DEFAULT_PAGE_SIZE
-      }.merge!(date_range)
-
+    # Fetches claims by date range and returns claims data and metadata
+    # This method can be used for parallel execution
+    #
+    # @param start_date [String] start date for the query
+    # @param end_date [String] end date for the query
+    # @return [Hash] hash with :claims (array), :metadata (hash), and :error (boolean) keys
+    def fetch_claims_by_date(start_date, end_date)
+      client_params = build_claims_request_params(start_date, end_date)
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, client_params)
 
+      process_claims_response(faraday_response)
+    rescue => e
+      { claims: [], metadata: rescue_errors(e), error: true }
+    end
+
+    def associate_appointments_to_claims(params = {})
+      result = fetch_claims_by_date(params['start_date'], params['end_date'])
+
+      if result[:error]
+        append_error(params['appointments'], result[:metadata])
+      else
+        append_claims(params['appointments'], result[:claims], result[:metadata])
+      end
+    end
+
+    def build_claims_request_params(start_date, end_date)
+      date_range = DateUtils.try_parse_date_range(start_date, end_date)
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
+      { page_size: DEFAULT_PAGE_SIZE }.merge!(date_range)
+    end
+
+    def process_claims_response(faraday_response)
+      metadata = build_metadata(faraday_response.body)
+
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
-
-        data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
-          sc
-        end
-
-        append_claims(params['appointments'],
-                      data,
-                      build_metadata(faraday_response.body))
-
+        data = format_claims_data(raw_claims)
+        { claims: data, metadata:, error: false }
+      else
+        { claims: [], metadata:, error: true }
       end
-    rescue => e
-      append_error(params['appointments'],
-                   rescue_errors(e))
+    end
+
+    def format_claims_data(raw_claims)
+      raw_claims&.map do |sc|
+        sc['claimStatus'] = sc['claimStatus'].underscore.humanize
+        sc
+      end
     end
 
     def associate_single_appointment_to_claim(params = {})
@@ -121,8 +144,14 @@ module TravelPay
         }
 
         begin
-          matching_claim = find_matching_claim(claims, appt[:local_start_time])
-          appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+          # The local_start_time on an appointment may not be valid for certain cases
+          if DateUtils.valid_datetime? appt[:local_start_time]
+            matching_claim = find_matching_claim(claims, appt[:local_start_time])
+            appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+          else
+            Rails.logger.warn(message: "Invalid local_start_time given: #{appt[:local_start_time]}")
+            build_invalid_appt_date_response(appt)
+          end
         rescue InvalidComparableError => e
           Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
         end
@@ -131,13 +160,20 @@ module TravelPay
       end
     end
 
-    def find_matching_claim(claims, appt_start)
-      claims.find do |cl|
-        claim_time = DateUtils.try_parse_date(cl['appointmentDateTime'])
-        appt_time = DateUtils.strip_timezone(appt_start)
+    def build_invalid_appt_date_response(appt)
+      appt['travelPayClaim']['metadata'] = {
+        'success' => false,
+        'status' => 500,
+        'message' => 'local_start_time cannot be parsed'
+      }
 
-        claim_time.eql? appt_time
-      end
+      appt['travelPayClaim']['claim'] = nil
+
+      appt
+    end
+
+    def find_matching_claim(claims, appt_start)
+      ClaimMatcher.find_matching_claim(claims, appt_start)
     end
 
     def append_error(appts, metadata)

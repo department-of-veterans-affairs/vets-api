@@ -9,16 +9,16 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      @user.user_account.power_of_attorney_holders.size.positive?
+      @user.representative?
     end
 
     class Scope < ApplicationPolicy::Scope
       def resolve
         @scope.for_power_of_attorney_holders(
-          @user.user_account.power_of_attorney_holders
+          @user.power_of_attorney_holders
         ).where(
           accredited_individual_registration_number:
-            @user.user_account.registrations.map(&:accredited_individual_registration_number)
+            @user.registration_numbers
         )
       end
     end

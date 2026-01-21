@@ -25,20 +25,24 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id)
+              fill_options = { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
+
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
+                                                              fill_options)
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
+                expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras.pdf"
 
                 expect(
-                  FileUtils.compare_file(extras_path,
-                                         "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                  FileUtils.compare_file(extras_path, expected_path)
                 ).to be(true)
 
                 File.delete(extras_path)
               end
 
-              expect(file_path).to match_pdf_fields("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}_redesign.pdf"
+              expect(file_path).to match_pdf_fields(expected_path)
 
               File.delete(file_path)
             end

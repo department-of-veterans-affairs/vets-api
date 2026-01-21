@@ -24,11 +24,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
     sea
   end
 
-  let(:notification_client) { double('Notifications::Client') }
+  let(:notification_client) { instance_double(Notifications::Client) }
+  let(:va_notify_client) { instance_double(VaNotify::Client) }
 
   before do
     Sidekiq::Job.clear_all
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
+    allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
   end
 
   describe '#perform' do

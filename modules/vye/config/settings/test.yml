@@ -1,6 +1,0 @@
-vye:
-  # NOTE: This is a fake key for testing purposes only.
-  ivr_key: 'testing-vye-ivr-key'
-  scrypt:
-    # NOTE: This is a random salt for testing purposes only.
-    salt: 'testing-vye-scrypt-salt'

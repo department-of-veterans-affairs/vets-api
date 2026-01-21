@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       include PowerOfAttorneyRequests
+      include AccreditedRepresentativePortal::V0::WithdrawalGuard
+
       before_action do
         authorize PowerOfAttorneyRequest
       end
@@ -11,21 +13,28 @@ module AccreditedRepresentativePortal
         before_action do
           id = params[:id]
           set_poa_request(id)
+          render_404_if_withdrawn!(@poa_request)
         end
       end
 
       def index
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-
-        render json: {
-          data: serializer.serializable_hash,
-          meta: pagination_meta(poa_requests)
-        }, status: :ok
+        ar_monitoring.trace('ar.power_of_attorney_requests.index',
+                            tags: { 'poa_request.poa_codes' => poa_codes(poa_requests) }) do |_span|
+          serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+          render json: {
+            data: serializer.serializable_hash,
+            meta: pagination_meta(poa_requests)
+          }, status: :ok
+        end
       end
 
       def show
-        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
-        render json: serializer.serializable_hash, status: :ok
+        ar_monitoring.trace('ar.power_of_attorney_requests.show',
+                            tags: { 'poa_request.poa_code' => poa_code },
+                            root_tags: { 'poa_request.poa_code' => poa_code }) do |_span|
+          serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
+          render json: serializer.serializable_hash, status: :ok
+        end
       end
 
       private
@@ -43,7 +52,14 @@ module AccreditedRepresentativePortal
                           .then { |it| filter_by_current_user(it) }
                           .unredacted
                           .preload(scope_includes)
-                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .then do |it|
+                            if sort_params.present?
+                              it.sorted_by(sort_params[:by],
+                                           sort_params[:order])
+                            else
+                              it
+                            end
+        end
                           .paginate(page:, per_page:)
       end
 
@@ -101,9 +117,7 @@ module AccreditedRepresentativePortal
         return relation unless as_selected_individual?
 
         relation.for_accredited_individual(
-          current_user.user_account.get_registration_number(
-            PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
-          )
+          current_user.registration_numbers
         )
       rescue => e
         Rails.logger.error("Error filtering by current user as selected individual: #{e.message}")
@@ -129,6 +143,24 @@ module AccreditedRepresentativePortal
             totalPages: poa_requests.total_pages
           }
         }
+      end
+
+      def poa_code
+        @poa_request.power_of_attorney_holder_poa_code
+      end
+
+      def poa_codes(poa_requests)
+        poa_requests.map(&:power_of_attorney_holder_poa_code).uniq.join(',')
+      end
+
+      def ar_monitoring
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [
+            "controller:#{controller_name}",
+            "action:#{action_name}"
+          ].compact
+        )
       end
     end
   end

@@ -16,6 +16,7 @@ module V0
 
     before_action :authorize_service
     before_action :validate_type_param, only: %i[submit]
+    before_action { authorize :lighthouse, :access_vet_status? }
 
     wrap_with_logging(
       :index,
@@ -57,6 +58,10 @@ module V0
         response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF GET request: #{e.message}")
+      monitor.track_itf_controller_error('get', form_id, type, e.message)
+      raise e
     end
 
     def submit
@@ -64,7 +69,7 @@ module V0
 
       if %w[pension survivor].include? type
         form_id = ITF_FORM_IDS[type]
-        validate_data(@current_user, 'post', type, form_id)
+        validate_data(@current_user, 'post', form_id, type)
 
         monitor.track_submit_itf(form_id, type, @current_user.uuid)
         itf = BenefitsClaims::Service.new(@current_user.icn).create_intent_to_file(type, @current_user.ssn, nil)
@@ -80,6 +85,10 @@ module V0
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       end
       render json: IntentToFileSerializer.new(response)
+    rescue => e
+      Rails.logger.error("Error occurred while processing ITF submit request: #{e.message}")
+      monitor.track_itf_controller_error('post', form_id, type, e.message)
+      raise e
     end
 
     private
@@ -119,7 +128,19 @@ module V0
         TYPES.include?(params[:itf_type])
     end
 
+    # This is temporary. Testing logged data to ensure this is being hit properly
+    # rubocop:disable Metrics/MethodLength
     def validate_data(user, method, form_id, itf_type)
+      if Flipper.enabled?(:pension_itf_validate_data_logger, user)
+        context = {
+          user_icn_present: user.icn.present?,
+          user_participant_id_present: user.participant_id.present?,
+          itf_type:,
+          user_uuid: user.uuid
+        }
+        Rails.logger.info('IntentToFilesController ITF Validate Data', context)
+      end
+
       user_uuid = user.uuid
 
       if user.icn.blank?
@@ -130,10 +151,8 @@ module V0
       end
 
       if user.participant_id.blank?
-        error_message = 'ITF request failed. No veteran participant ID provided'
-        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error_message)
-
-        raise MissingParticipantIDError, error_message
+        info_message = 'User missing participant ID which will be created by Lighthouse within MPI'
+        monitor.track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, info_message)
       end
 
       if form_id.blank?
@@ -143,6 +162,7 @@ module V0
         raise InvalidITFTypeError, error_message
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def monitor
       @monitor ||= BenefitsClaims::IntentToFile::Monitor.new

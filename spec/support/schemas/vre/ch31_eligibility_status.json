@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": ["object", "null"],
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "attributes": {
+          "type": "object",
+          "required": ["veteran_profile"],
+          "properties": {
+            "veteran_profile": {
+              "type": "object",
+              "required": ["first_name", "last_name", "dob", "character_of_discharge", "service_period"],
+              "properties": {
+                "first_name": { "type": ["string", "null"] },
+                "last_name": { "type": ["string", "null"] },
+                "dob": { "type": ["string", "null"] },
+                "character_of_discharge": { "type": ["string", "null"] },
+                "service_period": {
+                  "type": "array",
+                  "minItems": 0,
+                  "items": {
+                    "type": "object",
+                    "required": ["service_began_date", "service_end_date", "character_of_discharge"],
+                    "properties": {
+                      "service_began_date": { "type": ["string", "null"] },
+                      "service_end_date": { "type": ["string", "null"] },
+                      "character_of_discharge": { "type": ["string", "null"] }
+                    }
+                  }
+                }
+              }
+            },
+            "disability_rating": {
+              "type": "object",
+              "properties": {
+                "combined_scd": { "type": ["integer", "null"] },
+                "scd_details": {
+                  "type": ["array", "null"],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": { "type": ["string", "null"] },
+                      "name": { "type": ["string", "null"] },
+                      "percentage": { "type": ["string", "null"] }
+                    }
+                  }
+                }
+              }
+            },
+            "irnd_date": { "type": ["string", "null"] },
+            "eligibility_termination_date": { "type": ["string", "null"] },
+            "entitlement_details": {
+              "type": "object",
+              "properties": {
+                "max_ch31_entitlement": {
+                  "type": "object",
+                  "properties": {
+                    "month": { "type": ["integer", "null"] },
+                    "days": { "type": ["integer", "null"] }
+                  }
+                },
+                "ch31_entitlement_remaining": {
+                  "type": "object",
+                  "properties": {
+                    "month": { "type": ["integer", "null"] },
+                    "days": { "type": ["integer", "null"] }
+                  }
+                },
+                "entitlement_used": {
+                  "type": "object",
+                  "properties": {
+                    "month": { "type": ["integer", "null"] },
+                    "days": { "type": ["integer", "null"] }
+                  }
+                }
+              }
+            },
+            "res_case_id": { "type": ["integer", "null"] },
+            "res_eligibility_recommendation": { "type": ["string", "null"] },
+            "qualifying_military_service_status": { "type": ["string", "null"] },
+            "character_of_discharge_status": { "type": ["string", "null"] },
+            "disability_rating_status": { "type": ["string", "null"] },
+            "irnd_status": { "type": ["string", "null"] },
+            "eligibility_termination_date_status": { "type": ["string", "null"] }
+          }
+        }
+      }
+    }
+  }
+}

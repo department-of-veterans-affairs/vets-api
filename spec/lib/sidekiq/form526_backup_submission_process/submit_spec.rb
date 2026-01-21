@@ -16,8 +16,16 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
 
-    # By default, this flag is enabled in test environments, turning this off to avoid using the 2024 template
-    allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
+    fixture_pdf = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf').to_s
+
+    converter = instance_double(
+      BenefitsIntakeService::Utilities::ConvertToPdf,
+      converted_filename: fixture_pdf
+    )
+
+    allow(BenefitsIntakeService::Utilities::ConvertToPdf)
+      .to receive(:new)
+      .and_return(converter)
   end
 
   let(:user) { create(:user, :loa3, :legacy_icn) }

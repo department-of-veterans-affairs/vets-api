@@ -12,30 +12,11 @@ module VBADocuments
     def index
       render json: {
         meta: {
-          versions: benefits_versions
+          versions: [
+            benefits_intake_v1
+          ]
         }
       }
-    end
-
-    def benefits_intake
-      render json: {
-        meta: {
-          versions: benefits_versions
-        }
-      }
-    end
-
-    def benefits_versions
-      if v2_enabled?
-        [
-          benefits_intake_v1.merge({ status: VERSION_STATUS[:previous] }),
-          benefits_intake_v2
-        ]
-      else
-        [
-          benefits_intake_v1
-        ]
-      end
     end
 
     def benefits_intake_v1
@@ -46,20 +27,6 @@ module VBADocuments
         path: '/services/vba_documents/docs/v1/api',
         healthcheck: '/services/vba_documents/v1/healthcheck'
       }
-    end
-
-    def benefits_intake_v2
-      {
-        version: '2.0.0',
-        internal_only: true,
-        status: VERSION_STATUS[:current],
-        path: '/services/vba_documents/docs/v2/api',
-        healthcheck: '/services/vba_documents/v1/healthcheck'
-      }
-    end
-
-    def v2_enabled?
-      Settings.vba_documents.documentation.path_enabled_flag
     end
 
     def healthcheck

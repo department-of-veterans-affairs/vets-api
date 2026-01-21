@@ -10,7 +10,8 @@ module ClaimsApi
         def find_tracked_items!(claim_id)
           return if claim_id.blank?
 
-          @tracked_items = tracked_item_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
+          item = tracked_item_service.find_tracked_items(claim_id)
+          @tracked_items = item.is_a?(Hash) ? Array.wrap(item[:dvlpmt_items]) : []
         end
 
         def find_tracked_item(id)
@@ -82,7 +83,7 @@ module ClaimsApi
 
           (build_wwsnfy_items | build_wwd_items | build_wwr_items | build_no_longer_needed_items)
             .sort_by do |list_item|
-            list_item[:id]
+              list_item[:id]
           end
         end
 

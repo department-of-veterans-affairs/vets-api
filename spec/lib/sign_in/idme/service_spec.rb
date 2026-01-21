@@ -60,6 +60,8 @@ describe SignIn::Idme::Service do
   let(:idme_originating_url) { 'https://api.idmelabs.com/oidc' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
+  let(:acr_comparison) { nil }
+  let(:acr_param) { { acr:, acr_comparison: }.compact }
   let(:idme_client_id) { 'ef7f1237ed3c396e4b4a2b04b608a7b1' }
   let(:user_uuid) { '88f572d491af46efa393cba6c351e252' }
   let(:birth_date) { '1932-02-05' }
@@ -82,7 +84,7 @@ describe SignIn::Idme::Service do
   end
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
+    let(:response) { subject.render_auth(state:, acr: acr_param, operation:).to_s }
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
     let(:auth_path) { 'oauth/authorize' }
@@ -148,6 +150,16 @@ describe SignIn::Idme::Service do
         it 'does not include the optional scopes in the request' do
           expect(response).not_to include(CGI.escape('/invalid_scope'))
         end
+      end
+    end
+
+    context 'when acr_comparison is provided in acr param' do
+      let(:acr_comparison) { 'some-acr-comparison' }
+      let(:encoded_acr_value) { CGI.escape(SignIn::Constants::Auth::IDME_LOA1) }
+      let(:expected_acr_values) { "acr_values=some-acr-comparison+#{encoded_acr_value}" }
+
+      it 'includes acr_values param in rendered form' do
+        expect(response).to include(expected_acr_values)
       end
     end
   end
@@ -373,7 +385,8 @@ describe SignIn::Idme::Service do
         all_csp_emails: emails_confirmed,
         multifactor:,
         authn_context:,
-        auto_uplevel:
+        auto_uplevel:,
+        digest:
       }
     end
     let(:service_name) { SignIn::Constants::Auth::IDME }
@@ -383,6 +396,14 @@ describe SignIn::Idme::Service do
     let(:credential_level) do
       create(:credential_level, current_ial: SignIn::Constants::Auth::IAL_TWO,
                                 max_ial: SignIn::Constants::Auth::IAL_TWO)
+    end
+    let(:digest) { SecureRandom.hex }
+
+    let(:credential_digester) { instance_double(SignIn::CredentialAttributesDigester) }
+
+    before do
+      allow(SignIn::CredentialAttributesDigester).to receive(:new).and_return(credential_digester)
+      allow(credential_digester).to receive(:perform).and_return(digest)
     end
 
     context 'when type is idme' do

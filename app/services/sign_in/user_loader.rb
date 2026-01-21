@@ -2,11 +2,14 @@
 
 module SignIn
   class UserLoader
-    attr_reader :access_token, :request_ip
+    CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
 
-    def initialize(access_token:, request_ip:)
+    attr_reader :access_token, :request_ip, :cookies
+
+    def initialize(access_token:, request_ip:, cookies:)
       @access_token = access_token
       @request_ip = request_ip
+      @cookies = cookies
     end
 
     def perform
@@ -22,7 +25,7 @@ module SignIn
       user
     end
 
-    def reload_user
+    def reload_user # rubocop:disable Metrics/MethodLength
       validate_account_and_session
       user_identity.uuid = access_token.user_uuid
       current_user.uuid = access_token.user_uuid
@@ -35,12 +38,28 @@ module SignIn
       current_user.validate_mpi_profile
       current_user.create_mhv_account_async
       current_user.provision_cerner_async(source: :sis)
+      set_cerner_eligibility_cookie
+
+      context = {
+        user_uuid: current_user.uuid,
+        credential_uuid: user_verification.credential_identifier,
+        icn: user_account.icn,
+        sign_in:
+      }
+      SignIn::Logger.new(prefix: self.class).info('reload_user', context)
 
       current_user
     end
 
     def validate_account_and_session
       raise Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
+    end
+
+    def set_cerner_eligibility_cookie
+      cookies.permanent[CERNER_ELIGIBLE_COOKIE_NAME] = {
+        value: current_user.cerner_eligible?,
+        domain: IdentitySettings.sign_in.info_cookie_domain
+      }
     end
 
     def user_attributes
@@ -58,7 +77,7 @@ module SignIn
 
     def loa
       current_loa = user_is_verified? ? Constants::Auth::LOA_THREE : Constants::Auth::LOA_ONE
-      { current: current_loa, highest: Constants::Auth::LOA_THREE }
+      { current: current_loa, highest: current_loa }
     end
 
     def sign_in

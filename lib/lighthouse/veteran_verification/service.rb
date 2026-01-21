@@ -10,11 +10,6 @@ module VeteranVerification
     configuration VeteranVerification::Configuration
     STATSD_KEY_PREFIX = 'api.veteran_verification'
 
-    def initialize(current_user = nil)
-      @current_user = current_user
-      super()
-    end
-
     # @param [string] icn: the ICN of the target Veteran
     # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
     # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
@@ -127,27 +122,15 @@ module VeteranVerification
     end
 
     def error_message
-      if Flipper.enabled?(:vet_status_stage_1, @current_user) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::ERROR_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::ERROR_MESSAGE
-      end
+      VeteranVerification::Constants::ERROR_MESSAGE
     end
 
     def not_eligible_message
-      if Flipper.enabled?(:vet_status_stage_1, @current_user) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-      end
+      VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
     end
 
     def not_found_message
-      if Flipper.enabled?(:vet_status_stage_1, @current_user) # rubocop:disable Naming/VariableNumber
-        VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
-      else
-        VeteranVerification::Constants::NOT_FOUND_MESSAGE
-      end
+      VeteranVerification::Constants::NOT_FOUND_MESSAGE
     end
   end
 end

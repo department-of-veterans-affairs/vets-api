@@ -124,6 +124,10 @@ describe RepresentationManagement::AccreditedIndividuals::IndividualSerializer, 
     expect(attributes['long']).to eq(-75)
   end
 
+  it 'includes full_name' do
+    expect(attributes['full_name']).to eq('Bob Law')
+  end
+
   it 'includes distance' do
     expect(attributes['distance']).to eq(2.5)
   end

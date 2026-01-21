@@ -21,7 +21,7 @@ RSpec.describe EducationBenefitsSubmission, type: :model do
     end
 
     it 'validates form_type' do
-      %w[1995 1990 1990e 0993 0994 10203 10297].each do |form_type|
+      %w[1995 1990 0993 0994 10203 10297].each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, form_type)
       end

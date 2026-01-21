@@ -22,7 +22,7 @@ Rspec.describe 'TestUserDashboard::TudGithubOAuthProxy', type: :request do
       before { allow(Faraday).to receive(:post).and_return(double(success?: false)) }
 
       it 'fails and does not return a token' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry)
         get('/test_user_dashboard/tud_github_oauth_proxy?code=123')
 
         expect(response).to have_http_status(:bad_request)

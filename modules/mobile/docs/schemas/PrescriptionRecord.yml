@@ -82,9 +82,9 @@ properties:
         nullable: true
         example: "2022-10-28T04:00:00.000Z"
       quantity:
-        type: integer
+        type: string
         nullable: true
-        example: 10
+        example: "10"
       expirationDate:
         type: string
         nullable: true

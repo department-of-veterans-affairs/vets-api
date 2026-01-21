@@ -1,0 +1,21 @@
+type: array
+description: Array of prescription orders to refill
+items:
+  type: object
+  required:
+    - stationNumber
+    - id
+  properties:
+    stationNumber:
+      type: string
+      description: The station number where the prescription is located
+      example: "989"
+    id:
+      type: string
+      description: The prescription ID to refill
+      example: "3636691"
+example:
+  - stationNumber: "989"
+    id: "3636691"
+  - stationNumber: "979"
+    id: "3636692"

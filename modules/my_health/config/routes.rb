@@ -3,8 +3,24 @@
 MyHealth::Engine.routes.draw do
   namespace :v2 do
     scope :medical_records do
+      resources :allergies, only: %i[index show], defaults: { format: :json }
+      resources :clinical_notes, only: %i[index show], defaults: { format: :json }
+      resources :conditions, only: %i[index show], defaults: { format: :json }
+      resources :immunizations, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
-      resources :immunizations, only: %i[index], defaults: { format: :json }
+      resources :vitals, only: %i[index], defaults: { format: :json }
+      get 'ccd/download(.:format)', to: 'ccd#download',
+                                    constraints: { format: /(xml|html|pdf)/ },
+                                    defaults: { format: 'xml' }
+    end
+
+    resources :prescriptions, only: %i[index show], defaults: { format: :json } do
+      post :refill, on: :collection
+      get :list_refillable_prescriptions, on: :collection
+
+      collection do
+        post 'drug_sheets/search', to: 'prescriptions/drug_sheets#search', defaults: { format: :json }
+      end
     end
   end
 
@@ -12,6 +28,8 @@ MyHealth::Engine.routes.draw do
     resources :tooltips, only: %i[index create update], controller: 'tooltips', defaults: { format: :json }
 
     resources :aal, only: %i[create], controller: 'aal', defaults: { format: :json }
+
+    resources :unique_user_metrics, only: %i[create], controller: 'unique_user_metrics', defaults: { format: :json }
 
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
@@ -30,8 +48,10 @@ MyHealth::Engine.routes.draw do
       end
       resources :ccd, only: [] do
         collection do
-          get :generate, to: 'ccd#generate'
-          get :download, to: 'ccd#download'
+          get :generate
+          get 'download(.:format)', action: :download,
+                                    constraints: { format: /(xml|html|pdf)/ },
+                                    defaults: { format: 'xml' }
         end
       end
       resources :bbmi_notification, only: [] do
@@ -72,7 +92,6 @@ MyHealth::Engine.routes.draw do
       resources :all_triage_teams, only: [:index], defaults: { format: :json }, path: 'allrecipients'
 
       resources :folders, only: %i[index show create update destroy], defaults: { format: :json } do
-        resources :messages, only: [:index], defaults: { format: :json }
         resources :threads, only: [:index], defaults: { format: :json }
         post :search, on: :member
       end

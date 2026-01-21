@@ -27,6 +27,11 @@ module AccreditedRepresentativePortal
         }
       end
 
+      def authorize_as_representative
+        authorize %i[accredited_representative_portal authorization], :authorize_as_representative?
+        head :no_content
+      end
+
       private
 
       def in_progress_forms

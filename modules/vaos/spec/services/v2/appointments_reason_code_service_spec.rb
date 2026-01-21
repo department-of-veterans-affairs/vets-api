@@ -67,25 +67,51 @@ describe VAOS::V2::AppointmentsReasonCodeService do
     it 'extract valid reason code fields for va request' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
-      expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
-      expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
+      expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+      expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
       expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
-      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                            'Wed, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                            'Wednesday, June 26, 2024 in the afternoon'])
       expect(appt[:preferred_modality]).to eq('In person')
+    end
+
+    it 'extract new valid reason code fields for va request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text_new_fields).attributes
+      subject.extract_reason_code_fields(appt)
+      expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+      expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
+      expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
+      expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                            'Wednesday, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_modality]).to eq('In person')
+    end
+
+    context 'when there are old and new field names' do
+      it 'extract new valid reason code fields for va request' do
+        appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text_old_and_new_fields).attributes
+        subject.extract_reason_code_fields(appt)
+        expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+        expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
+        expect(appt[:patient_comments]).to eq('colon:in:comment')
+        expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
+        expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                              'Wednesday, June 26, 2024 in the afternoon'])
+        expect(appt[:preferred_modality]).to eq('In person')
+      end
     end
 
     context 'when there are valid and invalid reason code fields' do
       it 'extract only valid reason code fields for va request' do
         appt = build(:appointment_form_v2, :va_proposed_valid_and_invalid_reason_code_text).attributes
         subject.extract_reason_code_fields(appt)
-        expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
-        expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
+        expect(appt[:contact][:telecom][0]).to match({ type: 'phone', value: '6195551234' })
+        expect(appt[:contact][:telecom][1]).to match({ type: 'email', value: 'myemail72585885@unattended.com' })
         expect(appt[:patient_comments]).to be_nil
         expect(appt[:reason_for_appointment]).to be_nil
-        expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
-                                              'Wed, June 26, 2024 in the afternoon'])
+        expect(appt[:preferred_dates]).to eq(['Wednesday, June 26, 2024 in the morning',
+                                              'Wednesday, June 26, 2024 in the afternoon'])
         expect(appt[:preferred_modality]).to eq('In person')
       end
     end
@@ -104,7 +130,9 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       ['comments:text', { 'comments' => 'text' }],
       [' comments : text ', { 'comments' => 'text' }],
       ['comments:key:value', { 'comments' => 'key:value' }],
-      [' comments : key : value ', { 'comments' => 'key : value' }]
+      [' comments : key : value ', { 'comments' => 'key : value' }],
+      ['|comments:value ', { 'comments' => 'value' }],
+      ['key:value|comments:text ', { 'key' => 'value', 'comments' => 'text' }]
     ].each do |input, output|
       it "#{input} returns #{output}" do
         expect(subject.send(:parse_reason_code_text, input)).to eq(output)
@@ -148,10 +176,11 @@ describe VAOS::V2::AppointmentsReasonCodeService do
   describe '#extract_preferred_dates' do
     [
       ['', nil],
-      ['06/26/2024 AM', ['Wed, June 26, 2024 in the morning']],
-      ['06/26/2024 PM', ['Wed, June 26, 2024 in the afternoon']],
-      ['06/26/2024 AM,06/26/2024 PM', ['Wed, June 26, 2024 in the morning', 'Wed, June 26, 2024 in the afternoon']],
-      ['09/06/2024 PM', ['Fri, September 6, 2024 in the afternoon']]
+      ['06/26/2024 AM', ['Wednesday, June 26, 2024 in the morning']],
+      ['06/26/2024 PM', ['Wednesday, June 26, 2024 in the afternoon']],
+      ['06/26/2024 AM,06/26/2024 PM',
+       ['Wednesday, June 26, 2024 in the morning', 'Wednesday, June 26, 2024 in the afternoon']],
+      ['09/06/2024 PM', ['Friday, September 6, 2024 in the afternoon']]
     ].each do |input, output|
       it "#{input} returns #{output}" do
         input_hash = {}

@@ -50,7 +50,7 @@ RSpec.describe PersistentAttachments::Sanitizer do
         :error,
         'PersistentAttachments::Sanitizer sanitize attachments error',
         'api.persistent_attachments.sanitize_attachments_error',
-        hash_including(:claim, :in_progress_form_id, :errors, :message, :call_location)
+        hash_including(:claim, :in_progress_form_id, :errors, :error, :call_location)
       )
 
       described_class.new.sanitize_attachments(claim, in_progress_form)

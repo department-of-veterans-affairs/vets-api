@@ -26,6 +26,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     before do
       allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:pension_kafka_event_bus_submission_enabled).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(false)
 
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
@@ -100,7 +101,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
-        "Couldn't find UserAccount with 'id'=user_account_uuid"
+        /Couldn't find UserAccount/
       )
     end
 
@@ -125,6 +126,40 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
 
     # perform
+  end
+
+  describe '#generate_form_pdf' do
+    let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:to_pdf).and_return(pdf_path)
+      allow(job).to receive(:process_document).and_return(pdf_path)
+    end
+
+    context 'when pension_extras_redesign_enabled is true' do
+      it 'generates PDF with redesign options' do
+        allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(true)
+
+        expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        expect(job).to receive(:process_document).with(pdf_path, :pensions_generated_claim)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when pension_extras_redesign_enabled is false' do
+      it 'generates PDF with default options' do
+        allow(Flipper).to receive(:enabled?).with(:pension_extras_redesign_enabled).and_return(false)
+
+        expect(claim).to receive(:to_pdf).with(no_args)
+        expect(job).to receive(:process_document).with(pdf_path, :pensions_generated_claim)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
   end
 
   describe '#lighthouse_submission_pending_or_success' do
@@ -167,7 +202,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
-    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamp_pdf_double) { instance_double(Pensions::PDFStamper) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
@@ -175,46 +210,19 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
 
     it 'returns a datestamp pdf path' do
-      run_count = 0
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      allow(datestamp_pdf_double).to receive(:run) {
-        run_count += 1
-        pdf_path
-      }
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, 'test/path')
+      allow(Pensions::PDFStamper).to receive(:new).and_return(stamp_pdf_double)
 
-      expect(new_path).to eq(pdf_path)
-      expect(run_count).to eq(2)
-    end
-
-    it 'requests specific pdf stamps' do
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'VA.GOV',
-        timestamp: claim.created_at,
-        x: 5,
-        y: 5
-      ).and_return(pdf_path)
-
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'FDC Reviewed - VA.gov Submission',
-        timestamp: claim.created_at,
-        x: 429,
-        y: 770,
-        text_only: true
-      ).and_return(pdf_path)
-
+      expect(stamp_pdf_double).to receive(:run).with('test/path', timestamp: claim.created_at).and_return('foo/bar')
       expect(service).to receive(:valid_document?).and_return(pdf_path)
 
-      new_path = job.send(:process_document, 'test/path')
+      new_path = job.send(:process_document, 'test/path', :test)
 
       expect(new_path).to eq(pdf_path)
     end
 
     it 'successfully stamps the generated pdf' do
       expect(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, claim.to_pdf)
+      new_path = job.send(:process_document, claim.to_pdf, :pensions_generated_claim)
       expect(new_path).to eq(pdf_path)
     end
     # process_document
@@ -319,38 +327,38 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       it 'logs a distinct error when only claim_id provided' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
-          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
+            expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

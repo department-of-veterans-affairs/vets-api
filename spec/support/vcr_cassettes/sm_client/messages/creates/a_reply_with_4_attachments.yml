@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/674838/reply/attach"
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/674838/reply/attach"
     body:
       encoding: ASCII-8BIT
       string: !binary |-

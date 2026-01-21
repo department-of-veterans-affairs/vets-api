@@ -1,7 +1,27 @@
 # frozen_string_literal: true
 
 class EducationBenefitsClaim < ApplicationRecord
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s 10282 10216 10215 10297 1919].freeze
+  FORM_TYPES = %w[
+    1990
+    1995
+    5490
+    5495
+    0993
+    0994
+    10203
+    10282
+    10216
+    10215
+    10297
+    1919
+    0839
+    10275
+    8794
+    0976
+    10278
+    0803
+    10272
+  ].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
@@ -23,6 +43,7 @@ class EducationBenefitsClaim < ApplicationRecord
   delegate(:parsed_form, to: :saved_claim)
   delegate(:form, to: :saved_claim)
 
+  before_validation :set_token, on: :create
   before_save(:set_region)
   after_create(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
@@ -112,12 +133,8 @@ class EducationBenefitsClaim < ApplicationRecord
     case form_type
     when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    when '1990n'
-      return benefits
     when '0994', '10297'
       benefits['vettec'] = true
-    when '1990s'
-      benefits['vrrap'] = true
     when '1995'
       benefit = parsed_form['benefit']&.underscore
       benefits['chapter33'] = true if benefit.present? && benefit.start_with?('chapter33')
@@ -157,5 +174,9 @@ class EducationBenefitsClaim < ApplicationRecord
 
   def set_region
     self.regional_processing_office ||= region.to_s
+  end
+
+  def set_token
+    self.token ||= SecureRandom.hex
   end
 end

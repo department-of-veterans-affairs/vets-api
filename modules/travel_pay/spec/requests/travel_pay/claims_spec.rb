@@ -132,6 +132,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_appt_add_v4_upgrade, instance_of(User)).and_return(false)
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
@@ -196,6 +197,32 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:internal_server_error)
+      end
+    end
+
+    [
+      [502, :bad_gateway],
+      [503, :service_unavailable],
+      [504, :gateway_timeout]
+    ].each do |status_code, expected_status|
+      it "maps upstream #{status_code} error to #{expected_status}" do
+        allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+          .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+        error_response = { status: status_code, body: { 'message' => 'upstream error' } }
+        allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+          .and_raise(Faraday::ServerError.new(nil, error_response))
+
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+          headers = { 'Authorization' => 'Bearer vagov_token' }
+          params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                     'facility_station_number' => '123',
+                     'appointment_type' => 'Other',
+                     'is_complete' => false }
+
+          post('/travel_pay/v0/claims', headers:, params:)
+
+          expect(response).to have_http_status(expected_status)
+        end
       end
     end
   end

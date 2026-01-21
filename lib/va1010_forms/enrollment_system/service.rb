@@ -46,9 +46,8 @@ module VA1010Forms
         raise e
       end
 
-      private
-
-      def soap
+      # Class method for creating SOAP client
+      def self.soap
         # Savon *seems* like it should be setting these things correctly
         # from what the docs say. Our WSDL file is weird, maybe?
         Savon.client(
@@ -61,6 +60,8 @@ module VA1010Forms
           namespace: 'http://va.gov/schema/esr/voa/v1'
         )
       end
+
+      private
 
       def log_payload_info(formatted_form, submission_body)
         form_name = formatted_form.dig('va:form', 'va:formIdentifier', 'va:value')
@@ -82,13 +83,8 @@ module VA1010Forms
       end
 
       def submission_body(formatted_form)
-        content =
-          if Flipper.enabled?(:ezr_use_correct_format_for_file_uploads)
-            Gyoku.xml(formatted_form, unwrap: [:'va:attachments'])
-          else
-            Gyoku.xml(formatted_form)
-          end
-        submission_body = soap.build_request(:save_submit_form, message: content).body
+        content = Gyoku.xml(formatted_form, unwrap: [:'va:attachments'])
+        submission_body = self.class.soap.build_request(:save_submit_form, message: content).body
         log_payload_info(formatted_form, submission_body)
 
         submission_body

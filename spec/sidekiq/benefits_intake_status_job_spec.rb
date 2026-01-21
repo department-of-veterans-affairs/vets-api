@@ -4,6 +4,45 @@ require 'rails_helper'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
+    describe 'job lifecycle metrics' do
+      it 'increments job.started and job.completed when job begins and finishes' do
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+          .and_return(double(body: { 'data' => [] }, success?: true))
+
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.started")
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.completed")
+
+        BenefitsIntakeStatusJob.new.perform
+      end
+
+      it 'increments job.failed when batch_process returns false' do
+        allow_any_instance_of(described_class).to receive(:batch_process).and_return([0, false])
+
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.started")
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.failed")
+
+        BenefitsIntakeStatusJob.new.perform
+      end
+
+      it 'increments job.failed and re-raises exception on unexpected errors' do
+        allow(FormSubmissionAttempt).to receive(:where).and_raise(StandardError.new('Database error'))
+
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.started")
+        expect(StatsD).to receive(:increment)
+          .with("#{described_class::STATS_KEY}.job.failed")
+        expect(Rails.logger).to receive(:error)
+          .with('BenefitsIntakeStatusJob failed with exception',
+                hash_including(class: 'BenefitsIntakeStatusJob', message: 'Database error'))
+
+        expect { BenefitsIntakeStatusJob.new.perform }.to raise_error(StandardError, 'Database error')
+      end
+    end
+
     describe 'submission to the bulk status report endpoint' do
       context 'multiple attempts and multiple form submissions' do
         before do
@@ -113,7 +152,6 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       it 'logs the error' do
         expect(Rails.logger).to have_received(:error).with('Errors occurred while processing Intake Status batch',
                                                            class: 'BenefitsIntakeStatusJob', errors: [failure_body])
-        expect(Rails.logger).not_to have_received(:info).with('BenefitsIntakeStatusJob ended')
       end
 
       it 'does not short circuit the batch processing job' do

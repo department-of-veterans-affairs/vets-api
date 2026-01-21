@@ -203,7 +203,11 @@ module IvcChampva
     def self.transliterate_and_strip(text)
       return nil if text.blank?
 
-      I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
+      transliterated = I18n.transliterate(text).gsub(%r{[^a-zA-Z\-/\s]}, '').strip
+
+      return nil if transliterated.blank?
+
+      transliterated
     end
 
     def self.validate_sponsor(request_body)
@@ -349,7 +353,7 @@ module IvcChampva
 
     def self.validate_ssn(ssn, name)
       validate_presence_and_stringiness(ssn, name)
-      unless ssn.match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
+      unless ssn.match?(/^\d{9}$/)
         raise ArgumentError, "#{name} is invalid. Must be 9 digits (see regex for more detail)"
       end
 
@@ -358,7 +362,7 @@ module IvcChampva
 
     def self.validate_email(email)
       validate_presence_and_stringiness(email, 'email address')
-      unless email.match?(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)
+      unless email.match?(URI::MailTo::EMAIL_REGEXP)
         raise ArgumentError, 'email address is invalid. See regex for more detail'
       end
     end

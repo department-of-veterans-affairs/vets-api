@@ -7,6 +7,7 @@ require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
 require 'vets/collection'
+require 'vets/shared_logging'
 
 module BB
   ##
@@ -15,7 +16,7 @@ module BB
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
     include Common::Client::Concerns::StreamingClient
-    include SentryLogging
+    include Vets::SharedLogging
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -34,13 +35,8 @@ module BB
     # @return [Vets::Collection]
     #
     def get_extract_status
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        BB::Configuration.custom_base_path = APIGW_BASE_PATH
-        json = perform(:get, 'v1/bluebutton/ess/extractstatus', nil, token_headers).body
-      else
-        BB::Configuration.custom_base_path = LEGACY_BASE_PATH
-        json = perform(:get, 'v1/bluebutton/extractstatus', nil, token_headers).body
-      end
+      BB::Configuration.custom_base_path = APIGW_BASE_PATH
+      json = perform(:get, 'v1/bluebutton/ess/extractstatus', nil, token_headers).body
 
       log_refresh_errors(json[:data]) if refresh_final?(json[:data])
       Vets::Collection.new(json[:data], ExtractStatus, metadata: json[:metadata], errors: json[:errors])
@@ -53,13 +49,8 @@ module BB
     #
     def get_eligible_data_classes
       Vets::Collection.fetch(::EligibleDataClass, cache_key: cache_key('geteligibledataclass'), ttl: CACHE_TTL) do
-        if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-          BB::Configuration.custom_base_path = APIGW_BASE_PATH
-          perform(:get, 'v1/bluebutton/ess/geteligibledataclass', nil, token_headers).body
-        else
-          BB::Configuration.custom_base_path = LEGACY_BASE_PATH
-          perform(:get, 'v1/bluebutton/geteligibledataclass', nil, token_headers).body
-        end
+        BB::Configuration.custom_base_path = APIGW_BASE_PATH
+        perform(:get, 'v1/bluebutton/ess/geteligibledataclass', nil, token_headers).body
       end
     end
 
@@ -76,13 +67,8 @@ module BB
       form = BB::GenerateReportRequestForm.new(self, params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
 
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        BB::Configuration.custom_base_path = APIGW_BASE_PATH
-        perform(:post, 'v1/bluebutton/ess/generate', form.params, token_headers).body
-      else
-        BB::Configuration.custom_base_path = LEGACY_BASE_PATH
-        perform(:post, 'v1/bluebutton/generate', form.params, token_headers).body
-      end
+      BB::Configuration.custom_base_path = APIGW_BASE_PATH
+      perform(:post, 'v1/bluebutton/ess/generate', form.params, token_headers).body
     end
 
     ##
@@ -99,13 +85,8 @@ module BB
       # TODO: For testing purposes, use one of the following static URIs:
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        BB::Configuration.custom_base_path = APIGW_BASE_PATH
-        uri = URI.join(config.base_path, "v1/bluebutton/ess/bbreport/#{doctype}")
-      else
-        BB::Configuration.custom_base_path = LEGACY_BASE_PATH
-        uri = URI.join(config.base_path, "v1/bluebutton/bbreport/#{doctype}")
-      end
+      BB::Configuration.custom_base_path = APIGW_BASE_PATH
+      uri = URI.join(config.base_path, "v1/bluebutton/ess/bbreport/#{doctype}")
 
       streaming_get(uri, token_headers, header_callback, yielder)
     end
@@ -145,11 +126,7 @@ module BB
     private
 
     def get_base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        APIGW_BASE_PATH
-      else
-        LEGACY_BASE_PATH
-      end
+      APIGW_BASE_PATH
     end
 
     def token_headers
@@ -161,18 +138,8 @@ module BB
     end
 
     def get_session_tagged
-      Sentry.set_tags(error: 'mhv_session')
-
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        BB::Configuration.custom_base_path = APIGW_BASE_PATH
-        env = perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
-      else
-        BB::Configuration.custom_base_path = LEGACY_BASE_PATH
-        env = perform(:get, '/mhv-api/patient/v1/session', nil, auth_headers)
-      end
-
-      Sentry.get_current_scope.tags.delete(:error)
-      env
+      BB::Configuration.custom_base_path = APIGW_BASE_PATH
+      perform(:get, 'v1/usermgmt/auth/session', nil, auth_headers)
     end
 
     def cache_key(action)

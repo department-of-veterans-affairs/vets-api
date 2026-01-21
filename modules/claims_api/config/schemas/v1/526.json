@@ -461,7 +461,7 @@
                 ]
               },
               "activeDutyBeginDate": {
-                "description": "Date Started Active Duty.",
+                "description": "Date Started Active Duty. This date must be in the past.",
                 "type": "string",
                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "1980-02-05"

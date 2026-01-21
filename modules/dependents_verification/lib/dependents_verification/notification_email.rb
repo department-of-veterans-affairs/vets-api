@@ -36,7 +36,7 @@ module DependentsVerification
       DependentsVerification::NotificationCallback.to_s
     end
 
-    # Add 'claim_id' to the metadata for consistency in DataDog and Burials::Monitor
+    # Add 'claim_id' to the metadata for consistency in DataDog and DependentsVerification::Monitor
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
     def callback_metadata
       super.merge(claim_id: claim.id)

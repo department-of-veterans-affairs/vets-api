@@ -136,6 +136,12 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       end
 
       it 'returns referral detail in JSON:API format' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+          .and_return({
+                        EPS: { data: [] },
+                        VAOS: { data: [] }
+                      })
+
         get "/vaos/v2/referrals/#{encrypted_uuid}"
 
         expect(response).to have_http_status(:ok)
@@ -168,18 +174,195 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
+        expect(response_data['data']['attributes']).to have_key('hasAppointments')
+        expect(response_data['data']['attributes']).to have_key('appointments')
       end
 
       it 'increments the view metric' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+          .and_return({
+                        EPS: { data: [] },
+                        VAOS: { data: [] }
+                      })
+
         expect(StatsD).to receive(:increment)
           .with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC,
-                tags: ['Community Care Appointments'])
-          .once
-        expect(StatsD).to receive(:increment)
-          .with('api.rack.request', any_args)
+                tags: [
+                  'service:community_care_appointments',
+                  'referring_facility_code:552',
+                  'station_id:528A6',
+                  'type_of_care:CARDIOLOGY'
+                ])
           .once
 
+        allow(StatsD).to receive(:increment)
+
         get "/vaos/v2/referrals/#{encrypted_uuid}"
+      end
+
+      context 'when fetching appointments' do
+        it 'includes appointments from both sources when available' do
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            .and_return({
+                          EPS: {
+                            data: [
+                              { id: '12345', status: 'active', start: '2024-11-21T18:00:00Z' }
+                            ]
+                          },
+                          VAOS: {
+                            data: [
+                              { id: '56789', status: 'cancelled', start: '2024-11-21T18:00:00Z' }
+                            ]
+                          }
+                        })
+
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+          expect(response).to have_http_status(:ok)
+          response_data = JSON.parse(response.body)
+
+          expect(response_data['data']['attributes']).to have_key('appointments')
+          appointments = response_data['data']['attributes']['appointments']
+
+          expect(appointments).to have_key('EPS')
+          expect(appointments).to have_key('VAOS')
+          expect(appointments['EPS']['data']).to be_an(Array)
+          expect(appointments['VAOS']['data']).to be_an(Array)
+          expect(appointments['EPS']['data'].first['id']).to eq('12345')
+          expect(appointments['VAOS']['data'].first['id']).to eq('56789')
+
+          # Check has_appointments attribute
+          expect(response_data['data']['attributes']).to have_key('hasAppointments')
+          expect(response_data['data']['attributes']['hasAppointments']).to be(true)
+        end
+
+        it 'returns empty data when no appointments found' do
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            .and_return({
+                          EPS: { data: [] },
+                          VAOS: { data: [] }
+                        })
+
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+          expect(response).to have_http_status(:ok)
+          response_data = JSON.parse(response.body)
+
+          expect(response_data['data']['attributes']).to have_key('appointments')
+          appointments = response_data['data']['attributes']['appointments']
+          expect(appointments['EPS']['data']).to eq([])
+          expect(appointments['VAOS']['data']).to eq([])
+
+          # Check has_appointments attribute when no appointments
+          expect(response_data['data']['attributes']).to have_key('hasAppointments')
+          expect(response_data['data']['attributes']['hasAppointments']).to be(false)
+        end
+
+        it 'returns error response when appointment service raises BackendServiceException' do
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', { source: 'EPS' }))
+
+          get "/vaos/v2/referrals/#{encrypted_uuid}"
+
+          expect(response).to have_http_status(:bad_gateway)
+          response_data = JSON.parse(response.body)
+
+          expect(response_data).to have_key('errors')
+          expect(response_data['errors']).to be_an(Array)
+          expect(response_data['errors'].first).to include('code' => 'VAOS_502')
+        end
+      end
+
+      context 'when provider IDs are missing' do
+        shared_examples 'logs missing provider ID error' do |facility_code, npi, expected_missing_fields|
+          let(:test_station_id) { '646' }
+
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: facility_code,
+                                                         provider_npi: npi,
+                                                         station_id: test_station_id)
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs the appropriate error message with station_id' do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+              .and_return({
+                            EPS: { data: [] },
+                            VAOS: { data: [] }
+                          })
+
+            expect(Rails.logger).to receive(:error)
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                      missing_data: expected_missing_fields,
+                      station_id: test_station_id,
+                      user_uuid: user.uuid
+                    })
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+
+        context 'when both IDs are missing' do
+          include_examples 'logs missing provider ID error', nil, '', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD,
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
+        end
+
+        context 'when referring provider ID is missing' do
+          include_examples 'logs missing provider ID error', '', '1234567890', [
+            VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD
+          ]
+        end
+
+        context 'when referral provider ID is missing' do
+          include_examples 'logs missing provider ID error', '552', nil, [
+            VAOS::V2::ReferralsController::REFERRAL_PROVIDER_NPI_FIELD
+          ]
+        end
+
+        context 'when station_id is blank' do
+          before do
+            test_referral = build(:ccra_referral_detail, referral_number:,
+                                                         referring_facility_code: nil,
+                                                         provider_npi: '1234567890',
+                                                         station_id: '')
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(test_referral)
+          end
+
+          it 'logs with sanitized station_id as no_value' do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+              .and_return({
+                            EPS: { data: [] },
+                            VAOS: { data: [] }
+                          })
+
+            expect(Rails.logger).to receive(:error)
+              .with('Community Care Appointments: Referral detail view: Missing provider data', {
+                      missing_data: [VAOS::V2::ReferralsController::REFERRING_FACILITY_CODE_FIELD],
+                      station_id: 'no_value',
+                      user_uuid: user.uuid
+                    })
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
+
+        context 'when both provider IDs are present' do
+          it 'does not log any error' do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+              .and_return({
+                            EPS: { data: [] },
+                            VAOS: { data: [] }
+                          })
+
+            allow(service_double).to receive(:get_referral)
+              .with(referral_number, icn).and_return(referral)
+            expect(Rails.logger).not_to receive(:error)
+            get "/vaos/v2/referrals/#{encrypted_uuid}"
+          end
+        end
       end
 
       context 'when fetching the same referral multiple times' do

@@ -1,0 +1,90 @@
+{
+  "designatingOfficial": {
+    "fullName": {
+      "first": "John",
+      "middle": "A",
+      "last": "Doe"
+    },
+    "title": "Designating Official",
+    "emailAddress": "john.doe@example.com",
+    "internationalPhoneNumber": "5556071234"
+  },
+  "institutionDetails": {
+    "hasVaFacilityCode": true,
+    "facilityCode": "12345678",
+    "institutionName": "Test University",
+    "institutionAddress": {
+      "country": "USA",
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "postalCode": "12345"
+    }
+  },
+  "primaryOfficialDetails": {
+    "fullName": {
+      "first": "Jane",
+      "middle": "B",
+      "last": "Smith"
+    },
+    "title": "Primary Certifying Official",
+    "emailAddress": "jane.smith@example.com",
+    "phoneNumber": "5556071234"
+  },
+  "primaryOfficialTraining": {
+    "trainingCompletionDate": "2024-03-15",
+    "trainingExempt": false
+  },
+  "primaryOfficialBenefitStatus": {
+    "hasVaEducationBenefits": true
+  },
+  "additionalCertifyingOfficials": [
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official1"
+        },
+        "title": "Some role",
+        "phoneNumber": "5556071235",
+        "emailAddress": "john_official1@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": false
+      }
+    },
+    {
+      "additionalCertifyingOfficialsDetails": {
+        "fullName": {
+          "first": "Fake",
+          "middle": "B",
+          "last": "Official2"
+        },
+        "title": "Some role",
+        "internationalPhoneNumber": "3334445555",
+        "emailAddress": "john_official2@example.com",
+        "trainingCompletionDate": "2024-03-16",
+        "hasVaEducationBenefits": true
+      }
+    }
+  ],
+  "readOnlyCertifyingOfficial": [
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO1"
+      }
+    },
+    {
+      "fullName": {
+        "first": "Fake",
+        "middle": "B",
+        "last": "RCO2"
+      }
+    }
+  ],
+  "remarks": "lorem ipsum dolor sit amet",
+  "statementOfTruthSignature": "John A Doe",
+  "dateSigned": "2024-03-15"
+}

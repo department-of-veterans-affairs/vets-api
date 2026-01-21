@@ -11,7 +11,6 @@ module Lighthouse
   module BenefitsIntake
     class SubmitCentralForm686cV2Job
       include Sidekiq::Job
-      include SentryLogging
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID_V2 = '686C-674-V2'
@@ -33,9 +32,7 @@ module Lighthouse
       sidekiq_options retry: RETRY
 
       sidekiq_retries_exhausted do |msg, _ex|
-        if Flipper.enabled?(:dependents_trigger_action_needed_email)
-          Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.trigger_failure_events(msg)
-        end
+        Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.trigger_failure_events(msg)
       end
 
       def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -184,6 +181,9 @@ module Lighthouse
       def generate_metadata # rubocop:disable Metrics/MethodLength
         form = claim.parsed_form['dependents_application']
         veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
+        file_number = veteran_information['file_number'] || veteran_information['ssn'] ||
+                      claim.parsed_form['veteran_information']['file_number'] ||
+                      claim.parsed_form['veteran_information']['ssn']
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
         is_usa = address['country_name'] == 'USA'
@@ -191,7 +191,7 @@ module Lighthouse
         metadata = {
           'veteranFirstName' => veteran_information['full_name']['first'],
           'veteranLastName' => veteran_information['full_name']['last'],
-          'fileNumber' => veteran_information['file_number'] || veteran_information['ssn'],
+          'fileNumber' => file_number,
           'receiveDt' => claim.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S'),
           'uuid' => claim.guid,
           'zipCode' => is_usa ? zip_code : FOREIGN_POSTALCODE,
@@ -215,11 +215,14 @@ module Lighthouse
         # sometimes veteran_information is not in dependents_application, but claim.add_veteran_info will make sure
         # it's in the outer layer of parsed_form
         veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
+        file_number = veteran_information['file_number'] || veteran_information['ssn'] ||
+                      claim.parsed_form['veteran_information']['file_number'] ||
+                      claim.parsed_form['veteran_information']['ssn']
         address = form['veteran_contact_information']['veteran_address']
         {
           veteran_first_name: veteran_information['full_name']['first'],
           veteran_last_name: veteran_information['full_name']['last'],
-          file_number: veteran_information['file_number'] || veteran_information['ssn'],
+          file_number:,
           zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
           doc_type: claim.form_id,
           claim_date: claim.created_at,
@@ -241,17 +244,7 @@ module Lighthouse
       end
 
       def send_confirmation_email(user)
-        return claim.send_received_email(user) if Flipper.enabled?(:dependents_separate_confirmation_email)
-
-        return if user.va_profile_email.blank?
-
-        form_id = FORM_ID_V2
-        VANotify::ConfirmationEmail.send(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
-          first_name: user&.first_name&.upcase,
-          user_uuid_and_form_id: "#{user.uuid}_#{form_id}"
-        )
+        claim.send_received_email(user)
       end
 
       def self.trigger_failure_events(msg)
@@ -264,8 +257,7 @@ module Lighthouse
         claim.send_failure_email(email)
       rescue => e
         # If we fail in the above failure events, this is a critical error and silent failure.
-        v2 = true
-        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
+        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg: })
         StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job::STATSD_KEY_PREFIX}}.silent_failure")
       end
 
@@ -274,18 +266,14 @@ module Lighthouse
       def stamped_pdf_with_form(form_id, path, timestamp)
         PDFUtilities::DatestampPdf.new(path).run(
           text: 'Application Submitted on va.gov',
-          x: %w[686C-674-V2].include?(form_id) ? 400 : 300,
-          y: %w[686C-674-V2].include?(form_id) ? 675 : 775,
+          x: 400,
+          y: 675,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
           page_number: %w[686C-674-V2].include?(form_id) ? 6 : 0,
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
-      end
-
-      def log_cmp_response(response)
-        log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
       end
 
       def valid_claim_data(saved_claim_id, vet_info)

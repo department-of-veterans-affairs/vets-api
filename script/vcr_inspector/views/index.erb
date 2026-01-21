@@ -1,0 +1,98 @@
+<div class="cassette-library">
+  <div class="library-header">
+    <h1>📼 Cassette Library</h1>
+    <p class="subtitle">Browse <%= @cassettes.length %> test cassettes across <%= @stats[:services] %> services</p>
+  </div>
+
+  <div class="search-box">
+    <form action="/search" method="get" class="search-form">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          name="q" 
+          id="search-input" 
+          placeholder="Search cassettes... (press / to focus)" 
+          class="search-input"
+          autocomplete="off"
+        >
+      </div>
+      <button type="submit" class="search-button">SEARCH</button>
+    </form>
+    
+    <div class="search-filters">
+      <a href="/services" class="filter-chip">📂 Browse by Service</a>
+      <a href="/?sort=recent" class="filter-chip">🆕 Recently Modified</a>
+      <a href="/?sort=old" class="filter-chip">🕰️ Oldest First</a>
+    </div>
+  </div>
+
+  <div class="cassette-shelves">
+    <% @cassettes.group_by { |c| c[:service] }.each do |service, cassettes| %>
+      <div class="cassette-shelf">
+        <div class="shelf-header">
+          <h2 class="shelf-title">
+            <span class="shelf-icon">📁</span>
+            <%= service %>
+            <span class="shelf-count"><%= cassettes.length %> cassettes</span>
+          </h2>
+          <button class="shelf-toggle" onclick="toggleShelf(this)">
+            <span class="toggle-icon">▼</span>
+          </button>
+        </div>
+        
+        <div class="shelf-content">
+          <div class="cassette-grid">
+            <% cassettes.first(12).each do |cassette| %>
+              <a href="/cassette/<%= cassette[:path] %>" class="cassette-card">
+                <div class="cassette-spine">
+                  <div class="cassette-tape">
+                    <div class="tape-reel left"></div>
+                    <div class="tape-ribbon"></div>
+                    <div class="tape-reel right"></div>
+                  </div>
+                  <div class="cassette-label">
+                    <div class="label-title"><%= cassette[:name] %></div>
+                    <div class="label-date">
+                      <%= cassette_age_indicator(cassette[:recorded_at]) %>
+                      <%= format_file_date(cassette[:recorded_at]) %>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            <% end %>
+            
+            <% if cassettes.length > 12 %>
+              <a href="/search?service=<%= service %>" class="cassette-card more-cassettes">
+                <div class="more-content">
+                  <div class="more-icon">➕</div>
+                  <div class="more-text"><%= cassettes.length - 12 %> more</div>
+                </div>
+              </a>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="library-footer">
+    <div class="footer-stats">
+      <div class="stat-item">
+        <span class="stat-icon">📼</span>
+        <span class="stat-value"><%= @cassettes.length %></span>
+        <span class="stat-label">Total Cassettes</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">📂</span>
+        <span class="stat-value"><%= @stats[:services] %></span>
+        <span class="stat-label">Services</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">🧪</span>
+        <span class="stat-value">~4,200</span>
+        <span class="stat-label">Test References</span>
+      </div>
+    </div>
+  </div>
+</div>

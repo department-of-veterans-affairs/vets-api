@@ -13,7 +13,7 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 [API Docs](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/)
 
-For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
+For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website).
 
 ## Base setup
 
@@ -23,7 +23,7 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
    git clone https://github.com/department-of-veterans-affairs/vets-api.git
    ```
 
-1. Setup key & cert for localhost authentication to ID.me:
+1. Set up key & cert for localhost authentication to ID.me:
 
    - Create a folder in your vets-api directory:
 
@@ -51,7 +51,7 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
    Sidekiq Enterprise is used for worker rate limiting and additional reliability in production and requires a license be configured on your development machine. If you do not have a license configured, the open source version of Sidekiq will be installed instead. This is not an issue unless you are specifically developing features that need Sidekiq Enterprise.
 
-   **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.**
+   **DO NOT commit local Gemfile.lock modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.**
 
 1. Developers who work with vets-api daily tend to prefer the native setup because they don't have to deal with the abstraction of docker-compose while those who would to spend less time on getting started prefer the docker setup. Docker is also useful when it's necessary to have a setup as close to production as possible. Finally, it's possible to use a hybrid setup where you run vets-api natively, but run the Postgres and Redis dependencies in docker.
 
@@ -84,15 +84,7 @@ redis:
 This is also where you will place any other customizations, such as API tokens
 or certificate paths.
 
-Config settings that vary in value depending on the deployment environment will also need
-to be set appropriately for each environment in the relevant
-[devops (Private Repo)](https://github.com/department-of-veterans-affairs/devops/blob/master/ansible/deployment/config/vets-api) configurations (dev-, staging-, and prod-settings.local.yml.j2).
-
-Some examples of configuration that will need to be added to these files are:
-
-- API keys/tokens
-- 3rd party service hostnames, ports, and certificates/keys.
-- Betamocks settings
+Config settings that vary in value depending on the deployment environment will need to be set appropriately for each environment following [these instructions](https://depo-platform-documentation.scrollhelp.site/developer-docs/settings-and-parameter-store). Secrets like keys, certs, and .pem files are stored in a different way. See [these instructions](https://depo-platform-documentation.scrollhelp.site/developer-docs/how-to-add-secret-files-to-vets-api).
 
 ### Optional application configuration
 
@@ -113,19 +105,15 @@ To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.
 Vets API will still run in a limited capacity without configuring any of these
 features, and will run the unit tests successfully.
 
-## Deployment instructions
+## Deployment
 
-Jenkins deploys `vets-api` upon each merge to `master`:
-
-http://jenkins.vfs.va.gov/job/testing/job/vets-api/job/master/
-
-Each deploy is available here:
-
-https://dev-api.va.gov/v0/status
-
-Additional deployment details can be found here:
-
-[additional deployment details](docs/deployment/information.md)
+- Vets-api deployment is explained [in this document](https://depo-platform-documentation.scrollhelp.site/developer-docs/vets-api-on-eks)
+- The [deploy status dashboard](https://www.va.gov/atlas/apps/vets-api/deploy_status) shows which environments a merged commit has been deployed to
+- The latest deploys can also be seen at the links below:
+    - dev: https://dev-api.va.gov/v0/status
+    - staging: https://staging-api.va.gov/v0/status
+    - sandbox: https://sandbox-api.va.gov/v0/status
+    - prod: https://api.va.gov/v0/status
 
 ## API request key formatting
 
@@ -143,7 +131,7 @@ The version of Ruby and gem dependencies (including Rails) used are defined in t
 
 #### Version Policy
 
-The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest. However the versions are generally updated as need or availability arise. If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
+The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest. However, for security reasons, we have a cool-down period so we don't update the gems immediately. If you need a newer version of a gem, please submit a pull-request.
 
 ## Not a member of the repository and want to be added?
 - If you're on a VA.gov Platform team, contact your Program Manager.

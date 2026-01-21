@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/sftp'
-require 'sentry_logging'
+require 'vets/shared_logging'
 require 'sftp_writer/factory'
 
 module EducationForm
@@ -16,12 +16,12 @@ module EducationForm
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
     STATSD_KEY = 'worker.education_benefits_claim'
     STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file".freeze
-    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994 10203 1990S 10297].map do |t|
+    LIVE_FORM_TYPES = %w[1990 1995 5490 5495 0993 0994 10203 10297].map do |t|
       "22-#{t.upcase}"
     end.freeze
     AUTOMATED_DECISIONS_STATES = [nil, 'denied', 'processed'].freeze
     include Sidekiq::Job
-    include SentryLogging
+    include Vets::SharedLogging
     sidekiq_options queue: 'default',
                     unique_for: 30.minutes,
                     retry: 5

@@ -1,18 +1,35 @@
 # frozen_string_literal: true
 
 module ClaimsEvidenceApi
-  # JSON Schema paths
-  # @see https://fwdproxy-dev.vfs.va.gov:4463/api/v1/rest/openapi.json
-  # @see modules/claims_evidence_api/documentation/claims-evidence-openapi.json
-  # voxpupuli/json-schema (gem) only supports up to draft-06
   module JsonSchema
     # base path for our schemas
-    DIR = "#{__dir__}/schema".freeze
+    SCHEMA = "#{__dir__}/schema".freeze
+
+    class << self
+      private
+
+      # assemble the leaf node properties available
+      def properties
+        props = "#{SCHEMA}/properties"
+        props = Dir.children(props).map { |f| "#{props}/#{f}" }.select { |f| File.file?(f) }
+        props.index_by { |prop| File.basename(prop, '.json').to_sym }
+      end
+    end
 
     # #/components/schemas/payload
-    UPLOAD_PAYLOAD = "#{DIR}/uploadPayload.json".freeze
+    UPLOAD_PAYLOAD = "#{SCHEMA}/uploadPayload.json".freeze
     # #/components/schemas/updateDataProviderData
-    PROVIDER_DATA = "#{DIR}/providerData.json".freeze
+    PROVIDER_DATA = "#{SCHEMA}/providerData.json".freeze
+    # #/components/schemas/searchFileRequest
+    SEARCH_FILE_REQUEST = "#{SCHEMA}/searchFileRequest.json".freeze
+    # #/components/schemas/Filters
+    SEARCH_FILE_FILTERS = "#{SCHEMA}/searchFileFilters.json".freeze
+    # #/components/schemas/Sort
+    SEARCH_FILE_SORT = "#{SCHEMA}/searchFileSort.json".freeze
+
+    # hash { :property_name => json-schema }
+    # :property_name == filename without extension
+    PROPERTIES = properties.freeze
 
     # end JsonSchema
   end

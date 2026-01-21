@@ -154,7 +154,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           },
           claimant: {
             claimantId: '1012830872V584140',
-            email: 'lillian@disney.com',
+            email: 'mitchell@jenkins.com',
             relationship: 'Spouse',
             address: {
               addressLine1: '2688 S Camino Real',
@@ -166,9 +166,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            },
-            firstName: 'Mitchell',
-            lastName: 'Jenkins'
+            }
           },
           representative: {
             poaCode: poa_code.to_s,
@@ -199,41 +197,47 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
                        'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
                        'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                        'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                     }
-                   }
-                 )
-                 .deep_merge(
-                   {
+                     },
+                     'text_signatures' => {
+                       'page2' => [
+                         {
+                           'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                           'x' => 35,
+                           'y' => 306
+                         },
+                         {
+                           'signature' => 'Bob Representative - signed via api.va.gov',
+                           'x' => 35,
+                           'y' => 200
+                         }
+                       ]
+                     },
+                     'representative' => {
+                       'firstName' => 'Bob',
+                       'lastName' => 'Representative'
+                     },
+                     'dependent' => {
+                       'first_name' => 'Mitchell',
+                       'last_name' => 'Jenkins'
+                     },
                      'appointmentDate' => power_of_attorney.created_at
                    }
                  )
-          final_data = data.deep_merge(
+
+          power_of_attorney.auth_headers.deep_merge!(
             {
-              'text_signatures' => {
-                'page2' => [
-                  {
-                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 306
-                  },
-                  {
-                    'signature' => 'Bob Representative - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 200
-                  }
-                ]
-              },
-              'representative' => {
-                'firstName' => 'Bob',
-                'lastName' => 'Representative'
+              'dependent' => {
+                'first_name' => 'Mitchell',
+                'last_name' => 'Jenkins'
               }
             }
           )
+          power_of_attorney.save!
 
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id)
+            .with(data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122A', 'post',
@@ -288,43 +292,35 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
                      'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                   },
+                   'appointmentDate' => power_of_attorney.created_at,
+                   'text_signatures' => {
+                     'page2' => [
+                       {
+                         'signature' => 'JESSE GRAY - signed via api.va.gov',
+                         'x' => 35,
+                         'y' => 240
+                       },
+                       {
+                         'signature' => 'Bob Representative - signed via api.va.gov',
+                         'x' => 35,
+                         'y' => 200
+                       }
+                     ]
+                   },
+                   'serviceOrganization' => {
+                     'firstName' => 'Bob',
+                     'lastName' => 'Representative',
+                     'organizationName' => 'I Help Vets LLC'
                    }
                  }
                )
-               .deep_merge(
-                 {
-                   'appointmentDate' => power_of_attorney.created_at
-                 }
-               )
-        final_data = data.deep_merge(
-          {
-            'text_signatures' => {
-              'page2' => [
-                {
-                  'signature' => 'JESSE GRAY - signed via api.va.gov',
-                  'x' => 35,
-                  'y' => 240
-                },
-                {
-                  'signature' => 'Bob Representative - signed via api.va.gov',
-                  'x' => 35,
-                  'y' => 200
-                }
-              ]
-            },
-            'serviceOrganization' => {
-              'firstName' => 'Bob',
-              'lastName' => 'Representative',
-              'organizationName' => 'I Help Vets LLC'
-            }
-          }
-        )
 
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id)
+            .with(data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122', 'post',
@@ -374,7 +370,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
           },
           claimant: {
             claimantId: '1012830872V584140',
-            email: 'lillian@disney.com',
+            email: 'mitchell@jenkins.com',
             relationship: 'Spouse',
             address: {
               addressLine1: '2688 S Camino Real',
@@ -386,9 +382,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            },
-            firstName: 'Mitchell',
-            lastName: 'Jenkins'
+            }
           },
           serviceOrganization: {
             poaCode: poa_code.to_s,
@@ -415,43 +409,49 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
                      'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                   }
-                 }
-               )
-               .deep_merge(
-                 {
+                   },
+                   'text_signatures' => {
+                     'page2' => [
+                       {
+                         'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                         'x' => 35,
+                         'y' => 240
+                       },
+                       {
+                         'signature' => 'Bob Representative - signed via api.va.gov',
+                         'x' => 35,
+                         'y' => 200
+                       }
+                     ]
+                   },
+                   'serviceOrganization' => {
+                     'firstName' => 'Bob',
+                     'lastName' => 'Representative',
+                     'organizationName' => 'I Help Vets LLC'
+                   },
+                   'dependent' => {
+                     'first_name' => 'Mitchell',
+                     'last_name' => 'Jenkins'
+                   },
                    'appointmentDate' => power_of_attorney.created_at
                  }
                )
-        final_data = data.deep_merge(
+
+        power_of_attorney.auth_headers.deep_merge!(
           {
-            'text_signatures' => {
-              'page2' => [
-                {
-                  'signature' => 'Mitchell Jenkins - signed via api.va.gov',
-                  'x' => 35,
-                  'y' => 240
-                },
-                {
-                  'signature' => 'Bob Representative - signed via api.va.gov',
-                  'x' => 35,
-                  'y' => 200
-                }
-              ]
-            },
-            'serviceOrganization' => {
-              'firstName' => 'Bob',
-              'lastName' => 'Representative',
-              'organizationName' => 'I Help Vets LLC'
+            'dependent' => {
+              'first_name' => 'Mitchell',
+              'last_name' => 'Jenkins'
             }
           }
         )
+        power_of_attorney.save!
 
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id)
+            .with(data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122', 'post',

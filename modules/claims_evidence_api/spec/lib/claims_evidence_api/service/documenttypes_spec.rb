@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'claims_evidence_api/service/documenttypes'
 
-require_relative '../../../support/claims_evidence_api/shared_examples/service'
+require_relative 'shared/service'
 
 RSpec.describe ClaimsEvidenceApi::Service::DocumentTypes do
   let(:service) { described_class.new }
@@ -19,7 +19,7 @@ RSpec.describe ClaimsEvidenceApi::Service::DocumentTypes do
     end
   end
 
-  describe '##get' do
+  describe '#get' do
     it 'performs a GET via class method' do
       allow(ClaimsEvidenceApi::Service::DocumentTypes).to receive(:new).and_return service
 

@@ -6,11 +6,13 @@ require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'lighthouse/benefits_reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
+require 'disability_compensation/loggers/monitor'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
     service_tag 'disability-application'
     before_action(except: :rating_info) { authorize :evss, :access? }
+    before_action(only: :rated_disabilities) { authorize :lighthouse, :access_vet_status? }
     before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 
@@ -65,20 +67,22 @@ module V0
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
 
-      temp_toxic_exposure_optional_dates_fix if Flipper.enabled?(
-        :disability_compensation_temp_toxic_exposure_optional_dates_fix,
-        @current_user
-      )
+      purge_toxic_exposure_orphaned_data if toxic_exposure_dates_fix_enabled?
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
         saved_claim.metadata = add_0781_metadata(form_content['form526'])
       end
-      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = create_submission(saved_claim)
-      # if jid = 0 then the submission was prevented from going any further in the process
-      jid = 0
 
+      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      # if jid = 0 then the submission was prevented from going any further in the process
+      submission = create_submission(saved_claim)
+
+      if Flipper.enabled?(:disability_526_toxic_exposure_opt_out_data_purge, @current_user)
+        log_toxic_exposure_changes(saved_claim, submission)
+      end
+
+      jid = 0
       # Feature flag to stop submission from being submitted to third-party service
       # With this on, the submission will NOT be processed by EVSS or Lighthouse,
       # nor will it go to VBMS,
@@ -157,13 +161,28 @@ module V0
     end
 
     def log_failure(claim)
-      StatsD.increment("#{stats_key}.failure")
+      if Flipper.enabled?(:disability_526_track_saved_claim_error) && claim&.errors
+        begin
+          in_progress_form =
+            @current_user ? InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user) : nil
+        ensure
+          monitor.track_saved_claim_save_error(
+            # Array of ActiveModel::Error instances from the claim that failed to save
+            claim&.errors&.errors,
+            in_progress_form&.id,
+            @current_user.uuid
+          )
+        end
+      end
+
       raise Common::Exceptions::ValidationErrors, claim
     end
 
     def log_success(claim)
-      StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      monitor.track_saved_claim_save_success(
+        claim,
+        @current_user.uuid
+      )
     end
 
     def validate_name_part
@@ -211,14 +230,14 @@ module V0
     # This temporary fix:
     # 1. removes the malformed dates from the Toxic Exposure section
     # 2. logs which section had the bad date to track which sections users are backing out of
-    def temp_toxic_exposure_optional_dates_fix
+    def purge_toxic_exposure_orphaned_data
       return unless form_content.is_a?(Hash) && form_content['form526'].is_a?(Hash)
 
       toxic_exposure = form_content.dig('form526', 'toxicExposure')
       return unless toxic_exposure
 
       transformer = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-      prefix = 'V0::DisabilityCompensationFormsController#submit_all_claim temp_toxic_exposure_optional_dates_fix:'
+      prefix = 'V0::DisabilityCompensationFormsController#submit_all_claim purge_toxic_exposure_orphaned_data:'
 
       Form526Submission::TOXIC_EXPOSURE_DETAILS_MAPPING.each_key do |key|
         next unless toxic_exposure[key].is_a?(Hash)
@@ -253,5 +272,43 @@ module V0
       )
     end
     # END TEMPORARY
+
+    def toxic_exposure_dates_fix_enabled?
+      Flipper.enabled?(:disability_compensation_temp_toxic_exposure_optional_dates_fix, @current_user)
+    end
+
+    def monitor
+      @monitor ||= DisabilityCompensation::Loggers::Monitor.new
+    end
+
+    # Logs toxic exposure data changes during Form 526 submission
+    #
+    # Compares the user's InProgressForm with the submitted claim to detect
+    # when toxic exposure data has been changed or removed by the frontend. This is wrapped
+    # in error handling to ensure logging failures do not impact veteran submissions.
+    #
+    # @param submitted_claim [SavedClaim::DisabilityCompensation::Form526AllClaim] The submitted claim
+    # @param submission [Form526Submission] The submission record
+    # @return [void]
+    def log_toxic_exposure_changes(submitted_claim, submission)
+      in_progress_form = InProgressForm.form_for_user(FormProfiles::VA526ez::FORM_ID, @current_user)
+      return unless in_progress_form
+
+      monitor.track_toxic_exposure_changes(
+        in_progress_form:,
+        submitted_claim:,
+        submission:
+      )
+    rescue => e
+      # Don't fail submission if logging fails
+      Rails.logger.error(
+        'Error logging toxic exposure changes',
+        user_uuid: @current_user&.uuid,
+        saved_claim_id: submitted_claim&.id,
+        submission_id: submission&.id,
+        error: e.message,
+        backtrace: e.backtrace&.first(5)
+      )
+    end
   end
 end

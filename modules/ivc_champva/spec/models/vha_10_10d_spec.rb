@@ -28,7 +28,10 @@ RSpec.describe IvcChampva::VHA1010d do
   let(:vha1010d) { described_class.new(data) }
   let(:logger) { instance_spy(Logger) }
 
-  before { allow(Rails.logger).to receive(:info) }
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+  end
 
   describe '#track_user_identity' do
     it 'returns the right data' do
@@ -147,73 +150,146 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-  describe '#add_applicant_properties' do
-    context 'when applicants array is present' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' },
-            { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
-              'applicant_dob' => '1981-02-02' }
-          ]
+  describe '#track_submission' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
+    let(:form_version) { 'vha_10_10d' }
+    let(:mock_user) { double(loa: { current: 3 }) }
+
+    context 'with standard form flow' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => { 'email' => 'test@example.com' },
+          'form_number' => '10-10D'
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'increments StatsD with tags and logs submission info' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:3 email_used:yes form_version:vha_10_10d]
         )
-      end
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-10D Submission',
+          identity: 'applicant',
+          current_user_loa: 3,
+          email_used: 'yes',
+          form_version:
+        )
 
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
-
-      it 'returns valid stringified JSON' do
-        res = vha1010d_applicants.add_applicant_properties
-        expect(res['applicant_0']).to be_a(String)
-        expect(JSON.parse(res['applicant_0'])).to be_a(Hash)
-      end
-
-      it 'includes a key for each applicant' do
-        res = vha1010d_applicants.add_applicant_properties
-        expect(res.keys.include?('applicant_0')).to be(true)
-        expect(res.keys.include?('applicant_1')).to be(true)
-      end
-
-      it 'contains applicant data' do
-        res = vha1010d_applicants.add_applicant_properties
-        expect(JSON.parse(res['applicant_0'])['applicant_name']['first']).to eq('John')
+        form_instance.track_submission(mock_user)
       end
     end
 
-    context 'when applicants array is empty' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => []
-        )
+    context 'when current_user is nil' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => {},
+          'form_number' => '10-10D'
+        }
       end
+      let(:form_instance) { described_class.new(submission_data) }
 
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+      it 'defaults loa to 0' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:0 email_used:no form_version:vha_10_10d]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-10D Submission',
+          identity: 'applicant',
+          current_user_loa: 0,
+          email_used: 'no',
+          form_version:
+        )
 
-      it 'returns an empty object' do
-        json_result = vha1010d.add_applicant_properties
-        expect(json_result.empty?).to be(true)
+        form_instance.track_submission(nil)
       end
     end
+  end
 
-    context 'when applicants have wrong properties' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' }
-          ]
-        )
+  [{
+    flipper_enabled: false,
+    applicant_key: 'applicant'
+  }, {
+    flipper_enabled: true,
+    applicant_key: 'beneficiary'
+  }].each do |test_case|
+    describe '#add_applicant_properties' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(test_case[:flipper_enabled])
       end
 
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+      context 'when applicants array is present' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => [
+              { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+                'applicant_dob' => '1980-01-01' },
+              { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                'applicant_dob' => '1981-02-02' }
+            ]
+          )
+        end
 
-      it 'returns an empty object' do
-        json_result = vha1010d.add_applicant_properties
-        expect(json_result.empty?).to be(true)
+        let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+        it 'returns valid stringified JSON' do
+          res = vha1010d_applicants.add_applicant_properties
+          expect(res["#{test_case[:applicant_key]}_0"]).to be_a(String)
+          expect(JSON.parse(res["#{test_case[:applicant_key]}_0"])).to be_a(Hash)
+        end
+
+        it 'includes a key for each applicant' do
+          res = vha1010d_applicants.add_applicant_properties
+          expect(res.keys.include?("#{test_case[:applicant_key]}_0")).to be(true)
+          expect(res.keys.include?("#{test_case[:applicant_key]}_1")).to be(true)
+        end
+
+        it 'contains applicant data' do
+          res = vha1010d_applicants.add_applicant_properties
+          first_name = JSON.parse(res["#{test_case[:applicant_key]}_0"])["#{test_case[:applicant_key]}_name"]['first']
+          expect(first_name).to eq('John')
+        end
       end
 
-      it 'does not interfere with metadata creation' do
-        expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
+      context 'when applicants array is empty' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => []
+          )
+        end
+
+        let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+        it 'returns an empty object' do
+          json_result = vha1010d.add_applicant_properties
+          expect(json_result.empty?).to be(true)
+        end
+      end
+
+      context 'when applicants have wrong properties' do
+        let(:applicant_data) do
+          data.merge(
+            'applicants' => [
+              { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+                'applicant_dob' => '1980-01-01' }
+            ]
+          )
+        end
+
+        let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+        it 'returns an empty object' do
+          json_result = vha1010d.add_applicant_properties
+          expect(json_result.empty?).to be(true)
+        end
+
+        it 'does not interfere with metadata creation' do
+          expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
+        end
       end
     end
   end

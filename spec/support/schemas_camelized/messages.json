@@ -39,7 +39,8 @@
               "senderName",
               "recipientId",
               "recipientName",
-              "readReceipt"
+              "readReceipt",
+              "isOhMessage"
             ],
             "properties": {
               "messageId": {
@@ -92,6 +93,9 @@
                   "null",
                   "string"
                 ]
+              },
+              "isOhMessage": {
+                "type": "boolean"
               }
             }
           },
@@ -191,21 +195,9 @@
             "pagination": {
               "type": "object",
               "required": [
-                "currentPage",
-                "perPage",
-                "totalPages",
                 "totalEntries"
               ],
               "properties": {
-                "currentPage": {
-                  "type": "integer"
-                },
-                "perPage": {
-                  "type": "integer"
-                },
-                "totalPages": {
-                  "type": "integer"
-                },
                 "totalEntries": {
                   "type": "integer"
                 }
@@ -229,21 +221,9 @@
             "pagination": {
               "type": "object",
               "required": [
-                "currentPage",
-                "perPage",
-                "totalPages",
                 "totalEntries"
               ],
               "properties": {
-                "currentPage": {
-                  "type": "integer"
-                },
-                "perPage": {
-                  "type": "integer"
-                },
-                "totalPages": {
-                  "type": "integer"
-                },
                 "totalEntries": {
                   "type": "integer"
                 }

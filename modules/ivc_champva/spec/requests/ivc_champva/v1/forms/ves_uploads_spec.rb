@@ -61,109 +61,89 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
               .and_return(champva_retry_logic_refactor_state)
           end
 
-          context 'when environment is not production' do
-            before do
-              allow(Settings).to receive(:vsp_environment).and_return('staging')
-            end
+          it 'uploads a PDF file to S3 and submits to VES for form 10-10D' do
+            # Allow for transaction_uuid= to be called but preserve the original 'fake-id' value
+            allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
 
-            it 'uploads a PDF file to S3 and submits to VES for form 10-10D' do
-              # Allow for transaction_uuid= to be called but preserve the original 'fake-id' value
-              allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
+            post '/ivc_champva/v1/forms', params: form_data
 
-              post '/ivc_champva/v1/forms', params: form_data
+            record = IvcChampvaForm.first
+            expect(record.first_name).to eq('Veteran')
+            expect(record.last_name).to eq('Surname')
+            expect(record.form_uuid).to be_present
 
-              record = IvcChampvaForm.first
-              expect(record.first_name).to eq('Veteran')
-              expect(record.last_name).to eq('Surname')
-              expect(record.form_uuid).to be_present
+            expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).at_least(:once)
+            expect(ves_client).to have_received(:submit_1010d)
+              .with(anything, 'fake-user', ves_request)
+            expect(mock_form).to have_received(:update)
+              .with(hash_including(
+                      application_uuid: 'test-uuid',
+                      ves_status: 'ok'
+                    ))
 
-              expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
-              expect(ves_client).to have_received(:submit_1010d)
-                .with(anything, 'fake-user', ves_request)
-              expect(mock_form).to have_received(:update)
-                .with(hash_including(
-                        application_uuid: 'test-uuid',
-                        ves_status: 'ok'
-                      ))
-
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'handles VES formatter errors gracefully' do
-              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
-                .and_raise(StandardError.new('formatting error'))
-
-              post '/ivc_champva/v1/forms', params: form_data
-
-              expect(response).to have_http_status(:internal_server_error)
-              expect(response.parsed_body['error_message']).to eq('Error: formatting error')
-            end
-
-            it 'handles nil VES request gracefully' do
-              allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
-
-              post '/ivc_champva/v1/forms', params: form_data
-
-              expect(response).to have_http_status(:internal_server_error)
-              expect(response.parsed_body['error_message']).to eq('Error: Failed to format data for VES submission')
-            end
-
-            it 'handles VES API errors gracefully and still returns success' do
-              # Mock a StandardError being raised during VES submission
-              allow(ves_client).to receive(:submit_1010d)
-                .with(anything, anything, anything)
-                .and_raise(StandardError.new('api error'))
-
-              # Make sure the FileUploader returns success to allow form submission to succeed
-              allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads)
-                .and_return([200, nil])
-
-              post '/ivc_champva/v1/forms', params: form_data
-
-              # Should still be successful even if VES fails
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'does not submit non-10-10D forms to VES' do
-              controller = IvcChampva::V1::UploadsController.new
-              other_form_data = form_data.merge({ 'form_number' => '10-7959C' })
-
-              allow(controller).to receive_messages(get_form_id: 'vha_10_7959c',
-                                                    params: ActionController::Parameters.new(other_form_data),
-                                                    call_handle_file_uploads: [[200], nil])
-              allow(controller).to receive(:render)
-
-              controller.send(:submit)
-
-              expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request).with(other_form_data)
-              expect(ves_client).not_to have_received(:submit_1010d)
-            end
-
-            it 'handles file upload failures' do
-              allow(mock_s3).to receive(:put_object).and_return({
-                                                                  success: false,
-                                                                  error_message: 'Upload failed'
-                                                                })
-
-              post '/ivc_champva/v1/forms', params: form_data
-
-              expect(response).to have_http_status(:internal_server_error)
-              expect(ves_client).not_to have_received(:submit_1010d)
-            end
+            expect(response).to have_http_status(:ok)
           end
 
-          context 'when environment is production' do
-            before do
-              allow(Settings).to receive(:vsp_environment).and_return('production')
-            end
+          it 'handles VES formatter errors gracefully' do
+            allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+              .and_raise(StandardError.new('formatting error'))
 
-            it 'does not submit to VES in production' do
-              post '/ivc_champva/v1/forms', params: form_data
+            post '/ivc_champva/v1/forms', params: form_data
 
-              expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-              expect(ves_client).not_to have_received(:submit_1010d)
-              expect(response).to have_http_status(:ok)
-            end
+            expect(response).to have_http_status(:internal_server_error)
+            expect(response.parsed_body['error_message']).to eq('Error: formatting error')
+          end
+
+          it 'handles nil VES request gracefully' do
+            allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
+
+            post '/ivc_champva/v1/forms', params: form_data
+
+            expect(response).to have_http_status(:internal_server_error)
+            expect(response.parsed_body['error_message']).to eq('Error: Failed to format data for VES submission')
+          end
+
+          it 'handles VES API errors gracefully and still returns success' do
+            # Mock a StandardError being raised during VES submission
+            allow(ves_client).to receive(:submit_1010d)
+              .with(anything, anything, anything)
+              .and_raise(StandardError.new('api error'))
+
+            # Make sure the FileUploader returns success to allow form submission to succeed
+            allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads)
+              .and_return([200, nil])
+
+            post '/ivc_champva/v1/forms', params: form_data
+
+            # Should still be successful even if VES fails
+            expect(response).to have_http_status(:ok)
+          end
+
+          it 'does not submit non-10-10D forms to VES' do
+            controller = IvcChampva::V1::UploadsController.new
+            other_form_data = form_data.merge({ 'form_number' => '10-7959C' })
+
+            allow(controller).to receive_messages(get_form_id: 'vha_10_7959c',
+                                                  params: ActionController::Parameters.new(other_form_data),
+                                                  call_handle_file_uploads: [[200], nil])
+            allow(controller).to receive(:render)
+
+            controller.send(:submit)
+
+            expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request).with(other_form_data)
+            expect(ves_client).not_to have_received(:submit_1010d)
+          end
+
+          it 'handles file upload failures' do
+            allow(mock_s3).to receive(:put_object).and_return({
+                                                                success: false,
+                                                                error_message: 'Upload failed'
+                                                              })
+
+            post '/ivc_champva/v1/forms', params: form_data
+
+            expect(response).to have_http_status(:internal_server_error)
+            expect(ves_client).not_to have_received(:submit_1010d)
           end
         end
 
@@ -171,6 +151,9 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
           before do
             allow(Flipper).to receive(:enabled?)
               .with(:champva_send_to_ves, anything)
+              .and_return(false)
+            allow(Flipper).to receive(:enabled?)
+              .with(:champva_send_ves_to_pega, anything)
               .and_return(false)
           end
 

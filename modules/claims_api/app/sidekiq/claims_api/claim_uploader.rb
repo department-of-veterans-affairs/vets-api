@@ -19,9 +19,7 @@ module ClaimsApi
                               detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
 
         if auto_claim.status == errored_state_value
-          msg = "Auto claim with id: #{auto_claim.id} is errored, " \
-                'not rescheduling the Claim Uploader job called with' \
-                " a #{record_type} id"
+          msg = build_failure_alert_msg(uuid, record_type, auto_claim.id)
           ClaimsApi::Logger.log('lighthouse_claim_uploader',
                                 detail: msg)
           slack_alert_on_failure('ClaimsApi::ClaimUploader', msg)
@@ -44,6 +42,20 @@ module ClaimsApi
     end
 
     private
+
+    ##
+    # Constructs error message used when creation of auto_established_claim fails.
+    #
+    # @param [String] uuid The unique ID of attachment being submitted
+    # @param [String] record_type Type of record, either 'claim' or 'document'
+    # @param [String] auto_claim_id ID associated with the failed auto_established_claim
+    #
+    # @return [String] Message to include in slack alert
+    def build_failure_alert_msg(uuid, record_type, auto_claim_id)
+      uploadee = record_type == 'claim' ? '526EZ PDF' : "attachment #{uuid}"
+      "Claim Uploader job failed to upload #{uploadee} to Benefits Documents API " \
+        "due to claim submission error for claim #{auto_claim_id}"
+    end
 
     def bd_upload_body(auto_claim:, file_body:, doc_type:, original_filename:)
       fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)

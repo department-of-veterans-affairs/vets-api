@@ -59,8 +59,6 @@ module Mobile
             facilities.sort_by { |facility| facility[:miles].to_f }
           when 'alphabetical'
             sort_by_name(facilities)
-          when 'appointments'
-            sort_by_recent_appointment(sort_by_name(facilities))
           else
             facilities
           end
@@ -68,24 +66,6 @@ module Mobile
 
         def sort_by_name(facilities)
           facilities.sort_by { |facility| facility[:name] }
-        end
-
-        def sort_by_recent_appointment(facilities)
-          appointments = Mobile::V0::Appointment.get_cached(@current_user)&.sort_by(&:start_date_utc)
-
-          return facilities if appointments.blank?
-
-          appointment_facility_ids = appointments.map(&:facility_id).uniq
-
-          appointment_facility_ids.map! do |facility_id|
-            Mobile::V0::Appointment.convert_to_non_prod_id!(facility_id)
-          end
-
-          appointment_facilities_hash = appointment_facility_ids.each_with_index.to_h
-
-          # appointment_facility_ids.size ensures any facility not found in appointment_facilities_hash is pushed to the
-          # bottom of the array
-          facilities.sort_by { |facility| appointment_facilities_hash[facility[:id]] || appointment_facility_ids.size }
         end
       end
     end

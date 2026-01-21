@@ -1,13 +1,113 @@
 {
-    "privacyAgreementAccepted": true,
-    "veteranFullName": "Jones, Indiana, Bill II",
-    "veteranSocialSecurityNumber": "234221243",
-    "veteranDateOfBirth": "1980-01-01",
-    "gender": "M",
-    "veteranAddress": {
-        "street": "321 Elm St",
-        "city": "Houston",
-        "country": "USA"
-    },
-    "isMedicaidEligible": true
+  "veteranFullName": "Jones, Indiana, Bill II",
+  "veteranSocialSecurityNumber": "234-22-1243",
+  "veteranDateOfBirth": "01/01/1980",
+  "gender": 0,
+  "veteranAddress": {
+    "street": "321 Elm St, Unit 4, Apt 4",
+    "street2": "Unit 4",
+    "street3": "Apt 4",
+    "city": "Houston",
+    "country": "USA",
+    "state": "TX",
+    "postalCode": "86764"
+  },
+  "veteranHomeAddress": {
+    "street": "123 NW 5th St",
+    "city": "Ontario",
+    "country": "CAN",
+    "state": "ON",
+    "provinceCode": "ProvinceName",
+    "postalCode": "21231"
+  },
+  "homePhone": "(123) 124-1234",
+  "mobilePhone": "(123) 555-1234",
+  "email": "foo@example.com",
+  "maritalStatus": 1,
+  "providers": [
+    {
+      "insuranceName": "MyInsurance",
+      "insurancePolicyHolderName": "FirstName ZZTEST",
+      "insurancePolicyNumber": "P1234",
+      "insuranceGroupCode": "G1234"
+    }
+  ],
+  "isMedicaidEligible": "YES",
+  "isEnrolledMedicarePartA": "YES",
+  "medicarePartAEffectiveDate": "10/16/1999",
+  "medicareClaimNumber": "873462432",
+  "spouseFullName": "LastSpouse, FirstSpouse, Middle Sr.",
+  "spouseSocialSecurityNumber": "111221234",
+  "spouseDateOfBirth": "04/06/1990",
+  "dateOfMarriage": "05/10/2003",
+  "cohabitedLastYear": false,
+  "provideSupportLastYear": "NO",
+  "spouseAddress": "123 NW 8th St, Floor 4, Apt 7, Dulles, VA, 20777, USA ",
+  "dependents": [
+    {
+      "fullName": "LastChildA, FirstChildA, MiddleChildA Jr.",
+      "dependentRelation": 3,
+      "socialSecurityNumber": "111229876",
+      "becameDependent": "04/07/1992",
+      "dateOfBirth": "05/05/1982",
+      "disabledBefore18": "YES",
+      "attendedSchoolLastYear": "YES",
+      "dependentEducationExpenses": 45.2,
+      "receivedSupportLastYear": "NO",
+      "grossIncome": 991.9,
+      "netIncome": 981.2,
+      "otherIncome": 91.9,
+      "cohabitedLastYear": "Off"
+    }
+  ],
+  "nextOfKins": [
+    {
+      "fullName": "LastNoKA, FirstNoKA, MiddleNoKA Jr.",
+      "contactType": "Primary Next of Kin",
+      "relationship": "SON",
+      "address": "53 West St, Bldg 2, Apt 1, Tampa, FL, 33602, USA",
+      "primaryPhone": "(123) 913-1234"
+    }
+  ],
+  "emergencyContacts": [
+    {
+      "fullName": "LastECA, FirstECA, MiddleECA",
+      "contactType": "Emergency Contact",
+      "relationship": "BROTHER",
+      "address": "28 NW 78th St, Floor 2, Apt 3, Dulles, VA, 24544, USA",
+      "primaryPhone": "(745) 274-3546"
+    }
+  ],
+  "veteranGrossIncome": 123.33,
+  "veteranNetIncome": 90.11,
+  "veteranOtherIncome": 10.1,
+  "spouseGrossIncome": 64.1,
+  "spouseNetIncome": 35.1,
+  "spouseOtherIncome": 12.3,
+  "deductibleMedicalExpenses": 33.3,
+  "deductibleFuneralExpenses": 44.44,
+  "deductibleEducationExpenses": 77.77,
+  "hasTeraResponse": true,
+  "gulfWarService": "YES",
+  "gulfWarStartDate": "08/1990",
+  "gulfWarEndDate": "09/1990",
+  "combatOperationService": "YES",
+  "exposedToAgentOrange": "YES",
+  "agentOrangeStartDate": "08/1990",
+  "agentOrangeEndDate": "08/1990",
+  "exposureToAirPollutants": 1,
+  "exposureToAsbestos": 5,
+  "exposureToChemicals": 2,
+  "exposureToContaminatedWater": 6,
+  "exposureToMustardGas": 5,
+  "exposureToOccupationalHazards": 5,
+  "exposureToRadiation": 3,
+  "exposureToShad": 4,
+  "exposureToWarfareAgents": 2,
+  "exposureToOther": 7,
+  "radiationCleanupEfforts": "YES",
+  "otherToxicExposure": "otherToxicExposure",
+  "toxicExposureStartDate": "08/1990",
+  "toxicExposureEndDate": "09/1990",
+  "privacyAgreementAccepted": true
 }

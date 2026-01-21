@@ -95,7 +95,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
-        "Couldn't find UserAccount with 'id'=user_account_uuid"
+        /Couldn't find UserAccount/
       )
     end
 
@@ -161,66 +161,27 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
-    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamp_pdf_double) { instance_double(Burials::PDFStamper) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
       job.instance_variable_set(:@claim, claim)
     end
 
-    it 'returns a datestamp pdf path' do
-      run_count = 0
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      allow(datestamp_pdf_double).to receive(:run) {
-        run_count += 1
-        pdf_path
-      }
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, 'test/path')
+    it 'returns a stamped pdf path' do
+      allow(Burials::PDFStamper).to receive(:new).and_return(stamp_pdf_double)
 
-      expect(new_path).to eq(pdf_path)
-      expect(run_count).to eq(3)
-    end
-
-    it 'requests specific pdf stamps' do
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'VA.GOV',
-        timestamp: claim.created_at,
-        x: 5,
-        y: 5
-      ).and_return(pdf_path)
-
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'FDC Reviewed - VA.gov Submission',
-        timestamp: claim.created_at,
-        x: 400,
-        y: 770,
-        text_only: true
-      ).and_return(pdf_path)
-
-      expect(datestamp_pdf_double).to receive(:run).with(
-        text: 'Application Submitted on va.gov',
-        x: 425,
-        y: 675,
-        text_only: true, # passing as text only because we override how the date is stamped in this instance
-        timestamp: claim.created_at,
-        page_number: 5,
-        size: 9,
-        template: Burials::PDF_PATH,
-        multistamp: true
-      ).and_return(pdf_path)
-
+      expect(stamp_pdf_double).to receive(:run).with('test/path', timestamp: claim.created_at).and_return('foo/bar')
       expect(service).to receive(:valid_document?).and_return(pdf_path)
 
-      new_path = job.send(:process_document, 'test/path')
+      new_path = job.send(:process_document, 'test/path', :test)
 
       expect(new_path).to eq(pdf_path)
     end
 
     it 'successfully stamps the generated pdf' do
       expect(service).to receive(:valid_document?).and_return(pdf_path)
-      new_path = job.send(:process_document, claim.to_pdf)
+      new_path = job.send(:process_document, claim.to_pdf, :burials_generated_claim)
       expect(new_path).to eq(pdf_path)
     end
     # process_document
@@ -285,6 +246,40 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
   end
 
+  describe '#generate_form_pdf' do
+    let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:to_pdf).and_return(pdf_path)
+      allow(job).to receive(:process_document).and_return(pdf_path)
+    end
+
+    context 'when burial_extras_redesign_enabled is true' do
+      it 'generates PDF with redesign options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(true)
+
+        expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: true, omit_esign_stamp: true })
+        expect(job).to receive(:process_document).with(pdf_path, :burials_generated_claim)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when burial_extras_redesign_enabled is false' do
+      it 'generates PDF with default options' do
+        allow(Flipper).to receive(:enabled?).with(:burial_extras_redesign_enabled).and_return(false)
+
+        expect(claim).to receive(:to_pdf).with(no_args)
+        expect(job).to receive(:process_document).with(pdf_path, :burials_generated_claim)
+
+        result = job.send(:generate_form_pdf)
+        expect(result).to eq(pdf_path)
+      end
+    end
+  end
+
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
       { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
@@ -305,35 +300,35 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       it 'logs a distinct error when only claim_id provided' do
         Burials::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(Burials::SavedClaim).to receive(:find).and_return(claim)
-          expect(Burials::SavedClaim).to receive(:find).with(claim.id)
+            allow(Burials::SavedClaim).to receive(:find).and_return(claim)
+            expect(Burials::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         Burials::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(Burials::SavedClaim).to receive(:find).and_return(claim)
-          expect(Burials::SavedClaim).to receive(:find).with(claim.id)
+            allow(Burials::SavedClaim).to receive(:find).and_return(claim)
+            expect(Burials::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         Burials::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Burials::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(Burials::SavedClaim).to receive(:find).with(claim.id - 1)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

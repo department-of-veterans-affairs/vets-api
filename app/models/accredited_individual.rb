@@ -33,6 +33,13 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  before_save :set_full_name
+
+  # Set the full_name attribute for the representative
+  def set_full_name
+    self.full_name = [first_name, last_name].map(&:to_s).map(&:strip).compact_blank.join(' ')
+  end
+
   DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
 
   # Find all [AccreditedIndividuals] that are located within a distance of a specific location
@@ -73,5 +80,26 @@ class AccreditedIndividual < ApplicationRecord
   # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
   def self.max_per_page
     AccreditedRepresentation::Constants::MAX_PER_PAGE
+  end
+
+  # Validates and updates the address for this individual
+  #
+  # Uses the raw_address field (populated from OGC API) to call the address validation service.
+  # If validation is successful, updates the record with validated address data including
+  # geocoded coordinates.
+  #
+  # @return [Boolean] true if validation and update successful, false otherwise
+  def validate_address
+    return false if raw_address.blank?
+
+    service = RepresentationManagement::AddressValidationService.new
+    validated_attrs = service.validate_address(raw_address)
+
+    return false if validated_attrs.nil?
+
+    update(validated_attrs)
+  rescue => e
+    Rails.logger.error("Address validation failed for AccreditedIndividual #{id}: #{e.message}")
+    false
   end
 end

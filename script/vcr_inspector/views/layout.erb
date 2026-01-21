@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📼 VCR Inspector - vets-api</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="vcr-player">
+    <div class="vcr-top">
+      <div class="vcr-brand">
+        <span class="vcr-logo">📼 VCR Inspector</span>
+        <span class="vcr-model">Model: VETS-API-2000</span>
+      </div>
+      <div class="vcr-display">
+        <div class="vcr-counter">
+          <span class="counter-label">CASSETTES</span>
+          <span class="counter-value" id="counter"><%= @stats[:total] if @stats %></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="vcr-screen">
+      <%= @content %>
+    </div>
+    
+    <div class="vcr-controls">
+      <a href="/" class="vcr-button <%= 'active' if request.path == '/' %>" title="Home">
+        <span class="button-icon">🏠</span>
+        <span class="button-label">HOME</span>
+      </a>
+      <a href="/services" class="vcr-button <%= 'active' if request.path == '/services' %>" title="Browse by Service">
+        <span class="button-icon">📂</span>
+        <span class="button-label">SERVICES</span>
+      </a>
+      <button class="vcr-button" onclick="document.getElementById('search-input').focus()" title="Search (Press /)">
+        <span class="button-icon">🔍</span>
+        <span class="button-label">SEARCH</span>
+      </button>
+      <div class="vcr-button vcr-indicator">
+        <span class="button-icon recording-light">⏺</span>
+        <span class="button-label">PLAYBACK</span>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/script.js"></script>
+</body>
+</html>

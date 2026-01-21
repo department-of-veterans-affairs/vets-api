@@ -190,7 +190,7 @@ module ClaimsApi
                               HTTP_X_VA_BIRTH_DATE
                               HTTP_X_VA_FIRST_NAME
                               HTTP_X_VA_LAST_NAME]
-        (request.headers.to_h.keys & headers_to_check).length.positive?
+        request.headers.to_h.keys.intersect?(headers_to_check)
       end
 
       def target_veteran(with_gender: false)

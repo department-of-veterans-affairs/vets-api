@@ -102,11 +102,28 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
   end
 
   describe '#user_account' do
-    let(:user_account) { AccreditedRepresentativePortal::RepresentativeUserAccount.find(create(:user_account).id) }
+    let(:user_account) { create(:user_account) }
     let(:representative_user) { build(:representative_user, user_account_uuid: user_account.id) }
 
     it 'returns expected user_account' do
       expect(representative_user.user_account).to eq(user_account)
+    end
+  end
+
+  describe '#loa3?' do
+    let(:representative_user) { build(:representative_user) }
+
+    it 'delegates loa3? to a UserIdentity built from uuid and loa' do
+      user_identity_double = instance_double(UserIdentity)
+
+      expect(UserIdentity).to receive(:new).with(
+        uuid: representative_user.uuid,
+        loa: representative_user.loa
+      ).and_return(user_identity_double)
+
+      expect(user_identity_double).to receive(:loa3?).and_return(true)
+
+      expect(representative_user.loa3?).to be(true)
     end
   end
 end

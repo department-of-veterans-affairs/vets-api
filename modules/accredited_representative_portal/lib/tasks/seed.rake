@@ -58,7 +58,7 @@ module AccreditedRepresentativePortal
           insert_all(
             Records::REPRESENTATIVES,
             factory: %i[representative],
-            unique_by: %i[first_name last_name representative_id]
+            unique_by: %i[representative_id]
           ) do |representative|
             representative[:poa_codes].each do |poa_code|
               accreditations.push(

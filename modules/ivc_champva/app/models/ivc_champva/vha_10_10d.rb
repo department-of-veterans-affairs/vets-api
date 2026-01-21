@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA1010d
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
     STATS_KEY = 'api.ivc_champva_form.10_10d'
+    FORM_VERSION = 'vha_10_10d'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
+    include StampableLogging
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -23,9 +27,9 @@ module IvcChampva
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
-        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
-        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
+        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'first'),
+        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'middle'),
+        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('applicant_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'address', 'country') || 'USA',
@@ -45,8 +49,14 @@ module IvcChampva
       applicants = @data['applicants']
       return {} if applicants.blank?
 
+      use_renamed_keys = Flipper.enabled?(:champva_update_metadata_keys)
+
       applicants.each_with_index.with_object({}) do |(app, index), obj|
-        obj["applicant_#{index}"] = extract_applicant_properties(app).to_json
+        if use_renamed_keys
+          obj["beneficiary_#{index}"] = extract_beneficiary_properties(app).to_json
+        else
+          obj["applicant_#{index}"] = extract_applicant_properties(app).to_json
+        end
       end
     end
 
@@ -88,11 +98,27 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-10D Email Used', email_used:)
     end
 
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.submission", tags: [
+                         "identity:#{identity}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-10D Submission', identity:,
+                                                                 current_user_loa:,
+                                                                 email_used:,
+                                                                 form_version: FORM_VERSION)
+    end
+
     def method_missing(_, *args)
       args&.first
     end
 
-    def respond_to_missing?(_)
+    def respond_to_missing?(_method_name, _include_private = false)
       true
     end
 
@@ -108,6 +134,14 @@ module IvcChampva
       first_applicant_country = if applicants.is_a?(Array) && !applicants.empty?
                                   applicants.first&.dig('applicant_address', 'country')
                                 end
+
+      log_missing_stamp_data({
+                               'first_applicant_country' => { value: first_applicant_country },
+                               'veteran_country' => {
+                                 value: veteran_country,
+                                 context: { is_deceased: sponsor_is_deceased, certifier_role: @data['certifier_role'] }
+                               }
+                             })
 
       stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
       stamps << { coords: [520, 590], text: veteran_country, page: 0 } unless sponsor_is_deceased
@@ -125,6 +159,8 @@ module IvcChampva
         coords_y = 470 - (116 * index)
         applicant_country = applicant.dig('applicant_address', 'country')
 
+        log_missing_field("applicant_#{index}_country") if applicant_country.blank?
+
         if applicant_country && stamps.count { |stamp| stamp[:text] == applicant_country } < 2
           stamps << { coords: [520, coords_y], text: applicant_country, page: 0 }
         end
@@ -135,6 +171,15 @@ module IvcChampva
 
     def extract_applicant_properties(app)
       app.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
+    end
+
+    def extract_beneficiary_properties(app)
+      applicant = app.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
+      applicant.tap do |a|
+        a[:beneficiary_ssn] = a.delete(:applicant_ssn)
+        a[:beneficiary_name] = a.delete(:applicant_name)
+        a[:beneficiary_dob] = a.delete(:applicant_dob)
+      end
     end
   end
 end

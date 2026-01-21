@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'
@@ -10,39 +9,13 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+
       before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
+      before_action(only: %i[get_claim]) { authorize :lighthouse, :access? }
+      before_action(only: %i[request_decision]) { authorize :lighthouse, :access? }
+      before_action(only: %i[upload_document upload_multi_image_document]) { authorize :lighthouse, :access? }
 
-      before_action(only: %i[get_claim]) do
-        if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
-
-      before_action(only: %i[request_decision]) do
-        if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
-
-      before_action(only: %i[upload_document upload_multi_image_document]) do
-        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
-
-      after_action only: :upload_multi_image_document do
-        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-          lighthouse_document_service.cleanup_after_upload
-        else
-          evss_claims_proxy.cleanup_after_upload
-        end
-      end
+      after_action(only: :upload_multi_image_document) { lighthouse_document_service.cleanup_after_upload }
 
       def index
         json, status = prepare_claims_and_appeals
@@ -50,17 +23,12 @@ module Mobile
       end
 
       def get_claim
-        claim_detail = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                         lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
-                       else
-                         evss_claim_serializer = evss_claims_proxy.get_claim(params[:id])
-                         OpenStruct.new(evss_claim_serializer.serializable_hash[:data])
-                       end
+        claim_detail = lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
       def get_appeal
-        appeal = evss_claims_proxy.get_appeal(params[:id])
+        appeal = claims_proxy.get_appeal(params[:id])
 
         begin
           appeal = appeal_adapter.parse(appeal) if Flipper.enabled?(:mobile_appeal_model, @current_user)
@@ -72,51 +40,22 @@ module Mobile
       end
 
       def request_decision
-        jid = if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
-                response = lighthouse_claims_proxy.request_decision(params[:id])
-                adapt_response(response)
-              else
-                evss_claims_proxy.request_decision(params[:id])
-              end
+        response = lighthouse_claims_proxy.request_decision(params[:id])
+        jid = adapt_response(response)
 
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_document
-        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                set_params
-                lighthouse_document_service.queue_document_upload(params)
-              else
-                evss_claims_proxy.upload_document(params)
-              end
+        set_params
+        jid = lighthouse_document_service.queue_document_upload(params)
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
-      def claim_letter_documents_search
-        response = lighthouse_document_service.claim_letters_search(participant_id: @current_user.participant_id)
-        documents = claim_letter_documents_adapter.parse(response.body)
-        render json: Mobile::V0::ClaimLetterDocumentSerializer.new(documents)
-      end
-
-      def claim_letter_document_download
-        # Backwards Compatibility: Delete {} brackets from document id as the
-        # benefit documents service doesn't support them
-        response = lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id].delete('{}'),
-                                                                     participant_id: @current_user.participant_id)
-        send_data(
-          response.body,
-          type: 'application/pdf',
-          filename: file_name
-        )
-      end
-
       def upload_multi_image_document
-        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                set_params
-                lighthouse_document_service.queue_multi_image_upload_document(params)
-              else
-                evss_claims_proxy.upload_multi_image(params)
-              end
+        set_params
+        jid = lighthouse_document_service.queue_multi_image_upload_document(params)
 
         render json: { data: { job_id: jid } }, status: :accepted
       end
@@ -132,13 +71,9 @@ module Mobile
 
       # It was found that FE is using both different casing between multi image upload and single image upload.
       # This shouldn't matter due to the x-key-inflection: camel header being used but that header only works if the
-      # body payload is in json, which the single doc upload is not (at least in specs for both LH and EVSS).
+      # body payload is in json, which the single doc upload is not (at least in the specs).
       def tracked_item_id
         params[:trackedItemId] || params[:tracked_item_id]
-      end
-
-      def file_name
-        params.require(:file_name)
       end
 
       def prepare_claims_and_appeals
@@ -191,15 +126,11 @@ module Mobile
         Mobile::V0::Adapters::Appeal.new
       end
 
-      def claim_letter_documents_adapter
-        Mobile::V0::Adapters::ClaimLetterDocuments
-      end
-
       def lighthouse_claims_proxy
         Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
       end
 
-      def evss_claims_proxy
+      def claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 

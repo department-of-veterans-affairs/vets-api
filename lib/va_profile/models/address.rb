@@ -5,7 +5,7 @@ require_relative 'base_address'
 module VAProfile
   module Models
     class Address < BaseAddress
-      attribute :bad_address, Boolean
+      attribute :bad_address, Bool
 
       validates(:source_date, presence: true)
 
@@ -22,29 +22,35 @@ module VAProfile
           addressPOU: @address_pou,
           addressType: @address_type.titleize,
           cityName: @city,
-          countryCodeISO2: @country_code_iso2,
-          countryCodeISO3: @country_code_iso3,
-          countryName: @country_name,
+          country: {
+            countryName: @country_name,
+            countryCodeFIPS: @country_code_fips,
+            countryCodeISO2: @country_code_iso2,
+            countryCodeISO3: @country_code_iso3
+          },
           county: {
             countyCode: @county_code,
             countyName: @county_name
           },
+          province: {
+            provinceName: @province,
+            provinceCode: @province_code
+          },
+          state: {
+            stateName: @state_name,
+            stateCode: @state_code
+          },
           intPostalCode: @international_postal_code,
-          provinceName: @province,
-          stateCode: @state_code,
           zipCode5: @zip_code,
           zipCode4: @zip_code_suffix,
           originatingSourceSystem: SOURCE_SYSTEM,
           sourceSystemUser: @source_system_user,
           sourceDate: @source_date,
-          vet360Id: @vet360_id,
           effectiveStartDate: @effective_start_date,
           effectiveEndDate: @effective_end_date
         }
-
-        if @validation_key.present?
-          address_attributes[:validationKey] = @validation_key
-          address_attributes[:overrideIndicator] = true
+        if @override_validation_key.present? || @validation_key.present?
+          address_attributes[:overrideValidationKey] = @override_validation_key || @validation_key
         end
 
         address_attributes[:badAddress] = false if correspondence?
@@ -55,6 +61,7 @@ module VAProfile
       end
       # rubocop:enable Metrics/MethodLength
 
+      # Builds Address data for VAProfileRedis::V2::ContactInformation:
       # Converts a decoded JSON response from VAProfile to an instance of the Address model
       # @param body [Hash] the decoded response body from VAProfile
       # @return [VAProfile::Models::Address] the model built from the response body
@@ -68,9 +75,9 @@ module VAProfile
           address_type: body['address_type'].upcase,
           bad_address: body['bad_address'],
           city: body['city_name'],
-          country_name: body['country_name'],
-          country_code_iso2: body['country_code_iso2'],
-          country_code_iso3: body['country_code_iso3'],
+          country_name: body.dig('country', 'country_name'),
+          country_code_iso2: body.dig('country', 'country_code_iso2'),
+          country_code_iso3: body.dig('country', 'country_code_iso3'),
           county_code: body.dig('county', 'county_code'),
           county_name: body.dig('county', 'county_name'),
           created_at: body['create_date'],
@@ -84,12 +91,16 @@ module VAProfile
           longitude: body['longitude'],
           province: body['province_name'],
           source_date: body['source_date'],
-          state_code: body['state_code'],
+          state_code: body.dig('state', 'state_code'),
+          state_name: body.dig('state', 'state_name'),
           transaction_id: body['tx_audit_id'],
           updated_at: body['update_date'],
-          vet360_id: body['vet360_id'],
+          vet360_id: body['vet360_id'] || body['va_profile_id'],
+          va_profile_id: body['va_profile_id'] || body['vet360_id'],
           zip_code: body['zip_code5'],
-          zip_code_suffix: body['zip_code4']
+          zip_code_suffix: body['zip_code4'],
+          override_validation_key: body['override_validation_key'] || body['validation_key'],
+          validation_key: body['override_validation_key'] || body['validation_key']
         )
       end
       # rubocop:enable Metrics/MethodLength

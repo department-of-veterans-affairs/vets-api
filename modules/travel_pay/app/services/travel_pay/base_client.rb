@@ -21,9 +21,11 @@ module TravelPay
 
     ##
     # Create a Faraday connection object
+    # @param server_url [String] The base URL for the service
+    # @param multipart [Boolean] Whether to enable multipart form-data (default: false)
     # @return [Faraday::Connection]
     #
-    def connection(server_url:)
+    def connection(server_url:, multipart: false)
       service_name = Settings.travel_pay.service_name
 
       Faraday.new(url: server_url) do |conn|
@@ -31,7 +33,12 @@ module TravelPay
         conn.response :raise_custom_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if mock_enabled?
         conn.response :json
-        conn.request :json
+        if multipart
+          conn.request :multipart
+          conn.request :url_encoded
+        else
+          conn.request :json
+        end
 
         conn.adapter Faraday.default_adapter
       end

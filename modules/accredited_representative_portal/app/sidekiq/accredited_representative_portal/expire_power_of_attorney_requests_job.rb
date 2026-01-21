@@ -51,6 +51,20 @@ module AccreditedRepresentativePortal
     # Returns true on success, false on failure
     def attempt_expiration(request)
       expire_request(request)
+
+      tags = ['resolution:expired', 'source:expire_job', "poa_code:#{request.power_of_attorney_holder_poa_code}"]
+
+      monitor.track_duration(
+        'vets_api.statsd.ar_poa_request_duration',
+        from: request.created_at,
+        tags:
+      )
+
+      monitor.track_count(
+        'vets_api.statsd.ar_poa_request_count',
+        tags:
+      )
+
       true
     rescue => e
       log_expiration_error(request, e)
@@ -89,6 +103,13 @@ module AccreditedRepresentativePortal
       Rails.logger.info(
         "#{self.class.name}: Finished job. Expired #{results[:expired]} requests. " \
         "Encountered #{results[:errors]} errors."
+      )
+    end
+
+    def monitor
+      @monitor ||= AccreditedRepresentativePortal::Monitoring.new(
+        AccreditedRepresentativePortal::Monitoring::NAME,
+        default_tags: ['job:expire_power_of_attorney_requests']
       )
     end
   end

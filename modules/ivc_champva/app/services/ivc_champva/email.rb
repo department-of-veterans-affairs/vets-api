@@ -6,7 +6,9 @@ module IvcChampva
 
     EMAIL_TEMPLATE_MAP = {
       '10-10D' => Settings.vanotify.services.ivc_champva.template_id.form_10_10d_email,
+      '10-10D-EXTENDED' => Settings.vanotify.services.ivc_champva.template_id.form_10_10d_email,
       '10-10D-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_10d_failure_email,
+      '10-10D-EXTENDED-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_10d_failure_email,
       '10-7959F-1' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_1_email,
       '10-7959F-1-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_1_failure_email,
       '10-7959F-2' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_2_email,
@@ -38,6 +40,8 @@ module IvcChampva
         # See: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#how-teams-can-integrate-with-callbacks
         { callback_klass: data[:callback_klass], callback_metadata: data[:callback_metadata] }
       )
+      Rails.logger.info "Pega Status Update Email: #{data[:file_count].to_i} file(s)"
+
       true
     rescue => e
       Rails.logger.error "Pega Status Update Email Error: #{e.message}"

@@ -56,12 +56,12 @@ module EducationForm
     def send_sco_email
       return if @institution.blank? || school_changed?
 
-      emails = recipients
+      emails = use_internal_recipients? ? internal_recipients : recipients
 
       if emails.any?
         StatsD.increment("#{stats_key}.success")
-        SchoolCertifyingOfficialsMailer.build(@claim.open_struct_form, emails, nil).deliver_now
-        StemApplicantScoMailer.build(@claim.open_struct_form, nil).deliver_now
+        SchoolCertifyingOfficialsMailer.build(@claim.id, emails, nil).deliver_now
+        StemApplicantScoMailer.build(@claim.id, nil).deliver_now
         @claim.email_sent(true)
       else
         StatsD.increment("#{stats_key}.failure")
@@ -71,6 +71,14 @@ module EducationForm
     def recipients
       scos = @institution[:versioned_school_certifying_officials]
       EducationForm::SendSchoolCertifyingOfficialsEmail.sco_emails(scos)
+    end
+
+    def use_internal_recipients?
+      %w[development staging].include?(Settings.vsp_environment.to_s)
+    end
+
+    def internal_recipients
+      Settings.edu.staging_sco_email&.emails || []
     end
 
     def stats_key

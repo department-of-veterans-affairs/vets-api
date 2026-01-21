@@ -11,13 +11,12 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
   let(:primary_next_of_kin) do
     associations.select { |association| association['contactType'] == 'Primary Next of Kin' }
   end
-  let(:associations_with_missing_fields) do
-    associations.map do |association|
-      association.dup.tap do |dup_association|
-        dup_association.delete('role')
-        dup_association.delete('name')
-        dup_association.delete('relationship')
-      end
+  let(:associations_missing_relationship_and_name) do
+    associations = get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec')
+    associations.each do |association|
+      association['name'] = nil
+      association['relationType'] = nil
+      association['role'] = nil
     end
   end
 
@@ -46,6 +45,29 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
           }
         )
       end
+
+      context 'when VES associations are missing name, role, and relationship' do
+        it 'returns the form associations array with default values' do
+          reconciled_associations = described_class.new(
+            associations_missing_relationship_and_name,
+            primary_next_of_kin
+          ).reconcile_associations
+
+          expect(reconciled_associations.count).to eq(3)
+          # The data is in the EZR schema format
+          expect(reconciled_associations.find { |a| a['contactType'] == described_class::UNKNOWN_ROLE }).to eq(
+            {
+              'contactType' => described_class::UNKNOWN_ROLE,
+              'fullName' => {
+                'first' => described_class::UNKNOWN_NAME,
+                'last' => described_class::UNKNOWN_NAME
+              },
+              'relationship' => described_class::UNKNOWN_RELATION,
+              'deleteIndicator' => true
+            }
+          )
+        end
+      end
     end
 
     context 'when no associations were deleted on the frontend' do
@@ -56,28 +78,6 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Reconciler do
         ).reconcile_associations
 
         expect(reconciled_associations).to eq(associations)
-      end
-    end
-
-    context 'when a VES association is missing the required fields' do
-      before do
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'raises an error' do
-        expect do
-          described_class.new(
-            associations_with_missing_fields,
-            associations
-          ).reconcile_associations
-        end.to raise_error(
-          StandardError,
-          'VES association is missing the following field(s): role, name, relationship'
-        )
-        expect(Rails.logger).to have_received(:error).with(
-          'Error transforming VES association: VES association is missing ' \
-          'the following field(s): role, name, relationship'
-        )
       end
     end
   end

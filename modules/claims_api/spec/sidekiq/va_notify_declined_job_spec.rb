@@ -7,13 +7,13 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
 
   let(:va_notify_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY.to_s }
   let(:lockbox) { Lockbox.new(key: Settings.lockbox.master_key) }
+  let(:vanotify_service) { instance_double(VaNotify::Service) }
+  let(:ptcpnt_id) { '123456789' }
+  let(:first_name) { 'Jane' }
+  let(:encrypted_ptcpnt_id) { Base64.strict_encode64(lockbox.encrypt(ptcpnt_id)) }
+  let(:encrypted_first_name) { Base64.strict_encode64(lockbox.encrypt(first_name)) }
 
   context 'when the representative is a service organization' do
-    let(:vanotify_service) { instance_double(VaNotify::Service) }
-    let(:ptcpnt_id) { '123456789' }
-    let(:first_name) { 'Jane' }
-    let(:encrypted_ptcpnt_id) { Base64.strict_encode64(lockbox.encrypt(ptcpnt_id)) }
-    let(:encrypted_first_name) { Base64.strict_encode64(lockbox.encrypt(first_name)) }
     let(:representative_id) { '123' }
 
     before do
@@ -40,11 +40,6 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
   end
 
   context 'when the representative is an individual' do
-    let(:vanotify_service) { instance_double(VaNotify::Service) }
-    let(:ptcpnt_id) { '123456789' }
-    let(:first_name) { 'Jane' }
-    let(:encrypted_ptcpnt_id) { Base64.strict_encode64(lockbox.encrypt(ptcpnt_id)) }
-    let(:encrypted_first_name) { Base64.strict_encode64(lockbox.encrypt(first_name)) }
     let(:representative_id) { '456' }
 
     before do

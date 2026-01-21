@@ -50,6 +50,7 @@
             "trackedItems"
           ],
           "properties": {
+            "claimTypeBase": { "type": ["string", "null"] },
             "claimTypeCode": { "type": "string" },
             "claimType": { "type": "string" },
             "contentions": {
@@ -90,6 +91,7 @@
               }
             },
             "closeDate": { "type": ["string", "null"] },
+            "displayTitle": { "type": ["string", "null"] },
             "decisionLetterSent": { "type": "boolean" },
             "developmentLetterSent": { "type": "boolean" },
             "documentsNeeded": { "type": "boolean" },
@@ -115,7 +117,7 @@
               "enum": ["PENDING", "CLAIM_RECEIVED", "INITIAL_REVIEW", "EVIDENCE_GATHERING_REVIEW_DECISION", "PREPARATION_FOR_NOTIFICATION", "COMPLETE", "ERRORED", "CANCELED"]
             },
             "submitterApplicationCode": { "type": ["string", "null"] },
-            "submitterRoleCode": { "type": "string" },
+            "submitterRoleCode": { "type": ["string", "null"] },
             "supportingDocuments": {
               "type": "array",
               "items": {

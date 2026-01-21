@@ -35,11 +35,26 @@ FactoryBot.define do
     end
   end
 
+  # FAILED records without delete_date should NOT be deleted
+  # (these represent records where failure notification email failed to send)
   factory :bd_evidence_submission_not_for_deletion, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc - 61.days }
+    delete_date { nil }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    va_notify_id { SecureRandom.uuid }
+    va_notify_date { DateTime.now.utc - 61.days }
+  end
+
+  # FAILED records WITH delete_date should be deleted
+  # (these represent records where failure notification email was successfully sent)
+  factory :bd_failed_evidence_submission_for_deletion, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc - 61.days }
     delete_date { DateTime.now.utc - 1.day }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    va_notify_id { SecureRandom.uuid }
+    va_notify_date { DateTime.now.utc - 61.days }
   end
 
   factory :bd_evidence_submission_timeout, class: 'EvidenceSubmission' do

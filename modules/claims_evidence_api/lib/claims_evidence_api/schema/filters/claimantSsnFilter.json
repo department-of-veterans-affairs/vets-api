@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/claimantSsnFilter.json",
+  "description" : "Filter based on the claimant SSN.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "description" : "This is a stringified json array of integers",
+      "example" : "\"[137,12837]\"",
+      "type" : "string"
+    }
+  },
+  "title" : "Claimant SSN Request",
+  "type" : "object"
+}

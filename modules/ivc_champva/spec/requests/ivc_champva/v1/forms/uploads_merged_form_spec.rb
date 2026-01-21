@@ -87,7 +87,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
       it 'successfully processes a basic form submission without errors' do
         # Set expectations for the private methods
         expect(request_controller).to receive(:generate_ohi_form).once.and_call_original
-        expect(request_controller).to receive(:create_ohi_attachment).once.and_call_original
+        expect(request_controller).to receive(:create_custom_attachment).once.and_call_original
         expect(request_controller).to receive(:add_supporting_doc).once.and_call_original
 
         post '/ivc_champva/v1/forms/10-10d-ext', params: form_data
@@ -143,7 +143,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
       end
     end
 
-    describe 'create_ohi_attachment' do
+    describe 'create_custom_attachment' do
       it 'creates a persistent attachment record' do
         # Create a mock form with required attributes
         form = instance_double(
@@ -165,7 +165,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
           allow(controller).to receive(:fill_ohi_and_return_path).with(form).and_return(path)
 
           # Call the private method
-          attachment_data = controller.send(:create_ohi_attachment, form)
+          attachment_data = controller.send(:create_custom_attachment, form, path, 'VA form 10-7959c')
 
           # Verify the attachment was created with expected data
           expect(attachment_data).not_to be_nil
@@ -229,22 +229,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
 
         expect(result.length).to eq(1)
         expect(result.first['first_name']).to eq('John')
-      end
-    end
-
-    describe 'environment checks' do
-      it 'does not run in production environment' do
-        # Temporarily change environment to production
-        allow(Settings).to receive(:vsp_environment).and_return('production')
-
-        # Setup request
-        allow(IvcChampva::V1::UploadsController).to receive(:new).and_return(controller)
-        expect(controller).not_to receive(:generate_ohi_form)
-
-        post '/ivc_champva/v1/forms/10-10d-ext', params: form_data
-
-        # Expect immediate return without processing
-        expect(response).to be_successful
       end
     end
   end

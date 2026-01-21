@@ -36,29 +36,60 @@ RSpec.describe IvcChampva::VHA107959f2 do
   end
 
   describe '#metadata' do
-    it 'returns metadata for the form' do
-      metadata = vha107959f2.metadata
+    context 'when champva_update_metadata_keys flipper is enabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(true)
+        metadata = vha107959f2.metadata
 
-      expect(metadata).to include(
-        'veteranFirstName' => 'John',
-        'veteranMiddleName' => 'P',
-        'veteranLastName' => 'Doe',
-        'fileNumber' => '123456789',
-        'ssn_or_tin' => '123456789',
-        'zipCode' => '12345',
-        'country' => 'USA',
-        'source' => 'VA Platform Digital Forms',
-        'docType' => '10-7959F-2',
-        'businessLine' => 'CMP',
-        'primaryContactInfo' => {
-          'name' => {
-            'first' => 'Veteran',
-            'last' => 'Surname'
+        expect(metadata).to include(
+          'sponsorFirstName' => 'John',
+          'sponsorMiddleName' => 'P',
+          'sponsorLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'ssn_or_tin' => '123456789',
+          'zipCode' => '12345',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959F-2',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => 'email@address.com'
           },
-          'email' => 'email@address.com'
-        },
-        'primaryContactEmail' => 'email@address.com'
-      )
+          'primaryContactEmail' => 'email@address.com'
+        )
+      end
+    end
+
+    context 'when champva_update_metadata_keys flipper is disabled' do
+      it 'returns metadata for the form' do
+        allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+        metadata = vha107959f2.metadata
+
+        expect(metadata).to include(
+          'veteranFirstName' => 'John',
+          'veteranMiddleName' => 'P',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '123456789',
+          'ssn_or_tin' => '123456789',
+          'zipCode' => '12345',
+          'country' => 'USA',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '10-7959F-2',
+          'businessLine' => 'CMP',
+          'primaryContactInfo' => {
+            'name' => {
+              'first' => 'Veteran',
+              'last' => 'Surname'
+            },
+            'email' => 'email@address.com'
+          },
+          'primaryContactEmail' => 'email@address.com'
+        )
+      end
     end
   end
 

@@ -23,10 +23,25 @@ module DecisionReviews
         DR_LOCKBOX.encrypt(payload.to_json)
       end
 
+      def format_phone_number(phone)
+        return {} if phone.blank?
+
+        country_code = phone['countryCode'] || ''
+        area_code = phone['areaCode'] || ''
+        number = phone['phoneNumber']
+
+        if country_code == '1' || country_code.blank?
+          { veteranPhone: "#{area_code}#{number}" }
+        else
+          { internationalPhoneNumber: "+#{country_code} #{area_code}#{number}" }
+        end
+      end
+
       def get_and_rejigger_required_info(request_body:, form4142:, user:)
         data = request_body['data']
         attrs = data['attributes']
         vet = attrs['veteran']
+
         x = {
           vaFileNumber: user.ssn.to_s.strip.presence,
           veteranSocialSecurityNumber: user.ssn.to_s.strip.presence,
@@ -37,9 +52,10 @@ module DecisionReviews
           },
           veteranDateOfBirth: user.birth_date.to_s.strip.presence,
           veteranAddress: transform_address_fields(vet['address']),
-          email: vet['email'],
-          veteranPhone: "#{vet['phone']['areaCode']}#{vet['phone']['phoneNumber']}"
+          email: vet['email']
         }
+
+        x.merge!(format_phone_number(vet['phone'])).compact!
 
         transformed_form4142 = transform_form4142_data(form4142)
         x.merge(transformed_form4142).deep_stringify_keys
@@ -96,6 +112,17 @@ module DecisionReviews
         end
 
         headers
+      end
+
+      def normalize_area_code_for_lighthouse_schema(req_body_obj)
+        phone = req_body_obj.dig('data', 'attributes', 'veteran', 'phone')
+        area_code = phone&.dig('areaCode')
+
+        return req_body_obj if area_code.is_a?(String) && !area_code.empty?
+
+        phone_hash = req_body_obj.dig('data', 'attributes', 'veteran', 'phone')
+        phone_hash.delete('areaCode') if phone_hash.is_a?(Hash)
+        req_body_obj
       end
     end
   end

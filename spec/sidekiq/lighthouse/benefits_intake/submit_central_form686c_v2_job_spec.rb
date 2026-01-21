@@ -6,6 +6,13 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
   stub_virus_scan
   subject(:job) { described_class.new }
 
+  before do
+    allow(PdfFill::Filler)
+      .to receive(:fill_form) { |saved_claim, *_|
+        "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
+      }
+  end
+
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
   let(:claim_v2) { create(:dependency_claim_v2) }
@@ -55,7 +62,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
     {
       'queue' => 'default',
       'args' => [],
-      'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob',
+      'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job',
       'error_message' => 'An error occurred'
     }
   end
@@ -138,20 +145,30 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
       end
 
       it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_received686',
-          { 'confirmation_number' => claim_v2.confirmation_number,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'MARK' },
-          'fake_secret',
-          { callback_klass: 'Dependents::NotificationCallback',
-            callback_metadata: { email_template_id: 'fake_received686',
-                                 email_type: :received686,
-                                 form_id: '686C-674-V2',
-                                 saved_claim_id: claim_v2.id,
-                                 service_name: 'dependents' } }
+        vanotify = double(send_email: true)
+        callback_options = {
+          callback_klass: 'Dependents::NotificationCallback',
+          callback_metadata: { email_template_id: 'fake_received686',
+                               email_type: :received686,
+                               form_id: '686C-674-V2',
+                               claim_id: claim_v2.id,
+                               saved_claim_id: claim_v2.id,
+                               service_name: 'dependents' }
+        }
+
+        personalization = { 'confirmation_number' => claim_v2.confirmation_number,
+                            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                            'first_name' => 'MARK' }
+
+        expect(VaNotify::Service).to receive(:new).with('fake_secret', callback_options).and_return(vanotify)
+        expect(vanotify).to receive(:send_email).with(
+          {
+            email_address: user_struct.va_profile_email,
+            template_id: 'fake_received686',
+            personalisation: personalization
+          }.compact
         )
+
         expect(claim_v2).to receive(:submittable_686?).and_return(true).exactly(4).times
         expect(claim_v2).to receive(:submittable_674?).and_return(false).at_least(:once)
         subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct)
@@ -161,6 +178,16 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
 
     describe 'get files from claim' do
       subject { job.get_files_from_claim }
+
+      # Performance tweak
+      # We are not testing the PDF generation or process_pdf method here. These are computationally expensive
+      # and are tested in other specs
+      # rubocop:disable RSpec/SubjectStub
+      before do
+        allow(claim_v2).to receive(:to_pdf).and_return('mocked.pdf')
+        allow(job).to receive(:process_pdf).and_return('mocked-processed.pdf')
+      end
+      # rubocop:enable RSpec/SubjectStub
 
       it 'compiles 686 and 674 files and returns attachments array with the generated 674' do
         job.instance_variable_set('@claim', claim_v2)
@@ -286,168 +313,84 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job, :uploader
     end
   end
 
-  describe 'sidekiq_retries_exhausted block with dependents_trigger_action_needed_email flipper on' do
+  describe 'sidekiq_retries_exhausted block' do
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
       allow(Dependents::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
-      allow(Flipper).to receive(:enabled?).with(:dependents_trigger_action_needed_email).and_return(true)
     end
 
-    context 'when the the dependents_failure_callback_email flipper is off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_failure_callback_email).and_return(false)
-      end
-
-      it 'logs the error to zsf and sends an email with the 686C template' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          claim.parsed_form['view:selectable686_options']['report674'] = false
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'vets.gov.user+228@gmail.com',
-            'form21_686c_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-
-      it 'logs the error to zsf and sends an email with the 674 template' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          claim.parsed_form['view:selectable686_options'].delete('add_child')
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'vets.gov.user+228@gmail.com',
-            'form21_674_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-
-      it 'logs the error to zsf and a combo email with 686c-674' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          expect(VANotify::EmailJob).to receive(:perform_async).with(
-            'vets.gov.user+228@gmail.com',
-            'form21_686c_674_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-
-      it 'logs the error to zsf and does not send an email' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          user_struct.va_profile_email = nil
-          claim.parsed_form['dependents_application'].delete('veteran_contact_information')
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-        end
+    it 'logs the error to zsf and sends an email with the 686C template' do
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+        claim.parsed_form['view:selectable686_options']['report674'] = false
+        expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
+          claim.id,
+          'vets.gov.user+228@gmail.com',
+          'form21_686c_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
       end
     end
 
-    context 'when the the dependents_failure_callback_email flipper is on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_failure_callback_email).and_return(true)
+    it 'logs the error to zsf and sends an email with the 674 template' do
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+        claim.parsed_form['view:selectable686_options'].delete('add_child')
+        expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
+          claim.id,
+          'vets.gov.user+228@gmail.com',
+          'form21_674_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
       end
+    end
 
-      it 'logs the error to zsf and sends an email with the 686C template' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          claim.parsed_form['view:selectable686_options']['report674'] = false
-          expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
-            claim.id,
-            'vets.gov.user+228@gmail.com',
-            'form21_686c_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
+    it 'logs the error to zsf and a combo email with 686c-674' do
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
+          claim.id,
+          'vets.gov.user+228@gmail.com',
+          'form21_686c_674_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
       end
+    end
 
-      it 'logs the error to zsf and sends an email with the 674 template' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          claim.parsed_form['view:selectable686_options'].delete('add_child')
-          expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
-            claim.id,
-            'vets.gov.user+228@gmail.com',
-            'form21_674_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-
-      it 'logs the error to zsf and a combo email with 686c-674' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-          expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async).with(
-            claim.id,
-            'vets.gov.user+228@gmail.com',
-            'form21_686c_674_action_needed_email_template_id',
-            {
-              'first_name' => 'MARK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
-
-      it 'logs the error to zsf and does not send an email' do
-        Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
-        ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          user_struct.va_profile_email = nil
-          claim.parsed_form['dependents_application'].delete('veteran_contact_information')
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-          expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-        end
+    it 'logs the error to zsf and does not send an email' do
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        user_struct.va_profile_email = nil
+        claim.parsed_form['dependents_application'].delete('veteran_contact_information')
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
       end
     end
   end
