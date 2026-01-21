@@ -255,4 +255,28 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     # Clean up test data
     batch.each(&:destroy)
   end
+
+  it 'catches PegaApiError and logs error without crashing the job' do
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil)
+    ]
+
+    # Mock Pega API to raise the namespaced error
+    allow(job.pega_api_client).to receive(:record_has_matching_report)
+      .and_raise(IvcChampva::PegaApi::PegaApiError.new('Connection timeout'))
+
+    # Expect the error to be logged
+    expect(Rails.logger).to receive(:error).with(
+      /IVC Forms MissingFormStatusJob - PegaApiError during report check - form_uuid: #{form_uuid}, error: Connection timeout/
+    )
+
+    # Should return false (not reconciled) but not raise an exception
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be false
+
+    # Clean up test data
+    batch.each(&:destroy)
+  end
 end
