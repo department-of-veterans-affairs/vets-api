@@ -375,6 +375,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
 
   describe 'POST #authenticate_otc' do
     let(:jwt_token) { 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token' }
+    let(:jti) { SecureRandom.uuid }
+    let(:jwt_result) { { token: jwt_token, jti: } }
     let(:params) do
       {
         uuid:,
@@ -405,7 +407,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           valid_for_validation?: true,
           valid_otc?: true,
           otc_expired?: false,
-          validate_and_generate_jwt: jwt_token,
+          validate_and_generate_jwt: jwt_result,
           uuid:
         )
         allow(session_model).to receive(:create_authenticated_session).and_return(true)
@@ -428,8 +430,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :authenticate_otc, params:, format: :json
       end
 
-      it 'validates and generates JWT' do
-        expect(session_model).to receive(:validate_and_generate_jwt).and_return(jwt_token)
+      it 'validates and generates JWT and returns hash with token and jti' do
+        expect(session_model).to receive(:validate_and_generate_jwt).and_return(jwt_result)
         post :authenticate_otc, params:, format: :json
       end
     end
