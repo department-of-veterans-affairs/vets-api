@@ -1,0 +1,358 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/claims/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<CLIENT_ASSERTION>&scope=system%2Fclaim.read+system%2Fclaim.write+system%2F526-pdf.override+system%2F526.override
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 23 Jan 2026 06:07:59 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '239'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '239'
+      Ratelimit-Reset:
+      - '1'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"45e-KsIC5nesh7rBobKMoJR8UBOE61E:dtagent10323250822043923XVuO"
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-1967880711"
+      X-Envoy-Upstream-Service-Time:
+      - '344'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - a2b5103b-72ba-444b-9f53-fde2f7fbb41e#2411206
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"<TOKEN>","token_type":"Bearer","scope":"system/526.override
+        system/526-pdf.override system/claim.write system/claim.read","expires_in":300,"state":null}'
+  recorded_at: Fri, 23 Jan 2026 06:07:58 GMT
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012666073V986297/526/synchronous"
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "data": {
+            "type": "form/526",
+            "attributes": {
+              "claimantCertification": true,
+              "claimProcessType": "BDD_PROGRAM",
+              "veteranIdentification": {
+                "mailingAddress": {
+                  "addressLine1": "1700 Clairmont Rd",
+                  "addressLine2": null,
+                  "addressLine3": null,
+                  "city": "Decatur",
+                  "country": "USA",
+                  "zipFirstFive": "30033",
+                  "zipLastFour": "4032",
+                  "state": "GA",
+                  "internationalPostalCode": null
+                },
+                "serviceNumber": null,
+                "emailAddress": {
+                  "email": "vets.gov.user80@gmail.com",
+                  "agreeToEmailRelatedToClaim": null
+                },
+                "veteranNumber": {
+                  "telephone": "2023336688",
+                  "internationalTelephone": null
+                },
+                "currentVaEmployee": false
+              },
+              "changeOfAddress": null,
+              "homeless": {
+                "pointOfContact": "Jon Doe",
+                "pointOfContactNumber": {
+                  "telephone": "4105551234",
+                  "internationalTelephone": null
+                },
+                "currentlyHomeless": {
+                  "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                  "otherDescription": null
+                },
+                "riskOfBecomingHomeless": null
+              },
+              "toxicExposure": {
+                "gulfWarHazardService": null,
+                "herbicideHazardService": null,
+                "additionalHazardExposures": null
+              },
+              "disabilities": [
+                {
+                  "disabilityActionType": "NEW",
+                  "name": "ACL tear (anterior cruciate ligament tear), Right",
+                  "approximateDate": "2015-01-01",
+                  "classificationCode": null,
+                  "serviceRelevance": "Caused by an in-service event, injury, or exposure\nThis disability is related to my military service.",
+                  "isRelatedToToxicExposure": false,
+                  "exposureOrEventOrInjury": "My condition was caused by an injury or exposure during my military service.",
+                  "ratedDisabilityId": null,
+                  "diagnosticCode": null,
+                  "secondaryDisabilities": []
+                }
+              ],
+              "treatments": [],
+              "serviceInformation": {
+                "servicePeriods": [
+                  {
+                    "serviceBranch": "Air Force",
+                    "activeDutyBeginDate": "2010-01-01",
+                    "activeDutyEndDate": "2026-06-01",
+                    "serviceComponent": "Active",
+                    "separationLocationCode": "98283"
+                  }
+                ],
+                "reservesNationalGuardService": null,
+                "alternateNames": [],
+                "servedInActiveCombatSince911": null,
+                "federalActivation": null
+              },
+              "servicePay": {
+                "favorTrainingPay": true,
+                "favorMilitaryRetiredPay": true,
+                "receivingMilitaryRetiredPay": "YES",
+                "futureMilitaryRetiredPay": null,
+                "futureMilitaryRetiredPayExplanation": null,
+                "militaryRetiredPay": {
+                  "branchOfService": "Air Force",
+                  "monthlyAmount": null
+                },
+                "retiredStatus": null,
+                "receivedSeparationOrSeverancePay": "YES",
+                "separationSeverancePay": {
+                  "datePaymentReceived": "2015",
+                  "branchOfService": "Air Force",
+                  "preTaxAmountReceived": null
+                }
+              },
+              "directDeposit": {
+                "accountType": "CHECKING",
+                "accountNumber": "0000000000",
+                "routingNumber": "000000000",
+                "financialInstitutionName": "Testing",
+                "noAccount": null
+              },
+              "claimNotes": "Corporate Flash Details\nThis applicant has indicated that they're terminally ill.\n"
+            }
+          },
+          "meta": {
+            "transactionId": "Form526Submission_5, user_uuid: 7c7de827-4ebb-47f9-b51a-02d26a7133f2, service_provider: lighthouse"
+          }
+        }
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 202
+      message: Accepted
+    headers:
+      Date:
+      - Fri, 23 Jan 2026 06:08:00 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '2648'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '1'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Location:
+      - "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012666073V986297/claims/a6925c14-8edf-42de-adf9-24d963b1019e"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - fa32a6fdd53bc8dca51fc63596ef23ea8596553d
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 58b4c971-a04e-4659-a6ff-2328a624ec22
+      X-Runtime:
+      - '0.935904'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - a2b5103b-72ba-444b-9f53-fde2f7fbb41e#2411207
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "data": {
+            "id": "a6925c14-8edf-42de-adf9-24d963b1019e",
+            "type": "forms/526",
+            "attributes": {
+              "claimId": "600150327",
+              "claimantCertification": true,
+              "claimProcessType": "BDD_PROGRAM",
+              "veteranIdentification": {
+                "mailingAddress": {
+                  "addressLine1": "1700 Clairmont Rd",
+                  "addressLine2": null,
+                  "addressLine3": null,
+                  "city": "Decatur",
+                  "country": "USA",
+                  "zipFirstFive": "30033",
+                  "zipLastFour": "4032",
+                  "state": "GA",
+                  "internationalPostalCode": null
+                },
+                "serviceNumber": null,
+                "emailAddress": {
+                  "email": "vets.gov.user80@gmail.com",
+                  "agreeToEmailRelatedToClaim": null
+                },
+                "veteranNumber": {
+                  "telephone": "2023336688",
+                  "internationalTelephone": null
+                },
+                "currentVaEmployee": false
+              },
+              "changeOfAddress": null,
+              "homeless": {
+                "pointOfContact": "Jon Doe",
+                "pointOfContactNumber": {
+                  "telephone": "4105551234",
+                  "internationalTelephone": null
+                },
+                "currentlyHomeless": {
+                  "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                  "otherDescription": null
+                },
+                "riskOfBecomingHomeless": null
+              },
+              "toxicExposure": {
+                "gulfWarHazardService": null,
+                "herbicideHazardService": null,
+                "additionalHazardExposures": null
+              },
+              "disabilities": [
+                {
+                  "disabilityActionType": "NEW",
+                  "name": "ACL tear (anterior cruciate ligament tear), Right",
+                  "approximateDate": "2015-01-01",
+                  "classificationCode": null,
+                  "serviceRelevance": "Caused by an in-service event, injury, or exposure\nThis disability is related to my military service.",
+                  "isRelatedToToxicExposure": false,
+                  "exposureOrEventOrInjury": "My condition was caused by an injury or exposure during my military service.",
+                  "ratedDisabilityId": null,
+                  "diagnosticCode": null,
+                  "secondaryDisabilities": []
+                }
+              ],
+              "treatments": [],
+              "serviceInformation": {
+                "servicePeriods": [
+                  {
+                    "serviceBranch": "Air Force",
+                    "activeDutyBeginDate": "2010-01-01",
+                    "activeDutyEndDate": "2026-06-01",
+                    "serviceComponent": "Active",
+                    "separationLocationCode": "98283"
+                  }
+                ],
+                "reservesNationalGuardService": null,
+                "alternateNames": [],
+                "servedInActiveCombatSince911": null,
+                "federalActivation": null
+              },
+              "servicePay": {
+                "favorTrainingPay": true,
+                "favorMilitaryRetiredPay": true,
+                "receivingMilitaryRetiredPay": "YES",
+                "futureMilitaryRetiredPay": null,
+                "futureMilitaryRetiredPayExplanation": null,
+                "militaryRetiredPay": {
+                  "branchOfService": "Air Force",
+                  "monthlyAmount": null
+                },
+                "retiredStatus": null,
+                "receivedSeparationOrSeverancePay": "YES",
+                "separationSeverancePay": {
+                  "datePaymentReceived": "2015",
+                  "branchOfService": "Air Force",
+                  "preTaxAmountReceived": null
+                }
+              },
+              "directDeposit": {
+                "accountType": "CHECKING",
+                "accountNumber": "0000000000",
+                "routingNumber": "000000000",
+                "financialInstitutionName": "Testing",
+                "noAccount": null
+              },
+              "claimNotes": "Corporate Flash Details\nThis applicant has indicated that they're terminally ill.\n"
+            }
+          },
+          "meta": {
+            "transactionId": "Form526Submission_5, user_uuid: 7c7de827-4ebb-47f9-b51a-02d26a7133f2, service_provider: lighthouse"
+          }
+        }
+  recorded_at: Fri, 23 Jan 2026 06:07:58 GMT
+recorded_with: VCR 6.4.0
