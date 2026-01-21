@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'claim_letters/claim_letter_downloader'
-require 'common/exceptions/serializable_error'
 
 module Mobile
   module V0
