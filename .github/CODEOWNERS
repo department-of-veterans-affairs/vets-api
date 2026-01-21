@@ -1084,6 +1084,7 @@ lib/veteran_enrollment_system @department-of-veterans-affairs/health-apps-backen
 lib/veteran_enrollment_system/enrollment_periods @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 lib/veteran_enrollment_system/form1095_b @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 lib/veteran_facing_services @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
+lib/veteran_status_card @department-of-veterans-affairs/mobile-api-team
 lib/vetext @department-of-veterans-affairs/mobile-api-team
 lib/vets @department-of-veterans-affairs/backend-review-group
 lib/vic @department-of-veterans-affairs/octo-identity
@@ -1654,6 +1655,7 @@ spec/lib/veteran_enrollment_system @department-of-veterans-affairs/health-apps-b
 spec/lib/veteran_enrollment_system/enrollment_periods @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 spec/lib/veteran_enrollment_system/form1095_b @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 spec/lib/veteran_facing_services @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
+spec/lib/veteran_status_card @department-of-veterans-affairs/mobile-api-team
 spec/lib/vetext @department-of-veterans-affairs/mobile-api-team
 spec/lib/vets @department-of-veterans-affairs/backend-review-group
 spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
