@@ -76,6 +76,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns available slots status with appointment data' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.availability.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:availability'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
               VCR.use_cassette('vass/appointments/get_availability_success', match_requests_on: %i[method uri]) do
@@ -139,6 +146,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns no_slots_available error' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.infrastructure.availability.no_slots_available',
+            hash_including(tags: array_including('service:vass'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_unbooked_cohort', match_requests_on: %i[method uri]) do
               VCR.use_cassette('vass/appointments/get_availability_no_slots', match_requests_on: %i[method uri]) do
@@ -180,6 +194,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns conflict status with appointment details' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.infrastructure.availability.already_booked',
+            hash_including(tags: array_including('service:vass'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_booked_cohort', match_requests_on: %i[method uri]) do
               get('/vass/v0/appointment-availability', headers:)
@@ -192,8 +213,8 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
               expect(json_response['errors'].first['detail']).to eq('already scheduled')
               expect(json_response['errors'].first['appointment']).to be_present
               expect(json_response['errors'].first['appointment']['appointmentId']).to be_present
-              expect(json_response['errors'].first['appointment']['dtStartUTC']).to be_present
-              expect(json_response['errors'].first['appointment']['dtEndUTC']).to be_present
+              expect(json_response['errors'].first['appointment']['dtStartUtc']).to be_present
+              expect(json_response['errors'].first['appointment']['dtEndUtc']).to be_present
             end
           end
         end
@@ -234,6 +255,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
 
         it 'returns success with next cohort details' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.infrastructure.availability.next_cohort',
+            hash_including(tags: array_including('service:vass'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_future_cohort_only',
                              match_requests_on: %i[method uri]) do
@@ -254,6 +282,13 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
 
       context 'when no cohorts are available' do
         it 'returns error with message' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.infrastructure.availability.no_cohorts',
+            hash_including(tags: array_including('service:vass'))
+          ).and_call_original
+
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/get_appointments_no_cohorts', match_requests_on: %i[method uri]) do
               get('/vass/v0/appointment-availability', headers:)

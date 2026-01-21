@@ -129,7 +129,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       post(:create, params: form_params)
 
       submission = FormSubmission.last
-      expect(submission.form_type).to eq('28-1900-V2')
+      expect(submission.form_type).to eq('28-1900')
     end
 
     it 'passes FormSubmission ID to job as third argument' do

@@ -121,6 +121,14 @@ RSpec.describe DependentsVerification::V0::ClaimsController, type: :request do
           end
         end
       end
+
+      it 'sets the user account on the claim' do
+        allow(DependentsVerification::SavedClaim).to receive(:new).and_call_original
+        post '/dependents_verification/v0/claims', params: { dependents_verification_claim: { form: claim.form } }
+        created_claim = DependentsVerification::SavedClaim.last
+
+        expect(created_claim.user_account).to eq(user.user_account)
+      end
     end
   end
 
