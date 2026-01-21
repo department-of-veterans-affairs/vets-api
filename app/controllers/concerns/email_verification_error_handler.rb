@@ -43,8 +43,7 @@ module EmailVerificationErrorHandler
 
     begin
       if respond_to?(:get_email_verification_rate_limit_info)
-        log_data[:rate_limit_info] =
-          get_email_verification_rate_limit_info
+        log_data[:rate_limit_info] = get_email_verification_rate_limit_info
       end
     rescue => e
       log_data[:rate_limit_info_error] = e.message
@@ -64,14 +63,12 @@ module EmailVerificationErrorHandler
 
   def render_email_service_unavailable_error
     render json: {
-      errors: [
-        {
-          title: 'Email Verification Service Unavailable',
-          detail: 'The email verification service is temporarily unavailable. Please try again later.',
-          code: 'EMAIL_VERIFICATION_SERVICE_UNAVAILABLE',
-          status: '503'
-        }
-      ]
+      errors: [{
+        title: 'Email Verification Service Unavailable',
+        detail: 'The email verification service is temporarily unavailable. Please try again later.',
+        code: 'EMAIL_VERIFICATION_SERVICE_UNAVAILABLE',
+        status: '503'
+      }]
     }, status: :service_unavailable
   end
 
@@ -85,30 +82,24 @@ module EmailVerificationErrorHandler
     response.headers['Retry-After'] = retry_after.to_s
 
     render json: {
-      errors: [
-        {
-          title: 'Email Verification Rate Limit Exceeded',
-          detail: 'Too many verification emails sent. Please wait before requesting another verification email.',
-          code: 'EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED',
-          status: '429',
-          meta: {
-            retry_after_seconds: retry_after
-          }
-        }
-      ]
+      errors: [{
+        title: 'Email Verification Rate Limit Exceeded',
+        detail: 'Too many verification emails sent. Please wait before requesting another verification email.',
+        code: 'EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED',
+        status: '429',
+        meta: { retry_after_seconds: retry_after }
+      }]
     }, status: :too_many_requests
   end
 
   def render_verification_internal_error
     render json: {
-      errors: [
-        {
-          title: 'Email Verification Error',
-          detail: 'An unexpected error occurred during email verification. Please try again later.',
-          code: 'EMAIL_VERIFICATION_INTERNAL_ERROR',
-          status: '500'
-        }
-      ]
+      errors: [{
+        title: 'Email Verification Error',
+        detail: 'An unexpected error occurred during email verification. Please try again later.',
+        code: 'EMAIL_VERIFICATION_INTERNAL_ERROR',
+        status: '500'
+      }]
     }, status: :internal_server_error
   end
 
