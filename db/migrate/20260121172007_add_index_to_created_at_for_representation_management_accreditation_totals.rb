@@ -1,4 +1,4 @@
-class AddIndexesToTimestampsForRepresentationManagementAccreditationTotals < ActiveRecord::Migration[7.2]
+class AddIndexToCreatedAtForRepresentationManagementAccreditationTotals < ActiveRecord::Migration[7.2]
   disable_ddl_transaction!
 
   def change
