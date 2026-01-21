@@ -28,9 +28,6 @@ module Burials
         # An external iterator used in data processing
         ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
-        # The path to the PDF template for the form
-        TEMPLATE = Burials::PDF_PATH
-
         # Starting page number for overflow pages
         START_PAGE = 10
 
@@ -166,15 +163,6 @@ module Burials
         end
 
         ##
-        # Returns the section classes to use based on the current version (V1 or V2).
-        # Controlled by the burial_pdf_form_alignment Flipper flag.
-        #
-        # @return [Array<Class>] Array of section classes (V1 or V2)
-        def section_classes
-          use_v2? ? SECTION_CLASSES_V2 : SECTION_CLASSES
-        end
-
-        ##
         # The crux of the class, this method merges all the data that has been converted into @form_data
         #
         # @param _options [Hash]
@@ -197,7 +185,16 @@ module Burials
         #
         # @return [Array<Hash>] Array of question mappings with question_number and question_text
         def question_key
-          use_v2? ? QUESTION_KEY_V2 : QUESTION_KEY
+          Burials.use_v2? ? QUESTION_KEY_V2 : QUESTION_KEY
+        end
+
+        ##
+        # Returns the section classes to use based on the current version (V1 or V2).
+        # Controlled by the burial_pdf_form_alignment Flipper flag.
+        #
+        # @return [Array<Class>] Array of section classes (V1 or V2)
+        def section_classes
+          Burials.use_v2? ? SECTION_CLASSES_V2 : SECTION_CLASSES
         end
 
         ##
@@ -206,7 +203,7 @@ module Burials
         #
         # @return [Array<Hash>] Array of section definitions with label and question_nums
         def sections
-          use_v2? ? SECTIONS_V2 : SECTIONS
+          Burials.use_v2? ? SECTIONS_V2 : SECTIONS
         end
 
         ##
@@ -215,12 +212,6 @@ module Burials
         # @return [String] Path to the PDF template file
         def template
           Burials.pdf_path
-        end
-
-        private
-
-        def use_v2?
-          Flipper.enabled?(:burial_pdf_form_alignment)
         end
       end
     end

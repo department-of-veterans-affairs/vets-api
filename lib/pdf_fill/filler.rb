@@ -260,12 +260,7 @@ module PdfFill
       form_instance = form_class.new(merged_form_data)
 
       # Dynamic KEY support (same pattern as question_key/template)
-      pdftk_keys = if form_instance.respond_to?(:key)
-                     form_instance.key
-                   else
-                     form_class::KEY
-                   end
-
+      pdftk_keys = form_instance.try(:key) || form_class::KEY
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options, merged_form_data)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys:)
 
@@ -316,22 +311,11 @@ module PdfFill
       processor.process
     end
 
-    # rubocop:disable Metrics/MethodLength
     # Pension/Burial Team to remove instance changes after V2 in production
     def make_hash_converter(form_id, form_class, submit_date, fill_options, form_data = {})
-      # Check if instance methods exist without instantiating
-      has_question_key_method = form_class.instance_methods.include?(:question_key)
-      has_sections_method = form_class.instance_methods.include?(:sections)
-
-      # Only instantiate if we need the dynamic methods
-      if has_question_key_method && has_sections_method && form_data.present?
-        form_instance = form_class.new(form_data)
-        question_key = has_question_key_method ? form_instance.question_key : form_class::QUESTION_KEY
-        sections = has_sections_method ? form_instance.sections : form_class::SECTIONS
-      else
-        question_key = form_class::QUESTION_KEY
-        sections = form_class::SECTIONS
-      end
+      form_instance = form_class.new(form_data) if form_data.present?
+      question_key = form_instance.try(:question_key) || form_class::QUESTION_KEY
+      sections = form_instance.try(:sections) || form_class::SECTIONS
 
       extras_generator =
         if fill_options.fetch(:extras_redesign, false)
@@ -350,7 +334,6 @@ module PdfFill
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
-    # rubocop:enable Metrics/MethodLength
 
     def should_stamp_form?(form_id, fill_options, submit_date)
       return false if fill_options[:omit_esign_stamp]
