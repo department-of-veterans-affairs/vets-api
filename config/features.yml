@@ -240,7 +240,7 @@ features:
   ezr_service_history_enabled:
     actor_type: user
     description: Enables Service History flow in the 10-10EZR form.
-    enable_in_development: false   
+    enable_in_development: false
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
@@ -1235,9 +1235,13 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  identity_ial2_enforcement:
+  identity_idme_ial2_enforcement:
     actor_type: user
-    description: Enforces IAL2 for newly verified users
+    description: Enforces IAL2 for newly verified id.me users
+    enable_in_development: false
+  identity_logingov_ial2_enforcement:
+    actor_type: user
+    description: Enforces IAL2 facial recognition for newly verified login.gov users
     enable_in_development: false
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
@@ -2807,7 +2811,6 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-    
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
