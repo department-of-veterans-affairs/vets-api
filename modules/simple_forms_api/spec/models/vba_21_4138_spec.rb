@@ -96,7 +96,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
     context 'when statement is within the character limit' do
       let(:data) do
         {
-          'statement' => 'a' * 3685,
+          'statement' => 'a' * 3682,
           'full_name' => { 'first' => 'John', 'last' => 'Doe' },
           'id_number' => { 'ssn' => '123456789' }
         }

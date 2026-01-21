@@ -13,6 +13,7 @@ module SimpleFormsApi
       @timestamp = timestamp
     end
 
+    # rubocop:disable Metrics/MethodLength
     def generate
       text = overflow_text
       return nil if text.blank?
@@ -72,9 +73,12 @@ module SimpleFormsApi
 
       gen.generate
     rescue => e
-      Rails.logger.error("Failed to generate overflow PDF: #{e.class} - #{e.message}\n#{e.backtrace&.join("\n")}")
+      Rails.logger.error(
+        "OverflowPdfGenerator failed: #{e.class} at #{e.backtrace&.first}"
+      )
       nil
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
