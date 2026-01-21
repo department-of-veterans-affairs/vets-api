@@ -1,7 +1,18 @@
 # frozen_string_literal: true
 
+##
+# EmailVerificationSerializer - Conditional serializer with three response modes
+#
+# Modes:
+# - status: true   => { needs_verification: bool }
+# - sent: true     => { email_sent: bool, template_type: string }
+# - verified: true => { verified: bool, verified_at: datetime }
+#
+# Usage: EmailVerificationSerializer.new(resource, status: true)
+# Validation: Exactly one mode flag required, multiple flags raise ArgumentError
+#
 class EmailVerificationSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_type :email_verification
   set_id :id
@@ -37,7 +48,7 @@ class EmailVerificationSerializer
   def detect_response_type
     return nil unless response_type_flags
 
-    enabled = RESPONSE_TYPE_ATTRIBUTES.keys.select { |key| response_type_flags[key] }
+    enabled = RESPONSE_TYPE_ATTRIBUTES.keys.select { |key| response_type_flags[key] == true }
 
     return enabled.first if enabled.size == 1
     return nil if enabled.empty?
@@ -52,19 +63,19 @@ class EmailVerificationSerializer
 
     case response_type
     when :status
-      {
-        needs_verification: @resource.respond_to?(:needs_verification) ? @resource.needs_verification : nil
-      }.compact
+      attrs = {}
+      attrs[:needs_verification] = @resource.needs_verification if @resource.respond_to?(:needs_verification)
+      attrs
     when :sent
-      {
-        email_sent: @resource.respond_to?(:email_sent) ? @resource.email_sent : nil,
-        template_type: @resource.respond_to?(:template_type) ? @resource.template_type : nil
-      }.compact
+      attrs = {}
+      attrs[:email_sent] = @resource.email_sent if @resource.respond_to?(:email_sent)
+      attrs[:template_type] = @resource.template_type if @resource.respond_to?(:template_type)
+      attrs
     when :verified
-      {
-        verified: @resource.respond_to?(:verified) ? @resource.verified : nil,
-        verified_at: @resource.respond_to?(:verified_at) ? @resource.verified_at : nil
-      }.compact
+      attrs = {}
+      attrs[:verified] = @resource.verified if @resource.respond_to?(:verified)
+      attrs[:verified_at] = @resource.verified_at if @resource.respond_to?(:verified_at)
+      attrs
     else
       {}
     end

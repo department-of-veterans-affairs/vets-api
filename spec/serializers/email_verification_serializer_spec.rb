@@ -27,7 +27,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     end
 
     it 'includes needs_verification attribute' do
-      expect(serialized_hash[:data][:attributes][:needs_verification]).to be_truthy
+      expect(serialized_hash[:data][:attributes][:needs_verification]).to be true
     end
 
     it 'excludes other response type attributes' do
@@ -51,7 +51,12 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
       end
 
       it 'returns false for needs_verification' do
-        expect(serialized_hash[:data][:attributes][:needs_verification]).to be_falsey
+        expect(serialized_hash[:data][:attributes][:needs_verification]).to be false
+      end
+
+      it 'includes needs_verification key even when false' do
+        expect(serialized_hash[:data][:attributes]).to have_key(:needs_verification)
+        expect(serialized_hash[:data][:attributes][:needs_verification]).to be false
       end
     end
   end
@@ -82,7 +87,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     end
 
     it 'includes email_sent attribute' do
-      expect(serialized_hash[:data][:attributes][:email_sent]).to be_truthy
+      expect(serialized_hash[:data][:attributes][:email_sent]).to be true
     end
 
     it 'includes template_type attribute' do
@@ -137,7 +142,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     end
 
     it 'includes verified attribute' do
-      expect(serialized_hash[:data][:attributes][:verified]).to be_truthy
+      expect(serialized_hash[:data][:attributes][:verified]).to be true
     end
 
     it 'includes verified_at attribute' do
@@ -191,6 +196,49 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
       expect(attributes).not_to have_key(:template_type)
       expect(attributes).not_to have_key(:verified)
       expect(attributes).not_to have_key(:verified_at)
+    end
+  end
+
+  describe 'response type validation' do
+    let(:response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        needs_verification: true,
+        email_sent: true
+      )
+    end
+
+    context 'when multiple flags are provided' do
+      it 'raises ArgumentError when two flags are provided' do
+        expect do
+          described_class.new(response_data, status: true, sent: true).serializable_hash
+        end.to raise_error(ArgumentError,
+                           /EmailVerificationSerializer expects exactly one of.*got:.*status.*sent/)
+      end
+
+      it 'raises ArgumentError when all three flags are provided' do
+        expect do
+          described_class.new(response_data, status: true, sent: true, verified: true).serializable_hash
+        end.to raise_error(ArgumentError,
+                           /EmailVerificationSerializer expects exactly one of.*got:.*status.*sent.*verified/)
+      end
+    end
+
+    context 'when non-boolean values are provided' do
+      it 'ignores non-boolean truthy values' do
+        serialized_data = described_class.new(response_data, status: 'true', sent: 1)
+        attributes = serialized_data.serializable_hash[:data][:attributes]
+
+        # Should be empty since no actual boolean true was provided
+        expect(attributes).to be_empty
+      end
+
+      it 'only recognizes explicit boolean true' do
+        serialized_data = described_class.new(response_data, status: true)
+        attributes = serialized_data.serializable_hash[:data][:attributes]
+
+        expect(attributes).to have_key(:needs_verification)
+      end
     end
   end
 end
