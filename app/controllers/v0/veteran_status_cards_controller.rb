@@ -2,6 +2,8 @@
 
 module V0
   class VeteranStatusCardsController < ApplicationController
+    service_tag 'veteran-status-card'
+
     def show
       render json: service.status_card
     end
