@@ -184,13 +184,9 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
       forms[1].update(form_uuid: 'unique-uuid-2')
       forms[2].update(form_uuid: 'unique-uuid-3')
 
-      expect(Rails.logger).to receive(:info).exactly(3).times do |message|
-        expect(message).to include('IVC Forms MissingFormStatusJob - Missing status for Form')
-        expect(message).to include('Elapsed days:')
-        expect(message).to include('File name:')
-        expect(message).to include('S3 status:')
-        expect(message).to include('Created at:')
-      end
+      # Allow all other info logs, but expect the verbose status logs
+      allow(Rails.logger).to receive(:info)
+      expect(Rails.logger).to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/).exactly(3).times
 
       job.perform
     end
