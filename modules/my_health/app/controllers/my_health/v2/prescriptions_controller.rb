@@ -17,7 +17,6 @@ module MyHealth
 
       service_tag 'mhv-medications'
 
-      # Status constants for V1 (unmapped) and V2 (mapped) statuses
       ACTIVE_STATUSES_V1 = [
         'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
         'Active: Parked', 'Active: Submitted'
