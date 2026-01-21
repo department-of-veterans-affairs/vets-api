@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# Controller for managing user scheduling preferences in VA.gov profile.
-# This controller is still under development, with stubbed transaction responses gated
-# behind the profile_scheduling_preferences feature flag.
-
 module V0
   module Profile
     class SchedulingPreferencesController < ApplicationController
@@ -14,29 +10,36 @@ module V0
       service_tag 'profile'
 
       def show
-        preferences = [
-          { item_id: 1, option_ids: [5] },
-          { item_id: 2, option_ids: [7, 11] }
-        ]
+        service = VAProfile::PersonSettings::Service.new(@current_user)
+        response = service.get_person_options(VAProfile::PersonSettings::Service::CONTAINER_IDS[:preferences])
 
-        preferences_data = { preferences: }
+        preferences_data = if response.status == 404 || response.person_options.empty?
+                             { preferences: [] }
+                           else
+                             {
+                               preferences: VAProfile::Models::PersonOption.to_frontend_format(response.person_options)
+                             }
+                           end
 
         render json: SchedulingPreferencesSerializer.new(preferences_data)
       end
 
       def create
-        transaction_response = build_stub_transaction_response
-        render json: transaction_response, status: :ok
+        person_options_data = build_and_validate_person_options
+        write_person_options_and_render_transaction!(person_options_data)
+        Rails.logger.info('SchedulingPreferencesController#create request completed', sso_logging_info)
       end
 
       def update
-        transaction_response = build_stub_transaction_response
-        render json: transaction_response, status: :ok
+        person_options_data = build_and_validate_person_options
+        write_person_options_and_render_transaction!(person_options_data)
+        Rails.logger.info('SchedulingPreferencesController#update request completed', sso_logging_info)
       end
 
       def destroy
-        transaction_response = build_stub_transaction_response
-        render json: transaction_response, status: :ok
+        person_options_data = build_and_validate_person_options(action: :delete)
+        write_person_options_and_render_transaction!(person_options_data)
+        Rails.logger.info('SchedulingPreferencesController#destroy request completed', sso_logging_info)
       end
 
       private
@@ -59,19 +62,39 @@ module V0
         params.permit(:item_id, option_ids: [])
       end
 
-      def build_stub_transaction_response
-        {
-          data: {
-            type: 'async_transaction_va_profile_person_option_transactions',
-            id: SecureRandom.uuid,
-            attributes: {
-              transaction_id: SecureRandom.uuid,
-              transaction_status: 'COMPLETED_SUCCESS',
-              type: 'AsyncTransaction::VAProfile::PersonOptionTransaction',
-              metadata: []
-            }
-          }
-        }
+      def service
+        @service ||= VAProfile::PersonSettings::Service.new(@current_user)
+      end
+
+      def build_and_validate_person_options(action: :create)
+        begin
+          person_options = VAProfile::Models::PersonOption.from_frontend_selection(
+            scheduling_preference_params[:item_id],
+            scheduling_preference_params[:option_ids]
+          )
+        rescue ArgumentError => e
+          raise Common::Exceptions::ParameterMissing.new("Invalid parameter: #{e.message}")
+        end
+
+        person_options.each do |option|
+          option.set_defaults(@current_user)
+          option.mark_for_deletion if action == :delete
+          validate!(option)
+        end
+
+        VAProfile::Models::PersonOption.to_api_payload(person_options)
+      end
+
+      def write_person_options_and_render_transaction!(person_options_data)
+        response = service.update_person_options(person_options_data)
+        transaction = AsyncTransaction::VAProfile::PersonOptionsTransaction.start(@current_user, response)
+        render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
+      end
+
+      def validate!(person_option)
+        return if person_option.valid?
+
+        raise Common::Exceptions::ValidationErrors, person_option
       end
     end
   end
