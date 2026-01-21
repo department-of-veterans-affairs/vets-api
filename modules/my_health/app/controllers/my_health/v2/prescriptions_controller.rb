@@ -18,14 +18,14 @@ module MyHealth
       service_tag 'mhv-medications'
 
       # Status constants for V1 (unmapped) and V2 (mapped) statuses
-      IN_PROGRESS_STATUSES_V1 = ['Active: Refill in Process', 'Active: Submitted'].freeze
-      IN_PROGRESS_STATUSES_V2 = ['In progress'].freeze
-
       ACTIVE_STATUSES_V1 = [
         'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
         'Active: Parked', 'Active: Submitted'
       ].freeze
       ACTIVE_STATUSES_V2 = ['Active'].freeze
+
+      IN_PROGRESS_STATUSES_V1 = ['Active: Refill in Process', 'Active: Submitted'].freeze
+      IN_PROGRESS_STATUSES_V2 = ['In progress'].freeze
 
       UNKNOWN_STATUS_V1 = 'Unknown'
       UNKNOWN_STATUS_V2 = 'Status not available'
