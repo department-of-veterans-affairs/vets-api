@@ -64,7 +64,7 @@ module Mobile
           raise Common::Exceptions::BadGateway.new(detail: error.message, source: "DecisionLettersController#{source}")
         end
 
-        raise error
+        raise
       end
     end
   end
