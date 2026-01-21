@@ -71,10 +71,12 @@ module Vass
         check_validation_rate_limit(session.uuid)
         return unless validate_otc_session(session)
 
-        jwt_token = session.validate_and_generate_jwt
+        jwt_result = session.validate_and_generate_jwt
+        jwt_token = jwt_result[:token]
+        jti = jwt_result[:jti]
         session.create_authenticated_session(token: jwt_token)
         track_success(SESSIONS_AUTHENTICATE_OTC)
-        handle_successful_authentication(session, jwt_token)
+        handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::AuthenticationError => e
@@ -149,6 +151,7 @@ module Vass
 
         session.set_contact_from_veteran_data(veteran_data)
         otc_code = session.generate_and_save_otc
+        Rails.logger.info("VASS OTC Generated for UUID #{session.uuid}: #{otc_code}") if Rails.env.development?
         send_otc_via_vanotify(session, otc_code)
       end
 
@@ -227,10 +230,11 @@ module Vass
       #
       # @param session [Vass::V0::Session] Session instance
       # @param jwt_token [String] Generated JWT token
+      # @param jti [String] JWT ID for audit logging
       #
-      def handle_successful_authentication(session, jwt_token)
+      def handle_successful_authentication(session, jwt_token, jti)
         reset_validation_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_authenticated', vass_uuid: session.uuid)
+        log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
         render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
       end
 

@@ -27,13 +27,13 @@ module Vass
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :current_veteran_id
+      attr_reader :current_veteran_id, :current_jti
     end
 
     ##
     # Authenticates JWT from Authorization header.
     #
-    # Sets @current_veteran_id on success.
+    # Sets @current_veteran_id and @current_jti on success.
     # Renders error response on failure.
     #
     def authenticate_jwt
@@ -46,6 +46,7 @@ module Vass
 
       payload = decode_jwt(token)
       @current_veteran_id = payload['sub']
+      @current_jti = payload['jti']
 
       unless @current_veteran_id
         log_auth_failure('missing_veteran_id')
@@ -57,6 +58,18 @@ module Vass
     rescue JWT::DecodeError => e
       log_auth_failure('invalid_token', error_class: e.class.name)
       render_unauthorized('Invalid or malformed token')
+    end
+
+    ##
+    # Returns audit metadata hash for including jti in log events.
+    # Use this when logging authenticated actions to create an audit trail.
+    #
+    # @return [Hash] Hash containing jti if present, empty hash otherwise
+    #
+    def audit_metadata
+      return {} unless current_jti
+
+      { jti: current_jti }
     end
 
     private

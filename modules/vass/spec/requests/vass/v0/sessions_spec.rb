@@ -259,6 +259,17 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         expect(session_data[:veteran_id]).to eq(uuid)
         expect(session_data[:uuid]).to eq(uuid)
       end
+
+      it 'logs jwt_issued event with jti for audit trail' do
+        allow(Rails.logger).to receive(:info).and_call_original
+        expect(Rails.logger).to receive(:info).with(
+          a_string_including('"service":"vass"', '"action":"jwt_issued"', "\"vass_uuid\":\"#{uuid}\"", '"jti":')
+        ).and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'with invalid OTC' do

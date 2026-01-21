@@ -225,15 +225,18 @@ RSpec.describe Vass::V0::Session, type: :model do
     let(:otp_code) { '123456' }
 
     context 'with valid OTC' do
-      it 'validates OTC, deletes it, and generates JWT' do
+      it 'validates OTC, deletes it, and returns hash with token and jti' do
         session = described_class.new(uuid:, otp_code:, redis_client:)
         allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
-        jwt_token = session.validate_and_generate_jwt
+        result = session.validate_and_generate_jwt
 
-        expect(jwt_token).to be_a(String)
-        expect(jwt_token).not_to be_empty
+        expect(result).to be_a(Hash)
+        expect(result[:token]).to be_a(String)
+        expect(result[:token]).not_to be_empty
+        expect(result[:jti]).to be_a(String)
+        expect(result[:jti]).to match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
         expect(redis_client).to have_received(:delete_otc).with(uuid:)
       end
 
@@ -242,14 +245,26 @@ RSpec.describe Vass::V0::Session, type: :model do
         allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
-        jwt_token = session.validate_and_generate_jwt
-        decoded = JWT.decode(jwt_token, jwt_secret, true, { algorithm: 'HS256' })
+        result = session.validate_and_generate_jwt
+        decoded = JWT.decode(result[:token], jwt_secret, true, { algorithm: 'HS256' })
         payload = decoded[0]
 
         expect(payload['sub']).to eq(uuid)
-        expect(payload['jti']).to be_present
+        expect(payload['jti']).to eq(result[:jti])
         expect(payload['iat']).to be_present
         expect(payload['exp']).to be_present
+      end
+
+      it 'returns jti that matches the token payload' do
+        session = described_class.new(uuid:, otp_code:, redis_client:)
+        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        allow(redis_client).to receive(:delete_otc).with(uuid:)
+
+        result = session.validate_and_generate_jwt
+        decoded = JWT.decode(result[:token], jwt_secret, true, { algorithm: 'HS256' })
+        payload = decoded[0]
+
+        expect(result[:jti]).to eq(payload['jti'])
       end
     end
 
@@ -273,6 +288,48 @@ RSpec.describe Vass::V0::Session, type: :model do
         expect { session.validate_and_generate_jwt }
           .to raise_error(Vass::Errors::AuthenticationError, 'Invalid OTC')
       end
+    end
+  end
+
+  describe '#generate_jwt_token' do
+    it 'returns hash with token and jti' do
+      session = described_class.new(uuid:)
+      result = session.generate_jwt_token
+
+      expect(result).to be_a(Hash)
+      expect(result).to have_key(:token)
+      expect(result).to have_key(:jti)
+    end
+
+    it 'generates a valid JWT token' do
+      session = described_class.new(uuid:)
+      result = session.generate_jwt_token
+
+      decoded = JWT.decode(result[:token], jwt_secret, true, { algorithm: 'HS256' })
+      payload = decoded[0]
+
+      expect(payload['sub']).to eq(uuid)
+      expect(payload['jti']).to be_present
+      expect(payload['iat']).to be_present
+      expect(payload['exp']).to be_present
+    end
+
+    it 'returns jti that matches the token payload' do
+      session = described_class.new(uuid:)
+      result = session.generate_jwt_token
+
+      decoded = JWT.decode(result[:token], jwt_secret, true, { algorithm: 'HS256' })
+      payload = decoded[0]
+
+      expect(result[:jti]).to eq(payload['jti'])
+    end
+
+    it 'generates unique jti for each call' do
+      session = described_class.new(uuid:)
+      result1 = session.generate_jwt_token
+      result2 = session.generate_jwt_token
+
+      expect(result1[:jti]).not_to eq(result2[:jti])
     end
   end
 

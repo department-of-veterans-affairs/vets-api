@@ -10,7 +10,7 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
     before_action :authenticate_jwt
 
     def index
-      render json: { veteran_id: @current_veteran_id }, status: :ok
+      render json: { veteran_id: @current_veteran_id, jti: @current_jti }, status: :ok
     end
   end
 
@@ -54,6 +54,17 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       it 'makes current_veteran_id available as reader' do
         get :index
         expect(controller.current_veteran_id).to eq(veteran_id)
+      end
+
+      it 'sets @current_jti from token payload' do
+        get :index
+        json_response = JSON.parse(response.body)
+        expect(json_response['jti']).to be_present
+      end
+
+      it 'makes current_jti available as reader' do
+        get :index
+        expect(controller.current_jti).to be_present
       end
     end
 
@@ -313,6 +324,47 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
   describe '#jwt_secret' do
     it 'returns VASS jwt_secret from settings' do
       expect(controller.send(:jwt_secret)).to eq(Settings.vass.jwt_secret)
+    end
+  end
+
+  describe '#audit_metadata' do
+    context 'when jti is present' do
+      let(:jti) { SecureRandom.uuid }
+      let(:payload) do
+        {
+          sub: veteran_id,
+          exp: 1.hour.from_now.to_i,
+          iat: Time.current.to_i,
+          jti:
+        }
+      end
+      let(:token) { JWT.encode(payload, secret, 'HS256') }
+
+      before do
+        request.headers['Authorization'] = "Bearer #{token}"
+        get :index
+      end
+
+      it 'returns hash with jti' do
+        expect(controller.audit_metadata).to eq({ jti: })
+      end
+    end
+
+    context 'when jti is not present' do
+      it 'returns empty hash' do
+        expect(controller.audit_metadata).to eq({})
+      end
+    end
+
+    context 'when authentication failed' do
+      before do
+        request.headers['Authorization'] = 'Bearer invalid-token'
+        get :index
+      end
+
+      it 'returns empty hash' do
+        expect(controller.audit_metadata).to eq({})
+      end
     end
   end
 end
