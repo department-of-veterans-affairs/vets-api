@@ -16,6 +16,7 @@ require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 require 'debts_api/v0/digital_dispute_submission_service'
 require 'debts_api/v0/digital_dispute_dmc_service'
+require 'veteran_status_card/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -3288,6 +3289,24 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
         end
       end
+    end
+  end
+
+  describe 'veteran_status_card' do
+    let(:user) { create(:user, :loa3) }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+    it 'returns ok status code' do
+      status_card_response = {
+        confirmed: true,
+        full_name: {
+          first: 'John', last: 'Doe'
+        },
+        user_percent_of_disability: 50,
+        latest_service_history: { branch_of_service: 'Army' }
+      }
+      allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)
+      expect(subject).to validate(:get, '/v0/veteran_status_card', 200, headers)
     end
   end
 
