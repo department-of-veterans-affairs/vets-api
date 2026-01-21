@@ -1,5 +1,7 @@
 {
   "form_number": "40-1330M",
+  "request_type": "INITIAL REQUEST (First Time)",
+  "medallion_size": "MEDIUM (M3)",
   "veteran_full_name": {
     "first": "John",
     "middle": "Michael",
@@ -7,6 +9,16 @@
   },
   "veteran_date_of_birth": "1945-03-15",
   "veteran_date_of_death": "2020-08-22",
+  "veteran_sex": "MALE",
+  "veteran_race": {
+    "is_asian": false,
+    "is_american_indian_or_alaskan_native": false,
+    "is_black_or_african_american": false,
+    "is_hispanic_or_latino": false,
+    "not_hispanic_or_latino": true,
+    "is_native_hawaiian_or_other_pacific_islander": false,
+    "is_white": true
+  },
   "veteran_id": {
     "ssn": "123456789",
     "va_file_number": "987654321"
@@ -26,6 +38,7 @@
   },
   "applicant_phone": "503-555-1234",
   "applicant_email": "jane.smith@example.com",
+  "applicant_type": "Family Member",
   "applicant_relationship_to_veteran": "Spouse",
   "veteran_service_periods": [
     {

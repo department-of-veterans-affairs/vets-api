@@ -1,11 +1,17 @@
 {
   "form_number": "40-1330M",
+  "request_type": "INITIAL REQUEST (First Time)",
+  "medallion_size": "SMALL (M1)",
   "veteran_full_name": {
     "first": "J",
     "last": "S"
   },
   "veteran_date_of_birth": "1945-03-15",
   "veteran_date_of_death": "2020-08-22",
+  "veteran_sex": "MALE",
+  "veteran_race": {
+    "is_white": true
+  },
   "veteran_id": {
     "ssn": "123456789"
   },
@@ -22,6 +28,8 @@
   },
   "applicant_phone": "5035551234",
   "applicant_email": "a@b.com",
+  "applicant_type": "Family Member",
+  "applicant_relationship_to_veteran": "Spouse",
   "veteran_service_periods": [
     {
       "branch": "Army",
