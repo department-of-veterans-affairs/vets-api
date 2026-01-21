@@ -33,7 +33,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
 
   execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
-
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
     t.integer "attorneys"
