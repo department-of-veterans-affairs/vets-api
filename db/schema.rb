@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_16_193257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -100,6 +100,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "fallback_location_updated_at"
     t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
     t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
@@ -222,6 +223,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["id"], name: "idx_ahlr_kms_rotation_true_id", where: "(needs_kms_rotation = true)"
     t.index ["needs_kms_rotation"], name: "index_appeals_api_higher_level_reviews_on_needs_kms_rotation"
     t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
@@ -1485,6 +1487,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
+  create_table "representation_management_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "saved_claim_groups", force: :cascade do |t|
     t.uuid "claim_group_guid", null: false
     t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
@@ -1983,6 +1994,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_16_151148) do
     t.string "address_line2"
     t.string "address_line3"
     t.string "phone_number"
+    t.datetime "fallback_location_updated_at"
     t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist

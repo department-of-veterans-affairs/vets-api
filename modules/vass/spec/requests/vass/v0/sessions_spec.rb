@@ -58,6 +58,13 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
     context 'with valid parameters and successful VASS API response' do
       it 'creates session and sends OTC' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.request_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+        ).and_call_original
+
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
@@ -208,6 +215,13 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
 
       it 'validates OTC and returns JWT token' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        ).and_call_original
+
         post '/vass/v0/authenticate-otc', params:, as: :json
 
         expect(response).to have_http_status(:ok)
