@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_service_history_enabled:
+    actor_type: user
+    description: Enables Service History flow in the 10-10EZR form.
+    enable_in_development: false   
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
@@ -1269,6 +1273,9 @@ features:
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
+  load_feature_toggle_user_if_authed:
+    actor_type: user
+    description: Prevents FeatureTogglesController Filter Chain Halting
   log_claims_request_origin:
     actor_type: user
     description: Enables logging of inbound request metadata for claims endpoints to track request origins
@@ -1426,6 +1433,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
     enable_in_development: true
+  mhv_secure_messaging_612_care_systems_fix:
+    actor_type: user
+    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
   mhv_secure_messaging_medications_renewal_request:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
@@ -2181,9 +2191,6 @@ features:
   vre_prefill_name:
     actor_type: user
     description: Enables prefill transformation for veteran name fields in the Chapter 31 form
-  vre_use_new_vfs_notification_library:
-    actor_type: user
-    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2803,7 +2810,7 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-    
+
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
