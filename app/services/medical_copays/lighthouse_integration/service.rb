@@ -28,13 +28,12 @@ module MedicalCopays
 
       def list(count:, page:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.list.initiated")
-        start_time = Time.current
 
-        raw_invoices = invoice_service.list(count:, page:)
-        entries = build_invoice_entries(raw_invoices)
-
-        record_success('list', start_time)
-        Lighthouse::HCC::Bundle.new(raw_invoices, entries)
+        record_success('list') do
+          raw_invoices = invoice_service.list(count:, page:)
+          entries = build_invoice_entries(raw_invoices)
+          Lighthouse::HCC::Bundle.new(raw_invoices, entries)
+        end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
         Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
@@ -43,12 +42,10 @@ module MedicalCopays
 
       def get_detail(id:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
-        start_time = Time.current
 
-        copay_detail = build_copay_detail(id)
-
-        record_success('detail', start_time)
-        copay_detail
+        record_success('detail') do
+          build_copay_detail(id)
+        end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
         Rails.logger.error(
@@ -59,9 +56,12 @@ module MedicalCopays
 
       private
 
-      def record_success(operation, start_time)
+      def record_success(operation)
+        start_time = Time.current
+        result = yield
         StatsD.measure("#{STATSD_KEY_PREFIX}.#{operation}.latency", (Time.current - start_time) * 1000)
         StatsD.increment("#{STATSD_KEY_PREFIX}.#{operation}.success")
+        result
       end
 
       def build_copay_detail(id)
