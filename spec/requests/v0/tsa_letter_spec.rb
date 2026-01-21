@@ -121,7 +121,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    context 'when document is not found' do
+    context 'when upstream returns error status' do
       let(:document_id) { 'nonexistent-uuid' }
       let(:version_id) { 'nonexistent-version' }
 
