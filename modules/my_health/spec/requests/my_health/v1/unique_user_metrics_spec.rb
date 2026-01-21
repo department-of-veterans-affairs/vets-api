@@ -56,7 +56,6 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
       context 'when feature flag is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_async_buffering, anything).and_return(true)
           allow(UniqueUserEvents::Buffer).to receive(:push_batch)
         end
 
@@ -225,7 +224,6 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
       before do
         sign_in_as(current_user)
         allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_async_buffering, anything).and_return(true)
       end
 
       it 'handles form-encoded parameters correctly' do
