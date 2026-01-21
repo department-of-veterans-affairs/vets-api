@@ -6,16 +6,23 @@
 module PensionAwardHelper
   extend ActiveSupport::Concern
 
+  # Constants representing pension receipt status
+  PENSION_STATUS = {
+    receiving: 1,
+    not_receiving: 0,
+    error: -1
+  }.freeze
+
   # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
   # Needed for FE to differentiate between 200 response and error
   def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
     case awards_pension[:is_in_receipt_of_pension]
     when true
-      1
+      PENSION_STATUS[:receiving]
     when false
-      0
+      PENSION_STATUS[:not_receiving]
     else
-      -1
+      PENSION_STATUS[:error]
     end
   end
 
