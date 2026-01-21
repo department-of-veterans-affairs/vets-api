@@ -88,8 +88,17 @@ module NotificationsClientPatch
   end
 end
 
-# prevents a race condition when booting up Rails
-# Speaker.prepend inserts a method signature for validate_uuids! which patches the original version
+# Use `to_prepare` so the patch is applied after Rails has loaded the target class and on every reload.
+# Without this, if we called `prepend` at file load time, Rails might:
+#   * Load this initializer before `Notifications::Client::Speaker` is autoloaded, so the prepend would
+#     either fail or run against a different constant, and
+#   * In development/test, reload `Notifications::Client::Speaker` later without re-applying the patch,
+#     causing some requests/jobs to see the patched `validate_uuids!` and others to see the original.
+# `Rails.configuration.to_prepare` runs:
+#   * Once at boot in production (after application classes are loaded), and
+#   * Before each request and code reload cycle in development/test.
+# This guarantees that `Notifications::Client::Speaker` is loaded before we call `prepend`, and that the
+# patch is consistently re-applied whenever Rails reloads the class, avoiding the race described above.
 Rails.configuration.to_prepare do
   require 'notifications/client'
   Notifications::Client::Speaker.prepend(NotificationsClientPatch)
