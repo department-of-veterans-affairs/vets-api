@@ -1,6 +1,9 @@
 {
   "form_number": "40-1330M",
-  "request_type": "INITIAL REQUEST (First Time)",
+  "request_type": "REPLACEMENT",
+  "replacement_reason": "DAMAGE",
+  "remains_location": "CEMETERY (where remains are buried)",
+  "grave_marked": "YES",
   "medallion_size": "MEDIUM (M3)",
   "veteran_full_name": {
     "first": "John",
@@ -9,7 +12,9 @@
   },
   "veteran_date_of_birth": "1945-03-15",
   "veteran_date_of_death": "2020-08-22",
+  "veteran_place_of_birth": "Boston, Massachusetts",
   "veteran_sex": "MALE",
+  "military_service_completed": "YES",
   "veteran_race": {
     "is_asian": false,
     "is_american_indian_or_alaskan_native": false,
@@ -53,6 +58,7 @@
     }
   ],
   "medallion_count": "1",
+  "medal_of_honor": true,
   "cemetery_location": "Private Cemetery",
   "statement_of_truth_signature": "Jane Smith",
   "statement_of_truth_certified": true
