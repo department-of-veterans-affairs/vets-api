@@ -153,7 +153,7 @@ RSpec.describe IvcChampva::VHA1010d2027 do
   end
 
   describe '#track_email_usage' do
-    let(:statsd_key) { 'api.ivc_champva_form.10_10d_2027' }
+    let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
     let(:form_instance) { described_class.new(data) }
 
     context 'when email is used' do
@@ -173,6 +173,66 @@ RSpec.describe IvcChampva::VHA1010d2027 do
         expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
         expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-10D-2027 Email Used', email_used: 'no')
         form_instance.track_email_usage
+      end
+    end
+  end
+
+  describe '#track_submission' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
+    let(:form_version) { 'vha_10_10d_2027' }
+    let(:mock_user) { double(loa: { current: 3 }) }
+
+    context 'with standard form flow' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => { 'email' => 'test@example.com' },
+          'form_number' => '10-10D'
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'increments StatsD with tags and logs submission info' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:3 email_used:yes form_version:vha_10_10d_2027]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-10D-2027 Submission',
+          identity: 'applicant',
+          current_user_loa: 3,
+          email_used: 'yes',
+          form_version:
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+
+    context 'when current_user is nil' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => {},
+          'form_number' => '10-10D'
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'defaults loa to 0' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:0 email_used:no form_version:vha_10_10d_2027]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-10D-2027 Submission',
+          identity: 'applicant',
+          current_user_loa: 0,
+          email_used: 'no',
+          form_version:
+        )
+
+        form_instance.track_submission(nil)
       end
     end
   end
