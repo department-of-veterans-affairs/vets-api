@@ -795,6 +795,10 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
+        if Flipper.enabled?(:champva_update_datadog_tracking, @current_user) && form.respond_to?(:track_submission)
+          form.track_submission(@current_user)
+        end
+
         attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [base_form_id] if attachment_ids.empty?
 
