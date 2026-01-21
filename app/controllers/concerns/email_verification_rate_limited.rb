@@ -29,15 +29,13 @@ module EmailVerificationRateLimited
   end
 
   def increment_email_verification_rate_limit!
-    verification_redis.multi do |multi|
-      multi.incr(verification_period_key)
-      multi.expire(verification_period_key, VERIFICATION_EMAIL_LIMITS[:period].to_i)
-    end
+    current_period = verification_redis.get(verification_period_key).to_i
+    new_period_count = current_period + 1
+    verification_redis.setex(verification_period_key, VERIFICATION_EMAIL_LIMITS[:period].to_i, new_period_count)
 
-    verification_redis.multi do |multi|
-      multi.incr(verification_daily_key)
-      multi.expire(verification_daily_key, VERIFICATION_EMAIL_LIMITS[:daily_period].to_i)
-    end
+    current_daily = verification_redis.get(verification_daily_key).to_i
+    new_daily_count = current_daily + 1
+    verification_redis.setex(verification_daily_key, VERIFICATION_EMAIL_LIMITS[:daily_period].to_i, new_daily_count)
 
     clear_verification_rate_limit_cache
   end

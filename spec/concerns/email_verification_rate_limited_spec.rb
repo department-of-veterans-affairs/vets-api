@@ -185,20 +185,27 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
 
   describe '#increment_email_verification_rate_limit!' do
     it 'increments period counter with expiry' do
-      expect(redis_client).to receive(:incr).with('test-uuid-123:email_verification:period')
-      expect(redis_client).to receive(:expire).with('test-uuid-123:email_verification:period', 300)
+      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:period').and_return('0')
+      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:period', 300, 1)
+      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:daily').and_return('1')
+      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:daily', 86_400, 2)
 
       controller.increment_email_verification_rate_limit!
     end
 
     it 'increments daily counter with expiry' do
-      expect(redis_client).to receive(:incr).with('test-uuid-123:email_verification:daily')
-      expect(redis_client).to receive(:expire).with('test-uuid-123:email_verification:daily', 86_400)
+      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:period').and_return('0')
+      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:period', 300, 1)
+      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:daily').and_return('2')
+      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:daily', 86_400, 3)
 
       controller.increment_email_verification_rate_limit!
     end
 
     it 'clears rate limit cache' do
+      allow(redis_client).to receive(:get).and_return('1')
+      allow(redis_client).to receive(:setex)
+
       expect(controller).to receive(:clear_verification_rate_limit_cache)
 
       controller.increment_email_verification_rate_limit!
@@ -349,9 +356,7 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
 
   describe '#verification_redis' do
     it 'returns memoized Redis client with correct namespace' do
-      # First call
       result1 = controller.send(:verification_redis)
-      # Second call should return same instance (memoized)
       result2 = controller.send(:verification_redis)
 
       expect(result1).to eq(result2)
@@ -362,12 +367,8 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
     it 'caches Redis get result' do
       allow(redis_client).to receive(:get).with('test-uuid-123:email_verification:period').and_return('3')
 
-      # First call should hit Redis
       expect(controller.send(:verification_period_count)).to eq(3)
-
-      # Second call should use cached value
       expect(controller.send(:verification_period_count)).to eq(3)
-
       expect(redis_client).to have_received(:get).once
     end
 
@@ -388,12 +389,8 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
     it 'caches Redis get result' do
       allow(redis_client).to receive(:get).with('test-uuid-123:email_verification:daily').and_return('2')
 
-      # First call should hit Redis
       expect(controller.send(:verification_daily_count)).to eq(2)
-
-      # Second call should use cached value
       expect(controller.send(:verification_daily_count)).to eq(2)
-
       expect(redis_client).to have_received(:get).once
     end
   end
