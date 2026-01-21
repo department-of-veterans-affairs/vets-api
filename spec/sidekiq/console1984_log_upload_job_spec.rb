@@ -230,6 +230,4 @@ RSpec.describe Console1984LogUploadJob, type: :job do
       end
     end
   end
-
-
 end
