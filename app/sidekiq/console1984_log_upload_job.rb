@@ -24,9 +24,7 @@ class Console1984LogUploadJob
   end
 
   def create_log_file
-    File.open(file_path, 'w') do |file|
-      file.write(JSON.pretty_generate(sessions_data))
-    end
+    File.write(file_path, JSON.pretty_generate(sessions_data))
   end
 
   def upload_to_s3
@@ -52,9 +50,8 @@ class Console1984LogUploadJob
     @yesterday ||= Date.yesterday
   end
 
-
   def yesterday_range
-    yesterday.beginning_of_day..yesterday.end_of_day
+    yesterday.all_day
   end
 
   def filename
@@ -66,7 +63,7 @@ class Console1984LogUploadJob
   end
 
   def sessions_data
-    sessions = Console1984::Session
+    Console1984::Session
       .where(created_at: yesterday_range)
       .includes(:user, commands: :sensitive_access)
       .map { |session| session_to_json(session) }
@@ -92,10 +89,12 @@ class Console1984LogUploadJob
       timestamp: command.created_at,
       statements: command.statements,
       sensitive: command.sensitive_access_id.present?,
-      sensitive_access: command.sensitive_access ? {
-        id: command.sensitive_access_id,
-        justification: command.sensitive_access.justification
-      } : nil
+      sensitive_access: if command.sensitive_access
+                          {
+                            id: command.sensitive_access_id,
+                            justification: command.sensitive_access.justification
+                          }
+                        end
     }
   end
 end

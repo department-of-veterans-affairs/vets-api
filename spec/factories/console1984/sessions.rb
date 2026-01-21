@@ -7,14 +7,14 @@ FactoryBot.define do
 
     trait :with_commands do
       after(:create) do |session|
-        create_list(:console1984_command, 3, session: session)
+        create_list(:console1984_command, 3, session:)
       end
     end
 
     trait :with_sensitive_access do
       after(:create) do |session|
-        sensitive_access = create(:console1984_sensitive_access, session: session)
-        create(:console1984_command, session: session, sensitive_access: sensitive_access)
+        sensitive_access = create(:console1984_sensitive_access, session:)
+        create(:console1984_command, session:, sensitive_access:)
       end
     end
   end

@@ -13,7 +13,6 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   let(:expected_file_path) { temp_dir.join(expected_filename) }
   let!(:user) { create(:console1984_user, username: 'test.person@va.gov') }
 
-
   before do
     FileUtils.mkdir_p(temp_dir)
 
@@ -24,7 +23,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   end
 
   after do
-    FileUtils.rm_f(expected_file_path) if File.exist?(expected_file_path)
+    FileUtils.rm_f(expected_file_path)
   end
 
   def file_content
@@ -42,27 +41,27 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         let!(:user) { create(:console1984_user, username: 'john.doe') }
         let!(:session) do
           create(:console1984_session,
-                 user: user,
+                 user:,
                  reason: 'Investigating issue #1234',
                  created_at: yesterday_date.beginning_of_day + 2.hours,
                  updated_at: yesterday_date.beginning_of_day + 3.hours)
         end
         let!(:command_without_sensitive) do
           create(:console1984_command,
-                 session: session,
+                 session:,
                  statements: 'User.count',
                  created_at: yesterday_date.beginning_of_day + 2.hours + 5.minutes)
         end
         let!(:sensitive_access) do
           create(:console1984_sensitive_access,
-                 session: session,
+                 session:,
                  justification: 'Verifying user account status')
         end
         let!(:command_with_sensitive) do
           create(:console1984_command,
-                 session: session,
+                 session:,
                  statements: 'User.find(12345).email',
-                 sensitive_access: sensitive_access,
+                 sensitive_access:,
                  created_at: yesterday_date.beginning_of_day + 2.hours + 10.minutes)
         end
 
@@ -137,6 +136,14 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'still uploads to S3' do
+          expect(mock_transfer_manager).to receive(:upload_file).with(
+            expected_file_path.to_s,
+            bucket: 'vets-api-console-access-logs',
+            key: "console1984/#{expected_filename}",
+            content_type: 'application/json',
+            server_side_encryption: 'AES256'
+          )
+
           job.perform
         end
       end
@@ -145,17 +152,17 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         let!(:user) { create(:console1984_user) }
         let!(:yesterday_session) do
           create(:console1984_session,
-                 user: user,
+                 user:,
                  created_at: yesterday_date.beginning_of_day + 1.hour)
         end
         let!(:today_session) do
           create(:console1984_session,
-                 user: user,
-                 created_at: Date.today.beginning_of_day + 1.hour)
+                 user:,
+                 created_at: Time.zone.today.beginning_of_day + 1.hour)
         end
         let!(:two_days_ago_session) do
           create(:console1984_session,
-                 user: user,
+                 user:,
                  created_at: (yesterday_date - 1.day).beginning_of_day + 1.hour)
         end
 
@@ -170,7 +177,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
 
       context 'when S3 upload fails' do
         let!(:user) { create(:console1984_user) }
-        let!(:session) { create(:console1984_session, user: user, created_at: yesterday_date.noon) }
+        let!(:session) { create(:console1984_session, user:, created_at: yesterday_date.noon) }
 
         let(:s3_error) do
           Aws::S3::Errors::ServiceError.new(

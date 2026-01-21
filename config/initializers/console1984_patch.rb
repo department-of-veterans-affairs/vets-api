@@ -3,7 +3,7 @@
 module Console1984
   class << self
     def running_protected_environment?
-      Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+      %w[development staging].include?(Settings.vsp_environment)
     end
   end
 end
