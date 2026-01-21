@@ -12,6 +12,7 @@ RSpec.describe 'Mobile::V0::Appointments::VA::Eligibility', type: :request do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/appointments/va/eligibility' do

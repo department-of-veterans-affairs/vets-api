@@ -10,6 +10,7 @@ module Vass
     #
     class AppointmentsController < Vass::ApplicationController
       include Vass::JwtAuthentication
+      include Vass::MetricsTracking
 
       before_action :authenticate_jwt
       before_action :set_appointments_service
@@ -30,9 +31,18 @@ module Vass
             veteran_id: @current_veteran_id,
             data: { appointment_id: result[:data][:appointment_id] }
           )
+          track_success(APPOINTMENTS_AVAILABILITY)
+        else
+          track_availability_scenario(result[:status])
         end
 
         render_availability_result(result)
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_AVAILABILITY, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -54,8 +64,17 @@ module Vass
       #   }
       #
       def topics
-        topics_list = @appointments_service.get_agent_skills || []
-        render json: { data: { topics: topics_list } }, status: :ok
+        response = @appointments_service.get_agent_skills
+        agent_skills = response.dig('data', 'agent_skills') || []
+        topics = map_agent_skills_to_topics(agent_skills)
+        track_success(APPOINTMENTS_TOPICS)
+        render_camelized_json({ data: { topics: } })
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_TOPICS, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -84,6 +103,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.get_appointment(appointment_id:)
+        track_success(APPOINTMENTS_SHOW)
         render_vass_response(
           response,
           success_data: ->(r) { r['data'] },
@@ -91,6 +111,12 @@ module Vass
           error_message: 'Appointment not found',
           error_status: :not_found
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_SHOW, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -111,6 +137,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.cancel_appointment(appointment_id:)
+        track_success(APPOINTMENTS_CANCEL)
         render_vass_response(
           response,
           success_data: { appointmentId: appointment_id },
@@ -118,6 +145,12 @@ module Vass
           error_message: 'Failed to cancel appointment',
           error_status: :unprocessable_entity
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_CANCEL, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -144,19 +177,48 @@ module Vass
         validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
 
         appointment_id = retrieve_appointment_id_from_session
-        return unless appointment_id
+        return handle_missing_appointment_id unless appointment_id
 
         response = save_appointment_with_service(appointment_id)
+        track_success(APPOINTMENTS_CREATE)
         render_vass_response(
           response,
-          success_data: ->(r) { { appointmentId: r.dig('data', 'appointmentId') } },
+          success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
           error_code: 'appointment_save_failed',
           error_message: 'Failed to save appointment',
           error_status: :unprocessable_entity
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_CREATE, error_type: e.class.name)
+        raise
       end
 
       private
+
+      ##
+      # Tracks infrastructure metrics for availability check scenarios.
+      # Different scenarios indicate different operational states:
+      # - no_cohorts: Veteran outside all cohort windows
+      # - next_cohort: Booking window not yet open
+      # - already_booked: Veteran already has appointment in current cohort
+      # - no_slots_available: In valid window but zero bookable slots (capacity issue)
+      #
+      # @param status [Symbol] Result status from get_current_cohort_availability
+      #
+      def track_availability_scenario(status)
+        metric = case status
+                 when :available_slots then nil
+                 when :no_cohorts then AVAILABILITY_NO_COHORTS
+                 when :next_cohort then AVAILABILITY_NEXT_COHORT
+                 when :already_booked then AVAILABILITY_ALREADY_BOOKED
+                 when :no_slots_available then AVAILABILITY_NO_SLOTS
+                 end
+
+        track_infrastructure_metric(metric) if metric
+      end
 
       ##
       # Retrieves appointment_id from Redis booking session.
@@ -178,6 +240,13 @@ module Vass
         end
 
         appointment_id
+      end
+
+      ##
+      # Handles the missing appointment_id scenario by tracking failure metrics.
+      #
+      def handle_missing_appointment_id
+        track_failure(APPOINTMENTS_CREATE, error_type: 'missing_session_data')
       end
 
       ##
@@ -278,14 +347,14 @@ module Vass
       # @param status [Symbol] HTTP status
       #
       def render_error(code, detail, status)
-        render json: {
-          errors: [
-            {
-              code:,
-              detail:
-            }
-          ]
-        }, status:
+        render_camelized_json({
+                                errors: [
+                                  {
+                                    code:,
+                                    detail:
+                                  }
+                                ]
+                              }, status:)
       end
 
       ##
@@ -317,12 +386,12 @@ module Vass
       # @param data [Hash] Appointment data with available slots
       #
       def render_available_slots(data)
-        render json: {
-          data: {
-            appointmentId: data[:appointment_id],
-            availableSlots: data[:available_slots]
-          }
-        }, status: :ok
+        render_camelized_json({
+                                data: {
+                                  appointment_id: data[:appointment_id],
+                                  available_slots: data[:available_slots]
+                                }
+                              })
       end
 
       ##
@@ -331,17 +400,17 @@ module Vass
       # @param data [Hash] Existing appointment data
       #
       def render_already_booked(data)
-        render json: {
-          errors: [{
-            code: 'appointment_already_booked',
-            detail: 'already scheduled',
-            appointment: {
-              appointmentId: data[:appointment_id],
-              dtStartUTC: data[:start_utc],
-              dtEndUTC: data[:end_utc]
-            }
-          }]
-        }, status: :conflict
+        render_camelized_json({
+                                errors: [{
+                                  code: 'appointment_already_booked',
+                                  detail: 'already scheduled',
+                                  appointment: {
+                                    appointment_id: data[:appointment_id],
+                                    dt_start_utc: data[:start_utc],
+                                    dt_end_utc: data[:end_utc]
+                                  }
+                                }]
+                              }, status: :conflict)
       end
 
       ##
@@ -352,15 +421,30 @@ module Vass
       def render_next_cohort(data)
         next_cohort = data[:next_cohort]
 
-        render json: {
-          data: {
-            message: data[:message],
-            nextCohort: {
-              cohortStartUtc: next_cohort[:cohort_start_utc],
-              cohortEndUtc: next_cohort[:cohort_end_utc]
-            }
+        render_camelized_json({
+                                data: {
+                                  message: data[:message],
+                                  next_cohort: {
+                                    cohort_start_utc: next_cohort[:cohort_start_utc],
+                                    cohort_end_utc: next_cohort[:cohort_end_utc]
+                                  }
+                                }
+                              })
+      end
+
+      ##
+      # Maps agent skills from VASS API to topic format expected by frontend.
+      #
+      # @param agent_skills [Array<Hash>] Agent skills from VASS
+      # @return [Array<Hash>] Topics with topic_id and topic_name
+      #
+      def map_agent_skills_to_topics(agent_skills)
+        agent_skills.map do |skill|
+          {
+            'topic_id' => skill['skill_id'],
+            'topic_name' => skill['skill_name']
           }
-        }, status: :ok
+        end
       end
 
       ##
@@ -394,7 +478,7 @@ module Vass
       def render_vass_response(response, success_data:, error_code:, error_message:, error_status:)
         if response['success']
           data = success_data.is_a?(Proc) ? success_data.call(response) : success_data
-          render json: { data: }, status: :ok
+          render_camelized_json({ data: })
         else
           render_error(error_code, error_message, error_status)
         end

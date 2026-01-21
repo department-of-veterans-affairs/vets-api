@@ -13,7 +13,6 @@ module VRE
     RETRY = 16
 
     FORM_TYPE = '28-1900'
-    FORM_TYPE_V2 = '28-1900-V2'
 
     sidekiq_options retry: RETRY
 
@@ -28,7 +27,7 @@ module VRE
       # Query for form submissions by this user within the configured threshold window (default 24 hours)
       threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours.to_i
       threshold_hours = 24 unless threshold_hours.positive?
-      submissions = user_account.form_submissions.where(form_type: [FORM_TYPE, FORM_TYPE_V2],
+      submissions = user_account.form_submissions.where(form_type: FORM_TYPE,
                                                         created_at: threshold_hours.hours.ago..)
       submissions_data = submissions.pluck(:id, :created_at).map { |id, created_at| { id:, created_at: } }
       submissions_count = submissions.count
@@ -76,13 +75,7 @@ module VRE
     def self.trigger_failure_events(msg)
       claim_id = msg['args'][0]
       claim = ::SavedClaim.find(claim_id)
-
-      if Flipper.enabled?(:vre_use_new_vfs_notification_library, claim)
-        VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
-      else
-        VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)
-        claim.send_failure_email
-      end
+      VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
     end
 
     private

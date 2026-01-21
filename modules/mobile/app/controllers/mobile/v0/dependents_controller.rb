@@ -52,7 +52,7 @@ module Mobile
       end
 
       def dependent_service
-        @dependent_service ||= BGS::DependentV2Service.new(current_user)
+        @dependent_service ||= BGS::DependentService.new(current_user)
       end
     end
   end

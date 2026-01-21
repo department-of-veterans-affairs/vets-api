@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "facilityId"
+            ],
+            "properties": {
+              "facilityId": {
+                "type": "string"
+              },
+              "vaServices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "clinicalServiceId": {
+                      "type": "string"
+                    },
+                    "bookedAppointments": {
+                      "type": "boolean"
+                    },
+                    "apptRequests": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "ccServices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "clinicalServiceId": {
+                      "type": "string"
+                    },
+                    "bookedAppointments": {
+                      "type": "boolean"
+                    },
+                    "apptRequests": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "communityCare": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta": {
+      "$ref": "meta.json"
+    }
+  }
+}
