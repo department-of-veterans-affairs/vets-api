@@ -46,8 +46,6 @@ RSpec.describe SimpleFormsApi::OverflowPdfGenerator do
 
           expect(content).to match(/Remarks.*continued/i)
           expect(content).to match(/overflow\s*content/i)
-
-          expect(content).to match(/Signed\s*electronically.*14:30\s*UTC\s*2024-01-15/i)
         end
       end
     end

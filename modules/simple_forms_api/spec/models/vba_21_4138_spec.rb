@@ -120,7 +120,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       it 'returns a file path string' do
         result = described_class.new(data).overflow_pdf(timestamp)
         expect(result).to be_a(String)
-        expect(result).to match(/21-4138_overflow_.*\.pdf/)
+        expect(File.exist?(result)).to be(true)
 
         # Cleanup
         File.delete(result) if result && File.exist?(result)
@@ -153,7 +153,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
     context 'when statement is one character over the limit' do
       let(:data) do
         {
-          'statement' => 'a' * 3686,
+          'statement' => 'a' * 3687,
           'full_name' => { 'first' => 'John', 'last' => 'Doe' },
           'id_number' => { 'ssn' => '123456789' }
         }

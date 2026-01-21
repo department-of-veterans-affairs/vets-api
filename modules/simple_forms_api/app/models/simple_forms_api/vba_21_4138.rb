@@ -60,7 +60,7 @@ module SimpleFormsApi
 
     def overflow_pdf(timestamp = Time.current)
       statement = (data['statement'] || '').to_s
-      return nil if statement.length <= ALLOTTED_REMARKS_LAST_INDEX + 1
+      return nil if statement.length <= ALLOTTED_REMARKS_LAST_INDEX
 
       SimpleFormsApi::OverflowPdfGenerator.new(data, timestamp).generate
     end
