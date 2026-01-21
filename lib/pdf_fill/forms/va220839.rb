@@ -204,10 +204,12 @@ module PdfFill
 
         form_data['numEligibleStudents'] = if form_data['agreementType'] == 'withdrawFromYellowRibbonProgram'
                                              ''
-                                           elsif programs.any? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
+                                           elsif programs.all? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
                                              'Unlimited'
-                                           else
+                                           elsif programs.none? { |s| s['maximumNumberofStudents'] == 'Unlimited' }
                                              programs.sum { |program| program['maximumNumberofStudents'] }
+                                           else
+                                             'Varies by degree type'
                                            end
       end
 
