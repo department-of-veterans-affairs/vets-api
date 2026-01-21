@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_service_history_enabled:
+    actor_type: user
+    description: Enables Service History flow in the 10-10EZR form.
+    enable_in_development: false   
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
@@ -2184,9 +2188,6 @@ features:
   vre_prefill_name:
     actor_type: user
     description: Enables prefill transformation for veteran name fields in the Chapter 31 form
-  vre_use_new_vfs_notification_library:
-    actor_type: user
-    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
