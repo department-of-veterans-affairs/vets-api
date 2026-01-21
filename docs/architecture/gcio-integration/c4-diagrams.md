@@ -132,11 +132,11 @@ sequenceDiagram
     participant S1 as SubmitBenefitsIntakeClaim Job
     participant LH as Lighthouse API
     participant S2 as BenefitsIntakeStatusJob
-    participant H as FormIntakeSubmissionHandler
     participant S3 as SubmitFormDataJob
     participant GS as FormIntake::Service
     participant FP as fwdproxy
     participant GCIO as GCIO Digitization API
+    participant IBM as IBM Mail Automation
     participant DD as DataDog
 
     V->>R: Submit form (POST /api/v1/forms)
@@ -152,25 +152,34 @@ sequenceDiagram
     S1->>DB: Update attempt with UUID
     S1->>DD: Log success metrics
     
-    Note over S2: Daily cron job (00:00 UTC)
+    Note over S1: IMMEDIATE: Trigger GCIO after Lighthouse success
+    S1->>S3: Enqueue SubmitFormDataJob (async)
+    S1->>DD: Log GCIO trigger metric
+    Note over S1: Lighthouse job continues (non-blocking)
+    
+    Note over S2,LH: Later: Daily polling (monitoring only)
     S2->>DB: Query pending attempts
     S2->>LH: POST /uploads/report (bulk status)
     LH-->>S2: Return status (vbms)
     S2->>DB: Update FormSubmissionAttempt.aasm_state = vbms
     
-    Note over DB: AASM after_transition callback
-    DB->>H: Trigger on vbms! event
-    H->>DB: Check if GCIO enabled for form type
-    H->>S3: Enqueue SubmitFormDataJob
-    
     S3->>DB: Query FormSubmission for form data
     S3->>DB: Create FormIntakeSubmission (pending)
     S3->>GS: Call submit(form_data)
-    GS->>GCIO: POST /api/submissions (JSON payload)
-    GCIO-->>GS: 200 OK + submission_id
+    GS->>FP: Route through fwdproxy
+    FP->>GCIO: POST /api/submissions (JSON payload, mTLS)
+    GCIO-->>FP: 200 OK + submission_id
+    FP-->>GS: Return response
     GS-->>S3: Return success response
     S3->>DB: Update FormIntakeSubmission (success)
     S3->>DD: Log success metrics (includes benefits_intake_uuid)
+    
+    Note over S3,GCIO: Structured data now available within seconds
+    
+    Note over IBM: IBM Mail Automation (later)
+    IBM->>GCIO: Query for UUID (from Lighthouse)
+    GCIO-->>IBM: Return structured form data
+    IBM->>VBMS: Process PDF with structured data
     
     Note over S3: All logs/metrics include benefits_intake_uuid<br/>for correlation with Lighthouse submission
     Note over S3: If failure, Sidekiq retries
@@ -234,34 +243,36 @@ flowchart TD
     D --> E[Lighthouse Upload Job]
     E --> F[PDF Generated from Form Data]
     F --> G[Upload to Lighthouse]
-    G --> H[Status: pending]
+    G --> H{Upload Success?}
     
-    H --> I[Daily Polling Job]
-    I --> J{Status Check}
-    J -->|pending| I
-    J -->|vbms| K[Update to VBMS Status]
-    J -->|error| L[Mark as Failed]
+    H -->|No| I[Retry Upload]
+    H -->|Yes| J[Lighthouse Returns UUID]
     
-    K --> M{GCIO Enabled?}
-    M -->|Yes| N[Trigger GCIO Handler]
-    M -->|No| O[End]
+    J --> K{GCIO Enabled?}
+    K -->|Yes| L[IMMEDIATE: Enqueue SubmitFormDataJob]
+    K -->|No| M[Continue Without GCIO]
     
-    N --> P[Enqueue SubmitFormDataJob]
-    P --> Q[Create FormIntakeSubmission Record]
-    Q --> R[Read Form Data from FormSubmission]
-    R --> S[Call FormIntake::Service]
-    S --> T{API Response}
+    L --> N[Create FormIntakeSubmission Record]
+    N --> O[FormIntake Job Processes Async]
+    O --> P[Read Form Data from FormSubmission]
+    P --> Q[Call FormIntake::Service]
+    Q --> R[Route via fwdproxy with mTLS]
+    R --> S{API Response}
     
-    T -->|Success| U[Update FormIntakeSubmission: success]
-    T -->|Failure| V[Update FormIntakeSubmission: retry attempt]
+    S -->|Success| T[Update FormIntakeSubmission: success]
+    S -->|Failure| U[Update FormIntakeSubmission: retry attempt]
     
-    V --> W{Retry Count}
-    W -->|< 16| X[Sidekiq Retry with Backoff]
-    W -->|>= 16| Y[Mark as Failed]
+    U --> V{Retry Count}
+    V -->|< 16| W[Sidekiq Retry with Backoff]
+    V -->|>= 16| X[Mark as Failed]
     
-    X --> P
-    U --> Z[Log Success Metrics]
-    Y --> AA[Log Failure + Notify]
+    W --> O
+    T --> Y[Structured Data Ready at GCIO]
+    Y --> Z[IBM Queries GCIO Using UUID]
+    Z --> AA[IBM Processes to VBMS]
+    X --> AB[Log Failure + Notify]
+    
+    M --> AC[Normal Lighthouse Flow Continues]
 ```
 
 ## Component Dependencies

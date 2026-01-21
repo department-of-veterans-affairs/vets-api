@@ -50,13 +50,12 @@ flowchart TB
         B[Form Controller<br/>Receives Submission]
         C[FormSubmission<br/>Database Record]
         D[Lighthouse Upload Job<br/>Sidekiq]
-        E[Daily Polling Job<br/>BenefitsIntakeStatusJob]
-        F{Status = vbms?<br/>Success}
-        G[Form Intake Handler<br/>Triggered]
-        H[Form Intake Job<br/>Sidekiq Queue]
-        I[FormIntake::Service<br/>API Client]
-        J[FormIntakeSubmission<br/>Database Record]
-        K[fwdproxy<br/>Outbound Gateway]
+        E[Form Intake Job<br/>Sidekiq Queue]
+        F[Daily Polling Job<br/>BenefitsIntakeStatusJob]
+        G[FormIntake::Service<br/>API Client]
+        H[FormIntakeSubmission<br/>Database Record]
+        I[fwdproxy<br/>Outbound Gateway]
+        J[IBM Mail Automation]
     end
     
     subgraph "External Systems"
@@ -77,22 +76,26 @@ flowchart TB
     B -->|Create| C
     B -->|Enqueue| D
     D -->|Upload PDF| L
-    E -->|Poll Status| L
-    L -->|vbms Status| E
-    E -->|Update| F
-    F -->|Yes| G
-    G -->|Enqueue| H
-    H -->|Process| I
-    I -->|via| K
-    K -.->|Load certs| N
-    K -->|mTLS POST JSON| M
-    M -->|Response| K
-    K -->|Response| I
-    I -->|Update| J
+    D -->|Success: Immediate| E
+    E -->|Process| G
+    G -->|via| I
+    I -.->|Load certs| N
+    I -->|mTLS POST JSON| M
+    M -->|Response| I
+    I -->|Response| G
+    G -->|Update| H
     
-    H -.->|Metrics| O
-    I -.->|Traces| O
-    J -.->|Audit| P
+    M -.->|Data Ready| J
+    J -->|Query by UUID| M
+    J -->|Process| K
+    
+    F -->|Poll Status| L
+    F -->|Update Status| C
+    
+    D -.->|Metrics| O
+    E -.->|Metrics| O
+    G -.->|Traces| O
+    H -.->|Audit| P
     
     style A fill:#e1f5ff
     style G fill:#fff4e1
@@ -108,13 +111,33 @@ flowchart TB
 **Flow Description:**
 1. Veteran submits form → Stored in database
 2. Background job uploads PDF to Lighthouse
-3. Daily polling job checks Lighthouse status
-4. When status = `vbms` (success) → Trigger form intake handler
-5. Handler enqueues form intake submission job (if enabled)
-6. Job sends JSON payload via fwdproxy with mTLS
-7. fwdproxy loads certificates from SSM Parameter Store
-8. fwdproxy forwards request to GCIO digitization API
-9. Results tracked in database with full audit trail
+3. **IMMEDIATELY after successful upload** → Enqueue GCIO submission job (if enabled)
+4. GCIO job sends JSON payload via fwdproxy with mTLS
+5. fwdproxy loads certificates from SSM Parameter Store
+6. fwdproxy forwards request to GCIO digitization API
+7. Structured data available at GCIO within seconds
+8. IBM Mail Automation queries GCIO (using Lighthouse UUID)
+9. IBM processes PDF to VBMS using structured data
+10. Results tracked in database with full audit trail
+
+### Why Immediate Trigger is Critical
+
+```
+Timeline Comparison:
+
+OLD (After vbms status):
+T+0s:      PDF uploaded
+T+24-72h:  Polling detects vbms status
+T+72h:     Trigger GCIO ❌ TOO LATE
+           IBM already processed PDF without data
+
+NEW (After Lighthouse upload):
+T+0s:      PDF uploaded
+T+1s:      Trigger GCIO ✅ IMMEDIATE
+T+5-30s:   Data available at GCIO
+T+minutes: IBM queries GCIO, finds data
+T+minutes: IBM processes with structured data
+```
 
 ---
 
@@ -132,10 +155,12 @@ The solution uses **AASM (state machine) callbacks** to trigger form intake subm
 ### Key Components
 
 #### 1. **Trigger Mechanism**
-- **Component**: `FormIntake::SubmissionHandler`
-- **Location**: Callback on `FormSubmissionAttempt.vbms!` event
-- **Function**: Decides if form intake submission should be triggered
+- **Component**: Trigger logic in `Lighthouse::SubmitBenefitsIntakeClaim`
+- **Location**: Immediately after successful PDF upload to Lighthouse
+- **Timing**: Within seconds of upload (not days)
+- **Function**: Enqueues GCIO submission job if enabled
 - **Controls**: Feature flags, form type eligibility
+- **Critical**: Ensures structured data ready before IBM automation processes PDF
 
 #### 2. **Asynchronous Processing**
 - **Component**: `FormIntake::SubmitFormDataJob`
