@@ -8,6 +8,7 @@ module NotificationsClientPatch
   # Minimum: 1 char name + dash + UUID (36) + dash + UUID (36) = 75
   MINIMUM_TOKEN_LENGTH = 1 + 1 + UUID_LENGTH + 1 + UUID_LENGTH
   UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
+  PRODUCTION_BASE_URL = 'https://api.notifications.va.gov'.freeze
 
   def initialize(secret_token = nil, base_url = nil)
     unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
@@ -57,7 +58,7 @@ module NotificationsClientPatch
     # Standard UUID format (36 chars)
     return true if token.match?(UUID_REGEX)
 
-    # Python secrets.token_urlsafe(64) format (86+ chars, URL-safe base64)
+    # Python secrets.token_urlsafe(64) format (86 chars, URL-safe base64)
     return true if token.length >= 86 && token.match?(/\A[A-Za-z0-9_-]+\z/)
 
     false

@@ -3,8 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe NotificationsClientPatch do
-  before do
-    stub_const('NotificationsClientPatch::PRODUCTION_BASE_URL', 'https://api.notifications.va.gov')
+  describe 'constants' do
+    it 'defines PRODUCTION_BASE_URL' do
+      expect(described_class::PRODUCTION_BASE_URL).to eq('https://api.notifications.va.gov')
+    end
   end
 
   let(:speaker_class) do
