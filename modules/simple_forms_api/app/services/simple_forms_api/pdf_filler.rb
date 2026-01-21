@@ -50,14 +50,14 @@ module SimpleFormsApi
     end
 
     def copy_from_tempfile(stamped_template_path)
-      # Tempfile workaround inspired by this:
-      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
       tempfile = create_tempfile
       FileUtils.touch(tempfile)
       FileUtils.copy_file(tempfile.path, stamped_template_path)
     end
 
     def create_tempfile
+      # Tempfile workaround inspired by this:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
         IO.copy_stream(template_form_path, tmpfile)
@@ -84,7 +84,7 @@ module SimpleFormsApi
       return filled_pdf_path if overflow_pdf.blank?
 
       merge_with_overflow(filled_pdf_path, overflow_pdf)
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("Failed to merge overflow PDF: #{e.message}\n#{e.backtrace&.join("\n")}")
       FileUtils.rm_f(overflow_pdf) if overflow_pdf && File.exist?(overflow_pdf)
       filled_pdf_path
