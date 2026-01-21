@@ -7,6 +7,7 @@ module Mobile
     class MessagesController < MessagingController
       include Filterable
 
+      before_action :validate_message_id, only: %i[show destroy thread reply move]
       before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def index
@@ -188,6 +189,10 @@ module Mobile
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      def validate_message_id
+        raise Common::Exceptions::ParameterMissing, 'id' if params[:id].blank?
       end
     end
   end

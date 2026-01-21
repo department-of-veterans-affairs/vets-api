@@ -449,6 +449,45 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           end
         end
       end
+
+      describe 'message id validation' do
+        it 'returns 400 for show with blank id' do
+          get '/mobile/v0/messaging/health/messages/%20', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for thread with blank id' do
+          get '/mobile/v0/messaging/health/messages/%20/thread', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for move with blank id' do
+          patch '/mobile/v0/messaging/health/messages/%20/move?folder_id=0', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for destroy with blank id' do
+          delete '/mobile/v0/messaging/health/messages/%20', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for reply with blank id' do
+          post '/mobile/v0/messaging/health/messages/%20/reply',
+               headers: sis_headers,
+               params: { message: { category: 'OTHER', body: 'Test', recipient_id: '1', subject: 'Test' } }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+      end
     end
   end
 end
