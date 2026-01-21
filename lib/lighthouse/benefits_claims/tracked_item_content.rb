@@ -74,9 +74,11 @@ module BenefitsClaims
       # The json-schema gem doesn't support draft-07 by default
       # @return [Hash] The parsed schema
       def load_schema
-        schema = JSON.parse(File.read(SCHEMA_PATH))
-        schema.delete('$schema') # workaround for JSON::Schema::SchemaError with draft-07
-        schema
+        @schema ||= begin
+          schema = JSON.parse(File.read(SCHEMA_PATH))
+          schema.delete('$schema') # workaround for JSON::Schema::SchemaError with draft-07
+          schema
+        end
       end
     end
   end
