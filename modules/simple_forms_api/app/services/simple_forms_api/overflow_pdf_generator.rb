@@ -8,9 +8,9 @@ module SimpleFormsApi
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
     CUTOFF_INDEX = 3685
 
-    def initialize(data, timestamp = Time.current)
+    def initialize(data, cutoff: CUTOFF_INDEX)
       @data = data || {}
-      @timestamp = timestamp
+      @cutoff = cutoff
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -84,10 +84,9 @@ module SimpleFormsApi
 
     def overflow_text
       statement = (@data['statement'] || '').to_s
-      cutoff = CUTOFF_INDEX + 1
-      return '' unless statement.length > cutoff
+      return '' if statement.length <= @cutoff
 
-      statement[cutoff..]
+      statement[(@cutoff + 1)..]
     end
 
     def veteran_name_line

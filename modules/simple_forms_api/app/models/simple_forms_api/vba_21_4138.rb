@@ -58,11 +58,13 @@ module SimpleFormsApi
       data.dig('mailing_address', 'country') == 'USA'
     end
 
-    def overflow_pdf(timestamp = Time.current)
+    def overflow_pdf
       statement = (data['statement'] || '').to_s
       return nil if statement.length <= ALLOTTED_REMARKS_LAST_INDEX
 
-      SimpleFormsApi::OverflowPdfGenerator.new(data, timestamp).generate
+      SimpleFormsApi::OverflowPdfGenerator
+        .new(data, cutoff: ALLOTTED_REMARKS_LAST_INDEX)
+        .generate
     end
 
     def track_user_identity(confirmation_number); end

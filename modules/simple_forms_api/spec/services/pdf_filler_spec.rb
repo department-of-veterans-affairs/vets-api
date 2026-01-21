@@ -56,7 +56,11 @@ describe SimpleFormsApi::PdfFiller do
         let(:name) { SecureRandom.hex }
 
         before { allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value) }
-        after { FileUtils.rm_f(expected_pdf_path) }
+
+        after do
+          FileUtils.rm_f(expected_pdf_path)
+          FileUtils.rm_f(expected_stamped_path)
+        end
 
         context 'when a legitimate JSON payload is provided' do
           it 'properly fills out the associated PDF' do
@@ -76,7 +80,6 @@ describe SimpleFormsApi::PdfFiller do
       end
     end
 
-    # Additional test for 21-4138 overflow behavior (unique to this form)
     context 'when mapping the pdf data for vba_21_4138 with overflow remarks' do
       let(:form_number) { 'vba_21_4138' }
       let(:pseudorandom_value) { 'abc123' }
@@ -95,17 +98,19 @@ describe SimpleFormsApi::PdfFiller do
 
       after do
         FileUtils.rm_f(expected_pdf_path)
+        FileUtils.rm_f(expected_stamped_path)
+        FileUtils.rm_f(@result_path) if @result_path
       end
 
       it 'merges an overflow page and returns a stamped final PDF; base tmp is cleaned up' do
-        result_path = described_class.new(form_number:, form:, name:).generate
+        @result_path = described_class.new(form_number:, form:, name:).generate
 
         expect(PdfFill::Filler).to have_received(:merge_pdfs)
 
         expect(File.exist?(expected_pdf_path)).to be(false)
 
-        expect(result_path).to be_a(String)
-        expect(File.exist?(result_path)).to be(true)
+        expect(@result_path).to be_a(String)
+        expect(File.exist?(@result_path)).to be(true)
 
         expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path.to_s)
       end

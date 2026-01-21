@@ -91,8 +91,6 @@ RSpec.describe SimpleFormsApi::VBA214138 do
   end
 
   describe '#overflow_pdf' do
-    let(:timestamp) { Time.zone.parse('2024-01-15 14:30:00 UTC') }
-
     context 'when statement is within the character limit' do
       let(:data) do
         {
@@ -103,7 +101,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf(timestamp)
+        result = described_class.new(data).overflow_pdf
         expect(result).to be_nil
       end
     end
@@ -117,17 +115,9 @@ RSpec.describe SimpleFormsApi::VBA214138 do
         }
       end
 
-      it 'returns a file path string' do
-        result = described_class.new(data).overflow_pdf(timestamp)
-        expect(result).to be_a(String)
-        expect(File.exist?(result)).to be(true)
-
-        # Cleanup
-        File.delete(result) if result && File.exist?(result)
-      end
-
       it 'creates a PDF file' do
-        result = described_class.new(data).overflow_pdf(timestamp)
+        result = described_class.new(data).overflow_pdf
+        expect(result).to be_a(String)
         expect(File.exist?(result)).to be true
 
         # Cleanup
@@ -145,7 +135,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf(timestamp)
+        result = described_class.new(data).overflow_pdf
         expect(result).to be_nil
       end
     end
@@ -160,7 +150,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns a file path' do
-        result = described_class.new(data).overflow_pdf(timestamp)
+        result = described_class.new(data).overflow_pdf
         expect(result).not_to be_nil
 
         # Cleanup
@@ -178,7 +168,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf(timestamp)
+        result = described_class.new(data).overflow_pdf
         expect(result).to be_nil
       end
     end
