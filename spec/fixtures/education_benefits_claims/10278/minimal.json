@@ -1,65 +1,59 @@
 {
-  "submissionReasons": {
-    "initialApplication": true
-  },
-  "institutionClassification": "public",
-  "institutionProfile": {
-    "isIHL": "N",
-    "participatesInTitleIV": "N"
-  },
-  "institutionDetails": [
-    {
-      "institutionName": "Test University",
-      "physicalAddress": {
-        "street": "123 Main St",
-        "city": "Anytown",
-        "state": "CA",
-        "postalCode": "12345",
-        "country": "USA"
-      }
-    }
-  ],
-  "programs": [
-    {
-      "programName": "Bachelor of Science",
-      "totalProgramLength": "4 years",
-      "weeksPerTerm": 16,
-      "entryRequirements": "High school diploma or equivalent",
-      "creditHours": 120.0
-    }
-  ],
-  "acknowledgement7": "YES",
-  "acknowledgement8": "YES",
-  "acknowledgement9": "YES",
-  "acknowledgement10a": {
-    "financiallySound": "Y"
-  },
-  "acknowledgement10b": "YES",
-  "isMedicalSchool": "N",
-  "financialRepresentative": {
+  "claimantPersonalInformation": {
     "fullName": {
       "first": "John",
       "middle": "A",
       "last": "Doe"
     },
-    "email": "john.doe@example.com"
+    "ssn": "123456789",
+    "vaFileNumber": "987654321",
+    "dateOfBirth": "1980-01-15"
   },
-  "schoolCertifyingOfficial": {
-    "fullName": {
-      "first": "Jane",
-      "middle": "B",
-      "last": "Smith"
-    },
-    "email": "jane.smith@example.com"
+  "claimantAddress": {
+    "street": "123 Main St",
+    "street2": "Apt 4",
+    "city": "Anytown",
+    "state": "CA",
+    "postalCode": "12345",
+    "country": "USA"
   },
-  "authorizingOfficial": {
-    "fullName": {
-      "first": "Robert",
-      "middle": "C",
-      "last": "Johnson"
-    },
-    "signature": "Robert C Johnson"
+  "claimantContactInformation": {
+    "phoneNumber": "5551234567",
+    "emailAddress": "john.doe@example.com"
   },
+  "discloseInformation": {
+    "authorize": "person"
+  },
+  "thirdPartyPersonName": {
+    "first": "Jane",
+    "last": "Smith"
+  },
+  "thirdPartyPersonAddress": {
+    "street": "456 Oak Ave",
+    "city": "Somewhere",
+    "state": "NY",
+    "postalCode": "67890",
+    "country": "USA"
+  },
+  "claimInformation": {
+    "statusOfClaim": true,
+    "currentBenefit": false,
+    "paymentHistory": false,
+    "amountOwed": false,
+    "minor": false,
+    "other": false
+  },
+  "lengthOfRelease": {
+    "lengthOfRelease": "ongoing"
+  },
+  "securityQuestion": {
+    "question": "petName"
+  },
+  "securityAnswer": {
+    "securityAnswerText": "Fluffy"
+  },
+  "privacyAgreementAccepted": true,
+  "statementOfTruthSignature": "John A Doe",
   "dateSigned": "2024-03-15",
   "isAuthenticated": true
 }
