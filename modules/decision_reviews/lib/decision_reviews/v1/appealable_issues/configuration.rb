@@ -14,8 +14,8 @@ module DecisionReviews
         # API paths
         BASE_PATH = 'services/appeals/appealable-issues/v0'
         HIGHER_LEVEL_REVIEWS_PATH = "#{BASE_PATH}/appealable-issues/higher-level-reviews".freeze
+        NOTICE_OF_DISAGREEMENT_PATH = "#{BASE_PATH}/appealable-issues/notice-of-disagreements".freeze
         SUPPLEMENTAL_CLAIMS_PATH = "#{BASE_PATH}/appealable-issues/supplemental-claims".freeze
-        CONTESTABLE_ISSUES_PATH = "#{BASE_PATH}/contestable-issues".freeze
         TOKEN_PATH = 'oauth2/appeals/system/v1/token'
 
         # API configuration
@@ -54,6 +54,25 @@ module DecisionReviews
         end
 
         ##
+        # Get appealable issues for notice of disagreement
+        # Automatically sets benefit_type to 'compensation' as it's required and most common
+        #
+        # @param [String] icn - Veteran's ICN
+        # @param [String] benefit_type - Type of benefit (defaults to 'compensation')
+        # @return [Faraday::Response] response from GET request
+        #
+        def get_notice_of_disagreement_issues(icn:, benefit_type: DEFAULT_BENEFIT_TYPE)
+          headers = { 'Authorization' => "Bearer #{access_token}" }
+          query = {
+            icn:,
+            benefitType: benefit_type,
+            receiptDate: Time.zone.now.strftime('%Y-%m-%d')
+          }
+
+          connection.get(NOTICE_OF_DISAGREEMENT_PATH, query, headers)
+        end
+
+        ##
         # Get appealable issues for supplemental claims
         # Automatically sets benefit_type to 'compensation' as it's required and most common
         #
@@ -70,24 +89,6 @@ module DecisionReviews
           }
 
           connection.get(SUPPLEMENTAL_CLAIMS_PATH, query, headers)
-        end
-
-        ##
-        # Get contestable issues (benefit_type not required for this endpoint)
-        #
-        # @param [String] icn - Veteran's ICN
-        # @param [String] benefit_type - Type of benefit (optional for contestable issues)
-        # @return [Faraday::Response] response from GET request
-        #
-        def get_contestable_issues(icn:, benefit_type: nil)
-          headers = { 'Authorization' => "Bearer #{access_token}" }
-          query = {
-            icn:,
-            receiptDate: Time.zone.now.strftime('%Y-%m-%d')
-          }
-          query[:benefitType] = benefit_type if benefit_type.present?
-
-          connection.get(CONTESTABLE_ISSUES_PATH, query, headers)
         end
 
         ##
@@ -109,9 +110,6 @@ module DecisionReviews
         end
 
         private
-
-        # GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = 'path/to/your/schema.json'.freeze
-
         ##
         # Gets access token for API requests
         #

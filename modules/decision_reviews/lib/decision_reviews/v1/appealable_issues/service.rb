@@ -23,30 +23,11 @@ module DecisionReviews
 
         STATSD_KEY_PREFIX = 'api.decision_reviews.appealable_issues'
 
-        # Schema validation options for migrating from old Caseflow API to new Lighthouse API:
-        #
-        # OPTION 1 (RECOMMENDED): Update existing schema in vets-json-schema repo
-        #   - Update DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1 schema
-        #   - Change type enum from ["contestableIssue"] to ["contestableIssue", "appealableIssue"]
-        #   - Both old Caseflow API and new Lighthouse API use same schema
-        #   - Supports gradual migration via feature flag
-        #   - Less maintenance, DRY principle
-        #
-        # OPTION 2: Create separate schema
-        #   - Create new DECISION-REVIEW-GET-APPEALABLE-ISSUES-RESPONSE-200_V1 schema
-        #   - Type enum only contains ["appealableIssue"]
-        #   - Better separation of concerns between old/new APIs
-        #   - More schemas to maintain
-        #   - Clear distinction in code which API is being used
-        #
-        # Current implementation uses test schema with both enum values for local validation
         TEST_APPEALABLE_ISSUES_SCHEMA = JSON.parse(
           File.read(
             File.join(__dir__, 'test_appealable_issues_schema.json')
           )
         ).freeze
-        ZIP_REGEX = /^\d{5}(-\d{4})?$/
-        NO_ZIP_PLACEHOLDER = '00000'
 
         ERROR_MAP = {
           504 => Common::Exceptions::GatewayTimeout,
@@ -67,19 +48,57 @@ module DecisionReviews
         # Uses 'compensation' as the default benefit type since it's the most common
         #
         # @param user [User] Veteran who the form is in regard to
-        # @param [String] receipt_date - Receipt date in YYYY-MM-DD format
         # @param [String] benefit_type - Type of benefit (optional, defaults to 'compensation')
         # @return [Hash] Response containing appealable issues data
         #
-        def get_higher_level_review_issues(user:, receipt_date:, benefit_type: 'compensation')
+        def get_higher_level_review_issues(user:, benefit_type: 'compensation')
           with_monitoring_and_error_handling do
-            response = config.get_higher_level_review_issues(
-              icn: user.icn.presence,
-              receipt_date:,
-              benefit_type:
-            )
+            common_log_params = { key: :get_contestable_issues, form_id: '996', user_uuid: user.uuid,
+                                  upstream_system: 'Lighthouse (New Appealable Issues API)' }
+            begin
+              response = config.get_higher_level_review_issues(
+                icn: user.icn.presence, # you can uncomment and use "1012832025V743496" for testing
+                benefit_type:
+              )
+              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+            rescue => e
+              # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+              # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
+              log_formatted(**common_log_params.merge(error_log_params(e)))
+              raise e
+            end
 
-            handle_response(response, 'higher_level_review_issues')
+            handle_response(response, ' (HLR_V1)')
+          end
+        end
+        ##
+        # Get appealable issues for Notice of Disagreement
+        # Uses 'compensation' as the default benefit type since it's the most common
+        #
+        # @param user [User] Veteran who the form is in regard to
+        # @param [String] benefit_type - Type of benefit (optional, defaults to 'compensation')
+        # @return [Hash] Response containing appealable issues data
+        #
+        def get_notice_of_disagreement_issues(user:, benefit_type: 'compensation')
+          with_monitoring_and_error_handling do
+            common_log_params = { key: :get_contestable_issues, form_id: '10182', user_uuid: user.uuid,
+                                  upstream_system: 'Lighthouse (New Appealable Issues API)' }
+            begin
+              response = config.get_notice_of_disagreement_issues(
+                icn: user.icn.presence, # you can uncomment and use "1012832025V743496" for testing
+                # Fallback to 'compensation' since NOD benefit_type is optional per API docs
+                # (required for HLR/SC, but not NOD). Route has no path param, so may be nil.
+                benefit_type: benefit_type.presence || 'compensation'
+              )
+              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+            rescue => e
+              # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+              # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
+              log_formatted(**common_log_params.merge(error_log_params(e)))
+              raise e
+            end
+
+            handle_response(response, ' (NOD_V1)')
           end
         end
 
@@ -93,7 +112,6 @@ module DecisionReviews
         #
         def get_supplemental_claim_issues(user:, benefit_type: 'compensation')
           with_monitoring_and_error_handling do
-            # path = "contestable_issues/supplemental_claims?benefit_type=#{benefit_type}"
             common_log_params = { key: :get_contestable_issues, form_id: '995', user_uuid: user.uuid,
                                   upstream_system: 'Lighthouse (New Appealable Issues API)' }
             begin
@@ -109,36 +127,17 @@ module DecisionReviews
               raise e
             end
 
-            # handle_response(response, 'supplemental_claim_issues')
             handle_response(response, ' (SC_V1)')
-
-# binding.pry
           end
         end
 
-        # Get appealable issues for notices of disagreement
-        # Uses 'compensation' as the default benefit type since it's the most common
-        #
-        # @param user [User] Veteran who the form is in regard to
-        # @param [String] receipt_date - Receipt date in YYYY-MM-DD format
-        # @param [String] benefit_type - Type of benefit (optional, ignored by LH)
-        # @return [Hash] Response containing appealable issues data
-        #
-        def get_notice_of_disagreement_issues(user:, receipt_date:)
-          with_monitoring_and_error_handling do
-            response = config.get_supplemental_claim_issues(
-              icn: user.icn.presence,
-              receipt_date:
-            )
-            handle_response(response, 'supplemental_claim_issues', 'SC_V1')
-          end
-        end
+        private
 
         def handle_response(response, error_key = '')
           raise_schema_error_unless_200_status response.status
           validate_against_schema(
             json: response.body,
-            schema: TEST_APPEALABLE_ISSUES_SCHEMA,
+            schema: TEST_APPEALABLE_ISSUES_SCHEMA, #TODO replace with actual schema when available
             append_to_error_class: " #{error_key}"
           )
           response
@@ -204,7 +203,6 @@ module DecisionReviews
         end
 
         def validate_against_schema(json:, schema:, append_to_error_class:)
-# binding.pry
           errors = JSONSchemer.schema(schema).validate(json).to_a
           return if errors.empty?
 
@@ -217,6 +215,7 @@ module DecisionReviews
               error: Class.new.include(FailedRequestLoggable).exception_hash(e)
             }
           )
+
           raise
         end
 
@@ -229,17 +228,6 @@ module DecisionReviews
         def remove_pii_from_json_schemer_errors(errors)
           errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
         end
-
-        # def log_formatted(**params)
-        #   Rails.logger.info("Decision Reviews Appealable Issues API", params)
-        # end
-
-        # def error_log_params(error)
-        #   {
-        #     is_success: false,
-        #     response_error: error
-        #   }
-        # end
       end
     end
   end

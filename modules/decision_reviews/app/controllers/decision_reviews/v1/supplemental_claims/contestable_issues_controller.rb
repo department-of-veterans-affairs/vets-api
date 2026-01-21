@@ -15,6 +15,8 @@ module DecisionReviews
           raise
         end
 
+        private
+
         def merge_legacy_appeals(contestable_issues)
           # Fetch Legacy Appels and combine with CIs
           ci_la = nil
@@ -37,8 +39,6 @@ module DecisionReviews
             ci_la
           end
         end
-
-        private
 
         def get_appealable_issues
           if use_new_appealable_issues_service?
