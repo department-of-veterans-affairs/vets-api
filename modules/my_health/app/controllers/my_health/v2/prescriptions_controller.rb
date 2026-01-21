@@ -17,6 +17,19 @@ module MyHealth
 
       service_tag 'mhv-medications'
 
+      # Status constants for V1 (unmapped) and V2 (mapped) statuses
+      IN_PROGRESS_STATUSES_V1 = ['Active: Refill in Process', 'Active: Submitted'].freeze
+      IN_PROGRESS_STATUSES_V2 = ['In progress'].freeze
+
+      ACTIVE_STATUSES_V1 = [
+        'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+        'Active: Parked', 'Active: Submitted'
+      ].freeze
+      ACTIVE_STATUSES_V2 = ['Active'].freeze
+
+      UNKNOWN_STATUS_V1 = 'Unknown'
+      UNKNOWN_STATUS_V2 = 'Status not available'
+
       def refill
         return unless validate_feature_flag
 
@@ -146,11 +159,7 @@ module MyHealth
       end
 
       def in_progress_statuses
-        if Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
-          ['In progress']
-        else
-          ['Active: Refill in Process', 'Active: Submitted']
-        end
+        v2_status_mapping_enabled? ? IN_PROGRESS_STATUSES_V2 : IN_PROGRESS_STATUSES_V1
       end
 
       def apply_filters_to_list(prescriptions)
@@ -237,15 +246,8 @@ module MyHealth
       end
 
       def count_active_medications(list)
-        if Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
-          list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Active' }
-        else
-          active_statuses = [
-            'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-            'Active: Parked', 'Active: Submitted'
-          ]
-          list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
-        end
+        active_statuses = v2_status_mapping_enabled? ? ACTIVE_STATUSES_V2 : ACTIVE_STATUSES_V1
+        list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
       end
 
       def count_non_active_medications(list)
@@ -269,13 +271,14 @@ module MyHealth
       end
 
       def count_unknown_status_medications(list)
-        unknown_status = if Flipper.enabled?(:mhv_medications_v2_status_mapping,
-                                             @current_user)
-                           'Status not available'
-                         else
-                           'Unknown'
-                         end
+        unknown_status = v2_status_mapping_enabled? ? UNKNOWN_STATUS_V2 : UNKNOWN_STATUS_V1
         list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == unknown_status }
+      end
+
+      private
+
+      def v2_status_mapping_enabled?
+        Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
       end
 
       def remove_pf_pd(data)
