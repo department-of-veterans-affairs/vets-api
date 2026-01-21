@@ -1269,6 +1269,9 @@ features:
     enable_in_development: true
   lighthouse_document_convert_to_unlocked_pdf_use_hexapdf:
     description: Enables the LighthouseDocument class's convert_to_unlocked_pdf method to use hexapdf to unlock encrypted pdfs
+  load_user_if_authenticated:
+    actor_type: user
+    description: Prevents FeatureTogglesController Filter Chain Halting
   log_claims_request_origin:
     actor_type: user
     description: Enables logging of inbound request metadata for claims endpoints to track request origins
@@ -2803,7 +2806,7 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-    
+
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
