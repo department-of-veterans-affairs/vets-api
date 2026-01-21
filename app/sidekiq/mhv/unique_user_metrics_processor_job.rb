@@ -31,32 +31,6 @@ module MHV
     # Prevent duplicate job execution (matches 10-minute schedule interval)
     sidekiq_options retry: 3, unique_for: 10.minutes
 
-    # Configuration from Settings (AWS Parameter Store)
-    # These must be configured in settings.yml - job will fail fast if missing
-    # Use explicit .to_i coercion since Settings values may arrive as strings or integers
-    # depending on how Parameter Store delivers them (env_parse_values converts "500" to 500,
-    # but this ensures consistent handling regardless of source type)
-    BATCH_SIZE = begin
-      value = Settings.unique_user_metrics&.processor_job&.batch_size.to_i
-      raise 'unique_user_metrics.processor_job.batch_size must be a positive integer' unless value.positive?
-
-      value
-    end
-
-    MAX_ITERATIONS = begin
-      value = Settings.unique_user_metrics&.processor_job&.max_iterations.to_i
-      raise 'unique_user_metrics.processor_job.max_iterations must be a positive integer' unless value.positive?
-
-      value
-    end
-
-    MAX_QUEUE_DEPTH = begin
-      value = Settings.unique_user_metrics&.processor_job&.max_queue_depth.to_i
-      raise 'unique_user_metrics.processor_job.max_queue_depth must be a positive integer' unless value.positive?
-
-      value
-    end
-
     # StatsD metrics keys
     STATSD_PREFIX = 'uum.processor_job'
 
@@ -64,14 +38,49 @@ module MHV
     CACHE_NAMESPACE = 'unique_user_metrics'
     CACHE_TTL = REDIS_CONFIG[:unique_user_metrics][:each_ttl]
 
+    # Job configuration (from Settings, validated at class load time)
+    # Values require restart to change; raises error if missing or invalid
+    def self.fetch_positive_integer_setting(setting_name)
+      raw_value = Settings.unique_user_metrics&.processor_job&.send(setting_name)
+      raise ArgumentError, "UUM Processor: #{setting_name} is missing from Settings" if raw_value.blank?
+
+      value = raw_value.to_i
+      raise ArgumentError, "UUM Processor: #{setting_name} must be a positive integer" unless value.positive?
+
+      value
+    end
+    private_class_method :fetch_positive_integer_setting
+
+    BATCH_SIZE = fetch_positive_integer_setting(:batch_size)
+    MAX_ITERATIONS = fetch_positive_integer_setting(:max_iterations)
+    MAX_QUEUE_DEPTH = fetch_positive_integer_setting(:max_queue_depth)
+
     def perform
       job_start_time = Time.current
-      iterations = 0
-      total_events_processed = 0
-      total_db_inserts = 0
 
       # Early check for queue backlog - alert immediately if overflow detected
       check_queue_overflow(UniqueUserEvents::Buffer.pending_count)
+
+      # Process all batches and collect metrics
+      iterations, total_events_processed, total_db_queries, total_db_inserts = process_all_batches
+
+      # Record aggregate metrics for the entire job run
+      record_job_summary(job_start_time, iterations, total_events_processed, total_db_queries, total_db_inserts)
+    rescue => e
+      handle_job_failure(e, total_events_processed || 0, iterations || 0)
+      raise # Re-raise to trigger Sidekiq retry
+    end
+
+    private
+
+    # Process batches in a loop until queue is empty or max iterations reached
+    #
+    # @return [Array<Integer>] [iterations, total_events_processed, total_db_queries, total_db_inserts]
+    def process_all_batches
+      iterations = 0
+      total_events_processed = 0
+      total_db_queries = 0
+      total_db_inserts = 0
 
       loop do
         # Check safeguard before each iteration
@@ -81,27 +90,20 @@ module MHV
         events = peek_events_from_buffer
         break if events.empty?
 
-        iteration_start_time = Time.current
-
         # Process this batch (dedup, cache check, insert, cache write, StatsD)
-        inserted_count = process_events(events, iteration_start_time)
+        db_queries, inserted_count = process_events(events)
 
         # TRIM - Remove events only after successful processing
         trim_processed_events(events.size)
 
         iterations += 1
         total_events_processed += events.size
+        total_db_queries += db_queries
         total_db_inserts += inserted_count
       end
 
-      # Record aggregate metrics for the entire job run
-      record_job_summary(job_start_time, iterations, total_events_processed, total_db_inserts)
-    rescue => e
-      handle_job_failure(e, total_events_processed, iterations)
-      raise # Re-raise to trigger Sidekiq retry
+      [iterations, total_events_processed, total_db_queries, total_db_inserts]
     end
-
-    private
 
     # Peek at a batch of events from the Redis buffer without removing them
     #
@@ -117,18 +119,13 @@ module MHV
       UniqueUserEvents::Buffer.trim_batch(count)
     end
 
-    # Handle job failure with detailed metrics and logging
+    # Handle job failure with logging
     #
     # @param exception [Exception] The exception that caused the failure
     # @param total_events [Integer] Total events processed before failure
     # @param iterations [Integer] Number of completed iterations before failure
     def handle_job_failure(exception, total_events, iterations)
-      # Track failure with error class for debugging
-      StatsD.increment("#{STATSD_PREFIX}.failure", tags: ["error_class:#{exception.class.name}"])
-
-      # Track events at risk (events in current batch that may not have been trimmed)
       events_at_risk = UniqueUserEvents::Buffer.pending_count
-      StatsD.gauge("#{STATSD_PREFIX}.events_at_risk", events_at_risk)
 
       Rails.logger.error('UUM Processor: Job failed', {
                            error: exception.class.name,
@@ -146,8 +143,9 @@ module MHV
     # @param job_start_time [Time] When the job started
     # @param iterations [Integer] Number of batch iterations completed
     # @param total_events [Integer] Total events processed across all iterations
+    # @param total_db_queries [Integer] Total events sent to database (cache misses)
     # @param total_db_inserts [Integer] Total events inserted to database (new unique events)
-    def record_job_summary(job_start_time, iterations, total_events, total_db_inserts)
+    def record_job_summary(job_start_time, iterations, total_events, total_db_queries, total_db_inserts)
       return if iterations.zero? # No work done, skip metrics
 
       duration_ms = ((Time.current - job_start_time) * 1000).round
@@ -155,6 +153,7 @@ module MHV
 
       StatsD.gauge("#{STATSD_PREFIX}.iterations", iterations)
       StatsD.gauge("#{STATSD_PREFIX}.total_events_processed", total_events)
+      StatsD.gauge("#{STATSD_PREFIX}.total_db_queries", total_db_queries)
       StatsD.gauge("#{STATSD_PREFIX}.total_db_inserts", total_db_inserts)
       StatsD.gauge("#{STATSD_PREFIX}.queue_depth", queue_depth)
       StatsD.histogram("#{STATSD_PREFIX}.job_duration_ms", duration_ms)
@@ -162,6 +161,7 @@ module MHV
       Rails.logger.debug('UUM Processor: Job completed', {
                            iterations:,
                            total_events_processed: total_events,
+                           total_db_queries:,
                            total_db_inserts:,
                            duration_ms:,
                            queue_depth:
@@ -171,27 +171,27 @@ module MHV
     # Process a single batch of events
     #
     # @param events [Array<Hash>] Raw events from buffer
-    # @param iteration_start_time [Time] Iteration start time (unused, kept for signature compatibility)
-    # @return [Integer] Number of events inserted to database
-    def process_events(events, _iteration_start_time = nil)
+    # @return [Array<Integer>] [db_queries (cache misses), db_inserts (new events)]
+    def process_events(events)
       # Step 1: Deduplicate in-memory
       unique_events = deduplicate_events(events)
 
       # Step 2: Filter out events already in cache
       uncached_events = filter_cached_events(unique_events)
-      return 0 if uncached_events.empty?
+      return [0, 0] if uncached_events.empty?
 
-      # Step 3: Bulk insert to database
+      # Step 3: Bulk insert to database (uncached_events = cache misses = db queries)
       inserted_events = bulk_insert_events(uncached_events)
 
-      # Step 4: Update cache for inserted events
-      cache_inserted_events(inserted_events)
+      # Step 4: Cache ALL events sent to DB
+      # This prevents repeated DB lookups when cache expires but record exists
+      cache_events(uncached_events)
 
       # Step 5: Increment StatsD for new events
       increment_statsd_counters(inserted_events)
 
-      # Return count of inserted events for job-level tracking
-      inserted_events.size
+      # Return counts: cache misses (sent to DB) and actual inserts (new unique events)
+      [uncached_events.size, inserted_events.size]
     end
 
     # Deduplicate events
@@ -202,7 +202,7 @@ module MHV
       events.uniq { |event| [event[:user_id], event[:event_name]] }
     end
 
-    # Filter out events that are already in the Redis cache
+    # Filter out events that are already in the Redis cache and refresh their TTL
     #
     # @param events [Array<Hash>] Unique events to check
     # @return [Array<Hash>] Events not found in cache
@@ -214,6 +214,9 @@ module MHV
 
       # Batch read from cache
       cached_results = Rails.cache.read_multi(*cache_keys, namespace: CACHE_NAMESPACE)
+
+      # Refresh TTL for cached events (keeps active users in cache longer)
+      Rails.cache.write_multi(cached_results, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL) if cached_results.any?
 
       # Filter out events that are cached
       events.reject.with_index do |_event, index|
@@ -252,10 +255,10 @@ module MHV
       end
     end
 
-    # Cache inserted events using write_multi
+    # Cache events using write_multi
     #
-    # @param events [Array<Hash>] Events that were inserted
-    def cache_inserted_events(events)
+    # @param events [Array<Hash>] Events to cache
+    def cache_events(events)
       return if events.empty?
 
       # Build hash for write_multi: { cache_key => true }
@@ -296,7 +299,6 @@ module MHV
     def check_queue_overflow(queue_depth)
       return unless queue_depth > MAX_QUEUE_DEPTH
 
-      StatsD.increment("#{STATSD_PREFIX}.queue_overflow")
       Rails.logger.warn('UUM Processor: Queue depth exceeds threshold', {
                           queue_depth:,
                           max_queue_depth: MAX_QUEUE_DEPTH

@@ -50,16 +50,21 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
   describe 'POST /vass/v0/request-otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth
       }
     end
 
     context 'with valid parameters and successful VASS API response' do
       it 'creates session and sends OTC' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.request_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+        ).and_call_original
+
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
@@ -129,11 +134,9 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             post '/vass/v0/request-otc', params: {
-              session: {
-                uuid:,
-                last_name: invalid_last_name,
-                dob: date_of_birth
-              }
+              uuid:,
+              last_name: invalid_last_name,
+              dob: date_of_birth
             }, as: :json
 
             expect(response).to have_http_status(:unauthorized)
@@ -196,12 +199,10 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
   describe 'POST /vass/v0/authenticate-otc' do
     let(:params) do
       {
-        session: {
-          uuid:,
-          last_name:,
-          dob: date_of_birth,
-          otc: otp_code
-        }
+        uuid:,
+        last_name:,
+        dob: date_of_birth,
+        otc: otp_code
       }
     end
 
@@ -214,6 +215,13 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
 
       it 'validates OTC and returns JWT token' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        ).and_call_original
+
         post '/vass/v0/authenticate-otc', params:, as: :json
 
         expect(response).to have_http_status(:ok)
@@ -278,13 +286,15 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     end
 
     context 'with missing OTC' do
-      it 'returns unprocessable entity status' do
-        missing_otc_params = { session: { uuid:, last_name:, dob: date_of_birth } }
+      it 'returns bad request status' do
+        missing_otc_params = { uuid:, last_name:, dob: date_of_birth }
         post '/vass/v0/authenticate-otc', params: missing_otc_params, as: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['code']).to eq('missing_parameter')
+        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
       end
     end
 

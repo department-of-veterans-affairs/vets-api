@@ -1,7 +1,4 @@
 {
-  "useEva": true,
-  "useTelecounseling": true,
-  "appointmentTimePreferences": ["morning", "midday", "afternoon"],
   "yearsOfEducation": "12",
   "isMoving": true,
   "newAddress": {
@@ -30,8 +27,10 @@
       "last": "Huberws",
       "suffix": "Jr."
     },
-    "ssn": "796-10-4437",
+    "ssn": "666-33-7777",
     "VAFileNumber": "88246556",
-    "dob": "1950-10-04"
-  }
+    "dob": "1966-05-16"
+  },
+  "privacyAgreementAccepted": true,
+  "signatureDate": "2025-06-26"
 }

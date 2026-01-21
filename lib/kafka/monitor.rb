@@ -11,7 +11,8 @@ module Kafka
     STATSD_KEY_PREFIX = 'api.kafka_service'
 
     def initialize
-      super('kafka-service')
+      # the allowlist includes 'tags' so that tags are not filtered out in logs.
+      super('kafka-service', allowlist: ['tags'])
     end
 
     # Track submission successful
