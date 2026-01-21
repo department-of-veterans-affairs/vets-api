@@ -202,7 +202,7 @@
     :file_path: 'mhv/account_creation/create_account/default'
 
 - :name: 'SSOe Get Traits'
-  :base_uri: <%= "#{URI(Settings.ssoe.get_traits.base_path).host}:#{URI(Settings.ssoe.get_traits.base_path).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.ssoe_get_traits.url).host}:#{URI(IdentitySettings.ssoe_get_traits.url).port}" %>
   :endpoints:
     - :method: :post
       :path: '/'
