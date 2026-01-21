@@ -22,6 +22,13 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe 'CONTENT_PATH' do
+    it 'contains valid JSON' do
+      content = File.read(described_class::CONTENT_PATH)
+      expect { JSON.parse(content) }.not_to raise_error
+    end
+  end
+
   describe 'CONTENT' do
     it 'is a frozen hash' do
       expect(described_class::CONTENT).to be_a(Hash)
