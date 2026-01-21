@@ -2,13 +2,14 @@
 
 module NotificationsClientPatch
   UUID_LENGTH = 36
+  # urlsafe token length == 86
   URLSAFE_TOKEN_LENGTH = 86
   # Format: name-service_id-secret_token
   # (e.g., "myapp-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
   # Minimum: 1 char name + dash + UUID (36) + dash + UUID (36) = 75
   MINIMUM_TOKEN_LENGTH = 1 + 1 + UUID_LENGTH + 1 + UUID_LENGTH
   UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
-  PRODUCTION_BASE_URL = 'https://api.notifications.va.gov'.freeze
+  PRODUCTION_BASE_URL = 'https://api.notifications.va.gov'
 
   def initialize(secret_token = nil, base_url = nil)
     unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
@@ -39,7 +40,7 @@ module NotificationsClientPatch
 
     raise ArgumentError, "Invalid service_id format: #{@service_id}" unless valid_uuid?(@service_id)
 
-    raise ArgumentError, "Invalid secret_token format: #{@secret_token}" unless valid_token?(@secret_token)
+    raise ArgumentError, 'Invalid secret_token format' unless valid_token?(@secret_token)
 
     Rails.logger.info('NotificationsClientPatch: validation successful')
   end
@@ -85,7 +86,7 @@ module NotificationsClientPatch
   def validate_secret_token_format!(secret_token)
     return if secret_token.is_a?(String) && secret_token.length >= MINIMUM_TOKEN_LENGTH
 
-    raise ArgumentError, "Invalid secret_token format: #{secret_token}"
+    raise ArgumentError, 'Invalid secret_token format'
   end
 end
 

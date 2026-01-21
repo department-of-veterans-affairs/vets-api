@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe NotificationsClientPatch do
-  describe 'constants' do
-    it 'defines PRODUCTION_BASE_URL' do
-      expect(described_class::PRODUCTION_BASE_URL).to eq('https://api.notifications.va.gov')
-    end
-  end
+  let(:speaker_class_with_validation) do
+    Class.new do
+      attr_reader :service_id, :secret_token, :base_url
 
+      def initialize(_secret_token = nil, _base_url = nil); end
+    end.prepend(described_class)
+  end
   let(:speaker_class) do
     Class.new do
       attr_reader :service_id, :secret_token, :base_url
@@ -19,12 +20,10 @@ RSpec.describe NotificationsClientPatch do
     end.prepend(described_class)
   end
 
-  let(:speaker_class_with_validation) do
-    Class.new do
-      attr_reader :service_id, :secret_token, :base_url
-
-      def initialize(_secret_token = nil, _base_url = nil); end
-    end.prepend(described_class)
+  describe 'constants' do
+    it 'defines PRODUCTION_BASE_URL' do
+      expect(described_class::PRODUCTION_BASE_URL).to eq('https://api.notifications.va.gov')
+    end
   end
 
   describe '#initialize' do
