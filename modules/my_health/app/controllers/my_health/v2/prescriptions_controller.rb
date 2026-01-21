@@ -275,8 +275,6 @@ module MyHealth
         list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == unknown_status }
       end
 
-      private
-
       def v2_status_mapping_enabled?
         Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
       end
