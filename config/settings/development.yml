@@ -40,6 +40,9 @@ ask_va_api:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
+  zip_state_validation_throttle:
+    limit: 60
+    period_seconds: 60
 authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
