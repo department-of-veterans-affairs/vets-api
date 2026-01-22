@@ -53,6 +53,17 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      - name: Run Reek
+        uses: reviewdog/action-reek@v1.20.0
+        with:
+          reek_version: gemfile
+          reporter: github-pr-review
+          reek_flags: --smell DuplicateMethodCall
+          # Note: this is the default anyway but explicitly set to remind us we can change to hard-fail on reek warnings with `any`
+          # For now we just want to run in advisory mode to surface architectural smells as comments during review
+          # ...but _without_ blocking merges for now
+          fail_level: none
+
       # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
         if: ${{ failure() && github.event_name == 'pull_request' }}
@@ -216,7 +227,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--profile 20'"
 
       - name: Prepare SimpleCov shard payload
         if: always()
@@ -228,7 +239,7 @@ jobs:
 
       - name: Upload SimpleCov raw resultset
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: simplecov-resultset-${{ matrix.test_group }}
           path: simplecov-resultset-${{ matrix.test_group }}/.resultset.json
@@ -237,14 +248,14 @@ jobs:
 
       - name: Upload Test Results (JUnit XMLs)
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Test Results Group ${{ matrix.test_group }}
           path: log/*.xml
           if-no-files-found: ignore
 
       - name: Upload Test Artifacts (log)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: Test Artifacts (log directory) Group ${{ matrix.test_group }}
@@ -255,7 +266,7 @@ jobs:
 
       - name: Upload Test Artifacts (rails tmp)
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Test Artifacts (rails tmp directory) Group ${{ matrix.test_group }}
           path: tmp
@@ -357,7 +368,7 @@ jobs:
 
       - name: Upload Combined Coverage HTML
         if: needs.tests.result == 'success'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Coverage Report
           path: vets-api/coverage

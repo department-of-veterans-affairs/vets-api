@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
-  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
@@ -25,6 +25,7 @@ Rails.application.routes.draw do
 
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
+    get '/user_info', to: 'user_info#show'
 
     namespace :webhooks do
       post 'logingov/risc', to: 'logingov#risc'
@@ -33,7 +34,6 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
-      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -175,8 +175,6 @@ Rails.application.routes.draw do
       get :failed_upload_evidence_submissions, on: :collection
     end
 
-    resources :evidence_submissions, only: %i[index]
-
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
@@ -184,7 +182,8 @@ Rails.application.routes.draw do
 
     resources :efolder, only: %i[index show]
 
-    resources :tsa_letter, only: %i[index show]
+    get :tsa_letter, to: 'tsa_letter#show'
+    get 'tsa_letter/:id/version/:version_id/download', to: 'tsa_letter#download'
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -313,7 +312,6 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
-    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'

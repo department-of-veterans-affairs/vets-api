@@ -9,6 +9,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
     allow(mock_monitor).to receive(:track_processor_info)
     allow(mock_monitor).to receive(:track_processor_error)
+    allow(mock_monitor).to receive(:track_pension_related_submission)
 
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
@@ -197,8 +198,18 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     end
 
     context 'when all child claims succeeded' do
+      let(:pension_claim) { create(:student_claim) }
+      let(:regular_claim) do
+        claim = create(:add_remove_dependents_claim)
+        claim.parsed_form['dependents_application'].delete('household_income')
+        claim
+      end
+
       before do
-        allow_any_instance_of(DependentsBenefits::ClaimBehavior).to receive(:submissions_succeeded?).and_return(true)
+        allow(form_686_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(form_674_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(regular_claim).to receive(:submissions_succeeded?).and_return(true)
+        allow(pension_claim).to receive(:submissions_succeeded?).and_return(true)
       end
 
       context 'and parent claim group not completed' do
@@ -211,6 +222,40 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           expect_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_received_notification)
           processor.send(:handle_successful_submission)
         end
+
+        context 'with pension-related claims' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(true)
+          end
+
+          it 'tracks pension-related submission when any child claim is pension-related' do
+            allow(processor).to receive(:child_claims).and_return([pension_claim, regular_claim])
+            expect(mock_monitor).to receive(:track_pension_related_submission).with(
+              'Submitted pension-related claim', parent_claim_id:, form_type: '686c-674'
+            )
+            processor.send(:handle_successful_submission)
+          end
+
+          it 'does not track pension-related submission if no child is pension-related' do
+            allow(processor).to receive(:child_claims).and_return([regular_claim])
+            expect(mock_monitor).not_to receive(:track_pension_related_submission)
+            processor.send(:handle_successful_submission)
+          end
+        end
+
+        context 'when feature flag is disabled' do
+          let(:claim_with_pension_data) { create(:student_claim) }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+            allow(processor).to receive(:child_claims).and_return([claim_with_pension_data])
+          end
+
+          it 'does not track pension-related submission when feature flag is disabled' do
+            expect(mock_monitor).not_to receive(:track_pension_related_submission)
+            processor.send(:handle_successful_submission)
+          end
+        end
       end
 
       context 'and parent claim group already completed' do
@@ -221,6 +266,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
         it 'does not mark parent claim group or send notification' do
           expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
           expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
+          expect(mock_monitor).not_to receive(:track_pension_related_submission)
           processor.send(:handle_successful_submission)
         end
       end
@@ -235,6 +281,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       it 'does not mark parent claim group or send notification' do
         expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
         expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
+        expect(mock_monitor).not_to receive(:track_pension_related_submission)
         processor.send(:handle_successful_submission)
       end
     end

@@ -14,7 +14,6 @@ module MHV
         :mhv_accelerated_delivery_care_notes_enabled,
         :mhv_accelerated_delivery_conditions_enabled,
         :mhv_accelerated_delivery_labs_and_tests_enabled,
-        :mhv_accelerated_delivery_vaccines_enabled,
         :mhv_accelerated_delivery_vital_signs_enabled,
         :mhv_secure_messaging_cerner_pilot,
         :mhv_medications_cerner_pilot
@@ -36,6 +35,14 @@ module MHV
         end
       end
 
+      def user_facility_migrating_to_oh?
+        return false if @current_user.va_treatment_facility_ids.blank?
+
+        @current_user.va_treatment_facility_ids.any? do |facility|
+          facilities_migrating_to_oh.include?(facility.to_s)
+        end
+      end
+
       private
 
       def pretransitioned_oh_facilities
@@ -47,6 +54,12 @@ module MHV
       def facilities_ready_for_info_alert
         @facilities_ready_for_info_alert ||= parse_facility_setting(
           Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert
+        )
+      end
+
+      def facilities_migrating_to_oh
+        @facilities_migrating_to_oh ||= parse_facility_setting(
+          Settings.mhv.oh_facility_checks.facilities_migrating_to_oh
         )
       end
 

@@ -77,6 +77,13 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
   describe '#send_to_vre' do
     subject { claim.send_to_vre(user_object) }
 
+    before do
+      # TODO(02/2026): Remove stub when VRE::NotificationEmail uses VRE::VREVeteranReadinessEmploymentClaim
+      # See: https://github.com/department-of-veterans-affairs/va-iir/issues/2011
+      allow_any_instance_of(VRE::NotificationEmail).to receive(:claim_class)
+        .and_return(VRE::VREVeteranReadinessEmploymentClaim)
+    end
+
     it 'propagates errors from send_to_lighthouse!' do
       allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
 
@@ -118,7 +125,7 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
         end
 
         it 'sends confirmation email' do
-          expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+          expect(claim).to receive(:send_email).with(:confirmation_vbms)
 
           claim.send_to_vre(user_object)
         end
@@ -141,7 +148,7 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       it 'PDF is sent to Central Mail and not VBMS' do
         expect(claim).to receive(:process_attachments!)
         expect(claim).to receive(:send_to_lighthouse!).with(user_object).once.and_call_original
-        expect(claim).to receive(:send_lighthouse_confirmation_email)
+        expect(claim).to receive(:send_email).with(:confirmation_lighthouse)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VRE::VeteranReadinessEmploymentMailer).to receive(:build).with(
           user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -151,66 +158,9 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     end
   end
 
-  describe '#send_failure_email' do
-    context 'when email is nil' do
-      it 'only logs a warning' do
-        expect(Rails.logger).to receive(:warn)
-        expect(VANotify::EmailJob).not_to receive(:perform_async)
-        claim.send_failure_email('')
-      end
-    end
-
-    context 'when email is present' do
-      it 'logs error and sends email' do
-        expect(VANotify::EmailJob).to receive(:perform_async)
-        claim.send_failure_email('test@example.com')
-      end
-    end
-  end
-
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to eq []
-    end
-  end
-
-  describe '#send_vbms_confirmation_email' do
-    subject { claim.send_vbms_confirmation_email(user) }
-
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_vbms_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
-      )
-
-      subject
-    end
-
-    it 'handles missing email for VBMS confirmation' do
-      user_without_va_profile_email = OpenStruct.new(user.to_h.merge(va_profile_email: nil))
-      expect(Rails.logger).to receive(:warn)
-      claim.send_vbms_confirmation_email(user_without_va_profile_email)
-    end
-  end
-
-  describe '#send_lighthouse_confirmation_email' do
-    subject { claim.send_lighthouse_confirmation_email(user) }
-
-    it 'calls the VA notify email job' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'ch31_central_mail_fake_template_id',
-        {
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => user.first_name.upcase.presence
-        }
-      )
-
-      subject
     end
   end
 

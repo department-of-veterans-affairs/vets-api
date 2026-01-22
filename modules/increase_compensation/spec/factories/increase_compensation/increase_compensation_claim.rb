@@ -22,14 +22,33 @@ FactoryBot.define do
           street2: '4B',
           city: 'Cheyenne'
         },
-        doctorsTreatmentDates: {
-          from: '2024-01-10',
-          to: '2025-02-20'
-        },
-        hospitalCareDateRanges: {
-          from: '2024-06-01',
-          to: '2024-06-15'
-        },
+        emailAddress: 'juan.johnny.rico@example.com',
+        doctorsCare: [
+          {
+            inVANetwork: true,
+            doctorsTreatmentDates: [
+              {
+                from: '2024-01-10',
+                to: '2025-02-20'
+              }
+            ],
+            nameAndAddressOfDoctor: 'Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001',
+            relatedDisability: ['PTSD']
+          }
+        ],
+        hospitalsCare: [
+          {
+            inVANetwork: false,
+            nameAndAddressOfHospital: 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
+            hospitalTreatmentDates: [
+              {
+                from: '2024-06-01',
+                to: '2024-06-15'
+              }
+            ],
+            relatedDisability: ['shrapnel wounds']
+          }
+        ],
         previousEmployers: [],
         appliedEmployers: [],
         education: {},

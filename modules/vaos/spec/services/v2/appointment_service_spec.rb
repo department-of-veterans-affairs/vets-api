@@ -1280,8 +1280,8 @@ describe VAOS::V2::AppointmentsService do
                              match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1316,8 +1316,8 @@ describe VAOS::V2::AppointmentsService do
             VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1334,8 +1334,8 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }
             .to raise_error do |error|
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(502)
+              expect(error).to be_a(Common::Exceptions::BackendServiceException)
+              expect(error.status_code).to eq(502)
           end
         end
       end
@@ -2157,6 +2157,7 @@ describe VAOS::V2::AppointmentsService do
     after { travel_back }
 
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:fulfilled_appointment) { { status: 'fulfilled', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
     let(:avs_param_included) { true }
@@ -2164,6 +2165,10 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns true if the appointment is booked and is in the past and avs is included' do
       expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
+    end
+
+    it 'returns true if the appointment is fulfilled and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, fulfilled_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do

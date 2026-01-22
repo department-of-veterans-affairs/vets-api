@@ -41,6 +41,20 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       'id' => '15208365735',
       'status' => 'active',
       'authoredOn' => '2025-01-29T19:41:43Z',
+      'reportedBoolean' => false,
+      'intent' => 'order',
+      'category' => [
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location', 'code' => 'community' }
+          ]
+        },
+        {
+          'coding' => [
+            { 'system' => 'http://terminology.hl7.org/CodeSystem/medication-request-category', 'code' => 'discharge' }
+          ]
+        }
+      ],
       'requester' => {
         'reference' => 'Practitioner/12345',
         'display' => 'Doe, Jane, MD'
@@ -188,9 +202,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         prescriptions = subject.parse(unified_response)
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
-        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
-        # which maps to 'Expired' disp_status (derived from refill_status when dispStatus is null)
-        expect(oracle_prescription.disp_status).to eq('Expired')
+        # Oracle Health prescription with status='active', 0 refills remaining, no expiration date
+        # = 'active' refill_status which maps to 'Active' disp_status
+        # (derived from refill_status when dispStatus is null)
+        expect(oracle_prescription.disp_status).to eq('Active')
       end
 
       context 'business rules filtering (applied regardless of current_only)' do
@@ -626,7 +641,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       it 'includes prescriptions with multiple categories' do
         prescriptions = subject.parse(response_with_multiple_categories)
         expect(prescriptions.size).to eq(1)
-        expect(prescriptions.first.category).to eq(%w[outpatient community])
+        expect(prescriptions.first.category).to eq(%w[community outpatient])
       end
     end
 

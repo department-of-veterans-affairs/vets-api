@@ -27,12 +27,14 @@ module DecisionReviews
 
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
+    BATCH_SIZE = 100
+
     def perform
       return unless should_perform?
 
-      StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.size)
+      StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.count)
 
-      records_to_update.each do |record|
+      records_to_update.find_each(batch_size: BATCH_SIZE) do |record|
         status, attributes = get_status_and_attributes(record)
         uploads_metadata = get_evidence_uploads_statuses(record)
         secondary_forms_complete = get_and_update_secondary_form_statuses(record)
@@ -91,12 +93,8 @@ module DecisionReviews
       raise Common::Exceptions::NotImplemented
     end
 
-    def enabled?
-      raise Common::Exceptions::NotImplemented
-    end
-
     def should_perform?
-      enabled? && records_to_update.present?
+      records_to_update.present?
     rescue => e
       StatsD.increment("#{statsd_prefix}.error")
       Rails.logger.error("#{log_prefix} error", { message: e.message })
@@ -166,7 +164,6 @@ module DecisionReviews
 
     def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
-      return true unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
       secondary_forms = record.appeal_submission&.secondary_appeal_forms
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []

@@ -755,6 +755,12 @@ paths:
           schema:
             type: string
         - in: query
+          required: false
+          name: provider_id
+          description: The provider_id to find appointment slots for. Required if clinic_id not provided.
+          schema:
+            type: string
+        - in: query
           required: true
           name: start
           description: The start date for the query
@@ -1898,65 +1904,28 @@ components:
           properties:
             facilityId:
               type: string
-            services:
+            vaServices:
               type: array
               items:
                 type: object
                 properties:
-                  id:
+                  clinicalServiceId:
                     type: string
-                  name:
+                  bookedAppointments:
+                    type: boolean
+                  apptRequests:
+                    type: boolean
+            ccServices:
+              type: array
+              items:
+                type: object
+                properties:
+                  clinicalServiceId:
                     type: string
-                  stopCodes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        primary:
-                          type: string
-                        secondary:
-                          type: string
-                  char4:
-                    type: string
-                  direct:
-                    type: object
-                    properties:
-                      patientHistoryRequired:
-                        type: boolean
-                      patientHistoryDuration:
-                        type: integer
-                      canCancel:
-                        type: boolean
-                      enabled:
-                        type: boolean
-                  request:
-                    type: object
-                    properties:
-                      patientHistoryRequired:
-                        type: boolean
-                      patientHistoryDuration:
-                        type: integer
-                      canCancel:
-                        type: boolean
-                      submittedRequestLimit:
-                        type: integer
-                      enterpriseSubmittedRequestLimit:
-                        type: integer
-                      supported:
-                        type: boolean
-                      schedulingDays:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            day:
-                              type: string
-                            canSchedule:
-                              type: boolean
-                            startTime:
-                              type: string
-                            endTime:
-                              type: string
+                  bookedAppointments:
+                    type: boolean
+                  apptRequests:
+                    type: boolean
             communityCare:
               type: boolean
     TasAddress:

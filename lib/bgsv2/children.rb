@@ -30,7 +30,7 @@ module BGSV2
 
     def report_children
       @dependents_application['children_to_add'].each do |child_info|
-        child = BGSDependentsV2::Child.new(child_info)
+        child = BGSDependents::Child.new(child_info)
         formatted_info = child.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -55,7 +55,7 @@ module BGSV2
 
     def report_stepchildren
       @dependents_application['step_children'].each do |stepchild_info|
-        step_child = BGSDependentsV2::StepChild.new(stepchild_info)
+        step_child = BGSDependents::StepChild.new(stepchild_info)
         formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
         guardian_participant = bgs_service.create_participant(@proc_id)
@@ -121,11 +121,11 @@ module BGSV2
     def report_child_event(event_type)
       if event_type == 'child_marriage'
         @dependents_application['child_marriage'].each do |child_marriage_details|
-          generate_child_event(BGSDependentsV2::ChildMarriage.new(child_marriage_details), event_type)
+          generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
         end
       elsif event_type == 'not_attending_school'
         @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
-          generate_child_event(BGSDependentsV2::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
+          generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
         end
       end
     end

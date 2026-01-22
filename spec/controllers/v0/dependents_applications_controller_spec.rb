@@ -9,16 +9,12 @@ RSpec.describe V0::DependentsApplicationsController do
     sign_in_as(user)
   end
 
-  let(:test_form) do
-    build(:dependency_claim).parsed_form
-  end
-
   let(:test_form_v2) do
     build(:dependency_claim_v2).parsed_form
   end
 
   let(:service) { instance_double(BGS::DependentService) }
-  let(:service_v2) { instance_double(BGS::DependentV2Service) }
+  let(:service_v2) { instance_double(BGS::DependentService) }
 
   describe '#show' do
     context 'with a valid bgs response' do
@@ -47,51 +43,15 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   describe 'POST create' do
-    context 'with valid params v1' do
+    context 'with valid params' do
       before do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:confirmation_number).and_return('')
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 
-      let(:vanotify) { double(send_email: true) }
-
       it 'validates successfully' do
-        expect(VaNotify::Service).to receive(:new).and_return(vanotify)
-        expect(vanotify).to receive(:send_email).with(
-          {
-            email_address: user.va_profile_email,
-            template_id: 'fake_submitted686c674',
-            personalisation: hash_including('date_submitted', 'first_name', 'confirmation_number')
-          }.compact
-        )
-
         expect(BGS::DependentService).to receive(:new)
-          .with(instance_of(User))
-          .and_return(service)
-
-        expect(service).to receive(:submit_686c_form)
-          .with(instance_of(SavedClaim::DependencyClaim))
-
-        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          post(:create, params: test_form)
-        end
-
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'with valid params v2' do
-      before do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-      end
-
-      it 'validates successfully' do
-        expect(BGS::DependentV2Service).to receive(:new)
           .with(instance_of(User))
           .and_return(service_v2)
 
@@ -104,28 +64,50 @@ RSpec.describe V0::DependentsApplicationsController do
 
         expect(response).to have_http_status(:ok)
       end
-    end
 
-    context 'with v1 submitting with a v2 user' do
-      before do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pdf_overflow_tracking)
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+      it 'sets the user account on the claim' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post(:create, params: test_form_v2, as: :json)
+        end
+        claim = SavedClaim::DependencyClaim.last
+        expect(claim.user_account).to eq(user.user_account)
       end
 
-      it 'validates successfully' do
-        expect(BGS::DependentService).to receive(:new)
-          .with(instance_of(User))
-          .and_return(service)
+      context 'when claim is pension related' do
+        it 'tracks pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(true)
 
-        expect(service).to receive(:submit_686c_form)
-          .with(instance_of(SavedClaim::DependencyClaim))
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+          allow(monitor_double).to receive(:track_pension_related_submission)
 
-        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-          post(:create, params: test_form)
+          expect(monitor_double)
+            .to receive(:track_pension_related_submission)
+            .with(form_id: '686C-674-V2', form_type: '686c-674')
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
         end
-        expect(response).to have_http_status(:ok)
+      end
+
+      context 'when claim is not pension related' do
+        it 'does not track pension related submission' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+
+          expect(monitor_double).not_to receive(:track_pension_related_submission)
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
       end
     end
 

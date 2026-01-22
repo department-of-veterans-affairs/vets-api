@@ -68,7 +68,6 @@
             "beginDate": "20250101",
             "endDate": null,
             "transferredDays": 420,
-            "benefitType": "CH33",
             "transferor": 3000000010002241,
             "recipient": 1000000000000253,
             "origTransferPerson": 3000000010002241,
@@ -79,25 +78,14 @@
             "beginDate": "20250101",
             "endDate": null,
             "transferredDays": 10,
-            "benefitType": "CH33",
-            "transferor": 3000000010002241,
-            "recipient": 1000000000000254,
-            "origTransferPerson": 3000000010002241,
-            "relationshipType": "Spouse"
-          },
-          {
-            "id": 300000000001263,
-            "beginDate": "20250101",
-            "endDate": null,
-            "transferredDays": 10,
-            "benefitType": "CH31",
             "transferor": 3000000010002241,
             "recipient": 1000000000000254,
             "origTransferPerson": 3000000010002241,
             "relationshipType": "Spouse"
           }
         ],
-        "entitlementTransferIn": []
+        "entitlementTransferIn": [],
+        "enrollments": null
       }
     ]
   }

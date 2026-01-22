@@ -13,7 +13,6 @@ module VRE
     RETRY = 16
 
     FORM_TYPE = '28-1900'
-    FORM_TYPE_V2 = '28-1900-V2'
 
     sidekiq_options retry: RETRY
 
@@ -28,7 +27,7 @@ module VRE
       # Query for form submissions by this user within the configured threshold window (default 24 hours)
       threshold_hours = Settings.veteran_readiness_and_employment.duplicate_submission_threshold_hours.to_i
       threshold_hours = 24 unless threshold_hours.positive?
-      submissions = user_account.form_submissions.where(form_type: [FORM_TYPE, FORM_TYPE_V2],
+      submissions = user_account.form_submissions.where(form_type: FORM_TYPE,
                                                         created_at: threshold_hours.hours.ago..)
       submissions_data = submissions.pluck(:id, :created_at).map { |id, created_at| { id:, created_at: } }
       submissions_count = submissions.count
@@ -57,8 +56,7 @@ module VRE
         claim.send_to_vre(user)
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
-        if submission_tracking_enabled && submission && attempt
-          attempt.succeed
+        if submission && attempt
           Rails.logger.info('VRE::VRESubmit1900Job - Submission Attempt Succeeded',
                             claim_id:, submission_id:, submission_attempt_id: attempt.id,
                             num_attempts: submission.form_submission_attempts.size,
@@ -69,7 +67,7 @@ module VRE
         Rails.logger.warn('VRE::VRESubmit1900Job failed, retrying...',
                           claim_id:, submission_id:, error_class: e.class.name, error_message: e.message)
 
-        attempt.fail if submission_tracking_enabled && submission && attempt
+        attempt.fail if submission && attempt
         raise
       end
     end
@@ -77,23 +75,13 @@ module VRE
     def self.trigger_failure_events(msg)
       claim_id = msg['args'][0]
       claim = ::SavedClaim.find(claim_id)
-
-      if Flipper.enabled?(:vre_use_new_vfs_notification_library)
-        VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
-      else
-        VRE::Monitor.new.track_submission_exhaustion(msg, claim.email)
-        claim.send_failure_email
-      end
+      VRE::VREMonitor.new.track_submission_exhaustion(msg, claim)
     end
 
     private
 
-    def submission_tracking_enabled
-      @submission_tracking_enabled ||= Flipper.enabled?(:vre_track_submissions)
-    end
-
     def setup_submission_tracking(claim_id, submission_id)
-      return [nil, nil] unless submission_tracking_enabled && submission_id
+      return [nil, nil] unless submission_id
 
       begin
         submission = FormSubmission.find(submission_id)

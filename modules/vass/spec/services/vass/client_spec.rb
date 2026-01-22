@@ -59,7 +59,8 @@ describe Vass::Client do
   describe '#get_agent_skills' do
     it 'makes request to get agent skills' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
-        double('response', env: double('env', body: { 'skills' => [] }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'agentSkills' => [] } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -71,11 +72,12 @@ describe Vass::Client do
   describe '#get_veteran' do
     it 'makes request to get veteran data' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
-        double('response', env: double('env', body: { 'firstName' => 'John' }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'firstName' => 'John' } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
-      result = subject.get_veteran(edipi:, veteran_id:)
+      result = subject.get_veteran(veteran_id:)
       expect(result).to be_present
     end
   end
@@ -85,7 +87,8 @@ describe Vass::Client do
 
     it 'makes request to get appointment availability' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-        double('response', env: double('env', body: { 'availableSlots' => [] }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'availableSlots' => [] } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -99,7 +102,9 @@ describe Vass::Client do
 
     it 'makes request to save appointment' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-        double('response', env: double('env', body: { 'appointmentId' => 'appt-123' }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'appointmentId' => 'appt-123' } },
+                                  status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -113,7 +118,8 @@ describe Vass::Client do
 
     it 'makes request to cancel appointment' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-        double('response', env: double('env', body: { 'cancelled' => true }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'cancelled' => true } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -127,7 +133,8 @@ describe Vass::Client do
 
     it 'makes request to get veteran appointment' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
-        double('response', env: double('env', body: { 'appointment' => {} }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'appointment' => {} } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -141,7 +148,8 @@ describe Vass::Client do
 
     it 'makes request to get veteran appointments' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-        double('response', env: double('env', body: { 'appointments' => [] }))
+        double('response',
+               env: double('env', body: { 'success' => true, 'data' => { 'appointments' => [] } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -221,7 +229,8 @@ describe Vass::Client do
         expect(subject.config).to receive(:connection).and_call_original
 
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
-          double('response', env: double('env', body: { 'appointments' => [] }))
+          double('response',
+                 env: double('env', body: { 'success' => true, 'data' => { 'appointments' => [] } }, status: 200))
         )
         subject.instance_variable_set(:@current_oauth_token, oauth_token)
 
@@ -238,6 +247,70 @@ describe Vass::Client do
 
         # Different URL should return different connection instance
         expect(conn1).not_to be(conn3)
+      end
+    end
+  end
+
+  describe 'response validation' do
+    before do
+      subject.instance_variable_set(:@current_oauth_token, oauth_token)
+    end
+
+    context 'when response has success: true' do
+      it 'returns response without raising error' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double('response', env: double('env', body: { 'success' => true, 'data' => {} }, status: 200))
+        )
+
+        expect { subject.get_agent_skills }.not_to raise_error
+      end
+    end
+
+    context 'when response has success: false' do
+      it 'raises ServiceException' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double('response', env: double('env', body: { 'success' => false, 'message' => 'Error' }, status: 200))
+        )
+
+        expect { subject.get_agent_skills }.to raise_error(Vass::ServiceException) do |error|
+          expect(error.key).to eq(Vass::Errors::ERROR_KEY_VASS_ERROR)
+          expect(error.response_values[:detail]).to eq('VASS API returned an unsuccessful response')
+          expect(error.original_status).to eq(200)
+        end
+      end
+    end
+
+    context 'when response body is not a hash' do
+      it 'raises ServiceException' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double('response', env: double('env', body: 'invalid response', status: 200))
+        )
+
+        expect { subject.get_agent_skills }.to raise_error(Vass::ServiceException) do |error|
+          expect(error.key).to eq(Vass::Errors::ERROR_KEY_VASS_ERROR)
+          expect(error.response_values[:detail]).to eq('VASS API returned an unsuccessful response')
+        end
+      end
+    end
+
+    context 'when response body is nil' do
+      it 'raises ServiceException' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
+          double('response', env: double('env', body: nil, status: 200))
+        )
+
+        expect { subject.get_agent_skills }.to raise_error(Vass::ServiceException)
+      end
+    end
+
+    context 'when making OAuth token request' do
+      it 'skips validation for OAuth endpoint' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(
+          double('response', env: double('env', body: { 'access_token' => 'token' }, status: 200))
+        )
+
+        # OAuth response doesn't have 'success' field, but shouldn't raise error
+        expect { subject.oauth_token_request }.not_to raise_error
       end
     end
   end
