@@ -163,18 +163,18 @@ module Mobile
           end
         else
           errors.push({
-            service: 'appeals',
-            error_details: 'Forbidden: User is not authorized for appeals'
-          })
+                        service: 'appeals',
+                        error_details: 'Forbidden: User is not authorized for appeals'
+                      })
         end
       end
 
       def add_authorization_errors(errors)
         unless @current_user.authorize(:lighthouse, :access?)
           errors.push({
-            service: 'claims',
-            error_details: 'Forbidden: User is not authorized for claims'
-          })
+                        service: 'claims',
+                        error_details: 'Forbidden: User is not authorized for claims'
+                      })
         end
       end
 
