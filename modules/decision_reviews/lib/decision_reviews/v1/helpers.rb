@@ -199,7 +199,7 @@ module DecisionReviews
               'state' => evidence_entry.dig('address', 'state') || '',
               'postalCode' => evidence_entry.dig('address', 'postalCode') || ''
             },
-            'issues' => make_issues_list(evidence_entry['issuesPrivate']),
+            'issues' => make_issues_list(evidence_entry['issues']),
             'treatmentDateRange' => [{
               'from' => evidence_entry['treatmentStart'] || '',
               'to' => evidence_entry['treatmentEnd'] || ''
