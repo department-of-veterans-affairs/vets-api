@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Handles errors for Facilities API V2 controllers
-module FacilitiesError
+module FacilitiesApi::V2::FacilitiesError
   def handle_error(error, method)
     return unless error
 
