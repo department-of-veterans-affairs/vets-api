@@ -243,13 +243,7 @@ module Vass
     #
     def get_veteran_info(veteran_id:)
       response = client.get_veteran(veteran_id:)
-      veteran_data = parse_response(response)
-
-      # Validate we have the required data structure
-      unless veteran_data && veteran_data['success'] && veteran_data['data']
-        raise Vass::Errors::VassApiError,
-              veteran_data&.dig('message') || 'Unable to retrieve veteran information'
-      end
+      veteran_data = response.body
 
       # Extract and add contact info for OTC flow
       contact_method, contact_value = extract_contact_info(veteran_data)
@@ -272,14 +266,13 @@ module Vass
     ##
     # Retrieves available agent skills for appointment scheduling.
     #
-    # @return [Hash] List of available agent skills
+    # @return [Hash] Response with success flag and agent skills data
     #
     # @example
     #   service.get_agent_skills
     #
     def get_agent_skills
       response = client.get_agent_skills
-
       parse_response(response)
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
@@ -394,8 +387,8 @@ module Vass
       data = veteran_data['data']
       return false unless data
 
-      last_name_match = normalize_name(data['lastName']) == normalize_name(last_name)
-      dob_match = normalize_vass_date(data['dateOfBirth']) == Date.parse(date_of_birth)
+      last_name_match = normalize_name(data['last_name']) == normalize_name(last_name)
+      dob_match = normalize_vass_date(data['date_of_birth']) == Date.parse(date_of_birth)
 
       last_name_match && dob_match
     end
@@ -446,7 +439,7 @@ module Vass
       data = veteran_data['data']
       return [nil, nil] unless data
 
-      email = data['notificationEmail']
+      email = data['notification_email']
 
       if email.present?
         ['email', email]
@@ -499,12 +492,12 @@ module Vass
       now = Time.current
 
       appointments.find do |appt|
-        cohort_start_utc = appt['cohortStartUtc']
-        cohort_end_utc = appt['cohortEndUtc']
+        cohort_start_utc = appt['cohort_start_utc']
+        cohort_end_utc = appt['cohort_end_utc']
         next unless cohort_start_utc && cohort_end_utc
 
-        cohort_start = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
-        cohort_end = parse_utc_time(cohort_end_utc, field_name: 'cohortEndUtc')
+        cohort_start = parse_utc_time(cohort_start_utc, field_name: 'cohort_start_utc')
+        cohort_end = parse_utc_time(cohort_end_utc, field_name: 'cohort_end_utc')
         next unless cohort_start && cohort_end
 
         now.between?(cohort_start, cohort_end)
@@ -518,7 +511,7 @@ module Vass
     # @return [Boolean] True if booked, false otherwise
     #
     def cohort_booked?(cohort)
-      cohort['startUTC'].present? && cohort['endUTC'].present?
+      cohort['start_utc'].present? && cohort['end_utc'].present?
     end
 
     ##
@@ -531,9 +524,9 @@ module Vass
       {
         status: :already_booked,
         data: {
-          appointment_id: cohort['appointmentId'],
-          start_utc: cohort['startUTC'],
-          end_utc: cohort['endUTC']
+          appointment_id: cohort['appointment_id'],
+          start_utc: cohort['start_utc'],
+          end_utc: cohort['end_utc']
         }
       }
     end
@@ -548,17 +541,17 @@ module Vass
     # @return [Hash] Result with status and available slots data
     #
     def handle_available_cohort(cohort, veteran_id)
-      cohort_start_utc = cohort['cohortStartUtc']
-      cohort_end_utc = cohort['cohortEndUtc']
+      cohort_start_utc = cohort['cohort_start_utc']
+      cohort_end_utc = cohort['cohort_end_utc']
       availability = get_availability(veteran_id:, start_date: cohort_start_utc, end_date: cohort_end_utc)
-      slots = availability.dig('data', 'availableTimeSlots') || []
+      slots = availability.dig('data', 'available_time_slots') || []
       filtered_slots = filter_available_slots(slots)
       return build_no_slots_available_response if filtered_slots.empty?
 
       {
         status: :available_slots,
         data: {
-          appointment_id: cohort['appointmentId'],
+          appointment_id: cohort['appointment_id'],
           cohort: { cohort_start_utc:, cohort_end_utc: },
           available_slots: filtered_slots
         }
@@ -582,7 +575,7 @@ module Vass
       slots
         .select { |slot| (slot['capacity'] || 0).positive? }
         .select { |slot| slot_within_date_range?(slot, tomorrow, two_weeks_out) }
-        .map { |slot| { 'dtStartUtc' => slot['timeStartUTC'], 'dtEndUtc' => slot['timeEndUTC'] } }
+        .map { |slot| { 'dtStartUtc' => slot['time_start_utc'], 'dtEndUtc' => slot['time_end_utc'] } }
     end
 
     ##
@@ -594,10 +587,10 @@ module Vass
     # @return [Boolean] True if slot is within range
     #
     def slot_within_date_range?(slot, start_range, end_range)
-      time_start_utc = slot['timeStartUTC']
+      time_start_utc = slot['time_start_utc']
       return false unless time_start_utc
 
-      slot_time = parse_utc_time(time_start_utc, field_name: 'timeStartUTC')
+      slot_time = parse_utc_time(time_start_utc, field_name: 'time_start_utc')
       return false unless slot_time
 
       slot_time >= start_range && slot_time <= end_range
@@ -627,10 +620,10 @@ module Vass
       now = Time.current
 
       future_appointments = appointments.filter_map do |appt|
-        cohort_start_utc = appt['cohortStartUtc']
+        cohort_start_utc = appt['cohort_start_utc']
         next unless cohort_start_utc
 
-        parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohortStartUtc')
+        parsed_time = parse_utc_time(cohort_start_utc, field_name: 'cohort_start_utc')
         { appt:, parsed_time: } if parsed_time && parsed_time > now
       end
 
@@ -646,8 +639,8 @@ module Vass
     # @return [Hash] Result with next cohort status and data
     #
     def build_next_cohort_response(cohort)
-      cohort_start_utc = cohort['cohortStartUtc']
-      cohort_end_utc = cohort['cohortEndUtc']
+      cohort_start_utc = cohort['cohort_start_utc']
+      cohort_end_utc = cohort['cohort_end_utc']
 
       {
         status: :next_cohort,
