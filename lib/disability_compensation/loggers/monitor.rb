@@ -20,11 +20,23 @@ module DisabilityCompensation
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
       TOXIC_EXPOSURE_ALLOWLIST = %w[
+        all
         completely_removed
+        conditions
         conditions_state
+        gulfWar1990
+        gulfWar1990Details
+        gulfWar2001
+        gulfWar2001Details
+        herbicide
+        herbicideDetails
         orphaned_data_removed
+        otherExposures
+        otherExposuresDetails
+        otherHerbicideLocations
         purge_reasons
         removed_keys
+        specifyOtherExposures
         submission_id
         tags
       ].freeze

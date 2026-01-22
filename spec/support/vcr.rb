@@ -10,6 +10,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<BENEFITS_INTAKE_SERVICE_API_KEY>') { Settings.benefits_intake_service.api_key }
   c.filter_sensitive_data('<CLAIMS_API_BD_URL>') { Settings.claims_api.benefits_documents.host }
+  c.filter_sensitive_data('<CLAIMS_EVIDENCE_API_URL>') { Settings.claims_evidence_api.base_url }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
   c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
