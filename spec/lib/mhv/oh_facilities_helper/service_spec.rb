@@ -388,8 +388,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
         phase_dates = phases_constant.keys.map do |phase_name|
           Date.strptime(phases[phase_name], '%B %d, %Y')
-        rescue Date::Error
-          Date.strptime(phases[phase_name], '%B %-d, %Y')
         end
 
         expect(phase_dates).to eq(phase_dates.sort)

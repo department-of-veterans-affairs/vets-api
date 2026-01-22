@@ -142,7 +142,7 @@ module MHV
       # @return [Array<Hash>] Array of { migration_date:, facilities: [] }
       def parse_oh_migrations_list
         raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
-        return [] unless ActiveModel::Type::Boolean.new.cast(raw_value)
+        return [] if raw_value.to_s.strip.blank?
 
         raw_value.to_s.split(';').filter_map do |migration_entry|
           migration_entry = migration_entry.strip
