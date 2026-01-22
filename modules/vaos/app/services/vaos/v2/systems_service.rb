@@ -77,7 +77,9 @@ module VAOS
           'start' => start_dt,
           'end' => end_dt
         }
-        perform(:get, url_path, url_params, headers)
+        with_monitoring do
+          perform(:get, url_path, url_params, headers)
+        end
       end
 
       def get_slots_vpg(options = {})
@@ -91,7 +93,9 @@ module VAOS
           'provider' => options[:provider_id]
         }.compact
 
-        perform(:get, url_path, url_params, headers)
+        with_monitoring do
+          perform(:get, url_path, url_params, headers)
+        end
       end
     end
   end

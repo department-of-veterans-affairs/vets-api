@@ -198,7 +198,12 @@ module VAOS
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
         with_monitoring do
-          response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
+          response =  if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+                        perform_get_appointment_request_vpg(appointment_id, params)
+                      else
+                        perform_get_appointment_request_vaos(appointment_id, params)
+                      end
+
           appointment = response.body[:data]
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
@@ -1441,6 +1446,14 @@ module VAOS
         end
       end
 
+      def get_appointment_base_path_vpg(appointment_id)
+        "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+      end
+
+      def get_appointment_base_path_vaos(appointment_id)
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
+      end
+
       def date_params(start_date, end_date)
         { start: date_format(start_date), end: date_format(end_date) }
       end
@@ -1631,22 +1644,34 @@ module VAOS
       # @return [Faraday::Response] The API response.
       def perform_appointment_request(req_params)
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-          perform_get_appointment_request_vpg(req_params)
+          perform_get_appointments_request_vpg(req_params)
         else
-          perform_get_appointment_request_vaos(req_params)
+          perform_get_appointments_request_vaos(req_params)
         end
       end
 
       # Splitting `perform_appointment_request` into separate vpg/vaos methods for monitoring purposes
-      def perform_get_appointment_request_vpg(req_params)
+      def perform_get_appointments_request_vpg(req_params)
         with_monitoring do
           perform(:get, appointments_base_path_vpg, req_params, headers)
         end
       end
 
-      def perform_get_appointment_request_vaos(req_params)
+      def perform_get_appointments_request_vaos(req_params)
         with_monitoring do
           perform(:get, appointments_base_path_vaos, req_params, headers)
+        end
+      end
+
+      def perform_get_appointment_request_vpg(appointment_id, params)
+        with_monitoring do
+          perform(:get, get_appointment_base_path_vpg(appointment_id), params, headers)
+        end
+      end
+
+      def perform_get_appointment_request_vaos(appointment_id, params)
+        with_monitoring do
+          perform(:get, get_appointment_base_path_vaos(appointment_id), params, headers)
         end
       end
 
