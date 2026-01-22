@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
+require 'bgsv2/power_of_attorney_verifier'
 require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi

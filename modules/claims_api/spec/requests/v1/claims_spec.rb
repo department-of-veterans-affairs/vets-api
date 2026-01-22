@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'bgs/power_of_attorney_verifier'
+require 'bgsv2/power_of_attorney_verifier'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
