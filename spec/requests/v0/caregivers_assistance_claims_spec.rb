@@ -285,7 +285,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
   describe 'POST /v0/caregivers_assistance_claims/facilities' do
     subject do
-      post('/v0/caregivers_assistance_claims/facilities', params: params.merge(radius: 1).to_json, headers:)
+      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
     end
 
     let(:headers) do
@@ -348,6 +348,30 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)
+    end
+
+    it 'omits radius when latitude param is missing' do
+      params_without_lat = params.except(:lat)
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params_without_lat.to_json, headers:)
+
+      expected_params = unmodified_params.except(:lat).merge(
+        facilityIds: 'vha_123,vha_456',
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
+      expect(lighthouse_service).to have_received(:get_paginated_facilities).with(expected_params)
+    end
+
+    it 'omits radius when longitude param is missing' do
+      params_without_long = params.except(:long)
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params_without_long.to_json, headers:)
+
+      expected_params = unmodified_params.except(:long).merge(
+        facilityIds: 'vha_123,vha_456',
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
+      expect(lighthouse_service).to have_received(:get_paginated_facilities).with(expected_params)
     end
   end
 end
