@@ -166,7 +166,7 @@ module TravelPay
         case expense_type.to_sym
         when :airtravel
           TravelPay::FlightExpense
-        when :common_carrier
+        when :commoncarrier
           TravelPay::CommonCarrierExpense
         when :lodging
           TravelPay::LodgingExpense
@@ -186,7 +186,7 @@ module TravelPay
 
       def permitted_params
         expense_class = expense_class_for_type(params[:expense_type])
-        params.require(:expense).permit(*expense_class.permitted_params)
+        params.permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)

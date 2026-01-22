@@ -17,9 +17,10 @@ module PdfFill
       TMP_DIR = 'tmp/pdfs'
       FORM_CLASS = PdfFill::Forms::Va220839
 
-      def initialize(form_data, main_form_filler)
+      def initialize(form_data, main_form_filler, file_name_suffix = SecureRandom.hex)
         @form_data = form_data
         @main_form_filler = main_form_filler
+        @file_name_suffix = file_name_suffix
       end
 
       def process
@@ -45,17 +46,17 @@ module PdfFill
       def generate_default_form(merged_form_data, hash_converter)
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
 
-        file_path = File.join(TMP_DIR, '22-0839.pdf')
+        file_path = File.join(TMP_DIR, "22-0839_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         file_path
       end
 
       def generate_extended_form(merged_form_data, hash_converter)
-        extra_us_schools = extract_extra_from_array(merged_form_data['usSchools'],
+        extra_us_schools = extract_extra_from_array(merged_form_data['usSchools'] || [],
                                                     DEFAULT_US_SCHOOLS_LIMIT)
-        extra_foreign_schools = extract_extra_from_array(merged_form_data['foreignSchools'],
+        extra_foreign_schools = extract_extra_from_array(merged_form_data['foreignSchools'] || [],
                                                          DEFAULT_FOREIGN_SCHOOLS_LIMIT)
-        extra_branch_locations = extract_extra_from_array(merged_form_data['branchCampuses'],
+        extra_branch_locations = extract_extra_from_array(merged_form_data['branchCampuses'] || [],
                                                           DEFAULT_BRANCH_LOCATION_LIMIT)
 
         pdf_data_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: FORM_CLASS::KEY)
@@ -66,7 +67,7 @@ module PdfFill
         add_extras(hash_converter, extra_branch_locations, :branch_location_to_text,
                    extra_us_schools.size + extra_foreign_schools.size, 'Additional Branch Campus')
 
-        file_path = File.join(TMP_DIR, '22-0839.pdf')
+        file_path = File.join(TMP_DIR, "22-0839_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
         combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end

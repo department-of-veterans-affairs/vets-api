@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
-  let(:form_data) { { 'test' => 'data' } }
-  let(:parent_id) { 123 }
-  let(:generator) { described_class.new(form_data, parent_id) }
-
   before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
 
     allow(generator).to receive(:claim_class).and_return(DependentsBenefits::PrimaryDependencyClaim)
   end
+
+  let(:form_data) { { 'test' => 'data' } }
+  let(:parent_id) { 123 }
+  let(:generator) { described_class.new(form_data, parent_id) }
 
   describe 'initialization' do
     it 'stores form_data and parent_id' do
@@ -36,6 +37,15 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
         expect do
           generator.send(:extract_form_data)
         end.to raise_error(NotImplementedError, 'Subclasses must implement extract_form_data')
+      end
+
+      describe '#claim_class' do
+        it 'raises NotImplementedError' do
+          allow(generator).to receive(:claim_class).and_call_original
+          expect do
+            generator.send(:claim_class)
+          end.to raise_error(NotImplementedError, 'Subclasses must implement claim_class')
+        end
       end
     end
 

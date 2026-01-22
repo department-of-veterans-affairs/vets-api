@@ -9,17 +9,20 @@ module Committee
     end
 
     def error_body
-      {
-        errors: [
-          {
-            title: 'Unprocessable Entity',
-            detail: sanitize_detail,
-            code: '422',
-            status: '422',
-            source: 'Committee::Middleware::RequestValidation'
-          }
-        ]
+      error = {
+        title: 'Unprocessable Entity',
+        detail: sanitize_detail,
+        code: '422',
+        status: '422',
+        source: 'Committee::Middleware::RequestValidation'
       }
+
+      # Add controller/action metadata if available (auto-cleaned after request)
+      controller = CommitteeContext.controller
+      action = CommitteeContext.action
+      error[:meta] = { controller:, action: }.compact if controller || action
+
+      { errors: [error] }
     end
 
     def render

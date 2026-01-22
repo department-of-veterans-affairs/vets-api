@@ -98,9 +98,10 @@ class FormProfile
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
-            22-10297 22-0803],
+            22-10297 22-0803 22-10272 22-10278],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    form_mock_prefill: ['FORM-MOCK-PREFILL'],
     form_upload: %w[
       21P-4185-UPLOAD
       21-651-UPLOAD
@@ -134,7 +135,7 @@ class FormProfile
     memorials: %w[1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
-    vre_readiness: %w[28-1900 28-1900-V2]
+    vre_readiness: %w[28-1900]
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -161,7 +162,9 @@ class FormProfile
     '22-0994' => ::FormProfiles::VA0994,
     '22-0803' => ::FormProfiles::VA0803,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-10272' => ::FormProfiles::VA10272,
     '22-10297' => ::FormProfiles::VA10297,
+    '22-10278' => ::FormProfiles::VA10278,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
@@ -172,7 +175,6 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '28-1900' => ::FormProfiles::VA281900,
-    '28-1900-V2' => ::FormProfiles::VA281900v2,
     '28-8832' => ::FormProfiles::VA288832,
     '40-10007' => ::FormProfiles::VA4010007,
     '5655' => ::FormProfiles::VA5655,
@@ -182,6 +184,7 @@ class FormProfile
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'FORM-MOCK-PREFILL' => ::FormProfiles::FormMockPrefill,
     'MDOT' => ::FormProfiles::MDOT,
     '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
@@ -248,7 +251,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    form_id = form_id.downcase if %w[1010EZ 1330M].include?(form_id) # handle case sensitivity for specific forms
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -301,8 +304,6 @@ class FormProfile
 
     military_information_data
   rescue => e
-    log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
-
     log_exception_to_rails(e)
 
     {}

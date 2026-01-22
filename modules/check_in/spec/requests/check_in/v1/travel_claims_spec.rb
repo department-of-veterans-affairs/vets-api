@@ -344,9 +344,12 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           expect(response).to have_http_status(:bad_request)
         end
 
-        it 'logs existing claim error when 400 status is received' do
+        it 'logs duplicate claim error when 400 status is received' do
           # Mock Rails.logger to capture log calls
           allow(Rails.logger).to receive(:error)
+          # Enable detailed error logging to see the BTSSS error message
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details)
+                                              .and_return(true)
 
           VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
             VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
@@ -359,11 +362,21 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the specific error log was called
+          # Verify client-level logging: external API error with details
           expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient existing claim error',
             hash_including(
-              message: 'Validation failed: A claim has already been created for this appointment.'
+              message: 'TravelPayClient: BTSSS API Error',
+              operation: 'create_claim',
+              http_status: 400,
+              api_error_message: 'Validation failed: A claim has already been created for this appointment.'
+            )
+          )
+
+          # Verify service-level logging: step failure with context
+          expect(Rails.logger).to have_received(:error).with(
+            hash_including(
+              message: 'Travel Claim Submission: FAILURE',
+              failed_step: 'create_claim'
             )
           )
         end
@@ -398,19 +411,6 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           expect(json_response).to include('errors')
           expect(json_response['errors']).to be_an(Array)
           expect(json_response['errors']).to be_present
-        end
-
-        it 'ticks timeout and error metrics when a read timeout occurs' do
-          allow_any_instance_of(TravelClaim::TravelPayClient).to receive(:send_appointment_request)
-            .and_raise(Faraday::TimeoutError.new(Net::ReadTimeout.new))
-          allow(StatsD).to receive(:increment)
-
-          post '/check_in/v1/travel_claims', params: valid_params,
-                                             headers: { 'Authorization' => "Bearer #{low_auth_token}" }
-
-          expect(response).to have_http_status(:gateway_timeout)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT)
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_ERROR)
         end
       end
 
@@ -462,6 +462,17 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
               end
             end
           end
+
+          # Verify that the auth retry log was called
+          expect(Rails.logger).to have_received(:error).with(
+            'TravelPayClient 401 error - retrying authentication',
+            hash_including(
+              correlation_id: be_present,
+              check_in_uuid: uuid,
+              veis_token_present: true,
+              btsss_token_present: true
+            )
+          )
 
           # Verify that the 401 retry mechanism worked (no 401 error, but business logic may fail)
           expect(response).not_to have_http_status(:unauthorized)

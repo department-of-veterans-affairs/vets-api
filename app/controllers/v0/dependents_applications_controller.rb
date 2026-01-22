@@ -16,9 +16,7 @@ module V0
     end
 
     def create
-      form = dependent_params.to_json
-      use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
-      claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
+      claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
 
@@ -34,16 +32,14 @@ module V0
 
       claim.process_attachments!
 
-      # reinstantiate as v1 dependent service if use_v2 is blank
-      dependent_service = use_v2.blank? ? BGS::DependentService.new(current_user) : create_dependent_service
+      dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
 
-      monitor.track_create_success(in_progress_form, claim, current_user)
+      log_submitted(in_progress_form, claim)
       claim.send_submitted_email(current_user)
 
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
-
       render json: SavedClaimSerializer.new(claim)
     rescue => e
       monitor.track_create_error(in_progress_form, claim, current_user, e)
@@ -72,6 +68,18 @@ module V0
       )
     end
 
+    # Creates a new claim instance with the provided form parameters.
+    #
+    # @param form_params [String] The JSON string for the claim form.
+    # @return [Claim] A new instance of the claim class initialized with the given attributes.
+    #   If the current user has an associated user account, it is included in the claim attributes.
+    def create_claim(form_params)
+      claim_attributes = { form: form_params }
+      claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+      SavedClaim::DependencyClaim.new(**claim_attributes)
+    end
+
     ##
     # Include validation error on in_progress_form metadata.
     # `noop` if in_progress_form is `blank?`
@@ -89,8 +97,15 @@ module V0
       in_progress_form.update(metadata:)
     end
 
+    def log_submitted(in_progress_form, claim)
+      monitor.track_create_success(in_progress_form, claim, current_user)
+      if claim.pension_related_submission?
+        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+      end
+    end
+
     def create_dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(current_user)
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
 
     def dependency_verification_service

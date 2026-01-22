@@ -48,10 +48,6 @@ module CheckIn
       end
 
       def handle_parameter_missing_error(exception)
-        log_detail = error_message_for_logging(exception.message)
-        Rails.logger.error('TravelClaimsController parameter missing',
-                           detail: log_detail,
-                           param_keys: params.to_unsafe_h.keys)
         render json: {
           errors: [{
             title: 'Bad Request',
@@ -63,9 +59,6 @@ module CheckIn
       end
 
       def handle_argument_error(exception)
-        log_detail = error_message_for_logging(exception.message)
-        Rails.logger.error('TravelClaimsController invalid argument',
-                           detail: log_detail)
         render json: {
           errors: [{
             title: 'Bad Request',
@@ -77,7 +70,16 @@ module CheckIn
       end
 
       def handle_backend_service_error(e)
-        mapped = map_status(e.original_status)
+        mapped = case e.original_status
+                 when 400 then :bad_request
+                 when 401 then :unauthorized
+                 when 403 then :forbidden
+                 when 404 then :not_found
+                 when 409 then :conflict
+                 when 422 then :unprocessable_entity
+                 when 429 then :too_many_requests
+                 else :bad_gateway
+                 end
 
         render json: {
           errors: [{
@@ -86,32 +88,6 @@ module CheckIn
             status: mapped
           }]
         }, status: mapped
-      end
-
-      def map_status(original_status)
-        case original_status
-        when 400 then :bad_request
-        when 401 then :unauthorized
-        when 403 then :forbidden
-        when 404 then :not_found
-        when 409 then :conflict
-        when 422 then :unprocessable_entity
-        when 429 then :too_many_requests
-        when 504 then :gateway_timeout
-        else :bad_gateway
-        end
-      end
-
-      def scrubbed_detail(detail)
-        return detail unless detail.is_a?(String)
-
-        Logging::Helper::DataScrubber.scrub(detail)
-      end
-
-      def error_message_for_logging(detail)
-        return nil unless Flipper.enabled?(:check_in_experience_travel_claim_error_message_logging)
-
-        scrubbed_detail(detail)
       end
     end
   end

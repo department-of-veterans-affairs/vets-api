@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 module VRE
   class VREVeteranReadinessEmploymentClaim < ::SavedClaim
     include Vets::SharedLogging
 
     FORM = Constants::FORM
+    VBMS_CONFIRMATION = :confirmation_vbms
+    LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
+    CONFIRMATION_EMAIL_TEMPLATES = [
+      VBMS_CONFIRMATION,
+      LIGHTHOUSE_CONFIRMATION
+    ].freeze
 
     def initialize(args)
       @sent_to_lighthouse = false
@@ -43,8 +50,8 @@ module VRE
     # Common method for VRE form submission:
     # * Adds information from user to payload
     # * Submits to VBMS if participant ID is there, to Lighthouse if not.
-    # * Sends email if user is present
     # * Sends to RES service
+    # * Sends confirmation email
     # @param user [User] user account of submitting user
     # @return [Hash] Response payload of service that was used (RES)
     def send_to_vre(user)
@@ -64,10 +71,12 @@ module VRE
                                                   @sent_to_lighthouse).deliver_later
 
       send_to_res(user)
+
+      send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
     end
 
     # Submit claim into VBMS service, uploading document directly to VBMS,
-    # adds document ID from VBMS to form info, and sends confirmation email to user
+    # adds document ID from VBMS to form info.
     # Submits to Lighthouse on failure
     # @param user [User] user account of submitting user
     # @return None
@@ -81,6 +90,7 @@ module VRE
       )
 
       log_to_statsd('vbms') do
+        Rails.logger.info('Uploading VRE claim to VBMS', { user_uuid: user&.uuid })
         response = uploader.upload!
 
         if response[:vbms_document_series_ref_id].present?
@@ -89,10 +99,8 @@ module VRE
           update!(form: updated_form.to_json)
         end
       end
-
-      send_vbms_confirmation_email(user)
     rescue => e
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, message: e.message })
       send_to_lighthouse!(user)
     end
 
@@ -100,8 +108,7 @@ module VRE
       PdfFill::Filler.fill_form(self, file_name, { created_at: })
     end
 
-    # Submit claim into lighthouse service, adds veteran info to top level of form,
-    # and sends confirmation email to user
+    # Submit claim into lighthouse service, adds veteran info to top level of form
     # @param user [User] user account of submitting user
     # @return None
     def send_to_lighthouse!(user)
@@ -111,15 +118,21 @@ module VRE
       form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
       form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
+      unless form_copy['veteranSocialSecurityNumber']
+        if user&.loa3?
+          Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user&.uuid })
+        else
+          Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user&.uuid })
+        end
+      end
+
       update!(form: form_copy.to_json)
 
       process_attachments!
       @sent_to_lighthouse = true
-
-      send_lighthouse_confirmation_email(user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
-      raise e
+      raise
     end
 
     # SavedClaims require regional_office to be defined
@@ -127,37 +140,14 @@ module VRE
       []
     end
 
-    def send_vbms_confirmation_email(user)
-      if user.va_profile_email.blank?
-        Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user&.uuid })
-        return
+    # Sends notification email via VeteranFacingServices::NotificationEmail library
+    def send_email(email_type)
+      VRE::NotificationEmail.new(id).deliver(email_type)
+      if CONFIRMATION_EMAIL_TEMPLATES.include?(email_type)
+        Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
+      else
+        Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
       end
-
-      ::VANotify::EmailJob.perform_async(
-        user.va_profile_email,
-        Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
-        {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
-    end
-
-    def send_lighthouse_confirmation_email(user)
-      if user.va_profile_email.blank?
-        Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
-                          { user_uuid: user&.uuid })
-        return
-      end
-
-      ::VANotify::EmailJob.perform_async(
-        user.va_profile_email,
-        Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
-        {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
     end
 
     def process_attachments!
@@ -173,24 +163,8 @@ module VRE
       'VRE'
     end
 
-    # this failure email is not the ideal way to handle the Notification Emails as
-    # part of the ZSF work, but with the initial timeline it handles the email as intended.
-    # Future work will be integrating into the Va Notify common lib:
-    # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-    def send_failure_email(email)
-      if email.present?
-        ::VANotify::EmailJob.perform_async(
-          email,
-          Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-          {
-            'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
-          }
-        )
-      else
-        Rails.logger.warn('VRE claim failure email not sent: email not present.')
-      end
+    def email
+      @email ||= parsed_form['email']
     end
 
     private

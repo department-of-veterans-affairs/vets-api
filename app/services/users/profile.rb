@@ -172,9 +172,11 @@ module Users
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           user_at_pretransitioned_oh_facility: oh_facilities_helper.user_at_pretransitioned_oh_facility?,
           user_facility_ready_for_info_alert: oh_facilities_helper.user_facility_ready_for_info_alert?,
+          user_facility_migrating_to_oh: oh_facilities_helper.user_facility_migrating_to_oh?,
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state,
-          active_mhv_ids: user.active_mhv_ids
+          active_mhv_ids: user.active_mhv_ids,
+          scheduling_preferences_pilot_eligible:
         }
       else
         handle_service_error(user.mpi_error, 'MVI', 'mpi_profile')
@@ -280,6 +282,15 @@ module Users
       error_hash[:method] = method_name
       scaffold.errors << error_hash
       log_external_service_error(error_hash)
+    end
+
+    def scheduling_preferences_pilot_eligible
+      return false unless Flipper.enabled?(:profile_scheduling_preferences, user)
+
+      UserVisnService.new(user).in_pilot_visn?
+    rescue => e
+      Rails.logger.error("Error checking scheduling preferences pilot eligibility: #{e.message}")
+      false
     end
   end
 end

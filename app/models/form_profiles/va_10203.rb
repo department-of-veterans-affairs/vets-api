@@ -28,7 +28,8 @@ class FormProfiles::VA10203 < FormProfile
   attribute :school_information, VA10203::FormInstitutionInfo
 
   def prefill
-    authorized = user.authorize :evss, :access?
+    policy = Flipper.enabled?(:form_10203_claimant_service) ? :dgi : :lighthouse
+    authorized = user.authorize policy, :access?
 
     if authorized
       gi_bill_status = get_gi_bill_status
@@ -53,8 +54,13 @@ class FormProfiles::VA10203 < FormProfile
   private
 
   def get_gi_bill_status
-    service = BenefitsEducation::Service.new(user.icn)
-    service.get_gi_bill_status
+    if Flipper.enabled?(:form_10203_claimant_service)
+      service = SOB::DGI::Service.new(ssn: user.ssn, include_enrollments: true)
+      service.get_ch33_status
+    else
+      service = BenefitsEducation::Service.new(user.icn)
+      service.get_gi_bill_status
+    end
   rescue => e
     Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
     {}
@@ -72,7 +78,7 @@ class FormProfiles::VA10203 < FormProfile
   def initialize_school_information(gi_bill_status)
     return {} if gi_bill_status.blank?
 
-    most_recent = gi_bill_status.enrollments.max_by(&:begin_date)
+    most_recent = gi_bill_status.enrollments&.max_by(&:begin_date)
 
     return {} if most_recent.blank?
 

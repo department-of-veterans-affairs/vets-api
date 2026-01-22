@@ -2414,24 +2414,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'search typeahead' do
-      context 'when successful' do
-        it 'returns an array of suggestions' do
-          VCR.use_cassette('search_typeahead/success') do
-            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=ebenefits')
-          end
-        end
-      end
-
-      context 'with an empty search query' do
-        it 'returns a 200 with empty results' do
-          VCR.use_cassette('search_typeahead/missing_query') do
-            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=')
-          end
-        end
-      end
-    end
-
     describe 'forms' do
       context 'when successful' do
         it 'supports getting form results data with a query' do
@@ -2590,55 +2572,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'dependents applications' do
-      context 'when :va_dependents_v2 is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-        end
-
-        let!(:user) { build(:user, ssn: '796043735') }
-
-        it 'supports getting dependent information' do
-          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
-          VCR.use_cassette('bgs/claimant_web_service/dependents') do
-            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
-          end
-        end
-
-        it 'supports adding a dependency claim' do
-          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
-          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
-          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-            expect(subject).to validate(
-              :post,
-              '/v0/dependents_applications',
-              200,
-              headers.merge(
-                '_data' => build(:dependency_claim).parsed_form
-              )
-            )
-          end
-
-          expect(subject).to validate(
-            :post,
-            '/v0/dependents_applications',
-            422,
-            headers.merge(
-              '_data' => {
-                'dependency_claim' => {
-                  'invalid-form' => { invalid: true }.to_json
-                }
-              }
-            )
-          )
-        end
-      end
-
-      context 'when :va_dependents_v2 is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-        end
-
+      context 'default v2 form' do
         let!(:user) { build(:user, ssn: '796043735') }
 
         it 'supports getting dependent information' do
