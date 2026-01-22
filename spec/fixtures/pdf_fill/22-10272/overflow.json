@@ -1,0 +1,47 @@
+{
+  "applicantName": {
+    "first": "Jane",
+    "middle": "Chicken",
+    "last": "Smith"
+  },
+  "mailingAddress": {
+    "isMilitary": false,
+    "country": "USA",
+    "street": "100 First Ave",
+    "city": "Washington",
+    "state": "DC",
+    "postalCode": "20001"
+  },
+  "emailAddress": "jane@randallware.net",
+  "homePhone": "4018614700",
+  "mobilePhone": "5086773030",
+  "vaFileNumber": "123456789",
+  "payeeNumber": "12",
+  "hasPreviouslyApplied": true,
+  "vaBenefitProgram": "Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill Post-9/11 GI Bill",
+  "testName": "SAT",
+  "organizationName": "College Board",
+  "organizationAddress": {
+    "street": "250 Vesey Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10281",
+    "country": "USA"
+  },
+  "prepCourseName": "SAT Prep Course: The Quick Brown Fox Jumped Over The Lazy Dog . . .",
+  "prepCourseOrganizationName": "Prep Academy",
+  "prepCourseOrganizationAddress": {
+    "street": "10 Education Way",
+    "city": "Boston",
+    "state": "MA",
+    "postalCode": "02110",
+    "country": "USA"
+  },
+  "prepCourseTakenOnline": true,
+  "prepCourseStartDate": "2024-01-01",
+  "prepCourseEndDate": "2024-02-01",
+  "prepCourseCost": 499.00,
+  "remarks": "\"Hope\" is the thing with feathers -\nThat perches in the soul -\nAnd sings the tune without the words -\nAnd never stops - at all -\n\nAnd sweetest - in the Gale - is heard -\nAnd sore must be the storm -\nThat could abash the little Bird\nThat kept so many warm -\n\nI've heard it in the chillest land -\nAnd on the strangest Sea -\nYet - never - in Extremity,\nIt asked a crumb - of me.",
+  "statementOfTruthSignature": "Jane Smith",
+  "dateSigned": "2024-02-02"
+}

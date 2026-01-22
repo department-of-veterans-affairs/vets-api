@@ -12,8 +12,16 @@ module BGSDependents
         ssn: @child_marriage['ssn'],
         birth_date: @child_marriage['birth_date'],
         ever_married_ind: 'Y',
-        dependent_income: formatted_boolean(@child_marriage['dependent_income'])
+        dependent_income:
       }.merge(@child_marriage['full_name']).with_indifferent_access
+    end
+
+    def dependent_income
+      if @child_marriage['dependent_income'] == 'NA'
+        nil
+      else
+        @child_marriage['dependent_income']
+      end
     end
   end
 end

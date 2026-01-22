@@ -127,4 +127,108 @@ describe DependentsBenefits::PdfFill::Filler, type: :model do
       end
     end
   end
+
+  describe '#combine_extras' do
+    let(:old_file_path) { 'tmp/test_old.pdf' }
+    let(:extras_generator) { double('ExtrasGenerator') }
+    let(:form_class) { DependentsBenefits::PdfFill::Va21686c }
+    let(:extras_path) { 'tmp/test_extras.pdf' }
+    let(:final_file_path) { 'tmp/test_old_final.pdf' }
+    let(:pdf_post_processor) { instance_double(PdfFill::PdfPostProcessor) }
+
+    before do
+      allow(extras_generator).to receive_messages(
+        text?: true,
+        generate: extras_path
+      )
+      allow(described_class).to receive(:merge_pdfs)
+      allow(File).to receive(:delete)
+    end
+
+    context 'when extras_generator has section coordinates' do
+      let(:section_coordinates) { [{ page: 1, x: 100, y: 200 }] }
+      let(:mock_post_processor_class) do
+        Class.new do
+          def initialize(old_file_path, file_path, section_coordinates, form_class)
+            # Mock initialization
+          end
+
+          def process!
+            # Mock processing
+          end
+        end
+      end
+
+      before do
+        allow(extras_generator).to receive(:try).with(:section_coordinates).and_return(section_coordinates)
+        allow(extras_generator).to receive(:section_coordinates).and_return(section_coordinates)
+        stub_const('PdfPostProcessor', mock_post_processor_class)
+        allow(PdfPostProcessor).to receive(:new).and_return(pdf_post_processor)
+        allow(pdf_post_processor).to receive(:process!)
+      end
+
+      it 'creates and processes PdfPostProcessor when section coordinates exist' do
+        described_class.combine_extras(old_file_path, extras_generator, form_class)
+
+        expect(PdfPostProcessor).to have_received(:new).with(
+          old_file_path,
+          final_file_path,
+          section_coordinates,
+          form_class
+        )
+        expect(pdf_post_processor).to have_received(:process!)
+      end
+    end
+
+    context 'when extras_generator has empty section coordinates' do
+      let(:mock_post_processor_class) { Class.new }
+
+      before do
+        allow(extras_generator).to receive(:try).with(:section_coordinates).and_return([])
+        allow(extras_generator).to receive(:section_coordinates).and_return([])
+        stub_const('PdfPostProcessor', mock_post_processor_class)
+        allow(PdfPostProcessor).to receive(:new)
+      end
+
+      it 'does not create PdfPostProcessor when section coordinates are empty' do
+        described_class.combine_extras(old_file_path, extras_generator, form_class)
+
+        expect(PdfPostProcessor).not_to have_received(:new)
+      end
+    end
+
+    context 'when extras_generator does not have section_coordinates method' do
+      let(:mock_post_processor_class) { Class.new }
+
+      before do
+        allow(extras_generator).to receive(:try).with(:section_coordinates).and_return(nil)
+        stub_const('PdfPostProcessor', mock_post_processor_class)
+        allow(PdfPostProcessor).to receive(:new)
+      end
+
+      it 'does not create PdfPostProcessor when section_coordinates method does not exist' do
+        described_class.combine_extras(old_file_path, extras_generator, form_class)
+
+        expect(PdfPostProcessor).not_to have_received(:new)
+      end
+    end
+
+    context 'when extras_generator does not have text' do
+      let(:mock_post_processor_class) { Class.new }
+
+      before do
+        allow(extras_generator).to receive(:text?).and_return(false)
+        stub_const('PdfPostProcessor', mock_post_processor_class)
+        allow(PdfPostProcessor).to receive(:new)
+      end
+
+      it 'returns original file path without processing when no text' do
+        result = described_class.combine_extras(old_file_path, extras_generator, form_class)
+
+        expect(result).to eq(old_file_path)
+        expect(PdfPostProcessor).not_to have_received(:new)
+        expect(described_class).not_to have_received(:merge_pdfs)
+      end
+    end
+  end
 end

@@ -535,8 +535,8 @@ namespace :form526 do
           soj = award_response[:award_stn_nbr]
         else
           addr = fs.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress')
-          soj = BGS::Service.new(user).get_regional_office_by_zip_code(addr['zipFirstFive'], addr['country'],
-                                                                       addr['state'], 'CP', ssn)
+          soj = BGSV2::Service.new(user).get_regional_office_by_zip_code(addr['zipFirstFive'], addr['country'],
+                                                                         addr['state'], 'CP', ssn)
         end
         row = [vname, ssn, soj]
         csv << row
@@ -678,8 +678,6 @@ namespace :form526 do
 
         in_progress_form.form_data = fixed_va_inflection
 
-        # forms expire a year after they're last saved by the user so we want to disable updating the expires_at.
-        in_progress_form.skip_exipry_update = true
         in_progress_form.save!
       end
     end

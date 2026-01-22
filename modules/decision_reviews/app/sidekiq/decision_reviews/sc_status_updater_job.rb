@@ -7,7 +7,10 @@ module DecisionReviews
     private
 
     def records_to_update
-      @supplemental_claims ||= ::SavedClaim::SupplementalClaim.where(delete_date: nil).order(created_at: :asc).to_a
+      ::SavedClaim::SupplementalClaim
+        .includes(appeal_submission: %i[appeal_submission_uploads secondary_appeal_forms])
+        .where(delete_date: nil)
+        .order(created_at: :asc)
     end
 
     def statsd_prefix
@@ -40,10 +43,6 @@ module DecisionReviews
 
     def benefits_intake_service
       @intake_service ||= BenefitsIntake::Service.new
-    end
-
-    def enabled?
-      Flipper.enabled? :decision_review_saved_claim_sc_status_updater_job_enabled
     end
   end
 end

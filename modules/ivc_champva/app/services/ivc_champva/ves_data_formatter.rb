@@ -362,7 +362,7 @@ module IvcChampva
 
     def self.validate_email(email)
       validate_presence_and_stringiness(email, 'email address')
-      unless email.match?(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)
+      unless email.match?(URI::MailTo::EMAIL_REGEXP)
         raise ArgumentError, 'email address is invalid. See regex for more detail'
       end
     end

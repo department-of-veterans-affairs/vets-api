@@ -88,6 +88,34 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
+    it 'returns successfully with station numbers as fallback when Lighthouse Facilities API fails' do
+      allow(StatsD).to receive(:increment)
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_secure_messaging_cerner_pilot, anything)
+        .and_return(true)
+      VCR.use_cassette('sm_client/session_require_oh') do
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+          VCR.use_cassette('mobile/lighthouse_facilities/500_facilities_error') do
+            get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+          end
+        end
+      end
+
+      expect(response).to be_successful
+      expect(StatsD).to have_received(:increment).with('mobile.sm.allrecipients.facilities_lookup.failure')
+      parsed_response_meta = response.parsed_body['meta']
+      care_systems = parsed_response_meta['careSystems']
+      expect(care_systems.length).to be(3)
+      # All health_care_system_name values should fall back to station_number
+      expect(care_systems[0]['healthCareSystemName']).to eq('977')
+      expect(care_systems[0]['stationNumber']).to eq('977')
+      expect(care_systems[1]['healthCareSystemName']).to eq('978')
+      expect(care_systems[1]['stationNumber']).to eq('978')
+      expect(care_systems[2]['healthCareSystemName']).to eq('979')
+      expect(care_systems[2]['stationNumber']).to eq('979')
+      expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
+    end
+
     it 'responds to GET #index with requires_oh flipper enabled but 612 disabled and returns correct care systems' do
       allow(Flipper).to receive(:enabled?)
         .with(:mhv_secure_messaging_cerner_pilot, anything)
@@ -185,13 +213,13 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         expect(care_systems[0]['healthCareSystemName']).to eq('Manila VA Clinic')
         expect(care_systems[1]['healthCareSystemName']).to eq('978')
         expect(care_systems[2]['healthCareSystemName']).to eq('Chalmers P. Wylie Veterans Outpatient Clinic')
-        expect(care_systems[3]['healthCareSystemName']).to eq('VA New York state health care (multiple facilities)')
-        expect(care_systems[4]['healthCareSystemName']).to eq('VA Kansas and Missouri health care (multiple facilities)')
-        expect(care_systems[5]['healthCareSystemName']).to eq('VA Hudson Valley New York health care (multiple facilities)')
-        expect(care_systems[6]['healthCareSystemName']).to eq('VA Tennessee health care (multiple facilities)')
-        expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa health care (multiple facilities)')
-        expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois health care (multiple facilities)')
-        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California (multiple facilities)')
+        expect(care_systems[3]['healthCareSystemName']).to eq('VA New York State Healthcare (multiple facilities)')
+        expect(care_systems[4]['healthCareSystemName']).to eq('VA Kansas and Missouri Healthcare (multiple facilities)')
+        expect(care_systems[5]['healthCareSystemName']).to eq('VA Hudson Valley New York Healthcare (multiple facilities)')
+        expect(care_systems[6]['healthCareSystemName']).to eq('VA Tennessee Healthcare (multiple facilities)')
+        expect(care_systems[7]['healthCareSystemName']).to eq('VA Nebraska and Iowa Healthcare (multiple facilities)')
+        expect(care_systems[8]['healthCareSystemName']).to eq('VA Missouri and Illinois Healthcare (multiple facilities)')
+        expect(care_systems[9]['healthCareSystemName']).to eq('VA Northern California Healthcare (multiple facilities)')
         # rubocop:enable Layout/LineLength
       end
     end

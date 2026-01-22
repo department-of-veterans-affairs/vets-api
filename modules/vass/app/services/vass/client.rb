@@ -113,17 +113,16 @@ module Vass
     ##
     # Retrieves veteran information by veteran ID.
     #
-    # @param edipi [String] Veteran EDIPI
-    # @param veteran_id [String] Veteran ID in VASS system
-    # @return [Faraday::Response] HTTP response containing veteran data
+    # Used in the OTC flow where we only have the UUID from the welcome email.
+    # The VASS API returns EDIPI in the response, so it's not required in the request.
     #
-    def get_veteran(edipi:, veteran_id:)
+    # @param veteran_id [String] Veteran ID (UUID) in VASS system
+    # @return [Faraday::Response] HTTP response containing veteran data including EDIPI
+    #
+    def get_veteran(veteran_id:)
       with_auth do
         with_monitoring do
-          headers = default_headers.merge(
-            'EDIPI' => edipi,
-            'veteranId' => veteran_id
-          )
+          headers = default_headers.merge('veteranId' => veteran_id)
           perform(:get, 'api/GetVeteran', nil, headers)
         end
       end
@@ -301,25 +300,43 @@ module Vass
     #
     def perform(method, path, params, headers = nil, options = nil)
       server_url = options&.delete(:server_url)
-
-      if server_url
-        custom_connection = config.connection(server_url:)
-        custom_connection.send(method.to_sym, path, params || {}) do |request|
-          request.headers.update(headers || {})
-          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
-        end.env
-      else
-        super
-      end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout,
-           Timeout::Error,
-           Faraday::TimeoutError,
-           Faraday::ClientError,
-           Faraday::ServerError,
-           Faraday::Error => e
+      response_env = if server_url
+                       perform_with_custom_connection(server_url, method, path, params,
+                                                      { headers:, options: })
+                     else
+                       super
+                     end
+      validate_response_body(response_env) unless server_url
+      response_env
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError,
+           Faraday::ClientError, Faraday::ServerError, Faraday::Error => e
       handle_error(e)
+    end
+
+    def perform_with_custom_connection(server_url, method, path, params, request_config)
+      config.connection(server_url:).send(method.to_sym, path, params || {}) do |request|
+        request.headers.update(request_config[:headers] || {})
+        (request_config[:options] || {}).each { |option, value| request.options.send("#{option}=", value) }
+      end.env
+    end
+
+    ##
+    # Validates the response body structure from VASS API.
+    #
+    # @param response_env [Faraday::Env] Faraday response environment
+    # @raise [Vass::ServiceException] if body indicates failure
+    #
+    def validate_response_body(response_env)
+      body = response_env.body
+      return if body.is_a?(Hash) && body['success']
+
+      raise config.service_exception.new(
+        Vass::Errors::ERROR_KEY_VASS_ERROR,
+        { detail: 'VASS API returned an unsuccessful response' },
+        response_env.status,
+        body
+      )
     end
 
     ##
@@ -354,8 +371,4 @@ module Vass
       end
     end
   end
-
-  # Mirrors the middleware-defined VASS exception so callers can rely on
-  # BackendServiceException fields (e.g., original_status, original_body).
-  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
 end

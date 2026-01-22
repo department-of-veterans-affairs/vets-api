@@ -27,8 +27,26 @@ module BGS
       monitor.track_event('error',
                           "BGS::SubmitForm686cV2Job failed, retries exhausted! Last error: #{msg['error_message']}",
                           'worker.submit_686c_bgs.exhaustion')
-
+      # in some instances, bgs will throw an error with language containing `FABusnsTranRule`
+      # this has been researched and documented here: https://github.com/department-of-veterans-affairs/va.gov-team/issues/128972
+      # there is nothing at the moment the user can do to prevent this error as it is an rbps related trigger
+      # the backup path is the correct path for this bug so that the application can be reviewed manually
       BGS::SubmitForm686cV2Job.send_backup_submission(vet_info, saved_claim_id, user_uuid)
+    rescue => e
+      monitor = ::Dependents::Monitor.new
+      monitor.track_event('error', 'BGS::SubmitForm686cV2Job retries exhausted failed...',
+                          'worker.submit_686c_bgs.retry_exhaustion_failure',
+                          { error: e.message, nested_error: e.cause&.message, last_error: msg['error_message'] })
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = vet_info&.dig('veteran_information', 'va_profile_email')
+      if email.present?
+        claim.send_failure_email(email)
+      else
+        monitor.log_silent_failure(
+          monitor.default_payload.merge({ error: e }),
+          call_location: caller_locations.first
+        )
+      end
     end
 
     def perform(user_uuid, saved_claim_id, encrypted_vet_info)

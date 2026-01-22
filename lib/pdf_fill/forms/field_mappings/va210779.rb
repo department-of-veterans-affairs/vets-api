@@ -292,7 +292,7 @@ module PdfFill
                 type: 'Text'
               }
             },
-            # signature: 'TODO',
+            # NOTE: 'signature' field is not mapped here - it's stamped onto the PDF via stamp_signature method
             signatureDate: {
               month: {
                 key: 'F[0].Page_1[0].Date_Signed_Month[0]',

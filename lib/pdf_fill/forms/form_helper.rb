@@ -133,6 +133,20 @@ module PdfFill
         bool_attribute ? 'Yes' : 'No'
       end
 
+      def format_radio_yes_no(value)
+        return '' if value.nil?
+
+        case value
+        when 'Y'
+          'Yes'
+        when 'N'
+          'No'
+        else
+          # Value can sometimes be 'NA'
+          value
+        end
+      end
+
       def split_currency_string(decimal_string)
         return if decimal_string.blank?
 
@@ -147,6 +161,21 @@ module PdfFill
         }
       end
 
+      def domestic?(country)
+        country.in?(%w[USA US])
+      end
+
+      def normalize_mailing_address(address)
+        # Not necessary to include country if domestic
+        if domestic?(address['country'])
+          address.delete('country')
+        else
+          address['country'] = extract_country(address)
+        end
+        # Format Mexican state names
+        address['state'] = address['state'].gsub('-', ' ').titleize if address['country'].in?(%w[MX])
+      end
+
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting
@@ -157,6 +186,10 @@ module PdfFill
             'phone_first_three_numbers' => phone_number[3..5],
             'phone_last_four_numbers' => phone_number[6..9]
           }
+        end
+
+        def format_us_phone(number)
+          expand_phone_number(number).values.join('-')
         end
       end
     end
