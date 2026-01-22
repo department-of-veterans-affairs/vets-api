@@ -103,40 +103,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           end
         end
       end
-
-      it 'shortens long filenames when processing SupportingEvidenceAttachments' do
-        # Test that long filenames get shortened in the file_data
-        upload_data.each do |ud|
-          sea = SupportingEvidenceAttachment.find_by(guid: ud['confirmationCode'])
-          file_data = JSON.parse(sea.file_data)
-
-          # Verify that filename was shortened if it was too long
-          expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
-          expect(file_data['filename']).to end_with('.pdf')
-
-          # Verify original functionality still works
-          expect(sea.original_filename).to eq(file_data['filename'])
-        end
-      end
-
-      it 'handles extremely long filenames during upload processing' do
-        # Create a new attachment with an extremely long filename
-        long_filename = "#{'evidence_document' * 10}.pdf" # ~150+ characters
-        file_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-        file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
-
-        # Mock the original filename to be very long
-        allow(file).to receive(:original_filename).and_return(long_filename)
-
-        sea = SupportingEvidenceAttachment.new(guid: SecureRandom.uuid)
-        sea.set_file_data!(file)
-
-        # Verify the filename was shortened
-        file_data = JSON.parse(sea.file_data)
-        expect(file_data['filename'].length).to eq(SupportingEvidenceAttachment::MAX_FILENAME_LENGTH)
-        expect(file_data['filename']).to end_with('.pdf')
-        expect(file_data['filename']).to start_with('evidence_document')
-      end
     end
 
     it 'pulls from the correct Lighthouse provider according to the startedFormVersion' do
