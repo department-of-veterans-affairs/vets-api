@@ -66,6 +66,10 @@ module Representatives
     def rows_to_process(rows)
       rows.map do |row|
         rep = Veteran::Service::Representative.find(row[:id])
+        
+        # Update raw_address for every record to keep it in sync with XLSX source
+        rep.update(raw_address: row[:raw_address]) if rep.raw_address != row[:raw_address]
+        
         diff = rep.diff(row)
         row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e

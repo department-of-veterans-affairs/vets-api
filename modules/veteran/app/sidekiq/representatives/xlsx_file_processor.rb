@@ -130,21 +130,24 @@ module Representatives
     def process_row(row, sheet_name, column_map)
       zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
+      address = {
+        address_pou: 'RESIDENCE',
+        address_line1: get_value(row, column_map, 'WorkAddress1'),
+        address_line2: get_value(row, column_map, 'WorkAddress2'),
+        address_line3: get_value(row, column_map, 'WorkAddress3'),
+        city: get_value(row, column_map, 'WorkCity'),
+        state: { state_code: get_value(row, column_map, 'WorkState') },
+        zip_code5:,
+        zip_code4:,
+        country_code_iso3: 'US'
+      }
+
       {
         id: row[column_map['Number']],
         email: get_value(row, column_map, email_address_column_name(sheet_name)),
         phone_number: get_value(row, column_map, 'WorkNumber'),
-        address: {
-          address_pou: 'RESIDENCE',
-          address_line1: get_value(row, column_map, 'WorkAddress1'),
-          address_line2: get_value(row, column_map, 'WorkAddress2'),
-          address_line3: get_value(row, column_map, 'WorkAddress3'),
-          city: get_value(row, column_map, 'WorkCity'),
-          state: { state_code: get_value(row, column_map, 'WorkState') },
-          zip_code5:,
-          zip_code4:,
-          country_code_iso3: 'US'
-        }
+        address:,
+        raw_address: build_raw_address(address)
       }
     rescue => e
       log_error("Error transforming data to hash for #{sheet_name}: #{e.message}")
@@ -199,6 +202,32 @@ module Representatives
       value.blank? || value.empty? || value.downcase == 'null' ? nil : value
     rescue => e
       log_error("Unexpected value: #{e.message}")
+    end
+
+    # Builds raw_address hash with string keys matching AccreditedIndividual pattern
+    # @param address [Hash] Address hash with symbol keys from process_row
+    # @return [Hash] Raw address with string keys for JSONB storage
+    def build_raw_address(address)
+      zip_code = format_raw_zip(address[:zip_code5], address[:zip_code4])
+
+      {
+        'address_line1' => address[:address_line1],
+        'address_line2' => address[:address_line2],
+        'address_line3' => address[:address_line3],
+        'city' => address[:city],
+        'state_code' => address.dig(:state, :state_code),
+        'zip_code' => zip_code
+      }
+    end
+
+    # Formats zip code for raw_address: "12345" or "12345-6789"
+    # @param zip5 [String] 5-digit zip code
+    # @param zip4 [String, nil] 4-digit zip extension
+    # @return [String, nil] Formatted zip code or nil if zip5 is blank
+    def format_raw_zip(zip5, zip4)
+      return nil if zip5.blank?
+
+      zip4.present? ? "#{zip5}-#{zip4}" : zip5
     end
 
     def log_error(message)

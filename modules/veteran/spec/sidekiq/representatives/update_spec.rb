@@ -592,7 +592,7 @@ RSpec.describe Representatives::Update do
           allow(VAProfile::AddressValidation::V3::Service).to receive(:new).and_return(validation_stub)
 
           expect(rep_double).to receive(:update) do |attrs|
-            # only email and phone_number should be present
+            # only email and phone_number should be present (raw_address handled in QueueUpdates)
             expect(attrs.keys.sort).to eq(%i[email phone_number])
             expect(attrs[:email]).to eq('new@example.com')
             expect(attrs[:phone_number]).to eq('555-555-5555')
@@ -612,6 +612,14 @@ RSpec.describe Representatives::Update do
                 zip_code5: '99999',
                 zip_code4: nil,
                 country_code_iso3: 'US'
+              },
+              raw_address: {
+                'address_line1' => 'Unmatched Place',
+                'address_line2' => nil,
+                'address_line3' => nil,
+                'city' => 'Some City',
+                'state_code' => 'ZZ',
+                'zip_code' => '99999'
               },
               email: 'new@example.com',
               phone_number: '555-555-5555',
@@ -688,6 +696,70 @@ RSpec.describe Representatives::Update do
         expect(representative.address_line2).to match(/DAV-? VARO/i)
         expect(representative.lat).to eq(39.7486)
         expect(representative.long).to eq(-104.9963)
+      end
+    end
+
+    context 'when only email or phone changes (not address)' do
+      let(:id) { '123abc' }
+      let(:json_email_only) do
+        [
+          {
+            id:,
+            address: {
+              address_pou: 'RESIDENCE',
+              address_line1: '123 Original St',
+              address_line2: nil,
+              address_line3: nil,
+              city: 'Original City',
+              state: { state_code: 'CA' },
+              zip_code5: '90210',
+              zip_code4: nil,
+              country_code_iso3: 'US'
+            },
+            raw_address: original_raw_address,
+            email: 'newemail@example.com',
+            phone_number: representative.phone_number,
+            address_exists:,
+            address_changed:,
+            email_changed:,
+            phone_number_changed:
+          }
+        ].to_json
+      end
+      let(:address_exists) { true }
+      let(:address_changed) { false }
+      let(:email_changed) { true }
+      let(:phone_number_changed) { false }
+      let!(:representative) { create_representative }
+
+      let(:original_raw_address) do
+        {
+          'address_line1' => '123 Original St',
+          'address_line2' => nil,
+          'address_line3' => nil,
+          'city' => 'Original City',
+          'state_code' => 'CA',
+          'zip_code' => '90210'
+        }
+      end
+
+      before do
+        representative.update(raw_address: original_raw_address)
+      end
+
+      it 'updates email without affecting address fields' do
+        subject.perform(json_email_only)
+        representative.reload
+
+        expect(representative.email).to eq('newemail@example.com')
+        expect(representative.address_line1).to eq('123 East Main St') # Original address unchanged
+      end
+
+      it 'does not trigger address validation for email-only changes' do
+        validation_service = VAProfile::AddressValidation::V3::Service
+        expect(validation_service).not_to receive(:new)
+
+        subject.perform(json_email_only)
       end
     end
   end

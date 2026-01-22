@@ -208,22 +208,27 @@ describe Veteran::Service::Representative, type: :model do
   end
 
   describe '#diff' do
-    context 'when there are changes in address' do
+    context 'when there are changes in raw_address' do
       let(:representative) do
         create(:representative,
-               address_line1: '123 Main St',
-               city: 'Anytown',
-               zip_code: '12345',
-               state_code: 'ST')
+               raw_address: {
+                 'address_line1' => '123 Main St',
+                 'address_line2' => 'Apt 1',
+                 'address_line3' => nil,
+                 'city' => 'Anytown',
+                 'state_code' => 'ST',
+                 'zip_code' => '12345'
+               })
       end
       let(:new_data) do
         {
-          address: {
-            address_line1: '234 Main St',
-            city: representative.city,
-            zip_code5: representative.zip_code,
-            zip_code4: representative.zip_suffix,
-            state_province: { code: representative.state_code }
+          raw_address: {
+            'address_line1' => '234 Main St',
+            'address_line2' => 'Apt 1',
+            'address_line3' => nil,
+            'city' => 'Anytown',
+            'state_code' => 'ST',
+            'zip_code' => '12345'
           },
           email: representative.email,
           phone_number: representative.phone_number
@@ -233,6 +238,28 @@ describe Veteran::Service::Representative, type: :model do
       it 'returns a hash indicating changes in address but not email or phone' do
         expect(representative.diff(new_data)).to eq({
                                                       'address_changed' => true,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
+      end
+    end
+
+    context 'when raw_address is nil on both sides' do
+      let(:representative) do
+        create(:representative,
+               raw_address: nil)
+      end
+      let(:new_data) do
+        {
+          raw_address: nil,
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns no changes' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
                                                       'email_changed' => false,
                                                       'phone_number_changed' => false
                                                     })
@@ -298,19 +325,24 @@ describe Veteran::Service::Representative, type: :model do
     context 'when there are no changes to address, email or phone' do
       let(:representative) do
         create(:representative,
-               address_line1: '123 Main St',
-               city: 'Anytown',
-               zip_code: '12345',
-               state_code: 'ST')
+               raw_address: {
+                 'address_line1' => '123 Main St',
+                 'address_line2' => nil,
+                 'address_line3' => nil,
+                 'city' => 'Anytown',
+                 'state_code' => 'ST',
+                 'zip_code' => '12345'
+               })
       end
       let(:new_data) do
         {
-          address: {
-            address_line1: representative.address_line1,
-            city: representative.city,
-            zip_code5: representative.zip_code,
-            zip_code4: representative.zip_suffix,
-            state_province: { code: representative.state_code }
+          raw_address: {
+            'address_line1' => '123 Main St',
+            'address_line2' => nil,
+            'address_line3' => nil,
+            'city' => 'Anytown',
+            'state_code' => 'ST',
+            'zip_code' => '12345'
           },
           email: representative.email,
           phone_number: representative.phone_number

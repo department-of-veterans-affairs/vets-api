@@ -23,11 +23,12 @@ RSpec.describe Representatives::XlsxFileProcessor do
     let(:result) { xlsx_processor.process }
 
     context 'with valid data' do
-      let(:expected_keys) { %i[id address email phone_number] }
+      let(:expected_keys) { %i[id address email phone_number raw_address] }
       let(:expected_address_keys) do
         %i[address_pou address_line1 address_line2 address_line3 city state zip_code5 zip_code4
            country_code_iso3]
       end
+      let(:expected_raw_address_keys) { %w[address_line1 address_line2 address_line3 city state_code zip_code] }
 
       it 'processes the file and validates the data structure and content' do
         expect(result).to be_a(Hash)
@@ -39,8 +40,37 @@ RSpec.describe Representatives::XlsxFileProcessor do
           value_array.each do |row|
             expect(row.keys).to match_array(expected_keys)
             expect(row[:address].keys).to match_array(expected_address_keys)
+            expect(row[:raw_address].keys).to match_array(expected_raw_address_keys)
             check_values(row)
           end
+        end
+      end
+
+      it 'includes raw_address with string keys matching AccreditedIndividual pattern' do
+        result.each_value do |value_array|
+          value_array.each do |row|
+            raw_address = row[:raw_address]
+            expect(raw_address).to be_a(Hash)
+            expect(raw_address.keys).to all(be_a(String))
+            expect(raw_address['address_line1']).to eq(row[:address][:address_line1])
+            expect(raw_address['city']).to eq(row[:address][:city])
+            expect(raw_address['state_code']).to eq(row[:address][:state][:state_code])
+          end
+        end
+      end
+
+      it 'formats zip_code correctly in raw_address with zip4' do
+        row_with_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].present? }
+        if row_with_zip4
+          expected_zip = "#{row_with_zip4[:address][:zip_code5]}-#{row_with_zip4[:address][:zip_code4]}"
+          expect(row_with_zip4[:raw_address]['zip_code']).to eq(expected_zip)
+        end
+      end
+
+      it 'formats zip_code correctly in raw_address without zip4' do
+        row_without_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].nil? }
+        if row_without_zip4
+          expect(row_without_zip4[:raw_address]['zip_code']).to eq(row_without_zip4[:address][:zip_code5])
         end
       end
 
