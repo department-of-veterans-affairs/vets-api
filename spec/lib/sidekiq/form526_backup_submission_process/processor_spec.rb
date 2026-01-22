@@ -73,17 +73,17 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               processor = described_class.new(submission.id)
-              
+
               # Ensure any supporting evidence attachments have proper filename lengths
               # before processing
               submission.form[Form526Submission::FORM_526_UPLOADS]&.each do |upload|
                 sea = SupportingEvidenceAttachment.find_by(guid: upload['confirmationCode'])
                 next unless sea&.file_data
-                
+
                 file_data = JSON.parse(sea.file_data)
                 expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
               end
-              
+
               # Mock get_uploads to return test data that shows the filename processing would work
               mock_docs = [
                 {
@@ -93,7 +93,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
                 }
               ]
               allow(processor).to receive(:get_uploads).and_return(mock_docs)
-              
+
               processed_files = processor.get_uploads
               processed_files.each do |processed_file|
                 expect(processed_file[:file].length).to be <= 255
@@ -109,11 +109,11 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         upload_data.each do |ud|
           sea = SupportingEvidenceAttachment.find_by(guid: ud['confirmationCode'])
           file_data = JSON.parse(sea.file_data)
-          
+
           # Verify that filename was shortened if it was too long
           expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
           expect(file_data['filename']).to end_with('.pdf')
-          
+
           # Verify original functionality still works
           expect(sea.original_filename).to eq(file_data['filename'])
         end
@@ -124,13 +124,13 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         long_filename = "#{'evidence_document' * 10}.pdf" # ~150+ characters
         file_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
         file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
-        
+
         # Mock the original filename to be very long
         allow(file).to receive(:original_filename).and_return(long_filename)
-        
+
         sea = SupportingEvidenceAttachment.new(guid: SecureRandom.uuid)
         sea.set_file_data!(file)
-        
+
         # Verify the filename was shortened
         file_data = JSON.parse(sea.file_data)
         expect(file_data['filename'].length).to eq(SupportingEvidenceAttachment::MAX_FILENAME_LENGTH)

@@ -10,7 +10,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       it 'shortens the filename while preserving extension' do
         long_filename = "#{'a' * 120}.pdf" # 124 characters
         shortened = attachment.send(:shorten_filename, long_filename)
-        
+
         expect(shortened.length).to eq(100) # Exactly at MAX_FILENAME_LENGTH
         expect(shortened).to end_with('.pdf')
         expect(shortened).to start_with('a' * 96) # 96 + 4 for '.pdf' = 100
@@ -19,7 +19,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       it 'handles different extensions correctly' do
         long_filename = "#{'test' * 30}.jpeg" # 125 characters
         shortened = attachment.send(:shorten_filename, long_filename)
-        
+
         expect(shortened.length).to eq(100)
         expect(shortened).to end_with('.jpeg')
       end
@@ -27,7 +27,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       it 'handles files with no extension' do
         long_filename = 'a' * 120 # 120 characters, no extension
         shortened = attachment.send(:shorten_filename, long_filename)
-        
+
         expect(shortened.length).to eq(100)
         expect(shortened).to eq('a' * 100)
       end
@@ -37,14 +37,14 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       it 'does not modify short filenames' do
         short_filename = 'document.pdf'
         shortened = attachment.send(:shorten_filename, short_filename)
-        
+
         expect(shortened).to eq('document.pdf')
       end
 
       it 'does not modify filenames exactly at the limit' do
         exact_filename = "#{'a' * 96}.pdf" # Exactly 100 characters
         shortened = attachment.send(:shorten_filename, exact_filename)
-        
+
         expect(shortened).to eq(exact_filename)
         expect(shortened.length).to eq(100)
       end
@@ -65,12 +65,12 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       long_filename = "#{'evidence' * 20}.pdf" # 140+ characters
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(long_filename)
-      
+
       # Allow the uploader to return long filename
       allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(long_filename)
 
       attachment.set_file_data!(uploaded_file)
-      
+
       file_data = JSON.parse(attachment.file_data)
       expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
       expect(file_data['filename']).to end_with('.pdf')
@@ -80,11 +80,11 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       short_filename = 'medical-record.pdf'
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(short_filename)
-      
+
       allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(short_filename)
 
       attachment.set_file_data!(uploaded_file)
-      
+
       file_data = JSON.parse(attachment.file_data)
       expect(file_data['filename']).to eq('medical-record.pdf')
     end
@@ -99,8 +99,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
     before do
       allow(attachment).to receive(:get_attachment_uploader).and_return(mock_uploader)
       allow(mock_uploader).to receive(:store!)
-      allow(mock_uploader).to receive(:filename).and_return(filename)
-      allow(mock_uploader).to receive(:converted_exists?).and_return(converted_exists)
+      allow(mock_uploader).to receive_messages(filename:, converted_exists?: converted_exists)
       # Mock File.extname to return the expected extension
       allow(File).to receive(:extname).and_call_original
       allow(File).to receive(:extname).with(mock_file).and_return('.pdf')
@@ -112,7 +111,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
 
       it 'shortens the original filename' do
         attachment.set_file_data!(mock_file)
-        
+
         file_data = JSON.parse(attachment.file_data)
         expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
         expect(file_data['filename']).to end_with('.pdf')
@@ -126,7 +125,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
 
       it 'does not shorten the filename' do
         attachment.set_file_data!(mock_file)
-        
+
         file_data = JSON.parse(attachment.file_data)
         expect(file_data['filename']).to eq('short_filename.pdf')
       end
@@ -143,7 +142,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
 
       it 'shortens both original and converted filenames' do
         attachment.set_file_data!(mock_file)
-        
+
         file_data = JSON.parse(attachment.file_data)
         expect(file_data['filename']).to eq('normal_file.pdf')
         expect(file_data['converted_filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
@@ -162,17 +161,17 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
 
       it 'shortens both filenames independently' do
         attachment.set_file_data!(mock_file)
-        
+
         file_data = JSON.parse(attachment.file_data)
-        
+
         # Original should be shortened
         expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
         expect(file_data['filename']).to end_with('.tiff')
-        
+
         # Converted should be shortened
         expect(file_data['converted_filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
         expect(file_data['converted_filename']).to end_with('.jpg')
-        
+
         # Should be different shortened strings
         expect(file_data['filename']).not_to eq(file_data['converted_filename'])
       end
