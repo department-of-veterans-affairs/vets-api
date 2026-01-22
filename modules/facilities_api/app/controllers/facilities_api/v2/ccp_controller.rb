@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'facilities_error'
+
 module FacilitiesApi
   class V2::CcpController < ApplicationController
+    include FacilitiesError
     # Provider supports the following query parameters:
     # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
     # @param services - Optional specialty services filter
@@ -9,12 +12,16 @@ module FacilitiesApi
       api_results = ppms_search
 
       render_json(V2::PPMS::ProviderSerializer, ppms_params, api_results)
+    rescue => e
+      handle_error(e, 'ccp_index')
     end
 
     def urgent_care
       api_results = api.pos_locator(ppms_action_params)
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
+    rescue => e
+      handle_error(e, 'ccp_urgent_care')
     end
 
     def provider
@@ -23,20 +30,25 @@ module FacilitiesApi
                     else
                       api.provider_locator(ppms_provider_params)
                     end
-
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
+    rescue => e
+      handle_error(e, 'ccp_provider')
     end
 
     def pharmacy
       api_results = provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
+    rescue => e
+      handle_error(e, 'ccp_pharmacy')
     end
 
     def specialties
       api_results = api.specialties
 
       render_json(V2::PPMS::SpecialtySerializer, params, api_results)
+    rescue => e
+      handle_error(e, 'ccp_specialties')
     end
 
     private
