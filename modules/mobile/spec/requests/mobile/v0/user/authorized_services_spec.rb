@@ -21,6 +21,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                                                 instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
                                                 instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_schedules,
+                                                instance_of(User)).and_return(false)
     end
 
     it 'includes a hash with all available services and a boolean value of if the user has access' do
@@ -55,49 +57,47 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     it 'includes properly set meta flags for user not at pretransitioned or actively migrating oh facility' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
-      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '321, 654'
+      Settings.mhv.oh_facility_checks.oh_migrations_list = ''
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
       expect(meta).to eq({ 'isUserAtPretransitionedOhFacility' => false,
                            'isUserFacilityReadyForInfoAlert' => false,
-                           'isUserFacilityMigratingToOh' => false })
+                           'migratingFacilitiesList' => [] })
     end
 
     it 'includes properly set meta flags for user at pretransitioned oh facility but not ready for info alert' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
-      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '555'
+      Settings.mhv.oh_facility_checks.oh_migrations_list = ''
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
       expect(meta).to eq({
                            'isUserAtPretransitionedOhFacility' => true,
-                           'isUserFacilityReadyForInfoAlert' => false,
-                           'isUserFacilityMigratingToOh' => true
+                           'isUserFacilityReadyForInfoAlert' => false
                          })
     end
 
     it 'includes properly set meta flags for user at pretransitioned oh facility and ready for info alert' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612, 555'
-      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '321, 654'
+      Settings.mhv.oh_facility_checks.oh_migrations_list = ''
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
 
       expect(meta).to eq({
                            'isUserAtPretransitionedOhFacility' => true,
-                           'isUserFacilityReadyForInfoAlert' => true,
-                           'isUserFacilityMigratingToOh' => false
+                           'isUserFacilityReadyForInfoAlert' => true
                          })
     end
 
     it 'includes properly set meta flags for actively migrating facility' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612'
-      Settings.mhv.oh_facility_checks.facilities_migrating_to_oh = '555'
+      Settings.mhv.oh_facility_checks.oh_migrations_list = `2026-10-01:{555, 'Facility Name'}`
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       assert_schema_conform(200)
@@ -105,7 +105,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
       expect(meta).to eq({
                            'isUserAtPretransitionedOhFacility' => false,
                            'isUserFacilityReadyForInfoAlert' => false,
-                           'isUserFacilityMigratingToOh' => true
+                           'migratingFacilitiesList' => []
                          })
     end
   end
@@ -120,6 +120,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_schedules,
                                                 instance_of(User)).and_return(true)
     end
 
@@ -268,6 +270,17 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'secureMessagingOracleHealthEnabled' => true,
           'medicationsOracleHealthEnabled' => false }
       )
+    end
+
+    it 'includes properly set meta flags for actively migrating facility' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612'
+      Settings.mhv.oh_facility_checks.oh_migrations_list = `2026-10-01:{555, 'Facility Name'}`
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(meta['migratingFacilitiesList'].length).to eq(1)
     end
   end
 end
