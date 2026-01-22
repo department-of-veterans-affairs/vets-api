@@ -1665,16 +1665,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         end
       end
 
-      it 'returns "expired" when no refills remaining' do
-        resource = status_test_resource.merge(
-          'dispenseRequest' => { 'numberOfRepeatsAllowed' => 0 },
-          'contained' => []
-        )
-
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('expired')
-      end
-
       it 'returns "refillinprocess" when the most recent dispense is preparation' do
         resource = status_test_resource.merge(
           'contained' => [
@@ -1738,19 +1728,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         result = subject.send(:normalize_to_legacy_vista_status, resource)
         expect(result).to eq('active')
-      end
-
-      it 'returns "expired" when no refills remaining even without validityPeriod.end' do
-        resource = status_test_resource.merge(
-          'dispenseRequest' => {
-            'numberOfRepeatsAllowed' => 0,
-            'validityPeriod' => {}
-          },
-          'contained' => []
-        )
-
-        result = subject.send(:normalize_to_legacy_vista_status, resource)
-        expect(result).to eq('expired')
       end
     end
 
@@ -2020,9 +1997,17 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       expect(result).to eq('discontinued')
     end
 
-    it 'returns "expired" when no refills remaining' do
-      expiration_date = 1.month.from_now.utc
-      result = subject.send(:normalize_active_status, 0, expiration_date, false)
+    it 'returns "expired" when no refills remaining and past expiration for VA medication' do
+      va_resource = base_resource.merge(
+        'reportedBoolean' => false,
+        'intent' => 'order',
+        'category' => [
+          { 'coding' => [{ 'code' => 'community' }] },
+          { 'coding' => [{ 'code' => 'discharge' }] }
+        ]
+      )
+      expiration_date = 1.day.ago.utc
+      result = subject.send(:normalize_active_status, 0, expiration_date, false, va_resource)
       expect(result).to eq('expired')
     end
 
@@ -2041,6 +2026,59 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     it 'returns "active" when expiration date is nil' do
       result = subject.send(:normalize_active_status, 3, nil, false)
       expect(result).to eq('active')
+    end
+
+    context 'when testing expiration boundary conditions for is_past_expiration logic' do
+      let(:va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+      end
+
+      let(:non_va_resource) do
+        base_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+      end
+
+      it 'returns "expired" when expiration date is exactly 1 second in the past for VA medication' do
+        past_expiration = 1.second.ago.utc
+        result = subject.send(:normalize_active_status, 0, past_expiration, false, va_resource)
+        expect(result).to eq('expired')
+      end
+
+      it 'returns "active" when expiration date is exactly 1 second in the future' do
+        future_expiration = 1.second.from_now.utc
+        result = subject.send(:normalize_active_status, 0, future_expiration, false, va_resource)
+        expect(result).to eq('active')
+      end
+
+      it 'returns "active" for Non-VA medication even when expired with 0 refills' do
+        past_expiration = 1.day.ago.utc
+        result = subject.send(:normalize_active_status, 0, past_expiration, false, non_va_resource)
+        expect(result).to eq('active')
+      end
+
+      it 'returns "expired" for VA medication when past expiration with 0 refills' do
+        past_expiration = 1.day.ago.utc
+        result = subject.send(:normalize_active_status, 0, past_expiration, false, va_resource)
+        expect(result).to eq('expired')
+      end
+
+      it 'returns "active" when expiration date is nil even with 0 refills' do
+        result = subject.send(:normalize_active_status, 0, nil, false, va_resource)
+        expect(result).to eq('active')
+      end
     end
   end
 

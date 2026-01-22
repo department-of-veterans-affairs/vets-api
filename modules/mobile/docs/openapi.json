@@ -2841,6 +2841,16 @@
         "description": "Returns a list of user's debts.",
         "parameters": [
           {
+            "description": "When true, returns the count of the list of the user's debts only. When false (default), returns the full list of the user's debts.",
+            "example": true,
+            "in": "query",
+            "name": "countOnly",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "$ref": "#/components/parameters/InflectionHeader"
           }
         ],
@@ -2849,7 +2859,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Debts"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Debts"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DebtsCount"
+                    }
+                  ]
                 }
               }
             },
@@ -15416,6 +15433,21 @@
                 "example": false
               }
             }
+          }
+        }
+      },
+      "DebtsCount": {
+        "type": "object",
+        "description": "Response returned when countOnly=true for the debts endpoint.",
+        "additionalProperties": false,
+        "required": [
+          "debtsCount"
+        ],
+        "properties": {
+          "debtsCount": {
+            "type": "integer",
+            "description": "The total number of debts for the user.",
+            "example": 5
           }
         }
       },

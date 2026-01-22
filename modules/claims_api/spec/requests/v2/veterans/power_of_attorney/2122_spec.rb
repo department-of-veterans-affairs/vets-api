@@ -58,10 +58,33 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   .and_return(bgs_poa)
                 allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
+                mock_file_number_check
 
                 post appoint_organization_path, params: data.to_json, headers: auth_header
 
                 expect(response).to have_http_status(:accepted)
+              end
+            end
+
+            context 'auth headers' do
+              let(:poa) do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                      .and_return(bgs_poa)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                      .and_return({ person_poa_history: nil })
+                    mock_file_number_check
+
+                    post appoint_organization_path, params: data.to_json, headers: auth_header
+                    poa_id = JSON.parse(response.body)['data']['id']
+                    ClaimsApi::PowerOfAttorney.find(poa_id)
+                  end
+                end
+              end
+
+              it 'adds the file_number to the header' do
+                expect(poa.auth_headers).to have_key('file_number')
               end
             end
 
@@ -115,6 +138,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                           .and_return(bgs_poa)
                         allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
+                        mock_file_number_check
 
                         json = JSON.parse(request_body)
                         json['data']['attributes']['veteran']['address']['countryCode'] = 'AL'
@@ -177,6 +201,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 before do
                   allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
                                                       .and_return(true)
+                  mock_file_number_check
                 end
 
                 context 'and the request includes a claimant' do
@@ -206,6 +231,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                         poa_id = JSON.parse(response.body)['data']['id']
                         poa = ClaimsApi::PowerOfAttorney.find(poa_id)
                         auth_headers = poa.auth_headers
+
                         expect(auth_headers).to have_key('dependent')
                       end
                     end
@@ -251,6 +277,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 before do
                   allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
                                                       .and_return false
+                  mock_file_number_check
                 end
 
                 it 'does not add the dependent object to the auth_headers' do
@@ -307,6 +334,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   .and_return({ person_poa_history: nil })
                 allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                   .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+                mock_file_number_check
 
                 post appoint_organization_path, params: data.to_json, headers: auth_header
 
@@ -416,6 +444,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                       .and_return(bgs_poa)
                     allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
+                    mock_file_number_check
 
                     json = JSON.parse(request_body)
                     json['data']['attributes']['claimant'] = claimant_data
@@ -432,14 +461,17 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
           context 'when validating email values' do
             context 'when the email is valid' do
+              before do
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                  .and_return(bgs_poa)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                  .and_return({ person_poa_history: nil })
+                mock_file_number_check
+              end
+
               it 'allows an empty string' do
                 data[:data][:attributes][:veteran][:email] = ''
                 mock_ccg(scopes) do |auth_header|
-                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
-                    .and_return(bgs_poa)
-                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
-                    .and_return({ person_poa_history: nil })
-
                   post appoint_organization_path, params: data.to_json, headers: auth_header
 
                   expect(response).to have_http_status(:accepted)
@@ -449,11 +481,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it "allows a valid 'normal' looking email" do
                 data[:data][:attributes][:veteran][:email] = 'valid@email.com'
                 mock_ccg(scopes) do |auth_header|
-                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
-                    .and_return(bgs_poa)
-                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
-                    .and_return({ person_poa_history: nil })
-
                   post appoint_organization_path, params: data.to_json, headers: auth_header
 
                   expect(response).to have_http_status(:accepted)
@@ -511,6 +538,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 .and_return(bgs_poa)
               allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
+              mock_file_number_check
 
               post appoint_organization_path, params: data.to_json, headers: auth_header
               expect(response).to have_http_status(:accepted)

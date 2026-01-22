@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <VETS360_URL>/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.militarySummary.customerType.dodServiceSummary"}]}'
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - '*/*'
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Vaprofiletxauditid:
+      - ddffec72-a40a-41ad-b8fe-e620fc28216e
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 14 Aug 2023 14:30:39 GMT
+      Content-Length:
+      - '125'
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"CORE104","key":"_invalid.request","text":"Invalid request","severity":"ERROR"}],"txAuditId":"ddffec72-a40a-41ad-b8fe-e620fc28216e"}'
+  recorded_at: Mon, 14 Aug 2023 14:30:39 GMT
+recorded_with: VCR 6.1.0
