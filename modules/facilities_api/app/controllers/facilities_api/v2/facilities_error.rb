@@ -2,8 +2,7 @@
 
 # Handles errors for Facilities API V2 controllers
 module FacilitiesApi::V2::FacilitiesError
-  def handle_error(error, method)
-    nil unless error
+  def handle_error(method)
   rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound => e
     json_error(method, e, 'Not Found', '404', :not_found)
   rescue Common::Exceptions::ServiceUnavailable => e
