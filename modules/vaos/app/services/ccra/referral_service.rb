@@ -14,33 +14,16 @@ module Ccra
     # @param referral_status [String] The status to filter referrals by (e.g., 'ACTIVE', 'CANCELLED')
     #
     # @return [Array<ReferralListEntry>] An array of ReferralListEntry objects containing the filtered referral list
-    # rubocop:disable Metrics/MethodLength
     def get_vaos_referral_list(icn, referral_status)
       params = { status: referral_status }
       with_monitoring do
-        response = perform(
-          :get,
-          "/#{config.base_path}/#{icn}/referrals",
-          params,
-          request_headers
-        )
-
+        response = perform(:get, "/#{config.base_path}/#{icn}/referrals", params, request_headers)
         ReferralListEntry.build_collection(response.body)
       end
     rescue => e
-      if Flipper.enabled?(:va_online_scheduling_ccra_error_logging, user)
-        Rails.logger.error('Community Care Appointments: Failed to fetch VAOS referral list', {
-                             referral_status:,
-                             service: 'ccra',
-                             method: 'get_vaos_referral_list',
-                             error_class: e.class.name,
-                             error_message: scrub(e.message),
-                             error_backtrace: e.backtrace&.first(5)
-                           })
-      end
+      log_referral_list_error(referral_status, e)
       raise e
     end
-    # rubocop:enable Metrics/MethodLength
 
     # Retrieves detailed Referral information.
     # First checks if the referral data is available in the cache.
@@ -116,6 +99,25 @@ module Ccra
     end
 
     private
+
+    # Logs an error when fetching the VAOS referral list fails.
+    #
+    # @param referral_status [String] The status filter that was used in the failed request
+    # @param error [Exception] The exception that was raised
+    #
+    # @return [void]
+    def log_referral_list_error(referral_status, error)
+      return unless Flipper.enabled?(:va_online_scheduling_ccra_error_logging, user)
+
+      Rails.logger.error('Community Care Appointments: Failed to fetch VAOS referral list', {
+                           referral_status:,
+                           service: 'ccra',
+                           method: 'get_vaos_referral_list',
+                           error_class: error.class.name,
+                           error_message: scrub(error.message),
+                           error_backtrace: error.backtrace&.first(5)
+                         })
+    end
 
     # Stores the provided referral data in the cache for future retrieval.
     #
