@@ -83,7 +83,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
 
     it 'includes properly set meta flags for user at pretransitioned oh facility and ready for info alert' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357, 555'
-      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612, 555'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '555'
       Settings.mhv.oh_facility_checks.oh_migrations_list = ''
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
