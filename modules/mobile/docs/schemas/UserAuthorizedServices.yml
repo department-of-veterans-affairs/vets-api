@@ -60,7 +60,38 @@ properties:
         type: boolean
         example: false
         description: Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition.
-      isUserFacilityMigratingToOh:
-        type: boolean
-        example: false
-        description: Indicates whether the user is associated with a facility that is migrating to Oracle Health.
+      migratingFacilitiesList:
+        type: array
+        description: A list of facilities that are actively migrating to Oracle Health along with their migration dates.
+        items:
+          type: object
+          required:
+            - migrationDate
+            - facilities
+            - phases
+          properties:
+            migrationDate:
+              type: string
+              example: "October 1, 2026"
+              description: The date when the facilities are scheduled to migrate to Oracle Health.
+            facilities:
+              type: array
+              description: A list of facilities migrating on the specified date.
+              items:
+                type: object
+                required:
+                  - facilityId
+                  - facilityName
+                properties:
+                  facilityId:
+                    type: string
+                    example: "555"
+                    description: The unique identifier for the facility.
+                  facilityName:
+                    type: string
+                    example: "Facility Name"
+                    description: The name of the facility.
+            phases:
+              type: object
+              description: Lists all the dates for each phase of the migration and shows the current phase for the migration
+
