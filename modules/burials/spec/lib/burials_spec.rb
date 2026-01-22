@@ -19,5 +19,13 @@ RSpec.describe Burials do
         expect(described_class.pdf_path).to eq('modules/burials/lib/burials/pdf_fill/pdfs/21P-530EZ-V2.pdf')
       end
     end
+
+    context 'when Flipper raises an error' do
+      it 'propagates the error' do
+        allow(Flipper).to receive(:enabled?).with(:burial_pdf_form_alignment).and_raise(StandardError)
+
+        expect { described_class.pdf_path }.to raise_error(StandardError)
+      end
+    end
   end
 end

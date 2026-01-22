@@ -33,6 +33,7 @@ describe PdfFill::Filler, type: :model do
                                                               fill_options)
 
               if type == 'overflow'
+                expect(the_extras_generator).not_to be_nil, 'combine_extras should have been called'
                 extras_path = the_extras_generator.generate
                 expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras.pdf"
 
@@ -67,6 +68,7 @@ describe PdfFill::Filler, type: :model do
                                                               fill_options)
 
               if type == 'overflow'
+                expect(the_extras_generator).not_to be_nil, 'combine_extras should have been called'
                 extras_path = the_extras_generator.generate
                 expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras.pdf"
 
