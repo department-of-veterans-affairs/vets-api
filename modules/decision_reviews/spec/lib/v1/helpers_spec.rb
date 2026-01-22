@@ -198,7 +198,7 @@ describe DecisionReviews::V1::Helpers do
             'Impotence' => true,
             'Let Knee Instability' => true
           },
-          'treatmentLocation' => 'Midwest Alabama VA Facility'
+          'vaTreatmentLocation' => 'Midwest Alabama VA Facility'
         },
         {
           'treatmentBefore2005' => 'N',
@@ -206,7 +206,7 @@ describe DecisionReviews::V1::Helpers do
             'Let Knee Instability' => true,
             'Right Knee Injury' => true
           },
-          'treatmentLocation' => 'Edith Nourse Rogers Memorial'
+          'vaTreatmentLocation' => 'Edith Nourse Rogers Memorial'
         }
       ]
     end
@@ -242,46 +242,49 @@ describe DecisionReviews::V1::Helpers do
   describe '#format_private_evidence_entries' do
     context 'with limited consent information' do
       let(:private_evidence) do
-        [
-          {
-            'treatmentStart' => '2020-02-20',
-            'treatmentEnd' => '2020-02-21',
-            'issuesPrivate' => {
-              'Impotence' => true,
-              'Left Knee Instability' => true,
-              'Hypertension' => false
+        {
+          'auth4142' => true,
+          'lcDetails' => 'I only want my records from Dr. Smith',
+          'lcPrompt' => 'Y',
+          'evidenceEntries' => [
+            {
+              'treatmentStart' => '2020-02-20',
+              'treatmentEnd' => '2020-02-21',
+              'issuesPrivate' => {
+                'Impotence' => true,
+                'Left Knee Instability' => true,
+                'Hypertension' => false
+              },
+              'privateTreatmentLocation' => 'South Texas VA Facility',
+              'address' => {
+                'view:militaryBaseDescription' => {},
+                'country' => 'USA',
+                'street' => '123 Main Street',
+                'street2' => 'Address line 2',
+                'city' => 'San Antonio',
+                'state' => 'TX',
+                'postalCode' => '78258'
+              }
+
             },
-            'treatmentLocation' => 'South Texas VA Facility',
-            'address' => {
-              'view:militaryBaseDescription' => {},
-              'country' => 'USA',
-              'street' => '123 Main Street',
-              'street2' => 'Address line 2',
-              'city' => 'San Antonio',
-              'state' => 'TX',
-              'postalCode' => '78258'
-            },
-            'authorization' => true,
-            'lcDetails' => 'I only want my records from Dr. Smith',
-            'lcPrompt' => 'Y'
-          },
-          {
-            'treatmentStart' => '2007-08-09',
-            'treatmentEnd' => '2007-09-10',
-            'issuesPrivate' => {
-              'Right Knee Injury' => true
-            },
-            'treatmentLocation' => 'Oakglen Memorial',
-            'address' => {
-              'view:militaryBaseDescription' => {},
-              'country' => 'USA',
-              'street' => '764 Oakland Ave',
-              'city' => 'San Diego',
-              'state' => 'CA',
-              'postalCode' => '89047'
+            {
+              'treatmentStart' => '2007-08-09',
+              'treatmentEnd' => '2007-09-10',
+              'issuesPrivate' => {
+                'Right Knee Injury' => true
+              },
+              'privateTreatmentLocation' => 'Oakglen Memorial',
+              'address' => {
+                'view:militaryBaseDescription' => {},
+                'country' => 'USA',
+                'street' => '764 Oakland Ave',
+                'city' => 'San Diego',
+                'state' => 'CA',
+                'postalCode' => '89047'
+              }
             }
-          }
-        ]
+          ]
+        }
       end
 
       let(:expected_result) do
@@ -332,26 +335,30 @@ describe DecisionReviews::V1::Helpers do
 
     context 'with no limited consent information' do
       let(:private_evidence) do
-        [
-          {
-            'treatmentStart' => '1997-08-15',
-            'treatmentEnd' => '2001-11-10',
-            'issuesPrivate' => {
-              'Migraines' => true
-            },
-            'treatmentLocation' => 'Central Mississippi VA Clinic',
-            'address' => {
-              'view:militaryBaseDescription' => {},
-              'country' => 'USA',
-              'street' => '900 W. Pine Street',
-              'city' => 'Jackson',
-              'state' => 'MS',
-              'postalCode' => '46763'
-            },
-            'authorization' => true,
-            'lcPrompt' => 'N'
-          }
-        ]
+        {
+          'auth4142' => true,
+          'lcPrompt' => 'N',
+          'evidenceEntries' => [
+            {
+              'treatmentStart' => '1997-08-15',
+              'treatmentEnd' => '2001-11-10',
+              'issuesPrivate' => {
+                'Migraines' => true
+              },
+              'privateTreatmentLocation' => 'Central Mississippi VA Clinic',
+              'address' => {
+                'view:militaryBaseDescription' => {},
+                'country' => 'USA',
+                'street' => '900 W. Pine Street',
+                'city' => 'Jackson',
+                'state' => 'MS',
+                'postalCode' => '46763'
+              },
+              'auth4142' => true,
+              'lcPrompt' => 'N'
+            }
+          ]
+        }
       end
 
       let(:expected_result) do

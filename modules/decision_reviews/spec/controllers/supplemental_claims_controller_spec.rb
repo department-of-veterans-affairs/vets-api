@@ -58,7 +58,7 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
                     'Left Knee Instability' => true,
                     'Right Knee Injury' => true
                   },
-                  'treatmentLocation' => 'Midwest Alabama VA Facility'
+                  'vaTreatmentLocation' => 'Midwest Alabama VA Facility'
                 },
                 {
                   'treatmentBefore2005' => 'Y',
@@ -67,7 +67,7 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
                     'Hypertension' => true,
                     'Impotence' => true
                   },
-                  'treatmentLocation' => 'Southwest Georgia VA Facility'
+                  'vaTreatmentLocation' => 'Southwest Georgia VA Facility'
                 }
               ]
             }
@@ -106,8 +106,10 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
               }
             }
           ],
-          'form4142' => [
-            {
+          'form4142' => {
+            'authorization' => true,
+            'lcPrompt' => 'N',
+            'evidenceEntries' => [
               'treatmentStart' => '2012-10-11',
               'treatmentEnd' => '2012-10-12',
               'issuesPrivate' => {
@@ -115,7 +117,7 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
                 'Impotence' => true,
                 'Left Knee Instability' => true
               },
-              'treatmentLocation' => 'South Texas VA Facility',
+              'privateTreatmentLocation' => 'South Texas VA Facility',
               'address' => {
                 'view:militaryBaseDescription' => {},
                 'country' => 'USA',
@@ -124,11 +126,9 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
                 'city' => 'San Antonio',
                 'state' => 'TX',
                 'postalCode' => '78258'
-              },
-              'authorization' => true,
-              'lcPrompt' => 'N'
-            }
-          ],
+              }
+            ]
+          },
           'additionalDocuments' => [{
             'name' => 'document.pdf',
             'size' => 123,
@@ -166,7 +166,7 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
                 'email' => 'myemail72585885@unattended.com'
               },
               'evidenceSubmission' => {
-                'evidenceType' => %w[upload retrieval],
+                'evidenceType' => %w[retrieval upload],
                 'treatmentLocations' => [
                   'VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)',
                   'PRIVATE HEALTH CARE PROVIDER'
@@ -229,29 +229,31 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
               }
             }
           ],
-          'form4142' => [
-            {
-              'treatmentStart' => '2012-10-11',
-              'treatmentEnd' => '2012-10-12',
-              'issuesPrivate' => {
-                'Hypertension' => true,
-                'Impotence' => true,
-                'Left Knee Instability' => true
-              },
-              'treatmentLocation' => 'South Texas VA Facility',
-              'address' => {
-                'view:militaryBaseDescription' => {},
-                'country' => 'USA',
-                'street' => '123 Main Street',
-                'street2' => 'Street address 2',
-                'city' => 'San Antonio',
-                'state' => 'TX',
-                'postalCode' => '78258'
-              },
-              'authorization' => true,
-              'lcPrompt' => 'N'
-            }
-          ],
+          'form4142' => {
+            'authorization' => true,
+            'lcPrompt' => 'N',
+            'evidenceEntries' => [
+              {
+                'treatmentStart' => '2012-10-11',
+                'treatmentEnd' => '2012-10-12',
+                'issuesPrivate' => {
+                  'Hypertension' => true,
+                  'Impotence' => true,
+                  'Left Knee Instability' => true
+                },
+                'privateTreatmentLocation' => 'South Texas VA Facility',
+                'address' => {
+                  'view:militaryBaseDescription' => {},
+                  'country' => 'USA',
+                  'street' => '123 Main Street',
+                  'street2' => 'Street address 2',
+                  'city' => 'San Antonio',
+                  'state' => 'TX',
+                  'postalCode' => '78258'
+                }
+              }
+            ]
+          },
           'additionalDocuments' => [{
             'name' => 'document.pdf',
             'size' => 123,

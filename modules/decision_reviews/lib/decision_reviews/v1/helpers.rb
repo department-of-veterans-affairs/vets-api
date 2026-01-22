@@ -170,18 +170,23 @@ module DecisionReviews
       def format_private_evidence_entries(private_evidence)
         return if private_evidence.blank?
 
+        authorization = private_evidence['auth4142']
+        limited_consent_prompt = private_evidence['lcPrompt']
+        limited_consent_details = private_evidence['lcDetails']
+        evidence_entries = private_evidence['evidenceEntries']
+
         private_evidence_data = {
           'providerFacility' => []
         }
 
-        private_evidence.each_with_index.map do |entry, index|
+        evidence_entries.each_with_index.map do |entry|
           evidence_entry = entry.dup
 
-          private_evidence_data['privacyAgreementAccepted'] = true if index.zero? && evidence_entry['authorization']
+          private_evidence_data['privacyAgreementAccepted'] = true if authorization
 
-          if index.zero? && evidence_entry['lcDetails'].present?
+          if limited_consent_prompt == 'Y' && limited_consent_details.present?
             private_evidence_data['limitedConsent'] =
-              evidence_entry['lcDetails']
+              limited_consent_details
           end
 
           facility_data = {
