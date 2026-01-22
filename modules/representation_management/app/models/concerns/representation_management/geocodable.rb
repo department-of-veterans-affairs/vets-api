@@ -34,7 +34,7 @@ module RepresentationManagement
 
       save!
       true
-    rescue => e
+    rescue Geocoder::Error, SocketError, Timeout::Error => e
       handle_geocoding_error(e)
     end
 
@@ -86,8 +86,6 @@ module RepresentationManagement
         log_and_raise(error, 'service unavailable', :warn)
       when SocketError, Timeout::Error
         log_and_raise(error, 'network error', :warn)
-      else
-        log_error(error, 'unexpected error')
       end
     end
 
