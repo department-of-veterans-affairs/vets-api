@@ -110,7 +110,8 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
 
     it 'falls back to template coordinates when filled PDF lacks widget' do
       allow(described_class).to receive(:signature_overlay_coordinates).with(pdf_path).and_return(nil)
-      allow(described_class).to receive(:signature_overlay_coordinates).with(described_class::TEMPLATE).and_return(coordinates)
+      allow(described_class).to receive(:signature_overlay_coordinates)
+        .with(described_class::TEMPLATE).and_return(coordinates)
 
       expect(datestamp_instance).to receive(:run).and_return(stamped_path)
 
