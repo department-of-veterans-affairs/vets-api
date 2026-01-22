@@ -47,7 +47,7 @@ describe VAProfile::ContactInformation::V2::Service do
     end
   end
 
-  describe '#get_person when user has no vet360_id' do
+  describe '#get_person when user has no vet360_id', :skip_va_profile_user do
     before { allow(user).to receive(:vet360_id).and_return(nil) }
 
     it 'raises an UnprocessableEntity error' do
