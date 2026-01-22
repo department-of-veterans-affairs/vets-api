@@ -23,7 +23,7 @@ module SignIn
         validate_existing_mpi_attributes
       end
 
-      get_traits_by_ssoe_async if Settings.vsp_environment == 'development'
+      get_traits_by_ssoe_async
       verified_icn
     end
 
