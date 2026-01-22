@@ -977,7 +977,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
-    facilities_migrating_to_oh: 555, 001
+    oh_migrations_list: "2026-02-11:[983,Test 1],[984,Test 2];2026-05-01:[518,Cleveland VA]"
     facilities_ready_for_info_alert: 612, 555
     pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
