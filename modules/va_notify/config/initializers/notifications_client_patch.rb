@@ -2,7 +2,7 @@
 
 module NotificationsClientPatch
   UUID_LENGTH = 36
-  # urlsafe token length == 86
+  # urlsafe token length is 86
   URLSAFE_TOKEN_LENGTH = 86
   # Format: name-service_id-secret_token
   # (e.g., "myapp-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
@@ -38,7 +38,7 @@ module NotificationsClientPatch
   def validate_uuids!
     return super unless Flipper.enabled?(:va_notify_enhanced_uuid_validation)
 
-    raise ArgumentError, "Invalid service_id format: #{@service_id}" unless valid_uuid?(@service_id)
+    raise ArgumentError, 'Invalid service_id format' unless valid_uuid?(@service_id)
 
     raise ArgumentError, 'Invalid secret_token format' unless valid_token?(@secret_token)
 
@@ -60,7 +60,7 @@ module NotificationsClientPatch
     return true if token.match?(UUID_REGEX)
 
     # Python secrets.token_urlsafe(64) format (86 chars, URL-safe base64)
-    return true if token.length >= 86 && token.match?(/\A[A-Za-z0-9_-]+\z/)
+    return true if token.length >= URLSAFE_TOKEN_LENGTH && token.match?(/\A[A-Za-z0-9_-]+\z/)
 
     false
   end
