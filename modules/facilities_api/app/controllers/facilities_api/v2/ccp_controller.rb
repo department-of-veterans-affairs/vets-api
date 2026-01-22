@@ -12,7 +12,9 @@ module FacilitiesApi
       api_results = ppms_search
 
       render_json(V2::PPMS::ProviderSerializer, ppms_params, api_results)
-    rescue => e
+    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
+           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
+           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error(e, 'ccp_index')
     end
 
@@ -20,7 +22,9 @@ module FacilitiesApi
       api_results = api.pos_locator(ppms_action_params)
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-    rescue => e
+    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
+           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
+           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error(e, 'ccp_urgent_care')
     end
 
@@ -31,7 +35,9 @@ module FacilitiesApi
                       api.provider_locator(ppms_provider_params)
                     end
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-    rescue => e
+    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
+           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
+           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error(e, 'ccp_provider')
     end
 
@@ -39,7 +45,9 @@ module FacilitiesApi
       api_results = provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-    rescue => e
+    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
+           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
+           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error(e, 'ccp_pharmacy')
     end
 
@@ -47,7 +55,9 @@ module FacilitiesApi
       api_results = api.specialties
 
       render_json(V2::PPMS::SpecialtySerializer, params, api_results)
-    rescue => e
+    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
+           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
+           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error(e, 'ccp_specialties')
     end
 
