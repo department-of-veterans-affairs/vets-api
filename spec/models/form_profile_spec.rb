@@ -1336,6 +1336,7 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a user that can prefill mdot' do
       before do
+        expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to be(true)
@@ -1498,6 +1499,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 0994' do
         before do
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
@@ -1514,6 +1516,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with VA Profile and ppiu prefill for 0994' do
         before do
           can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
@@ -1619,6 +1622,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with VA Profile prefill for 10203' do
         before do
           allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
@@ -1635,6 +1639,7 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper enabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
             expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
@@ -1670,6 +1675,7 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
             expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
@@ -1745,6 +1751,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           before do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
           end
 
@@ -1945,6 +1952,10 @@ RSpec.describe FormProfile, type: :model do
           end
 
           context 'with a 686c-674 v1 form' do
+            before do
+              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+            end
+
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -1957,6 +1968,7 @@ RSpec.describe FormProfile, type: :model do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 expect_prefilled('686C-674-V2')
               end
             end
@@ -1968,6 +1980,7 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
@@ -2062,6 +2075,7 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
@@ -2146,6 +2160,9 @@ RSpec.describe FormProfile, type: :model do
 
               before do
                 # Mock VAProfile contact info for both user and form profile usage
+                # allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
+                #   contact_info_service
+                # )
                 allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
                   contact_info_service
                 )
@@ -2263,6 +2280,7 @@ RSpec.describe FormProfile, type: :model do
           FORM-MOCK-PREFILL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -2278,6 +2296,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           before do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
             expected_veteran_info = v21_526_ez_expected['veteran']
             expected_veteran_info['emailAddress'] = user.va_profile_email
@@ -2293,7 +2312,6 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
                                                .and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                 VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
