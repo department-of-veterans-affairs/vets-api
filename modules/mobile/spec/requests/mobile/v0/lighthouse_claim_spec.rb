@@ -58,14 +58,12 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         expect(response.parsed_body.dig('data', 'attributes')).to have_key('downloadEligibleDocuments')
         expect(download_eligible).to be_nil.or be_a(Array)
 
-        if download_eligible
-          download_eligible.each do |document|
-            expect(document['documentId']).to be_a(String)
-            expect(document['documentId'].strip).not_to be_empty
+        download_eligible&.each do |document|
+          expect(document['documentId']).to be_a(String)
+          expect(document['documentId'].strip).not_to be_empty
 
-            expect(document['filename']).to be_a(String)
-            expect(document['filename'].strip).not_to be_empty
-          end
+          expect(document['filename']).to be_a(String)
+          expect(document['filename'].strip).not_to be_empty
         end
       end
 
