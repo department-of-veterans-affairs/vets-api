@@ -25,7 +25,17 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       context 'on success' do
         before do
-          allow(service).to receive_messages(invoice_service: double(list: raw_invoices), retrieve_city: 'Tampa')
+          allow(service).to receive_messages(
+            invoice_service: double(list: raw_invoices),
+            retrieve_organization_address: { 
+              city: 'Tampa', 
+              address1: '123 Test St', 
+              address2: nil, 
+              address3: nil, 
+              state: 'FL', 
+              zip: '33601' 
+            }
+          )
           allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
           allow(Lighthouse::HCC::Bundle).to receive(:new).and_return(mock_bundle)
         end
@@ -90,7 +100,15 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
             invoice_service: double(read: invoice_data),
             fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
             fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
-            fetch_medications: {}
+            fetch_medications: {},
+            fetch_organization_address: { 
+              address1: '123 Test St', 
+              address2: nil, 
+              address3: nil, 
+              city: 'Tampa', 
+              state: 'FL', 
+              zip: '33601' 
+            }
           )
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
         end

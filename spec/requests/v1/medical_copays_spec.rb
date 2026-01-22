@@ -94,6 +94,12 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           %w[
             externalId
             facility
+            facilityAddress1
+            facilityAddress2
+            facilityAddress3
+            facilityCity
+            facilityState
+            facilityZip
             billNumber
             status
             statusDescription
