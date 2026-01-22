@@ -203,7 +203,7 @@ module Mobile
           events_timeline.each do |event|
             has_tracked_documents = !event.documents.nil?
 
-            document_data += event.documents.map { |event| valid_doc_obj(event) } if has_tracked_documents
+            document_data += event.documents.map { |doc| valid_doc_obj(doc) } if has_tracked_documents
             document_data << valid_doc_obj(event)
           end
 

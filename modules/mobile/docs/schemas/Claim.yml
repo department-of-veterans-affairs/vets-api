@@ -130,5 +130,3 @@ properties:
                 filename:
                   type: string
                   description: Filename of the document
-
-            
