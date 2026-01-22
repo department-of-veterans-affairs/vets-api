@@ -587,7 +587,7 @@ GEM
     google-protobuf (4.33.3-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    googleauth (1.16.0)
+    googleauth (1.16.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -755,7 +755,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.18.0)
+    multi_json (1.19.1)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
@@ -885,7 +885,7 @@ GEM
     psych (5.3.1-java)
       date
       jar-dependencies (>= 0.1.7)
-    public_suffix (7.0.0)
+    public_suffix (7.0.2)
     puma (7.1.0)
       nio4r (~> 2.0)
     puma (7.1.0-java)
