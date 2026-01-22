@@ -107,7 +107,7 @@ module SimpleFormsApi
     def applicant_zip
       [
         data.dig('applicant_address', 'postal_code')&.[](0..4),
-        data.dig('applicant_address', 'postal_code')&.[](5..8)
+        data.dig('applicant_address', 'postal_code')&.[](5..)&.delete('-')
       ]
     end
 

@@ -58,7 +58,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007 21-4140 21P-601].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 40-1330M 21-4140 21P-601].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
