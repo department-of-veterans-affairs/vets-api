@@ -7,7 +7,7 @@ module SimpleFormsApi
   class OverflowPdfGenerator
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
 
-    def initialize(data, cutoff)
+    def initialize(data, cutoff:)
       @data = data || {}
       @cutoff = cutoff
     end
