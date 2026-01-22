@@ -14,16 +14,16 @@ class SupportingEvidenceAttachment < FormAttachment
     file_data_json = super
     parsed_data = JSON.parse(file_data_json)
     au = get_attachment_uploader
-    
+
     # Shorten the original filename if it's too long
     parsed_data['filename'] = shorten_filename(parsed_data['filename']) if parsed_data['filename']
-    
+
     # Shorten converted filename if it exists
     if au.converted_exists?
       original_filename = au.final_filename
       parsed_data['converted_filename'] = shorten_filename(original_filename)
     end
-    
+
     self.file_data = parsed_data.to_json
     file_data
   end
