@@ -45,11 +45,17 @@ module SignIn
 
       cache_key = create_cache_key
 
-      Identity::GetSSOeTraitsByCspidJob.perform_async(
-        cache_key,
-        credential_method,
-        credential_uuid
+      Identity::GetSSOeTraitsByCspidJob.perform_async(cache_key, credential_method, credential_uuid)
+    rescue => e
+      Rails.logger.warn(
+        '[SignInService] SSOe get traits lookup failed',
+        error: e.class.name,
+        message: e.message,
+        credential_uuid:
       )
+
+      StatsD.increment('api.ssoe.traits.failure')
+      nil
     end
 
     def create_cache_key
