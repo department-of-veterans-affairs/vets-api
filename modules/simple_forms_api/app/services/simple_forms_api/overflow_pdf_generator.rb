@@ -2,12 +2,13 @@
 
 require 'pdf_fill/extras_generator_v2'
 require 'securerandom'
+DEFAULT_CUTOFF = 3685
 
 module SimpleFormsApi
   class OverflowPdfGenerator
     HEADER = 'VA Form 21-4138 — Overflow data from remark section'
 
-    def initialize(data, cutoff:)
+    def initialize(data, cutoff: DEFAULT_CUTOFF)
       @data = data || {}
       @cutoff = cutoff
     end
