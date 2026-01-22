@@ -82,6 +82,36 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
           end
         end
       end
+
+      context 'when mobile_multi_claim_provider feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:mobile_multi_claim_provider, user).and_return(true)
+        end
+
+        it 'fetches claims from provider registry and combines with appeals' do
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            VCR.use_cassette('mobile/appeals/appeals') do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              assert_schema_conform(200)
+
+              parsed_response_contents = response.parsed_body['data']
+              expect(parsed_response_contents.length).to eq(11)
+              expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(1)
+
+              # Verify claims are present
+              open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
+              expect(open_claim['type']).to eq('claim')
+              expect(open_claim.dig('attributes', 'phase')).to eq(4)
+
+              # Verify appeals are still present
+              open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
+              expect(open_appeal['type']).to eq('appeal')
+              expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
+            end
+          end
+        end
+      end
     end
 
     describe '#index (all user claims) is polled with additional pagination params' do

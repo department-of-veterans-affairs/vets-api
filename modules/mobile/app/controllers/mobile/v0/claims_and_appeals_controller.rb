@@ -9,6 +9,7 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+      include Mobile::V0::Concerns::MultiProviderSupport
 
       before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
       before_action(only: %i[get_claim]) { authorize :lighthouse, :access? }
@@ -23,7 +24,13 @@ module Mobile
       end
 
       def get_claim
-        claim_detail = lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
+        claim_response = if Flipper.enabled?(:mobile_multi_claim_provider, @current_user)
+                           get_claim_from_providers(params[:id])
+                         else
+                           lighthouse_claims_proxy.get_claim(params[:id])
+                         end
+
+        claim_detail = lighthouse_claims_adapter.parse(claim_response)
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -113,9 +120,74 @@ module Mobile
 
       def fetch_claims_and_appeals
         use_cache = validated_params[:use_cache]
-        service_list, service_errors = claims_index_interface.get_accessible_claims_appeals(use_cache)
 
-        [service_list, service_errors]
+        if Flipper.enabled?(:mobile_multi_claim_provider, @current_user)
+          fetch_claims_and_appeals_multi_provider(use_cache)
+        else
+          service_list, service_errors = claims_index_interface.get_accessible_claims_appeals(use_cache)
+          [service_list, service_errors]
+        end
+      end
+
+      def fetch_claims_and_appeals_multi_provider(use_cache)
+        cached_data = get_cached_claims_and_appeals if use_cache
+
+        unless cached_data
+          full_list = []
+          errors = []
+
+          aggregate_claims_from_providers(full_list, errors)
+          aggregate_appeals_from_caseflow(full_list, errors)
+          add_authorization_errors(errors)
+
+          cached_data = claims_adapter.parse(full_list)
+          set_cached_claims_and_appeals(cached_data) unless errors.any?
+        end
+
+        [cached_data, errors]
+      end
+
+      def aggregate_claims_from_providers(full_list, errors)
+        claims_list, claims_errors = get_claims_from_providers
+        full_list.concat(claims_list) if claims_list.any?
+        errors.concat(claims_errors) if claims_errors.any?
+      end
+
+      def aggregate_appeals_from_caseflow(full_list, errors)
+        if @current_user.authorize(:appeals, :access?)
+          appeals_response = claims_proxy.get_all_appeals.call
+          if appeals_response[:errors].nil?
+            full_list.concat(appeals_response[:list])
+          else
+            errors.push(appeals_response[:errors])
+          end
+        else
+          errors.push({
+            service: 'appeals',
+            error_details: 'Forbidden: User is not authorized for appeals'
+          })
+        end
+      end
+
+      def add_authorization_errors(errors)
+        unless @current_user.authorize(:lighthouse, :access?)
+          errors.push({
+            service: 'claims',
+            error_details: 'Forbidden: User is not authorized for claims'
+          })
+        end
+      end
+
+      def claims_adapter
+        Mobile::V0::Adapters::ClaimsOverview.new
+      end
+
+      def get_cached_claims_and_appeals
+        Mobile::V0::ClaimOverview.get_cached(@current_user)
+      end
+
+      def set_cached_claims_and_appeals(data)
+        Mobile::V0::ClaimOverview.set_cached(@current_user, data)
       end
 
       def lighthouse_claims_adapter

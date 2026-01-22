@@ -2276,6 +2276,10 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
+  mobile_multi_claim_provider:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
+    enable_in_development: true
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
