@@ -53,14 +53,6 @@ module MHV
         end
       end
 
-      def user_facility_migrating_to_oh?
-        return false if @current_user.va_treatment_facility_ids.blank?
-
-        @current_user.va_treatment_facility_ids.any? do |facility|
-          facilities_migrating_to_oh.include?(facility.to_s)
-        end
-      end
-
       # Returns migration schedule information for facilities the user is associated with.
       # Response includes migration dates, facilities, current phase, and migration status.
       # @return [Array<Hash>] Array of migration schedule objects, empty array on error or no matches
@@ -89,12 +81,6 @@ module MHV
       def facilities_ready_for_info_alert
         @facilities_ready_for_info_alert ||= parse_facility_setting(
           Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert
-        )
-      end
-
-      def facilities_migrating_to_oh
-        @facilities_migrating_to_oh ||= parse_facility_setting(
-          Settings.mhv.oh_facility_checks.facilities_migrating_to_oh
         )
       end
 
