@@ -8,7 +8,8 @@ module Lighthouse
       PAYMENT_DUE_DAYS = 30
 
       attribute :external_id, String
-      attribute :facility, String
+      attribute :facility, Hash
+      attribute :facility_address, Hash
       attribute :bill_number, String
       attribute :status, String
       attribute :status_description, String
@@ -27,13 +28,6 @@ module Lighthouse
       attribute :line_items, Hash, array: true
       attribute :payments, Hash, array: true
 
-      attribute :facility_address1, String
-      attribute :facility_address2, String
-      attribute :facility_address3, String
-      attribute :facility_city, String
-      attribute :facility_state, String
-      attribute :facility_zip, String
-
       def initialize(attrs = {})
         @invoice_data = attrs[:invoice_data]
         @account_data = attrs[:account_data]
@@ -50,7 +44,6 @@ module Lighthouse
 
       def assign_attributes
         @external_id = @invoice_data['id']
-        @facility = @invoice_data.dig('issuer', 'display')
         @bill_number = @invoice_data.dig('identifier', 0, 'value')
         @status = @invoice_data['status']
         @status_description = @invoice_data.dig('_status', 'valueCodeableConcept', 'text')
@@ -61,7 +54,7 @@ module Lighthouse
         assign_balances
         assign_line_items
         assign_payments
-        assign_facility_address
+        assign_facility
       end
 
       def assign_balances
@@ -81,15 +74,24 @@ module Lighthouse
         @line_items = invoice_line_items.map { |li| build_line_item(li) }
       end
 
-      def assign_facility_address
-        return unless @facility_address
+      def assign_facility
+        @facility = {
+          'name' => @invoice_data.dig('issuer', 'display'),
+          'address' => build_facility_address
+        }
+      end
 
-        @facility_address1 = @facility_address[:address1]
-        @facility_address2 = @facility_address[:address2]
-        @facility_address3 = @facility_address[:address3]
-        @facility_city = @facility_address[:city]
-        @facility_state = @facility_address[:state]
-        @facility_zip = @facility_address[:zip]
+      def build_facility_address
+        return nil unless @facility_address
+
+        {
+          'primaryDesignator' => @facility_address[:address1],
+          'secondaryDesignator' => @facility_address[:address2],
+          'tertiaryDesignator' => @facility_address[:address3],
+          'city' => @facility_address[:city],
+          'state' => @facility_address[:state],
+          'postalCode' => @facility_address[:zip]
+        }
       end
 
       def build_line_item(invoice_line_item)

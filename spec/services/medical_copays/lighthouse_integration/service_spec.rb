@@ -27,13 +27,13 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         before do
           allow(service).to receive_messages(
             invoice_service: double(list: raw_invoices),
-            retrieve_organization_address: { 
-              city: 'Tampa', 
-              address1: '123 Test St', 
-              address2: nil, 
-              address3: nil, 
-              state: 'FL', 
-              zip: '33601' 
+            retrieve_organization_address: {
+              city: 'Tampa',
+              address1: '123 Test St',
+              address2: nil,
+              address3: nil,
+              state: 'FL',
+              zip: '33601'
             }
           )
           allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
@@ -101,13 +101,13 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
             fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
             fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
             fetch_medications: {},
-            fetch_organization_address: { 
-              address1: '123 Test St', 
-              address2: nil, 
-              address3: nil, 
-              city: 'Tampa', 
-              state: 'FL', 
-              zip: '33601' 
+            fetch_organization_address: {
+              address1: '123 Test St',
+              address2: nil,
+              address3: nil,
+              city: 'Tampa',
+              state: 'FL',
+              zip: '33601'
             }
           )
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
@@ -275,10 +275,16 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         expect(result).to be_a(Lighthouse::HCC::CopayDetail)
         expect(result.external_id).to be_present
         expect(result.facility).to be_present
-        expect(result.facility_address1).to be_present
-        expect(result.facility_city).to be_present
-        expect(result.facility_state).to be_present
-        expect(result.facility_zip).to be_present
+        expect(result.facility).to be_a(Hash)
+        expect(result.facility['name']).to be_present
+        expect(result.facility['address']).to be_a(Hash)
+
+        address = result.facility['address']
+        expect(address['primaryDesignator']).to eq('3000 CORAL HILLS DR')
+        expect(address['city']).to eq('CORAL SPRINGS')
+        expect(address['state']).to eq('FL')
+        expect(address['postalCode']).to eq('330654108')
+
         expect(result.status).to be_present
         expect(result.line_items).to be_an(Array)
         expect(result.payments).to be_an(Array)
