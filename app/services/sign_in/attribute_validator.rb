@@ -29,6 +29,8 @@ module SignIn
 
     private
 
+    attr_reader :user_attributes
+
     def get_traits_by_ssoe_async
       return unless credential_uuid && credential_email
 
