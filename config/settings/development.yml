@@ -900,7 +900,6 @@ maintenance:
     tc: ~
     tims: PUL8OQ4
     travel_pay: ~
-    vass: ~
     vaos: ~
     vaosWarning: ~
     vapro_contact_info: ~
@@ -908,6 +907,7 @@ maintenance:
     vapro_military_info: ~
     vapro_notification_settings: ~
     vapro_personal_info: ~
+    vass: ~
     vbms: ~
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
