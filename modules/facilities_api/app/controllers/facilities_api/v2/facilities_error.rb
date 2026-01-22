@@ -6,12 +6,12 @@ module FacilitiesApi::V2::FacilitiesError
     nil unless error
   rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound => e
     json_error(method, e, 'Not Found', '404', :not_found)
-  rescue Common::Exceptions::BackendServiceException => e
-    json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
   rescue Common::Exceptions::ServiceUnavailable => e
     json_error(method, e, 'Service Unavailable', '503', :service_unavailable)
   rescue Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
     json_error(method, e, 'Gateway Timeout', '504', :gateway_timeout)
+  rescue Common::Exceptions::BackendServiceException => e
+    json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
   end
 
   def json_error(method, error, title, code, status = :internal_server_error)
