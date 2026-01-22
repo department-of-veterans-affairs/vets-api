@@ -24,7 +24,7 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
 
       it 'extracts basic attributes from invoice data' do
         expect(subject.external_id).to eq('invoice-123')
-        expect(subject.facility).to eq('VA Medical Center')
+        expect(subject.facility).to eq({ 'name' => 'VA Medical Center', 'address' => nil })
         expect(subject.bill_number).to eq('BILL-001')
         expect(subject.status).to eq('issued')
         expect(subject.status_description).to eq('Active')
@@ -66,7 +66,7 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
         invoice_data = { 'id' => 'test-123' }
         detail = described_class.new(invoice_data:)
 
-        expect(detail.facility).to be_nil
+        expect(detail.facility).to eq({ 'name' => nil, 'address' => nil })
         expect(detail.bill_number).to be_nil
         expect(detail.status_description).to be_nil
       end

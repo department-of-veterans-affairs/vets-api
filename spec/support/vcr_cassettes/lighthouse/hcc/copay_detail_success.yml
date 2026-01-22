@@ -661,7 +661,7 @@ http_interactions:
   recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
 - request:
     method: get
-    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt"
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5Av0PHt"
     body:
       encoding: US-ASCII
       string: ''
