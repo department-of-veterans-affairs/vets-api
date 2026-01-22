@@ -99,7 +99,6 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
           allow(user).to receive(:va_treatment_facility_ids).and_return(['402'])
           allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
 
-          # Mock the service get_person_options method for show action
           allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:get_person_options)
             .and_return(double('response',
                                status: 200,
@@ -109,11 +108,9 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
                                  { itemId: 2, optionId: 11 }
                                ]))
 
-          # Mock the service update_person_options method for create/update/destroy actions
           allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
             .and_return(double('UpdateResponse', transaction_id: 'txn-123-456'))
 
-          # Mock transaction creation and serialization
           mock_transaction = double('Transaction',
                                     id: 'txn-123-456',
                                     transaction_id: 'txn-123-456',
@@ -140,12 +137,8 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
             .and_return(double('Serializer',
                                serializable_hash: mock_serializer_hash))
 
-          # Mock from_frontend_selection (transforms params to PersonOption objects for create/update/destroy)
           mock_person_options = [double('PersonOption', valid?: true, set_defaults: nil, mark_for_deletion: nil)]
 
-          # Mock to_api_payload (transforms PersonOption objects to API format)
-
-          # Mock PersonOption model method for data transformation (show action)
           allow(VAProfile::Models::PersonOption).to receive_messages(
             from_frontend_selection: mock_person_options,
             to_api_payload: { bio: { personOptions: [{ id: 1, optionId: 5 }] } },
