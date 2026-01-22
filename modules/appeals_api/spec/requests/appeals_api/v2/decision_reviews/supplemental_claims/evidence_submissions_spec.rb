@@ -18,7 +18,11 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
   describe '#create' do
     let(:decision_review_evidence_final_status_field_enabled) { true }
 
-    before { allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(decision_review_evidence_final_status_field_enabled) }
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:decision_review_evidence_final_status_field)
+        .and_return(decision_review_evidence_final_status_field_enabled)
+    end
 
     context 'when corresponding supplemental claim record not found' do
       it 'returns an error' do
@@ -119,7 +123,11 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSub
   describe '#show' do
     let(:decision_review_evidence_final_status_field_enabled) { true }
 
-    before { allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(decision_review_evidence_final_status_field_enabled) }
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:decision_review_evidence_final_status_field)
+        .and_return(decision_review_evidence_final_status_field_enabled)
+    end
 
     it 'successfully requests the evidence submission' do
       get "#{path}#{evidence_submissions.sample.guid}"
