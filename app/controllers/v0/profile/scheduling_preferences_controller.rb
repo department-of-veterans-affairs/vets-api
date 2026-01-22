@@ -10,7 +10,6 @@ module V0
       service_tag 'profile'
 
       def show
-        service = VAProfile::PersonSettings::Service.new(@current_user)
         response = service.get_person_options(VAProfile::PersonSettings::Service::CONTAINER_IDS[:preferences])
 
         preferences_data = if response.status == 404 || response.person_options.empty?
@@ -67,6 +66,9 @@ module V0
       end
 
       def build_and_validate_person_options(action: :create)
+        raise Common::Exceptions::ParameterMissing, 'item_id' if scheduling_preference_params[:item_id].blank?
+        raise Common::Exceptions::ParameterMissing, 'option_ids' if scheduling_preference_params[:option_ids].blank?
+
         person_options = VAProfile::Models::PersonOption.from_frontend_selection(
           scheduling_preference_params[:item_id],
           scheduling_preference_params[:option_ids]

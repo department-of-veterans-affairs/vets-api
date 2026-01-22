@@ -263,8 +263,19 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
         end
 
         describe 'DELETE #destroy' do
+          let(:valid_params) { { item_id: 1, option_ids: [5] } }
+
           it 'destroys all scheduling preferences and returns transaction response' do
-            delete :destroy
+            mock_person_option = double('PersonOption', valid?: true)
+            allow(mock_person_option).to receive(:set_defaults)
+            allow(mock_person_option).to receive(:mark_for_deletion)
+
+            allow(VAProfile::Models::PersonOption).to receive(:from_frontend_selection)
+              .and_return([mock_person_option])
+
+            expect(mock_person_option).to receive(:mark_for_deletion)
+
+            delete :destroy, params: valid_params
             expect(response).to have_http_status(:ok)
 
             json_response = JSON.parse(response.body)
@@ -276,7 +287,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
               .with(action: :delete)
               .and_call_original
 
-            delete :destroy
+            delete :destroy, params: valid_params
           end
         end
 
@@ -354,7 +365,7 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
             end
           end
 
-          context 'with multiple person options' do
+          context 'with multiple option ids' do
             before do
               allow(VAProfile::Models::PersonOption).to receive(:from_frontend_selection)
                 .with(1, [5, 7]).and_return([mock_person_option, mock_person_option2])
@@ -370,6 +381,48 @@ RSpec.describe V0::Profile::SchedulingPreferencesController, type: :controller d
               expect(controller_instance).to receive(:validate!).with(mock_person_option2)
 
               controller_instance.send(:build_and_validate_person_options)
+            end
+          end
+
+          context 'with missing item_id' do
+            before do
+              allow(controller_instance).to receive(:params).and_return(
+                ActionController::Parameters.new(option_ids: [5, 7])
+              )
+            end
+
+            it 'raises ParameterMissing when item_id is blank' do
+              expect do
+                controller_instance.send(:build_and_validate_person_options)
+              end.to raise_error(Common::Exceptions::ParameterMissing)
+            end
+          end
+
+          context 'with missing option_ids' do
+            before do
+              allow(controller_instance).to receive(:params).and_return(
+                ActionController::Parameters.new(item_id: 1)
+              )
+            end
+
+            it 'raises ParameterMissing when option_ids is blank' do
+              expect do
+                controller_instance.send(:build_and_validate_person_options)
+              end.to raise_error(Common::Exceptions::ParameterMissing)
+            end
+          end
+
+          context 'with empty option_ids array' do
+            before do
+              allow(controller_instance).to receive(:params).and_return(
+                ActionController::Parameters.new(item_id: 1, option_ids: [])
+              )
+            end
+
+            it 'raises ParameterMissing when option_ids is empty array' do
+              expect do
+                controller_instance.send(:build_and_validate_person_options)
+              end.to raise_error(Common::Exceptions::ParameterMissing)
             end
           end
         end
