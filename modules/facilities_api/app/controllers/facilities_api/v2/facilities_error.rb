@@ -19,7 +19,7 @@ module FacilitiesApi::V2::FacilitiesError
           error.is_a?(Faraday::TimeoutError) || status == 504
       json_error(error, 'Gateway Timeout', '504', :gateway_timeout)
     elsif error.is_a?(Common::Exceptions::BackendServiceException)
-      json_error(error, 'Backend Service Error', error.response[:message].to_s, 500)
+      json_error(error, 'Backend Service Error', error.response&.dig(:message).to_s, 500)
     else
       # Some other error we handle by giving something like a 400 to the user
       # i.e. invalid parameters, etc.
