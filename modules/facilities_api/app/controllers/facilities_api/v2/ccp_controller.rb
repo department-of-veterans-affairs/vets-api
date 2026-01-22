@@ -19,9 +19,6 @@ module FacilitiesApi
       api_results = api.pos_locator(ppms_action_params)
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-    rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound,
-           Common::Exceptions::BackendServiceException, Common::Exceptions::ServiceUnavailable,
-           Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
       handle_error('ccp_urgent_care')
     end
 
