@@ -92,6 +92,8 @@ module SurvivorsBenefits
     #
     def to_pdf(file_name = nil, fill_options = {})
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      return unless pdf_path
+
       form_data = form.present? ? parsed_form : {}
 
       SurvivorsBenefits::PdfFill::Va21p534ez.stamp_signature(pdf_path, form_data)

@@ -95,6 +95,8 @@ module SurvivorsBenefits
       SIGNATURE_PADDING_X = 2
       # Vertical padding (points) applied to the derived signature y coordinate
       SIGNATURE_PADDING_Y = 1
+      # Zero-based page index where the signature widget lives (visible page 18)
+      SIGNATURE_PAGE_INDEX = 17
 
       # Default label column width (points) for redesigned extras in this form
       DEFAULT_LABEL_WIDTH = 130
@@ -117,11 +119,17 @@ module SurvivorsBenefits
       # @param form_data [Hash] The form data containing the signature
       # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
       def self.stamp_signature(pdf_path, form_data)
+        return pdf_path if pdf_path.blank?
+
         signature_text = signature_text_for(form_data)
         return pdf_path if signature_text.blank?
 
-        coordinates = signature_overlay_coordinates(pdf_path)
-        return pdf_path unless coordinates
+        coordinates = signature_overlay_coordinates(pdf_path) || signature_overlay_coordinates(TEMPLATE)
+        unless coordinates
+          Rails.logger.warn('SurvivorsBenefits 21P-534EZ: Unable to derive signature coordinates; returning original PDF',
+                            pdf_path:)
+          return pdf_path
+        end
 
         stamp_pdf(pdf_path, signature_text, coordinates)
       rescue => e
@@ -137,27 +145,29 @@ module SurvivorsBenefits
       # @return [Hash, nil] Coordinates hash of the form
       #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
       def self.signature_overlay_coordinates(pdf_path = TEMPLATE)
-        doc = HexaPDF::Document.open(pdf_path)
-        return unless doc
-
-        field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
-        widget = field&.each_widget&.first
-        return unless widget
-
-        rect = widget[:Rect]
-        page = doc.object(widget[:P])
-        page_index = doc.pages.each_with_index.find { |page_obj, _i| page_obj == page }&.last
-        return unless rect && page_index
-
-        llx, lly, _urx, ury = rect
-        height = ury - lly
-        y = lly + [((height - SIGNATURE_FONT_SIZE) / 2.0), 0].max + SIGNATURE_PADDING_Y
-
-        { x: llx + SIGNATURE_PADDING_X, y:, page_number: page_index }
+        signature_overlay_coordinates_for(pdf_path)
       rescue => e
         Rails.logger.error('SurvivorsBenefits 21P-534EZ: Error deriving signature coordinates',
                            error: e.message, backtrace: e.backtrace)
         nil
+      end
+
+      def self.signature_overlay_coordinates_for(pdf_path)
+        HexaPDF::Document.open(pdf_path) do |doc|
+          field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
+          widget = field&.each_widget&.first
+          return unless widget
+
+          rect = widget[:Rect]
+          page_index = SIGNATURE_PAGE_INDEX
+          return unless rect
+
+          llx, lly, _urx, ury = rect
+          height = ury - lly
+          y = lly + [((height - SIGNATURE_FONT_SIZE) / 2.0), 0].max + SIGNATURE_PADDING_Y
+
+          { x: llx + SIGNATURE_PADDING_X, y:, page_number: page_index }
+        end
       end
 
       def self.signature_text_for(form_data)

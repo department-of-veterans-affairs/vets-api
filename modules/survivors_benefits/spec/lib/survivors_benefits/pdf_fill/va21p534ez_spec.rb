@@ -100,6 +100,24 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
       expect(PDFUtilities::DatestampPdf).not_to have_received(:new)
     end
 
+    it 'returns nil when pdf_path is nil' do
+      result = described_class.stamp_signature(nil, { 'claimantSignature' => 'Jane Doe' })
+
+      expect(result).to be_nil
+      expect(described_class).not_to have_received(:signature_overlay_coordinates)
+      expect(PDFUtilities::DatestampPdf).not_to have_received(:new)
+    end
+
+    it 'falls back to template coordinates when filled PDF lacks widget' do
+      allow(described_class).to receive(:signature_overlay_coordinates).with(pdf_path).and_return(nil)
+      allow(described_class).to receive(:signature_overlay_coordinates).with(described_class::TEMPLATE).and_return(coordinates)
+
+      expect(datestamp_instance).to receive(:run).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path, { 'claimantSignature' => 'Jane Doe' })
+      expect(result).to eq(stamped_path)
+    end
+
     it 'rescues errors and returns the original PDF path' do
       allow(datestamp_instance).to receive(:run).and_raise(StandardError, 'boom')
 
