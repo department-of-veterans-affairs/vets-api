@@ -67,6 +67,7 @@ module MedicalCopays
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
+        org_address = fetch_organization_address(invoice_data)
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
 
@@ -77,7 +78,8 @@ module MedicalCopays
           encounters: charge_item_deps[:encounters],
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
-          payments: invoice_deps[:payments]
+          payments: invoice_deps[:payments],
+          facility_address: org_address
         )
       end
 
@@ -101,32 +103,6 @@ module MedicalCopays
           Lighthouse::HCC::Invoice.new(enriched_entry)
         end
       end
-
-      def get_detail(id:)
-        invoice_data = invoice_service.read(id)
-        org_address = fetch_organization_address(invoice_data)
-        invoice_deps = fetch_invoice_dependencies(invoice_data, id)
-        charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
-        medications = fetch_medications(charge_item_deps[:medication_dispenses])
-
-        Lighthouse::HCC::CopayDetail.new(
-          invoice_data:,
-          account_data: invoice_deps[:account],
-          charge_items: invoice_deps[:charge_items],
-          encounters: charge_item_deps[:encounters],
-          medication_dispenses: charge_item_deps[:medication_dispenses],
-          medications:,
-          payments: invoice_deps[:payments],
-          facility_address: org_address
-        )
-      rescue => e
-        Rails.logger.error(
-          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
-        )
-        raise e
-      end
-
-      private
 
       def retrieve_organization_address(org_id)
         org_data = organization_service.read(org_id)
