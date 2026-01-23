@@ -79,7 +79,9 @@ VCR.configure do |c|
   end
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
-  c.filter_sensitive_data('<ARP_BENEFITS_CLAIMS_PATH>') { Settings.accredited_representative_portal.lighthouse.benefits_claims.path }
+  c.filter_sensitive_data('<ARP_BENEFITS_CLAIMS_PATH>') do
+    Settings.accredited_representative_portal.lighthouse.benefits_claims.path
+  end
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
