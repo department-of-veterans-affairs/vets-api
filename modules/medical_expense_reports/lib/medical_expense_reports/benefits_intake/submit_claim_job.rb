@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'ibm/service'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'medical_expense_reports/notification_email'
@@ -71,7 +72,7 @@ module MedicalExpenseReports
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
-        @ibm_payload = @claim.to_ibm #build_ibm_payload(form)
+        @ibm_payload = @claim.to_ibm # build_ibm_payload(form)
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -179,15 +180,17 @@ module MedicalExpenseReports
 
         response = @intake_service.perform_upload(**payload)
 
-        if Flipper.enabled?(:medical_expense_reports_govcio_mms)
-          govcio_upload(payload)
-        end
+        govcio_upload if response.success?
 
         raise MedicalExpenseReportsBenefitIntakeError, response.to_s unless response.success?
       end
 
-      def govcio_upload(payload)
-        raise NotImplementedError, 'GovCIO MMS client is not yet implemented'
+      # Upload to IBM MMS if the govcio flipper is enabled
+      def govcio_upload
+        if Flipper.enabled?(:medical_expense_reports_govcio_mms)
+          ibm_service = Ibm::Service.new
+          response = ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
+        end
       end
 
       # Insert submission polling entries
