@@ -37,10 +37,6 @@ module Mobile
         def statsd_tags_for_provider(provider_name)
           ["provider:#{provider_name}"]
         end
-
-        def validate_claim_response(response)
-          response && response['data']
-        end
       end
     end
   end

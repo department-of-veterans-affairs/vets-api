@@ -79,33 +79,6 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
     end
   end
 
-  describe '#validate_claim_response' do
-    it 'returns truthy when response has data key' do
-      response = { 'data' => { 'id' => '1' } }
-      result = controller.send(:validate_claim_response, response)
-
-      expect(result).to be_truthy
-    end
-
-    it 'returns falsey when response is nil' do
-      result = controller.send(:validate_claim_response, nil)
-
-      expect(result).to be_falsey
-    end
-
-    it 'returns falsey when data is nil' do
-      result = controller.send(:validate_claim_response, { 'data' => nil })
-
-      expect(result).to be_falsey
-    end
-
-    it 'returns falsey when response has no data key' do
-      result = controller.send(:validate_claim_response, { 'meta' => {} })
-
-      expect(result).to be_falsey
-    end
-  end
-
   describe 'integration with base module' do
     describe '#get_claims_from_providers' do
       it 'returns mobile-formatted tuple' do

@@ -82,21 +82,6 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
     end
   end
 
-  describe '#validate_claim_response' do
-    it 'returns response directly without additional validation' do
-      response = { 'data' => { 'id' => '1' } }
-      result = controller.send(:validate_claim_response, response)
-
-      expect(result).to eq(response)
-    end
-
-    it 'returns nil without validation' do
-      result = controller.send(:validate_claim_response, nil)
-
-      expect(result).to be_nil
-    end
-  end
-
   describe 'integration with base module' do
     describe '#get_claims_from_providers' do
       it 'returns web-formatted response' do
@@ -127,7 +112,7 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
     describe '#get_claim_from_providers' do
       let(:claim_id) { '123' }
 
-      it 'returns claim without additional validation' do
+      it 'returns claim when response has data' do
         allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
                                                                                     'data' => { 'id' => claim_id }
                                                                                   })
@@ -137,13 +122,25 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
 
-      it 'returns claim even with nil data' do
-        response = { 'data' => nil }
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return(response)
+      it 'skips provider when response has nil data' do
+        provider_class2 = double('ProviderClass2', name: 'TestProvider2')
+        provider_instance2 = double('Provider2')
+        allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
+        allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+          .with(user)
+          .and_return([provider_class, provider_class2])
+
+        # First provider returns nil data (should be skipped)
+        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({ 'data' => nil })
+        # Second provider has the claim
+        allow(provider_instance2).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
 
         result = controller.send(:get_claim_from_providers, claim_id)
 
-        expect(result).to eq(response)
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
     end
   end

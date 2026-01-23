@@ -33,10 +33,6 @@ module V0
         controller_class = self.class
         controller_class::STATSD_TAGS + ["provider:#{provider_name}"]
       end
-
-      def validate_claim_response(response)
-        response
-      end
     end
   end
 end
