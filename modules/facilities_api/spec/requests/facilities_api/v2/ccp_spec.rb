@@ -585,6 +585,19 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           expect(response).to have_http_status(:service_unavailable)
         end
       end
+
+      context 'when API call fails with timeout (provider_urgent_care scenario)' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+            .and_raise(Common::Exceptions::Timeout.new('service'))
+
+          get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['261QU0200X'] }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+        end
+      end
     end
 
     describe '#provider' do
@@ -598,19 +611,6 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           expect(response).to have_http_status(:not_found)
           bod = JSON.parse(response.body)
           expect(bod).to include('errors')
-        end
-      end
-
-      context 'when API call fails with timeout' do
-        it 'returns 504 error' do
-          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
-            .and_raise(Common::Exceptions::Timeout.new('service'))
-
-          get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['261QU0200X'] }
-
-          expect(response).to have_http_status(:gateway_timeout)
-          response_json = JSON.parse(response.body)
-          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
         end
       end
     end

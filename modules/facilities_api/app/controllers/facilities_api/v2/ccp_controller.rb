@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'facilities_error'
-
 module FacilitiesApi
   class V2::CcpController < ApplicationController
     include FacilitiesApi::V2::FacilitiesError
