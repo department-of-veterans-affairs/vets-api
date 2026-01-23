@@ -13,8 +13,9 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
+      # Fake Bearer token for testing purposes only
       Authorization:
-      - Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMyJ9.eyJzdWIiOiJzeXN0ZW0iLCJzY29wZSI6InN5c3RlbS9BcHBlYWxhYmxlSXNzdWVzLnJlYWQiLCJjbGllbnRfaWQiOiJ2ZXRzLWFwaSIsImlzcyI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L29hdXRoMi9hcHBlYWxzL3N5c3RlbS92MSIsImV4cCI6MTczNzU4ODkzMCwiaWF0IjoxNzM3NTg1MzMwfQ.signature_here
+      - Bearer fake-token-12345
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

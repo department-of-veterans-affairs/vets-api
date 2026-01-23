@@ -7,6 +7,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      # Fake Bearer token for testing purposes only
       Authorization:
       - Bearer fake-token-12345
       Accept:

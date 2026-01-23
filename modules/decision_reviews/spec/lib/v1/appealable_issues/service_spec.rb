@@ -1,81 +1,39 @@
-# # frozen_string_literal: true
+# frozen_string_literal: true
 
-# require './modules/decision_reviews/spec/dr_spec_helper'
-# require './modules/decision_reviews/spec/support/vcr_helper'
-# require 'decision_reviews/v1/appealable_issues/service'
+require './modules/decision_reviews/spec/dr_spec_helper'
+require './modules/decision_reviews/spec/support/vcr_helper'
+require 'decision_reviews/v1/appealable_issues/service'
 
-# describe DecisionReviews::V1::AppealableIssues::Service do
-#   subject { described_class.new }
+describe DecisionReviews::V1::AppealableIssues::Service do
+  subject { described_class.new }
 
-#   let(:ssn_with_mockdata) { '212222112' }
-#   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
+  let(:ssn_with_mockdata) { '212222112' }
+  let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
-#   describe 'Schema validation' do
-#     describe 'TEST_APPEALABLE_ISSUES_SCHEMA' do
-#       let(:schema) { described_class::TEST_APPEALABLE_ISSUES_SCHEMA }
+  describe 'VetsJsonSchema used in service' do
+    describe 'ensure Appealable Issues schemas are present' do
+      %w[
+        DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1
+      ].each do |schema_name|
+        it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS[schema_name]).to be_a Hash }
+      end
+    end
 
-#       it 'is a valid JSON schema' do
-#         expect(schema).to be_a Hash
-#         expect(schema['type']).to eq 'object'
-#         expect(schema['properties']).to have_key 'data'
-#       end
+    describe 'ensure Appealable Issues schema examples are present' do
+      %w[
+        DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1
+      ].each do |schema_name|
+        it("#{schema_name} schema example is present") { expect(VetsJsonSchema::EXAMPLES).to have_key schema_name }
+      end
+    end
+  end
 
-#       it 'accepts appealableIssue type' do
-#         valid_response = {
-#           'data' => [{
-#             'type' => 'appealableIssue',
-#             'id' => nil,
-#             'attributes' => {
-#               'ratingIssueReferenceId' => '123',
-#               'description' => 'Test issue',
-#               'approxDecisionDate' => '2023-01-01',
-#               'isRating' => true,
-#               'timely' => true
-#             }
-#           }]
-#         }
-#         errors = JSONSchemer.schema(schema).validate(valid_response).to_a
-#         expect(errors).to be_empty
-#       end
+  describe '#get_higher_level_review_issues' do
+    subject do
+      described_class.new.get_higher_level_review_issues(benefit_type:, user:)
+    end
 
-#       it 'accepts contestableIssue type for backward compatibility' do
-#         valid_response = {
-#           'data' => [{
-#             'type' => 'contestableIssue',
-#             'id' => nil,
-#             'attributes' => {
-#               'ratingIssueReferenceId' => '123',
-#               'description' => 'Test issue',
-#               'approxDecisionDate' => '2023-01-01',
-#               'isRating' => true,
-#               'timely' => true
-#             }
-#           }]
-#         }
-#         errors = JSONSchemer.schema(schema).validate(valid_response).to_a
-#         expect(errors).to be_empty
-#       end
-
-#       it 'rejects invalid type' do
-#         invalid_response = {
-#           'data' => [{
-#             'type' => 'invalidType',
-#             'id' => nil,
-#             'attributes' => {}
-#           }]
-#         }
-#         errors = JSONSchemer.schema(schema).validate(invalid_response).to_a
-#         expect(errors).not_to be_empty
-#       end
-#     end
-#   end
-
-#   describe '#get_higher_level_review_issues' do
-#     subject do
-#       described_class.new.get_higher_level_review_issues(benefit_type:, user:)
-#     end
-
-#     let(:benefit_type) { 'compensation' }
+    let(:benefit_type) { 'compensation' }
 
 #     context '200 response' do
 #       it 'returns a properly formatted 200 response' do

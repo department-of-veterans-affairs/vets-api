@@ -23,12 +23,6 @@ module DecisionReviews
 
         STATSD_KEY_PREFIX = 'api.decision_reviews.appealable_issues'
 
-        TEST_APPEALABLE_ISSUES_SCHEMA = JSON.parse(
-          File.read(
-            File.join(__dir__, 'test_appealable_issues_schema.json')
-          )
-        ).freeze
-
         ERROR_MAP = {
           504 => Common::Exceptions::GatewayTimeout,
           503 => Common::Exceptions::ServiceUnavailable,
@@ -137,7 +131,7 @@ module DecisionReviews
           raise_schema_error_unless_200_status response.status
           validate_against_schema(
             json: response.body,
-            schema: TEST_APPEALABLE_ISSUES_SCHEMA, #TODO replace with actual schema when available
+            schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
             append_to_error_class: " #{error_key}"
           )
           response
