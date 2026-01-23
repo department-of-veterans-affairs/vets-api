@@ -63,15 +63,6 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect { DateTime.iso8601(submitted_at) }.not_to raise_error
     end
 
-    context 'without authentication' do
-      before { sign_out }
-
-      it 'requires authentication' do
-        post(:create, body: form_data, as: :json)
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
     it 'returns bad_request when json is invalid' do
       post(:create, body: { no_form: 'missing form attribute' }.to_json, as: :json)
       expect(response).to have_http_status(:bad_request)
@@ -79,11 +70,11 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false)
       end
 
       after do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_call_original
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -177,19 +168,9 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect(parsed_response['errors']).to be_present
     end
 
-    context 'without authentication' do
-      before { sign_out }
-
-      it 'requires authentication' do
-        get(:download_pdf, params: { guid: claim.guid })
-
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -209,6 +190,22 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         expect(parsed_response['errors']).to be_present
         expect(parsed_response['errors'].first['status']).to eq('500')
       end
+    end
+  end
+
+  describe 'POST #create without authentication' do
+    it 'returns 401 when not authenticated' do
+      post(:create, body: form_data, as: :json)
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET #download_pdf without authentication' do
+    let(:claim) { create(:form212680) }
+
+    it 'returns 401 when not authenticated' do
+      get(:download_pdf, params: { guid: claim.guid })
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end
