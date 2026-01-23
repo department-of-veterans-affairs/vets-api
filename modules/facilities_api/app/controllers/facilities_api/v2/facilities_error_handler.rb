@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Handles errors for Facilities API V2 controllers
-module FacilitiesApi::V2::FacilitiesError
+module FacilitiesApi::V2::FacilitiesErrorHandler
   extend ActiveSupport::Concern
 
   included do

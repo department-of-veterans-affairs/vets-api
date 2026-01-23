@@ -2,7 +2,7 @@
 
 module FacilitiesApi
   class V2::CcpController < ApplicationController
-    include FacilitiesApi::V2::FacilitiesError
+    include FacilitiesApi::V2::FacilitiesErrorHandler
     # Provider supports the following query parameters:
     # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
     # @param services - Optional specialty services filter
