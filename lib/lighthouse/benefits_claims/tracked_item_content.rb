@@ -17,7 +17,7 @@ module BenefitsClaims
     rescue JSON::ParserError => e
       Rails.logger.error("TrackedItemContent schema file contains invalid JSON: #{SCHEMA_PATH} - #{e.message}")
       nil
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("Unexpected error loading TrackedItemContent schema: #{e.class} - #{e.message}")
       nil
     end
