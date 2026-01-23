@@ -18,7 +18,10 @@ require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
 require_relative 'sections/section_04_v2'
+<<<<<<< HEAD
 require_relative 'sections/section_06_v2'
+=======
+>>>>>>> 9d444056a2 (Add Section 4 V2)
 
 module Burials
   module PdfFill
@@ -151,11 +154,12 @@ module Burials
           { label: 'Section VII: Claimant\'s Identification Information', question_nums: %w[7 8 9] },
           { label: 'Section VIII: Claimant\'s Contact Information', question_nums: %w[10 11 12] },
           { label: 'Section IX: Relationship to Veteran', question_nums: ['13'] },
-          { label: 'Section X: Military Service Information', question_nums: %w[14 15 16 17 18 19 20] },
-          { label: 'Section XI: Burial Information', question_nums: %w[21 22 23] },
-          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[24 25] },
-          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[26 27 28 29] },
-          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[30 31] }
+          { label: 'Section X: Military Service Information', question_nums: %w[14 15] },
+          { label: 'Section XI: Burial Information', question_nums: %w[16 17 18] },
+          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[21 22 23 24 25] },
+          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[26 27 28 29 30] },
+          { label: 'Section XIV: Direct Deposit Information', question_nums: %w[31] },
+          { label: 'Section XV: Signatures and Certifications', question_nums: %w[32 33] }
         ].freeze
 
         # form configuration hash
