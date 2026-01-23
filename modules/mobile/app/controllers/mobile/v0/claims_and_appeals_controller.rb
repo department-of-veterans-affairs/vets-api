@@ -131,17 +131,18 @@ module Mobile
 
       def fetch_claims_and_appeals_multi_provider(use_cache)
         cached_data = get_cached_claims_and_appeals if use_cache
+        errors = []
 
         unless cached_data
           full_list = []
-          errors = []
 
           fetch_and_process_data(full_list, errors)
-          add_authorization_errors(errors)
 
           cached_data = claims_adapter.parse(full_list)
           set_cached_claims_and_appeals(cached_data) unless errors.any?
         end
+
+        add_authorization_errors(errors)
 
         [cached_data, errors]
       end
