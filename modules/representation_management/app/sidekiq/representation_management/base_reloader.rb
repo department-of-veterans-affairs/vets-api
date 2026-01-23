@@ -6,9 +6,6 @@ module RepresentationManagement
   class BaseReloader
     include Sidekiq::Job
     BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
-    INDIVIDUAL_TYPE_ATTORNEY = 'attorney'
-    INDIVIDUAL_TYPE_CLAIM_AGENT = 'claim_agents'
-    INDIVIDUAL_TYPE_VSO_REPRESENTATIVE = 'representative'
 
     private
 

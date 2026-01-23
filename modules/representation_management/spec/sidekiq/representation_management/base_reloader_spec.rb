@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::BaseReloader do
-  let(:reloader) { RepresentationManagement::VSOReloader.new }
-  let(:invididual_type_attorney) { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_ATTORNEY }
-  let(:invididual_type_claim)    { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_CLAIM_AGENT }
-  let(:invididual_type_representative) { RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
+  let(:reloader) { RepresentationManagement::BaseReloader.new }
+  let(:invididual_type_attorney) { AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY }
+  let(:invididual_type_claim)    { AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT }
+  let(:invididual_type_representative) { AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
 
   describe '#find_or_initialize_by_id' do
     context 'new record' do
