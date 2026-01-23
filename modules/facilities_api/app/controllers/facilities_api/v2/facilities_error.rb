@@ -2,6 +2,20 @@
 
 # Handles errors for Facilities API V2 controllers
 module FacilitiesApi::V2::FacilitiesError
+  extend ActiveSupport::Concern
+
+  included do
+    around_action :handle_facilities_exceptions
+  end
+
+  private
+
+  def handle_facilities_exceptions
+    yield
+  rescue => e
+    handle_error("#{controller_name}_#{action_name}", e)
+  end
+
   # To use this module, wrap controller actions with a rescue block that calls handle_error
   # Example:
   # def index
@@ -21,8 +35,6 @@ module FacilitiesApi::V2::FacilitiesError
   rescue Common::Exceptions::BackendServiceException => e
     json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
   end
-
-  private
 
   # Helper method to render JSON error responses
   # @param method [String] the name of the method where the error occurred
