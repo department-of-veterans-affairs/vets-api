@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_service_history_enabled:
+    actor_type: user
+    description: Enables Service History flow in the 10-10EZR form.
+    enable_in_development: false
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
@@ -337,6 +341,12 @@ features:
   champva_missing_status_verbose_logging:
     actor_type: user
     description: Enables verbose logging of missing Pega status for IVC CHAMPVA form submissions
+  champva_update_datadog_tracking:
+    actor_type: user
+    description: Enables updated Datadog tracking for IVC CHAMPVA form submissions
+  champva_claims_duty_to_assist:
+    actor_type: user
+    description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -540,6 +550,10 @@ features:
     description: When enabled, use the title generator to insert claim titles into claim list responses.
   cst_use_claim_title_generator_mobile:
     description: When enabled, use the title generator to insert claim titles into mobile claim list responses.
+  cst_multi_claim_provider:
+    actor_type: user
+    description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -654,9 +668,6 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
-  decision_review_service_common_exceptions_enabled:
-    actor_type: user
-    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   decision_review_form4142_validate_schema:
     actor_type: user
     description: Enables the use of schema validation for form 4142 in decision review applications
@@ -806,10 +817,10 @@ features:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
-  disability_compensation_0781_supporting_documents_enhancement:
+  disability_526_supporting_evidence_enhancement:
     actor_type: user
     description: >
-      Enables content and design enhancements for Form 0781 supporting documents
+      Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
@@ -1057,6 +1068,9 @@ features:
   form21_4138_confirmation_email:
     actor_type: user
     description: Enables form 21-4138 email submission confirmation (VaNotify)
+  form21_4140_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4140 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1121,6 +1135,9 @@ features:
   form214138:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4138
+  form214140:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4140
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -1218,9 +1235,13 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  identity_ial2_enforcement:
+  identity_idme_ial2_enforcement:
     actor_type: user
-    description: Enforces IAL2 for newly verified users
+    description: Enforces IAL2 for newly verified id.me users
+    enable_in_development: false
+  identity_logingov_ial2_enforcement:
+    actor_type: user
+    description: Enforces IAL2 facial recognition for newly verified login.gov users
     enable_in_development: false
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
@@ -1550,6 +1571,10 @@ features:
     actor_type: user
     description: when this flag is on the count will not be incremented for ipe
     enable_in_development: true
+  mhv_medications_enable_krames_html_sanitization:
+    actor_type: user
+    description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
+    enable_in_development: false
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -1907,6 +1932,10 @@ features:
   meb_1995_re_reroute:
     actor_type: user
     description: Show the questionnaire to determine where to re-route the user
+  meb_1995_rudisill_access:
+    actor_type: user
+    description: Enable Rudisill review option on form 22-1995
+    enable_in_development: true
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
@@ -2064,6 +2093,9 @@ features:
     actor_type: user
     description: Allows us to toggle duplicate modals for the 686C-674
     enable_in_development: true
+  va_dependents_no_ssn:
+    actor_type: user
+    description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -2160,9 +2192,6 @@ features:
   vre_prefill_name:
     actor_type: user
     description: Enables prefill transformation for veteran name fields in the Chapter 31 form
-  vre_use_new_vfs_notification_library:
-    actor_type: user
-    description: Whether or not to use the VFS library for interacting with VA Notify
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2316,19 +2345,6 @@ features:
     actor_type: user
     description: Enable Notification Center
     enable_in_development: true
-  nod_part3_update:
-    actor_type: user
-    description: NOD update to latest form, part III box 11
-    enable_in_development: true
-  nod_browser_monitoring_enabled:
-    actor_type: user
-    description: NOD Datadog RUM monitoring
-  hlr_browser_monitoring_enabled:
-    actor_type: user
-    description: HLR Datadog RUM monitoring
-  sc_browser_monitoring_enabled:
-    actor_type: user
-    description: Supplemental Claim Datadog RUM monitoring
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -2640,6 +2656,9 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  form_10282_sftp_debug:
+    actor_type: user
+    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
@@ -2783,7 +2802,6 @@ features:
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
-    
   form_10203_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for form 22-10203
@@ -2798,4 +2816,10 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
-
+  fmp_benefits_authorization_letter:
+    actor_type: user
+    description: Enables displaying FMP Benefits Authorization letter on Letters page
+  facilities_api_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Facilities API for errors
+    enable_in_development: false

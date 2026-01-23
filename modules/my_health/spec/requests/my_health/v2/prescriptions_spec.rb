@@ -866,9 +866,13 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           # Verify recently_requested contains prescriptions with specific disp_status values
           # These should be prescriptions with 'Active: Refill in Process' or 'Active: Submitted'
+          # When V2 status mapping is enabled, these get mapped to 'In progress'
           recently_requested.each do |rx|
             status = rx['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            if status.present?
+              expected_statuses = ['Active: Refill in Process', 'Active: Submitted', 'In progress']
+              expect(status).to be_in(expected_statuses)
+            end
           end
         end
       end
@@ -988,7 +992,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # Verify recently_requested contains prescriptions with specific disp_status values
           recently_requested.each do |prescription|
             status = prescription['disp_status']
-            expect(status).to be_in(['Active: Refill in Process', 'Active: Submitted']) if status.present?
+            if status.present?
+              expected_statuses = ['Active: Refill in Process', 'Active: Submitted', 'In progress']
+              expect(status).to be_in(expected_statuses)
+            end
           end
         end
       end
