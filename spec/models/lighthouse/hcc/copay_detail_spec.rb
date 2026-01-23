@@ -23,12 +23,14 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
       end
 
       let(:facility_address) do
-        address_line1: '123 Test',
-        address_line2: nil,
-        address_line3: nil,
-        city: 'Test City',
-        state: 'FL',
-        postalCode: '12345'
+        {
+          address_line1: '123 Test',
+          address_line2: nil,
+          address_line3: nil,
+          city: 'Test City',
+          state: 'FL',
+          postalCode: '12345'
+        }
       end
 
       it 'extracts basic attributes from invoice data' do

@@ -159,10 +159,10 @@ module MedicalCopays
 
       def fetch_organization_address(invoice_data)
         org_ref = invoice_data.dig('issuer', 'reference')
-        raise MissingOrganizationRefError, "No organization reference found" unless org_ref
+        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
 
         org_id = org_ref.split('/').last
-        raise MissingOrganizationIdError, "No organization ID found" unless org_id
+        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
 
         retrieve_organization_address(org_id)
       rescue => e
