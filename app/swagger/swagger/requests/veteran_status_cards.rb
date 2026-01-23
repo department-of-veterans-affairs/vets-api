@@ -17,30 +17,34 @@ module Swagger
             key :description, 'Successful veteran status card retrieval'
 
             schema do
-              key :required, [:type, :veteran_status, :attributes]
+              key :required, %i[type veteran_status attributes]
               property :type, type: :string do
                 key :description, "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility"
               end
               property :veteran_status, type: :string do
-                key :description, "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card"
+                key :description,
+                    "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card"
               end
               property :service_summary_code, type: :string do
                 key :description, "The veteran's Service Summary Code determined by VAProfile"
               end
               property :not_confirmed_reason, type: :string do
-                key :description, "Displays the reason the veteran is not eligible for a status card"
+                key :description, 'Displays the reason the veteran is not eligible for a status card'
               end
               property :attributes, type: :object do
                 key :description, "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card"
                 property :full_name, type: :string do
-                  key :description, 'The concatenated full name of the veteran, displayed when eligible for a status card'
+                  key :description,
+                      'The concatenated full name of the veteran, displayed when eligible for a status card'
                 end
                 property :disability_rating, type: :integer do
                   key :description, 'The disability rating for the veteran when eligible for a status card'
                 end
                 property :latest_service, type: :object do
-                  key :required, [:branch, :begin_date, :end_date]
-                  key :description, 'The latest branch of service, begin date, and end date when the veteran is eligible for a status card'
+                  key :required, %i[branch begin_date end_date]
+                  key :description,
+                      'The latest branch of service, begin date, and end date when the veteran ' \
+                      'is eligible for a status card'
                   property :branch, type: :string, description: "The veteran's latest branch of service"
                   property :begin_date, type: :string, description: "The start date of the veteran's latest service"
                   property :end_date, type: :string, description: "The end date of the veteran's latest service"
@@ -53,8 +57,9 @@ module Swagger
                 end
                 property :body, type: :array do
                   items do
-                    key :required, [:type, :value]
-                    key :description, 'A list of message components to display when the veteran is ineligible for a status card'
+                    key :required, %i[type value]
+                    key :description,
+                        'A list of message components to display when the veteran is ineligible for a status card'
                     property :type, type: :string do
                       key :description, "The type of message component - can be 'text', 'phone', or 'link'"
                     end
