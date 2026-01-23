@@ -136,7 +136,8 @@ if Settings.api.url.present?
 Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` for detailed guidance.
 
 **Exception Handling (Always Flag):**
-- `rescue => e` or bare `rescue` without exception class - catches typos, SystemExit, Ctrl+C
+- `rescue => e` or bare `rescue` without exception class - rescues all `StandardError` (including bugs like `NoMethodError`) and hides intent; prefer `rescue SomeSpecificError`
+- `rescue Exception` (or rescuing `Exception` directly) - catches `StandardError` **and** `SystemExit` / `Interrupt` (Ctrl+C) and should almost never be used
 - `rescue => e; nil` or `rescue; false` - swallows failures, returns misleading values
 - `raise "error: #{e}"` - destroys exception type, backtrace, and cause chain
 - Wrapping exceptions without `cause: e` - loses original stack trace and HTTP status
