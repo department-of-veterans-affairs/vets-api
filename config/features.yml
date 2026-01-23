@@ -2687,6 +2687,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: When enabled, allows past visit filtering for Mental Health
+  va_online_scheduling_add_OH_avs:
+    actor_type: user
+    enable_in_development: true
+    description: When enabled, permits fetching of OH AVS documents
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application

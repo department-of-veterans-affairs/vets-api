@@ -2317,6 +2317,10 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_error) { 'Error retrieving AVS info' }
 
     context 'OH AVS PDF' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(true)
+      end
+
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
@@ -2349,6 +2353,10 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'AVS Link' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
+      end
+      
       context 'when AVS successfully retrieved the AVS link' do
         it 'fetches the avs link and updates the appt hash' do
           allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
