@@ -358,4 +358,194 @@ describe Veteran::Service::Representative, type: :model do
       end
     end
   end
+
+  describe '#geocode_and_update_location!' do
+    let(:representative) do
+      create(:representative,
+             representative_id: 'test-rep-123',
+             address_line1: '1600 Pennsylvania Ave NW',
+             city: 'Washington',
+             state_code: 'DC',
+             zip_code: '20500')
+    end
+
+    let(:geocoding_result) do
+      double('Geocoder::Result',
+             latitude: 38.8977,
+             longitude: -77.0365)
+    end
+
+    before do
+      allow(Geocoder.config).to receive(:api_key).and_return('test_api_key')
+      allow(Geocoder).to receive(:search).and_return([geocoding_result])
+    end
+
+    context 'when Geocoder API key is not configured' do
+      before do
+        allow(Geocoder.config).to receive(:api_key).and_return(nil)
+        allow(Geocoder).to receive(:search).and_return([geocoding_result]) # Reset the stub
+      end
+
+      it 'returns false immediately without making API calls' do
+        expect(representative.geocode_and_update_location!).to be false
+        expect(Geocoder).not_to have_received(:search)
+      end
+
+      it 'does not modify the record' do
+        expect { representative.geocode_and_update_location! }.not_to change { representative.reload.attributes }
+      end
+    end
+
+    context 'when Geocoder API key is configured' do
+      it 'successfully geocodes and updates location fields' do
+        expect(representative.geocode_and_update_location!).to be true
+
+        representative.reload
+        expect(representative.lat).to eq(38.8977)
+        expect(representative.long).to eq(-77.0365)
+        expect(representative.location.x).to eq(-77.0365)
+        expect(representative.location.y).to eq(38.8977)
+        expect(representative.fallback_location_updated_at).to be_present
+      end
+
+      it 'calls Geocoder.search with the built address' do
+        representative.geocode_and_update_location!
+
+        expect(Geocoder).to have_received(:search).with('1600 Pennsylvania Ave NW Washington DC 20500')
+      end
+
+      it 'sets fallback_location_updated_at timestamp' do
+        expect { representative.geocode_and_update_location! }
+          .to change { representative.reload.fallback_location_updated_at }
+          .from(nil)
+          .to(be_within(1.second).of(Time.current))
+      end
+
+      it 'clears all location and address fields before geocoding' do
+        representative.update!(
+          lat: 40.0,
+          long: -75.0,
+          city: 'Old City',
+          state_code: 'XX',
+          zip_code: '99999',
+          address_line1: 'Old Address',
+          raw_address: {
+            'address_line1' => '1600 Pennsylvania Ave NW',
+            'city' => 'Washington',
+            'state_code' => 'DC',
+            'zip_code' => '20500'
+          }
+        )
+
+        representative.geocode_and_update_location!
+        representative.reload
+
+        # Verify fields were updated with new geocoded data
+        expect(representative.lat).to eq(38.8977)
+        expect(representative.long).to eq(-77.0365)
+        expect(representative.city).to eq('Washington')
+        expect(representative.state_code).to eq('DC')
+        expect(representative.zip_code).to eq('20500')
+      end
+    end
+
+    context 'when geocoding is successful with raw_address' do
+      let(:representative) do
+        create(:representative,
+               representative_id: 'test-rep-456',
+               raw_address: {
+                 'address_line1' => '1600 Pennsylvania Ave NW',
+                 'city' => 'Washington',
+                 'state_code' => 'DC',
+                 'zip_code' => '20500'
+               },
+               address_line1: '1600 Pennsylvania Ave NW',
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'populates city, state_code, and zip_code from raw_address' do
+        representative.geocode_and_update_location!
+        representative.reload
+
+        expect(representative.city).to eq('Washington')
+        expect(representative.state_code).to eq('DC')
+        expect(representative.zip_code).to eq('20500')
+      end
+
+      it 'updates location fields' do
+        representative.geocode_and_update_location!
+        representative.reload
+
+        expect(representative.lat).to eq(38.8977)
+        expect(representative.long).to eq(-77.0365)
+      end
+    end
+
+    context 'when no address data is available' do
+      let(:representative) do
+        create(:representative,
+               representative_id: 'test-rep-789',
+               address_line1: nil,
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'returns false without calling Geocoder' do
+        expect(representative.geocode_and_update_location!).to be false
+        expect(Geocoder).not_to have_received(:search)
+      end
+    end
+
+    context 'when geocoding returns no results' do
+      before do
+        allow(Geocoder).to receive(:search).and_return([])
+      end
+
+      it 'returns false' do
+        expect(representative.geocode_and_update_location!).to be false
+      end
+    end
+
+    context 'with specific Geocoder error types' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      context 'when invalid API key' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::InvalidApiKey.new('Invalid API key'))
+        end
+
+        it 'logs error and returns false without retry' do
+          expect(representative.geocode_and_update_location!).to be false
+          expect(Rails.logger).to have_received(:error).with(/API key invalid/)
+        end
+      end
+
+      context 'when service unavailable' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::ServiceUnavailable.new('Service unavailable'))
+        end
+
+        it 'logs warning and re-raises for Sidekiq retry' do
+          expect { representative.geocode_and_update_location! }
+            .to raise_error(Geocoder::ServiceUnavailable)
+          expect(Rails.logger).to have_received(:warn).with(/service unavailable/)
+        end
+      end
+    end
+  end
+
+  describe '#geocoding_record_id' do
+    let(:representative) { create(:representative, representative_id: 'test-rep-999') }
+
+    it 'returns representative_id for error logging' do
+      expect(representative.geocoding_record_id).to eq('test-rep-999')
+    end
+  end
 end
+
