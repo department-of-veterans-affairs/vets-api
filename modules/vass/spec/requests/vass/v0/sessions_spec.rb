@@ -100,7 +100,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               expect(response).to have_http_status(:ok)
               # OTP should be stored in Redis
               redis_client = Vass::RedisClient.build
-              stored_otp = redis_client.otc(uuid:)
+              stored_otp = redis_client.otc_data(uuid:)&.dig(:code)
               expect(stored_otp).to be_present
               expect(stored_otp.length).to eq(6)
             end
@@ -241,7 +241,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:ok)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to be_nil
       end
 
@@ -301,7 +301,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:unauthorized)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to eq('000000')
       end
     end

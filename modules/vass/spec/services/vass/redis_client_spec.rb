@@ -116,36 +116,6 @@ describe Vass::RedisClient do
 
   # ------------ OTC Management Tests ------------
 
-  describe '#otc' do
-    context 'when OTC cache does not exist' do
-      it 'returns nil' do
-        expect(redis_client.otc(uuid:)).to be_nil
-      end
-    end
-
-    context 'when OTC cache exists' do
-      before do
-        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
-      end
-
-      it 'returns the cached OTC code' do
-        expect(redis_client.otc(uuid:)).to eq(otc_code)
-      end
-    end
-
-    context 'when OTC cache has expired' do
-      before do
-        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
-      end
-
-      it 'returns nil' do
-        Timecop.travel(redis_otc_expiry.from_now) do
-          expect(redis_client.otc(uuid:)).to be_nil
-        end
-      end
-    end
-  end
-
   describe '#otc_data' do
     context 'when OTC cache exists' do
       before do
@@ -165,6 +135,18 @@ describe Vass::RedisClient do
         expect(redis_client.otc_data(uuid:)).to be_nil
       end
     end
+
+    context 'when OTC cache has expired' do
+      before do
+        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
+      end
+
+      it 'returns nil' do
+        Timecop.travel(redis_otc_expiry.from_now) do
+          expect(redis_client.otc_data(uuid:)).to be_nil
+        end
+      end
+    end
   end
 
   describe '#save_otc' do
@@ -182,12 +164,12 @@ describe Vass::RedisClient do
 
       # Should still be present before OTC expiry
       Timecop.travel((redis_otc_expiry - 1.minute).from_now) do
-        expect(redis_client.otc(uuid:)).to eq(otc_code)
+        expect(redis_client.otc_data(uuid:)&.dig(:code)).to eq(otc_code)
       end
 
       # Should be gone after OTC expiry (but before token expiry)
       Timecop.travel(redis_otc_expiry.from_now) do
-        expect(redis_client.otc(uuid:)).to be_nil
+        expect(redis_client.otc_data(uuid:)).to be_nil
       end
     end
   end
@@ -198,11 +180,11 @@ describe Vass::RedisClient do
     end
 
     it 'removes the OTC from cache' do
-      expect(redis_client.otc(uuid:)).to eq(otc_code)
+      expect(redis_client.otc_data(uuid:)&.dig(:code)).to eq(otc_code)
 
       redis_client.delete_otc(uuid:)
 
-      expect(redis_client.otc(uuid:)).to be_nil
+      expect(redis_client.otc_data(uuid:)).to be_nil
     end
 
     it 'does not error when deleting non-existent OTC' do
@@ -221,8 +203,8 @@ describe Vass::RedisClient do
       redis_client.save_otc(uuid: uuid1, code: code1, last_name:, dob:)
       redis_client.save_otc(uuid: uuid2, code: code2, last_name:, dob:)
 
-      expect(redis_client.otc(uuid: uuid1)).to eq(code1)
-      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
+      expect(redis_client.otc_data(uuid: uuid1)&.dig(:code)).to eq(code1)
+      expect(redis_client.otc_data(uuid: uuid2)&.dig(:code)).to eq(code2)
     end
 
     it 'deletes OTC for one UUID without affecting others' do
@@ -231,8 +213,8 @@ describe Vass::RedisClient do
 
       redis_client.delete_otc(uuid: uuid1)
 
-      expect(redis_client.otc(uuid: uuid1)).to be_nil
-      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
+      expect(redis_client.otc_data(uuid: uuid1)).to be_nil
+      expect(redis_client.otc_data(uuid: uuid2)&.dig(:code)).to eq(code2)
     end
   end
 

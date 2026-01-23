@@ -71,17 +71,6 @@ module Vass
     # ------------ One-Time Code (OTC) Management ------------
 
     ##
-    # Retrieves a stored OTC code by UUID.
-    #
-    # @param uuid [String] Veteran UUID from email link
-    # @return [String, nil] OTC code or nil if not found/expired
-    #
-    def otc(uuid:)
-      data = otc_data(uuid:)
-      data&.dig(:code)
-    end
-
-    ##
     # Saves an OTC for a veteran UUID with short expiration.
     # Stores the code along with identity data for validation during authentication.
     #
