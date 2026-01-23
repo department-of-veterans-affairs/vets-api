@@ -3,9 +3,9 @@
 module VeteranStatusCard
   module Constants # rubocop:disable Metrics/ModuleLength
     SUPPORT_PHONE = '866-279-3677'
-    SUPPORT_HOURS = 'Monday through Friday, 8:00 a.m. to 8:00 p.m. ET'
+    SUPPORT_HOURS = 'Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
 
-    STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card."
+    STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card"
     STANDARD_ERROR_MESSAGE = [
       {
         type: 'text',
@@ -133,7 +133,7 @@ module VeteranStatusCard
       status: ERROR_STATUS
     }.freeze
 
-    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong."
+    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong"
     SOMETHING_WENT_WRONG_MESSAGE = [
       {
         type: 'text',
