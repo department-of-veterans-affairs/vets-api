@@ -35,7 +35,6 @@ module VeteranStatusCard
     #
     def initialize(user)
       @user = user
-      @service_summary_code_used = false
     end
 
     ##
@@ -45,7 +44,6 @@ module VeteranStatusCard
     # @return [Hash] the status card data with keys:
     #   - :type [String] 'veteran_status_card' or 'veteran_status_alert'
     #   - :veteran_status [String] 'confirmed' or 'not confirmed'
-    #   - :service_summary_code_used [Boolean] whether SSC code was used for eligibility
     #   - :service_summary_code [String, nil] the DoD service summary code
     #   - :not_confirmed_reason [String, nil] reason for ineligibility
     #   - :attributes [Hash] containing either:
@@ -78,7 +76,6 @@ module VeteranStatusCard
       {
         type: 'veteran_status_card',
         veteran_status: 'confirmed',
-        service_summary_code_used: @service_summary_code_used,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
@@ -92,7 +89,6 @@ module VeteranStatusCard
 
     ##
     # Builds the response for an ineligible veteran
-    # Called after error_results so @service_summary_code_used is properly set
     #
     # @param error_details [Hash] the error details from error_results
     # @return [Hash] the veteran status alert response
@@ -101,7 +97,6 @@ module VeteranStatusCard
       {
         type: 'veteran_status_alert',
         veteran_status: 'not confirmed',
-        service_summary_code_used: @service_summary_code_used,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
@@ -123,7 +118,6 @@ module VeteranStatusCard
       {
         type: 'veteran_status_alert',
         veteran_status: 'not confirmed',
-        service_summary_code_used: false,
         service_summary_code: nil,
         not_confirmed_reason: nil,
         attributes: {
@@ -162,9 +156,6 @@ module VeteranStatusCard
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
       # don't need to explicitly check for those reasons
-
-      # Now that we are analyzing by SSC code, set the instance variable to true
-      @service_summary_code_used = true
 
       return VeteranStatusCard::Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
 
@@ -422,7 +413,6 @@ module VeteranStatusCard
       {
         type: 'veteran_status_alert',
         veteran_status: 'not confirmed',
-        service_summary_code_used: @service_summary_code_used,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
