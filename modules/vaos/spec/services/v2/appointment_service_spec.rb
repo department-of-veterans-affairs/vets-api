@@ -84,8 +84,6 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VAOS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
@@ -194,18 +192,14 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                  instance_of(User)).and_return(true)
       end
 
       context 'when va appointment create request is valid' do
         # appointment created using the Jacqueline Morgan user
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -262,7 +256,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when cc appointment create request is valid' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -282,7 +276,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when the patientIcn is missing' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -312,7 +306,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when the upstream server returns a 500' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -1248,8 +1242,6 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         context 'using VPG' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                      user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
@@ -1289,7 +1281,7 @@ describe VAOS::V2::AppointmentsService do
 
         context 'using vaos-service' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       user).and_return(false)
           end
 
@@ -1327,7 +1319,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when there is a server error in updating an appointment' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
       end
 
       it 'throws a BackendServiceException' do

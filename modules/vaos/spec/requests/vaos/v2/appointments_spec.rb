@@ -120,7 +120,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'with VAOS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
@@ -222,12 +221,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'using VPG' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                  instance_of(User)).and_return(true)
       end
 
       describe 'CREATE cc appointment' do
@@ -306,7 +301,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'creates the booked va appointment using VAOS' do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(false)
 
           stub_clinics
@@ -1095,8 +1090,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -1134,7 +1127,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a 400 status code' do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
             expect(response).to have_http_status(:bad_request)
@@ -1145,8 +1138,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the backend service cannot handle the request' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -1165,8 +1156,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         allow(Rails).to receive(:cache).and_return(memory_store)
         Rails.cache.clear
 
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
