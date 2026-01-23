@@ -391,6 +391,10 @@ features:
     actor_type: user
     description: Enables logging for travel claim submission operations
     enable_in_development: true
+  check_in_experience_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging for check-in and pre-check-in data retrieval, demographics confirmation, and eligibility tracking to diagnose insurance verification issues
+    enable_in_development: true
   check_in_experience_travel_claim_log_api_error_details:
     actor_type: user
     description: Enables detailed logging of external request error responses in client
