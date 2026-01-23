@@ -2,7 +2,8 @@
 
 # Handles errors for Facilities API V2 controllers
 module FacilitiesApi::V2::FacilitiesError
-  def handle_error(method)
+  def handle_error(method, e)
+    raise e
   rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound => e
     json_error(method, e, 'Not Found', '404', :not_found)
   rescue Common::Exceptions::ServiceUnavailable => e
@@ -13,7 +14,7 @@ module FacilitiesApi::V2::FacilitiesError
     json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
   end
 
-  def json_error(method, error, title, code, status = :internal_server_error)
+  def json_error(method, error, title, code, status)
     Rails.logger.error("Facilities API V2 #{method} error: #{error.class}")
 
     if Flipper.enabled?(:facilities_api_debug_logging)

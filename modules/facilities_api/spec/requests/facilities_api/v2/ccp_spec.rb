@@ -477,7 +477,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
           expect(response).to have_http_status(:not_found)
           response_json = JSON.parse(response.body)
-          expect(response_json['errors'].first['title']).to eq('Record not found')
+          expect(response_json['errors'].first['title']).to eq('Not Found')
           expect(response_json['errors'].first['code']).to eq('404')
         end
       end
@@ -489,7 +489,8 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
-
+          bod = JSON.parse(response.body)
+          expect(bod).to include('errors')
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -517,13 +518,15 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
 
           expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
         end
       end
 
       context 'when PPMS API is unavailable' do
         it 'returns 503 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
-            .and_raise(Common::Exceptions::ServiceUnavailable.new('service'))
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
 
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
@@ -537,7 +540,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when PPMS API has backend error' do
         it 'returns 502 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
-            .and_raise(Common::Exceptions::BackendServiceException.new('endpoint', 400, 'error'))
+            .and_raise(Common::Exceptions::BackendServiceException.new)
 
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
@@ -575,7 +578,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when API call fails with service unavailable' do
         it 'returns 503 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
-            .and_raise(Common::Exceptions::ServiceUnavailable.new('service'))
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
 
           get '/facilities_api/v2/ccp/urgent_care', params: { lat: 40.0, long: -74.0 }
 
@@ -585,14 +588,16 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
     end
 
     describe '#provider' do
-      context 'when API call fails with HTTPNotFound' do
+      context 'when API call fails with Faraday::ResourceNotFound' do
         it 'returns 404 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
-            .and_raise(Net::HTTPNotFound.new('1.1', '404', 'Not Found'))
+            .and_raise(Faraday::ResourceNotFound.new('response'))
 
           get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['213E00000X'] }
 
           expect(response).to have_http_status(:not_found)
+          bod = JSON.parse(response.body)
+          expect(bod).to include('errors')
         end
       end
 
@@ -604,6 +609,8 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['261QU0200X'] }
 
           expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
         end
       end
     end
@@ -612,7 +619,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when API call fails with BackendServiceException' do
         it 'returns 502 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
-            .and_raise(Common::Exceptions::BackendServiceException.new('endpoint', 400, 'error'))
+            .and_raise(Common::Exceptions::BackendServiceException.new)
 
           get '/facilities_api/v2/ccp/pharmacy', params: { lat: 40.0, long: -74.0 }
 
@@ -623,7 +630,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when API call fails with service unavailable' do
         it 'returns 503 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
-            .and_raise(Common::Exceptions::ServiceUnavailable.new('service'))
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
 
           get '/facilities_api/v2/ccp/pharmacy', params: { lat: 40.0, long: -74.0 }
 
@@ -649,7 +656,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when API call fails with service unavailable' do
         it 'returns 503 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:specialties)
-            .and_raise(Common::Exceptions::ServiceUnavailable.new('service'))
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
 
           get '/facilities_api/v2/ccp/specialties'
 
@@ -660,7 +667,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when API call fails with backend error' do
         it 'returns 502 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:specialties)
-            .and_raise(Common::Exceptions::BackendServiceException.new('endpoint', 400, 'error'))
+            .and_raise(Common::Exceptions::BackendServiceException.new)
 
           get '/facilities_api/v2/ccp/specialties'
 

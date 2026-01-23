@@ -12,14 +12,16 @@ module FacilitiesApi
       api_results = ppms_search
 
       render_json(V2::PPMS::ProviderSerializer, ppms_params, api_results)
-      handle_error('ccp_index')
+    rescue => e
+      handle_error('ccp_index', e)
     end
 
     def urgent_care
       api_results = api.pos_locator(ppms_action_params)
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-      handle_error('ccp_urgent_care')
+    rescue => e
+      handle_error('ccp_urgent_care', e)
     end
 
     def provider
@@ -29,21 +31,24 @@ module FacilitiesApi
                       api.provider_locator(ppms_provider_params)
                     end
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-      handle_error('ccp_provider')
+    rescue => e
+      handle_error('ccp_provider', e)
     end
 
     def pharmacy
       api_results = provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
-      handle_error('ccp_pharmacy')
+    rescue => e
+      handle_error('ccp_pharmacy', e)
     end
 
     def specialties
       api_results = api.specialties
 
       render_json(V2::PPMS::SpecialtySerializer, params, api_results)
-      handle_error('ccp_specialties')
+    rescue => e
+      handle_error('ccp_specialties', e)
     end
 
     private
