@@ -23,17 +23,48 @@ module BenefitsClaims
       400 => Common::Exceptions::BadRequest
     }.freeze
 
-    def initialize(e)
-      raise e unless e.key?(:status)
+    def initialize(response)
+      raise response unless response.is_a?(Hash) && response.key?(:status)
 
-      status = e[:status].to_i
-      raise_exception(status)
+      status = response[:status].to_i
+      errors = extract_errors_from_response(response, status)
+      raise_exception(status, errors)
     end
 
-    def raise_exception(status)
-      raise e unless ERROR_MAP.include?(status)
+    private
 
-      raise ERROR_MAP[status]
+    def raise_exception(status, errors)
+      raise ArgumentError, "Unmapped status code: #{status}" unless ERROR_MAP.include?(status)
+
+      raise ERROR_MAP[status].new(errors:)
+    end
+
+    # Extracts error details from the Lighthouse API response body.
+    # Preserves the original error information (title, detail, code, source)
+    # instead of falling back to generic i18n messages.
+    def extract_errors_from_response(response, status)
+      body = response[:body]
+      return nil unless body.is_a?(Hash)
+
+      errors = body['errors']
+      if errors.is_a?(Array) && errors.any?
+        errors.map { |error| transform_error(error, status) }
+      else
+        # Handle non-standard error response formats
+        [transform_error(body, status)]
+      end
+    end
+
+    def transform_error(error_hash, status)
+      return { status: status.to_s } unless error_hash.is_a?(Hash)
+
+      {
+        status: (error_hash['status'] || status).to_s,
+        title: error_hash['title'],
+        detail: error_hash['detail'] || error_hash['message'] || error_hash['error'],
+        code: error_hash['code'] || status.to_s,
+        source: error_hash['source']
+      }.compact
     end
   end
 end
