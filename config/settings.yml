@@ -1218,7 +1218,7 @@ reports:
 representation_management:
   geocoder:
     mapbox:
-      api_key: <%= ENV['geocoder__mapbox__api_key'] %>
+      api_key: <%= ENV['representation_management__geocoder__mapbox__api_key'] %>
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>

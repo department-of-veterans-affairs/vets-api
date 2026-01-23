@@ -11,6 +11,9 @@ module RepresentationManagement
     # Uses partial address information with fallback strategy.
     # @return [Boolean] true if geocoding succeeded, false otherwise
     def geocode_and_update_location!
+      # Early return if Mapbox API key is not configured
+      return false if Geocoder.config.api_key.blank?
+
       address = formatted_raw_address
       return false if address.blank?
 
@@ -106,6 +109,8 @@ module RepresentationManagement
         log_error(error, 'request denied')
       when Geocoder::InvalidRequest
         log_error(error, 'invalid request')
+      when Geocoder::InvalidApiKey
+        log_error(error, 'API key invalid')
       when Geocoder::ServiceUnavailable
         log_and_raise(error, 'service unavailable', :warn)
       when SocketError, Timeout::Error

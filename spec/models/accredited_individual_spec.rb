@@ -364,7 +364,34 @@ RSpec.describe AccreditedIndividual, type: :model do
     end
 
     before do
+      allow(Geocoder.config).to receive(:api_key).and_return('test_api_key')
       allow(Geocoder).to receive(:search).and_return([geocoding_result])
+    end
+
+    context 'when Geocoder API key is not configured' do
+      before do
+        allow(Geocoder.config).to receive(:api_key).and_return(nil)
+      end
+
+      it 'returns false immediately without making API calls' do
+        expect(Geocoder).not_to receive(:search)
+        expect(individual.geocode_and_update_location!).to be false
+      end
+
+      it 'does not modify the record' do
+        expect { individual.geocode_and_update_location! }.not_to change { individual.reload.attributes }
+      end
+    end
+
+    context 'when Geocoder API key is blank string' do
+      before do
+        allow(Geocoder.config).to receive(:api_key).and_return('')
+      end
+
+      it 'returns false immediately without making API calls' do
+        expect(Geocoder).not_to receive(:search)
+        expect(individual.geocode_and_update_location!).to be false
+      end
     end
 
     context 'when geocoding is successful' do
@@ -388,6 +415,34 @@ RSpec.describe AccreditedIndividual, type: :model do
           .to change { individual.reload.fallback_location_updated_at }
           .from(nil)
           .to(be_within(1.second).of(Time.current))
+      end
+
+      it 'clears all location and address fields before geocoding' do
+        individual.update!(
+          lat: 40.0,
+          long: -75.0,
+          city: 'Old City',
+          state_code: 'XX',
+          zip_code: '99999',
+          address_line1: 'Old Address',
+          raw_address: {
+            'address_line1' => '1600 Pennsylvania Ave NW',
+            'city' => 'Washington',
+            'state_code' => 'DC',
+            'zip_code' => '20500'
+          }
+        )
+
+        individual.geocode_and_update_location!
+        individual.reload
+
+        # Verify fields were updated with new geocoded data
+        expect(individual.lat).to eq(38.8977)
+        expect(individual.long).to eq(-77.0365)
+        # Address fields get updated from raw_address if present
+        expect(individual.city).to eq('Washington')
+        expect(individual.state_code).to eq('DC')
+        expect(individual.zip_code).to eq('20500')
       end
     end
 
@@ -559,9 +614,8 @@ RSpec.describe AccreditedIndividual, type: :model do
           allow(Geocoder).to receive(:search).and_raise(Geocoder::InvalidApiKey.new('Invalid API key'))
         end
 
-        it 'logs error and re-raises for Sidekiq retry' do
-          expect { individual.geocode_and_update_location! }
-            .to raise_error(Geocoder::InvalidApiKey)
+        it 'logs error and returns false without retry' do
+          expect(individual.geocode_and_update_location!).to be false
           expect(Rails.logger).to have_received(:error).with(/API key invalid/)
         end
       end
