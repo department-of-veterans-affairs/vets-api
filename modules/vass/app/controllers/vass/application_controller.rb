@@ -20,14 +20,13 @@ module Vass
     end
 
     # Custom rescue_from handlers for VASS-specific errors
+    # Note: RateLimitError and VANotify::Error are handled locally in SessionsController
     rescue_from Vass::Errors::AuthenticationError, with: :handle_authentication_error
     rescue_from Vass::Errors::NotFoundError, with: :handle_not_found_error
-    rescue_from Vass::Errors::ValidationError, with: :handle_validation_error
     rescue_from Vass::Errors::ServiceError, with: :handle_service_error
     rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
     rescue_from Vass::Errors::RedisError, with: :handle_redis_error
-    rescue_from Vass::Errors::RateLimitError, with: :handle_rate_limit_error
-    rescue_from VANotify::Error, with: :handle_vanotify_error
+    rescue_from Vass::Errors::AuditLogError, with: :handle_audit_log_error
 
     private
 
@@ -48,16 +47,6 @@ module Vass
         detail: 'Appointment not found',
         code: 'appointment_not_found',
         status: :not_found
-      )
-    end
-
-    def handle_validation_error(exception)
-      log_safe_error('validation_error', exception.class.name)
-      render_error_response(
-        title: 'Validation Error',
-        detail: 'The request failed validation',
-        code: 'validation_error',
-        status: :unprocessable_entity
       )
     end
 
@@ -84,69 +73,32 @@ module Vass
     def handle_redis_error(exception)
       log_safe_error('redis_error', exception.class.name)
       render_error_response(
-        title: 'Cache Error',
-        detail: 'The caching service is temporarily unavailable',
-        code: 'redis_error',
+        title: 'Service Unavailable',
+        detail: 'The service is temporarily unavailable. Please try again later.',
+        code: 'service_unavailable',
         status: :service_unavailable
       )
     end
 
-    def handle_rate_limit_error(exception)
-      log_safe_error('rate_limit_error', exception.class.name)
+    def handle_audit_log_error(exception)
+      log_safe_error('audit_log_error', exception.class.name)
       render_error_response(
-        title: 'Rate Limit Exceeded',
-        detail: 'Too many requests. Please try again later',
-        code: 'rate_limit_error',
-        status: :too_many_requests
+        title: 'Internal Server Error',
+        detail: 'Unable to complete request due to an internal error',
+        code: 'audit_log_error',
+        status: :internal_server_error
       )
-    end
-
-    def handle_vanotify_error(exception)
-      log_safe_error('vanotify_error', exception.class.name)
-      status = map_vanotify_status_to_http_status(exception.status_code)
-
-      render_error_response(
-        title: 'Notification Service Error',
-        detail: 'Unable to send notification. Please try again later',
-        code: 'notification_error',
-        status:
-      )
-    end
-
-    ##
-    # Maps VANotify status codes to appropriate HTTP statuses.
-    #
-    # @param status_code [Integer] The VANotify error status code
-    # @return [Symbol] HTTP status symbol
-    #
-    def map_vanotify_status_to_http_status(status_code)
-      case status_code
-      when 400
-        :bad_request
-      when 401, 403
-        :unauthorized
-      when 404
-        :not_found
-      when 429
-        :too_many_requests
-      when 500, 502, 503
-        :bad_gateway
-      else
-        :service_unavailable
-      end
     end
 
     # Logs error information without PHI
     # Only logs: error type, exception class, controller, action, status, timestamp
     def log_safe_error(error_type, exception_class)
-      Rails.logger.error({
-        service: 'vass',
-        error_type:,
-        exception_class:,
-        controller: controller_name,
+      log_vass_event(
         action: action_name,
-        timestamp: Time.current.iso8601
-      }.to_json)
+        level: :error,
+        error_type:,
+        exception_class:
+      )
     end
 
     # Render error response in JSON:API format

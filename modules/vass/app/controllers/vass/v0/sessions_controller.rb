@@ -38,8 +38,11 @@ module Vass
         check_all_rate_limits(session.uuid)
         process_otc_creation(session)
         complete_otc_creation(session)
+        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
+        response_data = camelize_keys({ data: { message: 'OTC sent to registered email address',
+                                                expires_in: otc_expiry_seconds } })
         track_success(SESSIONS_REQUEST_OTC)
-        render_otc_success_response
+        render json: response_data, status: :ok
       rescue Vass::Errors::RateLimitError => e
         handle_request_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::IdentityValidationError => e
@@ -75,7 +78,6 @@ module Vass
         jwt_token = jwt_result[:token]
         jti = jwt_result[:jti]
         session.create_authenticated_session(token: jwt_token)
-        track_success(SESSIONS_AUTHENTICATE_OTC)
         handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
@@ -83,6 +85,9 @@ module Vass
         handle_authenticate_otc_error(e, session, :authentication)
       rescue *vass_api_exceptions => e
         handle_authenticate_otc_error(e, session, :vass_api)
+      rescue Vass::Errors::RedisError, Vass::Errors::AuditLogError => e
+        track_failure(SESSIONS_AUTHENTICATE_OTC, error_type: e.class.name)
+        raise
       end
 
       private
@@ -187,7 +192,7 @@ module Vass
       #
       def handle_identity_validation_error(session, _error)
         log_vass_event(action: 'identity_validation_failed', vass_uuid: session.uuid, level: :warn)
-        render_error_response(
+        render_session_error_response(
           code: 'invalid_credentials',
           detail: 'Unable to verify identity. Please check your information.',
           status: :unauthorized
@@ -202,7 +207,7 @@ module Vass
       #
       def handle_missing_contact_info_error(session, _error)
         log_vass_event(action: 'missing_contact_info', vass_uuid: session.uuid, level: :error)
-        render_error_response(
+        render_session_error_response(
           code: 'missing_contact_info',
           detail: 'No contact information available for this veteran.',
           status: :unprocessable_entity
@@ -218,7 +223,7 @@ module Vass
       def handle_vass_api_error(session, error)
         log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                        error_class: error.class.name)
-        render_error_response(
+        render_session_error_response(
           code: 'service_error',
           detail: 'VASS service error',
           status: :bad_gateway
@@ -235,7 +240,9 @@ module Vass
       def handle_successful_authentication(session, jwt_token, jti)
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
-        render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
+        response_data = camelize_keys({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
+        track_success(SESSIONS_AUTHENTICATE_OTC)
+        render json: response_data, status: :ok
       end
 
       ##
@@ -254,7 +261,7 @@ module Vass
           contact_method: session.contact_method
         )
         status = map_vanotify_status_to_http_status(error.status_code)
-        render_error_response(
+        render_session_error_response(
           code: 'notification_error',
           detail: 'Unable to send notification. Please try again later.',
           status:
@@ -296,7 +303,7 @@ module Vass
         when :vass_api
           log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                          error_class: error.class.name)
-          render_error_response(code: 'service_error', detail: 'VASS service error', status: :bad_gateway)
+          render_session_error_response(code: 'service_error', detail: 'VASS service error', status: :bad_gateway)
         end
       end
 
@@ -372,7 +379,7 @@ module Vass
       # @param _exception [ActionController::ParameterMissing] The exception (unused)
       #
       def handle_parameter_missing(_exception)
-        render_error_response(
+        render_session_error_response(
           code: 'missing_parameter',
           detail: 'Required parameter is missing',
           status: :bad_request
@@ -401,7 +408,7 @@ module Vass
       def handle_expired_otc(session)
         log_vass_event(action: 'otc_expired', vass_uuid: session.uuid, level: :warn)
         track_infrastructure_metric(SESSION_OTC_EXPIRED)
-        render_error_response(
+        render_session_error_response(
           code: 'otc_expired',
           detail: 'OTC has expired. Please request a new one.',
           status: :unauthorized
@@ -421,7 +428,7 @@ module Vass
         track_infrastructure_metric(SESSION_OTC_INVALID)
 
         attempts_remaining = redis_client.validation_attempts_remaining(identifier: session.uuid)
-        render_error_response(
+        render_session_error_response(
           code: 'invalid_otc',
           detail: 'Invalid OTC. Please try again.',
           status: :unauthorized,
@@ -455,7 +462,7 @@ module Vass
       # @param retry_after [Integer, nil] Retry after seconds (optional)
       # @param attempts_remaining [Integer, nil] Attempts remaining (optional)
       #
-      def render_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
+      def render_session_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
         error = { code:, detail: }
         error[:retry_after] = retry_after if retry_after
         error[:attempts_remaining] = attempts_remaining if attempts_remaining
@@ -505,15 +512,6 @@ module Vass
       end
 
       ##
-      # Renders success response for OTC generation.
-      #
-      def render_otc_success_response
-        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
-        render_camelized_json({ data: { message: 'OTC sent to registered email address',
-                                        expires_in: otc_expiry_seconds } })
-      end
-
-      ##
       # Handles rate limit errors in request_otc, determining which limit was hit.
       #
       # @param session [Vass::V0::Session] Session instance
@@ -536,7 +534,7 @@ module Vass
       def handle_generation_rate_limit_error(session, _error)
         log_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
-        render_error_response(
+        render_session_error_response(
           code: 'rate_limit_exceeded',
           detail: 'Too many OTC requests. Please try again later.',
           status: :too_many_requests,
@@ -553,7 +551,7 @@ module Vass
       def handle_validation_rate_limit_error(session, _error)
         log_validation_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
-        render_error_response(
+        render_session_error_response(
           code: 'account_locked',
           detail: 'Too many failed attempts. Please request a new OTC.',
           status: :too_many_requests,

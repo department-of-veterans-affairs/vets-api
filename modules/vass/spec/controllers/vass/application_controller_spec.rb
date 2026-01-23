@@ -34,10 +34,6 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       expect(controller.private_methods).to include(:handle_not_found_error)
     end
 
-    it 'defines handle_validation_error method' do
-      expect(controller.private_methods).to include(:handle_validation_error)
-    end
-
     it 'defines handle_service_error method' do
       expect(controller.private_methods).to include(:handle_service_error)
     end
@@ -70,12 +66,6 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       handlers = Vass::ApplicationController.rescue_handlers
       not_found_handler = handlers.find { |h| h.first == 'Vass::Errors::NotFoundError' }
       expect(not_found_handler).not_to be_nil
-    end
-
-    it 'rescues from Vass::Errors::ValidationError' do
-      handlers = Vass::ApplicationController.rescue_handlers
-      validation_handler = handlers.find { |h| h.first == 'Vass::Errors::ValidationError' }
-      expect(validation_handler).not_to be_nil
     end
 
     it 'rescues from Vass::Errors::ServiceError' do
@@ -139,10 +129,10 @@ RSpec.describe Vass::ApplicationController, type: :controller do
         expect(Rails.logger).to receive(:error) do |log_message|
           log_data = JSON.parse(log_message)
           expect(log_data['service']).to eq('vass')
+          expect(log_data['action']).to eq('test_action')
           expect(log_data['error_type']).to eq('authentication_error')
           expect(log_data['exception_class']).to eq('Vass::Errors::AuthenticationError')
           expect(log_data['controller']).to eq('test_controller')
-          expect(log_data['action']).to eq('test_action')
           expect(log_data['timestamp']).to be_present
         end
 
@@ -177,36 +167,6 @@ RSpec.describe Vass::ApplicationController, type: :controller do
         )
 
         controller.send(:handle_not_found_error, exception)
-      end
-    end
-
-    describe '#handle_validation_error' do
-      let(:exception) { Vass::Errors::ValidationError.new('Test error') }
-
-      it 'renders 422 unprocessable entity status' do
-        expect(controller).to receive(:render).with(
-          hash_including(status: :unprocessable_entity)
-        )
-
-        controller.send(:handle_validation_error, exception)
-      end
-
-      it 'renders JSON:API error format' do
-        expect(controller).to receive(:render).with(
-          hash_including(
-            json: hash_including(
-              errors: array_including(
-                hash_including(
-                  title: 'Validation Error',
-                  detail: 'The request failed validation',
-                  code: 'validation_error'
-                )
-              )
-            )
-          )
-        )
-
-        controller.send(:handle_validation_error, exception)
       end
     end
 
@@ -281,15 +241,15 @@ RSpec.describe Vass::ApplicationController, type: :controller do
         controller.send(:handle_redis_error, exception)
       end
 
-      it 'renders JSON:API error format' do
+      it 'renders JSON:API error format with generic message' do
         expect(controller).to receive(:render).with(
           hash_including(
             json: hash_including(
               errors: array_including(
                 hash_including(
-                  title: 'Cache Error',
-                  detail: 'The caching service is temporarily unavailable',
-                  code: 'redis_error'
+                  title: 'Service Unavailable',
+                  detail: 'The service is temporarily unavailable. Please try again later.',
+                  code: 'service_unavailable'
                 )
               )
             )
@@ -300,147 +260,18 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       end
     end
 
-    describe '#handle_rate_limit_error' do
-      let(:exception) { Vass::Errors::RateLimitError.new('Test error') }
-
-      it 'renders 429 too many requests status' do
-        expect(controller).to receive(:render).with(
-          hash_including(status: :too_many_requests)
-        )
-
-        controller.send(:handle_rate_limit_error, exception)
-      end
-
-      it 'renders JSON:API error format' do
-        expect(controller).to receive(:render).with(
-          hash_including(
-            json: hash_including(
-              errors: array_including(
-                hash_including(
-                  title: 'Rate Limit Exceeded',
-                  detail: 'Too many requests. Please try again later',
-                  code: 'rate_limit_error'
-                )
-              )
-            )
-          )
-        )
-
-        controller.send(:handle_rate_limit_error, exception)
-      end
-    end
-
-    describe '#handle_vanotify_error' do
-      it 'maps 400 to bad_request' do
-        exception = VANotify::Error.new(400, 'Bad request')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :bad_request)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 401 to unauthorized' do
-        exception = VANotify::Error.new(401, 'Unauthorized')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :unauthorized)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 403 to unauthorized' do
-        exception = VANotify::Error.new(403, 'Forbidden')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :unauthorized)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 404 to not_found' do
-        exception = VANotify::Error.new(404, 'Not found')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :not_found)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 429 to too_many_requests' do
-        exception = VANotify::Error.new(429, 'Too many requests')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :too_many_requests)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 500 to bad_gateway' do
-        exception = VANotify::Error.new(500, 'Server error')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :bad_gateway)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 502 to bad_gateway' do
-        exception = VANotify::Error.new(502, 'Bad gateway')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :bad_gateway)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps 503 to bad_gateway' do
-        exception = VANotify::Error.new(503, 'Service unavailable')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :bad_gateway)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'maps unknown status codes to service_unavailable' do
-        exception = VANotify::Error.new(999, 'Unknown error')
-        expect(controller).to receive(:render).with(
-          hash_including(status: :service_unavailable)
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-
-      it 'renders JSON:API error format' do
-        exception = VANotify::Error.new(500, 'Server error')
-        expect(controller).to receive(:render).with(
-          hash_including(
-            json: hash_including(
-              errors: array_including(
-                hash_including(
-                  title: 'Notification Service Error',
-                  detail: 'Unable to send notification. Please try again later',
-                  code: 'notification_error'
-                )
-              )
-            )
-          )
-        )
-
-        controller.send(:handle_vanotify_error, exception)
-      end
-    end
+    # RateLimitError and VANotify::Error are handled locally in SessionsController,
+    # so no rescue_from handlers exist in ApplicationController for these.
 
     describe '#log_safe_error' do
-      it 'logs error metadata without PHI' do
+      it 'logs error metadata without PHI using log_vass_event' do
         expect(Rails.logger).to receive(:error) do |log_message|
           log_data = JSON.parse(log_message)
           expect(log_data['service']).to eq('vass')
+          expect(log_data['action']).to eq('test_action')
           expect(log_data['error_type']).to eq('test_error')
           expect(log_data['exception_class']).to eq('TestException')
           expect(log_data['controller']).to eq('test_controller')
-          expect(log_data['action']).to eq('test_action')
           expect(log_data['timestamp']).to be_present
         end
 

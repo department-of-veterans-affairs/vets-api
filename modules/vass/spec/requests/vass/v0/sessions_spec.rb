@@ -359,5 +359,106 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         expect(json_response['errors'][0]['retryAfter']).to be_a(Integer)
       end
     end
+
+    context 'when an exception occurs during successful authentication flow' do
+      before do
+        redis_client = Vass::RedisClient.build
+        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+      end
+
+      it 'returns 503 when Redis fails during reset_validation_rate_limit' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:service_unavailable)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('service_unavailable')
+      end
+
+      it 'returns 503 when Redis fails during session creation' do
+        allow(Rails.cache).to receive(:write).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:service_unavailable)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('service_unavailable')
+      end
+
+      it 'returns error response body when Redis exception occurs' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        json_response = JSON.parse(response.body)
+
+        expect(json_response).to have_key('errors')
+        expect(json_response).not_to have_key('data')
+      end
+
+      it 'returns 500 with audit_log_error code when log_vass_event raises JSON::GeneratorError' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise JSON::GeneratorError, 'Invalid encoding' if call_count == 1
+        end
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('audit_log_error')
+      end
+
+      it 'returns 500 with audit_log_error code when log_vass_event raises Encoding::UndefinedConversionError' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise Encoding::UndefinedConversionError, 'Invalid byte sequence' if call_count == 1
+        end
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('audit_log_error')
+      end
+
+      it 'tracks failure and NOT success when Redis fails during handle_successful_authentication' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        )
+        expect(StatsD).not_to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          anything
+        )
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+      end
+
+      it 'tracks failure and NOT success when audit log fails' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise JSON::GeneratorError, 'Invalid encoding' if call_count == 1
+        end
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        )
+        expect(StatsD).not_to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          anything
+        )
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+      end
+    end
   end
 end

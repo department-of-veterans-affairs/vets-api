@@ -35,6 +35,8 @@ module Vass
       log_data.merge!(metadata)
 
       Rails.logger.public_send(level, log_data.to_json)
+    rescue JSON::GeneratorError, Encoding::UndefinedConversionError => e
+      raise Vass::Errors::AuditLogError, "Failed to write audit log for action=#{action}: #{e.message}"
     end
   end
 end
