@@ -79,11 +79,11 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
       end
 
       after do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(true)
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -98,7 +98,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(true)
       end
 
       it 'deletes the InProgressForm after successful submission' do
@@ -128,7 +128,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     before do
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(true)
     end
 
     it 'generates and downloads PDF' do
@@ -189,7 +189,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
