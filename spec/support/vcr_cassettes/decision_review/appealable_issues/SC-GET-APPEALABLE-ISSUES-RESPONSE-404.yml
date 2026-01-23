@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0/appealable-issues/supplemental-claims?benefitType=compensation&icn=0000000000V000000&receiptDate=2026-01-23
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer fake-token-12345
+      Accept:
+      - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "errors": [
+            {
+              "status": "404",
+              "title": "Veteran not found",
+              "detail": "A veteran with that ICN was not found in our systems."
+            }
+          ]
+        }
+    http_version: null
+  recorded_at: Wed, 22 Jan 2026 00:00:00 GMT
+recorded_with: VCR 6.4.0
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Git-Sha:
+      - 95ffee856c1682d8a66bbbcbe092d4003acd23c0
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/lighthouse-vets-api
+      Content-Language:
+      - en-US
+      Vary:
+      - Accept, Origin
+      X-Request-Id:
+      - 8347ed9f-3fa3-48cf-985f-43699d6358b9
+      X-Runtime:
+      - '0.057833'
+      X-Envoy-Upstream-Service-Time:
+      - '62'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - a2b5103b-72ba-444b-9f53-fde2f7fbb41e#2358976
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Not authorized","detail":"Not authorized","code":"401","status":"401"}]}'
+  recorded_at: Thu, 22 Jan 2026 18:16:33 GMT
+recorded_with: VCR 6.4.0

@@ -292,6 +292,7 @@ decision_review:
   appealable_issues:
     auth:
       rsa_key: <%= ENV['decision_review__appealable_issues__auth__rsa_key'] %>
+    url: <%= ENV['decision_review__appealable_issues__url'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
   email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
   mock: <%= ENV['decision_review__mock'] %>

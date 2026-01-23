@@ -8,14 +8,12 @@ module DecisionReviews
   module V1
     module AppealableIssues
       class Configuration < Common::Client::Configuration::REST
-        self.read_timeout = Settings.decision_review.appealable_issues.timeout || 30
-        self.open_timeout = Settings.decision_review.appealable_issues.timeout || 30
+        self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
 
         # API paths
-        BASE_PATH = 'services/appeals/appealable-issues/v0'
-        HIGHER_LEVEL_REVIEWS_PATH = "#{BASE_PATH}/appealable-issues/higher-level-reviews".freeze
-        NOTICE_OF_DISAGREEMENT_PATH = "#{BASE_PATH}/appealable-issues/notice-of-disagreements".freeze
-        SUPPLEMENTAL_CLAIMS_PATH = "#{BASE_PATH}/appealable-issues/supplemental-claims".freeze
+        HIGHER_LEVEL_REVIEWS_PATH = 'appealable-issues/higher-level-reviews'.freeze
+        NOTICE_OF_DISAGREEMENT_PATH = 'appealable-issues/notice-of-disagreements'.freeze
+        SUPPLEMENTAL_CLAIMS_PATH = 'appealable-issues/supplemental-claims'.freeze
         TOKEN_PATH = 'oauth2/appeals/system/v1/token'
 
         # API configuration
