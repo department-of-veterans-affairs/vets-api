@@ -5,7 +5,7 @@ module V0
     service_tag 'feature-flag'
     # the feature toggle does not require authentication, but if a user is logged we might use @current_user
     skip_before_action :authenticate
-    before_action :load_user
+    before_action :set_current_user
 
     def index
       if params[:features].present?
@@ -19,6 +19,14 @@ module V0
     end
 
     private
+
+    # Gracefully attempt to load the user without halting the request if authentication fails.
+    # This prevents redirect loops when the session is expired or invalid.
+    def set_current_user
+      load_user
+    rescue
+      @current_user = nil
+    end
 
     def feature_toggles_service
       @feature_toggles_service ||= FeatureTogglesService.new(

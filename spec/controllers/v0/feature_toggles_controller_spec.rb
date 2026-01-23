@@ -120,6 +120,42 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
   end
 
+  describe 'GET #index with expired session' do
+    context 'when access token is expired' do
+      before do
+        allow_any_instance_of(described_class).to receive(:load_user)
+          .and_raise(SignIn::Errors::AccessTokenExpiredError.new(message: 'Access token has expired'))
+      end
+
+      it 'returns 200 OK and feature toggles without user context' do
+        get :index
+        expect(response).to have_http_status(:ok)
+        json_data = JSON.parse(response.body)
+        expect(json_data['data']['type']).to eq('feature_toggles')
+        expect(json_data['data']['features']).to be_an(Array)
+      end
+
+      it 'does not render a 403 forbidden error' do
+        get :index
+        expect(response).not_to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when authentication raises a standard error' do
+      before do
+        allow_any_instance_of(described_class).to receive(:load_user)
+          .and_raise(SignIn::Errors::StandardError.new(message: 'Authentication failed'))
+      end
+
+      it 'returns 200 OK and feature toggles without user context' do
+        get :index
+        expect(response).to have_http_status(:ok)
+        json_data = JSON.parse(response.body)
+        expect(json_data['data']['type']).to eq('feature_toggles')
+      end
+    end
+  end
+
   describe 'GET #index with params' do
     it 'returns true for enabled flags' do
       get :index, params: { features: @feature_name }
