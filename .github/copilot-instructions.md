@@ -167,9 +167,9 @@ rescue Faraday::Error => e
 
 # Good: Specific rescue, proper status, cause preserved
 rescue Faraday::TimeoutError => e
-  raise GatewayTimeout.new(cause: e)  # 504
+  raise GatewayTimeout, cause: e  # 504
 rescue Faraday::ConnectionFailed => e
-  raise ServiceUnavailable.new(cause: e)  # 503
+  raise ServiceUnavailable, cause: e  # 503
 ```
 
 ## Consolidation Examples
