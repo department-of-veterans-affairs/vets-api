@@ -11,21 +11,23 @@ Patterns to flag in code reviews:
 ```ruby
 # Bad: All Faraday errors become 500 (our fault)
 rescue Faraday::ClientError, Faraday::ServerError => e
-  raise Common::Exceptions::InternalServerError, exception: e
+  raise Common::Exceptions::InternalServerError.new(e)
 end
 
 # Good: Specific status codes for each failure type
 rescue Faraday::TimeoutError => e
-  raise Common::Exceptions::GatewayTimeout.new(cause: e)  # 504
+  # Map network timeout to 504 Gateway Timeout
+  raise Common::Exceptions::GatewayTimeout.new  # 504
 
 rescue Faraday::ConnectionFailed => e
-  raise Common::Exceptions::ServiceUnavailable.new(cause: e)  # 503
+  # Map connection/DNS failure to 503 Service Unavailable
+  raise Common::Exceptions::ServiceUnavailable.new  # 503
 
 rescue Faraday::ServerError => e
+  # Map upstream 5xx to 502 Bad Gateway, including upstream status in errors payload
   raise Common::Exceptions::BadGateway.new(
     detail: 'Upstream service error',
-    meta: { upstream_status: e.response[:status] },
-    cause: e
+    errors: [{ upstream_status: e.response[:status] }]
   )  # 502
 ```
 
