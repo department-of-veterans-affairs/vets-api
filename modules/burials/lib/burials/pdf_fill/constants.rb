@@ -13,6 +13,19 @@ module Burials
         'funeralDirector' => 4,
         'otherFamily' => 5
       }.freeze
+
+      RESTING_PLACES = {
+        'cemetery' => 0,
+        'mausoleum' => 1,
+        'privateResidence' => 2,
+        'other' => 3
+      }.freeze
+
+      CEMETARY_LOCATION = {
+        'cemetery' => 0,
+        'tribalLand' => 1,
+        'none' => 2
+      }.freeze
     end
   end
 end
