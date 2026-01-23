@@ -2365,10 +2365,6 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'AVS Link' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
-      end
-
       context 'when AVS successfully retrieved the AVS link' do
         it 'fetches the avs link and updates the appt hash' do
           allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
