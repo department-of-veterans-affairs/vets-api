@@ -9,7 +9,6 @@ module Lighthouse
 
       attribute :external_id, String
       attribute :facility, Hash
-      attribute :facility_address, Hash
       attribute :bill_number, String
       attribute :status, String
       attribute :status_description, String
