@@ -17,7 +17,7 @@ module BenefitsClaims
     rescue JSON::ParserError => e
       Rails.logger.error("TrackedItemContent schema file contains invalid JSON: #{SCHEMA_PATH} - #{e.message}")
       nil
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("Unexpected error loading TrackedItemContent schema: #{e.class} - #{e.message}")
       nil
     end
@@ -45,7 +45,19 @@ module BenefitsClaims
 
     # Content dictionary for tracked item overrides
     # Keys are display names from the Lighthouse API
-    CONTENT = JSON.parse(File.read(CONTENT_PATH)).transform_values(&:deep_symbolize_keys).freeze
+    # Loaded from JSON file for maintainability (large structured content)
+    CONTENT = begin
+      JSON.parse(File.read(CONTENT_PATH)).transform_values(&:deep_symbolize_keys).freeze
+    rescue Errno::ENOENT => e
+      Rails.logger.error("TrackedItemContent content file not found: #{CONTENT_PATH} - #{e.message}")
+      {}.freeze
+    rescue JSON::ParserError => e
+      Rails.logger.error("TrackedItemContent content file contains invalid JSON: #{CONTENT_PATH} - #{e.message}")
+      {}.freeze
+    rescue => e
+      Rails.logger.error("Unexpected error loading TrackedItemContent content: #{e.class} - #{e.message}")
+      {}.freeze
+    end
 
     class << self
       # Validates all CONTENT entries against the JSON schema

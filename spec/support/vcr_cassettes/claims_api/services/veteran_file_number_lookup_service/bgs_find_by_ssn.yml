@@ -1,0 +1,71 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/PersonWebServiceBean/PersonWebService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://person.services.vetsnet.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600061742</vaws:ExternalUid>
+              <vaws:ExternalKey>600061742</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:findPersonBySSN><ssn>796043735</ssn>
+        </tns:findPersonBySSN>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"findPersonBySSN"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 12 Jan 2026 15:48:02 GMT
+      Server:
+      - Apache/2.4.37 (Red Hat Enterprise Linux) OpenSSL/1.1.1k
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="652078976"
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuNS4yMgAA</work:WorkContext></env:Header><S:Body><ns0:findPersonBySSNResponse
+        xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"><PersonDTO><brthdyDt>1986-05-06T00:00:00-05:00</brthdyDt><deathDt>2022-01-01T00:00:00-06:00</deathDt><deathDtEnterdDt>2019-06-06T00:00:00-05:00</deathDtEnterdDt><deathDtUpdatdDt>2022-09-16T12:12:11-05:00</deathDtUpdatdDt><deathHistInd>Y</deathHistInd><deathNotfcnSourceTypeCd>CORP</deathNotfcnSourceTypeCd><depNbr>0</depNbr><emailAddr>User36@email.com</emailAddr><empInd>N</empInd><fileNbr>796043735</fileNbr><firstNm>WESLEY</firstNm><firstNmKey>-1</firstNmKey><genderCd>F</genderCd><insFileNbr></insFileNbr><jrnDt>2025-12-23T07:53:20-06:00</jrnDt><jrnLctnId>322</jrnLctnId><jrnObjId>VBMS  -
+        CADD</jrnObjId><jrnPersonId>220066628</jrnPersonId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>BARRINGT_K_DVSR</jrnUserId><lastNm>FORD</lastNm><lastNmKey>-1</lastNmKey><middleNm>WATSON</middleNm><middleNmKey>-1</middleNmKey><mltyPersonInd>Y</mltyPersonInd><personDeathCauseTypeNm>Unknown</personDeathCauseTypeNm><potntlDngrsInd>N</potntlDngrsInd><ptcpntDTO><blockAutoEnrlmtCd>U</blockAutoEnrlmtCd><blockCaddInd>U</blockCaddInd><ptcpntId>600061742</ptcpntId><ptcpntTypeNm>Person</ptcpntTypeNm></ptcpntDTO><ptcpntId>600061742</ptcpntId><spinaBifidaInd>N</spinaBifidaInd><ssnNbr>796043735</ssnNbr><ssnVrfctnStatusTypeCd>0</ssnVrfctnStatusTypeCd><stationOfJurisdiction>499</stationOfJurisdiction><termnlDigitNbr>35</termnlDigitNbr><vetInd>Y</vetInd></PersonDTO></ns0:findPersonBySSNResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 12 Jan 2026 15:48:02 GMT
+recorded_with: VCR 6.3.1

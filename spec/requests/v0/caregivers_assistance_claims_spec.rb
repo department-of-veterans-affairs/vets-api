@@ -285,7 +285,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
   describe 'POST /v0/caregivers_assistance_claims/facilities' do
     subject do
-      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
+      post('/v0/caregivers_assistance_claims/facilities', params: params.merge(radius: 1).to_json, headers:)
     end
 
     let(:headers) do
@@ -301,12 +301,10 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         state: 'CA',
         lat: 34.0522,
         long: -118.2437,
-        radius: 50,
         visn: '1',
         type: '1',
         mobile: true,
         page: 1,
-        per_page: 10,
         services: ['1'],
         bbox: [2]
       }
@@ -339,10 +337,14 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       expect(response.body).to eq(mock_facility_response.to_json)
     end
 
-    it 'calls the Lighthouse facilities service with the permitted params' do
+    it 'calls the Lighthouse facilities service with the permitted and hardcoded params' do
       subject
 
-      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
+      expected_params = unmodified_params.merge(
+        facilityIds: 'vha_123,vha_456',
+        radius: V0::CaregiversAssistanceClaimsController::SEARCH_RADIUS,
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)
