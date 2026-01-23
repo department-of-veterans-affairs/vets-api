@@ -2917,6 +2917,52 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
       let(:invalid_headers) { { '_headers' => { 'Cookie' => sign_in(invalid_user, nil, true) } } }
 
+      describe 'GET /v0/benefits_claims/{id}' do
+        let(:headers_with_id) { headers.merge('id' => claim_id.to_s) }
+        let(:invalid_headers_with_id) { invalid_headers.merge('id' => claim_id.to_s) }
+
+        context 'when the user is not signed in' do
+          it 'returns a status of 401' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 401, 'id' => claim_id.to_s)
+          end
+        end
+
+        context 'when the user is signed in, but does not have valid credentials' do
+          it 'returns a status of 403' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 403, invalid_headers_with_id)
+          end
+        end
+
+        context 'when the user is signed in and has valid credentials' do
+          before do
+            token = 'fake_access_token'
+            allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+          end
+
+          context 'when the claim is not found' do
+            it 'returns a status of 404' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 404, headers_with_id)
+              end
+            end
+          end
+
+          context 'when there is a gateway timeout' do
+            it 'returns a status of 504' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 504, headers_with_id)
+              end
+            end
+          end
+
+          it 'returns a status of 200' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 200, headers_with_id)
+            end
+          end
+        end
+      end
+
       describe 'GET /v0/benefits_claims/failed_upload_evidence_submissions' do
         before do
           user.user_account_uuid = user_account.id
