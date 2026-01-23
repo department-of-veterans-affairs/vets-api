@@ -1,0 +1,77 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <LIGHTHOUSE_CLAIMS_API_HOST><ARP_BENEFITS_CLAIMS_PATH>/123498767V112233/power-of-attorney
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 04 Apr 2024 17:45:59 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '11'
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '118'
+      Ratelimit-Reset:
+      - '3'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '118'
+      Ratelimit-Limit:
+      - '120'
+      Etag:
+      - W/"7fb9d166d1a15bce0b9f085f3818946f"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 77911592048236d8eccb0f39f5e9f758564e282b
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 8dd9e3bb-6159-4f92-b92d-7dbe791547e0
+      X-Runtime:
+      - '2.017096'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"data":{}}'
+  recorded_at: Thu, 04 Apr 2024 17:46:00 GMT
+recorded_with: VCR 6.2.0
