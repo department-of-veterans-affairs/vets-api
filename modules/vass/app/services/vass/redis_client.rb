@@ -115,14 +115,20 @@ module Vass
     # @return [Hash, nil] Hash with :code, :last_name, :dob or nil if not found/expired
     #
     def otc_data(uuid:)
-      with_redis_error_handling do
-        raw_data = Rails.cache.read(
+      cached = with_redis_error_handling do
+        Rails.cache.read(
           otc_key(uuid),
           namespace: 'vass-otc-cache'
         )
-        return nil if raw_data.nil?
+      end
 
-        Oj.load(raw_data, symbol_keys: true)
+      return nil if cached.nil?
+
+      begin
+        Oj.load(cached, symbol_keys: true)
+      rescue Oj::ParseError
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'otc_data')
+        nil
       end
     end
 
