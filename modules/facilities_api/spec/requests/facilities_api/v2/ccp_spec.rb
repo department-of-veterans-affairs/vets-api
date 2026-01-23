@@ -603,7 +603,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
       context 'when API call fails with timeout' do
         it 'returns 504 error' do
-          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
             .and_raise(Common::Exceptions::Timeout.new('service'))
 
           get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['261QU0200X'] }
