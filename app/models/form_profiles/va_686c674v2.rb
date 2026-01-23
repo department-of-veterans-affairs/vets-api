@@ -144,7 +144,7 @@ class FormProfiles::VA686c674v2 < FormProfile
   # Returns the BGS dependent service instance
   # @return [BGS::DependentV2Service] service for retrieving dependent information
   def dependent_service
-    @dependent_service ||= BGS::DependentV2Service.new(user)
+    @dependent_service ||= BGS::DependentService.new(user)
   end
 
   # Returns the BID Awards pension service instance

@@ -9,6 +9,9 @@ module V0
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
+    RESULTS_PER_PAGE = 5
+    SEARCH_RADIUS = 500
+    FACILITIES_FIXED_PARAMS = { per_page: RESULTS_PER_PAGE, radius: SEARCH_RADIUS }.freeze
 
     skip_before_action :authenticate
     before_action :load_user, only: :create
@@ -58,7 +61,9 @@ module V0
     end
 
     def facilities
-      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(lighthouse_facilities_params)
+      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(
+        lighthouse_facilities_params.merge(FACILITIES_FIXED_PARAMS)
+      )
       render(json: lighthouse_facilities)
     end
 
@@ -74,12 +79,10 @@ module V0
         :state,
         :lat,
         :long,
-        :radius,
         :visn,
         :type,
         :mobile,
         :page,
-        :per_page,
         :facility_ids,
         services: [],
         bbox: []
