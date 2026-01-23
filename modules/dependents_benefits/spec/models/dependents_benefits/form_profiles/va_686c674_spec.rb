@@ -244,15 +244,15 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 # Mock get_current_awards to return IP award line type
                 mock_response_body = {
-                  'Award' => {
-                    'AwardEventList' => {
-                      'awardEvents' => [
+                  'award' => {
+                    'award_event_list' => {
+                      'award_events' => [
                         {
-                          'awardLineList' => {
-                            'awardLines' => [
+                          'award_line_list' => {
+                            'award_lines' => [
                               {
-                                'awardLineType' => 'IP',
-                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                                'award_line_type' => 'IP',
+                                'effective_date' => '2020-01-01T00:00:00-05:00'
                               }
                             ]
                           }
@@ -275,15 +275,15 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 # Mock get_current_awards to return IP award line type with effective date before today
                 mock_response_body = {
-                  'Award' => {
-                    'AwardEventList' => {
-                      'awardEvents' => [
+                  'award' => {
+                    'award_event_list' => {
+                      'award_events' => [
                         {
-                          'awardLineList' => {
-                            'awardLines' => [
+                          'award_line_list' => {
+                            'award_lines' => [
                               {
-                                'awardLineType' => 'IP',
-                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                                'award_line_type' => 'IP',
+                                'effective_date' => '2020-01-01T00:00:00-05:00'
                               }
                             ]
                           }
@@ -307,15 +307,15 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 # Mock get_current_awards to return non-IP award line type
                 mock_response_body = {
-                  'Award' => {
-                    'AwardEventList' => {
-                      'awardEvents' => [
+                  'award' => {
+                    'award_event_list' => {
+                      'award_events' => [
                         {
-                          'awardLineList' => {
-                            'awardLines' => [
+                          'award_line_list' => {
+                            'award_lines' => [
                               {
-                                'awardLineType' => 'COMP',
-                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                                'award_line_type' => 'COMP',
+                                'effective_date' => '2020-01-01T00:00:00-05:00'
                               }
                             ]
                           }
@@ -468,15 +468,15 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 # Mock get_current_awards to return IP award line type
                 mock_response_body = {
-                  'Award' => {
-                    'AwardEventList' => {
-                      'awardEvents' => [
+                  'award' => {
+                    'award_event_list' => {
+                      'award_events' => [
                         {
-                          'awardLineList' => {
-                            'awardLines' => [
+                          'award_line_list' => {
+                            'award_lines' => [
                               {
-                                'awardLineType' => 'IP',
-                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                                'award_line_type' => 'IP',
+                                'effective_date' => '2020-01-01T00:00:00-05:00'
                               }
                             ]
                           }
@@ -499,15 +499,15 @@ RSpec.describe FormProfile, type: :model do
                                allow_playback_repeats: true) do
                 # Mock get_current_awards to return IP award line type with effective date before today
                 mock_response_body = {
-                  'Award' => {
-                    'AwardEventList' => {
-                      'awardEvents' => [
+                  'award' => {
+                    'award_event_list' => {
+                      'award_events' => [
                         {
-                          'awardLineList' => {
-                            'awardLines' => [
+                          'award_line_list' => {
+                            'award_lines' => [
                               {
-                                'awardLineType' => 'IP',
-                                'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                                'award_line_type' => 'IP',
+                                'effective_date' => '2020-01-01T00:00:00-05:00'
                               }
                             ]
                           }
