@@ -17,6 +17,8 @@ module RepresentationManagement
       result = Geocoder.search(address).first
       return false if result.blank?
 
+      clear_location_fields
+
       # Save any partial city/state and zip data for display if raw_address exists
       if raw_address.present?
         self.city = raw_address['city'] if raw_address['city'].present?
@@ -39,6 +41,30 @@ module RepresentationManagement
     end
 
     private
+
+    #
+    # Clears all address and location fields to ensure fresh data
+    def clear_location_fields
+      # Location fields
+      self.lat = nil
+      self.long = nil
+      self.location = nil
+
+      # Address fields
+      self.address_line1 = nil
+      self.address_line2 = nil
+      self.address_line3 = nil
+      self.city = nil
+      self.country_code_iso3 = nil
+      self.country_name = nil
+      self.county_name = nil
+      self.county_code = nil
+      self.international_postal_code = nil
+      self.province = nil
+      self.state_code = nil
+      self.zip_code = nil
+      self.zip_suffix = nil
+    end
 
     def formatted_raw_address
       # Define logical order based on entity type
