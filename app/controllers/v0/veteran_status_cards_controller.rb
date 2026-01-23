@@ -6,6 +6,9 @@ module V0
 
     def show
       render json: service.status_card
+    rescue => e
+      Rails.logger.error("VeteranStatusCardsController unexpected error: #{e.message}", backtrace: e.backtrace)
+      render json: { error: 'An unexpected error occurred' }, status: :internal_server_error
     end
 
     private
