@@ -115,13 +115,9 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
       end
 
       it '#find_claim' do
-        existing = create(:auto_established_claim, md5: 'test-md5')
-        claim = ClaimsApi::AutoEstablishedClaim.new(md5: 'test-md5', form_data: {})
-        claim.errors.add(:md5, :taken)
-        allow(claim).to receive(:new_record?).and_return(true)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).with(md5: 'test-md5').and_return(existing)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).with(header_hash: anything).and_return(nil)
-        expect(controller.send(:find_claim, claim).id).to eq(existing.id)
+        # with removal of MD5 header, claim is only found by header_hash
+        claim = ClaimsApi::AutoEstablishedClaim.new(header_hash: 'test-header-hash', form_data: {})
+        expect(controller.send(:find_claim, claim)).to eq(claim)
       end
     end
 
