@@ -27,6 +27,7 @@ module Vass
     rescue_from Vass::Errors::VassApiError, with: :handle_vass_api_error
     rescue_from Vass::Errors::RedisError, with: :handle_redis_error
     rescue_from Vass::Errors::AuditLogError, with: :handle_audit_log_error
+    rescue_from Vass::Errors::SerializationError, with: :handle_serialization_error
 
     private
 
@@ -86,6 +87,16 @@ module Vass
         title: 'Internal Server Error',
         detail: 'Unable to complete request due to an internal error',
         code: 'audit_log_error',
+        status: :internal_server_error
+      )
+    end
+
+    def handle_serialization_error(exception)
+      log_safe_error('serialization_error', exception.class.name)
+      render_error_response(
+        title: 'Internal Server Error',
+        detail: 'Unable to complete request due to an internal error',
+        code: 'serialization_error',
         status: :internal_server_error
       )
     end
@@ -162,36 +173,25 @@ module Vass
     ##
     # Recursively transforms hash keys from snake_case to camelCase.
     # Handles nested hashes and arrays. Non-hash/array values pass through unchanged.
-    # Preserves acronyms like UTC in uppercase.
     #
     # @param obj [Object] Object to transform (Hash, Array, or other)
     # @return [Object] Transformed object with camelized keys, or nil if input is nil
+    # @raise [Vass::Errors::SerializationError] if transformation fails
     #
     def camelize_keys(obj)
       return nil if obj.nil?
 
       case obj
       when Hash
-        obj.transform_keys { |key| camelize_with_acronyms(key.to_s) }
+        obj.transform_keys { |key| key.to_s.camelize(:lower) }
            .transform_values { |value| camelize_keys(value) }
       when Array
         obj.map { |item| camelize_keys(item) }
       else
         obj
       end
-    end
-
-    ##
-    # Camelizes a string key while preserving common acronyms in uppercase.
-    #
-    # @param key [String] The key to camelize
-    # @return [String] Camelized key with acronyms preserved
-    #
-    def camelize_with_acronyms(key)
-      camelized = key.camelize(:lower)
-      # Preserve UTC acronym in uppercase for specific patterns
-      # startUTC, endUTC (standalone fields from appointment data)
-      camelized.gsub(/\A(start|end)Utc\z/, '\1UTC')
+    rescue Encoding::UndefinedConversionError, TypeError, NoMethodError => e
+      raise Vass::Errors::SerializationError, "Failed to serialize response: #{e.class.name}"
     end
   end
 end

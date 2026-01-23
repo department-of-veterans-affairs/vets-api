@@ -87,8 +87,8 @@ module Vass
       #   {
       #     "data": {
       #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea",
-      #       "startUTC": "2025-12-02T10:00:00Z",
-      #       "endUTC": "2025-12-02T10:30:00Z",
+      #       "startUtc": "2025-12-02T10:00:00Z",
+      #       "endUtc": "2025-12-02T10:30:00Z",
       #       "agentId": "353dd0fc-335b-ef11-bfe3-001dd80a9f48",
       #       "agentNickname": "Agent Name",
       #       "appointmentStatusCode": 1,

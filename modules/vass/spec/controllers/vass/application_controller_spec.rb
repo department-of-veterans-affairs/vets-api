@@ -46,6 +46,10 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       expect(controller.private_methods).to include(:handle_redis_error)
     end
 
+    it 'defines handle_serialization_error method' do
+      expect(controller.private_methods).to include(:handle_serialization_error)
+    end
+
     it 'defines render_error_response method' do
       expect(controller.private_methods).to include(:render_error_response)
     end
@@ -84,6 +88,12 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       handlers = Vass::ApplicationController.rescue_handlers
       redis_handler = handlers.find { |h| h.first == 'Vass::Errors::RedisError' }
       expect(redis_handler).not_to be_nil
+    end
+
+    it 'rescues from Vass::Errors::SerializationError' do
+      handlers = Vass::ApplicationController.rescue_handlers
+      serialization_handler = handlers.find { |h| h.first == 'Vass::Errors::SerializationError' }
+      expect(serialization_handler).not_to be_nil
     end
   end
 
@@ -262,6 +272,64 @@ RSpec.describe Vass::ApplicationController, type: :controller do
 
     # RateLimitError and VANotify::Error are handled locally in SessionsController,
     # so no rescue_from handlers exist in ApplicationController for these.
+
+    describe '#handle_serialization_error' do
+      let(:exception) { Vass::Errors::SerializationError.new('Test error') }
+
+      it 'renders 500 internal server error status' do
+        expect(controller).to receive(:render).with(
+          hash_including(status: :internal_server_error)
+        )
+
+        controller.send(:handle_serialization_error, exception)
+      end
+
+      it 'renders JSON:API error format' do
+        expect(controller).to receive(:render).with(
+          hash_including(
+            json: hash_including(
+              errors: array_including(
+                hash_including(
+                  title: 'Internal Server Error',
+                  detail: 'Unable to complete request due to an internal error',
+                  code: 'serialization_error'
+                )
+              )
+            )
+          )
+        )
+
+        controller.send(:handle_serialization_error, exception)
+      end
+    end
+
+    describe '#camelize_keys' do
+      it 'raises SerializationError on TypeError' do
+        bad_hash = { key: 'value' }
+        allow(bad_hash).to receive(:transform_keys).and_raise(TypeError, 'no implicit conversion')
+
+        expect { controller.send(:camelize_keys, bad_hash) }
+          .to raise_error(Vass::Errors::SerializationError, /Failed to serialize response/)
+      end
+
+      it 'raises SerializationError on Encoding::UndefinedConversionError' do
+        bad_hash = { key: 'value' }
+        allow(bad_hash).to receive(:transform_keys).and_raise(
+          Encoding::UndefinedConversionError, 'invalid byte sequence'
+        )
+
+        expect { controller.send(:camelize_keys, bad_hash) }
+          .to raise_error(Vass::Errors::SerializationError, /Failed to serialize response/)
+      end
+
+      it 'raises SerializationError on NoMethodError' do
+        bad_hash = { key: 'value' }
+        allow(bad_hash).to receive(:transform_keys).and_raise(NoMethodError, 'undefined method')
+
+        expect { controller.send(:camelize_keys, bad_hash) }
+          .to raise_error(Vass::Errors::SerializationError, /Failed to serialize response/)
+      end
+    end
 
     describe '#log_safe_error' do
       it 'logs error metadata without PHI using log_vass_event' do
