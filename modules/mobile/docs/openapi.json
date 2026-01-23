@@ -26586,91 +26586,119 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "confirmed"
+          "type",
+          "veteranStatus",
+          "attributes"
         ],
         "properties": {
-          "confirmed": {
-            "type": "boolean",
-            "description": "True or False depending on if the veteran is eligible for a status card"
+          "type": {
+            "type": "string",
+            "description": "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility",
+            "example": "veteran_status_card"
           },
-          "fullName": {
+          "veteranStatus": {
+            "type": "string",
+            "description": "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card",
+            "example": "confirmed"
+          },
+          "serviceSummaryCode": {
+            "type": "string",
+            "description": "The veteran's Service Summary Code determined by VAProfile",
+            "example": "A5"
+          },
+          "notConfirmedReason": {
+            "type": "string",
+            "description": "Displays the reason the veteran is not eligible for a status card",
+            "example": "PERSON_NOT_FOUND"
+          },
+          "attributes": {
             "type": "object",
             "additionalProperties": false,
-            "description": "Displays the user's name when eligible for a status card",
-            "required": [
-              "first",
-              "middle",
-              "last",
-              "suffix"
-            ],
+            "description": "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card",
             "properties": {
-              "first": {
+              "fullName": {
                 "type": "string",
-                "example": "John"
+                "description": "The concatenated full name of the veteran, displayed when eligible for a status card",
+                "example": "John T Doe Sr"
               },
-              "middle": {
-                "type": "string",
-                "example": "T"
+              "disabilityRating": {
+                "type": "integer",
+                "description": "The disability rating for the veteran when eligible for a status card",
+                "example": 50
               },
-              "last": {
-                "type": "string",
-                "example": "Doe"
-              },
-              "suffix": {
-                "type": "string",
-                "example": "Jr"
-              }
-            }
-          },
-          "userPercentOfDisability": {
-            "type": "integer",
-            "example": 50,
-            "description": "Displays the veteran's disability rating if eligible for a status card"
-          },
-          "latestServiceHistory": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "branchOfService",
-              "latestServiceDateRange"
-            ],
-            "description": "Displays the veteran's latest service history if eligible for a status card",
-            "properties": {
-              "branchOfService": {
-                "type": "string",
-                "example": "Army"
-              },
-              "latestServiceDateRange": {
+              "latestService": {
                 "type": "object",
                 "additionalProperties": false,
+                "description": "The latest branch of service, begin date, and end date when the veteran is eligible for a status card",
                 "required": [
+                  "branch",
                   "beginDate",
                   "endDate"
                 ],
                 "properties": {
+                  "branch": {
+                    "type": "string",
+                    "description": "The veteran's latest branch of service"
+                  },
                   "beginDate": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The start date of the veteran's latest service"
                   },
                   "endDate": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The end date of the veteran's latest service"
                   }
                 }
+              },
+              "edipi": {
+                "type": "string",
+                "description": "The user's EDIPI number when eligible for a veteran status card",
+                "example": "001001999"
+              },
+              "header": {
+                "type": "string",
+                "description": "Displays an error/warning title when the veteran is ineligible for a status card",
+                "example": "You're not eligible for a Veteran Status Card"
+              },
+              "body": {
+                "type": "array",
+                "description": "A list of message components to display when the veteran is ineligible for a status card",
+                "items": {
+                  "required": [
+                    "type",
+                    "value"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "The type of message component - can be 'text', 'phone', or 'link'",
+                      "example": "text"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The content to be displayed based on the data type",
+                      "example": "Your record is missing information about your service history or discharge status."
+                    },
+                    "tty": {
+                      "type": "boolean",
+                      "description": "An optional parameter when data type is 'phone' to signify TTY",
+                      "example": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "When data type is 'link', this field contains the hyperlink",
+                      "example": "https://www.va.gov"
+                    }
+                  }
+                }
+              },
+              "alertType": {
+                "type": "string",
+                "description": "The type of alert - can either be 'error' or 'warning'",
+                "example": "warning"
               }
             }
-          },
-          "title": {
-            "type": "string",
-            "example": "You're not eligible for a Veteran Status Card.",
-            "description": "Displays an error/warning title when the veteran is ineligible for a status card"
-          },
-          "message": {
-            "type": "string",
-            "description": "Displays an error/warning message when the veteran is ineligible for a status card"
-          },
-          "status": {
-            "type": "string",
-            "example": "warning",
-            "description": "Displays either 'error' or 'warning' when the veteran is ineligible for a status card"
           }
         }
       },
