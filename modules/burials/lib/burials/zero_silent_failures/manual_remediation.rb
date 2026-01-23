@@ -52,7 +52,7 @@ module Burials
             timestamp:,
             page_number: 5,
             size: 9,
-            template: Burials::PDF_PATH,
+            template: Burials.pdf_path,
             multistamp: true
           }
         ]
