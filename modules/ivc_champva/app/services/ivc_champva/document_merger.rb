@@ -45,6 +45,8 @@ module IvcChampva
     # @return [IvcChampva::DocumentMerger]
     #
     def initialize(form_id, file_paths, attachment_ids, current_user = nil, options = {})
+      raise ArgumentError, 'form_id is required' if form_id.blank?
+
       @form_id = form_id
       @legacy_form_id = IvcChampva::FormVersionManager.get_legacy_form_id(@form_id)
       @file_paths = Array(file_paths)
@@ -162,14 +164,7 @@ module IvcChampva
 
         if rule_name == 'ungrouped'
           # Add ungrouped files to results without merging
-          files.each do |file_info|
-            results << {
-              merged_file_path: file_info[:file_path],
-              merged_attachment_id: file_info[:attachment_id],
-              original_files: [file_info],
-              rule_name: 'ungrouped'
-            }
-          end
+          files.each { |file_info| results << build_individual_file_result(file_info, 'ungrouped') }
         else
           merge_result = process_merge_rule(rule_name, files)
           results.concat(merge_result) if merge_result
@@ -198,7 +193,13 @@ module IvcChampva
 
         size_chunks.each_with_index do |chunk, chunk_index|
           result = merge_file_chunk(rule_name, rule_config, chunk, batch_index, chunk_index)
-          results << result if result
+          if result
+            # Success case: merge_file_chunk returned merged result
+            results << result
+          else
+            # Error case: merge failed, add individual files as fallback
+            chunk.each { |file_info| results << build_individual_file_result(file_info) }
+          end
         end
       end
 
@@ -315,6 +316,21 @@ module IvcChampva
       {
         merged_file_paths: @file_paths,
         updated_attachment_ids: @attachment_ids
+      }
+    end
+
+    ##
+    # Build result for an individual file (used for error fallback and ungrouped files)
+    #
+    # @param [Hash] file_info File information hash
+    # @param [String, nil] rule_name Rule name to assign (default: nil)
+    # @return [Hash] Individual file result
+    def build_individual_file_result(file_info, rule_name = nil)
+      {
+        merged_file_path: file_info[:file_path],
+        merged_attachment_id: file_info[:attachment_id],
+        original_files: [file_info],
+        rule_name:
       }
     end
 

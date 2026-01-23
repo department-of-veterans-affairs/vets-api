@@ -56,6 +56,31 @@ describe IvcChampva::DocumentMerger do
       expect(versioned_merger.form_id).to eq(versioned_form_id)
       expect(versioned_merger.legacy_form_id).to eq('vha_10_7959c')
     end
+
+    it 'raises ArgumentError when form_id is nil' do
+      expect do
+        described_class.new(nil, file_paths, attachment_ids, current_user)
+      end.to raise_error(ArgumentError, 'form_id is required')
+    end
+
+    it 'raises ArgumentError when form_id is empty string' do
+      expect do
+        described_class.new('', file_paths, attachment_ids, current_user)
+      end.to raise_error(ArgumentError, 'form_id is required')
+    end
+
+    it 'raises ArgumentError when form_id is blank' do
+      expect do
+        described_class.new('   ', file_paths, attachment_ids, current_user)
+      end.to raise_error(ArgumentError, 'form_id is required')
+    end
+
+    it 'accepts nil current_user' do
+      nil_user_merger = described_class.new(form_id, file_paths, attachment_ids, nil)
+
+      expect(nil_user_merger.current_user).to be_nil
+      expect(nil_user_merger.form_id).to eq(form_id)
+    end
   end
 
   describe 'MERGE_RULES configuration' do
@@ -209,6 +234,57 @@ describe IvcChampva::DocumentMerger do
     end
   end
 
+  describe 'nil current_user behavior' do
+    let(:nil_user_merger) do
+      described_class.new(form_id, file_paths, attachment_ids, nil, { uuid: })
+    end
+
+    before do
+      allow_any_instance_of(IvcChampva::Monitor).to receive(:track_merge_error)
+    end
+
+    context 'when global toggle is enabled' do
+      before do
+        # Mock all potential Flipper calls for nil user
+        allow(Flipper).to receive(:enabled?).and_return(false) # Default to false
+        allow(Flipper).to receive(:enabled?).with(:champva_document_merging, nil).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('champva_docmerge_10_7959c_medicare', nil).and_return(true)
+      end
+
+      it 'processes merging when global toggle allows it' do
+        result = nil_user_merger.process
+
+        # Should merge Medicare cards even with nil user due to global toggle
+        expect(result[:merged_file_paths].length).to eq(3)
+        expect(result[:updated_attachment_ids]).to contain_exactly('Medicare card', 'EOB', 'Birth Certificate')
+
+        # Verify merged file exists
+        merged_file = result[:merged_file_paths].find { |path| File.basename(path).include?('_merged.pdf') }
+        expect(merged_file).not_to be_nil
+        expect(File.exist?(merged_file)).to be(true)
+      end
+    end
+
+    context 'when global toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_return(false) # All toggles disabled
+      end
+
+      it 'skips merging when global toggle disallows it' do
+        result = nil_user_merger.process
+
+        # Should return original files unchanged
+        expect(result[:merged_file_paths]).to eq(file_paths)
+        expect(result[:updated_attachment_ids]).to eq(attachment_ids)
+
+        # No merged files should be created
+        result[:merged_file_paths].each do |file_path|
+          expect(File.basename(file_path)).not_to include('_merged.pdf')
+        end
+      end
+    end
+  end
+
   describe 'batch processing with multiple card pairs' do
     let(:file_paths) do
       [
@@ -262,6 +338,21 @@ describe IvcChampva::DocumentMerger do
       # Should fallback to original files when merge fails
       expect(result[:merged_file_paths]).to eq(invalid_file_paths)
       expect(result[:updated_attachment_ids]).to eq(invalid_attachment_ids)
+    end
+
+    it 'returns individual files when merge_file_chunk fails' do
+      # Mock PdfCombiner to raise an error during merge
+      allow(IvcChampva::PdfCombiner).to receive(:combine).and_raise(StandardError.new('PDF merge failed'))
+
+      result = merger.process
+
+      # Should return all original files individually instead of losing them
+      expect(result[:merged_file_paths].length).to eq(4) # All original files returned
+      expect(result[:updated_attachment_ids]).to contain_exactly('Front of Medicare card', 'Back of Medicare card',
+                                                                 'EOB', 'Birth Certificate')
+
+      # All returned files should be the original files (no merged files created)
+      expect(result[:merged_file_paths]).to match_array(file_paths)
     end
   end
 
