@@ -10,12 +10,6 @@ class Rack::Attack
 
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new($redis)
 
-  ask_va_zip_state_throttle_settings = Settings.ask_va_api&.zip_state_validation_throttle
-  ask_va_zip_state_limit = ask_va_zip_state_throttle_settings&.limit.to_i
-  ask_va_zip_state_limit = 60 unless ask_va_zip_state_limit.positive?
-  ask_va_zip_state_period = ask_va_zip_state_throttle_settings&.period_seconds.to_i
-  ask_va_zip_state_period = 60 unless ask_va_zip_state_period.positive?
-
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'
   end
@@ -102,7 +96,8 @@ class Rack::Attack
   throttle('relationships/get', limit: 30, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/vaos/v2/relationships') && req.get?
   end
-  throttle('ask_va_api/zip_state_validation', limit: ask_va_zip_state_limit, period: ask_va_zip_state_period) do |req|
+
+  throttle('ask_va_api/zip_state_validation', limit: 60, period: 1.minute) do |req|
     req.remote_ip if req.path == '/ask_va_api/v0/zip_state_validation' &&
                      req.post? &&
                      Settings.vsp_environment.eql?('production')
