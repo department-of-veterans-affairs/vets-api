@@ -26,8 +26,8 @@ module VeteranStatusCard
     DISHONORABLE_MESSAGE = [
       {
         type: 'text',
-        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least \
-          one period of service.'
+        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least ' \
+               'one period of service.'
       },
       {
         type: 'text',
