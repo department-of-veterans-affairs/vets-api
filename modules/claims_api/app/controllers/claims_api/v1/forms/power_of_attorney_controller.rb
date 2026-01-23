@@ -36,7 +36,7 @@ module ClaimsApi
           claimant_information = validate_dependent_claimant!(poa_code:)
 
           primary_identifier = {}
-          primary_identifier[:header_hash] = header_hash || primary_identifier[:header_md5] = header_md5
+          primary_identifier[:header_hash] = header_hash
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier,
                                                                                           source_name)
@@ -212,13 +212,6 @@ module ClaimsApi
 
         def power_of_attorney_verifier
           @verifier ||= BGS::PowerOfAttorneyVerifier.new(target_veteran)
-        end
-
-        def header_md5
-          @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
-                                                                    'va_eauth_service_transaction_id',
-                                                                    'va_eauth_issueinstant',
-                                                                    'Authorization').to_json)
         end
 
         def header_hash
