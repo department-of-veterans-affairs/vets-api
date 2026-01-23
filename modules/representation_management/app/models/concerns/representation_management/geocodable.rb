@@ -80,8 +80,6 @@ module RepresentationManagement
         log_error(error, 'request denied')
       when Geocoder::InvalidRequest
         log_error(error, 'invalid request')
-      when Geocoder::InvalidApiKey
-        log_and_raise(error, 'API key invalid', :error)
       when Geocoder::ServiceUnavailable
         log_and_raise(error, 'service unavailable', :warn)
       when SocketError, Timeout::Error
