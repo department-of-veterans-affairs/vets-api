@@ -107,11 +107,7 @@ module SignIn
     end
 
     def idme_max_ial
-      if ial2_enabled?
-        verified_ial_level(idme_ial2? || idme_loa3_and_previously_verified?)
-      else
-        verified_ial_level(idme_loa3_or_previously_verified?)
-      end
+      verified_ial_level(idme_loa3_or_previously_verified?)
     end
 
     def logingov_current_ial
@@ -127,11 +123,7 @@ module SignIn
     end
 
     def idme_current_ial
-      if ial2_enabled?
-        verified_ial_level(idme_ial2? || idme_classic_loa3_and_previously_verified?)
-      else
-        verified_ial_level(idme_classic_loa3_or_ial2?)
-      end
+      verified_ial_level(idme_classic_loa3_or_ial2?)
     end
 
     def mhv_premium_verified?
@@ -148,14 +140,6 @@ module SignIn
 
     def idme_loa3_or_previously_verified?
       level_of_assurance == Constants::Auth::LOA_THREE || previously_verified?(:idme_uuid)
-    end
-
-    def idme_loa3_and_previously_verified?
-      level_of_assurance == Constants::Auth::LOA_THREE && previously_verified?(:idme_uuid)
-    end
-
-    def idme_classic_loa3_and_previously_verified?
-      credential_ial == Constants::Auth::IDME_CLASSIC_LOA3 && previously_verified?(:idme_uuid)
     end
 
     def idme_ial2?
@@ -185,10 +169,6 @@ module SignIn
     def previously_verified?(identifier_type)
       user_verification = UserVerification.find_by(identifier_type => credential_uuid)
       user_verification&.verified?
-    end
-
-    def ial2_enabled?
-      Flipper.enabled?(:identity_ial2_enforcement) && Settings.vsp_environment != 'production'
     end
   end
 end

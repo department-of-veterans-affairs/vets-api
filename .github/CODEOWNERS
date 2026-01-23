@@ -191,6 +191,7 @@ app/models/concerns/form526_claim_fast_tracking_concern.rb @department-of-vetera
 app/models/concerns/form526_mpi_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/concerns/form526_rapid_ready_for_decision_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/concerns/kms_encrypted_model_patch.rb @department-of-veterans-affairs/backend-review-group
+app/models/concerns/pension_award_helper.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/models/concerns/redis_caching.rb @department-of-veterans-affairs/backend-review-group
 app/models/concerns/redis_form.rb @department-of-veterans-affairs/backend-review-group
 app/models/concerns/set_guid.rb @department-of-veterans-affairs/backend-review-group
@@ -1793,6 +1794,7 @@ spec/models/user_verification_spec.rb @department-of-veterans-affairs/octo-ident
 spec/models/va_profile_redis @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/models/veteran_enrollment_system/form1095_b/form1095_b_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-core-veteran-experiences
 spec/models/veteran_onboarding_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-core-veteran-experiences
+spec/models/concerns/pension_award_helper_spec.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/policies/appeals_policy_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/policies/bgs_policy_spec.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 spec/policies/coe_policy_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
