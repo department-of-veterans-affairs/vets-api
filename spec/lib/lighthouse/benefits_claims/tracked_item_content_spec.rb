@@ -47,7 +47,7 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
 
   describe '.validate_all_entries' do
     it 'returns errors for schema when SCHEMA is nil' do
-      allow(described_class).to receive(:const_get).with(:SCHEMA).and_return(nil)
+      stub_const("#{described_class}::SCHEMA", nil)
       errors = described_class.validate_all_entries
       expect(errors).to eq({ 'schema' => ['Schema failed to load'] })
     end
@@ -60,7 +60,7 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
 
   describe '.validate_entry' do
     it 'returns error message when SCHEMA is nil' do
-      allow(described_class).to receive(:const_get).with(:SCHEMA).and_return(nil)
+      stub_const("#{described_class}::SCHEMA", nil)
       errors = described_class.validate_entry({})
       expect(errors).to eq(['Schema failed to load'])
     end
