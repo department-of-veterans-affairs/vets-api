@@ -8,12 +8,14 @@ RSpec.describe Ibm::Configuration do
   let(:base) { Common::Client::Configuration::REST }
   let(:config) { Ibm::Configuration.send(:new) }
   let(:settings) do
-    OpenStruct.new({
-      host: 'api-dev.digitization.gcio.com',
-      path: '/api/validated-forms',
-      use_mocks: false,
-      version: 'v1'
-    })
+    OpenStruct.new(
+      {
+        host: 'api-dev.digitization.gcio.com',
+        path: '/api/validated-forms',
+        use_mocks: false,
+        version: 'v1'
+      }
+    )
   end
 
   before do
