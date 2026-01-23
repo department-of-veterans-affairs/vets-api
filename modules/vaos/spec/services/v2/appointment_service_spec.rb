@@ -2358,7 +2358,6 @@ describe VAOS::V2::AppointmentsService do
 
         it 'does not fetch the OH AVS' do
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
-          expect(subject).not_to receive(:get_avs_pdf)
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
       end
