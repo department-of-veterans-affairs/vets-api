@@ -2703,10 +2703,12 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'form 21-2680 house bound status' do
+      let(:user) { create(:user) }
       let(:saved_claim) { create(:form212680) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
       end
 
       it 'supports submitting a form 21-2680' do
@@ -2755,7 +2757,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       context 'when feature toggle is disabled' do
-        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
+        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(false) }
 
         it 'handles 404 for create' do
           expect(subject).to validate(
