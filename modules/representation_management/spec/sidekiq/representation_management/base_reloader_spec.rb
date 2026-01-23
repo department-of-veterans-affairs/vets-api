@@ -215,8 +215,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
 
     context 'individual_types accumulate without duplication' do
       it 'accumulates types across calls and never duplicates' do
-        payload = { 'Registration Num' => 'UT1', 'First Name' => 'X', 'Last Name' => 'Y', 'POA Code' => 'BBB',
-                    'ogc_id' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
+        payload = { 'Registration Num' => 'UT1', 'First Name' => 'X', 'Last Name' => 'Y', 'POA Code' => 'BBB' }
 
         out1 = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
         out1.save
