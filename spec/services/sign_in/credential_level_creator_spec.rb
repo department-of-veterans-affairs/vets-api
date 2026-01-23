@@ -324,11 +324,6 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
     context 'when type is some other supported value' do
       let(:type) { SignIn::Constants::Auth::IDME }
-      let(:flipper_enabled) { false }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:identity_ial2_enforcement).and_return(flipper_enabled)
-      end
 
       context 'and user info level of assurance equals idme classic loa3' do
         let(:level_of_assurance) { SignIn::Constants::Auth::LOA_THREE }
@@ -466,67 +461,6 @@ RSpec.describe SignIn::CredentialLevelCreator do
               it_behaves_like 'a created credential level'
             end
           end
-        end
-      end
-
-      context 'when identity_ial2_enforcement flipper is enabled' do
-        let(:flipper_enabled) { true }
-
-        context 'and user has IAL2 credential' do
-          let(:credential_ial) { SignIn::Constants::Auth::IAL_TWO }
-          let(:level_of_assurance) { 'some-level-of-assurance' }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and user has LOA3 but is not previously verified' do
-          let(:level_of_assurance) { SignIn::Constants::Auth::LOA_THREE }
-          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and user has classic_loa3 credential with LOA3 level_of_assurance and is previously verified' do
-          let(:level_of_assurance) { SignIn::Constants::Auth::LOA_THREE }
-          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-          let!(:user_verification) { create(:idme_user_verification, idme_uuid: sub) }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and user has classic_loa3 credential and is previously verified but not loa3 level_of_assurance' do
-          let(:level_of_assurance) { 'some-level-of-assurance' }
-          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-          let(:validation_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
-          let!(:user_verification) { create(:idme_user_verification, idme_uuid: sub) }
-
-          it_behaves_like 'invalid credential level error'
-        end
-
-        context 'and user has classic_loa3 credential but is not previously verified' do
-          let(:level_of_assurance) { 'some-level-of-assurance' }
-          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and user has neither IAL2 nor LOA3' do
-          let(:level_of_assurance) { 'some-level-of-assurance' }
-          let(:credential_ial) { 'some-credential-ial' }
-          let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
         end
       end
     end

@@ -65,7 +65,7 @@ module BGSV2
     end
 
     def vnp_relationship
-      BGSDependentsV2::Relationship.new(@proc_id)
+      BGSDependents::Relationship.new(@proc_id)
     end
   end
 end
