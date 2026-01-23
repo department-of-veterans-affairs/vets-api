@@ -50,7 +50,10 @@ module IncreaseCompensation
 
       mappings = self.class.mappings_for_form(form_id)
       form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)
-      # binding.pry
+      puts '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
+      puts form_data
+      puts metadata
+      puts '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-='
       { form_data:, metadata: }
     end
 
@@ -69,7 +72,7 @@ module IncreaseCompensation
       begin
         mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
       rescue
-        nil
+        {}
       end
 
       return if mailing_address.blank?
