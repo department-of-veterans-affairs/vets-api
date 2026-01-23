@@ -90,6 +90,24 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
 
         expect(response).to have_http_status(:internal_server_error)
       end
+
+      it 'returns an error message in the response body', :skip_json_api_validation do
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
+
+        json = response.parsed_body
+        expect(json['error']).to eq('An unexpected error occurred')
+      end
+
+      it 'logs the error with backtrace' do
+        allow(Rails.logger).to receive(:error)
+
+        get '/mobile/v0/veteran_status_card', headers: sis_headers
+
+        expect(Rails.logger).to have_received(:error).with(
+          'Mobile::VeteranStatusCardsController unexpected error: Unexpected error',
+          hash_including(:backtrace)
+        )
+      end
     end
   end
 end

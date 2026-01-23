@@ -97,6 +97,24 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
 
           expect(response).to have_http_status(:internal_server_error)
         end
+
+        it 'returns an error message in the response body' do
+          get '/v0/veteran_status_card'
+
+          json = JSON.parse(response.body)
+          expect(json['error']).to eq('An unexpected error occurred')
+        end
+
+        it 'logs the error with backtrace' do
+          allow(Rails.logger).to receive(:error)
+
+          get '/v0/veteran_status_card'
+
+          expect(Rails.logger).to have_received(:error).with(
+            'VeteranStatusCardsController unexpected error: Unexpected error',
+            hash_including(:backtrace)
+          )
+        end
       end
     end
   end
