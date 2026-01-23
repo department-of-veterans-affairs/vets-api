@@ -136,8 +136,7 @@ module Mobile
           full_list = []
           errors = []
 
-          aggregate_claims_from_providers(full_list, errors)
-          aggregate_appeals_from_caseflow(full_list, errors)
+          fetch_and_process_data(full_list, errors)
           add_authorization_errors(errors)
 
           cached_data = claims_adapter.parse(full_list)
@@ -147,34 +146,54 @@ module Mobile
         [cached_data, errors]
       end
 
-      def aggregate_claims_from_providers(full_list, errors)
-        claims_list, claims_errors = get_claims_from_providers
-        full_list.concat(claims_list) if claims_list.any?
-        errors.concat(claims_errors) if claims_errors.any?
-      end
-
-      def aggregate_appeals_from_caseflow(full_list, errors)
-        if @current_user.authorize(:appeals, :access?)
-          appeals_response = claims_proxy.get_all_appeals.call
-          if appeals_response[:errors].nil?
-            full_list.concat(appeals_response[:list])
-          else
-            errors.push(appeals_response[:errors])
-          end
-        else
-          errors.push({
-                        service: 'appeals',
-                        error_details: 'Forbidden: User is not authorized for appeals'
-                      })
+      def fetch_and_process_data(full_list, errors)
+        if claims_authorized? && appeals_authorized?
+          claims_result, appeals_result = Parallel.map(
+            [-> { get_claims_from_providers }, -> { claims_proxy.get_all_appeals.call }],
+            in_threads: 2,
+            &:call
+          )
+          process_claims_result(claims_result, full_list, errors)
+          process_appeals_result(appeals_result, full_list, errors)
+        elsif claims_authorized?
+          claims_result = get_claims_from_providers
+          process_claims_result(claims_result, full_list, errors)
+        elsif appeals_authorized?
+          appeals_result = claims_proxy.get_all_appeals.call
+          process_appeals_result(appeals_result, full_list, errors)
         end
       end
 
+      def process_claims_result(claims_result, full_list, errors)
+        claims_list, claims_errors = claims_result
+        full_list.concat(claims_list) if claims_list&.any?
+        errors.concat(claims_errors) if claims_errors&.any?
+      end
+
+      def process_appeals_result(appeals_result, full_list, errors)
+        if appeals_result[:errors].nil?
+          full_list.concat(appeals_result[:list])
+        else
+          errors.push(appeals_result[:errors])
+        end
+      end
+
+      def claims_authorized?
+        @current_user.authorize(:lighthouse, :access?)
+      end
+
+      def appeals_authorized?
+        @current_user.authorize(:appeals, :access?)
+      end
+
       def add_authorization_errors(errors)
-        unless @current_user.authorize(:lighthouse, :access?)
-          errors.push({
-                        service: 'claims',
-                        error_details: 'Forbidden: User is not authorized for claims'
-                      })
+        unless appeals_authorized?
+          errors.push({ service: 'appeals',
+                        error_details: 'Forbidden: User is not authorized for appeals' })
+        end
+        unless claims_authorized?
+          errors.push({ service: 'claims',
+                        error_details: 'Forbidden: User is not authorized for claims' })
         end
       end
 
