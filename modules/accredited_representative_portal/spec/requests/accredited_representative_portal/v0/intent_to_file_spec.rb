@@ -5,6 +5,7 @@ require_relative '../../../rails_helper'
 RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type: :request do
   let(:poa_code) { '067' }
   let(:poa_check_vcr_response) { '200_response' }
+  let(:poa_check_vcr_path) { 'lighthouse/benefits_claims/power_of_attorney' }
   let!(:test_user) do
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
@@ -21,8 +22,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
     'veteranFirstName=Derrick&veteranLastName=Reid&veteranSsn=666468765&veteranDateOfBirth=1976-01-16'
   end
   let(:survivor_query_params) do
-    "#{veteran_query_params}&claimantFirstName=Claimanty&claimantLastName=Jane&claimantSsn=666569765\
-    &claimantDateOfBirth=1996-03-16"
+    "#{veteran_query_params}&claimantFirstName=Claimanty&claimantLastName=Jane" \
+      '&claimantSsn=011223344&claimantDateOfBirth=1996-08-26'
   end
 
   before do
@@ -36,11 +37,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
     allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).with(
       'Derrick', 'Reid', '666468765', '1976-01-16'
     ).and_return('123498767V234859')
+    allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).with(
+      'Claimanty', 'Jane', '011223344', '1996-08-26'
+    ).and_return('123498767V112233')
   end
 
   around do |example|
     VCR.use_cassette(
-      "lighthouse/benefits_claims/power_of_attorney/#{poa_check_vcr_response}",
+      "#{poa_check_vcr_path}/#{poa_check_vcr_response}",
       allow_playback_repeats: true
     ) do
       example.run
@@ -48,61 +52,50 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   end
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
-    context 'feature flag is off' do
-      it 'returns forbidden' do
-        Flipper.disable :accredited_representative_portal_intent_to_file
-        get('/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation')
-        expect(response).to have_http_status(:forbidden)
+    context 'veteran claimant' do
+      context 'feature flag is off' do
+        it 'returns forbidden' do
+          Flipper.disable :accredited_representative_portal_intent_to_file
+          get('/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation')
+          expect(response).to have_http_status(:forbidden)
+        end
       end
-    end
 
-    context 'bad or missing filing type' do
-      it 'returns the appropriate error message' do
-        get('/accredited_representative_portal/v0/intent_to_file/?benefitType=none')
-        expect(response).to have_http_status(:bad_request)
+      context 'bad or missing filing type' do
+        it 'returns the appropriate error message' do
+          get('/accredited_representative_portal/v0/intent_to_file/?benefitType=none')
+          expect(response).to have_http_status(:bad_request)
+        end
       end
-    end
 
-    context 'ITF not found in Lighthouse' do
-      it 'returns 404' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+      context 'ITF not found in Lighthouse' do
+        it 'returns 404' do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+            get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+      end
+
+      context 'itf check skipped' do
+        it 'returns 404' do
+          Flipper.enable :accredited_representative_portal_skip_itf_check
           get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
           expect(response).to have_http_status(:not_found)
         end
       end
-    end
 
-    context 'itf check skipped' do
-      it 'returns 404' do
-        Flipper.enable :accredited_representative_portal_skip_itf_check
-        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
-        expect(response).to have_http_status(:not_found)
-      end
-    end
+      context 'veteran cannot be found' do
+        before do
+          allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
+            Common::Exceptions::RecordNotFound, 'Claimant not found'
+          )
+        end
 
-    context 'veteran cannot be found' do
-      before do
-        allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
-          Common::Exceptions::RecordNotFound, 'Claimant not found'
-        )
-      end
-
-      it 'returns 400' do
-        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    context 'non-veteran claimant cannot be found' do
-      before do
-        allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
-          Common::Exceptions::RecordNotFound, 'Claimant not found'
-        )
-      end
-
-      it 'returns 400' do
-        get("/accredited_representative_portal/v0/intent_to_file/?benefitType=survivor&#{survivor_query_params}")
-        expect(response).to have_http_status(:bad_request)
+        it 'returns 400' do
+          get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
+          expect(response).to have_http_status(:bad_request)
+        end
       end
     end
 
@@ -122,6 +115,50 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
           get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['id']).to eq('193685')
+        end
+      end
+    end
+
+    context 'non-veteran claimant' do
+      let(:poa_check_vcr_path) do
+        'accredited_representative_portal/requests/accredited_representative_portal/v0/intent_to_file_spec'
+      end
+
+      context 'non-veteran claimant cannot be found' do
+        before do
+          allow(AccreditedRepresentativePortal::ClaimantLookupService).to receive(:get_icn).and_raise(
+            Common::Exceptions::RecordNotFound, 'Claimant not found'
+          )
+        end
+
+        it 'returns 400' do
+          get("/accredited_representative_portal/v0/intent_to_file/?benefitType=survivor&#{survivor_query_params}")
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'rep does not have POA for claimant' do
+        let(:poa_check_vcr_response) { '200_poa_check_survivor_empty_response' }
+        let(:test_user) { create(:representative_user, email: 'notallowed@example.com') }
+
+        it 'returns 403' do
+          get("/accredited_representative_portal/v0/intent_to_file/?benefitType=survivor&#{survivor_query_params}")
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'rep has filed ITF' do
+        let(:poa_check_vcr_response) { '200_poa_check_survivor_response' }
+
+        it 'returns existing ITF filing for current user' do
+          VCR.use_cassette(
+            'accredited_representative_portal/requests/accredited_representative_portal/v0/intent_to_file_spec/' \
+            '200_itf_check_survivor_response'
+          ) do
+            get("/accredited_representative_portal/v0/intent_to_file/?benefitType=survivor&#{survivor_query_params}")
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data']['id']).to eq('193685')
+          end
         end
       end
     end
