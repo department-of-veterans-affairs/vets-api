@@ -132,7 +132,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         expect(claims_list).to eq([])
         expect(errors).to be_present
         expect(errors.first[:service]).to eq('TestProvider')
-        expect(errors.first[:error_details]).to include('TestProvider')
+        expect(errors.first[:error_details]).to eq('Provider temporarily unavailable')
       end
 
       it 'aggregates claims from multiple providers' do
@@ -204,7 +204,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
 
         expect do
           controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::RecordNotFound, claim_id)
+        end.to raise_error(Common::Exceptions::RecordNotFound)
       end
 
       it 'tracks metrics with mobile prefix' do

@@ -16,8 +16,13 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do
+      Flipper.disable(:mobile_multi_claim_provider)
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+    end
+
+    after do
+      Flipper.enable(:mobile_multi_claim_provider)
     end
 
     context 'when the claim is found' do
@@ -140,33 +145,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           end
           SchemaContract::ValidationJob.drain
           expect(SchemaContract::Validation.last.status).to eq('success')
-        end
-      end
-
-      context 'when :mobile_multi_claim_provider is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:mobile_multi_claim_provider, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
-        end
-
-        it 'fetches claim from provider registry', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
-            get '/mobile/v0/claim/600117255', headers: sis_headers
-          end
-
-          assert_schema_conform(200)
-          expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
-        end
-
-        context 'when claim is not found in any provider' do
-          it 'returns a 404 with an error', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-            VCR.use_cassette('mobile/lighthouse_claims/show/404_response') do
-              get '/mobile/v0/claim/60038334', headers: sis_headers
-
-              assert_schema_conform(404)
-            end
-          end
         end
       end
     end

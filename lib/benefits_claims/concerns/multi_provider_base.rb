@@ -40,11 +40,24 @@ module BenefitsClaims
 
       def extract_claims_data(provider_class, response)
         provider_name = provider_class.name
-        return [] if response.nil? && Rails.logger.warn("Provider #{provider_name} returned nil from get_claims")
+        logger = ::Rails.logger
 
-        unless response.is_a?(Hash) && response.key?('data')
-          Rails.logger.error("Provider #{provider_name} returned unexpected structure from get_claims",
-                             { provider: provider_name, response_class: response.class.name })
+        if response.nil?
+          logger.warn("Provider #{provider_name} returned nil from get_claims")
+          return []
+        end
+
+        is_hash = response.is_a?(Hash)
+        has_data_key = is_hash && response.key?('data')
+
+        unless has_data_key
+          logger.error(
+            "Provider #{provider_name} returned unexpected structure from get_claims",
+            {
+              provider: provider_name,
+              response_class: response.class.name
+            }
+          )
           return []
         end
 
@@ -53,10 +66,12 @@ module BenefitsClaims
 
       def handle_provider_error(provider_class, error, errors)
         provider_name = provider_class.name
-        errors << format_error_entry(provider_name, "Provider #{provider_name} temporarily unavailable")
+        errors << format_error_entry(provider_name, 'Provider temporarily unavailable')
 
-        Rails.logger.warn("Provider #{provider_name} failed to fetch claims",
-                          { provider: provider_name, error_class: error.class.name, error_message: error.message })
+        ::Rails.logger.warn(
+          "Provider #{provider_name} failed",
+          { provider: provider_name, error_class: error.class.name }
+        )
         StatsD.increment(statsd_metric_name('provider_error'), tags: statsd_tags_for_provider(provider_name))
       end
 
@@ -66,11 +81,11 @@ module BenefitsClaims
           response = provider.get_claim(claim_id)
           return response if validate_claim_response(response)
         rescue Common::Exceptions::RecordNotFound
-          log_claim_not_found(provider_class, claim_id)
+          log_claim_not_found(provider_class)
         rescue Common::Exceptions::Unauthorized, Common::Exceptions::Forbidden => e
           raise e
         rescue => e
-          handle_get_claim_error(provider_class, claim_id, e)
+          handle_get_claim_error(provider_class, e)
         end
 
         raise Common::Exceptions::RecordNotFound, claim_id
@@ -80,16 +95,20 @@ module BenefitsClaims
         response && response['data']
       end
 
-      def log_claim_not_found(provider_class, claim_id)
-        Rails.logger.info("Provider #{provider_class.name} doesn't have claim #{claim_id}",
-                          { provider: provider_class.name, claim_id: })
+      def log_claim_not_found(provider_class)
+        ::Rails.logger.info(
+          "Provider #{provider_class.name} doesn't have claim",
+          { error_class: 'Common::Exceptions::RecordNotFound' }
+        )
       end
 
-      def handle_get_claim_error(provider_class, claim_id, error)
+      def handle_get_claim_error(provider_class, error)
         provider_name = provider_class.name
-        Rails.logger.error("Provider #{provider_name} error fetching claim #{claim_id}",
-                           { provider: provider_name, claim_id:, error_class: error.class.name,
-                             error_message: error.message })
+
+        ::Rails.logger.error(
+          "Provider #{provider_name} error fetching claim",
+          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
+        )
         StatsD.increment(statsd_metric_name('get_claim.provider_error'),
                          tags: statsd_tags_for_provider(provider_name))
       end
