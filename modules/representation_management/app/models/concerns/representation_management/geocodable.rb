@@ -11,11 +11,16 @@ module RepresentationManagement
     # Uses partial address information with fallback strategy.
     # @return [Boolean] true if geocoding succeeded, false otherwise
     def geocode_and_update_location!
+      # Early return if Mapbox API key is not configured
+      return false if Geocoder.config.api_key.blank?
+
       address = formatted_raw_address
       return false if address.blank?
 
       result = Geocoder.search(address).first
       return false if result.blank?
+
+      clear_location_fields
 
       # Save any partial city/state and zip data for display if raw_address exists
       if raw_address.present?
@@ -39,6 +44,30 @@ module RepresentationManagement
     end
 
     private
+
+    #
+    # Clears all address and location fields to ensure fresh data
+    def clear_location_fields
+      # Location fields
+      self.lat = nil
+      self.long = nil
+      self.location = nil
+
+      # Address fields
+      self.address_line1 = nil
+      self.address_line2 = nil
+      self.address_line3 = nil
+      self.city = nil
+      self.country_code_iso3 = nil
+      self.country_name = nil
+      self.county_name = nil
+      self.county_code = nil
+      self.international_postal_code = nil
+      self.province = nil
+      self.state_code = nil
+      self.zip_code = nil
+      self.zip_suffix = nil
+    end
 
     def formatted_raw_address
       # Define logical order based on entity type
@@ -81,7 +110,7 @@ module RepresentationManagement
       when Geocoder::InvalidRequest
         log_error(error, 'invalid request')
       when Geocoder::InvalidApiKey
-        log_and_raise(error, 'API key invalid', :error)
+        log_error(error, 'API key invalid')
       when Geocoder::ServiceUnavailable
         log_and_raise(error, 'service unavailable', :warn)
       when SocketError, Timeout::Error
