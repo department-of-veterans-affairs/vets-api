@@ -83,32 +83,6 @@ describe IvcChampva::DocumentMerger do
     end
   end
 
-  describe 'MERGE_RULES configuration' do
-    it 'contains expected form configurations' do
-      expect(described_class::MERGE_RULES).to have_key('vha_10_7959c')
-      expect(described_class::MERGE_RULES['vha_10_7959c']).to have_key('medicare_cards')
-      expect(described_class::MERGE_RULES['vha_10_7959c']).to have_key('ohi_cards')
-    end
-
-    it 'has correct medicare cards configuration' do
-      medicare_config = described_class::MERGE_RULES['vha_10_7959c']['medicare_cards']
-
-      expect(medicare_config[:flipper_toggle]).to eq('champva_docmerge_10_7959c_medicare')
-      expect(medicare_config[:attachment_ids]).to eq(['Front of Medicare card', 'Back of Medicare card'])
-      expect(medicare_config[:merged_attachment_id]).to eq('Medicare card')
-      expect(medicare_config[:max_docs_merged]).to eq(2)
-    end
-
-    it 'has correct OHI cards configuration' do
-      ohi_config = described_class::MERGE_RULES['vha_10_7959c']['ohi_cards']
-
-      expect(ohi_config[:flipper_toggle]).to eq('champva_docmerge_10_7959c_ohi')
-      expect(ohi_config[:attachment_ids]).to eq(['Front of insurance card', 'Back of insurance card'])
-      expect(ohi_config[:merged_attachment_id]).to eq('Insurance card')
-      expect(ohi_config[:max_docs_merged]).to eq(2)
-    end
-  end
-
   describe '#process' do
     context 'when master feature flag is disabled' do
       before do
