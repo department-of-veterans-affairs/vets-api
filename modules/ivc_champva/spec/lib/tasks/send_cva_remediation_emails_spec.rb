@@ -185,13 +185,12 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
       test_records.push(@already_sent_form)
     end
 
-    it 'skips forms that already have email_sent true' do
+    it 'excludes forms with email_sent true from query results' do
       expect(notify_client).not_to receive(:send_email)
 
       output = capture_stdout { task.invoke }
-      expect(output).to include("Skipping #{@already_sent_form.form_uuid} - email already sent")
-      expect(output).to include('Skipped (already sent): 1')
-      expect(output).to include('Emails sent successfully: 0')
+      # Form is filtered out at query level, so no forms are found
+      expect(output).to include('No affected forms found')
     end
   end
 
@@ -257,7 +256,9 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
 
   describe 'dry run mode' do
     before do
-      ENV['DRY_RUN'] = 'true'
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('DRY_RUN').and_return('true')
+      allow(ENV).to receive(:[]).with('MAX_RECORDS').and_return(nil)
       @dry_run_form = create(:ivc_champva_form,
                              form_number: '10-7959A',
                              created_at: start_date + 1.hour,
@@ -267,10 +268,6 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
                              email_sent: false,
                              s3_status: 'success')
       test_records.push(@dry_run_form)
-    end
-
-    after do
-      ENV.delete('DRY_RUN')
     end
 
     it 'does not send emails' do
@@ -289,6 +286,53 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
       expect(output).to include('[DRY RUN] Would send email')
       expect(output).to include('DRY RUN COMPLETE')
       expect(output).to include('Emails that would be sent: 1')
+    end
+  end
+
+  describe 'MAX_RECORDS limit' do
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('DRY_RUN').and_return(nil)
+      allow(ENV).to receive(:[]).with('MAX_RECORDS').and_return('3')
+      # Create 6 affected forms
+      6.times do |i|
+        form = create(:ivc_champva_form,
+                      form_number: '10-7959A',
+                      created_at: start_date + i.hours,
+                      form_uuid: SecureRandom.uuid,
+                      file_name: "test-uuid-#{i}_10-7959A.pdf",
+                      email: "max-records-#{i}-#{SecureRandom.hex(4)}@example.com",
+                      email_sent: false,
+                      s3_status: 'success')
+        test_records.push(form)
+      end
+    end
+
+    it 'limits the number of records processed' do
+      expect(notify_client).to receive(:send_email).exactly(3).times
+
+      output = capture_stdout { task.invoke }
+      expect(output).to include('[MAX_RECORDS: 3]')
+      expect(output).to include('Emails sent successfully: 3')
+    end
+
+    it 'processes different records on subsequent runs' do
+      # First run - process 3 records
+      capture_stdout { task.invoke }
+
+      # Get the UUIDs that were processed (email_sent = true)
+      first_run_uuids = test_records.select { |f| f.reload.email_sent }.map(&:form_uuid)
+      expect(first_run_uuids.size).to eq(3)
+
+      # Second run - should process different records
+      task.reenable
+
+      second_run_output = capture_stdout { task.invoke }
+      expect(second_run_output).to include('Emails sent successfully: 3')
+
+      # All 6 should now be processed
+      processed_count = test_records.count { |f| f.reload.email_sent }
+      expect(processed_count).to eq(6)
     end
   end
 

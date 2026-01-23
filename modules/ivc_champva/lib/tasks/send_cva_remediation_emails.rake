@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
-namespace :ivc_champva do # rubocop:disable Metrics/BlockLength
+# rubocop:disable Metrics/BlockLength
+namespace :ivc_champva do
   desc 'Send failure emails for 10-7959A forms with only a single record per form_uuid (Jan 20-21, 2026)'
   task send_cva_remediation_emails: :environment do
     dry_run = ENV['DRY_RUN'] == 'true'
+    max_records = ENV['MAX_RECORDS']&.to_i
 
     puts '=' * 80
     puts 'IVC CHAMPVA CVA REMEDIATION EMAIL SENDER'
     puts '[DRY RUN MODE - No emails will be sent, no DB updates will be made]' if dry_run
+    puts "[MAX_RECORDS: #{max_records}]" if max_records
     puts '=' * 80
     puts 'Finding affected 10-7959A forms from Jan 20-21, 2026...'
     puts '-' * 80
@@ -16,8 +19,9 @@ namespace :ivc_champva do # rubocop:disable Metrics/BlockLength
     end_date = Date.new(2026, 1, 21).end_of_day
 
     # Find form_uuids that have exactly 1 record (claim form only, no supporting docs/VES JSON)
+    # and where email has not already been sent
     single_record_uuids = IvcChampvaForm
-                          .where(form_number: '10-7959A')
+                          .where(form_number: '10-7959A', email_sent: false)
                           .where(created_at: start_date..end_date)
                           .group(:form_uuid)
                           .having('COUNT(*) = 1')
@@ -27,6 +31,11 @@ namespace :ivc_champva do # rubocop:disable Metrics/BlockLength
       puts 'No affected forms found.'
       next
     end
+
+    # Apply MAX_RECORDS limit if specified
+    # Reducing the set here instead of in the query due to how few records we expect to process
+    # If this class is used as a template for future similar work, consider reducing the set in the query instead.
+    single_record_uuids = single_record_uuids.first(max_records) if max_records
 
     all_forms = IvcChampvaForm.where(form_uuid: single_record_uuids).to_a
 
@@ -110,3 +119,4 @@ namespace :ivc_champva do # rubocop:disable Metrics/BlockLength
     puts "Total unique recipients: #{forms.size}"
   end
 end
+# rubocop:enable Metrics/BlockLength
