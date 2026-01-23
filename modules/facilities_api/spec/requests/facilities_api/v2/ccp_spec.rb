@@ -9,6 +9,13 @@ vcr_options = {
 }
 
 RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr: vcr_options do
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?)
+      .with(:facilities_ccp_remove_confusing_names)
+      .and_return(true)
+  end
+
   before(:all) do
     get facilities_api.v2_ccp_index_url
   end
@@ -123,13 +130,13 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
         allow(StatsD).to receive(:measure)
 
         expect(StatsD).to receive(:measure).with(
-          'facilities.ppms.facility_service_locator',
+          'facilities.ppms.provider_locator',
           kind_of(Numeric),
           hash_including(
             tags: [
               'facilities.ppms',
               'facilities.ppms.radius:200',
-              'facilities.ppms.results:10'
+              'facilities.ppms.results:11'
             ]
           )
         )
@@ -139,31 +146,14 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
         end.to instrument('facilities.ppms.v2.request.faraday')
       end
 
-      [
-        [1, 20],
-        [2, 20],
-        [3, 20]
-      ].each do |(page, per_page, _total_entries)|
-        it "paginates ppms responses (page: #{page}, per_page: #{per_page}" do
-          params_with_pagination = params.merge(
-            page: page.to_s,
-            per_page: per_page.to_s
-          )
+      it 'returns provider results without relying on pagination metadata' do
+        get('/facilities_api/v2/ccp', params:)
 
-          get '/facilities_api/v2/ccp', params: params_with_pagination
-          bod = JSON.parse(response.body)
+        bod = JSON.parse(response.body)
 
-          prev_page = page == 1 ? nil : page - 1
-          expect(bod['meta']).to include(
-            'pagination' => {
-              'current_page' => page,
-              'prev_page' => prev_page,
-              'next_page' => page + 1,
-              'total_pages' => 120,
-              'total_entries' => 2394
-            }
-          )
-        end
+        expect(response).to be_successful
+        expect(bod['data']).to be_an(Array)
+        expect(bod['data'].length).to be_positive
       end
 
       it 'returns a results from the provider_locator' do
@@ -472,6 +462,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
             .and_raise(Common::Exceptions::RecordNotFound.new('id'))
 
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
+            .and_raise(Common::Exceptions::RecordNotFound.new('id'))
+
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
 
@@ -487,6 +480,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
             .and_raise(Faraday::ResourceNotFound.new('response'))
 
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
+            .and_raise(Faraday::ResourceNotFound.new('response'))
+
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
           bod = JSON.parse(response.body)
@@ -498,6 +494,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when PPMS API times out' do
         it 'returns 504 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Faraday::TimeoutError.new)
+
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
             .and_raise(Faraday::TimeoutError.new)
 
           get '/facilities_api/v2/ccp',
@@ -514,6 +513,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
             .and_raise(Net::ReadTimeout.new)
 
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
+            .and_raise(Net::ReadTimeout.new)
+
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
 
@@ -528,6 +530,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
             .and_raise(Common::Exceptions::ServiceUnavailable.new)
 
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
+
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
 
@@ -540,6 +545,9 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       context 'when PPMS API has backend error' do
         it 'returns 502 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::BackendServiceException.new)
+
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
             .and_raise(Common::Exceptions::BackendServiceException.new)
 
           get '/facilities_api/v2/ccp',

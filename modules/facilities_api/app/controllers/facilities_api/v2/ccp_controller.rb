@@ -28,7 +28,11 @@ module FacilitiesApi
     end
 
     def pharmacy
-      api_results = provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
+      api_results = if Flipper.enabled?(:facilities_ccp_remove_confusing_names)
+                      api.facility_service_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
+                    else
+                      provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
+                    end
 
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
@@ -89,12 +93,21 @@ module FacilitiesApi
     end
 
     def ppms_search
+      remove_confusing_names = Flipper.enabled?(:facilities_ccp_remove_confusing_names)
       if urgent_care?
         api.pos_locator(ppms_params)
       elsif ppms_params[:type] == 'provider'
-        provider_locator(ppms_provider_params)
+        if remove_confusing_names
+          api.provider_locator(ppms_provider_params)
+        else
+          provider_locator(ppms_provider_params)
+        end
       elsif ppms_params[:type] == 'pharmacy'
-        provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
+        if remove_confusing_names
+          api.facility_service_locator(ppms_params.merge(specialties: ['3336C0003X']))
+        else
+          provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
+        end
       end
     end
 
@@ -110,6 +123,7 @@ module FacilitiesApi
       v2_ccp_index_url(options)
     end
 
+    # Remove after refactor depending on flipper facilities_ccp_remove_confusing_names is tested
     def provider_locator(locator_params)
       api.facility_service_locator(locator_params)
     end

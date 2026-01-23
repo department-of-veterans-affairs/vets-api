@@ -2820,3 +2820,7 @@ features:
     actor_type: user
     description: Enable debug logging for Facilities API for errors
     enable_in_development: false
+  facilities_ccp_remove_confusing_names:
+    actor_type: user
+    description: Enables updates to Community Care Providers in Facilities API to remove confusion
+    enable_in_development: true
