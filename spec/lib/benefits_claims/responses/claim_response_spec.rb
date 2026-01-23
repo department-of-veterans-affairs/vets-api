@@ -288,5 +288,27 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.evidence_submissions.first.file_name).to eq('dd214.pdf')
       expect(claim.evidence_submissions.first.upload_status).to eq('PENDING')
     end
+
+    context 'when array attributes are omitted' do
+      let(:claim) { described_class.new({ id: '999', status: 'PENDING' }) }
+      let(:array_attributes) do
+        %w[supporting_documents evidence_submissions contentions events issues evidence tracked_items]
+      end
+
+      it 'defaults all array attributes to empty arrays instead of nil' do
+        array_attributes.each do |attr|
+          expect(claim.send(attr)).to eq([])
+        end
+      end
+
+      it 'includes array attributes as empty arrays in serialized output' do
+        attributes = claim.attributes
+
+        array_attributes.each do |attr|
+          expect(attributes[attr]).to eq([])
+          expect(attributes[attr]).not_to be_nil
+        end
+      end
+    end
   end
 end
