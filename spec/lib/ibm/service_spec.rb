@@ -29,9 +29,9 @@ RSpec.describe Ibm::Service do
       it 'raises JSON::ParserError' do
         invalid_form = '{invalid_json: true'
 
-        expect {
+        expect do
           service.upload_form(form: invalid_form, guid: valid_guid)
-        }.to raise_error(JSON::ParserError)
+        end.to raise_error(JSON::ParserError)
       end
     end
   end

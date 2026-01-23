@@ -189,7 +189,7 @@ module MedicalExpenseReports
       def govcio_upload
         if Flipper.enabled?(:medical_expense_reports_govcio_mms)
           ibm_service = Ibm::Service.new
-          response = ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
+          ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
         end
       end
 
