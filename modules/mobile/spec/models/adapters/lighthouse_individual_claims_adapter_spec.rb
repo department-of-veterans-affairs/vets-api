@@ -81,15 +81,12 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
   describe 'download_eligible_documents' do
     it 'includes download_eligible_documents as nil or a list of document objects' do
-      download_docs = gathering_of_evidence_claim[:download_eligible_documents]
+      download_eligible_documents = gathering_of_evidence_claim[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
 
-      expect(download_docs).to be_nil.or be_a(Array)
+      next unless download_eligible_documents
 
-      next unless download_docs
-
-      expect(download_docs).not_to be_empty
-
-      download_docs.each do |doc|
+      download_eligible_documents.each do |doc|
         expect(doc).to have_key(:document_id)
         expect(doc).to have_key(:filename)
 
@@ -97,6 +94,8 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
         filename = doc[:filename]
         expect(document_id).to be_a(String)
         expect(filename).to be_a(String)
+        expect(document_id).not_to be_empty
+        expect(filename).not_to be_empty
       end
     end
   end

@@ -201,7 +201,7 @@ module Mobile
           document_data = []
 
           events_timeline.each do |event|
-            has_tracked_documents = !event.documents.nil?
+            has_tracked_documents = event.documents.present?
 
             document_data += event.documents.map { |doc| valid_doc_obj(doc) } if has_tracked_documents
             document_data << valid_doc_obj(event)
@@ -211,7 +211,7 @@ module Mobile
         end
 
         def valid_doc?(obj)
-          !obj.filename.nil? && !obj.document_id.nil?
+          obj.filename.present? && obj.document_id.present?
         end
 
         def valid_doc_obj(obj)

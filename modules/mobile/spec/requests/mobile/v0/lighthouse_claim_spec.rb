@@ -53,17 +53,18 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
                                       '2022-12-12', '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30',
                                       '2022-09-30', '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
         expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
-        download_eligible = response.parsed_body.dig('data', 'attributes', 'downloadEligibleDocuments')
 
         expect(response.parsed_body.dig('data', 'attributes')).to have_key('downloadEligibleDocuments')
-        expect(download_eligible).to be_nil.or be_a(Array)
+        download_eligible_documents = response.parsed_body.dig('data', 'attributes', 'downloadEligibleDocuments')
+        expect(download_eligible_documents).to be_a(Array)
 
-        download_eligible&.each do |document|
+        expect(download_eligible_documents).to be_a(Array)
+        download_eligible_documents&.each do |document|
           expect(document['documentId']).to be_a(String)
           expect(document['documentId'].strip).not_to be_empty
 
           expect(document['filename']).to be_a(String)
-          expect(document['filename'].strip).not_to be_empty
+          expect(document['filename']).not_to be_empty
         end
       end
 
