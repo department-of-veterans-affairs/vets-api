@@ -130,6 +130,8 @@ module Mobile
       end
 
       def fetch_claims_and_appeals_multi_provider(use_cache)
+        raise Pundit::NotAuthorizedError unless claims_authorized? || appeals_authorized?
+
         cached_data = get_cached_claims_and_appeals if use_cache
         errors = []
 

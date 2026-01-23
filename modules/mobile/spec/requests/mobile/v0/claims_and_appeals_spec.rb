@@ -577,6 +577,21 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
           end
         end
       end
+
+      context 'when user is not authorized to access neither claims nor appeals' do
+        let!(:user) do
+          sis_user(:api_auth, :loa1, icn: '1008596379V859838', participant_id: nil)
+        end
+
+        it 'returns 403 status' do
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            VCR.use_cassette('mobile/appeals/appeals') do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              assert_schema_conform(403)
+            end
+          end
+        end
+      end
     end
   end
 end
