@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/uploader'
 require 'medical_expense_reports/benefits_intake/submit_claim_job'
 require 'medical_expense_reports/monitor'
 require 'medical_expense_reports/zsf_config'
@@ -15,6 +14,7 @@ module MedicalExpenseReports
       include PdfS3Operations
 
       before_action :check_flipper_flag
+      skip_after_action :set_csrf_header, only: [:create]
       service_tag 'medical-expense-reports-application'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
