@@ -570,7 +570,7 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
             # Expect that VSO representatives are NOT deleted even though their count passed validation
             # because the organization count failed
             initial_vso_rep_count = AccreditedIndividual
-                                    .where(individual_type: RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
+                                    .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
                                     .count
             initial_org_count = AccreditedOrganization.count
 
@@ -578,7 +578,7 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
 
             # Both VSO reps and orgs should remain unchanged
             expect(AccreditedIndividual
-                     .where(individual_type: RepresentationManagement::VSOReloader::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
+                     .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
                      .count).to eq initial_vso_rep_count
             expect(AccreditedOrganization.count).to eq initial_org_count
 

@@ -12,10 +12,6 @@ module RepresentationManagement
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
-    # Individual type constants
-    INDIVIDUAL_TYPE_ATTORNEY = 'attorney'
-    INDIVIDUAL_TYPE_CLAIM_AGENT = 'claims_agent'
-    INDIVIDUAL_TYPE_VSO_REPRESENTATIVE = 'representative'
     REPLACEMENT_OGC_ID = '00000000-0000-0000-0000-000000000000'
 
     def perform
@@ -37,7 +33,7 @@ module RepresentationManagement
       reload_representative_type(
         endpoint: 'attorneyexcellist.asp',
         rep_type: :attorneys,
-        individual_type: INDIVIDUAL_TYPE_ATTORNEY,
+        individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY,
         processor: method(:find_or_create_attorneys)
       )
     end
@@ -49,7 +45,7 @@ module RepresentationManagement
       reload_representative_type(
         endpoint: 'caexcellist.asp',
         rep_type: :claims_agents,
-        individual_type: INDIVIDUAL_TYPE_CLAIM_AGENT,
+        individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT,
         processor: method(:find_or_create_claim_agents)
       )
     end
@@ -183,7 +179,7 @@ module RepresentationManagement
 
     def existing_vso_registration_numbers
       AccreditedIndividual
-        .where(individual_type: INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
+        .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
         .pluck(:registration_number)
     end
 
@@ -216,12 +212,12 @@ module RepresentationManagement
     end
 
     def find_or_create_attorneys(attorney)
-      rep = find_or_initialize_by_id(attorney, INDIVIDUAL_TYPE_ATTORNEY)
+      rep = find_or_initialize_by_id(attorney, AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY)
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
-      rep = find_or_initialize_by_id(claim_agent, INDIVIDUAL_TYPE_CLAIM_AGENT)
+      rep = find_or_initialize_by_id(claim_agent, AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT)
       rep.save
     end
 
@@ -231,7 +227,7 @@ module RepresentationManagement
         return
       end
 
-      rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
+      rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE)
       rep.save
     end
 
@@ -263,10 +259,10 @@ module RepresentationManagement
 
     def fetch_initial_counts
       {
-        attorneys: AccreditedIndividual.where(individual_type: INDIVIDUAL_TYPE_ATTORNEY).count,
-        claims_agents: AccreditedIndividual.where(individual_type: INDIVIDUAL_TYPE_CLAIM_AGENT).count,
+        attorneys: AccreditedIndividual.where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY).count,
+        claims_agents: AccreditedIndividual.where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT).count,
         vso_representatives: AccreditedIndividual
-          .where(individual_type: INDIVIDUAL_TYPE_VSO_REPRESENTATIVE).count,
+          .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE).count,
         vso_organizations: AccreditedOrganization.count
       }
     end
