@@ -3,61 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe SupportingEvidenceAttachment, type: :model do
-  describe '#shorten_filename (private method)' do
-    let(:attachment) { build(:supporting_evidence_attachment) }
-
-    context 'when filename exceeds MAX_FILENAME_LENGTH' do
-      it 'shortens the filename while preserving extension' do
-        long_filename = "#{'a' * 120}.pdf" # 124 characters
-        shortened = attachment.send(:shorten_filename, long_filename)
-
-        expect(shortened.length).to eq(100) # Exactly at MAX_FILENAME_LENGTH
-        expect(shortened).to end_with('.pdf')
-        expect(shortened).to start_with('a' * 96) # 96 + 4 for '.pdf' = 100
-      end
-
-      it 'handles different extensions correctly' do
-        long_filename = "#{'test' * 30}.jpeg" # 125 characters
-        shortened = attachment.send(:shorten_filename, long_filename)
-
-        expect(shortened.length).to eq(100)
-        expect(shortened).to end_with('.jpeg')
-      end
-
-      it 'handles files with no extension' do
-        long_filename = 'a' * 120 # 120 characters, no extension
-        shortened = attachment.send(:shorten_filename, long_filename)
-
-        expect(shortened.length).to eq(100)
-        expect(shortened).to eq('a' * 100)
-      end
-    end
-
-    context 'when filename is within MAX_FILENAME_LENGTH' do
-      it 'does not modify short filenames' do
-        short_filename = 'document.pdf'
-        shortened = attachment.send(:shorten_filename, short_filename)
-
-        expect(shortened).to eq('document.pdf')
-      end
-
-      it 'does not modify filenames exactly at the limit' do
-        exact_filename = "#{'a' * 96}.pdf" # Exactly 100 characters
-        shortened = attachment.send(:shorten_filename, exact_filename)
-
-        expect(shortened).to eq(exact_filename)
-        expect(shortened.length).to eq(100)
-      end
-    end
-  end
-
   describe '#set_file_data! (integration style)' do
     let(:attachment) { build(:supporting_evidence_attachment) }
+    let(:mock_file) { double('CarrierWave::SanitizedFile') }
 
     before do
       # Stub the S3 storage parts to avoid actual file uploads
       allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:store!)
       allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:converted_exists?).and_return(false)
+
+      # Mock the file object that gets returned after storage
+      allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:file).and_return(mock_file)
     end
 
     it 'shortens long filenames using real file objects' do
@@ -66,12 +22,15 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(long_filename)
 
-      # Allow the uploader to return long filename
-      allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(long_filename)
+      # Mock what the file.filename should return after storage (shortened)
+      shortened_filename = "#{'evidence' * 12}.pdf" # Should be shortened to 100 chars
+      allow(mock_file).to receive(:filename).and_return(shortened_filename)
 
       attachment.set_file_data!(uploaded_file)
 
       file_data = JSON.parse(attachment.file_data)
+      expect(file_data['filename']).to eq(shortened_filename)
+      expect(file_data['original_filename']).to eq(long_filename)
       expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
       expect(file_data['filename']).to end_with('.pdf')
     end
@@ -81,24 +40,27 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(short_filename)
 
-      allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(short_filename)
+      allow(mock_file).to receive(:filename).and_return(short_filename)
 
       attachment.set_file_data!(uploaded_file)
 
       file_data = JSON.parse(attachment.file_data)
       expect(file_data['filename']).to eq('medical-record.pdf')
+      expect(file_data['original_filename']).to eq('medical-record.pdf')
     end
   end
 
   describe '#set_file_data!' do
     let(:attachment) { build(:supporting_evidence_attachment) }
     let(:mock_uploader) { instance_double(SupportingEvidenceAttachmentUploader) }
-    let(:mock_file) { instance_double(ActionDispatch::Http::UploadedFile, tempfile: mock_tempfile) }
+    let(:mock_file) { instance_double(ActionDispatch::Http::UploadedFile, tempfile: mock_tempfile, original_filename: 'test.pdf') }
     let(:mock_tempfile) { instance_double(Tempfile, path: '/tmp/test.pdf') }
+    let(:mock_stored_file) { double('CarrierWave::SanitizedFile') }
 
     before do
       allow(attachment).to receive(:get_attachment_uploader).and_return(mock_uploader)
       allow(mock_uploader).to receive(:store!)
+      allow(mock_uploader).to receive(:file).and_return(mock_stored_file)
       allow(mock_uploader).to receive_messages(filename:, converted_exists?: converted_exists)
       # Mock File.extname to return the expected extension
       allow(File).to receive(:extname).and_call_original
@@ -106,16 +68,19 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
     end
 
     context 'when filename exceeds MAX_FILENAME_LENGTH' do
-      let(:filename) { "#{'a' * 120}.pdf" } # 124 characters
+      let(:filename) { "#{'a' * 96}.pdf" } # 100 characters (already shortened by uploader)
       let(:converted_exists) { false }
 
-      it 'shortens the original filename' do
+      it 'stores the shortened filename from uploader' do
+        allow(mock_stored_file).to receive(:filename).and_return(filename)
+        allow(mock_file).to receive(:original_filename).and_return("#{'a' * 96}.pdf")
+
         attachment.set_file_data!(mock_file)
 
         file_data = JSON.parse(attachment.file_data)
+        expect(file_data['filename']).to eq(filename)
+        expect(file_data['original_filename']).to eq("#{'a' * 96}.pdf")
         expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
-        expect(file_data['filename']).to end_with('.pdf')
-        expect(file_data['filename'].length).to eq(100) # Exactly at the limit
       end
     end
 
@@ -124,56 +89,101 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       let(:converted_exists) { false }
 
       it 'does not shorten the filename' do
+        allow(mock_stored_file).to receive(:filename).and_return(filename)
+        allow(mock_file).to receive(:original_filename).and_return('short_filename.pdf')
+        
         attachment.set_file_data!(mock_file)
 
         file_data = JSON.parse(attachment.file_data)
         expect(file_data['filename']).to eq('short_filename.pdf')
+        expect(file_data['original_filename']).to eq('short_filename.pdf')
       end
     end
 
     context 'when converted file exists' do
       let(:filename) { 'normal_file.pdf' }
       let(:converted_exists) { true }
-      let(:converted_filename) { "converted_#{'a' * 120}.jpg" } # Long converted filename
+      let(:converted_filename) { 'converted_normal_file.jpg' } # Already shortened by uploader
+      let(:mock_converted_version) { double('ConvertedVersion') }
+      let(:mock_converted_file) { double('CarrierWave::SanitizedFile') }
 
       before do
-        allow(mock_uploader).to receive(:final_filename).and_return(converted_filename)
+        allow(mock_uploader).to receive(:converted).and_return(mock_converted_version)
+        allow(mock_converted_version).to receive(:file).and_return(mock_converted_file)
+        allow(mock_converted_file).to receive(:filename).and_return(converted_filename)
       end
 
-      it 'shortens both original and converted filenames' do
+      it 'includes both original and converted filenames' do
+        allow(mock_stored_file).to receive(:filename).and_return(filename)
+        allow(mock_file).to receive(:original_filename).and_return('normal_file.pdf')
+
         attachment.set_file_data!(mock_file)
 
         file_data = JSON.parse(attachment.file_data)
         expect(file_data['filename']).to eq('normal_file.pdf')
-        expect(file_data['converted_filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
-        expect(file_data['converted_filename']).to end_with('.jpg')
+        expect(file_data['original_filename']).to eq('normal_file.pdf')
+        expect(file_data['converted_filename']).to eq('converted_normal_file.jpg')
       end
     end
 
     context 'when both original and converted filenames are long' do
-      let(:filename) { "#{'a' * 120}.tiff" }
+      let(:filename) { "#{'a' * 95}.tiff" } # 100 chars (shortened by uploader)
       let(:converted_exists) { true }
-      let(:converted_filename) { "converted_#{'b' * 120}.jpg" }
+      let(:long_converted_filename) { "converted_#{'b' * 140}.jpg" } # 150+ chars - too long
+      let(:mock_converted_version) { double('ConvertedVersion') }
+      let(:mock_converted_file) { double('CarrierWave::SanitizedFile') }
 
       before do
-        allow(mock_uploader).to receive(:final_filename).and_return(converted_filename)
+        allow(mock_uploader).to receive(:converted).and_return(mock_converted_version)
+        allow(mock_converted_version).to receive(:file).and_return(mock_converted_file)
+        allow(mock_converted_file).to receive(:filename).and_return(long_converted_filename)
+        allow(mock_uploader).to receive(:send).with(:shorten_filename, long_converted_filename).and_return(long_converted_filename[0, 96] + '.jpg')
       end
 
-      it 'shortens both filenames independently' do
+      it 'includes both shortened filenames from uploader' do
+        original_long_filename = "#{'b' * 95}.tiff" # 100 chars
+        allow(mock_stored_file).to receive(:filename).and_return(filename)
+        allow(mock_file).to receive(:original_filename).and_return(original_long_filename)
+
         attachment.set_file_data!(mock_file)
 
         file_data = JSON.parse(attachment.file_data)
 
-        # Original should be shortened
-        expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
+        # Original should be already shortened by the uploader
+        expect(file_data['filename']).to eq(filename)
+        expect(file_data['original_filename']).to eq(original_long_filename)
+        expect(file_data['filename'].length).to eq(100)
         expect(file_data['filename']).to end_with('.tiff')
 
-        # Converted should be shortened
-        expect(file_data['converted_filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
+        # Converted should be shortened by the model's set_file_data! method
+        expect(file_data['converted_filename'].length).to be <= 100
         expect(file_data['converted_filename']).to end_with('.jpg')
+        expect(file_data['converted_filename']).to start_with('converted_')
 
         # Should be different shortened strings
         expect(file_data['filename']).not_to eq(file_data['converted_filename'])
+      end
+    end
+
+    context 'when file system encounters filename too long error' do
+      let(:filename) { 'test.pdf' }
+      let(:converted_exists) { false }
+
+      it 'converts Errno::ENAMETOOLONG to UnprocessableEntity' do
+        allow(mock_stored_file).to receive(:filename).and_return(filename)
+        allow(mock_file).to receive(:original_filename).and_return('test.pdf')
+        allow(mock_uploader).to receive(:store!).and_raise(Errno::ENAMETOOLONG, 'File name too long')
+        
+        expect(Rails.logger).to receive(:error).with(
+          'SupportingEvidenceAttachment filename too long error',
+          hash_including(error: a_string_including('File name too long'))
+        )
+
+        expect { attachment.set_file_data!(mock_file) }
+          .to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
+            expect(error.errors.first.detail).to eq('File name is too long. Please use a shorter file name.')
+            expect(error.errors.first.source).to eq('SupportingEvidenceAttachment.set_file_data')
+          end
       end
     end
   end

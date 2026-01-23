@@ -11,29 +11,55 @@ class SupportingEvidenceAttachment < FormAttachment
   # this uploads the file to S3 through its parent class
   # the final filename comes from the uploader once the file is successfully uploaded to S3
   def set_file_data!(file, file_password = nil)
-    file_data_json = super
-    parsed_data = JSON.parse(file_data_json)
-    au = get_attachment_uploader
+    # Store original filename before processing
+    original_filename = file.original_filename
 
-    # Shorten the original filename if it's too long
-    parsed_data['filename'] = shorten_filename(parsed_data['filename']) if parsed_data['filename']
+    begin
+      # Let parent class handle the standard file storage process
+      super(file, file_password)
+      
+      # After successful storage, enhance file_data with our additional fields
+      current_file_data = parsed_file_data
+      uploader = get_attachment_uploader
+      shortened_filename = uploader.file.filename
+      
+      # Start with the parent's file_data and enhance it
+      enhanced_file_data = current_file_data.merge(
+        'filename' => shortened_filename,
+        'original_filename' => original_filename
+      )
 
-    # Shorten converted filename if it exists
-    if au.converted_exists?
-      original_filename = au.final_filename
-      parsed_data['converted_filename'] = shorten_filename(original_filename)
+      # Handle converted files (like PDFs) 
+      if uploader.converted_exists?
+        converted_filename = uploader.converted.file.filename
+        # If the converted filename is too long, shorten it
+        if converted_filename.length > MAX_FILENAME_LENGTH
+          converted_filename = uploader.send(:shorten_filename, converted_filename)
+        end
+        enhanced_file_data['converted_filename'] = converted_filename
+      end
+      
+      self.file_data = enhanced_file_data.to_json
+      
+    rescue Errno::ENAMETOOLONG => e
+      Rails.logger.error('SupportingEvidenceAttachment filename too long error', { error: e.message, backtrace: e.backtrace })
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: 'File name is too long. Please use a shorter file name.',
+        source: 'SupportingEvidenceAttachment.set_file_data'
+      )
     end
-
-    self.file_data = parsed_data.to_json
-    file_data
   end
 
   def converted_filename
     parsed_file_data['converted_filename']
   end
 
-  def original_filename
+  def filename
     parsed_file_data['filename']
+  end
+
+  def original_filename
+    parsed_file_data['original_filename'] || parsed_file_data['filename']
   end
 
   # Obfuscates the attachment's file name for use in mailers, so we don't email PII
@@ -55,18 +81,5 @@ class SupportingEvidenceAttachment < FormAttachment
     else
       original_filename
     end
-  end
-
-  private
-
-  def shorten_filename(filename)
-    return filename if filename.length <= MAX_FILENAME_LENGTH
-
-    # Preserve file extension while shortening
-    extension = File.extname(filename)
-    name_without_ext = File.basename(filename, extension)
-    max_name_length = MAX_FILENAME_LENGTH - extension.length
-    shortened_name = name_without_ext[0, max_name_length]
-    shortened_name + extension
   end
 end

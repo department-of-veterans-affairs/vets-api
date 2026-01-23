@@ -60,7 +60,17 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         allow(Common::FileHelpers).to receive(:random_file_path).and_return(mock_random_file_path)
         upload_data.each do |ud|
           filename = ud['name']
-          file_path = Rails.root.join('spec', 'fixtures', 'files', filename)
+          # Use the actual fixture filename that exists, not the name from upload data
+          # The fixture file has the full long name
+          actual_fixture_filename = if filename.include?('medical-records-long-name')
+                                      'medical-records-long-name-rt36FSVxn2VTCGJye9i2UTBjy' \
+                                        'ZnYuhXR0uXTFcQzX7eE61r4PUuobiS2V958VHS9r2999H37jJVbY' \
+                                        '020p5AR2UQS6S8nZNLXCw9s5hC94m1Z0zdsxlDDDjwJ9o3Fhqky6' \
+                                        'lLEnKNmBPyaHda71xPN0N7gy7ux9Yu187I.pdf'
+                                    else
+                                      filename
+                                    end
+          file_path = Rails.root.join('spec', 'fixtures', 'files', actual_fixture_filename)
           file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
           sea = SupportingEvidenceAttachment.find_or_create_by(guid: ud['confirmationCode'])
           sea.set_file_data!(file)
@@ -73,31 +83,24 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               processor = described_class.new(submission.id)
-
-              # Ensure any supporting evidence attachments have proper filename lengths
-              # before processing
-              submission.form[Form526Submission::FORM_526_UPLOADS]&.each do |upload|
-                sea = SupportingEvidenceAttachment.find_by(guid: upload['confirmationCode'])
-                next unless sea&.file_data
-
-                file_data = JSON.parse(sea.file_data)
-                expect(file_data['filename'].length).to be <= SupportingEvidenceAttachment::MAX_FILENAME_LENGTH
-              end
-
-              # Mock get_uploads to return test data that shows the filename processing would work
-              mock_docs = [
-                {
-                  file: 'tmp/test_file_1.pdf',
-                  type: 'evidence',
-                  evssDocType: 'evidence'
-                }
-              ]
-              allow(processor).to receive(:get_uploads).and_return(mock_docs)
-
               processed_files = processor.get_uploads
+              unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
               processed_files.each do |processed_file|
-                expect(processed_file[:file].length).to be <= 255
-                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.(pdf|jpg|png)$})
+                if processed_file['name'].length > 101
+                  # Match the processor logic exactly:
+                  # filename = File.basename(file.path, '.*')[0...MAX_FILENAME_LENGTH]
+                  # file_extension = File.extname(file.path)
+                  # entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
+                  base_filename = File.basename(processed_file['name'], '.*')
+                  file_extension = File.extname(processed_file['name'])
+                  shortened_name = base_filename[0...(described_class::MAX_FILENAME_LENGTH - file_extension.length)]
+                  shortened_path = "#{unique_path}.#{shortened_name}#{file_extension}"
+                  expect(processed_file[:file].length).to be <= processed_file['name'].length
+                  expect(processed_file[:file].length).to eq(shortened_path.length)
+                else
+                  expect(processed_file[:file].length).to eq("#{unique_path}.#{processed_file['name']}".length)
+                end
+                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
               end
             end
           end
