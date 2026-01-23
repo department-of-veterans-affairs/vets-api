@@ -129,7 +129,7 @@ module Vass
         return false if stored_data.nil?
 
         # Perform both checks without early returns to prevent timing attacks
-        otc_matches = ActiveSupport::SecurityUtils.secure_compare(stored_data[:code], otp_code)
+        otc_matches = otc_codes_match?(stored_data[:code], otp_code)
         identity_valid = identity_matches?(stored_data)
 
         otc_matches && identity_valid
@@ -370,6 +370,21 @@ module Vass
       end
 
       private
+
+      ##
+      # Safely compares OTC codes using constant-time comparison.
+      # Handles nil, non-string, or unexpected values gracefully.
+      #
+      # @param stored_code [String, nil] The stored OTC code from cache
+      # @param provided_code [String, nil] The user-provided OTC code
+      # @return [Boolean] true if codes match, false otherwise
+      #
+      def otc_codes_match?(stored_code, provided_code)
+        return false unless stored_code.is_a?(String) && provided_code.is_a?(String)
+        return false if stored_code.empty? || provided_code.empty?
+
+        ActiveSupport::SecurityUtils.secure_compare(stored_code, provided_code)
+      end
 
       ##
       # Checks if submitted identity matches veteran data.
