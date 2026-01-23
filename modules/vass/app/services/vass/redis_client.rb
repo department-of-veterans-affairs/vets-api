@@ -71,35 +71,58 @@ module Vass
     # ------------ One-Time Code (OTC) Management ------------
 
     ##
-    # Retrieves a stored OTC by UUID.
+    # Retrieves a stored OTC code by UUID.
     #
     # @param uuid [String] Veteran UUID from email link
-    # @return [String, nil] OTC or nil if not found/expired
+    # @return [String, nil] OTC code or nil if not found/expired
     #
     def otc(uuid:)
+      data = otc_data(uuid:)
+      data&.dig(:code)
+    end
+
+    ##
+    # Saves an OTC for a veteran UUID with short expiration.
+    # Stores the code along with identity data for validation during authentication.
+    #
+    # @param uuid [String] Veteran UUID
+    # @param code [String] One-time code
+    # @param last_name [String] Veteran's last name (for identity verification)
+    # @param dob [String] Veteran's date of birth (for identity verification)
+    # @return [Boolean] true if write succeeds
+    #
+    def save_otc(uuid:, code:, last_name:, dob:)
+      otc_data = {
+        code:,
+        last_name:,
+        dob:
+      }
+
       with_redis_error_handling do
-        Rails.cache.read(
+        Rails.cache.write(
           otc_key(uuid),
-          namespace: 'vass-otc-cache'
+          Oj.dump(otc_data),
+          namespace: 'vass-otc-cache',
+          expires_in: redis_otc_expiry
         )
       end
     end
 
     ##
-    # Saves an OTC for a veteran UUID with short expiration.
+    # Retrieves stored OTC data (code and identity info) by UUID.
     #
-    # @param uuid [String] Veteran UUID
-    # @param code [String] One-time code
-    # @return [Boolean] true if write succeeds
+    # @param uuid [String] Veteran UUID from email link
+    # @return [Hash, nil] Hash with :code, :last_name, :dob or nil if not found/expired
     #
-    def save_otc(uuid:, code:)
+    def otc_data(uuid:)
       with_redis_error_handling do
-        Rails.cache.write(
+        raw_data = Rails.cache.read(
           otc_key(uuid),
-          code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
+          namespace: 'vass-otc-cache'
         )
+        return nil if raw_data.nil?
+
+        Oj.load(raw_data, symbol_keys: true)
       end
     end
 

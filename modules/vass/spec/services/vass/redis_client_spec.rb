@@ -14,6 +14,8 @@ describe Vass::RedisClient do
   let(:uuid) { 'f5d4e6a1-b2c3-4d5e-6f7a-8b9c0d1e2f3a' }
   let(:oauth_token) { 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.test.token' }
   let(:otc_code) { '123456' }
+  let(:last_name) { 'Smith' }
+  let(:dob) { '1980-01-15' }
   let(:session_token) { SecureRandom.uuid }
   let(:edipi) { '1234567890' }
   let(:veteran_id) { 'vet-uuid-123' }
@@ -123,27 +125,17 @@ describe Vass::RedisClient do
 
     context 'when OTC cache exists' do
       before do
-        Rails.cache.write(
-          "otc_#{uuid}",
-          otc_code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
-        )
+        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
       end
 
-      it 'returns the cached OTC' do
+      it 'returns the cached OTC code' do
         expect(redis_client.otc(uuid:)).to eq(otc_code)
       end
     end
 
     context 'when OTC cache has expired' do
       before do
-        Rails.cache.write(
-          "otc_#{uuid}",
-          otc_code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
-        )
+        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
       end
 
       it 'returns nil' do
@@ -154,19 +146,39 @@ describe Vass::RedisClient do
     end
   end
 
+  describe '#otc_data' do
+    context 'when OTC cache exists' do
+      before do
+        redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
+      end
+
+      it 'returns hash with code, last_name, and dob' do
+        data = redis_client.otc_data(uuid:)
+        expect(data[:code]).to eq(otc_code)
+        expect(data[:last_name]).to eq(last_name)
+        expect(data[:dob]).to eq(dob)
+      end
+    end
+
+    context 'when OTC cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.otc_data(uuid:)).to be_nil
+      end
+    end
+  end
+
   describe '#save_otc' do
     it 'saves the OTC in cache with uuid key' do
-      expect(redis_client.save_otc(uuid:, code: otc_code)).to be(true)
+      expect(redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)).to be(true)
 
-      val = Rails.cache.read(
-        "otc_#{uuid}",
-        namespace: 'vass-otc-cache'
-      )
-      expect(val).to eq(otc_code)
+      data = redis_client.otc_data(uuid:)
+      expect(data[:code]).to eq(otc_code)
+      expect(data[:last_name]).to eq(last_name)
+      expect(data[:dob]).to eq(dob)
     end
 
     it 'uses shorter expiry than OAuth token' do
-      redis_client.save_otc(uuid:, code: otc_code)
+      redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
 
       # Should still be present before OTC expiry
       Timecop.travel((redis_otc_expiry - 1.minute).from_now) do
@@ -182,7 +194,7 @@ describe Vass::RedisClient do
 
   describe '#delete_otc' do
     before do
-      redis_client.save_otc(uuid:, code: otc_code)
+      redis_client.save_otc(uuid:, code: otc_code, last_name:, dob:)
     end
 
     it 'removes the OTC from cache' do
@@ -206,16 +218,16 @@ describe Vass::RedisClient do
     let(:code2) { '222222' }
 
     it 'stores OTCs separately for different UUIDs' do
-      redis_client.save_otc(uuid: uuid1, code: code1)
-      redis_client.save_otc(uuid: uuid2, code: code2)
+      redis_client.save_otc(uuid: uuid1, code: code1, last_name:, dob:)
+      redis_client.save_otc(uuid: uuid2, code: code2, last_name:, dob:)
 
       expect(redis_client.otc(uuid: uuid1)).to eq(code1)
       expect(redis_client.otc(uuid: uuid2)).to eq(code2)
     end
 
     it 'deletes OTC for one UUID without affecting others' do
-      redis_client.save_otc(uuid: uuid1, code: code1)
-      redis_client.save_otc(uuid: uuid2, code: code2)
+      redis_client.save_otc(uuid: uuid1, code: code1, last_name:, dob:)
+      redis_client.save_otc(uuid: uuid2, code: code2, last_name:, dob:)
 
       redis_client.delete_otc(uuid: uuid1)
 
