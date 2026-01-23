@@ -29,11 +29,11 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
             invoice_service: double(list: raw_invoices),
             retrieve_organization_address: {
               city: 'Tampa',
-              address1: '123 Test St',
-              address2: nil,
-              address3: nil,
+              address_line1: '123 Test St',
+              address_line2: nil,
+              address_line3: nil,
               state: 'FL',
-              zip: '33601'
+              postalCode: '33601'
             }
           )
           allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
@@ -102,12 +102,12 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
             fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
             fetch_medications: {},
             fetch_organization_address: {
-              address1: '123 Test St',
-              address2: nil,
-              address3: nil,
+              address_line1: '123 Test St',
+              address_line2: nil,
+              address_line3: nil,
               city: 'Tampa',
               state: 'FL',
-              zip: '33601'
+              postalCode: '33601'
             }
           )
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)

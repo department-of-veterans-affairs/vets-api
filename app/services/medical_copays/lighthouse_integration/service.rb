@@ -20,6 +20,7 @@ module MedicalCopays
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
 
       class MissingOrganizationIdError < StandardError; end
+      class MissingOrganizationRefError < StandardError; end
       class MissingCityError < StandardError; end
 
       def initialize(icn)
@@ -111,12 +112,12 @@ module MedicalCopays
         return nil unless address
 
         {
-          address1: address.dig('line', 0),
-          address2: address.dig('line', 1),
-          address3: address.dig('line', 2),
+          address_line1: address.dig('line', 0),
+          address_line2: address.dig('line', 1),
+          address_line3: address.dig('line', 2),
           city: address['city'],
           state: address['state'],
-          zip: address['postalCode']
+          postalCode: address['postalCode']
         }
       end
 
@@ -158,10 +159,10 @@ module MedicalCopays
 
       def fetch_organization_address(invoice_data)
         org_ref = invoice_data.dig('issuer', 'reference')
-        return nil unless org_ref
+        raise MissingOrganizationRefError, "No organization reference found" unless org_ref
 
         org_id = org_ref.split('/').last
-        return nil unless org_id
+        raise MissingOrganizationIdError, "No organization ID found" unless org_id
 
         retrieve_organization_address(org_id)
       rescue => e

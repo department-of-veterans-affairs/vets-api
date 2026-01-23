@@ -84,12 +84,12 @@ module Lighthouse
         return nil unless @facility_address
 
         {
-          'address_line1' => @facility_address[:address1],
-          'address_line2' => @facility_address[:address2],
-          'address_line3' => @facility_address[:address3],
+          'address_line1' => @facility_address[:address_line1],
+          'address_line2' => @facility_address[:address_line2],
+          'address_line3' => @facility_address[:address_line3],
           'city' => @facility_address[:city],
           'state' => @facility_address[:state],
-          'postalCode' => @facility_address[:zip]
+          'postalCode' => @facility_address[:postalCode]
         }
       end
 
