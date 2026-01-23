@@ -280,7 +280,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         expect(result.facility['address']).to be_a(Hash)
 
         address = result.facility['address']
-        expect(address['primaryDesignator']).to eq('3000 CORAL HILLS DR')
+        expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
         expect(address['city']).to eq('CORAL SPRINGS')
         expect(address['state']).to eq('FL')
         expect(address['postalCode']).to eq('330654108')

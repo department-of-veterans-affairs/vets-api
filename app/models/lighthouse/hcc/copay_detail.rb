@@ -84,9 +84,9 @@ module Lighthouse
         return nil unless @facility_address
 
         {
-          'primaryDesignator' => @facility_address[:address1],
-          'secondaryDesignator' => @facility_address[:address2],
-          'tertiaryDesignator' => @facility_address[:address3],
+          'address_line1' => @facility_address[:address1],
+          'address_line2' => @facility_address[:address2],
+          'address_line3' => @facility_address[:address3],
           'city' => @facility_address[:city],
           'state' => @facility_address[:state],
           'postalCode' => @facility_address[:zip]
