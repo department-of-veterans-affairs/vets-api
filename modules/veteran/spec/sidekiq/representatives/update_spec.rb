@@ -762,5 +762,136 @@ RSpec.describe Representatives::Update do
         subject.perform(json_email_only)
       end
     end
+
+    context 'when address validation fails and geocoding jobs are enqueued' do
+      let(:id) { '123abc' }
+      let(:address_exists) { false }
+      let(:address_changed) { true }
+      let(:email_changed) { false }
+      let(:phone_number_changed) { false }
+      let!(:representative) { create_representative }
+      let(:json_data) do
+        [
+          {
+            id:,
+            address: {
+              address_pou: 'abc',
+              address_line1: 'abc',
+              address_line2: 'abc',
+              address_line3: 'abc',
+              city_name: 'abc',
+              state: {
+                state_code: 'abc'
+              },
+              zip_code5: 'abc',
+              zip_code4: 'abc',
+              country_code_iso3: 'abc'
+            },
+            email: 'test@example.com',
+            phone_number: '999-999-9999',
+            address_exists:,
+            address_changed:,
+            email_changed:,
+            phone_number_changed:
+          }
+        ].to_json
+      end
+
+      before do
+        validation_service = VAProfile::AddressValidation::V3::Service
+        allow_any_instance_of(validation_service).to receive(:candidate).and_return(nil)
+      end
+
+      it 'enqueues a geocoding job with the correct parameters when validation fails' do
+        expect(RepresentationManagement::GeocodeRepresentativeJob)
+          .to receive(:perform_in).with(0.seconds, 'Veteran::Service::Representative', '123abc')
+
+        subject.perform(json_data)
+      end
+
+      it 'tracks the representative_id for failed validations' do
+        subject.perform(json_data)
+
+        expect(subject.instance_variable_get(:@records_needing_geocoding)).to include('123abc')
+      end
+
+      context 'with multiple validation failures' do
+        let(:json_data_multiple) do
+          [
+            {
+              id: '123abc',
+              address: { address_pou: 'abc', address_line1: 'abc', city_name: 'abc',
+                         state: { state_code: 'abc' }, zip_code5: 'abc', country_code_iso3: 'abc' },
+              email: 'test@example.com',
+              phone_number: '999-999-9999',
+              address_exists: false,
+              address_changed: true,
+              email_changed: false,
+              phone_number_changed: false
+            },
+            {
+              id: '456def',
+              address: { address_pou: 'def', address_line1: 'def', city_name: 'def',
+                         state: { state_code: 'def' }, zip_code5: 'def', country_code_iso3: 'def' },
+              email: 'test2@example.com',
+              phone_number: '888-888-8888',
+              address_exists: false,
+              address_changed: true,
+              email_changed: false,
+              phone_number_changed: false
+            },
+            {
+              id: '789ghi',
+              address: { address_pou: 'ghi', address_line1: 'ghi', city_name: 'ghi',
+                         state: { state_code: 'ghi' }, zip_code5: 'ghi', country_code_iso3: 'ghi' },
+              email: 'test3@example.com',
+              phone_number: '777-777-7777',
+              address_exists: false,
+              address_changed: true,
+              email_changed: false,
+              phone_number_changed: false
+            }
+          ].to_json
+        end
+
+        before do
+          create(:representative, representative_id: '456def')
+          create(:representative, representative_id: '789ghi')
+        end
+
+        it 'enqueues multiple geocoding jobs with 2-second rate limiting' do
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(0.seconds, 'Veteran::Service::Representative', '123abc')
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(2.seconds, 'Veteran::Service::Representative', '456def')
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(4.seconds, 'Veteran::Service::Representative', '789ghi')
+
+          subject.perform(json_data_multiple)
+        end
+      end
+
+      context 'when geocoding job enqueue fails' do
+        before do
+          allow(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).and_raise(StandardError, 'Sidekiq error')
+        end
+
+        it 'logs an error and sends a Slack notification' do
+          expect(Rails.logger).to receive(:error).with(
+            a_string_matching(/Representatives::Update: Address validation failed for Rep: 123abc/)
+          )
+          expect(Rails.logger).to receive(:error).with(
+            a_string_matching(/Representatives::Update: Error enqueueing geocoding jobs: Sidekiq error/)
+          )
+
+          subject.perform(json_data)
+
+          expect(subject.slack_messages).to include(
+            a_string_matching(/Error enqueueing geocoding jobs: Sidekiq error/)
+          )
+        end
+      end
+    end
   end
 end
