@@ -131,6 +131,46 @@ if Settings.api.url.present?
 - **Method complexity**: Methods with many conditional paths or multiple responsibilities
 - **Database migrations**: Mixing index changes with other schema modifications; index operations missing `algorithm: :concurrently` and `disable_ddl_transaction!`
 
+### SRE Error Handling Audit
+
+Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` for detailed guidance.
+
+**Exception Handling (Always Flag):**
+- `rescue => e` or bare `rescue` without exception class - catches typos, SystemExit, Ctrl+C
+- `rescue => e; nil` or `rescue; false` - swallows failures, returns misleading values
+- `raise "error: #{e}"` - destroys exception type, backtrace, and cause chain
+- Wrapping exceptions without `cause: e` - loses original stack trace and HTTP status
+
+**Status Code Misclassification:**
+- All Faraday errors mapped to 500 - should be: timeout→504, connection→503, upstream 500→502
+- Broad rescue returning 422 - may be hiding our bugs (500) or upstream failures (502-504)
+- Ask: "Who fixes this?" Client→4xx, Us→500, Upstream→502/503/504
+
+**Telemetry Duplication:**
+- `Rails.logger.error e.backtrace.join("\n")` - APM captures backtraces automatically
+- Catch, log, re-raise without adding context - generates duplicate signals
+- Manual `span.set_error` for 4xx responses - floods APM dashboards with expected errors
+
+**Code Examples to Flag:**
+```ruby
+# Bad: Bare rescue swallows everything
+rescue => e
+  Rails.logger.warn("Failed"); nil
+
+# Bad: Missing cause chain
+raise ServiceException.new(e.response)
+
+# Bad: All network errors become 500
+rescue Faraday::Error => e
+  raise InternalServerError
+
+# Good: Specific rescue, proper status, cause preserved
+rescue Faraday::TimeoutError => e
+  raise GatewayTimeout.new(cause: e)  # 504
+rescue Faraday::ConnectionFailed => e
+  raise ServiceUnavailable.new(cause: e)  # 503
+```
+
 ## Consolidation Examples
 
 **Good PR Comment:**
