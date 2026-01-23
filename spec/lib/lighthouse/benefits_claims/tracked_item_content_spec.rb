@@ -22,6 +22,15 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe 'SCHEMA' do
+    it 'successfully loads the schema in normal conditions' do
+      expect(described_class::SCHEMA).not_to be_nil
+      expect(described_class::SCHEMA).to be_a(Hash)
+      expect(described_class::SCHEMA).to be_frozen
+      expect(described_class::SCHEMA).not_to have_key('$schema')
+    end
+  end
+
   describe 'CONTENT' do
     it 'is a frozen hash' do
       expect(described_class::CONTENT).to be_a(Hash)
@@ -36,7 +45,26 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe '.validate_all_entries' do
+    it 'returns errors for schema when SCHEMA is nil' do
+      allow(described_class).to receive(:const_get).with(:SCHEMA).and_return(nil)
+      errors = described_class.validate_all_entries
+      expect(errors).to eq({ 'schema' => ['Schema failed to load'] })
+    end
+
+    it 'returns no errors when all entries are valid' do
+      errors = described_class.validate_all_entries
+      expect(errors).to be_empty
+    end
+  end
+
   describe '.validate_entry' do
+    it 'returns error message when SCHEMA is nil' do
+      allow(described_class).to receive(:const_get).with(:SCHEMA).and_return(nil)
+      errors = described_class.validate_entry({})
+      expect(errors).to eq(['Schema failed to load'])
+    end
+
     valid_entries = {
       'empty entry (all fields optional)' => {},
       'minimal entry with just friendlyName' => {
