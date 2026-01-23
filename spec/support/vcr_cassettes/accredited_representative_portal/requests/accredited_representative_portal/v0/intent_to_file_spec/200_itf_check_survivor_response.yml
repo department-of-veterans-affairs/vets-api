@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V112233/intent-to-file/survivor
+    uri: <LIGHTHOUSE_CLAIMS_API_HOST><ARP_BENEFITS_CLAIMS_PATH>/123498767V112233/intent-to-file/survivor
     body:
       encoding: US-ASCII
       string: ''

@@ -20,6 +20,9 @@ accredited_representative_portal:
         stale_sla: 10
       use_mocks: false
       version: v1
+    benefits_claims:
+      host: https://sandbox-api.va.gov
+      path: /services/claims/v2/veterans
 adapted_housing:
   prefill: true
 argocd:
@@ -694,6 +697,7 @@ lighthouse:
       host: https://sandbox-api.va.gov
       use_mocks: false
     host: https://sandbox-api.va.gov
+    path: /services/claims/v2/veterans/
     use_mocks: false
   benefits_discovery:
     host: 'https://sandbox.lighthouse.va.gov'
