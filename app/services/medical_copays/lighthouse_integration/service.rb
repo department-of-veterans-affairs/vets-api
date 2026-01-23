@@ -17,6 +17,7 @@ module MedicalCopays
       ENCOUNTER_FETCH_LIMIT = 200
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
+      STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
 
       class MissingOrganizationIdError < StandardError; end
       class MissingCityError < StandardError; end
@@ -26,9 +27,62 @@ module MedicalCopays
       end
 
       def list(count:, page:)
-        raw_invoices = invoice_service.list(count:, page:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.list.initiated")
 
-        entries = raw_invoices.fetch('entry').map do |entry|
+        record_success('list') do
+          raw_invoices = invoice_service.list(count:, page:)
+          entries = build_invoice_entries(raw_invoices)
+          Lighthouse::HCC::Bundle.new(raw_invoices, entries)
+        end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        raise
+      end
+
+      def get_detail(id:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
+
+        record_success('detail') do
+          build_copay_detail(id)
+        end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
+        Rails.logger.error(
+          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
+        )
+        raise e
+      end
+
+      private
+
+      def record_success(operation)
+        start_time = Time.current
+        result = yield
+        StatsD.measure("#{STATSD_KEY_PREFIX}.#{operation}.latency", (Time.current - start_time) * 1000)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{operation}.success")
+        result
+      end
+
+      def build_copay_detail(id)
+        invoice_data = invoice_service.read(id)
+        invoice_deps = fetch_invoice_dependencies(invoice_data, id)
+        charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
+        medications = fetch_medications(charge_item_deps[:medication_dispenses])
+
+        Lighthouse::HCC::CopayDetail.new(
+          invoice_data:,
+          account_data: invoice_deps[:account],
+          charge_items: invoice_deps[:charge_items],
+          encounters: charge_item_deps[:encounters],
+          medication_dispenses: charge_item_deps[:medication_dispenses],
+          medications:,
+          payments: invoice_deps[:payments]
+        )
+      end
+
+      def build_invoice_entries(raw_invoices)
+        raw_invoices.fetch('entry').map do |entry|
           resource = entry.fetch('resource')
 
           org_ref = resource.dig('issuer', 'reference').to_s
@@ -45,37 +99,7 @@ module MedicalCopays
 
           Lighthouse::HCC::Invoice.new(enriched_entry)
         end
-
-        Lighthouse::HCC::Bundle.new(raw_invoices, entries)
-      rescue => e
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
-        raise
       end
-
-      def get_detail(id:)
-        invoice_data = invoice_service.read(id)
-
-        invoice_deps = fetch_invoice_dependencies(invoice_data, id)
-        charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
-        medications = fetch_medications(charge_item_deps[:medication_dispenses])
-
-        Lighthouse::HCC::CopayDetail.new(
-          invoice_data:,
-          account_data: invoice_deps[:account],
-          charge_items: invoice_deps[:charge_items],
-          encounters: charge_item_deps[:encounters],
-          medication_dispenses: charge_item_deps[:medication_dispenses],
-          medications:,
-          payments: invoice_deps[:payments]
-        )
-      rescue => e
-        Rails.logger.error(
-          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
-        )
-        raise e
-      end
-
-      private
 
       def retrieve_city(org_id)
         org_data = organization_service.read(org_id)
