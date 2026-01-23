@@ -697,7 +697,6 @@ lighthouse:
       host: https://sandbox-api.va.gov
       use_mocks: false
     host: https://sandbox-api.va.gov
-    path: /services/claims/v2/veterans/
     use_mocks: false
   benefits_discovery:
     host: 'https://sandbox.lighthouse.va.gov'
