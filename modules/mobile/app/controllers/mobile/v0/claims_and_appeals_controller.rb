@@ -24,7 +24,7 @@ module Mobile
       end
 
       def get_claim
-        claim_response = if Flipper.enabled?(:mobile_multi_claim_provider, @current_user)
+        claim_response = if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
                            get_claim_from_providers(params[:id])
                          else
                            lighthouse_claims_proxy.get_claim(params[:id])
@@ -121,7 +121,7 @@ module Mobile
       def fetch_claims_and_appeals
         use_cache = validated_params[:use_cache]
 
-        if Flipper.enabled?(:mobile_multi_claim_provider, @current_user)
+        if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
           fetch_claims_and_appeals_multi_provider(use_cache)
         else
           service_list, service_errors = claims_index_interface.get_accessible_claims_appeals(use_cache)
