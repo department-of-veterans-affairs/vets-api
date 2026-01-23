@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VeteranStatusCard
-  module Constants
+  module Constants # rubocop:disable Metrics/ModuleLength
     SUPPORT_PHONE = '866-279-3677'
     SUPPORT_HOURS = 'Monday through Friday, 8:00 a.m. to 8:00 p.m. ET'
     TTY_INFO = 'TTY: 711'
@@ -31,7 +31,8 @@ module VeteranStatusCard
     DISHONORABLE_MESSAGE = [
       {
         type: 'text',
-        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least one period of service.',
+        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least \
+          one period of service.'
       },
       {
         type: 'text',
