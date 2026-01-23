@@ -64,7 +64,7 @@ benefits_intake_service:
   enabled: true
   url: ~
 betamocks:
-  cache_dir: "../vets-api-mockdata"
+  cache_dir: "/cache"
   enabled: true
   recording: false
   services_config: config/betamocks/services_config.yml
@@ -1237,8 +1237,10 @@ res:
   ch_31_case_details:
     mock: ~
   ch_31_eligibility:
-    mock: ~
-  mock_ch_31: ~
+    mock: true
+  ch31_case_details:
+    mock: true
+  mock_ch_31: true
 review_instance_slug: ~
 rrd:
   alerts:
