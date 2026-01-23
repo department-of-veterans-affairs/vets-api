@@ -28,6 +28,17 @@ RSpec.describe BID::Awards::Service do
         end
       end
     end
+
+    context 'with a failed submission' do
+      it 'handles missing participant_id error' do
+        user_without_participant_id = create(:evss_user, :loa3, participant_id: nil)
+        service_without_participant_id = BID::Awards::Service.new(user_without_participant_id)
+
+        expect do
+          service_without_participant_id.get_awards_pension
+        end.to raise_error(StandardError, 'BID Awards Service requires a participant_id for the user')
+      end
+    end
   end
 
   describe '#get_current_awards' do
@@ -77,6 +88,32 @@ RSpec.describe BID::Awards::Service do
         expect(first_line['grossAmount']).to eq('462.00')
         expect(first_line['netAmount']).to eq('462.00')
       end
+    end
+
+    context 'with a failed submission' do
+      it 'raises an error when participant_id is missing' do
+        user_without_participant_id = create(:evss_user, :loa3, participant_id: nil)
+        service_without_participant_id = BID::Awards::Service.new(user_without_participant_id)
+
+        expect do
+          service_without_participant_id.get_current_awards
+        end.to raise_error(StandardError, 'BID Awards Service requires a participant_id for the user')
+      end
+    end
+  end
+
+  describe 'participant_id validation' do
+    it 'returns the participant_id when present' do
+      expect(service.send(:participant_id)).to eq(user.participant_id)
+    end
+
+    it 'raises an error if participant_id is missing' do
+      user_without_participant_id = create(:evss_user, :loa3, participant_id: nil)
+      service_without_participant_id = BID::Awards::Service.new(user_without_participant_id)
+
+      expect do
+        service_without_participant_id.send(:participant_id)
+      end.to raise_error(StandardError, 'BID Awards Service requires a participant_id for the user')
     end
   end
 end

@@ -51,7 +51,8 @@ module BID
       end
 
       def participant_id
-        @user.participant_id
+        @user.participant_id.presence || raise(StandardError,
+                                               'BID Awards Service requires a participant_id for the user')
       end
 
       def current_awards_endpoint
