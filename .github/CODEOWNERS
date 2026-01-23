@@ -2365,6 +2365,7 @@ spec/support/vcr_cassettes/pagerduty @department-of-veterans-affairs/backend-rev
 spec/support/vcr_cassettes/phr_mgr_client @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/RapidReadyForDecision_DisabilityCompensationJob @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/representation_management @department-of-veterans-affairs/lighthouse-dash
 spec/support/vcr_cassettes/rrd @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/rx_client @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/s3 @department-of-veterans-affairs/backend-review-group
