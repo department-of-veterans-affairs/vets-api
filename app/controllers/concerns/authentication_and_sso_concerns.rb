@@ -149,6 +149,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     )
   end
 
+  # Structured info used for SSO-related logging (user identifier, SSO cookie contents, and request host).
   def sso_logging_info
     { user_uuid: @current_user&.uuid,
       sso_cookie_contents: sso_cookie_content,
