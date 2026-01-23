@@ -4,8 +4,6 @@ module V0
   class Form212680Controller < ApplicationController
     include RetriableConcern
     service_tag 'form-21-2680'
-    skip_before_action :authenticate
-    before_action :load_user
     before_action :check_feature_enabled
 
     def create

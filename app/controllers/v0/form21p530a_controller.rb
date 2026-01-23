@@ -7,7 +7,7 @@ module V0
 
     service_tag 'state-tribal-interment-allowance'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    before_action :load_user, :check_feature_enabled
+    before_action :rescued_load_user, :check_feature_enabled
 
     def create
       claim = build_and_save_claim!

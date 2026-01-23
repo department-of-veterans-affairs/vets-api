@@ -6,7 +6,7 @@ module V0
 
     service_tag 'employment-information'
     skip_before_action :authenticate, only: %i[create download_pdf]
-    before_action :load_user, :check_feature_enabled
+    before_action :rescued_load_user, :check_feature_enabled
 
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.

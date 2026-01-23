@@ -71,6 +71,23 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
+    context 'with expired access token' do
+      let(:access_token_object) { create(:access_token, expiration_time: 1.day.ago) }
+      let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+
+      before do
+        cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+      end
+
+      it 'allows form submission despite expired token' do
+        post(:create, body: form_data, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['data']['type']).to eq('saved_claims')
+        expect(confirmation_number).to be_present
+      end
+    end
+
     context 'InProgressForm cleanup' do
       let(:user) { create(:user, :loa3) }
       let!(:in_progress_form) { create(:in_progress_form, form_id:, user_account: user.user_account) }

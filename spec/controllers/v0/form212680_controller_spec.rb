@@ -60,9 +60,9 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect { DateTime.iso8601(submitted_at) }.not_to raise_error
     end
 
-    it 'does not require authentication' do
+    it 'requires authentication' do
       post(:create, body: form_data, as: :json)
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it 'returns bad_request when json is invalid' do
@@ -168,10 +168,10 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect(parsed_response['errors']).to be_present
     end
 
-    it 'does not require authentication' do
+    it 'requires authentication' do
       get(:download_pdf, params: { guid: claim.guid })
 
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:unauthorized)
     end
 
     context 'when feature flag is disabled' do
