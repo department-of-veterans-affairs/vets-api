@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_evidence_api/service/search'
+require 'claims_evidence_api/service/files'
 
 module V0
   class TsaLetterController < ApplicationController
@@ -25,18 +26,16 @@ module V0
     end
 
     def download
+      download_service = ClaimsEvidenceApi::Service::Files.new
+      letter_response = download_service.download(params[:id], params[:version_id])
       send_data(
-        service.get_tsa_letter(params[:id]),
+        letter_response.body,
         type: 'application/pdf',
         filename: 'VETS Safe Travel Outreach Letter.pdf'
       )
     end
 
     private
-
-    def service
-      Efolder::Service.new(@current_user)
-    end
 
     def most_recent_letter(files)
       return { data: nil } if files.blank?
