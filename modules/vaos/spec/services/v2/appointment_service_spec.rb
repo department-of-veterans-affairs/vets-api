@@ -2350,13 +2350,25 @@ describe VAOS::V2::AppointmentsService do
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
       end
+
+      context 'when processing cerner appointment but flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
+        end
+
+        it 'does not fetch the OH AVS' do
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(subject).not_to receive(:get_avs_pdf)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
+      end
     end
 
     context 'AVS Link' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
       end
-      
+
       context 'when AVS successfully retrieved the AVS link' do
         it 'fetches the avs link and updates the appt hash' do
           allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
