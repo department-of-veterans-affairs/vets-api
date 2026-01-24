@@ -923,13 +923,11 @@ module VAOS
       def fetch_avs_and_update_appt_body(appt)
         if appt[:id].nil?
           appt[:avs_path] = nil
-        elsif VAOS::AppointmentsHelper.cerner?(appt) 
+        elsif VAOS::AppointmentsHelper.cerner?(appt)
           if Flipper.enabled?(APPOINTMENTS_FETCH_OH_AVS, user)
             avs_pdf = get_avs_pdf(appt)
             appt[:avs_pdf] = avs_pdf
           end
-          avs_pdf = get_avs_pdf(appt)
-          appt[:avs_pdf] = avs_pdf
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
