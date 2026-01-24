@@ -391,6 +391,10 @@ features:
     actor_type: user
     description: Enables logging for travel claim submission operations
     enable_in_development: true
+  check_in_experience_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging for check-in and pre-check-in data retrieval, demographics confirmation, and eligibility tracking to diagnose insurance verification issues
+    enable_in_development: true
   check_in_experience_travel_claim_log_api_error_details:
     actor_type: user
     description: Enables detailed logging of external request error responses in client
@@ -490,6 +494,12 @@ features:
   cst_claim_phases:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
+    enable_in_development: true
+  cst_evidence_requests_content_override:
+    actor_type: user
+    description: >
+      When enabled, tracked items in claims status tool use content dictionary
+      overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
   cst_include_ddl_5103_letters:
     actor_type: user
