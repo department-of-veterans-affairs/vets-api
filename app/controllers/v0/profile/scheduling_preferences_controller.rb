@@ -11,14 +11,7 @@ module V0
 
       def show
         response = service.get_person_options(VAProfile::PersonSettings::Service::CONTAINER_IDS[:preferences])
-
-        preferences_data = if response.status == 404 || response.person_options.empty?
-                             { preferences: [] }
-                           else
-                             {
-                               preferences: VAProfile::Models::PersonOption.to_frontend_format(response.person_options)
-                             }
-                           end
+        preferences_data = { preferences: VAProfile::Models::PersonOption.to_frontend_format(response.person_options) }
 
         render json: SchedulingPreferencesSerializer.new(preferences_data)
       end
