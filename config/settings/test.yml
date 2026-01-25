@@ -1229,6 +1229,10 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  ogc_attorney_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/attorneyexcellist.asp
+  ogc_claims_agent_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+  ogc_organizations_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/orgsexcellist.asp
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
