@@ -30,7 +30,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         expect(data_element['attributes'].keys)
           .to match_array(
-            %w[
+                %w[
               url
               facility
               facilityId
@@ -42,7 +42,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
               previousBalance
               previousUnpaidBalance
             ]
-          )
+              )
       end
     end
 
@@ -91,7 +91,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
         expect(data['type']).to eq('medicalCopayDetails')
         expect(data['id']).to be_present
         expect(data['attributes'].keys).to match_array(
-          %w[
+                                             %w[
             externalId
             facility
             billNumber
@@ -110,7 +110,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
             lineItems
             payments
           ]
-        )
+                                           )
         expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
 
         facility = data['attributes']['facility']
@@ -133,7 +133,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
         # Block the invoice GET (the unhandled request) without referencing Invoice::Service
         allow_any_instance_of(Lighthouse::HealthcareCostAndCoverage::Configuration)
           .to receive(:get)
-          .and_raise(Common::Client::Errors::ClientError.new(nil, 400))
+                .and_raise(Common::Client::Errors::ClientError.new(nil, 400))
 
         get '/v1/medical_copays/4-1abZUKu7LnbcQc'
 
@@ -142,6 +142,42 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         expect(errors.first.keys).to match_array(%w[title detail status code])
       end
+    end
+  end
+
+  describe 'summary' do
+    let(:service) { instance_double(MedicalCopays::LighthouseIntegration::Service) }
+
+    before do
+      allow(MedicalCopays::LighthouseIntegration::Service)
+        .to receive(:new)
+              .with(current_user.icn)
+              .and_return(service)
+    end
+
+    it 'returns summarized copay data with default month window' do
+      allow(service).to receive(:summary).with(month_count: 6).and_return(
+        {
+          entries: [],
+          meta: {
+            total_amount_due: 125.50,
+            total_copays: 3,
+            month_window: 6
+          }
+        }
+      )
+
+      get '/v1/medical_copays/summary'
+      expect(response).to have_http_status(:ok)
+
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to eq([])
+      expect(body['meta']).to eq(
+                                'total_amount_due' => 125.5,
+                                'total_copays' => 3,
+                                'month_window' => 6
+                              )
     end
   end
 end
