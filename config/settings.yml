@@ -622,6 +622,7 @@ ibm:
   path: <%= ENV['bio__ibm_mms__path'] %>
   use_mocks: <%= ENV['bio__ibm_mms__use_mocks'] %>
   version: <%= ENV['bio__ibm_mms__version'] %>
+  timeout: 30
 intent_to_file:
   prefill: true
 ivc_champva:
