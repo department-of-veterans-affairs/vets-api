@@ -18,10 +18,7 @@ require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
 require_relative 'sections/section_04_v2'
-<<<<<<< HEAD
 require_relative 'sections/section_06_v2'
-=======
->>>>>>> 9d444056a2 (Add Section 4 V2)
 
 module Burials
   module PdfFill
