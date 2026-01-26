@@ -134,7 +134,7 @@ RSpec.describe RepresentationManagement::EnqueueGeocodingJob, type: :job do
       described_class.new.perform
 
       # Extract delays and verify spacing
-      delays = calls.map { |d| d.to_i }.sort
+      delays = calls.map(&:to_i).sort
 
       # Verify spacing is in 2-second increments
       # Should have 6 total jobs (3 Veteran::Service::Representatives + 3 AccreditedIndividuals)

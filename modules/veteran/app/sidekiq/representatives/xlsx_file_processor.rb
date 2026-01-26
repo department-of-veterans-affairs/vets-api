@@ -128,9 +128,15 @@ module Representatives
     # @param column_map [Hash] The column index map for the sheet.
     # @return [String] The hash representation of the row data.
     def process_row(row, sheet_name, column_map)
-      zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
+      address = build_address(row, column_map)
+      build_representative_hash(row, sheet_name, column_map, address)
+    rescue => e
+      log_error("Error transforming data to hash for #{sheet_name}: #{e.message}")
+    end
 
-      address = {
+    def build_address(row, column_map)
+      zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
+      {
         address_pou: 'RESIDENCE',
         address_line1: get_value(row, column_map, 'WorkAddress1'),
         address_line2: get_value(row, column_map, 'WorkAddress2'),
@@ -141,7 +147,9 @@ module Representatives
         zip_code4:,
         country_code_iso3: 'US'
       }
+    end
 
+    def build_representative_hash(row, sheet_name, column_map, address)
       {
         id: row[column_map['Number']],
         email: get_value(row, column_map, email_address_column_name(sheet_name)),
@@ -149,8 +157,6 @@ module Representatives
         address:,
         raw_address: build_raw_address(address)
       }
-    rescue => e
-      log_error("Error transforming data to hash for #{sheet_name}: #{e.message}")
     end
 
     def get_value(row, column_map, column_name)

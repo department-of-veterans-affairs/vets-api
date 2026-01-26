@@ -13,7 +13,7 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
 
   describe '#perform' do
     let(:file_content) { 'dummy file content' }
-    let(:raw_address_123) do
+    let(:raw_address123) do
       {
         'address_line1' => '123 Test St',
         'address_line2' => nil,
@@ -25,7 +25,7 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     end
     let(:processed_data) do
       {
-        'Agents' => [{ id: '123', address: {}, phone_number: '123-456-7890', raw_address: raw_address_123 }],
+        'Agents' => [{ id: '123', address: {}, phone_number: '123-456-7890', raw_address: raw_address123 }],
         'Attorneys' => [{ id: '234', address: {}, phone_number: '123-456-7890', raw_address: {} }],
         'Representatives' => [{ id: '345', address: {}, phone_number: '123-456-7890', raw_address: {} }]
       }
@@ -54,13 +54,13 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
         subject.perform
         rep.reload
 
-        expect(rep.raw_address).to eq(raw_address_123)
+        expect(rep.raw_address).to eq(raw_address123)
       end
 
       it 'does not update raw_address when it matches existing value' do
         rep = Veteran::Service::Representative.find('123')
-        rep.update(raw_address: raw_address_123)
-        
+        rep.update(raw_address: raw_address123)
+
         expect(rep).not_to receive(:update)
 
         subject.perform

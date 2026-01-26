@@ -392,7 +392,7 @@ describe Veteran::Service::Representative, type: :model do
       end
 
       it 'does not modify the record' do
-        expect { representative.geocode_and_update_location! }.not_to change { representative.reload.attributes }
+        expect { representative.geocode_and_update_location! }.not_to(change { representative.reload.attributes })
       end
     end
 
@@ -548,4 +548,3 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 end
-

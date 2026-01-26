@@ -236,7 +236,9 @@ module Representatives
 
       @records_needing_geocoding.each_with_index do |representative_id, index|
         delay_seconds = index * RATE_LIMIT_SECONDS
-        RepresentationManagement::GeocodeRepresentativeJob.perform_in(delay_seconds.seconds, 'Veteran::Service::Representative', representative_id)
+        model = 'Veteran::Service::Representative'
+        RepresentationManagement::GeocodeRepresentativeJob.perform_in(delay_seconds.seconds,
+                                                                      model, representative_id)
       end
     rescue => e
       log_error("Error enqueueing geocoding jobs: #{e.message}", send_to_slack: true)
