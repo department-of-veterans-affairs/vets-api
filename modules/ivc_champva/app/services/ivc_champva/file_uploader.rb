@@ -76,7 +76,7 @@ module IvcChampva
 
         file_name = File.basename(file_path).gsub('-tmp', '')
         response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
-        insert_form(file_name, response_status.to_s) if @insert_db_row
+        insert_form(file_name, response_status.to_s) if @insert_db_row && file_name.exclude?('_ves.json')
 
         response_status
       end.compact
