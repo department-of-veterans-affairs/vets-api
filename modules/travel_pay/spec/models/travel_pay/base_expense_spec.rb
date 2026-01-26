@@ -83,14 +83,14 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
         expect(subject.errors[:description]).to be_empty
       end
 
-      it 'requires description to be 255 characters or less when present' do
-        subject.description = 'a' * 256
+      it 'requires description to be 2000 characters or less when present' do
+        subject.description = 'a' * 2001
         expect(subject).not_to be_valid
-        expect(subject.errors[:description]).to include('is too long (maximum is 255 characters)')
+        expect(subject.errors[:description]).to include('is too long (maximum is 2000 characters)')
       end
 
-      it 'allows description of exactly 255 characters' do
-        subject.description = 'a' * 255
+      it 'allows description of exactly 2000 characters' do
+        subject.description = 'a' * 2000
         expect(subject).to be_valid
       end
     end
