@@ -20,8 +20,6 @@ module MyHealth
         # PrescriptionDocumentation object with HTML content containing drug information
         prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
         render json: PrescriptionDocumentationSerializer.new(prescription_documentation)
-      rescue => e
-        render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
       end
     end
   end
