@@ -27,6 +27,7 @@ namespace :ivc_champva do
                           .where(created_at: start_date..end_date)
                           .group(:form_uuid)
                           .having('COUNT(*) = 1')
+                          .order(:form_uuid)
                           .pluck(:form_uuid)
 
     total_count = single_record_uuids.count
