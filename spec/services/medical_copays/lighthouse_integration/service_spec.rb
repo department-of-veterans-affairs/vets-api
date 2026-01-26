@@ -386,7 +386,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       entries = [
         invoice_entry(date: recent.iso8601, balance: 15.00),
-        invoice_entry(date: old.iso8601, balance: 999.99) # should be ignored
+        invoice_entry(date: old.iso8601, balance: 999.99)
       ]
 
       allow(invoice_service).to receive(:list)
