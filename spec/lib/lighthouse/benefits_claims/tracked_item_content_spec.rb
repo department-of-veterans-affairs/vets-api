@@ -22,17 +22,32 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe 'SCHEMA' do
+    it 'successfully loads the schema in normal conditions' do
+      expect(described_class::SCHEMA).not_to be_nil
+      expect(described_class::SCHEMA).to be_a(Hash)
+      expect(described_class::SCHEMA).to be_frozen
+      expect(described_class::SCHEMA).not_to have_key('$schema')
+    end
+  end
+
   describe 'CONTENT_PATH' do
+    it 'points to an existing content file' do
+      expect(File).to exist(described_class::CONTENT_PATH)
+    end
+
     it 'contains valid JSON' do
       content = File.read(described_class::CONTENT_PATH)
+
       expect { JSON.parse(content) }.not_to raise_error
     end
   end
 
   describe 'CONTENT' do
-    it 'is a frozen hash' do
+    it 'successfully loads content in normal conditions' do
       expect(described_class::CONTENT).to be_a(Hash)
       expect(described_class::CONTENT).to be_frozen
+      expect(described_class::CONTENT).not_to be_empty
     end
 
     it 'contains entries that all pass schema validation' do
@@ -43,7 +58,34 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe '.validate_all_entries' do
+    it 'returns errors for schema when SCHEMA is nil' do
+      stub_const("#{described_class}::SCHEMA", nil)
+      errors = described_class.validate_all_entries
+      expect(errors).to eq({ 'schema' => ['Schema failed to load'] })
+    end
+
+    it 'returns empty hash when CONTENT is empty' do
+      stub_const("#{described_class}::CONTENT", {}.freeze)
+
+      errors = described_class.validate_all_entries
+
+      expect(errors).to be_empty
+    end
+
+    it 'returns no errors when all entries are valid' do
+      errors = described_class.validate_all_entries
+      expect(errors).to be_empty
+    end
+  end
+
   describe '.validate_entry' do
+    it 'returns error message when SCHEMA is nil' do
+      stub_const("#{described_class}::SCHEMA", nil)
+      errors = described_class.validate_entry({})
+      expect(errors).to eq(['Schema failed to load'])
+    end
+
     valid_entries = {
       'empty entry (all fields optional)' => {},
       'minimal entry with just friendlyName' => {
@@ -219,6 +261,14 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
   describe '.find_by_display_name' do
     it 'returns nil for non-existent display name' do
       result = described_class.find_by_display_name('Non-existent Item')
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when CONTENT is empty' do
+      stub_const("#{described_class}::CONTENT", {}.freeze)
+
+      result = described_class.find_by_display_name('21-4142/21-4142a')
+
       expect(result).to be_nil
     end
 

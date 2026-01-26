@@ -11,6 +11,15 @@ module BenefitsClaims
       schema = JSON.parse(File.read(SCHEMA_PATH))
       schema.delete('$schema')
       schema.freeze
+    rescue Errno::ENOENT => e
+      Rails.logger.error("TrackedItemContent schema file not found: #{SCHEMA_PATH} - #{e.message}")
+      nil
+    rescue JSON::ParserError => e
+      Rails.logger.error("TrackedItemContent schema file contains invalid JSON: #{SCHEMA_PATH} - #{e.message}")
+      nil
+    rescue => e
+      Rails.logger.error("Unexpected error loading TrackedItemContent schema: #{e.class} - #{e.message}")
+      nil
     end
 
     # Default values for content entries
@@ -36,12 +45,26 @@ module BenefitsClaims
 
     # Content dictionary for tracked item overrides
     # Keys are display names from the Lighthouse API
-    CONTENT = JSON.parse(File.read(CONTENT_PATH)).transform_values(&:deep_symbolize_keys).freeze
+    # Loaded from JSON file for maintainability (large structured content)
+    CONTENT = begin
+      JSON.parse(File.read(CONTENT_PATH)).transform_values(&:deep_symbolize_keys).freeze
+    rescue Errno::ENOENT => e
+      Rails.logger.error("TrackedItemContent content file not found: #{CONTENT_PATH} - #{e.message}")
+      {}.freeze
+    rescue JSON::ParserError => e
+      Rails.logger.error("TrackedItemContent content file contains invalid JSON: #{CONTENT_PATH} - #{e.message}")
+      {}.freeze
+    rescue => e
+      Rails.logger.error("Unexpected error loading TrackedItemContent content: #{e.class} - #{e.message}")
+      {}.freeze
+    end
 
     class << self
       # Validates all CONTENT entries against the JSON schema
       # @return [Hash<String, Array<String>>] Hash mapping display names to validation errors
       def validate_all_entries
+        return { 'schema' => ['Schema failed to load'] } if SCHEMA.nil?
+
         errors = {}
 
         CONTENT.each do |display_name, entry|
@@ -56,6 +79,8 @@ module BenefitsClaims
       # @param entry [Hash] The content entry to validate
       # @return [Array<String>] Array of validation error messages
       def validate_entry(entry)
+        return ['Schema failed to load'] if SCHEMA.nil?
+
         JSON::Validator.fully_validate(SCHEMA, entry.deep_stringify_keys)
       end
 
