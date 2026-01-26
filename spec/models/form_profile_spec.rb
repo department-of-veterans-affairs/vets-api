@@ -2419,7 +2419,7 @@ RSpec.describe FormProfile, type: :model do
       context 'when Vet360 prefill is enabled' do
         let(:user) do
           build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
-                                            vet360_id: '1781151')
+                                           vet360_id: '1781151')
         end
 
         before do
@@ -2439,13 +2439,13 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns prefilled 21-526EZ' do
           expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
-                                              .and_return(true).at_least(:once)
+                                             .and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           VCR.use_cassette('va_profile/v2/contact_information/get_address') do
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
               VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                 VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                  allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                                 allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                   VCR.use_cassette('disability_max_ratings/max_ratings') do
                     expect_prefilled('21-526EZ')
                   end
