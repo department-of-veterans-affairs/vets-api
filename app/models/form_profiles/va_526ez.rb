@@ -277,6 +277,8 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def mask(number)
+    return nil if number.nil?
+
     number.gsub(/.(?=.{4})/, '*')
   end
 end
