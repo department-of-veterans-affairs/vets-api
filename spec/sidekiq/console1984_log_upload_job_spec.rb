@@ -14,9 +14,6 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   let!(:user) { create(:console1984_user, username: 'test.person@va.gov') }
 
   before do
-    # stub to check file contents
-    allow(job).to receive(:delete_log_file)
-
     FileUtils.mkdir_p(temp_dir)
 
     allow(Date).to receive(:yesterday).and_return(yesterday_date)
@@ -26,7 +23,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   end
 
   after do
-    FileUtils.rm_f(expected_file_path)
+    FileUtils.rm_f(expected_file_path.to_s)
   end
 
   def file_content
@@ -38,6 +35,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
       before do
         allow(Rails.env).to receive(:development?).and_return(true)
         allow(mock_transfer_manager).to receive(:upload_file)
+        allow(FileUtils).to receive(:rm_f).with(expected_file_path.to_s)
       end
 
       context 'with console sessions from yesterday' do
