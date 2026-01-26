@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'logging/helper/data_scrubber'
+
 class Console1984LogUploadJob
   include Sidekiq::Job
+  include Logging::Helper::DataScrubber
 
   CONSOLE_LOGS_S3_BUCKET = 'vets-api-console-access-logs'
   AWS_REGION = 'us-gov-west-1'
@@ -87,7 +90,7 @@ class Console1984LogUploadJob
     {
       id: command.id,
       timestamp: command.created_at,
-      statements: command.statements,
+      statements: scrub(command.statements),
       sensitive: command.sensitive_access_id.present?,
       sensitive_access: sensitive_access_for_command(command)
     }
