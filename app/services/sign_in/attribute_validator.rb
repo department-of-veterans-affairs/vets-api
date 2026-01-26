@@ -114,19 +114,10 @@ module SignIn
     def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
       return unless mpi_attribute
 
-      mismatch = scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
-      return unless mismatch
-
-      if type.to_s.downcase == 'ssn'
-        message = "SSN attribute mismatch, #{type} in credential does not match MPI attribute"
-        handle_error(message,
-                     Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH,
-                     error: Errors::AttributeMismatchError)
-      else
-        message = "Attribute mismatch, #{type} in credential does not match MPI attribute"
+      if scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
         error = prevent_auth ? Errors::AttributeMismatchError : nil
-        handle_error(message,
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+        handle_error("Attribute mismatch, #{type} in credential does not match MPI attribute",
+                     type.to_s.downcase == 'ssn' ? Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH : Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error:)
       end
     end

@@ -312,7 +312,10 @@ RSpec.describe SignIn::AttributeValidator do
             validator = SignIn::AttributeValidator.new(user_attributes:)
             expect do
               validator.send(:attribute_mismatch_check, type, ssn, mpi_ssn, prevent_auth:)
-            end.to raise_error(SignIn::Errors::AttributeMismatchError, /SSN attribute mismatch/)
+            end.to raise_error(
+              SignIn::Errors::AttributeMismatchError,
+              /Attribute mismatch, ssn in credential does not match MPI attribute/i
+            )
           end
 
           it 'sets the correct error code on the raised error' do
