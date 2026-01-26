@@ -1233,6 +1233,10 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: ~
 res:
   api_key: fake_auth
   base_url: https://fake_url.com

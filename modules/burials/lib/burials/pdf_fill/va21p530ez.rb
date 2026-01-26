@@ -13,6 +13,8 @@ require_relative 'sections/section_05'
 require_relative 'sections/section_06'
 require_relative 'sections/section_07'
 
+require_relative 'sections/section_01_v2'
+
 module Burials
   module PdfFill
     # Forms module
@@ -96,14 +98,15 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
+        SECTION_CLASSES_V2 = [Section1V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
+        # These are placeholders and will be updated as V2 sections are implemented
         QUESTION_KEY_V2 = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
-          { question_number: '3', question_text: 'VA File Number' },
-          { question_number: '4', question_text: "Veteran's Date of Birth" },
+          { question_number: '3', question_text: "Veteran's Date of Birth" },
+          { question_number: '4', question_text: 'VA File Number' },
           { question_number: '5', question_text: "Veteran's Date of Death" },
           { question_number: '6', question_text: "Veteran's Date of Burial" },
           { question_number: '7', question_text: "Claimant's Name" },
@@ -129,11 +132,12 @@ module Burials
         ].freeze
 
         # V2 sections grouping question numbers for overflow pages
+        # These are placeholders and will be updated as V2 sections are implemented
         SECTIONS_V2 = [
           { label: 'Section I: Deceased Veteran\'s Name', question_nums: ['1'] },
           { label: 'Section II: Deceased Veteran\'s Social Security Number', question_nums: ['2'] },
-          { label: 'Section III: VA File Number', question_nums: ['3'] },
-          { label: 'Section IV: Veteran\'s Date of Birth', question_nums: ['4'] },
+          { label: 'Section III: Veteran\'s Date of Birth', question_nums: ['3'] },
+          { label: 'Section IV: VA File Number', question_nums: ['4'] },
           { label: 'Section V: Veteran\'s Date of Death', question_nums: ['5'] },
           { label: 'Section VI: Veteran\'s Date of Burial', question_nums: ['6'] },
           { label: 'Section VII: Claimant\'s Identification Information', question_nums: %w[7 8 9] },
