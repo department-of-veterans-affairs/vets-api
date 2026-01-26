@@ -27,9 +27,11 @@ module FacilitiesApi::V2::FacilitiesErrorHandler
   rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
          Common::Client::Errors::ParsingError => e
     json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
+  rescue ActionController::ParameterMissing
+    raise # Let global ExceptionHandling format this properly
   rescue => e
     Datadog::Tracing.active_span&.set_error(e)
-    json_error("#{method}_unexpected", e, 'Internal Server Error', '500', :internal_server_error)
+    json_error("#{method}_unexpected", e, 'Internal server error', '500', :internal_server_error)
   end
 
   # Helper method to render JSON error responses

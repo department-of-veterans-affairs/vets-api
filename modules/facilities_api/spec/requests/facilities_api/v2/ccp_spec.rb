@@ -604,13 +604,14 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           mock_span = instance_double(Datadog::Tracing::Span)
           allow(Datadog::Tracing).to receive(:active_span).and_return(mock_span)
           allow(mock_span).to receive(:set_error)
+          allow(mock_span).to receive(:service=)
 
           get '/facilities_api/v2/ccp',
               params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
 
           expect(response).to have_http_status(:internal_server_error)
           response_json = JSON.parse(response.body)
-          expect(response_json['errors'].first['title']).to eq('Internal Server Error')
+          expect(response_json['errors'].first['title']).to eq('Internal server error')
           expect(response_json['errors'].first['code']).to eq('500')
           expect(mock_span).to have_received(:set_error).with(instance_of(RuntimeError))
         end
@@ -626,7 +627,7 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
           expect(response).to have_http_status(:internal_server_error)
           response_json = JSON.parse(response.body)
-          expect(response_json['errors'].first['title']).to eq('Internal Server Error')
+          expect(response_json['errors'].first['title']).to eq('Internal server error')
         end
       end
     end
