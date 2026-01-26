@@ -1090,7 +1090,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
@@ -1138,7 +1138,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the backend service cannot handle the request' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 status code' do

@@ -17,7 +17,7 @@ describe VAOS::V2::PatientsService do
     context 'with an patient' do
       context 'using VAOS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'returns a patient' do
@@ -51,7 +51,7 @@ describe VAOS::V2::PatientsService do
     context 'when the upstream server returns a 500' do
       context 'using VAOS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'raises a backend exception' do

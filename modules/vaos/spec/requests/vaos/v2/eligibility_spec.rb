@@ -22,7 +22,8 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
       context 'using VAOS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
         end
 
         context 'patient appointment meta data' do
@@ -41,7 +42,8 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
       context 'using VPG' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(true)
         end
 
         context 'patient appointment meta data' do
