@@ -1523,6 +1523,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_191812) do
     t.integer "vso_organizations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "idx_on_created_at_5b6fb39541"
   end
 
   create_table "saved_claim_groups", force: :cascade do |t|
