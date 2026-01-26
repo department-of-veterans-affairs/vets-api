@@ -14,10 +14,7 @@ module Burials
         'otherFamily' => 5
       }.freeze
 
-<<<<<<< HEAD
       # The final resting place options
-=======
->>>>>>> fc33d785f3 (Add Section 4 V2)
       RESTING_PLACES = {
         'cemetery' => 0,
         'mausoleum' => 1,
@@ -25,10 +22,7 @@ module Burials
         'other' => 3
       }.freeze
 
-<<<<<<< HEAD
       # The cemetery location options
-=======
->>>>>>> fc33d785f3 (Add Section 4 V2)
       CEMETARY_LOCATION = {
         'cemetery' => 0,
         'tribalLand' => 1,

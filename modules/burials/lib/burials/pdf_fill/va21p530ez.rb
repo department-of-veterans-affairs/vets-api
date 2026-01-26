@@ -150,6 +150,7 @@ module Burials
         ].freeze
 
         # form configuration hash
+
         KEY = key.freeze
 
         ##
