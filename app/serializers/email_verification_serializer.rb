@@ -26,6 +26,7 @@ class EmailVerificationSerializer
   attr_reader :response_type_flags
 
   def initialize(resource, options = {})
+    verify_resource!(resource)
     super(resource, options)
     @response_type_flags = options.slice(:status, :sent, :verified)
   end
@@ -44,6 +45,24 @@ class EmailVerificationSerializer
   end
 
   private
+
+  def verify_resource!(resource)
+    raise ArgumentError, 'Resource cannot be nil' if resource.nil?
+
+    raise ArgumentError, 'Resource must respond to :id method for serialization' unless resource.respond_to?(:id)
+
+    unless email_verification_object?(resource)
+      verification_methods = %w[needs_verification email_sent template_type verified verified_at]
+      raise ArgumentError,
+            'Resource must respond to at least one email verification method: ' \
+            "#{verification_methods.join(', ')}"
+    end
+  end
+
+  def email_verification_object?(resource)
+    verification_methods = %w[needs_verification email_sent template_type verified verified_at]
+    verification_methods.any? { |method| resource.respond_to?(method) }
+  end
 
   def detect_response_type
     return nil unless response_type_flags

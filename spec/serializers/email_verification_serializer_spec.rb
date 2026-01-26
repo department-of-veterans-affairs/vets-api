@@ -199,6 +199,80 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     end
   end
 
+  describe 'resource validation' do
+    let(:valid_response_data) do
+      OpenStruct.new(
+        id: SecureRandom.uuid,
+        needs_verification: true
+      )
+    end
+
+    context 'when resource is nil' do
+      it 'raises ArgumentError' do
+        expect do
+          described_class.new(nil, status: true)
+        end.to raise_error(ArgumentError, 'Resource cannot be nil')
+      end
+    end
+
+    context 'when resource does not respond to id' do
+      let(:resource_without_id) do
+        object = Object.new
+        object.define_singleton_method(:needs_verification) { true }
+        object
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          described_class.new(resource_without_id, status: true)
+        end.to raise_error(ArgumentError, 'Resource must respond to :id method for serialization')
+      end
+    end
+
+    context 'when resource does not respond to any email verification methods' do
+      let(:invalid_resource) do
+        OpenStruct.new(id: SecureRandom.uuid, some_other_attribute: 'value')
+      end
+
+      it 'raises ArgumentError with method list' do
+        expect do
+          described_class.new(invalid_resource, status: true)
+        end.to raise_error(ArgumentError, /Resource must respond to at least one email verification method:/)
+      end
+    end
+
+    context 'when resource responds to at least one verification method' do
+      let(:minimal_valid_resource) do
+        OpenStruct.new(id: SecureRandom.uuid, needs_verification: false)
+      end
+
+      it 'does not raise error' do
+        expect do
+          described_class.new(minimal_valid_resource, status: true)
+        end.not_to raise_error
+      end
+    end
+
+    context 'when resource responds to multiple verification methods' do
+      let(:full_resource) do
+        OpenStruct.new(
+          id: SecureRandom.uuid,
+          needs_verification: true,
+          email_sent: true,
+          template_type: 'test',
+          verified: false,
+          verified_at: nil
+        )
+      end
+
+      it 'does not raise error' do
+        expect do
+          described_class.new(full_resource, status: true)
+        end.not_to raise_error
+      end
+    end
+  end
+
   describe 'response type validation' do
     let(:response_data) do
       OpenStruct.new(
