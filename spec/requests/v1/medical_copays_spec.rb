@@ -30,7 +30,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         expect(data_element['attributes'].keys)
           .to match_array(
-                %w[
+            %w[
               url
               facility
               facilityId
@@ -42,7 +42,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
               previousBalance
               previousUnpaidBalance
             ]
-              )
+          )
       end
     end
 
@@ -91,7 +91,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
         expect(data['type']).to eq('medicalCopayDetails')
         expect(data['id']).to be_present
         expect(data['attributes'].keys).to match_array(
-                                             %w[
+          %w[
             externalId
             facility
             billNumber
@@ -110,7 +110,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
             lineItems
             payments
           ]
-                                           )
+        )
         expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
 
         facility = data['attributes']['facility']
@@ -132,8 +132,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         # Block the invoice GET (the unhandled request) without referencing Invoice::Service
         allow_any_instance_of(Lighthouse::HealthcareCostAndCoverage::Configuration)
-          .to receive(:get)
-                .and_raise(Common::Client::Errors::ClientError.new(nil, 400))
+          .to receive(:get).and_raise(Common::Client::Errors::ClientError.new(nil, 400))
 
         get '/v1/medical_copays/4-1abZUKu7LnbcQc'
 
