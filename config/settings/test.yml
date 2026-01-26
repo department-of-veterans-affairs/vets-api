@@ -11,6 +11,9 @@ accredited_representative_portal:
       repo: faked/fakeness
   frontend_base_url: http://localhost:3001/representative
   lighthouse:
+    benefits_claims:
+      host: https://sandbox-api.va.gov
+      path: /services/claims/v2/veterans
     benefits_intake:
       api_key: fake_api_key
       host: https://sandbox-api.va.gov
@@ -909,6 +912,7 @@ maintenance:
     vapro_military_info: ~
     vapro_notification_settings: ~
     vapro_personal_info: ~
+    vass: ~
     vbms: ~
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
@@ -1233,6 +1237,10 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: ~
 res:
   api_key: fake_auth
   base_url: https://fake_url.com

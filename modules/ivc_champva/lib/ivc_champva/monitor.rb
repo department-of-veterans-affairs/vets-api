@@ -302,5 +302,17 @@ module IvcChampva
                     "#{STATS_KEY}.experiment.#{experiment_name}.error_tracked",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    ##
+    # Logs UUID and error message when document merging fails
+    #
+    # @param [String] form_uuid UUID of the form submission with failed merge
+    # @param [String] error_message Error message from the merge failure
+    def track_merge_error(form_uuid, error_message)
+      additional_context = { form_uuid:, error_message: }
+      track_request('warn', "IVC ChampVa Forms - document merge failed for submission: #{form_uuid}",
+                    "#{STATS_KEY}.merge_error",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end

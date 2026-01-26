@@ -12,7 +12,8 @@ vaweb.update!(authentication: SignIn::Constants::Auth::COOKIE,
               enforced_terms: SignIn::Constants::Auth::VA_TERMS,
               terms_of_use_url: 'http://localhost:3001/terms-of-use',
               shared_sessions: true,
-              refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+              refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
+              service_levels: SignIn::Constants::Auth::ACR_VALUES)
 
 # Create Config for VA flagship mobile Sign in Service client
 vamobile = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamobile')
