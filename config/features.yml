@@ -1392,9 +1392,15 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_medications_management_improvements:
+    actor_type: user
+    description: Enables improvements to medication management functionality
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
+  mhv_secure_messaging_can_reply_field:
+    actor_type: user
+    description: Enables/disables Secure Messaging use of canReply field from SM API
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -2034,6 +2040,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_enhanced_uuid_validation:
+    actor_type: user
+    description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
@@ -2833,6 +2842,9 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
+  delete_old_education_benefits_job:
+    actor_type: user
+    description: If enabled, allow the EducationForm::DeleteOldEducationBenefitsClaims job to run as normal
   fmp_benefits_authorization_letter:
     actor_type: user
     description: Enables displaying FMP Benefits Authorization letter on Letters page

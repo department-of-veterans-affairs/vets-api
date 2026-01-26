@@ -77,8 +77,8 @@ RSpec.describe 'Vass::V0::Appointments - Get Appointment', type: :request do
 
             expect(json_response['data']).to be_present
             expect(json_response['data']['appointmentId']).to eq(appointment_id)
-            expect(json_response['data']['startUTC']).to be_present
-            expect(json_response['data']['endUTC']).to be_present
+            expect(json_response['data']['startUtc']).to be_present
+            expect(json_response['data']['endUtc']).to be_present
             expect(json_response['data']['agentNickname']).to be_present
             expect(json_response['data']['appointmentStatus']).to be_present
           end

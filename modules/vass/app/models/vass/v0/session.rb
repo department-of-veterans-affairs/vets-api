@@ -21,6 +21,8 @@ module Vass
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
     class Session
+      include Vass::Logging
+
       # Valid contact methods for OTC delivery
       VALID_CONTACT_METHODS = %w[email].freeze
 
@@ -282,7 +284,10 @@ module Vass
         # Retrieve veteran metadata from Redis (stored during create flow)
         metadata = redis_client.veteran_metadata(uuid:)
 
-        return false unless metadata
+        unless metadata
+          log_vass_event(action: 'metadata_not_found', level: :error)
+          return false
+        end
 
         redis_client.save_session(
           session_token: auth_token,
@@ -312,7 +317,7 @@ module Vass
       ##
       # Validates OTC, deletes it, and generates a JWT token.
       #
-      # @return [String] Generated JWT token
+      # @return [Hash] Hash containing :token and :jti for audit logging
       # @raise [Vass::Errors::AuthenticationError] if OTC is invalid
       #
       def validate_and_generate_jwt
@@ -325,18 +330,21 @@ module Vass
       ##
       # Generates a JWT token for authenticated access.
       #
-      # @return [String] JWT token
+      # @return [Hash] Hash containing :token (JWT string) and :jti (unique JWT ID for audit logging)
       #
       def generate_jwt_token
+        jti = SecureRandom.uuid
         payload = {
           sub: uuid,
-          jti: SecureRandom.uuid,
+          jti:,
           iat: Time.now.to_i,
           exp: Time.now.to_i + 3600 # 1 hour expiration
         }
 
         # Use HS256 signing with shared secret - assumes JWT secret is configured
-        JWT.encode(payload, jwt_secret, 'HS256')
+        token = JWT.encode(payload, jwt_secret, 'HS256')
+
+        { token:, jti: }
       end
 
       private
