@@ -33,7 +33,7 @@ describe VAOS::V2::PatientsService do
 
       context 'using VPG' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         end
 
         it 'returns a patient' do
@@ -66,7 +66,7 @@ describe VAOS::V2::PatientsService do
 
       context 'using VPG' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         end
 
         it 'raises a backend exception' do
