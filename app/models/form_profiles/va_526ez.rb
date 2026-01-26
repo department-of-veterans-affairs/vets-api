@@ -122,6 +122,8 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
+    return {} unless user.authorize :ligthouse_policy, :access_vet_status?
+
 
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
