@@ -11,7 +11,6 @@ class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
     # carrierwave allows only 2 arguments, which they will pass onto
     # different versions by calling the initialize function again
     # so the _unused argument is necessary
-
     super
     @guid = guid
 
@@ -28,8 +27,19 @@ class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
 
   # Override filename to return a shortened version
   def filename
-    return super if original_filename.nil?
-    shorten_filename(original_filename)
+    # Store the shortened filename on first access to persist it throughout the upload process
+    @shortened_filename ||= if original_filename.present?
+                              shorten_filename(original_filename)
+                            else
+                              super
+                            end
+  end
+
+  # Override to use shortened filename for actual file storage
+  def full_filename(original_name_for_file)
+    return super if original_name_for_file.nil?
+
+    shorten_filename(original_name_for_file)
   end
 
   # Override the :converted version to use shortened filenames

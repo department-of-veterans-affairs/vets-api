@@ -11,38 +11,26 @@ class SupportingEvidenceAttachment < FormAttachment
   # this uploads the file to S3 through its parent class
   # the final filename comes from the uploader once the file is successfully uploaded to S3
   def set_file_data!(file, file_password = nil)
-    # Store original filename before processing
+    # Store the original filename before processing
     original_filename = file.original_filename
 
     begin
-      # Let parent class handle the standard file storage process
+      # Call parent to handle standard file storage
+      # The parent will call attachment_uploader.filename which should return the shortened filename
       super(file, file_password)
-      
-      # After successful storage, enhance file_data with our additional fields
-      current_file_data = parsed_file_data
-      uploader = get_attachment_uploader
-      shortened_filename = uploader.file.filename
-      
-      # Start with the parent's file_data and enhance it
-      enhanced_file_data = current_file_data.merge(
-        'filename' => shortened_filename,
-        'original_filename' => original_filename
-      )
 
-      # Handle converted files (like PDFs) 
-      if uploader.converted_exists?
-        converted_filename = uploader.converted.file.filename
-        # If the converted filename is too long, shorten it
-        if converted_filename.length > MAX_FILENAME_LENGTH
-          converted_filename = uploader.send(:shorten_filename, converted_filename)
-        end
-        enhanced_file_data['converted_filename'] = converted_filename
-      end
-      
-      self.file_data = enhanced_file_data.to_json
-      
+      # Parse the data that super just stored and add our additional fields
+      current_file_data = JSON.parse(file_data)
+      current_file_data['original_filename'] = original_filename
+
+      # Handle converted files
+      converted_filename = get_converted_filename(original_filename)
+      current_file_data['converted_filename'] = converted_filename if converted_filename
+
+      self.file_data = current_file_data.to_json
     rescue Errno::ENAMETOOLONG => e
-      Rails.logger.error('SupportingEvidenceAttachment filename too long error', { error: e.message, backtrace: e.backtrace })
+      Rails.logger.error('SupportingEvidenceAttachment filename too long error',
+                         { error: e.message, backtrace: e.backtrace })
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: 'File name is too long. Please use a shorter file name.',
         source: 'SupportingEvidenceAttachment.set_file_data'
@@ -56,10 +44,6 @@ class SupportingEvidenceAttachment < FormAttachment
 
   def filename
     parsed_file_data['filename']
-  end
-
-  def original_filename
-    parsed_file_data['original_filename'] || parsed_file_data['filename']
   end
 
   # Obfuscates the attachment's file name for use in mailers, so we don't email PII
@@ -81,5 +65,25 @@ class SupportingEvidenceAttachment < FormAttachment
     else
       original_filename
     end
+  end
+
+  private
+
+  def get_converted_filename(_original_filename)
+    uploader = get_attachment_uploader
+    return nil unless uploader.converted_exists?
+
+    converted_filename = uploader.converted.file.filename
+
+    # If the converted filename is too long, shorten it
+    if converted_filename.length > MAX_FILENAME_LENGTH
+      converted_filename = uploader.send(:shorten_filename, converted_filename)
+    end
+
+    converted_filename
+  end
+
+  def original_filename
+    parsed_file_data['original_filename'] || parsed_file_data['filename']
   end
 end

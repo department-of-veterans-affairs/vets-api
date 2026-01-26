@@ -22,9 +22,9 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(long_filename)
 
-      # Mock what the file.filename should return after storage (shortened)
+      # Mock what the uploader.filename should return after storage (shortened)
       shortened_filename = "#{'evidence' * 12}.pdf" # Should be shortened to 100 chars
-      allow(mock_file).to receive(:filename).and_return(shortened_filename)
+      allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(shortened_filename)
 
       attachment.set_file_data!(uploaded_file)
 
@@ -39,8 +39,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       short_filename = 'medical-record.pdf'
       uploaded_file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
       allow(uploaded_file).to receive(:original_filename).and_return(short_filename)
-
-      allow(mock_file).to receive(:filename).and_return(short_filename)
+      allow_any_instance_of(SupportingEvidenceAttachmentUploader).to receive(:filename).and_return(short_filename)
 
       attachment.set_file_data!(uploaded_file)
 
@@ -91,7 +90,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       it 'does not shorten the filename' do
         allow(mock_stored_file).to receive(:filename).and_return(filename)
         allow(mock_file).to receive(:original_filename).and_return('short_filename.pdf')
-        
+
         attachment.set_file_data!(mock_file)
 
         file_data = JSON.parse(attachment.file_data)
@@ -137,7 +136,10 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         allow(mock_uploader).to receive(:converted).and_return(mock_converted_version)
         allow(mock_converted_version).to receive(:file).and_return(mock_converted_file)
         allow(mock_converted_file).to receive(:filename).and_return(long_converted_filename)
-        allow(mock_uploader).to receive(:send).with(:shorten_filename, long_converted_filename).and_return(long_converted_filename[0, 96] + '.jpg')
+        allow(mock_uploader).to receive(:send).with(:shorten_filename,
+                                                    long_converted_filename).and_return(
+                                                      "#{long_converted_filename[0, 96]}.jpg"
+                                                    )
       end
 
       it 'includes both shortened filenames from uploader' do
@@ -173,7 +175,7 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
         allow(mock_stored_file).to receive(:filename).and_return(filename)
         allow(mock_file).to receive(:original_filename).and_return('test.pdf')
         allow(mock_uploader).to receive(:store!).and_raise(Errno::ENAMETOOLONG, 'File name too long')
-        
+
         expect(Rails.logger).to receive(:error).with(
           'SupportingEvidenceAttachment filename too long error',
           hash_including(error: a_string_including('File name too long'))

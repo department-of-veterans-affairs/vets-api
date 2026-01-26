@@ -359,8 +359,14 @@ module Sidekiq
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
-          filename = File.basename(file.path, '.*')
-          file_extension = File.extname(file.path)
+          # Use original filename from upload data if the original wasn't too long
+          # Otherwise use the shortened filename from the database
+          original_filename = upload['name']
+          use_shortened = original_filename.length > SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH
+
+          filename_to_use = use_shortened ? sea.filename : original_filename
+          filename = File.basename(filename_to_use, '.*')
+          file_extension = File.extname(filename_to_use)
           entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
           File.binwrite(entropied_fname, file.read)
           docs << upload.merge!(file: entropied_fname, type: FORM_526_UPLOADS_DOC_TYPE,
