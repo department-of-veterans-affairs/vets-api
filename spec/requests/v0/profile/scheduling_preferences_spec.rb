@@ -9,7 +9,7 @@ RSpec.describe 'V0::Profile::SchedulingPreferences', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
     allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
 
     service_response_mock = double(
