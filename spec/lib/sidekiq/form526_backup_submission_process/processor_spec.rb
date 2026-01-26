@@ -87,13 +87,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
               processed_files.each do |processed_file|
                 if processed_file['name'].length > 101
-                  # Match the processor logic exactly:
-                  # filename = File.basename(file.path, '.*')[0...MAX_FILENAME_LENGTH]
-                  # file_extension = File.extname(file.path)
-                  # entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
                   base_filename = File.basename(processed_file['name'], '.*')
                   file_extension = File.extname(processed_file['name'])
-                  shortened_name = base_filename[0...(described_class::MAX_FILENAME_LENGTH - file_extension.length)]
+                  max_length = SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH
+                  shortened_name = base_filename[0...(max_length - file_extension.length)]
                   shortened_path = "#{unique_path}.#{shortened_name}#{file_extension}"
                   expect(processed_file[:file].length).to be <= processed_file['name'].length
                   expect(processed_file[:file].length).to eq(shortened_path.length)
