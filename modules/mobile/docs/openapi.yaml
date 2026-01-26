@@ -2512,7 +2512,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [benefit_summary, benefit_summary_dependent, benefit_verification, certificate_of_eligibility, civil_service, commissary, medicare_partd, minimum_essential_coverage, proof_of_service, service_verification]
+            enum: [benefit_summary, benefit_summary_dependent, benefit_verification, certificate_of_eligibility, civil_service, commissary, foreign_medical_program, medicare_partd, minimum_essential_coverage, proof_of_service, service_verification]
         - description: format
           in: query
           name: format

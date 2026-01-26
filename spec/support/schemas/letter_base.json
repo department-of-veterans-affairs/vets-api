@@ -20,7 +20,8 @@
         "civil_service",
         "benefit_summary",
         "benefit_verification",
-        "certificate_of_eligibility"
+        "certificate_of_eligibility",
+        "foreign_medical_program"
       ]
     }
   },

@@ -13,6 +13,7 @@ module Mobile
         'certificate_of_eligibility_home_loan',
         'civil_service',
         'commissary',
+        'foreign_medical_program',
         'medicare_partd',
         'minimum_essential_coverage',
         'proof_of_service',
@@ -25,6 +26,7 @@ module Mobile
         certificate_of_eligibility_home_loan
         civil_service
         commissary
+        foreign_medical_program
         medicare_partd
         minimum_essential_coverage
         proof_of_service
