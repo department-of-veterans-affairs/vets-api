@@ -173,11 +173,14 @@ module SurvivorsBenefits
       end
 
       def self.signature_text_for(form_data)
-        form_data['claimantSignature'].presence || claimant_full_name(form_data)
+        form_data['claimantSignature'].presence ||
+          form_data['statementOfTruthSignature'].presence ||
+          claimant_full_name(form_data)
       end
 
       def self.claimant_full_name(form_data)
         [form_data&.dig('claimantFullName', 'first'),
+         form_data&.dig('claimantFullName', 'middle'),
          form_data&.dig('claimantFullName', 'last')].compact_blank.join(' ')
       end
 

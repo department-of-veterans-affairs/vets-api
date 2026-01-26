@@ -90,7 +90,27 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
       expect(datestamp_instance).to receive(:run).and_return(stamped_path)
 
       result = described_class.stamp_signature(pdf_path,
-                                               { 'claimantFullName' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                               { 'claimantFullName' => { 'first' => 'Jane', 'middle' => 'Q',
+                                                                         'last' => 'Doe' },
+                                                 'claimantSignature' => '' })
+      expect(result).to eq(stamped_path)
+    end
+
+    it 'uses statement of truth signature when present' do
+      expect(datestamp_instance).to receive(:run).with(
+        text: 'Jane Q Doe',
+        x: coordinates[:x],
+        y: coordinates[:y],
+        page_number: coordinates[:page_number],
+        size: described_class::SIGNATURE_FONT_SIZE,
+        text_only: true,
+        timestamp: '',
+        template: pdf_path,
+        multistamp: true
+      ).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path,
+                                               { 'statementOfTruthSignature' => 'Jane Q Doe',
                                                  'claimantSignature' => '' })
       expect(result).to eq(stamped_path)
     end
