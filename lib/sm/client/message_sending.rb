@@ -70,8 +70,11 @@ module SM
       # @param args [Hash] a hash of message arguments
       # @return [Message]
       # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
+      # @raise [Common::Exceptions::ParameterMissing] if id is blank
       #
       def post_create_message_reply_with_attachment(id, args = {}, is_oh: false, **kwargs)
+        raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
+
         track_with_status('post_create_message_reply_with_attachment', is_oh:) do
           args.merge!(kwargs)
           validate_reply_context(args)
@@ -89,8 +92,11 @@ module SM
       # @param args [Hash] a hash of message arguments
       # @return [Message]
       # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+      # @raise [Common::Exceptions::ParameterMissing] if id is blank
       #
       def post_create_message_reply_with_lg_attachment(id, args = {}, is_oh: false, **kwargs)
+        raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
+
         track_with_status('post_create_message_reply_with_lg_attachment', is_oh:) do
           args.merge!(kwargs)
           validate_reply_context(args)
@@ -106,8 +112,11 @@ module SM
       # @param args [Hash] a hash of message arguments
       # @return [Message]
       # @raise [Common::Exceptions::ValidationErrors] if message reply context is invalid
+      # @raise [Common::Exceptions::ParameterMissing] if id is blank
       #
       def post_create_message_reply(id, args = {}, is_oh: false, **kwargs)
+        raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
+
         track_with_status('post_create_message_reply', is_oh:) do
           args.merge!(kwargs)
           validate_reply_context(args)
