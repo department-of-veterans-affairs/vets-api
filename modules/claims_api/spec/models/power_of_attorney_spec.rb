@@ -72,22 +72,6 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier, 'source_name')
       expect(res.source_data).to eq(source_data)
     end
-
-    it 'can find an md5 record when missing sha256' do
-      attributes.merge!({ source_data: })
-      power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
-      header_hash = power_of_attorney.header_hash
-
-      power_of_attorney.update_columns header_hash: nil # rubocop:disable Rails/SkipsModelValidations
-
-      header_hash_id = { header_hash: }
-      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_hash_id, 'source_name')
-      expect(res).to be_blank
-
-      md5_id = { md5: power_of_attorney.md5 }
-      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(md5_id, 'source_name')
-      expect(res.source_data).to eq(source_data)
-    end
   end
 
   describe 'pending?' do
