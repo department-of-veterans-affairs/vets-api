@@ -41,8 +41,8 @@ module Burials
         QUESTION_KEY = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
-          { question_number: '3', question_text: 'VA File Number' },
-          { question_number: '4', question_text: "Veteran's Date of Birth" },
+          { question_number: '3', question_text: "Veteran's Date of Birth" },
+          { question_number: '4', question_text: 'VA File Number' },
           { question_number: '5', question_text: "Veteran's Date of Death" },
           { question_number: '6', question_text: "Veteran's Date of Burial" },
           { question_number: '7', question_text: "Claimant's Name" },

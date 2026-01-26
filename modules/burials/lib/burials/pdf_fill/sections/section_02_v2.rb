@@ -99,7 +99,7 @@ module Burials
             'lastFour' => {
               key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
               limit: 4,
-              question: 10,
+              question_num: 10,
               question_label: "Claimant's Address - Postal Code - Last Four",
               question_text: "CLAIMANT's ADDRESS - POSTAL CODE - LAST FOUR"
             }
