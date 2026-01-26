@@ -7,8 +7,8 @@ namespace :ivc_champva do
   desc 'Send failure emails for 10-7959A forms with only a single record per form_uuid (Jan 20-21, 2026)'
   task send_cva_remediation_emails: :environment do
     dry_run = ENV['DRY_RUN'] == 'true'
-    page_size = ENV.fetch('PAGE_SIZE', 50).to_i
-    page = ENV.fetch('PAGE', 0).to_i
+    page_size = (ENV['PAGE_SIZE'] || 50).to_i
+    page = (ENV['PAGE'] || 0).to_i
 
     puts '=' * 80
     puts 'IVC CHAMPVA CVA REMEDIATION EMAIL SENDER'
