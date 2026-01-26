@@ -1231,6 +1231,10 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  ogc_attorney_excel_list_uri: ~
+  ogc_claims_agent_excel_list_uri: ~
+  ogc_organizations_excel_list_uri: ~
 res:
   api_key: ~
   base_url: https://fake_url.com
