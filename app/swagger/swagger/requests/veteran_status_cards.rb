@@ -19,7 +19,7 @@ module Swagger
             schema do
               key :required, %i[type veteran_status attributes]
               property :type, type: :string do
-                key :enum, %w[veteran_status_card, veteran_status_alert]
+                key :enum, %w[veteran_status_card veteran_status_alert]
                 key :description, "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility"
               end
               property :veteran_status, type: :string do
@@ -60,7 +60,7 @@ module Swagger
                 property :body, type: :array do
                   items do
                     key :required, %i[type value]
-                    key :enum, %w[text, phone, link]
+                    key :enum, %w[text phone link]
                     key :description,
                         'A list of message components to display when the veteran is ineligible for a status card'
                     property :type, type: :string do
