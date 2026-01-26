@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,6 +30,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
+
+  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -98,6 +100,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "fallback_location_updated_at"
     t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
     t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
@@ -220,6 +223,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["id"], name: "idx_ahlr_kms_rotation_true_id", where: "(needs_kms_rotation = true)"
     t.index ["needs_kms_rotation"], name: "index_appeals_api_higher_level_reviews_on_needs_kms_rotation"
     t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
@@ -730,6 +734,40 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
+  create_table "console1984_commands", force: :cascade do |t|
+    t.text "statements"
+    t.bigint "sensitive_access_id"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sensitive_access_id"], name: "index_console1984_commands_on_sensitive_access_id"
+    t.index ["session_id", "created_at", "sensitive_access_id"], name: "on_session_and_sensitive_chronologically"
+  end
+
+  create_table "console1984_sensitive_accesses", force: :cascade do |t|
+    t.text "justification"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_console1984_sensitive_accesses_on_session_id"
+  end
+
+  create_table "console1984_sessions", force: :cascade do |t|
+    t.text "reason"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_console1984_sessions_on_created_at"
+    t.index ["user_id", "created_at"], name: "index_console1984_sessions_on_user_id_and_created_at"
+  end
+
+  create_table "console1984_users", force: :cascade do |t|
+    t.string "username", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_console1984_users_on_username"
+  end
+
   create_table "debt_transaction_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "transactionable_type", null: false
     t.uuid "transactionable_id", null: false
@@ -759,9 +797,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "pdf_uploaded_at"
+    t.string "vbms_file_uuid"
+    t.integer "pdf_upload_attempt_count", default: 0
+    t.text "pdf_upload_error"
     t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_16518323ec"
     t.index ["notification_id"], name: "idx_on_notification_id_e2314be616"
     t.index ["reference"], name: "index_decision_review_notification_audit_logs_on_reference"
+    t.index ["vbms_file_uuid"], name: "idx_on_vbms_file_uuid_b00c6bc3b9"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -781,7 +824,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
+    t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
     t.jsonb "debt_identifiers", default: [], null: false
@@ -795,7 +839,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
+    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
+    t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_digital_dispute_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_digital_dispute_submissions_on_user_uuid"
@@ -850,9 +897,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.integer "saved_claim_id", null: false
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "token"
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
+    t.index ["token"], name: "index_education_benefits_claims_on_token", unique: true
   end
 
   create_table "education_benefits_submissions", id: :serial, force: :cascade do |t|
@@ -897,7 +946,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
   end
 
   create_table "event_bus_gateway_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "va_notify_id", null: false
     t.string "template_id", null: false
     t.datetime "created_at", null: false
@@ -907,7 +956,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
   end
 
   create_table "event_bus_gateway_push_notifications", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
+    t.uuid "user_account_id"
     t.string "template_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -1472,6 +1521,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
+  create_table "representation_management_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "idx_on_created_at_5b6fb39541"
+  end
+
   create_table "saved_claim_groups", force: :cascade do |t|
     t.uuid "claim_group_guid", null: false
     t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
@@ -1970,6 +2029,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_032000) do
     t.string "address_line2"
     t.string "address_line3"
     t.string "phone_number"
+    t.datetime "fallback_location_updated_at"
     t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist

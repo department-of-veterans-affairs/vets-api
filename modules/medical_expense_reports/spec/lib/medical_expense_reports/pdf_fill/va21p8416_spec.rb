@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lib/pdf_fill/fill_form_examples'
 require 'medical_expense_reports/pdf_fill/va21p8416'
+require 'pdf_utilities/datestamp_pdf'
 require 'fileutils'
 require 'tmpdir'
 require 'timecop'
@@ -38,6 +39,48 @@ describe MedicalExpenseReports::PdfFill::Va21p8416 do
           expect(new_hash).to eq(data)
         end
       end
+    end
+  end
+
+  describe '.stamp_signature' do
+    let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_path) { '/tmp/test_form_stamped.pdf' }
+    let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:coordinates) { { x: 123, y: 456, page_number: 7 } }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(datestamp_instance)
+      allow(described_class).to receive(:signature_overlay_coordinates).and_return(coordinates)
+    end
+
+    it 'stamps the signature when present' do
+      expect(datestamp_instance).to receive(:run).with(
+        text: 'Jane Doe',
+        x: coordinates[:x],
+        y: coordinates[:y],
+        page_number: coordinates[:page_number],
+        size: described_class::SIGNATURE_FONT_SIZE,
+        text_only: true,
+        timestamp: '',
+        template: pdf_path,
+        multistamp: true
+      ).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path, { 'statementOfTruthSignature' => 'Jane Doe' })
+      expect(result).to eq(stamped_path)
+    end
+
+    it 'returns the original PDF when signature is blank' do
+      result = described_class.stamp_signature(pdf_path, { 'statementOfTruthSignature' => '' })
+      expect(result).to eq(pdf_path)
+      expect(PDFUtilities::DatestampPdf).not_to have_received(:new)
+    end
+
+    it 'rescues errors and returns the original PDF path' do
+      allow(datestamp_instance).to receive(:run).and_raise(StandardError, 'boom')
+
+      result = described_class.stamp_signature(pdf_path, { 'statementOfTruthSignature' => 'Jane Doe' })
+      expect(result).to eq(pdf_path)
     end
   end
 end

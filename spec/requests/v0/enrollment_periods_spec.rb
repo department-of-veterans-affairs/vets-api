@@ -28,11 +28,11 @@ RSpec.describe 'V0::EnrollmentPeriods', type: :request do
         end
       end
 
-      it 'returns 503 when error is encountered' do
+      it 'returns appropriate error code' do
         VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
                          match_requests_on: %i[uri method body]) do
           get '/v0/enrollment_periods'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end

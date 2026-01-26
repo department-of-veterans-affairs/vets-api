@@ -2,6 +2,7 @@
 
 class SavedClaim::Form214192 < SavedClaim
   FORM = '21-4192'
+  DEFAULT_ZIP_CODE = '00000'
 
   validates :form, presence: true
 
@@ -64,7 +65,19 @@ class SavedClaim::Form214192 < SavedClaim
     PdfFill::Forms::Va214192.stamp_signature(pdf_path, parsed_form)
   end
 
+  def metadata_for_benefits_intake
+    { veteranFirstName: parsed_form.dig('veteranInformation', 'fullName', 'first'),
+      veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
+      fileNumber: parsed_form.dig('veteranInformation', 'vaFileNumber') || parsed_form.dig('veteranInformation', 'ssn'),
+      zipCode: zip_code_for_metadata,
+      businessLine: business_line }
+  end
+
   private
+
+  def zip_code_for_metadata
+    parsed_form.dig('employmentInformation', 'employerAddress', 'postalCode') || DEFAULT_ZIP_CODE
+  end
 
   def employer_name
     parsed_form.dig('employmentInformation', 'employerName') || 'Employer'

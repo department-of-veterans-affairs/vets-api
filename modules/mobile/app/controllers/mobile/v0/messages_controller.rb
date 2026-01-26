@@ -38,7 +38,9 @@ module Mobile
 
         user_triage_teams = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         active_teams = user_triage_teams.data.reject(&:blocked_status)
-        user_in_triage_team = active_teams.any? { |team| team.triage_team_id == response.recipient_id }
+        user_in_triage_team = active_teams.any? do |team|
+          response.triage_group_name && team.name == response.triage_group_name
+        end
 
         meta = response.metadata.merge(user_in_triage_team:)
         options = { meta: }
@@ -128,7 +130,7 @@ module Mobile
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group)
         end
       end
 
@@ -137,7 +139,12 @@ module Mobile
       end
 
       def oh_triage_group?
-        ActiveModel::Type::Boolean.new.cast(params[:is_oh_triage_group])
+        # Check top-level params first (query param or form field),
+        # then check inside parsed message JSON (for multipart requests where mobile app
+        # includes is_oh_triage_group inside the stringified message JSON)
+        value = params[:is_oh_triage_group]
+        value ||= message_params[:is_oh_triage_group] if message_params.key?(:is_oh_triage_group)
+        ActiveModel::Type::Boolean.new.cast(value)
       end
 
       def build_create_client_response(message, create_message_params)

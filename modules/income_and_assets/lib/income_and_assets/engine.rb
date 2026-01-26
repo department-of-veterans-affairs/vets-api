@@ -30,5 +30,16 @@ module IncomeAndAssets
                                                                IncomeAndAssets::BenefitsIntake::SubmissionHandler)
       end
     end
+
+    initializer 'income_and_assets.pdf_stamper.register_stamp_sets' do |app|
+      app.config.to_prepare do
+        require 'pdf_utilities/pdf_stamper'
+        require 'income_and_assets/pdf_stamper'
+
+        IncomeAndAssets::PDFStamper::STAMP_SETS.each do |identifier, stamps|
+          ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
+        end
+      end
+    end
   end
 end

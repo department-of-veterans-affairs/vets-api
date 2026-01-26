@@ -1262,6 +1262,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecureMessageDetail'
           description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: |-
+            Bad Request - Oracle Health message send failed. This can occur when:
+            - Message status polling returns FAILED or INVALID status
+            - Error code SM98 will be returned in the response
         '401':
           content:
             application/json:
@@ -1525,6 +1534,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecureMessageDetail'
           description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: |
+            Bad Request - Oracle Health message send failed. This can occur when:
+            <ul>
+              <li>Message status polling returns FAILED or INVALID status</li>
+              <li>Error code SM98 will be returned in the response</li>
+            </ul>
         '401':
           content:
             application/json:

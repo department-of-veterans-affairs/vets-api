@@ -1,4 +1,8 @@
 {
+  "applicantName": {
+    "first": "John",
+    "last": "Smith"
+  },
   "remarks": "lorem ispum",
   "testCost": 55,
   "organizationName": "Acme Co.",
@@ -17,12 +21,15 @@
   "mailingAddress": {
     "country": "USA",
     "street": "123 Maple Ln",
+    "street2": "Unit B",
     "city": "Hamilton",
     "state": "IA",
     "postalCode": "12345"
   },
   "payeeNumber": "AB",
-  "vaBenefitProgram": "chapter35",
+  "ssn": "123456789",
+  "vaBenefitProgram": "chapter30",
   "hasPreviouslyApplied": true,
-  "statementOfTruthSignature": "Jackie Doe"
+  "statementOfTruthSignature": "Jackie Doe",
+  "dateSigned": "2025-01-01"
 }

@@ -19,7 +19,16 @@ module VeteranEnrollmentSystem
       include Common::Client::Concerns::Monitoring
 
       configuration VeteranEnrollmentSystem::EnrollmentPeriods::Configuration
+
       STATSD_KEY_PREFIX = 'api.enrollment_periods'
+      ERROR_MAP = {
+        400 => Common::Exceptions::BadRequest,
+        403 => Common::Exceptions::Forbidden,
+        404 => Common::Exceptions::ResourceNotFound,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        502 => Common::Exceptions::BadGateway,
+        504 => Common::Exceptions::GatewayTimeout
+      }.freeze
 
       # Fetch enrollment periods by ICN from the enrollment system
       #
@@ -30,8 +39,25 @@ module VeteranEnrollmentSystem
         with_monitoring do
           path = "ves-ee-summary-svc/enrollment-periods/person/#{icn}"
           response = perform(:get, path, {})
-          response.body['data']['mecPeriods']
+          if response.status == 200
+            response.body['data']['mecPeriods']
+          else
+            raise_error(response, icn)
+          end
         end
+      end
+
+      private
+
+      def raise_error(response, icn)
+        message = if response.body.is_a?(Hash)
+                    response.body['messages']&.pluck('description')&.join(', ') || response.body
+                  else
+                    response.body
+                  end
+        sanitized_message = message.to_s.gsub(icn, '[REDACTED]')
+        raise ERROR_MAP[response.status]&.new(detail: sanitized_message) ||
+              Common::Exceptions::BackendServiceException.new(nil, detail: sanitized_message)
       end
     end
   end

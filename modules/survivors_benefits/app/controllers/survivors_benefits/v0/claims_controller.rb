@@ -2,6 +2,7 @@
 
 require 'survivors_benefits/benefits_intake/submit_claim_job'
 require 'survivors_benefits/monitor'
+require 'survivors_benefits/zsf_config'
 require 'persistent_attachments/sanitizer'
 
 module SurvivorsBenefits
@@ -10,7 +11,10 @@ module SurvivorsBenefits
     # The Survivors Benefits claim controller that handles form submissions
     #
     class ClaimsController < ClaimsBaseController
+      include PdfS3Operations
+
       before_action :check_flipper_flag
+      skip_after_action :set_csrf_header, only: [:create]
       service_tag 'survivors-benefits'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
@@ -26,7 +30,12 @@ module SurvivorsBenefits
       # GET serialized survivors benefits form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: SavedClaimSerializer.new(claim)
+        form_submission_attempt = last_form_submission_attempt(claim.guid)
+
+        raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
+
+        pdf_url = s3_signed_url(claim, form_submission_attempt.created_at.to_date, config: SurvivorsBenefits::ZsfConfig.new)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -56,7 +65,10 @@ module SurvivorsBenefits
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
+
+        pdf_url = upload_to_s3(claim, config: SurvivorsBenefits::ZsfConfig.new)
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e

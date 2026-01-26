@@ -2,51 +2,57 @@
 
 module V0
   class Form210779Controller < ApplicationController
+    include RetriableConcern
     service_tag 'nursing-home-information'
     skip_before_action :authenticate
     before_action :load_user
     before_action :check_feature_enabled
 
     def create
-      # using request.raw_post to avoid the middleware that transforms the JSON keys to snake case
-      claim = SavedClaim::Form210779.new(form: request.raw_post)
-      Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{current_user&.uuid}"
-      if claim.save
-        claim.process_attachments!
+      claim = nil
+      claim = build_and_save_claim!
+      handle_successful_claim(claim)
 
-        StatsD.increment("#{stats_key}.success")
-        Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} " \
-                          "UserID=#{current_user&.uuid}"
-        render json: SavedClaimSerializer.new(claim)
-      else
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
-    rescue JSON::ParserError
-      raise Common::Exceptions::ParameterMissing, 'form'
+      clear_saved_form(claim.form_id)
+      render json: SavedClaimSerializer.new(claim)
+    rescue JSON::ParserError => e
+      handle_json_parse_error(e)
     rescue => e
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form210779: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
+      handle_general_error(e, claim)
     end
 
     def download_pdf
-      claim = SavedClaim::Form210779.find_by!(guid: params[:guid])
-      source_file_path = claim.to_pdf
+      claim = saved_claim_class.find_by!(guid: params[:guid])
+      source_file_path = with_retries('Generate 21-0779 PDF') do
+        claim.to_pdf
+      end
       raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
 
       send_data File.read(source_file_path),
-                filename: "21-0779_#{SecureRandom.uuid}.pdf",
+                filename: download_file_name(claim),
                 type: 'application/pdf',
                 disposition: 'attachment'
+    rescue ActiveRecord::RecordNotFound
+      raise Common::Exceptions::RecordNotFound, params[:guid]
+    rescue => e
+      handle_pdf_generation_error(e)
     ensure
-      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
 
     private
+
+    def filtered_params
+      params.require(:form)
+    end
+
+    def download_file_name(claim)
+      "21-0779_#{claim.veteran_name.gsub(' ', '_')}.pdf"
+    end
+
+    def saved_claim_class
+      SavedClaim::Form210779
+    end
 
     def stats_key
       'api.form210779'
@@ -54,6 +60,86 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_0779_enabled, current_user)
+    end
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error(
+        'Form210779: Error generating PDF',
+        {
+          form: '21-0779',
+          guid: params[:guid],
+          user_id: current_user&.uuid,
+          error: error.message,
+          backtrace: error.backtrace
+        }
+      )
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
+    end
+
+    def build_and_save_claim!
+      claim = saved_claim_class.new(form: filtered_params)
+      Rails.logger.info(
+        'Begin claim submission',
+        {
+          claim_guid: claim.guid,
+          form: claim.class::FORM,
+          user_id: current_user&.uuid
+        }
+      )
+
+      if claim.save
+        claim.process_attachments!
+        claim
+      else
+        StatsD.increment("#{stats_key}.failure", tags: ["form:#{claim.class::FORM}"])
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+    end
+
+    def handle_successful_claim(claim)
+      StatsD.increment("#{stats_key}.success", tags: ["form:#{claim.class::FORM}"])
+      Rails.logger.info(
+        'Claim submission successful',
+        {
+          confirmation_number: claim.confirmation_number,
+          claim_guid: claim.guid,
+          form: claim.class::FORM,
+          user_id: current_user&.uuid
+        }
+      )
+    end
+
+    def handle_json_parse_error(error)
+      Rails.logger.error(
+        'Form210779: JSON parse error in form data',
+        {
+          form: '21-0779',
+          error: error.message,
+          user_id: current_user&.uuid
+        }
+      )
+      raise Common::Exceptions::ParameterMissing, 'form'
+    end
+
+    def handle_general_error(error, claim)
+      Rails.logger.error(
+        'Form210779: error submitting claim',
+        {
+          form: '21-0779',
+          claim_guid: claim&.guid,
+          user_id: current_user&.uuid,
+          error: error.message,
+          backtrace: error.backtrace,
+          claim_errors: defined?(claim) && claim&.errors&.full_messages
+        }
+      )
+      raise
     end
   end
 end

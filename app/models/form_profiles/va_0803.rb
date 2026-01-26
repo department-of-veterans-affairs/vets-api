@@ -8,4 +8,9 @@ class FormProfiles::VA0803 < FormProfile
       returnUrl: '/applicant/information'
     }
   end
+
+  def va_file_number
+    response = BGS::People::Request.new.find_person_by_participant_id(user:)
+    response.file_number.presence
+  end
 end

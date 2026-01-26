@@ -1,16 +1,5 @@
 # Copilot Instructions for `vets-api`
 
-## 📚 Additional Resources
-
-### Path-Specific Instructions
-**Path-specific custom instructions automatically apply when working on specific modules:**
-
-- **[instructions/my-health-messaging.instructions.md](./instructions/my-health-messaging.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/sm/` - Secure Messaging specific patterns, models, and API client usage
-- **[instructions/my-health-medical-records.instructions.md](./instructions/my-health-medical-records.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/medical_records/` - Medical Records specific patterns, FHIR integration, and multi-client architecture
-- **[instructions/my-health-prescriptions.instructions.md](./instructions/my-health-prescriptions.instructions.md)** - Automatically applies to `modules/my_health/` and `lib/rx/` - Prescriptions specific patterns, refill workflows, and pharmacy API client usage
-
-These path-specific instructions are automatically loaded by GitHub Copilot when you work on files matching their `applyTo` patterns. You can create additional path-specific instruction files in `.github/instructions/` for other modules or features.
-
 ## Repository Context
 `vets-api` is a Ruby on Rails API serving veterans via VA.gov. Large codebase (400K+ lines) with modules for appeals, claims, healthcare, and benefits processing.
 
@@ -59,6 +48,43 @@ These path-specific instructions are automatically loaded by GitHub Copilot when
 - VCR cassettes for external service tests
 - Settings: `config/settings.yml` (alphabetical order required)
 
+### Settings Value Handling
+
+**⚠️ CRITICAL: Treat Settings values like untrusted user input.** Settings values from Parameter Store may arrive as unexpected types. The `config` gem (`config/initializers/config.rb`) has `env_parse_values = true`, which automatically converts numeric strings to integers (e.g., `"0"` becomes `0`). Always use explicit type coercion and safe fallbacks.
+
+When reviewing pull requests that include Settings values, always leave a comment for the author advising them of potential issues with unexpected types. This will cause the author to carefully review that bit of code with the considerations of these instructions in mind.
+
+**Common Pitfalls:**
+- Numeric strings are auto-converted: `"0"` → `0`, `"123"` → `123` (via `env_parse_values`)
+- `0` (integer zero) is truthy in Ruby - only `false` and `nil` are falsy
+- `"false"` (string) is truthy - only boolean `false` and `nil` are falsy
+- `Settings.some.value == true` fails when value is the string `"true"` or integer `1`
+
+**❌ Unsafe patterns:**
+```ruby
+if Settings.feature.enabled        # Fails: 0 is truthy, "false" is truthy
+if Settings.feature.enabled == true # Fails if value is "true" or 1
+timeout = Settings.api.timeout     # May be nil, wrong type, or unexpected value
+```
+
+**✅ Safe patterns:**
+```ruby
+# For booleans - use ActiveModel::Type::Boolean for robust casting
+# Handles: true, false, "true", "false", 1, 0, "1", "0", nil
+if ActiveModel::Type::Boolean.new.cast(Settings.feature.enabled)
+
+# Alternative: explicit string comparison
+# Returns true only for "true" (case-insensitive), false for everything else including nil, 0, 1
+if Settings.feature.enabled.to_s.downcase == 'true'
+
+# For integers - always convert with safe fallback
+timeout_value = Settings.api.timeout.to_i
+timeout = timeout_value.positive? ? timeout_value : 30
+
+# For presence checks - use .present? or .blank?
+if Settings.api.url.present?
+```
+
 ### Gemfile and Dependency Management
 - **DO NOT commit Gemfile or Gemfile.lock changes** unless they are necessary for the feature/fix you are implementing
 - **DO NOT commit local Gemfile modifications** that remove the `sidekiq-ent` and `sidekiq-pro` gems (these may be removed locally if you don't have a Sidekiq Enterprise license, but should never be committed)
@@ -97,6 +123,7 @@ These path-specific instructions are automatically loaded by GitHub Copilot when
 - **Wrong identifier usage**: Using User ID instead of ICN for MVI/BGS lookups
 - **Form handling**: Complex forms not using form objects for serialization
 - **Unnecessary Gemfile changes**: Committing Gemfile/Gemfile.lock changes that are not required for the feature (e.g., local dev environment setup changes, removal of sidekiq-ent/sidekiq-pro gems)
+- **Unsafe Settings usage**: Using Settings values in boolean context without `ActiveModel::Type::Boolean.new.cast()` - values may be strings, integers, or nil due to Parameter Store and `env_parse_values`
 
 ### Architecture Concerns
 - **N+1 queries**: Loading associations in loops without includes

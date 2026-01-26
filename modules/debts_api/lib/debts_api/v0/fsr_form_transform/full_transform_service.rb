@@ -35,6 +35,8 @@ module DebtsApi
         end
 
         def transform
+          report_form_types
+
           {
             'income' => @income,
             'assets' => @assets,
@@ -52,6 +54,17 @@ module DebtsApi
         end
 
         private
+
+        def report_form_types
+          tracking_label = "full_transform.#{@streamlined['value'] ? 'has' : 'no'}_streamlined_data"
+          streamlined_type = @streamlined['type']
+
+          StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{tracking_label}")
+          StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{streamlined_type}_streamlined_type")
+        rescue => e
+          Rails.logger.error("FsrFormTransform::FullTransformService::#report_form_types error: #{e.message}")
+          nil
+        end
 
         def certification
           {

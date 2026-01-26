@@ -12,6 +12,8 @@ module V0
     def create
       claim = build_and_save_claim!
       handle_successful_claim(claim)
+
+      clear_saved_form(claim.form_id)
       render json: SavedClaimSerializer.new(claim)
     rescue Common::Exceptions::ValidationErrors => e
       handle_validation_error(e)
@@ -26,7 +28,7 @@ module V0
       parsed_form = JSON.parse(transformed_payload)
 
       source_file_path = with_retries('Generate 21P-530A PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530a')
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530A')
       end
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)

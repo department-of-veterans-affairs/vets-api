@@ -8,4 +8,16 @@ class StdZipcode < ApplicationRecord
   validates :county_number, presence: true
   validates :version, presence: true
   validates :created, presence: true
+
+  scope :with_zip_code, lambda { |zip_code|
+    where(zip_code:)
+  }
+
+  scope :for_state_id, lambda { |state_id|
+    where(state_id:)
+  }
+
+  scope :for_zip_and_state, lambda { |zip_code, state_id|
+    where(zip_code:, state_id:)
+  }
 end

@@ -12,6 +12,9 @@ accredited_representative_portal:
       repo: department-of-veterans-affairs/va.gov-team-sensitive
   frontend_base_url: <%= ENV['accredited_representative_portal__frontend_base_url'] %>
   lighthouse:
+    benefits_claims:
+      host: <%= ENV['accredited_representative_portal__lighthouse__benefits_claims__host'] %>
+      path: <%= ENV['accredited_representative_portal__lighthouse__benefits_claims__path'] %>
     benefits_intake:
       api_key: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__api_key'] %>
       host: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__host'] %>
@@ -21,6 +24,10 @@ accredited_representative_portal:
         stale_sla: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__report__stale_sla'] %>
       use_mocks: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__use_mocks'] %>
       version: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__version'] %>
+active_record_encryption:
+  deterministic_key:  <%= ENV['active_record_encryption__deterministic_key'] %>
+  key_derivation_salt:  <%= ENV['active_record_encryption__key_derivation_salt'] %>
+  primary_key:  <%= ENV['active_record_encryption__primary_key'] %>
 adapted_housing:
   prefill: true
 argocd:
@@ -90,6 +97,16 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
+bio:
+  increase_compensation:
+    bucket: <%= ENV['bio__increase_compensation__s3__bucket'] %>
+    region: us-gov-west-1
+  medical_expense_reports:
+    bucket: <%= ENV['bio__medical_expense_reports__s3__bucket'] %>
+    region: us-gov-west-1
+  survivors_benefits:
+    bucket: <%= ENV['bio__survivors_benefits__s3__bucket'] %>
+    region: us-gov-west-1
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -150,6 +167,7 @@ check_in:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__auth_url_v2'] %>
     claims_base_path: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path'] %>
+    claims_base_path_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_base_path_v2'] %>
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__claims_url_v2'] %>
     client_id: <%= ENV['check_in__travel_reimbursement_api_v2__client_id'] %>
@@ -165,6 +183,7 @@ check_in:
     tenant_id: <%= ENV['check_in__travel_reimbursement_api_v2__tenant_id'] %>
     travel_pay_client_id: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_id'] %>
     travel_pay_client_secret: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret'] %>
+    travel_pay_client_secret_oh: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_client_secret_oh'] %>
     travel_pay_resource: <%= ENV['check_in__travel_reimbursement_api_v2__travel_pay_resource'] %>
   vaos:
     mock: <%= ENV['check_in__vaos__mock'] %>
@@ -202,8 +221,12 @@ claims_api:
     auth:
       ccg:
         aud_claim_url: <%= ENV['claims_api__fes__auth__ccg__aud_claim_url'] %>
-        client_id: <%= ENV['claims_api__benefits_documents__auth__ccg__client_id'] %>
-    host: <%= ENV['claims_api__fes__host'] %>
+        client_id: <%= ENV['claims_api__fes__auth__ccg__client_id'] %>
+        secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
+    service_url: <%= ENV['claims_api__fes__service_url'] %>
+    ssl: <%= ENV['claims_api__fes__ssl'] %>
+    token_host: <%= ENV['claims_api__fes__token_host'] %>
+    use_mocks: <%= ENV['claims_api__fes__use_mocks'] %>
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -278,6 +301,7 @@ database_url: <%= ENV['database_url'] %>
 decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
+  email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
   mock: <%= ENV['decision_review__mock'] %>
   pdf_validation:
     enabled: true
@@ -300,13 +324,18 @@ dgi:
     private_key_path: <%= ENV['dgi__jwt__private_key_path'] %>
     public_key_path: <%= ENV['dgi__jwt__public_key_path'] %>
   sob:
-    mock: <%= ENV['dgi__sob__mock'] %>
-    url: <%= ENV['dgi__sob__url'] %>
+    claimants:
+      mock: <%= ENV['dgi__sob__claimants__mock'] %>
+      url: <%= ENV['dgi__sob__claimants__url'] %>
+    jwt:
+      private_key_path: <%= ENV['dgi__sob__jwt__private_key_path'] %>
+      public_key_path: <%= ENV['dgi__sob__jwt__public_key_path'] %>
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
     url: <%= ENV['dgi__vets__url'] %>
   vye:
     jwt:
+      kid: <%= ENV['dgi__vye__jwt__kid'] %>
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
@@ -393,6 +422,13 @@ edu:
     - marelby.hernandez@va.gov
     - nawar.hussein@va.gov
     - engin.akman@va.gov
+  staging_sco_email:
+    emails:
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - jeffrey.marks@govcio.com
+      - taras.kurilo@va.gov
+      - nawar.hussein@va.gov
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
@@ -404,6 +440,8 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+email_verification:
+  jwt_secret: <%= ENV['email_verification__jwt_secret'] %>
 # Settings for EVSS
 evss:
   alternate_service_name: wss-form526-services-web-v2
@@ -513,6 +551,8 @@ form_10_10cg:
       region: us-gov-west-1
 form_mock_ae_design_patterns:
   prefill: true
+form_mock_prefill:
+  prefill: true
 form_upload:
   prefill: true
 forms:
@@ -597,12 +637,6 @@ iam_ssoe:
   client_key_path: <%= ENV['iam_ssoe__client_key_path'] %>
   oauth_url: <%= ENV['iam_ssoe__oauth_url'] %>
   timeout: 20
-ihub:
-  appointments:
-    mock: <%= ENV['ihub__appointments__mock'] %>
-    timeout: 30
-  in_production: <%= ENV['ihub__in_production'] %>
-  url: <%= ENV['ihub__url'] %>
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -724,6 +758,7 @@ lighthouse:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__aud_claim_url'] %>
       client_id: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__client_id'] %>
+      kid: <%= ENV['lighthouse__healthcare_cost_and_coverage__access_token__kid'] %>
       rsa_key: /srv/vets-api/secret/lighthouse-hccc.key
     host: <%= ENV['lighthouse__healthcare_cost_and_coverage__host'] %>
     scopes:
@@ -734,6 +769,7 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
       - launch
     timeout: 30
     use_mocks: false
@@ -827,6 +863,7 @@ maintenance:
     coe: <%= ENV['maintenance__services__coe'] %>
     community_care_ds: <%= ENV['maintenance__services__community_care_ds'] %>
     decision_reviews: <%= ENV['maintenance__services__decision_reviews'] %>
+    dgi_claimants: <%= ENV['maintenance__services__dgi_claimants'] %>
     disability_compensation_form: <%= ENV['maintenance__services__disability_compensation_form'] %>
     dmc: <%= ENV['maintenance__services__dmc'] %>
     dslogon: <%= ENV['maintenance__services__dslogon'] %>
@@ -838,6 +875,9 @@ maintenance:
     form107959c: <%= ENV['maintenance__services__form107959c'] %>
     form107959f1: <%= ENV['maintenance__services__form107959f1'] %>
     form107959f2: <%= ENV['maintenance__services__form107959f2'] %>
+    form21p0537: <%= ENV['maintenance__services__form21p0537'] %>
+    form21p601: <%= ENV['maintenance__services__form21p601'] %>
+    form_upload_benefits_intake: <%= ENV['maintenance__services__form_upload_benefits_intake'] %>
     global: <%= ENV['maintenance__services__global'] %>
     hcq: <%= ENV['maintenance__services__hcq'] %>
     idme: <%= ENV['maintenance__services__idme'] %>
@@ -870,6 +910,7 @@ maintenance:
     vapro_military_info: <%= ENV['maintenance__services__vapro_military_info'] %>
     vapro_notification_settings: <%= ENV['maintenance__services__vapro_notification_settings'] %>
     vapro_personal_info: <%= ENV['maintenance__services__vapro_personal_info'] %>
+    vass: <%= ENV['maintenance__services__vass'] %>
     vbms: <%= ENV['maintenance__services__vbms'] %>
     vet360: <%= ENV['maintenance__services__vet360'] %>
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
@@ -902,6 +943,8 @@ mdot:
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
+memorials:
+  prefill: true
 mhv:
   account:
     mock: <%= ENV['mhv__account__mock'] %>
@@ -931,6 +974,10 @@ mhv:
     x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
+  oh_facility_checks:
+    facilities_migrating_to_oh: <%= ENV['mhv__facilities_migrating_to_oh'] %>
+    facilities_ready_for_info_alert: <%= ENV['mhv__facilities_ready_for_info_alert'] %>
+    pretransitioned_oh_facilities: <%= ENV['mhv__pretransitioned_oh_facilities'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
@@ -1019,6 +1066,11 @@ mvi_hca:
 ogc:
   form21a_service_url:
     api_key: <%= ENV['ogc__form21a_service_url__api_key'] %>
+    s3:
+      bucket: <%= ENV['ogc__form21a__s3__bucket'] %>
+      region: us-gov-west-1
+      type: s3
+      uploads_enabled: true
     url: <%= ENV['ogc__form21a_service_url__url'] %>
 oidc:
   isolated_audience:
@@ -1175,11 +1227,17 @@ reports:
     - jacob.finnern@accenturefederal.com
     - hocine.halli@accenturefederal.com
     - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: <%= ENV['representation_management__geocoder__mapbox__api_key'] %>
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  ch_31_case_details:
+    mock: <%= ENV['res__ch_31_case_details__mock'] %>
   ch_31_eligibility:
-    mock: <%= ENV['res__ch_31_eligibility__mock']%>
+    mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
@@ -1225,10 +1283,6 @@ search_gsa:
   affiliate: va
   mock_search: <%= ENV['search_gsa__mock_search'] %>
   url: <%= ENV['search_gsa__url'] %>
-search_typeahead:
-  api_key: <%= ENV['search_typeahead__api_key'] %>
-  name: va
-  url: https://api.gsa.gov/technology/searchgov/v1
 secret_key_base: <%= ENV['secret_key_base'] %>
 sentry:
   dsn: <%= ENV['sentry__dsn'] %>
@@ -1286,6 +1340,11 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
+unique_user_metrics:
+  processor_job:
+    batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
+    max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
+    max_queue_depth: <%= ENV['unique_user_metrics__processor_job__max_queue_depth'] %>
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>
@@ -1390,9 +1449,33 @@ vanotify:
         received_686c_only:
           flipper_id: dependents_benefits_received_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__received_686c_only__template_id'] %>
-        submitted:
+        submitted674_only:
           flipper_id: dependents_benefits_submitted_email_notification
-          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted__template_id'] %>
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted674_only__template_id'] %>
+        submitted686c674:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c674__template_id'] %>
+        submitted686c_only:
+          flipper_id: dependents_benefits_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
+    21_8940v1: &vanotify_services_increase_compensation
+      api_key: ~
+      email:
+        confirmation:
+          flipper_id: false
+          template_id: <%= ENV['bio__increase_compensation__email__confirmation_template_id'] %>
+        error:
+          flipper_id: increase_compensation_error_email_notification
+          template_id: <%= ENV['bio__increase_compensation__email__action_needed_template_id'] %>
+        persistent_attachment_error:
+          flipper_id: increase_compensation_persistent_attachment_error_email_notification
+          template_id: <%= ENV['bio__increase_compensation__email__action_needed_template_id'] %>
+        received:
+          flipper_id: increase_compensation_received_email_notification
+          template_id: <%= ENV['bio__increase_compensation__email__received_template_id'] %>
+        submitted:
+          flipper_id: increase_compensation_submitted_email_notification
+          template_id: <%= ENV['bio__increase_compensation__email__confirmation_template_id'] %>
     21p_0969: &vanotify_services_income_and_assets
       api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
       email:
@@ -1511,6 +1594,7 @@ vanotify:
         form526_submission_failure_notification_template_id: <%= ENV['vanotify__services__benefits_disability__template_id__form526_submission_failure_notification_template_id'] %>
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
+      push_api_key: <%= ENV['vanotify__services__benefits_management_tools__push_api_key'] %>
       template_id:
         decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
@@ -1560,9 +1644,11 @@ vanotify:
         form1010_ez_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ez_failure_email'] %>
         form1010_ezr_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ezr_failure_email'] %>
     income_and_assets: *vanotify_services_income_and_assets
+    increase_compensation: *vanotify_services_increase_compensation
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
+      missing_pega_status_email_threshold_hours: 2
       pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
@@ -1621,7 +1707,7 @@ vanotify:
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
-        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %> 
+        form10275_submission_email: <%= ENV['vanotify__services__va_gov__template_id__form10275_submission_email'] %>
         form10297_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form10297_confirmation_email'] %>
         form1880_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1880_reminder_email'] %>
         form1900_action_needed_email: <%= ENV['vanotify__services__va_gov__template_id__form1900_action_needed_email'] %>
@@ -1656,6 +1742,9 @@ vanotify:
         form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
         form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
         form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
+        form21_4140_confirmation_email: <%= ENV['bio__employment_questionnaires__email__submission_in_progress_template_id'] %>
+        form21_4140_error_email: <%= ENV['bio__employment_questionnaires__email__action_needed_template_id'] %>
+        form21_4140_received_email: <%= ENV['bio__employment_questionnaires__email__received_template_id'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
@@ -1731,6 +1820,22 @@ vaos:
     encryption:
       hex_iv: <%= ENV['vaos__referral__encryption__hex_iv'] %>
       hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
+vass:
+  api_url: <%= ENV['vass__api_url'] %>
+  auth_url: https://login.microsoftonline.us
+  client_id: <%= ENV['vass__client_id'] %>
+  client_secret: <%= ENV['vass__client_secret'] %>
+  jwt_secret: <%= ENV['vass__jwt_secret'] %>
+  mock: false
+  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
+  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
+  redis_otc_expiry: 600
+  redis_session_expiry: 7200
+  redis_token_expiry: 3540
+  scope: <%= ENV['vass__scope'] %>
+  service_name: VASS-API
+  subscription_key: <%= ENV['vass__subscription_key'] %>
+  tenant_id: <%= ENV['vass__tenant_id'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>
@@ -1885,6 +1990,7 @@ veteran_readiness_and_employment:
     - VRE.VBAANC@va.gov
     - VRE.VBAPIT@va.gov
     - VRE-CMS.VBAVACO@va.gov
+  duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
 vetext_push:

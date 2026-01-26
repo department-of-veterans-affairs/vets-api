@@ -10,7 +10,7 @@ require 'common/client/base'
 module ClaimsEvidenceApi
   module Service
     # Base service class for API
-    class Base < Common::Client::Base
+    class Base < ::Common::Client::Base
       configuration ClaimsEvidenceApi::Configuration
 
       include ClaimsEvidenceApi::Exceptions::Service

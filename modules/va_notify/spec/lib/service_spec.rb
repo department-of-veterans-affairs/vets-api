@@ -149,6 +149,31 @@ describe VaNotify::Service do
         expect(service_object.callback_options).to eq(callback_options)
       end
     end
+
+    it 'supports separate service instances for email and push channels' do
+      email_api_key = 'email-aaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj'
+      push_api_key = 'push-1111-2222-3333-4444-555555555555-66666666-7777-8888-9999-000000000000'
+      test_base_url = 'https://fakishapi.com'
+
+      with_settings(Settings.vanotify, client_url: test_base_url) do
+        # Email service uses email API key
+        email_notification_client = instance_double(Notifications::Client)
+        allow(Notifications::Client).to receive(:new).with(email_api_key, test_base_url)
+                                                     .and_return(email_notification_client)
+        email_service = VaNotify::Service.new(email_api_key)
+        expect(email_service.notify_client).to eq(email_notification_client)
+
+        # Push service uses push API key
+        push_notification_client = instance_double(Notifications::Client)
+        push_va_notify_client = instance_double(VaNotify::Client)
+        allow(Notifications::Client).to receive(:new).with(push_api_key, test_base_url)
+                                                     .and_return(push_notification_client)
+        allow(VaNotify::Client).to receive(:new).with(push_api_key, {})
+                                                .and_return(push_va_notify_client)
+        push_service = VaNotify::Service.new(push_api_key)
+        expect(push_service.push_client).to eq(push_va_notify_client)
+      end
+    end
   end
 
   describe '#send_email', test_service: false do
@@ -290,6 +315,97 @@ describe VaNotify::Service do
         end
       end
     end
+
+    context 'when :va_notify_request_level_callbacks flag is enabled' do
+      it 'store service_id when flag is enabled' do
+        VCR.use_cassette('va_notify/success_email') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to eq('22222222-2222-2222-2222-222222222222')
+        end
+      end
+
+      it 'does not store service_id when flag is disabled' do
+        VCR.use_cassette('va_notify/success_email') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+
+          subject.send_email(send_email_parameters)
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+        end
+      end
+
+      context 'when template URI is malformed' do
+        let(:notification_client) { instance_double(Notifications::Client) }
+
+        before do
+          allow(Notifications::Client).to receive(:new).and_return(notification_client)
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+          allow(Rails.logger).to receive(:info)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'returns nil service_id when uri is blank' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => '' }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+        end
+
+        it 'returns nil service_id when uri has insufficient segments' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => '/v2/templates' }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'VANotify template URI has unexpected format',
+            template_uri: '/v2/templates'
+          )
+        end
+
+        it 'returns nil service_id when uri causes TypeError' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => 12_345 }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Unable to derive VANotify service_id',
+            error: anything
+          )
+        end
+      end
+    end
   end
 
   describe '#send_sms', test_service: false do
@@ -349,6 +465,39 @@ describe VaNotify::Service do
           )
 
           subject.send_sms(send_sms_parameters)
+        end
+      end
+
+      context 'with :va_notify_request_level_callbacks flag' do
+        before do
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+        end
+
+        it 'stores service_id when flag is enabled' do
+          VCR.use_cassette('va_notify/success_sms') do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+
+            subject.send_sms(send_sms_parameters)
+
+            notification = VANotify::Notification.first
+            expect(notification.service_id).to eq('22222222-2222-2222-2222-222222222222')
+          end
+        end
+
+        it 'does not store service_id when flag is disabled' do
+          VCR.use_cassette('va_notify/success_sms') do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
+
+            subject.send_sms(send_sms_parameters)
+
+            notification = VANotify::Notification.first
+            expect(notification.service_id).to be_nil
+          end
         end
       end
     end

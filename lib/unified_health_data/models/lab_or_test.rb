@@ -30,6 +30,7 @@ module UnifiedHealthData
     attribute :display, String
     attribute :test_code, String
     attribute :date_completed, String
+    attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :sample_tested, String
     attribute :encoded_data, String
     attribute :location, String
@@ -38,5 +39,7 @@ module UnifiedHealthData
     attribute :status, String
     attribute :source, String
     attribute :observations, UnifiedHealthData::Observation, array: true
+
+    default_sort_by sort_date: :desc
   end
 end

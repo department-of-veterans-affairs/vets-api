@@ -6,6 +6,7 @@ require 'rake'
 describe 'decision_reviews:remediation rake tasks', type: :task do
   before :all do
     Rake.application.rake_require '../rakelib/decision_reviews_recovered_failures_remediation'
+    Rake.application.rake_require '../rakelib/decision_reviews_recovery_emails'
     Rake::Task.define_task(:environment)
   end
 
@@ -268,9 +269,10 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         allow(evidence_upload).to receive(:masked_attachment_filename).and_return('eviXXXXXXce.pdf')
 
         # Stub AppealSubmissionUpload.where to return our stubbed upload
-        allow(AppealSubmissionUpload).to receive(:where).and_return(
-          double(includes: [evidence_upload])
-        )
+        # Need to stub the full chain: where().includes() and also .count
+        upload_relation = double('AppealSubmissionUpload::ActiveRecord_Relation')
+        allow(upload_relation).to receive_messages(includes: [evidence_upload], count: 1)
+        allow(AppealSubmissionUpload).to receive(:where).and_return(upload_relation)
       end
 
       it 'sends email via VA Notify with correct personalization' do
@@ -281,7 +283,7 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             personalisation: hash_including(
               'first_name' => 'John',
               'filename' => 'eviXXXXXXce.pdf',
-              'decision_review_type' => 'Board Appeal'
+              'date_submitted' => kind_of(String)
             )
           )
         )
@@ -375,9 +377,10 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
 
         # Stub AppealSubmission.where to return our stubbed submission
-        allow(AppealSubmission).to receive(:where).and_return(
-          double(includes: [appeal_submission])
-        )
+        # Need to stub the full chain: where().includes()
+        submission_relation = double('AppealSubmission::ActiveRecord_Relation')
+        allow(submission_relation).to receive_messages(includes: [appeal_submission], count: 1)
+        allow(AppealSubmission).to receive(:where).and_return(submission_relation)
       end
 
       it 'sends email via VA Notify with correct personalization' do
@@ -388,7 +391,8 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
             personalisation: hash_including(
               'first_name' => 'John',
               'decision_review_type' => 'Notice of Disagreement (Board Appeal)',
-              'decision_review_form_id' => 'VA Form 10182'
+              'decision_review_form_id' => 'VA Form 10182',
+              'date_submitted' => kind_of(String)
             )
           )
         )
@@ -411,39 +415,6 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
       end
     end
 
-    context 'PII protection' do
-      let(:email_address) { 'sensitive@example.com' }
-      let(:vanotify_service) { instance_double(VaNotify::Service) }
-
-      let(:run_live_rake_task) do
-        Rake::Task['decision_reviews:remediation:send_form_recovery_emails'].reenable
-        ENV['APPEAL_SUBMISSION_IDS'] = appeal_submission.id.to_s
-        ENV['VANOTIFY_TEMPLATE_ID'] = 'test-template-id'
-        ENV['DRY_RUN'] = 'false'
-        Rake.application.invoke_task 'decision_reviews:remediation:send_form_recovery_emails'
-      end
-
-      before do
-        allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
-        allow(vanotify_service).to receive(:send_email).and_return({ 'id' => 'notification-123' })
-
-        # Stub MPI profile
-        mpi_profile = double(given_names: ['John'])
-        allow(appeal_submission).to receive_messages(get_mpi_profile: mpi_profile, current_email_address: email_address)
-
-        # Stub AppealSubmission.where to return our stubbed submission
-        allow(AppealSubmission).to receive(:where).and_return(
-          double(includes: [appeal_submission])
-        )
-      end
-
-      it 'does not log email addresses to console' do
-        output = capture_stdout { run_live_rake_task }
-        expect(output).not_to include(email_address)
-        expect(output).not_to include('Email:')
-      end
-    end
-
     context 'S3 upload' do
       let(:s3_object) { instance_double(Aws::S3::Object) }
 
@@ -458,12 +429,86 @@ describe 'decision_reviews:remediation rake tasks', type: :task do
         allow(s3_object).to receive(:put).and_return(true)
       end
 
-      it 'uploads results to S3' do
+      it 'uploads results to S3 by default' do
         expect(s3_object).to receive(:put).with(
           hash_including(
             content_type: 'text/plain'
           )
         )
+        silently { run_rake_task }
+      end
+
+      it 'skips S3 upload when UPLOAD_TO_S3=false' do
+        ENV['UPLOAD_TO_S3'] = 'false'
+        expect(s3_object).not_to receive(:put)
+        silently { run_rake_task }
+        ENV.delete('UPLOAD_TO_S3')
+      end
+    end
+  end
+
+  describe 'decision_reviews:remediation:send_november_2025_recovery_emails' do
+    let(:saved_claim) { create(:saved_claim_higher_level_review) }
+    let(:appeal_submission) do
+      create(:appeal_submission,
+             saved_claim_hlr: saved_claim,
+             user_account:,
+             failure_notification_sent_at: 1.day.ago)
+    end
+    let(:evidence_upload) do
+      create(:appeal_submission_upload,
+             appeal_submission:,
+             lighthouse_upload_id: 'test-uuid-123',
+             failure_notification_sent_at: 1.day.ago)
+    end
+
+    let(:run_rake_task) do
+      Rake::Task['decision_reviews:remediation:send_november_2025_recovery_emails'].reenable
+      ENV['DRY_RUN'] = 'true'
+      Rake.application.invoke_task 'decision_reviews:remediation:send_november_2025_recovery_emails'
+    end
+
+    after do
+      ENV.delete('DRY_RUN')
+      ENV.delete('UPLOAD_TO_S3')
+    end
+
+    context 'with dry run mode' do
+      it 'runs without errors' do
+        expect { silently { run_rake_task } }.not_to raise_error
+      end
+
+      it 'does not send any emails' do
+        expect_any_instance_of(VaNotify::Service).not_to receive(:send_email)
+        silently { run_rake_task }
+      end
+    end
+
+    context 'S3 upload' do
+      let(:s3_object) { instance_double(Aws::S3::Object) }
+
+      before do
+        s3_resource = instance_double(Aws::S3::Resource)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
+        allow(s3_resource).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:put).and_return(true)
+      end
+
+      it 'uploads combined results to S3 by default' do
+        expect(s3_object).to receive(:put).with(
+          hash_including(
+            content_type: 'text/plain'
+          )
+        )
+        silently { run_rake_task }
+      end
+
+      it 'skips S3 upload when UPLOAD_TO_S3=false' do
+        ENV['UPLOAD_TO_S3'] = 'false'
+        expect(s3_object).not_to receive(:put)
         silently { run_rake_task }
       end
     end

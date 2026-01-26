@@ -1,4 +1,6 @@
 ---
+exclude_paths:
+  - vendor
 
 ### https://github.com/troessner/reek
 
@@ -44,6 +46,9 @@ directories:
     InstanceVariableAssumption:
       enabled: false
 detectors:
+  DuplicateMethodCall:
+    enabled: true
+    max_calls: 3
   IrresponsibleModule:
     enabled: false
   UnusedParameters:

@@ -10,7 +10,10 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 
 module V0
   class BenefitsClaimsController < ApplicationController
+    include InboundRequestLogging
+    include V0::Concerns::MultiProviderSupport
     before_action { authorize :lighthouse, :access? }
+    before_action :log_request_origin
     service_tag 'claims-shared'
 
     STATSD_METRIC_PREFIX = 'api.benefits_claims'
@@ -23,9 +26,14 @@ module V0
     ].freeze
 
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+    FEATURE_MULTI_CLAIM_PROVIDER = 'cst_multi_claim_provider'
 
     def index
-      claims = service.get_claims
+      claims = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                 get_claims_from_providers
+               else
+                 service.get_claims
+               end
 
       check_for_birls_id
       check_for_file_number
@@ -49,7 +57,11 @@ module V0
     end
 
     def show
-      claim = service.get_claim(params[:id])
+      claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                get_claim_from_providers(params[:id])
+              else
+                service.get_claim(params[:id])
+              end
       update_claim_type_language(claim['data'])
 
       # Manual status override for certain tracked items
@@ -111,6 +123,12 @@ module V0
 
     private
 
+    def log_request_origin
+      return unless Flipper.enabled?(:log_claims_request_origin)
+
+      log_inbound_request(message_type: 'lh.cst.inbound_request', message: 'Inbound request (Lighthouse claim status)')
+    end
+
     def failed_evidence_submissions
       @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
     end
@@ -168,20 +186,9 @@ module V0
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
-      tracked_items = claim['attributes']['trackedItems']
-
-      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-    end
-
-    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
       non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-
-      filtered_evidence_submissions = []
-      non_duplicate_submissions.each do |es|
-        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
-      end
-
-      filtered_evidence_submissions
+      tracked_items = claim['attributes']['trackedItems']
+      non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
     end
 
     def filter_duplicate_evidence_submissions(evidence_submissions, claim)
@@ -247,6 +254,7 @@ module V0
         evidence_submission.tracked_item_id,
         tracked_items
       )
+      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
@@ -259,6 +267,7 @@ module V0
         lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
         tracked_item_id: evidence_submission.tracked_item_id,
         tracked_item_display_name:,
+        tracked_item_friendly_name:,
         upload_status: evidence_submission.upload_status,
         va_notify_status: evidence_submission.va_notify_status }
     end
@@ -303,7 +312,7 @@ module V0
       tracked_items = claim.dig('data', 'attributes', 'trackedItems')
       return unless tracked_items
 
-      tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+      tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
     end
 
@@ -350,6 +359,15 @@ module V0
 
         unless pending_submissions.empty?
           request_ids = pending_submissions.pluck(:request_id)
+
+          # Check if we recently polled for the same request_ids (cache hit)
+          if recently_polled_request_ids?(claim_id, request_ids)
+            StatsD.increment("#{STATSD_METRIC_PREFIX}.show.evidence_submission_cache_hit", tags: STATSD_TAGS)
+            return
+          end
+
+          # Cache miss - proceed with polling
+          StatsD.increment("#{STATSD_METRIC_PREFIX}.show.evidence_submission_cache_miss", tags: STATSD_TAGS)
           process_evidence_submissions(claim_id, pending_submissions, request_ids)
         end
       end
@@ -399,6 +417,8 @@ module V0
       else
         # Log success metric when polling and update complete successfully
         StatsD.increment("#{STATSD_METRIC_PREFIX}.show.upload_status_success", tags: STATSD_TAGS)
+        # Cache the polled request_ids to prevent redundant polling within TTL window
+        cache_polled_request_ids(claim_id, request_ids)
       end
     rescue => e
       # Catch unexpected exceptions from update operations
@@ -448,6 +468,41 @@ module V0
         {
           claim_ids:,
           error_class: e.class.name
+        }
+      )
+    end
+
+    def recently_polled_request_ids?(claim_id, request_ids)
+      cache_record = EvidenceSubmissionPollStore.find(claim_id.to_s)
+      return false if cache_record.nil?
+
+      cache_record.request_ids.sort == request_ids.sort
+    rescue => e
+      ::Rails.logger.error(
+        'BenefitsClaimsController#show Error reading evidence submission poll cache',
+        {
+          claim_id:,
+          request_ids:,
+          error_class: e.class.name,
+          error_message: e.message
+        }
+      )
+      false
+    end
+
+    def cache_polled_request_ids(claim_id, request_ids)
+      EvidenceSubmissionPollStore.create(
+        claim_id: claim_id.to_s,
+        request_ids:
+      )
+    rescue => e
+      ::Rails.logger.error(
+        'BenefitsClaimsController#show Error writing evidence submission poll cache',
+        {
+          claim_id:,
+          request_ids:,
+          error_class: e.class.name,
+          error_message: e.message
         }
       )
     end

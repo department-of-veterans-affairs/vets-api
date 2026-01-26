@@ -3,6 +3,13 @@
 require 'dependents_benefits/monitor'
 
 module DependentsBenefits
+  ##
+  # Handles extraction and normalization of user data for dependents benefits claims
+  #
+  # Combines data from the authenticated user object and claim form data,
+  # with user object data taking precedence. Retrieves VA file number from BGS
+  # and handles VA Profile email lookup with fallback to form email.
+  #
   class UserData
     attr_reader :first_name,
                 :middle_name,
@@ -17,6 +24,15 @@ module DependentsBenefits
                 :uuid,
                 :va_file_number
 
+    # Initializes UserData with information from user and claim data
+    #
+    # Extracts user information from the authenticated user object, falling back
+    # to claim form data where user data is not available. Retrieves VA file number
+    # from BGS and determines the appropriate notification email address.
+    #
+    # @param user [User] The authenticated user object
+    # @param claim_data [Hash] The claim form data containing veteran information
+    # @raise [Common::Exceptions::UnprocessableEntity] if initialization fails
     def initialize(user, claim_data)
       @first_name = user.first_name.presence || claim_data.dig('veteran_information', 'full_name', 'first')
       @middle_name = user.middle_name.presence || claim_data.dig('veteran_information', 'full_name', 'middle')
@@ -37,6 +53,13 @@ module DependentsBenefits
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not initialize user data')
     end
 
+    # Generates a JSON representation of the user data
+    #
+    # Creates a hash containing veteran information with all available user data,
+    # removing nil values, and returns it as a JSON string.
+    #
+    # @return [String] JSON string containing veteran_information hash
+    # @raise [Common::Exceptions::UnprocessableEntity] if JSON generation fails
     def get_user_json
       full_name = { 'first' => first_name, 'middle' => middle_name, 'last' => last_name }.compact
 
@@ -62,6 +85,13 @@ module DependentsBenefits
 
     private
 
+    # Retrieves the veteran's VA file number from BGS
+    #
+    # Attempts to find the veteran by participant ID first, then falls back to SSN lookup.
+    # Handles file numbers with dashes (XXX-XX-XXXX format) by stripping them out.
+    # Returns nil and logs a warning if the lookup fails.
+    #
+    # @return [String, nil] The VA file number, or nil if lookup fails
     def get_file_number
       # include ssn in call to BGS for mocks
       bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
@@ -81,10 +111,19 @@ module DependentsBenefits
       nil
     end
 
+    # Returns a memoized BGS service instance
+    #
+    # @return [BGS::Services] BGS service instance for interacting with BGS API
     def service
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
     end
 
+    # Generates an external key for BGS authentication
+    #
+    # Uses the common name if available, otherwise falls back to email.
+    # Truncates the key to the maximum length allowed by BGS.
+    #
+    # @return [String] The external key, truncated to BGS max length
     def external_key
       @external_key ||= begin
         key = common_name.presence || email
@@ -92,6 +131,17 @@ module DependentsBenefits
       end
     end
 
+    # Retrieves the user's VA Profile email address
+    #
+    # Attempts to get the email from VA Profile. This may fail for:
+    # - New users
+    # - Users who haven't logged in for over a month
+    # - Users who created an account on web
+    # - Users who haven't visited their profile page
+    # Returns nil and logs a warning if the lookup fails.
+    #
+    # @param user [User] The authenticated user object
+    # @return [String, nil] The VA Profile email address, or nil if lookup fails
     def get_user_email(user)
       # Safeguard for when VAProfileRedis::V2::ContactInformation.for_user fails in app/models/user.rb
       # Failure is expected occasionally due to 404 errors from the redis cache
@@ -105,6 +155,9 @@ module DependentsBenefits
       nil
     end
 
+    # Returns a memoized instance of the DependentsBenefits monitor
+    #
+    # @return [DependentsBenefits::Monitor] Monitor instance for tracking events and errors
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
     end

@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 1919 0839 10275 8794 0976].each do |form_type|
+  %w[1990 1995 5490 5495 0993 0994 10203 10282 10216 10215 10297 1919 0839 10275 8794 0976 10272].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -42,6 +42,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect(
         described_class.find(education_benefits_claim.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(education_benefits_claim)
+    end
+  end
+
+  describe 'token' do
+    it 'automatically generates a unique token' do
+      expect(education_benefits_claim.token).not_to be_nil
     end
   end
 

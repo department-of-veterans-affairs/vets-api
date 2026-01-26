@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :model do
+  before do
+    allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
+    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+
+    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::PrimaryDependencyClaim)
+  end
+
   let(:form_data) { { 'test' => 'data' } }
   let(:parent_id) { 123 }
   let(:generator) { described_class.new(form_data, parent_id) }
-
-  before do
-    allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
-
-    allow(generator).to receive(:claim_class).and_return(DependentsBenefits::SavedClaim)
-  end
 
   describe 'initialization' do
     it 'stores form_data and parent_id' do
@@ -37,14 +38,23 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
           generator.send(:extract_form_data)
         end.to raise_error(NotImplementedError, 'Subclasses must implement extract_form_data')
       end
+
+      describe '#claim_class' do
+        it 'raises NotImplementedError' do
+          allow(generator).to receive(:claim_class).and_call_original
+          expect do
+            generator.send(:claim_class)
+          end.to raise_error(NotImplementedError, 'Subclasses must implement claim_class')
+        end
+      end
     end
 
     describe '#create_claim' do
       let(:extracted_data) { { 'extracted' => 'data' } }
-      let(:mock_claim) { instance_double(DependentsBenefits::SavedClaim, id: 456) }
+      let(:mock_claim) { instance_double(DependentsBenefits::PrimaryDependencyClaim, id: 456) }
 
       before do
-        allow(DependentsBenefits::SavedClaim).to receive(:new).and_return(mock_claim)
+        allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:new).and_return(mock_claim)
         allow(mock_claim).to receive(:validate!)
         allow(mock_claim).to receive(:save!)
       end
@@ -52,7 +62,7 @@ RSpec.describe DependentsBenefits::Generators::DependentClaimGenerator, type: :m
       it 'creates a SavedClaim with the correct data and form_id' do
         generator.send(:create_claim, extracted_data)
 
-        expect(DependentsBenefits::SavedClaim).to have_received(:new).with(form: extracted_data.to_json)
+        expect(DependentsBenefits::PrimaryDependencyClaim).to have_received(:new).with(form: extracted_data.to_json)
         expect(mock_claim).to have_received(:save!)
       end
 

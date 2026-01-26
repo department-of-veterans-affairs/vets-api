@@ -10,7 +10,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: 'Checkout repo'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: one
