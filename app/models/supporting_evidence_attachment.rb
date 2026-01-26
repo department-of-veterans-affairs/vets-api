@@ -67,6 +67,10 @@ class SupportingEvidenceAttachment < FormAttachment
     end
   end
 
+  def original_filename
+    parsed_file_data['original_filename'] || parsed_file_data['filename']
+  end
+
   private
 
   def get_converted_filename(_original_filename)
@@ -81,9 +85,5 @@ class SupportingEvidenceAttachment < FormAttachment
     end
 
     converted_filename
-  end
-
-  def original_filename
-    parsed_file_data['original_filename'] || parsed_file_data['filename']
   end
 end
