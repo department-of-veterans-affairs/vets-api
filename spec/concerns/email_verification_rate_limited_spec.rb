@@ -181,34 +181,74 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
         end
       end
     end
+
+    context 'when Redis connection error occurs' do
+      before do
+        allow(controller).to receive(:email_verification_rate_limit_exceeded?)
+          .and_raise(Redis::BaseConnectionError.new('Connection failed'))
+      end
+
+      it 'gracefully handles Redis connection error and does not raise exception' do
+        expect { controller.enforce_email_verification_rate_limit! }.not_to raise_error
+      end
+
+      it 'logs the Redis connection error' do
+        expect(Rails.logger).to receive(:warn)
+          .with('Redis connection error in email verification rate limit enforcement',
+                { error: 'Connection failed' })
+
+        controller.enforce_email_verification_rate_limit!
+      end
+
+      it 'returns nil when Redis error occurs' do
+        result = controller.enforce_email_verification_rate_limit!
+        expect(result).to be_nil
+      end
+    end
   end
 
   describe '#increment_email_verification_rate_limit!' do
-    it 'increments period counter with expiry' do
-      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:period').and_return('0')
-      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:period', 300, 1)
-      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:daily').and_return('1')
-      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:daily', 86_400, 2)
-
-      controller.increment_email_verification_rate_limit!
-    end
-
-    it 'increments daily counter with expiry' do
-      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:period').and_return('0')
-      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:period', 300, 1)
-      expect(redis_client).to receive(:get).with('test-uuid-123:email_verification:daily').and_return('2')
-      expect(redis_client).to receive(:setex).with('test-uuid-123:email_verification:daily', 86_400, 3)
+    it 'increments period counter with expiry using atomic operations' do
+      expect(redis_client).to receive(:multi).and_yield(redis_client)
+      expect(redis_client).to receive(:incr).with('test-uuid-123:email_verification:period')
+      expect(redis_client).to receive(:expire).with('test-uuid-123:email_verification:period', 300)
+      expect(redis_client).to receive(:incr).with('test-uuid-123:email_verification:daily')
+      expect(redis_client).to receive(:expire).with('test-uuid-123:email_verification:daily', 86_400)
 
       controller.increment_email_verification_rate_limit!
     end
 
     it 'clears rate limit cache' do
-      allow(redis_client).to receive(:get).and_return('1')
-      allow(redis_client).to receive(:setex)
+      allow(redis_client).to receive(:multi).and_yield(redis_client)
+      allow(redis_client).to receive(:incr)
+      allow(redis_client).to receive(:expire)
 
       expect(controller).to receive(:clear_verification_rate_limit_cache)
 
       controller.increment_email_verification_rate_limit!
+    end
+
+    context 'when Redis connection error occurs' do
+      before do
+        allow(redis_client).to receive(:multi).and_raise(Redis::BaseConnectionError.new('Connection failed'))
+      end
+
+      it 'gracefully handles Redis connection error and does not raise exception' do
+        expect { controller.increment_email_verification_rate_limit! }.not_to raise_error
+      end
+
+      it 'logs the Redis connection error' do
+        expect(Rails.logger).to receive(:warn)
+          .with('Redis connection error in email verification rate limit increment',
+                { error: 'Connection failed' })
+
+        controller.increment_email_verification_rate_limit!
+      end
+
+      it 'returns nil when Redis error occurs' do
+        result = controller.increment_email_verification_rate_limit!
+        expect(result).to be_nil
+      end
     end
   end
 
@@ -335,10 +375,7 @@ RSpec.describe EmailVerificationRateLimited, type: :controller do
     it 'builds proper error message' do
       message = controller.send(:build_verification_rate_limit_message)
 
-      expect(message).to eq(
-        'You have exceeded the maximum number of verification emails allowed. ' \
-        'Please wait 5 minutes before requesting another verification email.'
-      )
+      expect(message).to eq('Verification email limit reached. Wait 5 minutes to try again.')
     end
   end
 

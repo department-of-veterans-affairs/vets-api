@@ -21,6 +21,9 @@ module EmailVerificationRateLimited
     response.headers['Retry-After'] = retry_after.to_s if response
 
     raise exception
+  rescue Redis::BaseConnectionError => e
+    Rails.logger.warn('Redis connection error in email verification rate limit enforcement', { error: e.message })
+    nil
   end
 
   def email_verification_rate_limit_exceeded?
@@ -29,15 +32,17 @@ module EmailVerificationRateLimited
   end
 
   def increment_email_verification_rate_limit!
-    current_period = verification_redis.get(verification_period_key).to_i
-    new_period_count = current_period + 1
-    verification_redis.setex(verification_period_key, VERIFICATION_EMAIL_LIMITS[:period].to_i, new_period_count)
-
-    current_daily = verification_redis.get(verification_daily_key).to_i
-    new_daily_count = current_daily + 1
-    verification_redis.setex(verification_daily_key, VERIFICATION_EMAIL_LIMITS[:daily_period].to_i, new_daily_count)
+    verification_redis.multi do |multi|
+      multi.incr(verification_period_key)
+      multi.expire(verification_period_key, VERIFICATION_EMAIL_LIMITS[:period].to_i)
+      multi.incr(verification_daily_key)
+      multi.expire(verification_daily_key, VERIFICATION_EMAIL_LIMITS[:daily_period].to_i)
+    end
 
     clear_verification_rate_limit_cache
+  rescue Redis::BaseConnectionError => e
+    Rails.logger.warn('Redis connection error in email verification rate limit increment', { error: e.message })
+    nil
   end
 
   def reset_email_verification_rate_limit!
@@ -82,8 +87,7 @@ module EmailVerificationRateLimited
     seconds = time_until_next_verification_allowed
     duration = format_verification_time_duration(seconds)
 
-    'You have exceeded the maximum number of verification emails allowed. ' \
-      "Please wait #{duration} before requesting another verification email."
+    "Verification email limit reached. Wait #{duration} to try again."
   end
 
   def format_verification_time_duration(seconds)
@@ -109,10 +113,7 @@ module EmailVerificationRateLimited
   end
 
   def verification_redis
-    @verification_redis ||= Redis::Namespace.new(
-      VERIFICATION_EMAIL_LIMITS[:redis_namespace],
-      redis: $redis
-    )
+    @verification_redis ||= Redis::Namespace.new(VERIFICATION_EMAIL_LIMITS[:redis_namespace], redis: $redis)
   end
 
   def log_email_verification_rate_limit_denial(rate_limit_info)
