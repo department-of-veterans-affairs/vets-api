@@ -87,7 +87,6 @@ module VBADocuments
     end
     # rubocop:enable Metrics/MethodLength
 
-    # can MD5 be removed here as well?
     def original_file_metadata(tempfile)
       {
         'size' => tempfile.size,
