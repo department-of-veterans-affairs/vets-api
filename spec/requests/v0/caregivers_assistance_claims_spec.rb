@@ -373,5 +373,13 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       )
       expect(lighthouse_service).to have_received(:get_paginated_facilities).with(expected_params)
     end
+
+    it 'logs an error when the facilities request fails' do
+      text = 'Lighthouse error message text'
+      expect(lighthouse_service).to receive(:get_paginated_facilities).and_raise(StandardError.new(text))
+      expect(Rails.logger).to receive(:error).with("10-10CG - Error retrieving facilities: #{text}", 'vha_123,vha_456')
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
+    end
   end
 end
