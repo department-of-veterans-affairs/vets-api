@@ -10,9 +10,9 @@ RSpec.describe Ibm::Configuration do
   let(:settings) do
     OpenStruct.new(
       {
-        host: 'api-dev.digitization.gcio.com',
+        host: 'hosty.mc.hosterson.fake',
         path: '/api/validated-forms',
-        use_mocks: false,
+        use_mocks: true,
         version: 'v1'
       }
     )
@@ -28,7 +28,7 @@ RSpec.describe Ibm::Configuration do
     end
 
     it 'returns service_path' do
-      valid_path = 'https://api-dev.digitization.gcio.com/api/validated-forms/v1'
+      valid_path = 'https://hosty.mc.hosterson.fake/api/validated-forms/v1'
       expect(config.service_path).to eq(valid_path)
     end
 
