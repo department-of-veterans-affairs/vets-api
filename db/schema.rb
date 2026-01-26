@@ -1374,8 +1374,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
