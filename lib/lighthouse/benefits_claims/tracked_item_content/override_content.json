@@ -243,7 +243,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under \"what we need from you.\""
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
         },
         {
           "type": "paragraph",
@@ -319,7 +326,6 @@
     }
   },
   "ASB-tell us specific disability fm asbestos exposure": {
-    "canUploadFile": true,
     "isSensitive": true,
     "longDescription": {
       "blocks": [
@@ -342,7 +348,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under \"what we need from you.\""
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
         },
         {
           "type": "paragraph",
@@ -669,7 +682,6 @@
       "PMR Request"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -807,7 +819,6 @@
       "General Records Request (Medical)"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -841,8 +852,7 @@
       "PMR Request",
       "General Records Request (Medical)"
     ],
-    "canUploadFile": true,
-    "noActionNeeded": true
+    "canUploadFile": true
   },
   "PTSD - Need stressor details/med evid of stressful incdnt": {
     "friendlyName": "Details about cause of PTSD",
@@ -851,8 +861,7 @@
       "VA Form 21-0781",
       "PTSD - Need stressor details"
     ],
-    "canUploadFile": true,
-    "isProperNoun": true
+    "canUploadFile": true
   },
   "Proof of service (DD214, etc.)": {
     "friendlyName": "Proof of service",
@@ -862,7 +871,6 @@
       "Proof of Service (DD214, etc.)"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -892,7 +900,6 @@
       "RV1 - Reserve Records Request"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
