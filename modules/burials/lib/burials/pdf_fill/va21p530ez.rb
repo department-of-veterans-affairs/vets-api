@@ -17,6 +17,7 @@ require_relative 'sections/section_07'
 require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_04_v2'
+require_relative 'sections/section_06_v2'
 
 module Burials
   module PdfFill
@@ -101,7 +102,7 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section4V2].freeze
+        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section4V2, Section6V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
         # These are placeholders and will be updated as V2 sections are implemented
@@ -131,7 +132,8 @@ module Burials
           { question_number: '23', question_text: 'State Cemetery or Tribal Trust Land' },
           { question_number: '24', question_text: 'Government or Employer Contribution' },
           { question_number: '25', question_text: 'Plot/Interment Expense Responsibility' },
-          { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' }
+          { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' },
+          { question_number: '30', question_text: 'Transportation Expense Responsibility' }
         ].freeze
 
         # V2 sections grouping question numbers for overflow pages
