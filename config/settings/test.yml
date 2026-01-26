@@ -616,10 +616,11 @@ iam_ssoe:
   timeout: 20
 ibm:
   breakers_error_threshold: 80
-  host: api-dev.digitization.gcio.com
+  host: hosty.mc.hosterson.fake
   path: "/api/validated-forms"
-  use_mocks: false
+  use_mocks: true
   version: v1
+  timeout: 30
 intent_to_file:
   prefill: true
 ivc_champva:
