@@ -49,7 +49,11 @@ RSpec.describe Ibm::Service do
           )
           .to_return(status: 500, body: 'Internal Server Error', headers: {})
 
-        expect(Rails.logger).to receive(:error).with(/IBM MMS Upload Error:/)
+        expect(Rails.logger).to receive(:error).with(
+          'IBM MMS Upload Error: the server responded with status 500 - method and url' \
+          ' are not available due to include_request: false on Faraday::Response::RaiseError middleware',
+          { guid: valid_guid }
+        )
 
         service.upload_form(form: valid_form, guid: valid_guid)
       end
