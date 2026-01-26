@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logging/helper/data_scrubber'
+require 'fileutils'
 
 class Console1984LogUploadJob
   include Sidekiq::Job
@@ -18,6 +19,8 @@ class Console1984LogUploadJob
     upload_to_s3
 
     Rails.logger.info "Successfully uploaded #{filename} to S3"
+  ensure
+    File.delete(file_path) if File.exist?(file_path)
   end
 
   private
