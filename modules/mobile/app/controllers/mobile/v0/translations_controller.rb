@@ -26,7 +26,6 @@ module Mobile
       end
 
       def file_md5
-        # does this need to be converted to SHA256?
         @file_md5 ||= Digest::MD5.file(file).hexdigest
       end
 
