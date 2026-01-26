@@ -162,6 +162,22 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             link = response.parsed_body.dig('data', 'links', 'self')
             expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/674852')
           end
+
+          it 'logs and re-raises serialization errors on create with attachments' do
+            error = Common::Client::Errors::Serialization.new(status: 500, body: 'bad response', message: 'parse error')
+            allow_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment).and_raise(error)
+
+            allow(Rails.logger).to receive(:info)
+            expect(Rails.logger).to receive(:info).with(
+              'Mobile SM create with attachment error',
+              hash_including(:status, :error_body, :message)
+            )
+
+            post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: params_with_attachments
+
+            expect(response).not_to be_successful
+          end
         end
 
         context 'reply' do

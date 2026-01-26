@@ -133,6 +133,8 @@ module Mobile
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
           params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group)
         end
+      rescue JSON::ParserError
+        raise Common::Exceptions::InvalidFieldValue.new('message', params[:message])
       end
 
       def upload_params
@@ -165,6 +167,11 @@ module Mobile
         end
 
         client.post_create_message_reply_with_attachment(params[:id], create_message_params, is_oh: oh_triage_group?)
+      rescue Common::Client::Errors::Serialization => e
+        Rails.logger.info('Mobile SM reply with attachment error', status: e&.status,
+                                                                   error_body: e&.body,
+                                                                   message: e&.message)
+        raise e
       end
 
       def message_counts(resource)
