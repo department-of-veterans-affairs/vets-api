@@ -534,20 +534,30 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(attrs['html']).to include('<h1>Somatropin</h1>')
       end
 
-      it 'raises error when prescription is not found' do
+      it 'returns error when prescription is not found' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(nil)
+
         VCR.use_cassette('rx_client/prescriptions/rx_not_found') do
-          expect do
-            get '/my_health/v1/prescriptions/99999999/documentation'
-          end.to raise_error(StandardError, 'Rx not found')
+          get '/my_health/v1/prescriptions/99999999/documentation'
         end
+
+        expect(response).to have_http_status(:internal_server_error)
+        error = JSON.parse(response.body)
+        expect(error).to include('errors')
       end
 
-      it 'raises error when NDC number is missing' do
+      it 'returns error when NDC number is missing' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
+          double('Rx', cmop_ndc_value: nil)
+        )
+
         VCR.use_cassette('rx_client/prescriptions/rx_missing_ndc') do
-          expect do
-            get '/my_health/v1/prescriptions/13650541/documentation'
-          end.to raise_error(StandardError, 'Missing NDC number')
+          get '/my_health/v1/prescriptions/13650541/documentation'
         end
+
+        expect(response).to have_http_status(:internal_server_error)
+        error = JSON.parse(response.body)
+        expect(error).to include('errors')
       end
 
       it 'allows upstream service errors to bubble up for DataDog alerting' do
@@ -557,11 +567,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ServerError.new('Service unavailable'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_server_error') do
-          expect do
+        expect do
+          VCR.use_cassette('rx_client/prescriptions/upstream_server_error') do
             get '/my_health/v1/prescriptions/21296515/documentation'
-          end.to raise_error(Faraday::ServerError)
-        end
+          end
+        end.to raise_error(Faraday::ServerError)
       end
 
       it 'allows connection failures to bubble up for DataDog alerting' do
@@ -571,11 +581,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ConnectionFailed.new('Connection failed'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_connection_failed') do
-          expect do
+        expect do
+          VCR.use_cassette('rx_client/prescriptions/upstream_connection_failed') do
             get '/my_health/v1/prescriptions/21296515/documentation'
-          end.to raise_error(Faraday::ConnectionFailed)
-        end
+          end
+        end.to raise_error(Faraday::ConnectionFailed)
       end
 
       it 'allows client errors to bubble up for DataDog alerting' do
@@ -585,11 +595,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ClientError.new('Bad request'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_client_error') do
-          expect do
+        expect do
+          VCR.use_cassette('rx_client/prescriptions/upstream_client_error') do
             get '/my_health/v1/prescriptions/21296515/documentation'
-          end.to raise_error(Faraday::ClientError)
-        end
+          end
+        end.to raise_error(Faraday::ClientError)
       end
     end
 
