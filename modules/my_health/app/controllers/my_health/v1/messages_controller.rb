@@ -172,7 +172,7 @@ module MyHealth
         return false unless any_file_too_large || total_size_too_large || total_file_count_too_large
 
         Flipper.enabled?(:mhv_secure_messaging_large_attachments) ||
-          (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @current_user) && oh_triage_group?)
+          (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user) && oh_triage_group?)
       end
 
       def extend_timeout
