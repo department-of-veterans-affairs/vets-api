@@ -87,7 +87,6 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
                            'isUserFacilityReadyForInfoAlert' => true
                          })
     end
-
   end
 
   describe 'when OH flippers are enabled' do
