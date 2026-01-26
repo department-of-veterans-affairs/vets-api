@@ -55,8 +55,7 @@ module VetsAPI
     # Console1984
     # see: https://github.com/basecamp/console1984/tree/master?tab=readme-ov-file#configuration
     config.console1984.ask_for_username_if_empty = true
-    config.production_data_warning = <<~TXT
-
+    config.console1984.production_data_warning = <<~TXT
       You have access to production data here. As part of our promise to keep customer data safe and private, we audit the commands you type here.
 
       Please enter your VA email and the VA email of the person you're pairing with.
