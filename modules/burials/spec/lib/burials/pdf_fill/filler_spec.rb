@@ -84,6 +84,40 @@ describe PdfFill::Filler, type: :model do
 
               File.delete(file_path)
             end
+
+            it 'fills the form correctly with V2' do
+              allow(Flipper).to receive(:enabled?).with(:burial_pdf_form_alignment).and_return(true)
+
+              if type == 'overflow'
+                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
+                the_extras_generator = nil
+                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+                  the_extras_generator = extras_generator
+                  old_file_path
+                end
+              end
+
+              fill_options = { extras_redesign: true, omit_esign_stamp: true, use_hexapdf: true }
+
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
+                                                              fill_options)
+
+              if type == 'overflow'
+                extras_path = the_extras_generator.generate
+                expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras_v2.pdf"
+
+                expect(
+                  FileUtils.compare_file(extras_path, expected_path)
+                ).to be(true)
+
+                File.delete(extras_path)
+              end
+
+              expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}_redesign_v2.pdf"
+              expect(file_path).to match_pdf_fields(expected_path)
+
+              File.delete(file_path)
+            end
           end
         end
       end

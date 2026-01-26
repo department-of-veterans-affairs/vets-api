@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/overflow_pdf_generator'
+
 module SimpleFormsApi
   class VBA214138 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_4138'
+    REMARKS_SLICE_1 = 0..1510
+    REMARKS_SLICE_2 = 1511..3685
+    ALLOTTED_REMARKS_LAST_INDEX = REMARKS_SLICE_2.end
 
     def desired_stamps
       [{
@@ -51,6 +56,15 @@ module SimpleFormsApi
 
     def zip_code_is_us_based
       data.dig('mailing_address', 'country') == 'USA'
+    end
+
+    def overflow_pdf
+      statement = (data['statement'] || '').to_s
+      return nil if statement.length <= ALLOTTED_REMARKS_LAST_INDEX
+
+      SimpleFormsApi::OverflowPdfGenerator
+        .new(data, cutoff: ALLOTTED_REMARKS_LAST_INDEX)
+        .generate
     end
 
     def track_user_identity(confirmation_number); end
