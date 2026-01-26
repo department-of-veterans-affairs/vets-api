@@ -910,6 +910,7 @@ maintenance:
     vapro_military_info: ~
     vapro_notification_settings: ~
     vapro_personal_info: ~
+    vass: ~
     vbms: ~
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
@@ -1234,6 +1235,10 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: ~
 res:
   api_key: ~
   base_url: https://fake_url.com

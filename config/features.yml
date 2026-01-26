@@ -674,6 +674,9 @@ features:
     actor_type: user
     description: Enable job to delete SecondaryAppealForm records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_evidence_final_status_field:
+    actor_type: user
+    description: Include finalStatus boolean field in Decision Reviews "show" and "create" endpoint responses
   decision_review_failure_notification_email_job_enabled:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
@@ -1389,9 +1392,15 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_medications_management_improvements:
+    actor_type: user
+    description: Enables improvements to medication management functionality
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
+  mhv_secure_messaging_can_reply_field:
+    actor_type: user
+    description: Enables/disables Secure Messaging use of canReply field from SM API
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov and VHAB
@@ -1949,6 +1958,10 @@ features:
   meb_parent_guardian_step:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
+    enable_in_development: true
+  meb_5490_under_18_flow:
+    actor_type: user
+    description: Enables the under 18 flow for form 22-5490
     enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user

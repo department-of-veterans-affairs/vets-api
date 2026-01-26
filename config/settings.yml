@@ -902,6 +902,7 @@ maintenance:
     vapro_military_info: <%= ENV['maintenance__services__vapro_military_info'] %>
     vapro_notification_settings: <%= ENV['maintenance__services__vapro_notification_settings'] %>
     vapro_personal_info: <%= ENV['maintenance__services__vapro_personal_info'] %>
+    vass: <%= ENV['maintenance__services__vass'] %>
     vbms: <%= ENV['maintenance__services__vbms'] %>
     vet360: <%= ENV['maintenance__services__vet360'] %>
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
@@ -1218,6 +1219,10 @@ reports:
     - jacob.finnern@accenturefederal.com
     - hocine.halli@accenturefederal.com
     - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: <%= ENV['representation_management__geocoder__mapbox__api_key'] %>
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>

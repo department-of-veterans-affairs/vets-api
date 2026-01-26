@@ -261,8 +261,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
 
     it 'does not call track_submission on form models that do not respond to it' do
-      # 10-7959A does not have track_submission implemented (method_missing returns a hash, not StatsD calls)
-      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
+      # 10-7959F-1 does not have track_submission implemented (method_missing returns a hash, not StatsD calls)
+      fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959f_1.json')
       data = JSON.parse(fixture_path.read)
 
       mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
@@ -280,9 +280,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       post '/ivc_champva/v1/forms', params: data
 
       expect(response).to have_http_status(:ok)
-      # Verify track_submission was NOT called (7959A doesn't have it implemented)
+      # Verify track_submission was NOT called (7959F-1 doesn't have it implemented)
       expect(StatsD).not_to have_received(:increment).with(
-        'api.ivc_champva_form.10_7959a.submission',
+        'api.ivc_champva_form.10_7959f_1.submission',
         anything
       )
     end
