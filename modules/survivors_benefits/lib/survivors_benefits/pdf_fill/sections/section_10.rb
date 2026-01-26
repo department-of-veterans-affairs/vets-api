@@ -359,7 +359,7 @@ module SurvivorsBenefits
         form_data['p16HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         has_care = form_data['careExpenses'].present? && form_data['careExpenses'].any?
         has_medical = form_data['medicalExpenses'].present? && form_data['medicalExpenses'].any?
-        form_data['anythingToReport'] = (has_care || has_medical) ? 1 : 2
+        form_data['anythingToReport'] = has_care || has_medical ? 1 : 2
 
         map_care_expenses(form_data)
         map_medical_expenses(form_data)
