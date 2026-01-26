@@ -140,7 +140,7 @@ Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` f
 - `rescue Exception` (or rescuing `Exception` directly) - catches `StandardError` **and** `SystemExit` / `Interrupt` (Ctrl+C) and should almost never be used
 - `rescue => e; nil` or `rescue; false` - swallows failures, returns misleading values
 - `raise "error: #{e}"` - destroys exception type, backtrace, and cause chain
-- Wrapping exceptions without `cause: e` - loses original stack trace and HTTP status
+- Not using `Lighthouse::ServiceException.send_error` for Faraday errors - loses proper status mapping and logging
 
 **Status Code Misclassification:**
 - All Faraday errors mapped to 500 - should be: timeout→504, connection→503, upstream 500→502
@@ -158,18 +158,25 @@ Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` f
 rescue => e
   Rails.logger.warn("Failed"); nil
 
-# Bad: Missing cause chain
-raise ServiceException.new(e.response)
-
 # Bad: All network errors become 500
 rescue Faraday::Error => e
-  raise InternalServerError
+  raise Common::Exceptions::InternalServerError.new(e)
 
-# Good: Specific rescue, proper status, cause preserved
-rescue Faraday::TimeoutError => e
-  raise GatewayTimeout, cause: e  # 504
-rescue Faraday::ConnectionFailed => e
-  raise ServiceUnavailable, cause: e  # 503
+# Bad: Not separating timeout from other errors
+rescue Faraday::ClientError, Faraday::ServerError => e
+  raise Common::Exceptions::ServiceUnavailable.new
+
+# Good: Use Lighthouse::ServiceException for proper status mapping
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout  # 504, no arguments
+rescue Faraday::ClientError, Faraday::ServerError => e
+  Lighthouse::ServiceException.send_error(e, self.class.to_s.underscore, client_id, url)
+
+# Good: Or use BenefitsClaims::ServiceException pattern
+rescue Faraday::TimeoutError
+  raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+rescue Faraday::ClientError, Faraday::ServerError => e
+  raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
 ```
 
 ## Consolidation Examples

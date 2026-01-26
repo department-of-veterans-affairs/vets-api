@@ -22,8 +22,10 @@ end
 def veteran_va_file_number(user)
   response = BGS::People::Request.new.find_person_by_participant_id(user:)
   response.file_number
-rescue BGS::ServiceError, Faraday::Error => e
-  raise Common::Exceptions::ServiceUnavailable.new(cause: e)
+rescue BGS::ServiceError, Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout  # 504
+rescue Faraday::ConnectionFailed
+  raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS unavailable')  # 503
 end
 # NoMethodError from typos will raise to APM, not be swallowed
 ```

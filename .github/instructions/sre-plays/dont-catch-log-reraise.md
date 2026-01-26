@@ -26,9 +26,13 @@ end
 # Good: Only catch when adding meaningful context
 rescue CemeteryService::UpstreamError => e
   raise Common::Exceptions::ServiceUnavailable.new(
-    detail: "NCA cemetery database unavailable",
-    cause: e  # Preserves original exception for APM
+    detail: "NCA cemetery database unavailable: #{e.message}"
   )
+end
+
+# Good: Use Lighthouse::ServiceException for Faraday errors
+rescue Faraday::ClientError, Faraday::ServerError => e
+  Lighthouse::ServiceException.send_error(e, self.class.to_s.underscore, client_id, url)
 end
 ```
 

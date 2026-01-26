@@ -20,10 +20,11 @@ end
 def initialize(user, claim_data)
   @first_name = user.first_name
   validate_required_fields!
-rescue ArgumentError, ValidationError => e
-  # Client sent bad data - they fix it
-  raise Common::Exceptions::UnprocessableEntity.new(detail: e.message, cause: e)
-# NoMethodError, BGS::ServiceError raise as 500/5xx - we fix it
+rescue ArgumentError, ActiveModel::ValidationError => e
+  # Client sent bad data - they fix it (422)
+  raise Common::Exceptions::UnprocessableEntity.new(detail: e.message)
+# NoMethodError, BGS::ServiceError will raise as 500/5xx - we fix it
+# Don't rescue them here - let controller exception handling classify them
 end
 ```
 

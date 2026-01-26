@@ -14,21 +14,32 @@ rescue Faraday::ClientError, Faraday::ServerError => e
   raise Common::Exceptions::InternalServerError.new(e)
 end
 
-# Good: Specific status codes for each failure type
-rescue Faraday::TimeoutError => e
-  # Map network timeout to 504 Gateway Timeout
-  raise Common::Exceptions::GatewayTimeout.new  # 504
+# Good: Use Lighthouse::ServiceException for automatic status mapping and logging
+def handle_error(error, lighthouse_client_id, endpoint)
+  Lighthouse::ServiceException.send_error(
+    error,
+    self.class.to_s.underscore,
+    lighthouse_client_id,
+    "#{config.base_api_path}/#{endpoint}"
+  )
+end
 
-rescue Faraday::ConnectionFailed => e
-  # Map connection/DNS failure to 503 Service Unavailable
-  raise Common::Exceptions::ServiceUnavailable.new  # 503
+rescue Faraday::ClientError, Faraday::ServerError => e
+  handle_error(e, lighthouse_client_id, endpoint)
 
+# Good: Or use BenefitsClaims::ServiceException pattern with explicit timeout handling
+rescue Faraday::TimeoutError
+  raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+rescue Faraday::ClientError, Faraday::ServerError => e
+  raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+
+# Good: Direct exception raises (note: GatewayTimeout takes NO arguments)
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout  # 504
+rescue Faraday::ConnectionFailed
+  raise Common::Exceptions::ServiceUnavailable.new(detail: 'Connection failed')  # 503
 rescue Faraday::ServerError => e
-  # Map upstream 5xx to 502 Bad Gateway, including upstream status in errors payload
-  raise Common::Exceptions::BadGateway.new(
-    detail: 'Upstream service error',
-    errors: [{ upstream_status: e.response[:status] }]
-  )  # 502
+  raise Common::Exceptions::BadGateway.new(detail: "Upstream error: #{e.response[:status]}")  # 502
 ```
 
 **Mapping:**
