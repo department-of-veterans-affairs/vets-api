@@ -897,7 +897,6 @@
   "letters.details.title": "Letter details",
   "letters.download.error": "Your letter could not be downloaded.",
   "letters.download.tryAgain.a11y": "Try again to download your letter",
-  "letters.foreignMedicalProgram.description": "This letter confirms your enrollment in the Foreign Medical Program (FMP). Use it to prove to health care providers in foreign countries that VA will cover your medical care for service-connected conditions.",
   "letters.list.a11y": "Go to an overview of your {{letter}}",
   "letters.list.loading": "Loading your letters list...",
   "letters.loading": "Loading your letter...",
