@@ -107,10 +107,6 @@ module MedicalExpenseReports
       MedicalExpenseReports::PdfFill::Va21p8416.stamp_signature(pdf_path, form_data)
     end
 
-    def to_ibm
-      build_ibm_payload(parsed_form)
-    end
-
     ##
     # Converts the form_data into json that can be read by the IBM - GOVCIO mms connection
     #
