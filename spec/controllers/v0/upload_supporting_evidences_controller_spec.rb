@@ -137,6 +137,34 @@ RSpec.describe V0::UploadSupportingEvidencesController, type: :controller do
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq form_attachment_guid
       end
+
+      it 'falls back to nested password when top-level password is an empty string' do
+        form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
+
+        expect(form_attachment_model).to receive(:new) do
+          expect(form_attachment).to receive(:set_file_data!).with(kind_of(ActionDispatch::Http::UploadedFile),
+                                                                   'nested-pass')
+
+          expect(form_attachment).to receive(:save!) do
+            form_attachment.id = 99
+            form_attachment
+          end
+
+          form_attachment
+        end
+
+        post(:create, params: { file: pdf_file, password: '', param_namespace => { password: 'nested-pass' } })
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'prefers platform `file` param when both `file` and legacy namespace are provided' do
+        params = { file: pdf_file, param_namespace => { file_data: 'not_a_file_just_a_string' } }
+        expect_form_attachment_creation
+        post(:create, params:)
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'when disability_526_supporting_evidence_enhancement is disabled' do

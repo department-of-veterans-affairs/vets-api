@@ -65,6 +65,27 @@ RSpec.describe 'V0::UploadSupportingEvidence', type: :request do
              params: { supporting_evidence_attachment: { file_data: pdf_file } }
         expect(response).to have_http_status(:ok)
       end
+
+      it 'falls back to nested password when top-level password is an empty string' do
+        post '/v0/upload_supporting_evidence',
+             params: {
+               file: encrypted_pdf_file,
+               password: '',
+               supporting_evidence_attachment: { password: 'test' }
+             }
+        expect(response).to have_http_status(:ok)
+        sea = SupportingEvidenceAttachment.last
+        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
+      end
+
+      it 'prefers platform `file` param when both payload formats are provided' do
+        post '/v0/upload_supporting_evidence',
+             params: {
+               file: pdf_file,
+               supporting_evidence_attachment: { file_data: 'not_a_file_just_a_string' }
+             }
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'with valid parameters' do
