@@ -115,13 +115,19 @@ RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: 
       end
 
       it '#find_claim' do
-        existing = create(:auto_established_claim, md5: 'test-md5')
-        claim = ClaimsApi::AutoEstablishedClaim.new(md5: 'test-md5', form_data: {})
-        claim.errors.add(:md5, :taken)
-        allow(claim).to receive(:new_record?).and_return(true)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).with(md5: 'test-md5').and_return(existing)
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).with(header_hash: anything).and_return(nil)
-        expect(controller.send(:find_claim, claim).id).to eq(existing.id)
+        # Returns existing persisted claim when header_hash matches
+        persisted_claim = create(:auto_established_claim)
+
+        new_claim = ClaimsApi::AutoEstablishedClaim.new(
+          header_hash: persisted_claim.header_hash,
+          form_data: {}
+        )
+
+        expect(controller.send(:find_claim, new_claim)).to eq(persisted_claim)
+
+        # Returns input claim when no match found
+        unmatched_claim = ClaimsApi::AutoEstablishedClaim.new(header_hash: 'different-hash', form_data: {})
+        expect(controller.send(:find_claim, unmatched_claim)).to eq(unmatched_claim)
       end
     end
 

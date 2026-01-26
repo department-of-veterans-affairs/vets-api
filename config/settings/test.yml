@@ -11,6 +11,9 @@ accredited_representative_portal:
       repo: faked/fakeness
   frontend_base_url: http://localhost:3001/representative
   lighthouse:
+    benefits_claims:
+      host: https://sandbox-api.va.gov
+      path: /services/claims/v2/veterans
     benefits_intake:
       api_key: fake_api_key
       host: https://sandbox-api.va.gov

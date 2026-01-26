@@ -12,7 +12,6 @@ describe ClaimsApi::ClaimDetailSerializer, type: :serializer do
       {
         id: claim.supporting_documents.first[:id],
         type: 'claim_supporting_document',
-        md5: claim.supporting_documents.first[:md5],
         header_hash: claim.supporting_documents.first[:header_hash],
         filename: claim.supporting_documents.first[:filename],
         uploaded_at: claim.supporting_documents.first[:uploaded_at]

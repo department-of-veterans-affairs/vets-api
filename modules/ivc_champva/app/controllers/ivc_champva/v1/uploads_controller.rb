@@ -331,7 +331,11 @@ module IvcChampva
             "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
           )
 
-          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+          unless attachment.valid?
+            error_msgs = attachment.errors.full_messages.join(', ')
+            Rails.logger.error "submit_supporting_documents attachment is invalid: #{error_msgs}"
+            raise Common::Exceptions::ValidationErrors, attachment
+          end
 
           attachment.save
 
