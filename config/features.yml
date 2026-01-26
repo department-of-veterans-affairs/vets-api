@@ -1953,6 +1953,10 @@ features:
     actor_type: user
     description: Allows beneficiaries under 18 years old to enter their parent/guardian information via MEB
     enable_in_development: true
+  meb_5490_under_18_flow:
+    actor_type: user
+    description: Enables the under 18 flow for form 22-5490
+    enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.
