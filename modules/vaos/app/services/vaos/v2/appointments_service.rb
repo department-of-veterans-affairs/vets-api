@@ -1438,14 +1438,6 @@ module VAOS
         "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
       end
 
-      def get_appointment_base_path(appointment_id)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-          "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
-        else
-          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
-        end
-      end
-
       def get_appointment_base_path_vpg(appointment_id)
         "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
@@ -1650,7 +1642,7 @@ module VAOS
         end
       end
 
-      # Splitting `perform_appointment_request` into separate vpg/vaos methods for monitoring purposes
+      # Splitting `perform` requests into separate vpg/vaos methods for monitoring purposes
       def perform_get_appointments_request_vpg(req_params)
         with_monitoring do
           perform(:get, appointments_base_path_vpg, req_params, headers)
