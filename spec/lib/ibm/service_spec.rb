@@ -29,11 +29,26 @@ RSpec.describe Ibm::Service do
       it 'raises JSON::ParserError' do
         invalid_form = '{invalid_json: true'
 
-        expect {
+        expect do
           service.upload_form(form: invalid_form, guid: valid_guid)
-        }.to raise_error(JSON::ParserError)
+        end.to raise_error(JSON::ParserError)
       end
     end
+
+    context 'when the upload fails' do
+      it 'logs an error message' do
+        stub_request(:put, "#{Ibm::Configuration.instance.service_path}/#{valid_guid}")
+          .with(
+            body: valid_form,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+          .to_return(status: 500, body: 'Internal Server Error', headers: {})
+
+        expect(Rails.logger).to receive(:error).with(/IBM MMS Upload Error:/)
+
+        service.upload_form(form: valid_form, guid: valid_guid)
+      end
+    end 
   end
 
   describe '#upload_url' do

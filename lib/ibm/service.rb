@@ -27,9 +27,14 @@ module Ibm
     # @param form [JSONString] form to be uploaded, must be valid JSON
     # @param guid [String] required guid for IBM MMS URL
     def upload_form(form:, guid:)
+      
       form = JSON.parse(form)
 
       perform :put, upload_url(guid:), form.to_json, { 'Content-Type' => 'application/json' }
+      
+    rescue Common::Client::Errors::ClientError => e
+      puts e.message
+      Rails.logger.error("IBM MMS Upload Error: #{e.message}")
     end
 
     def upload_url(guid:)
