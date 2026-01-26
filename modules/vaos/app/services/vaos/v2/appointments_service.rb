@@ -19,6 +19,7 @@ module VAOS
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
       APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
+      APPOINTMENTS_FETCH_OH_AVS = :va_online_scheduling_add_OH_avs
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -923,8 +924,10 @@ module VAOS
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt)
-          appt[:avs_pdf] = avs_pdf
+          if Flipper.enabled?(APPOINTMENTS_FETCH_OH_AVS, user)
+            avs_pdf = get_avs_pdf(appt)
+            appt[:avs_pdf] = avs_pdf
+          end
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link

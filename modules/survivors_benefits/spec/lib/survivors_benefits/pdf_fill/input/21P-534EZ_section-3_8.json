@@ -1,0 +1,37 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranPreviousNames": [
+    {
+      "first": "3A First",
+      "middle": "A",
+      "last": "3A FIRST"
+    },
+    {
+      "first": "3A Second",
+      "middle": "Z",
+      "last": "3A SECOND"
+    }
+  ],
+  "activeServiceDateRange": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  },
+  "serviceBranch": "army",
+  "placeOfSeparation": "3E Place of Last Separation",
+  "nationalGuardActivated": true,
+  "nationalGuardActivationDate": "1999-01-01",
+  "unitNameAndAddress": "3H Reserve or National Guard Unit",
+  "unitPhone": {
+    "callingCode": 1,
+    "countryCode": "US",
+    "contact": "5555112222",
+    "_isValid": true,
+    "_touched": true,
+    "_required": true
+  },
+  "pow": true,
+  "powDateRange": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  }
+}

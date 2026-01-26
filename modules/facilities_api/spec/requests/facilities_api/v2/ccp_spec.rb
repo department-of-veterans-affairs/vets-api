@@ -464,4 +464,216 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       )
     end
   end
+
+  describe 'Error Handling' do
+    describe '#index' do
+      context 'when PPMS API returns RecordNotFound' do
+        it 'returns 404 error with sanitized response' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::RecordNotFound.new('id'))
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:not_found)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Not Found')
+          expect(response_json['errors'].first['code']).to eq('404')
+        end
+      end
+
+      context 'when PPMS API returns ResourceNotFound' do
+        it 'returns 404 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Faraday::ResourceNotFound.new('response'))
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+          bod = JSON.parse(response.body)
+          expect(bod).to include('errors')
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when PPMS API times out' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Faraday::TimeoutError.new)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+        end
+      end
+
+      context 'when PPMS API has net read timeout' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Net::ReadTimeout.new)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+        end
+      end
+
+      context 'when PPMS API is unavailable' do
+        it 'returns 503 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:service_unavailable)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Service Unavailable')
+        end
+      end
+
+      context 'when PPMS API has backend error' do
+        it 'returns 502 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::BackendServiceException.new)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:bad_gateway)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Bad Gateway')
+        end
+      end
+    end
+
+    describe '#urgent_care' do
+      context 'when API call fails with RecordNotFound' do
+        it 'returns 404 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+            .and_raise(Common::Exceptions::RecordNotFound.new('id'))
+
+          get '/facilities_api/v2/ccp/urgent_care', params: { lat: 40.0, long: -74.0 }
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when API call fails with timeout' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+            .and_raise(Faraday::TimeoutError.new)
+
+          get '/facilities_api/v2/ccp/urgent_care', params: { lat: 40.0, long: -74.0 }
+
+          expect(response).to have_http_status(:gateway_timeout)
+        end
+      end
+
+      context 'when API call fails with service unavailable' do
+        it 'returns 503 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
+
+          get '/facilities_api/v2/ccp/urgent_care', params: { lat: 40.0, long: -74.0 }
+
+          expect(response).to have_http_status(:service_unavailable)
+        end
+      end
+
+      context 'when API call fails with timeout (provider_urgent_care scenario)' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:pos_locator)
+            .and_raise(Common::Exceptions::Timeout.new('service'))
+
+          get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['261QU0200X'] }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+        end
+      end
+    end
+
+    describe '#provider' do
+      context 'when API call fails with Faraday::ResourceNotFound' do
+        it 'returns 404 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:provider_locator)
+            .and_raise(Faraday::ResourceNotFound.new('response'))
+
+          get '/facilities_api/v2/ccp/provider', params: { lat: 40.0, long: -74.0, specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:not_found)
+          bod = JSON.parse(response.body)
+          expect(bod).to include('errors')
+        end
+      end
+    end
+
+    describe '#pharmacy' do
+      context 'when API call fails with BackendServiceException' do
+        it 'returns 502 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::BackendServiceException.new)
+
+          get '/facilities_api/v2/ccp/pharmacy', params: { lat: 40.0, long: -74.0 }
+
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context 'when API call fails with service unavailable' do
+        it 'returns 503 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
+
+          get '/facilities_api/v2/ccp/pharmacy', params: { lat: 40.0, long: -74.0 }
+
+          expect(response).to have_http_status(:service_unavailable)
+        end
+      end
+    end
+
+    describe '#specialties' do
+      context 'when API call fails with timeout' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:specialties)
+            .and_raise(Net::ReadTimeout.new)
+
+          get '/facilities_api/v2/ccp/specialties'
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+        end
+      end
+
+      context 'when API call fails with service unavailable' do
+        it 'returns 503 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:specialties)
+            .and_raise(Common::Exceptions::ServiceUnavailable.new)
+
+          get '/facilities_api/v2/ccp/specialties'
+
+          expect(response).to have_http_status(:service_unavailable)
+        end
+      end
+
+      context 'when API call fails with backend error' do
+        it 'returns 502 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:specialties)
+            .and_raise(Common::Exceptions::BackendServiceException.new)
+
+          get '/facilities_api/v2/ccp/specialties'
+
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+    end
+  end
 end
