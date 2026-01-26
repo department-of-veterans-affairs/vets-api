@@ -108,15 +108,15 @@ RSpec.describe PensionAwardHelper, type: :model do
     describe '#awards_pension' do
       let(:mock_response_body) do
         {
-          'Award' => {
-            'AwardEventList' => {
-              'awardEvents' => [
+          'award' => {
+            'award_event_list' => {
+              'award_events' => [
                 {
-                  'awardLineList' => {
-                    'awardLines' => [
+                  'award_line_list' => {
+                    'award_lines' => [
                       {
-                        'awardLineType' => 'IP',
-                        'effectiveDate' => '2020-01-01T00:00:00-05:00'
+                        'award_line_type' => 'IP',
+                        'effective_date' => '2020-01-01T00:00:00-05:00'
                       }
                     ]
                   }
@@ -136,7 +136,7 @@ RSpec.describe PensionAwardHelper, type: :model do
       end
 
       it 'returns non-pension status when user has non-IP award line type' do
-        mock_response_body['Award']['AwardEventList']['awardEvents'][0]['awardLineList']['awardLines'][0]['awardLineType'] = 'COMP' # rubocop:disable Layout/LineLength
+        mock_response_body['award']['award_event_list']['award_events'][0]['award_line_list']['award_lines'][0]['award_line_type'] = 'COMP' # rubocop:disable Layout/LineLength
         mock_response = OpenStruct.new(body: mock_response_body)
         allow(mock_service).to receive(:get_current_awards).and_return(mock_response)
 
@@ -166,21 +166,21 @@ RSpec.describe PensionAwardHelper, type: :model do
     describe '#extract_award_lines' do
       let(:current_awards_data) do
         {
-          'Award' => {
-            'AwardEventList' => {
-              'awardEvents' => [
+          'award' => {
+            'award_event_list' => {
+              'award_events' => [
                 {
-                  'awardLineList' => {
-                    'awardLines' => [
-                      { 'awardLineType' => 'IP' },
-                      { 'awardLineType' => 'COMP' }
+                  'award_line_list' => {
+                    'award_lines' => [
+                      { 'award_line_type' => 'IP' },
+                      { 'award_line_type' => 'COMP' }
                     ]
                   }
                 },
                 {
-                  'awardLineList' => {
-                    'awardLines' => [
-                      { 'awardLineType' => 'OTHER' }
+                  'award_line_list' => {
+                    'award_lines' => [
+                      { 'award_line_type' => 'OTHER' }
                     ]
                   }
                 }
@@ -193,11 +193,11 @@ RSpec.describe PensionAwardHelper, type: :model do
       it 'extracts all award lines from all events' do
         result = complete_instance.send(:extract_award_lines, current_awards_data)
         expect(result.length).to eq(3)
-        expect(result.map { |line| line['awardLineType'] }).to contain_exactly('IP', 'COMP', 'OTHER')
+        expect(result.map { |line| line['award_line_type'] }).to contain_exactly('IP', 'COMP', 'OTHER')
       end
 
       it 'returns empty array when no award events exist' do
-        empty_data = { 'Award' => { 'AwardEventList' => { 'awardEvents' => [] } } }
+        empty_data = { 'award' => { 'award_event_list' => { 'award_events' => [] } } }
         result = complete_instance.send(:extract_award_lines, empty_data)
         expect(result).to eq([])
       end
@@ -206,29 +206,29 @@ RSpec.describe PensionAwardHelper, type: :model do
     describe '#find_latest_effective_award_line' do
       let(:award_lines) do
         [
-          { 'awardLineType' => 'IP', 'effectiveDate' => '2020-01-01T00:00:00-05:00' },
-          { 'awardLineType' => 'COMP', 'effectiveDate' => '2021-01-01T00:00:00-05:00' },
-          { 'awardLineType' => 'OTHER', 'effectiveDate' => '2019-01-01T00:00:00-05:00' }
+          { 'award_line_type' => 'IP', 'effective_date' => '2020-01-01T00:00:00-05:00' },
+          { 'award_line_type' => 'COMP', 'effective_date' => '2021-01-01T00:00:00-05:00' },
+          { 'award_line_type' => 'OTHER', 'effective_date' => '2019-01-01T00:00:00-05:00' }
         ]
       end
 
       it 'returns the latest award line that is prior to today' do
         result = complete_instance.send(:find_latest_effective_award_line, award_lines)
-        expect(result['awardLineType']).to eq('COMP')
-        expect(result['effectiveDate']).to eq('2021-01-01T00:00:00-05:00')
+        expect(result['award_line_type']).to eq('COMP')
+        expect(result['effective_date']).to eq('2021-01-01T00:00:00-05:00')
       end
 
       it 'excludes award lines with future effective dates' do
         future_date = (Date.current + 1.year).strftime('%Y-%m-%dT00:00:00-05:00')
-        award_lines << { 'awardLineType' => 'FUTURE', 'effectiveDate' => future_date }
+        award_lines << { 'award_line_type' => 'FUTURE', 'effective_date' => future_date }
 
         result = complete_instance.send(:find_latest_effective_award_line, award_lines)
-        expect(result['awardLineType']).to eq('COMP')
+        expect(result['award_line_type']).to eq('COMP')
       end
 
       it 'returns nil when no lines have effective dates prior to today' do
         future_lines = [
-          { 'awardLineType' => 'IP', 'effectiveDate' => (Date.current + 1.day).strftime('%Y-%m-%dT00:00:00-05:00') }
+          { 'award_line_type' => 'IP', 'effective_date' => (Date.current + 1.day).strftime('%Y-%m-%dT00:00:00-05:00') }
         ]
         result = complete_instance.send(:find_latest_effective_award_line, future_lines)
         expect(result).to be_nil
