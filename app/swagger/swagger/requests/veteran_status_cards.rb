@@ -58,12 +58,12 @@ module Swagger
                   key :description, 'Displays an error/warning title when the veteran is ineligible for a status card'
                 end
                 property :body, type: :array do
+                  key :description,
+                      'A list of message components to display when the veteran is ineligible for a status card'
                   items do
                     key :required, %i[type value]
-                    key :enum, %w[text phone link]
-                    key :description,
-                        'A list of message components to display when the veteran is ineligible for a status card'
                     property :type, type: :string do
+                      key :enum, %w[text phone link]
                       key :description, "The type of message component - can be 'text', 'phone', or 'link'"
                     end
                     property :value, type: :string do
