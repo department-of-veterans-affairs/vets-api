@@ -129,6 +129,19 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         end
       end
 
+      context 'when organization address is missing' do
+        before do
+          allow(service).to receive(:fetch_organization_address).and_return(nil)
+        end
+
+        it 'still builds a CopayDetail with nil facility_address' do
+          expect(Lighthouse::HCC::CopayDetail).to receive(:new).with(
+            hash_including(facility_address: nil)
+          ).and_return(mock_detail)
+          service.get_detail(id: 'invoice-1')
+        end
+      end
+
       context 'on failure' do
         before do
           allow(service).to receive(:invoice_service).and_raise(StandardError.new('API error'))
