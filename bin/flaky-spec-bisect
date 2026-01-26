@@ -1,0 +1,266 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'fileutils'
+require 'json'
+require 'open3'
+require 'rexml/document'
+require 'set'
+require 'tmpdir'
+
+# Reproduces flaky specs locally by downloading CI artifacts and running rspec --bisect
+# See: https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests
+
+class FlakySpecBisect
+  REPO = 'department-of-veterans-affairs/vets-api'
+
+  def initialize(url_or_run_id, options = {})
+    @run_id = extract_run_id(url_or_run_id)
+    @group = options[:group]
+    @dry_run = options[:dry_run]
+    @verbose = options[:verbose]
+    @download_dir = nil
+  end
+
+  def run
+    puts "Analyzing GitHub Actions run: #{@run_id}"
+
+    failed_groups = find_failed_test_groups
+    if failed_groups.empty?
+      puts "No failed test groups found in this run."
+      puts "Tip: This tool works best with runs that have test failures."
+      exit 1
+    end
+
+    puts "Found #{failed_groups.length} failed test group(s): #{failed_groups.join(', ')}"
+
+    groups_to_process = if @group
+                          matching = failed_groups.select { |g| g.include?(@group) }
+                          if matching.empty?
+                            puts "Error: Group '#{@group}' not found in failed groups"
+                            exit 1
+                          end
+                          matching
+                        else
+                          failed_groups
+                        end
+
+    groups_to_process.each do |group|
+      process_group(group)
+    end
+  end
+
+  private
+
+  def extract_run_id(url_or_id)
+    return url_or_id if url_or_id.match?(/^\d+$/)
+
+    match = url_or_id.match(%r{/actions/runs/(\d+)})
+    if match
+      match[1]
+    else
+      puts "Error: Could not extract run ID from: #{url_or_id}"
+      puts "Expected format: https://github.com/#{REPO}/actions/runs/12345678 or just 12345678"
+      exit 1
+    end
+  end
+
+  def find_failed_test_groups
+    output, status = Open3.capture2(
+      'gh', 'run', 'view', @run_id,
+      '--repo', REPO,
+      '--json', 'jobs',
+      '--jq', '.jobs[] | select(.conclusion == "failure") | .name'
+    )
+
+    unless status.success?
+      puts "Error: Failed to fetch run info. Make sure you're authenticated with 'gh auth login'"
+      exit 1
+    end
+
+    output.lines.map(&:strip).select { |name| name.start_with?('Test (Group') }
+  end
+
+  def process_group(group_name)
+    puts "\n#{'=' * 60}"
+    puts "Processing: #{group_name}"
+    puts '=' * 60
+
+    # Job name is "Test (Group X)" but artifact name is "Test Results Group X"
+    group_number = group_name.match(/Group\s*(\d+)/)[1]
+    artifact_name = "Test Results Group #{group_number}"
+    xml_content = download_artifact(artifact_name)
+
+    seed, spec_files, failures = parse_xml(xml_content)
+
+    puts "Seed: #{seed}"
+    puts "Spec files: #{spec_files.length}"
+    puts "Files: #{spec_files.first(3).join(', ')}#{spec_files.length > 3 ? '...' : ''}" if @verbose
+
+    if failures.any?
+      puts "\nFailed specs (#{failures.length}):"
+      failures.each do |failure|
+        puts "  - #{failure[:file]}"
+        puts "    #{failure[:name]}"
+        puts "    #{failure[:message]}" if @verbose && failure[:message]
+      end
+    end
+
+    run_bisect(seed, spec_files)
+  end
+
+  def download_artifact(artifact_name)
+    Dir.mktmpdir('flaky-spec-bisect') do |dir|
+      @download_dir = dir
+      puts "Downloading artifact: #{artifact_name}"
+
+      _, status = Open3.capture2(
+        'gh', 'run', 'download', @run_id,
+        '--repo', REPO,
+        '--name', artifact_name,
+        '--dir', dir
+      )
+
+      unless status.success?
+        puts "Error: Failed to download artifact '#{artifact_name}'"
+        exit 1
+      end
+
+      xml_file = File.join(dir, 'rspec.xml')
+      unless File.exist?(xml_file)
+        puts "Error: rspec.xml not found in artifact"
+        exit 1
+      end
+
+      File.read(xml_file)
+    end
+  end
+
+  def parse_xml(xml_content)
+    doc = REXML::Document.new(xml_content)
+
+    seed = nil
+    doc.elements.each('testsuite/properties/property') do |prop|
+      seed = prop.attributes['value'] if prop.attributes['name'] == 'seed'
+    end
+
+    spec_files = Set.new
+    failures = []
+
+    doc.elements.each('testsuite/testcase') do |testcase|
+      file = testcase.attributes['file']
+      spec_files.add(file.sub(%r{^\./}, '')) if file
+
+      # Check for failures
+      testcase.elements.each('failure') do |failure|
+        failures << {
+          name: testcase.attributes['name'],
+          file: file&.sub(%r{^\./}, ''),
+          message: failure.attributes['message']&.slice(0, 200)
+        }
+      end
+    end
+
+    [seed, spec_files.to_a.sort, failures]
+  end
+
+  def run_bisect(seed, spec_files)
+    # Check if bundle is ready
+    _, status = Open3.capture2('bundle', 'check', err: '/dev/null')
+    needs_bundle_install = !status.success?
+
+    if @dry_run
+      puts "\n[DRY RUN] Would execute:"
+      puts "  bundle install" if needs_bundle_install
+      puts "  bundle exec rspec --seed #{seed} --bisect \\"
+      spec_files.each_slice(3) do |files|
+        puts "    #{files.join(' ')} \\"
+      end
+      return
+    end
+
+    puts "\nRunning bisect command..."
+    puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
+
+    if needs_bundle_install
+      puts "\nBundle is not ready. Running 'bundle install'..."
+      unless system('bundle', 'install')
+        puts "Error: bundle install failed"
+        exit 1
+      end
+      puts
+    end
+
+    puts
+    system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
+  end
+end
+
+def print_help
+  puts <<~HELP
+    Usage: bin/flaky-spec-bisect [options] <github-actions-url-or-run-id>
+
+    Downloads test artifacts from a failed GitHub Actions run and uses
+    rspec --bisect to identify the minimal set of specs that reproduce
+    the flaky failure.
+
+    Arguments:
+      <url-or-run-id>   GitHub Actions run URL or run ID
+                        Examples:
+                          https://github.com/department-of-veterans-affairs/vets-api/actions/runs/12345678
+                          12345678
+
+    Options:
+      --group, -g NAME  Only process the specified test group (e.g., "Group 3")
+      --dry-run, -n     Print the bisect command without executing
+      --verbose, -v     Show more detailed output
+      --help, -h        Show this help message
+
+    Prerequisites:
+      - GitHub CLI (gh) must be installed and authenticated
+      - Run from the vets-api root directory
+
+    Examples:
+      bin/flaky-spec-bisect https://github.com/department-of-veterans-affairs/vets-api/actions/runs/12345678
+      bin/flaky-spec-bisect --group "Group 3" 12345678
+      bin/flaky-spec-bisect --dry-run 12345678
+
+    Documentation:
+      https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests
+  HELP
+end
+
+# Parse arguments
+options = {}
+args = []
+
+ARGV.each do |arg|
+  case arg
+  when '--help', '-h'
+    print_help
+    exit 0
+  when '--dry-run', '-n'
+    options[:dry_run] = true
+  when '--verbose', '-v'
+    options[:verbose] = true
+  when /^--group=(.+)$/, /^-g=(.+)$/
+    options[:group] = ::Regexp.last_match(1)
+  when '--group', '-g'
+    options[:next_is_group] = true
+  else
+    if options[:next_is_group]
+      options[:group] = arg
+      options.delete(:next_is_group)
+    else
+      args << arg
+    end
+  end
+end
+
+if args.empty?
+  puts "Error: Missing GitHub Actions URL or run ID"
+  puts "Run 'bin/flaky-spec-bisect --help' for usage"
+  exit 1
+end
+
+FlakySpecBisect.new(args.first, options).run
