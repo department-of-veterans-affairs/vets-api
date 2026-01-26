@@ -61,17 +61,17 @@ RSpec.describe Representatives::XlsxFileProcessor do
 
       it 'formats zip_code correctly in raw_address with zip4' do
         row_with_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].present? }
-        if row_with_zip4
-          expected_zip = "#{row_with_zip4[:address][:zip_code5]}-#{row_with_zip4[:address][:zip_code4]}"
-          expect(row_with_zip4[:raw_address]['zip_code']).to eq(expected_zip)
-        end
+        expect(row_with_zip4).to be_present, 'Fixture data should include at least one row with zip_code4'
+
+        expected_zip = "#{row_with_zip4[:address][:zip_code5]}-#{row_with_zip4[:address][:zip_code4]}"
+        expect(row_with_zip4[:raw_address]['zip_code']).to eq(expected_zip)
       end
 
       it 'formats zip_code correctly in raw_address without zip4' do
         row_without_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].nil? }
-        if row_without_zip4
-          expect(row_without_zip4[:raw_address]['zip_code']).to eq(row_without_zip4[:address][:zip_code5])
-        end
+        expect(row_without_zip4).to be_present, 'Fixture data should include at least one row without zip_code4'
+
+        expect(row_without_zip4[:raw_address]['zip_code']).to eq(row_without_zip4[:address][:zip_code5])
       end
 
       it 'deduplicates the rows based on the "Number" column' do

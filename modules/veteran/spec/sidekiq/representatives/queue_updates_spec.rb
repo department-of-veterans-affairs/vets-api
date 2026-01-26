@@ -60,10 +60,13 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
       it 'does not update raw_address when it matches existing value' do
         rep = Veteran::Service::Representative.find('123')
         rep.update(raw_address: raw_address123)
-
-        expect(rep).not_to receive(:update)
+        initial_updated_at = rep.updated_at
 
         subject.perform
+        rep.reload
+
+        expect(rep.raw_address).to eq(raw_address123)
+        expect(rep.updated_at).to eq(initial_updated_at)
       end
     end
 

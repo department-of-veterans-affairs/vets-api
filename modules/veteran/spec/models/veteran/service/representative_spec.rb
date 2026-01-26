@@ -386,8 +386,8 @@ describe Veteran::Service::Representative, type: :model do
         allow(Geocoder).to receive(:search).and_return([geocoding_result]) # Reset the stub
       end
 
-      it 'returns true immediately without making API calls' do
-        expect(representative.geocode_and_update_location!).to be true
+      it 'returns false immediately without making API calls' do
+        expect(representative.geocode_and_update_location!).to be false
         expect(Geocoder).not_to have_received(:search)
       end
 

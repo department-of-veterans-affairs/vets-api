@@ -373,9 +373,9 @@ RSpec.describe AccreditedIndividual, type: :model do
         allow(Geocoder.config).to receive(:api_key).and_return(nil)
       end
 
-      it 'returns true immediately without making API calls' do
+      it 'returns false immediately without making API calls' do
         expect(Geocoder).not_to receive(:search)
-        expect(individual.geocode_and_update_location!).to be true
+        expect(individual.geocode_and_update_location!).to be false
       end
 
       it 'does not modify the record' do
@@ -388,9 +388,9 @@ RSpec.describe AccreditedIndividual, type: :model do
         allow(Geocoder.config).to receive(:api_key).and_return('')
       end
 
-      it 'returns true immediately without making API calls' do
+      it 'returns false immediately without making API calls' do
         expect(Geocoder).not_to receive(:search)
-        expect(individual.geocode_and_update_location!).to be true
+        expect(individual.geocode_and_update_location!).to be false
       end
     end
 

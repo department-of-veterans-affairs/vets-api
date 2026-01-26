@@ -67,10 +67,12 @@ module Representatives
       rows.map do |row|
         rep = Veteran::Service::Representative.find(row[:id])
 
+        # Compute diff BEFORE updating raw_address so address_changed detection works correctly
+        diff = rep.diff(row)
+
         # Update raw_address for every record to keep it in sync with XLSX source
         rep.update(raw_address: row[:raw_address]) if rep.raw_address != row[:raw_address]
 
-        diff = rep.diff(row)
         row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e
         log_error("Error: Representative not found #{e.message}")
