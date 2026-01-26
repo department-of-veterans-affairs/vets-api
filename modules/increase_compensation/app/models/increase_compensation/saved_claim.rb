@@ -2,6 +2,7 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'pdf_fill/filler'
+require 'increase_compensation/ibm_converter'
 
 module IncreaseCompensation
   ##
@@ -89,6 +90,12 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+    end
+
+    ## Converts parsed_form into the IBM readable format
+    #
+    def to_ibm
+      IncreaseCompensation::IbmConverter.convert(parsed_form)
     end
 
     ##
