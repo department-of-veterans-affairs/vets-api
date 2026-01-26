@@ -4,7 +4,6 @@ require 'lighthouse/benefits_education/service'
 require 'feature_flipper'
 
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
-  include SentryLogging
   add_form_and_validation('22-10203')
 
   class Submit10203Error < StandardError
@@ -24,7 +23,8 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     if @user.present? && FeatureFlipper.send_email?
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
 
-      authorized = @user.authorize(:evss, :access?)
+      policy = Flipper.enabled?(:form_10203_claimant_service) ? :dgi : :lighthouse
+      authorized = @user.authorize(policy, :access?)
 
       if authorized
         EducationForm::SendSchoolCertifyingOfficialsEmail.perform_async(id, less_than_six_months?,
@@ -52,17 +52,22 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   private
 
   def get_gi_bill_status
-    service = BenefitsEducation::Service.new(@user.icn)
-    service.get_gi_bill_status
+    if Flipper.enabled?(:form_10203_claimant_service)
+      service = SOB::DGI::Service.new(ssn: @user.ssn, include_enrollments: true)
+      service.get_ch33_status
+    else
+      service = BenefitsEducation::Service.new(@user.icn)
+      service.get_gi_bill_status
+    end
   rescue => e
     Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
     {}
   end
 
   def get_facility_code
-    return {} if @gi_bill_status == {} || @gi_bill_status.enrollments.blank?
+    return {} if @gi_bill_status.blank?
 
-    most_recent = @gi_bill_status.enrollments.max_by(&:begin_date)
+    most_recent = @gi_bill_status.enrollments&.max_by(&:begin_date)
 
     return {} if most_recent.blank?
 
@@ -70,23 +75,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def remaining_entitlement
-    if Settings.vsp_environment != 'production'
-      service = BenefitsEducation::Service.new(@user.icn)
-      Rails.logger.info '#### 10203 Lighthouse ##########'
-      Rails.logger.info "#### User Info ########## \n #{@user.to_json}"
-      Rails.logger.info @user.to_json
-      Rails.logger.info "#### Request Info ########## \n #{service.inspect}"
-
-      if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-        Rails.logger.info '#### remaining_entitlement data: none ##########'
-      end
-
-      return nil if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-
-      Rails.logger.info "#### remaining_entitlement data ########## \n @gi_bill_status.to_json"
-    elsif @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
-      return nil
-    end
+    return nil if @gi_bill_status.blank? || @gi_bill_status.remaining_entitlement.blank?
 
     months = @gi_bill_status.remaining_entitlement.months
     days = @gi_bill_status.remaining_entitlement.days
@@ -105,15 +94,24 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     email = parsed_form['email']
     return if email.blank?
 
-    VANotify::EmailJob.perform_async(
-      email,
-      Settings.vanotify.services.va_gov.template_id.form21_10203_confirmation_email,
-      {
-        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => education_benefits_claim.confirmation_number,
-        'regional_office_address' => regional_office_address
-      }
-    )
+    if Flipper.enabled?(:form1995_confirmation_email_with_silent_failure_processing)
+      # this method is in the parent class
+      send_education_benefits_confirmation_email(email, parsed_form, {})
+    else
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form21_10203_confirmation_email,
+        {
+          'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => education_benefits_claim.confirmation_number,
+          'regional_office_address' => regional_office_address
+        }
+      )
+    end
+  end
+
+  def template_id
+    Settings.vanotify.services.va_gov.template_id.form21_10203_confirmation_email
   end
 end

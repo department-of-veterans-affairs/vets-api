@@ -8,7 +8,7 @@ module Salesforce
 
     def connection
       @conn ||= Faraday.new(base_path) do |faraday|
-        faraday.use :breakers
+        faraday.use(:breakers, service_name:)
         faraday.request :url_encoded
         faraday.response :json
         faraday.response :betamocks if mock_enabled?

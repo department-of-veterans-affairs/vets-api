@@ -198,6 +198,27 @@ module IvcChampva
     end
 
     ##
+    # Logs response from LLM processor after submitting a document
+    #
+    # @param [String] transaction_uuid UUID of the processing transaction
+    # @param [Integer] status HTTP status code received from LLM processor
+    # @param [String] messages Full response received from LLM processor
+    def track_llm_processor_response(transaction_uuid, status, messages)
+      additional_context = { transaction_uuid:, status:, messages: }
+      if status == 200
+        track_request('info',
+                      "IVC ChampVa Forms - Successful submission to LLM processor for transaction #{transaction_uuid}",
+                      "#{STATS_KEY}.llm_processor_response.success",
+                      call_location: caller_locations.first, **additional_context)
+      else
+        track_request('error',
+                      "IVC ChampVa Forms - Error on submission to LLM processor for transaction #{transaction_uuid}",
+                      "#{STATS_KEY}.llm_processor_response.failure",
+                      call_location: caller_locations.first, **additional_context)
+      end
+    end
+
+    ##
     # Logs when an MPI service call fails
     #
     # @param [String] person_type Type of person ('applicant' or 'veteran')
@@ -209,6 +230,88 @@ module IvcChampva
       }.compact
       track_request('error', "IVC ChampVA Forms - MPI service error for #{person_type}",
                     "#{STATS_KEY}.mpi_profile.error",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Tracks sample size for experiments by incrementing a counter
+    #
+    # @param [String] experiment_name Name of the experiment (e.g., 'llm_validator', 'ocr_validator')
+    # @param [String] uuid Document UUID for tracking context
+    def track_experiment_sample_size(experiment_name, uuid)
+      additional_context = { experiment_name:, uuid: }
+      StatsD.increment("#{STATS_KEY}.experiment.#{experiment_name}.sample_size",
+                       tags: ["service:#{service}", "experiment:#{experiment_name}"])
+      track_request('info', "IVC ChampVA Experiment - #{experiment_name} sample processed for #{uuid}",
+                    "#{STATS_KEY}.experiment.#{experiment_name}.sample_processed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Tracks processing time for experiments as a histogram metric
+    #
+    # @param [String] experiment_name Name of the experiment (e.g., 'llm_validator', 'ocr_validator')
+    # @param [Float] duration_ms Processing time in milliseconds
+    # @param [String] uuid Document UUID for tracking context
+    def track_experiment_processing_time(experiment_name, duration_ms, uuid)
+      additional_context = { experiment_name:, duration_ms:, uuid: }
+      StatsD.histogram("#{STATS_KEY}.experiment.#{experiment_name}.processing_time",
+                       duration_ms,
+                       tags: ["service:#{service}", "experiment:#{experiment_name}"])
+      track_request('info', "IVC ChampVA Experiment - #{experiment_name} processed #{uuid} in #{duration_ms}ms",
+                    "#{STATS_KEY}.experiment.#{experiment_name}.processing_completed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Generic method to track experiment metrics as gauge values
+    #
+    # @param [String] experiment_name Name of the experiment (e.g., 'llm_validator', 'ocr_validator')
+    # @param [String] field_name Name of the metric field (e.g., 'confidence', 'validity', 'missing_fields_count')
+    # @param [Numeric, Boolean] value The value to track (Boolean values converted to 1/0)
+    # @param [String] uuid Document UUID for tracking context
+    def track_experiment_metric(experiment_name, field_name, value, uuid)
+      # Convert boolean values to numeric for StatsD
+      metric_value = if value.is_a?(TrueClass)
+                       1
+                     else
+                       (value.is_a?(FalseClass) ? 0 : value)
+                     end
+
+      additional_context = { experiment_name:, field_name:, value:, uuid: }
+      StatsD.gauge("#{STATS_KEY}.experiment.#{experiment_name}.#{field_name}",
+                   metric_value,
+                   tags: ["service:#{service}", "experiment:#{experiment_name}"])
+      track_request('info', "IVC ChampVA Experiment - #{experiment_name} #{field_name} #{value} for #{uuid}",
+                    "#{STATS_KEY}.experiment.#{experiment_name}.#{field_name}_tracked",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Tracks experiment errors by incrementing an error counter
+    #
+    # @param [String] experiment_name Name of the experiment (e.g., 'llm_validator', 'ocr_validator')
+    # @param [String] error_type The type/class of error that occurred
+    # @param [String] uuid Document UUID for tracking context
+    # @param [String] error_message Optional error message (will be filtered for PII)
+    def track_experiment_error(experiment_name, error_type, uuid, error_message = nil)
+      additional_context = { experiment_name:, error_type:, uuid:, error_message: }.compact
+      StatsD.increment("#{STATS_KEY}.experiment.#{experiment_name}.error",
+                       tags: ["service:#{service}", "experiment:#{experiment_name}", "error_type:#{error_type}"])
+      track_request('error', "IVC ChampVA Experiment - #{experiment_name} error #{error_type} for #{uuid}",
+                    "#{STATS_KEY}.experiment.#{experiment_name}.error_tracked",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs UUID and error message when document merging fails
+    #
+    # @param [String] form_uuid UUID of the form submission with failed merge
+    # @param [String] error_message Error message from the merge failure
+    def track_merge_error(form_uuid, error_message)
+      additional_context = { form_uuid:, error_message: }
+      track_request('warn', "IVC ChampVa Forms - document merge failed for submission: #{form_uuid}",
+                    "#{STATS_KEY}.merge_error",
                     call_location: caller_locations.first, **additional_context)
     end
   end

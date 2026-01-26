@@ -3,6 +3,7 @@
 require 'sign_in/public_jwks'
 require 'sign_in/logingov/configuration'
 require 'sign_in/logingov/errors'
+require 'sign_in/credential_attributes_digester'
 require 'mockdata/writer'
 
 module SignIn
@@ -30,14 +31,14 @@ module SignIn
       end
 
       def render_auth(state: SecureRandom.hex,
-                      acr: Constants::Auth::LOGIN_GOV_IAL1,
+                      acr: { acr: Constants::Auth::LOGIN_GOV_IAL1 },
                       operation: Constants::Auth::AUTHORIZE)
         Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
-                          "state: #{state}, acr: #{acr}, operation: #{operation}, " \
+                          "state: #{state}, acr: #{acr[:acr]}, operation: #{operation}, " \
                           "optional_scopes: #{optional_scopes}")
 
         scope = (DEFAULT_SCOPES + optional_scopes).join(' ')
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, scope)).perform
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr[:acr], state, scope)).perform
       end
 
       def render_logout(client_logout_redirect_uri)
@@ -86,7 +87,9 @@ module SignIn
           service_name: config.service_name,
           authn_context: get_authn_context(credential_level.current_ial),
           auto_uplevel: credential_level.auto_uplevel
-        }
+        }.tap do |attrs|
+          attrs[:digest] = digest_credential_attributes(attrs)
+        end
       end
 
       def jwt_decode(encoded_jwt)
@@ -219,6 +222,15 @@ module SignIn
 
       def valid_optional_scopes(optional_scopes)
         optional_scopes.to_a & OPTIONAL_SCOPES
+      end
+
+      def digest_credential_attributes(attributes)
+        SignIn::CredentialAttributesDigester.new(credential_uuid: attributes[:logingov_uuid],
+                                                 first_name: attributes[:first_name],
+                                                 last_name: attributes[:last_name],
+                                                 ssn: attributes[:ssn],
+                                                 birth_date: attributes[:birth_date],
+                                                 email: attributes[:csp_email]).perform
       end
     end
   end

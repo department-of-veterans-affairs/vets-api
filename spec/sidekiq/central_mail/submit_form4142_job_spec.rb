@@ -6,16 +6,33 @@ require 'evss/disability_compensation_auth_headers' # required to build a Form52
 RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   subject { described_class }
 
+  # Use existing fixture simple.pdf as test input
+  let(:fixture_pdf) { Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4142', 'simple.pdf') }
+  let(:test_pdf) { Rails.root.join('tmp', 'test_output.pdf') }
+
   before do
     Sidekiq::Job.clear_all
     # Make Job use old CentralMail route for all tests
-    Flipper.disable(:disability_compensation_form4142_supplemental)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(false)
     # By default, features are enabled in test environments and disabled by default in other environments
-    # This is to ensure that the 2024 4142 template and schema validation is
+    # This is to ensure that the 2024 4142 template is
     # not used in tests unless explicitly enabled
-    Flipper.disable(:disability_526_form4142_use_2024_template)
-    Flipper.disable(:disability_526_form4142_validate_schema)
+    allow(Flipper).to receive(:enabled?).with(:disability_526_form4142_validate_schema).and_return(false)
+
+    # Stub out pdf methods as they are not needed for these tests and are cpu expensive
+    FileUtils.cp(fixture_pdf, test_pdf)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:fill_form_template)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_signature_stamp)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:add_vagov_timestamp)
+      .and_return(test_pdf.to_s)
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Form4142Processor).to receive(:submission_date_stamp)
+      .and_return(test_pdf.to_s)
   end
+
+  # Clean up the test output file
+  after { FileUtils.rm_f(test_pdf) }
 
   #######################
   ## CentralMail Route ##
@@ -86,7 +103,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end
@@ -206,7 +223,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
   describe 'Test new Lighthouse route' do
     before do
       # Make Job use new Lighthouse route for all tests
-      Flipper.enable(:disability_compensation_form4142_supplemental)
+      allow(Flipper).to receive(:enabled?).with(:disability_compensation_form4142_supplemental).and_return(true)
     end
 
     let(:user_account) { user.user_account }
@@ -318,7 +335,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'corrects for invalid characters in generated metadata' do
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
-          allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+          allowed_chars_regex = %r{^[a-zA-Z/\-\s]}
           expect(veteran_first_name).to match(allowed_chars_regex)
           expect(veteran_last_name).to match(allowed_chars_regex)
         end

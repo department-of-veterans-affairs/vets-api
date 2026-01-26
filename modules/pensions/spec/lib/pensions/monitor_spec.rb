@@ -30,7 +30,7 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -54,7 +54,7 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           claim_id: nil,
           form_id: nil,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -153,7 +153,7 @@ RSpec.describe Pensions::Monitor do
           claim_id: claim.id,
           form_id: claim.form_id,
           errors: [], # mock claim does not have `errors`
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -282,7 +282,7 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.uuid,
           claim_id: claim.id,
           form_id: claim.form_id,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -303,17 +303,9 @@ RSpec.describe Pensions::Monitor do
         it 'logs sidekiq job exhaustion' do
           notification = double(Pensions::NotificationEmail)
 
-          msg = { 'args' => [claim.id, current_user.uuid] }
+          msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
 
           log = "#{message_prefix} submission to LH exhausted!"
-          payload = {
-            form_id: claim.form_id,
-            claim_id: claim.id,
-            user_account_uuid: current_user.uuid,
-            confirmation_number: claim.confirmation_number,
-            message: msg,
-            tags: monitor.tags
-          }
 
           expect(Pensions::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
@@ -322,39 +314,53 @@ RSpec.describe Pensions::Monitor do
             :error,
             log,
             "#{submission_stats_key}.exhausted",
-            call_location: anything,
-            **payload
+            hash_including(
+              call_location: anything,
+              form_id: claim.form_id,
+              claim_id: claim.id,
+              user_account_uuid: current_user.uuid,
+              confirmation_number: claim.confirmation_number,
+              error: msg['error_message'],
+              tags: monitor.tags
+            )
           )
-
           monitor.track_submission_exhaustion(msg, claim)
         end
       end
 
       context 'without a claim parameter' do
         it 'logs sidekiq job exhaustion' do
-          msg = { 'args' => [claim.id, current_user.uuid] }
-
-          log = "#{message_prefix} submission to LH exhausted!"
-          payload = {
-            form_id: nil,
-            claim_id: claim.id, # pulled from msg.args
-            user_account_uuid: current_user.uuid,
-            confirmation_number: nil,
-            message: msg,
-            tags: monitor.tags
-          }
+          msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
 
           expect(Pensions::NotificationEmail).not_to receive(:new)
-          expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
             :error,
-            log,
+            "#{message_prefix} submission to LH exhausted!",
             "#{submission_stats_key}.exhausted",
-            call_location: anything,
-            **payload
-          )
+            hash_including(
+              call_location: anything,
+              claim_id: claim.id,
+              user_account_uuid: current_user.uuid,
+              confirmation_number: nil,
+              form_id: nil,
+              error: msg['error_message'],
+              tags: monitor.tags
+            )
+          ).ordered
 
+          expect(monitor).to receive(:track_request).with(
+            :error,
+            'Silent failure!',
+            'silent_failure',
+            hash_including(
+              call_location: anything,
+              claim_id: claim.id,
+              user_account_uuid: current_user.uuid,
+              error: msg,
+              tags: monitor.tags
+            )
+          )
           monitor.track_submission_exhaustion(msg, nil)
         end
       end
@@ -369,7 +375,7 @@ RSpec.describe Pensions::Monitor do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 
@@ -392,7 +398,7 @@ RSpec.describe Pensions::Monitor do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
+          error: monitor_error.message,
           tags: monitor.tags
         }
 

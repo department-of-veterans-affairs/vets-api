@@ -24,19 +24,22 @@ module ClaimsApi
       slack_client.notify(msg)
     end
 
-    def perform(notification_id, poa_id) # rubocop:disable Metrics/MethodLength
+    def perform(notification_id, poa_id = nil) # rubocop:disable Metrics/MethodLength
       status = notification_response_status(notification_id)
       detail = "Status for notification #{notification_id} was '#{status}'"
+      detail += ". POA ID: #{poa_id}" if poa_id
 
-      # Call logic to map VANotify status to our internal step status
-      step_status = map_notify_status(status)
-      # Update the POA process step with latest status
-      poa = ClaimsApi::PowerOfAttorney.find(poa_id)
-      process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
-      if step_status == 'IN_PROGRESS'
-        process.update!(step_status:, error_messages: [])
-      else
-        process.update!(step_status:, error_messages: [], completed_at: Time.zone.now)
+      if poa_id
+        # Call logic to map VANotify status to our internal step status
+        step_status = map_notify_status(status)
+        # Update the POA process step with latest status
+        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+        process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
+        if step_status == 'IN_PROGRESS'
+          process.update!(step_status:, error_messages: [])
+        else
+          process.update!(step_status:, error_messages: [], completed_at: Time.zone.now)
+        end
       end
 
       handle_failure(detail) if status == 'permanent-failure'

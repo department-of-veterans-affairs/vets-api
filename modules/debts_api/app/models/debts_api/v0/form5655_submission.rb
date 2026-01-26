@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'user_profile_attribute_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
@@ -55,11 +56,14 @@ module DebtsApi
     end
 
     def submit_to_vba
+      transaction_log = create_transaction_log_if_needed
       StatsD.increment("#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.initiated")
       DebtsApi::V0::Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
+      transaction_log&.mark_submitted
     end
 
     def submit_to_vha
+      transaction_log = create_transaction_log_if_needed
       batch = Sidekiq::Batch.new
       batch.on(
         :complete,
@@ -69,8 +73,11 @@ module DebtsApi
       batch.jobs do
         DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
         # Delay sharepoint submission to allow VBA to process the form
-        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        unless Flipper.enabled?(:financial_management_vbs_only)
+          DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
+        end
       end
+      transaction_log&.mark_submitted
     end
 
     def set_vha_completed_state(status, options)
@@ -91,6 +98,7 @@ module DebtsApi
         message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
       end
       update(error_message: message)
+      find_transaction_log&.mark_failed
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
@@ -105,12 +113,17 @@ module DebtsApi
     def send_failed_form_email
       StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
       submission_email = ipf_form['personal_data']['email_address'].downcase
+      cache_key = Sidekiq::AttrPackage.create(
+        expires_in: 30.days,
+        email: submission_email,
+        personalisation: failure_email_personalization_info
+      )
       jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
         24.hours,
-        submission_email,
+        nil,
         SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
-        failure_email_personalization_info,
-        { id_type: 'email', failure_mailer: true }
+        nil,
+        { id_type: 'email', failure_mailer: true, cache_key: }
       )
 
       Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
@@ -129,6 +142,7 @@ module DebtsApi
 
     def register_success
       submitted!
+      find_transaction_log&.mark_completed
       StatsD.increment("#{STATS_KEY}.success")
       StatsD.increment("#{STATS_KEY}.combined.success") if public_metadata['combined']
     end
@@ -156,7 +170,7 @@ module DebtsApi
       parsed_metadata = JSON.parse(metadata)
       copays = parsed_metadata['copays'] || []
 
-      copays.map { |copay| copay['id'] }.compact # rubocop:disable Rails/Pluck
+      copays.map { |copay| copay['id'] }.compact
     rescue JSON::ParserError
       []
     end
@@ -198,6 +212,23 @@ module DebtsApi
         'lastUpdated' => Time.now.to_i,
         'inProgressFormId' => '5655'
       }
+    end
+
+    private
+
+    def create_transaction_log_if_needed
+      existing_log = find_transaction_log
+      return existing_log if existing_log
+
+      user = User.find(user_uuid)
+      DebtTransactionLog.track_waiver(self, user)
+    end
+
+    def find_transaction_log
+      @transaction_log ||= DebtTransactionLog.find_by(
+        transactionable: self,
+        transaction_type: 'waiver'
+      )
     end
   end
 end

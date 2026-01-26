@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
-require 'common/models/attribute_types/httpdate'
+require 'vets/model'
 
 module MHVAC
   ##
@@ -60,20 +59,20 @@ module MHVAC
   # @!attribute terms_version
   #   @return [String] the version of terms of agreement that the registrant recieved
   # @!attribute terms_accepted_date
-  #   @return [Common::HTTPDate] date the registrant accepted the terms of agreement
+  #   @return [Vets::Type::HTTPDate] date the registrant accepted the terms of agreement
   #
-  class RegistrationForm < Common::Form
-    include ActiveModel::Validations
+  class RegistrationForm
+    include Vets::Model
 
     attribute :icn, String
-    attribute :is_patient, Boolean
-    attribute :is_patient_advocate, Boolean
-    attribute :is_veteran, Boolean
-    attribute :is_champ_VA_beneficiary, Boolean
-    attribute :is_service_member, Boolean
-    attribute :is_employee, Boolean
-    attribute :is_health_care_provider, Boolean
-    attribute :is_other, Boolean
+    attribute :is_patient, Bool
+    attribute :is_patient_advocate, Bool
+    attribute :is_veteran, Bool
+    attribute :is_champ_VA_beneficiary, Bool
+    attribute :is_service_member, Bool
+    attribute :is_employee, Bool
+    attribute :is_health_care_provider, Bool
+    attribute :is_other, Bool
     attribute :address1, String
     attribute :address2, String
     attribute :city, String
@@ -90,7 +89,7 @@ module MHVAC
     attribute :work_phone, String
     attribute :sign_in_partners, String
     attribute :terms_version, String
-    attribute :terms_accepted_date, Common::HTTPDate
+    attribute :terms_accepted_date, Vets::Type::HTTPDate
 
     ##
     # Validates form attributes and wraps each present attribute to create
@@ -102,7 +101,7 @@ module MHVAC
     def mhv_params
       raise Common::Exceptions::ValidationErrors, self unless valid?
 
-      attribute_set.map do |attribute|
+      self.class.attribute_set.map do |attribute|
         value = send(attribute.name)
         [attribute.name, value] unless value.nil?
       end.compact.to_h

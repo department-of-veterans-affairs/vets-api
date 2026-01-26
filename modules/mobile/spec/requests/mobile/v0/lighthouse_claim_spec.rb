@@ -4,6 +4,7 @@ require_relative '../../../support/helpers/rails_helper'
 require_relative '../../../support/helpers/committee_helper'
 
 require 'lighthouse/benefits_claims/configuration'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service'
 
 RSpec.describe 'Mobile::V0::Claim', type: :request do
@@ -17,10 +18,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     before do
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable_actor(:mobile_lighthouse_claims, user)
     end
-
-    after { Flipper.disable(:mobile_lighthouse_claims) }
 
     context 'when the claim is found' do
       before do
@@ -100,14 +98,14 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(true)
         end
 
-        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'excludes suppressed evidence request tracked items' do
           VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
             get '/mobile/v0/claim/600117255', headers: sis_headers
           end
           parsed_body = JSON.parse(response.body)
           display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').map { |h| h['displayName'] }
           expect(display_names.size).to eq(19)
-          expect(display_names).not_to include('Attorney Fees')
+          expect(display_names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).to be_empty
         end
       end
 
@@ -117,14 +115,14 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
         end
 
-        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+        it 'includes suppressed evidence request tracked items' do
           VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
             get '/mobile/v0/claim/600117255', headers: sis_headers
           end
           parsed_body = JSON.parse(response.body)
           display_names = parsed_body.dig('data', 'attributes', 'eventsTimeline').map { |h| h['displayName'] }
           expect(display_names.size).to eq(20)
-          expect(display_names).to include('Attorney Fees')
+          expect(display_names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).not_to be_empty
         end
       end
 
@@ -154,7 +152,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
           assert_schema_conform(404)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Resource not found',
-                                                              'detail' => 'Resource not found',
+                                                              'detail' => 'Claim not found',
                                                               'code' => '404', 'status' => '404' }] })
         end
       end

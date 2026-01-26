@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/FryDea/claimants/sponsors
+    uri: <DGI_VETS_URL>claimType/FryDea/claimants/sponsors
     body:
       encoding: UTF-8
       string: '{"ssn":"796121200"}'

@@ -1,0 +1,56 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/v1/sm/patient/folder/threadlistview/0?pageNumber=1&pageSize=5&sortField=SENDER_NAME&sortOrder=ASC"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 12 Jan 2024 20:31:43 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "87"
+        X-Amzn-Requestid:
+          - 13cc1fdc-4275-4e20-b83e-104b25d81eeb
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - RcYzcG0cPHMFXTg=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Fri, 12 Jan 2024 20:31:43 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string: '[]'
+    recorded_at: Fri, 12 Jan 2024 20:31:43 GMT
+recorded_with: VCR 6.2.0

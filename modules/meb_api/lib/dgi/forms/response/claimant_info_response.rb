@@ -8,7 +8,7 @@ module MebApi
       class ClaimantResponse < MebApi::DGI::Response
         attribute :claimant, Hash
         attribute :toe_sponsors, Hash
-        attribute :service_data, Array
+        attribute :service_data, Hash, array: true
 
         def initialize(status, response = nil)
           attributes = {

@@ -11,7 +11,7 @@ describe PrescriptionDetails do
     it 'has attributes' do
       expect(subject).to have_attributes(refill_status: 'active', refill_remaining: 9, facility_name: 'ABC1223',
                                          is_refillable: true, is_trackable: false, prescription_id: 1_435_525,
-                                         quantity: 10,  prescription_number: '2719324',
+                                         quantity: '10', prescription_number: '2719324',
                                          prescription_name: 'Drug 1 250MG TAB', station_number: '23',
                                          cmop_division_phone: nil, in_cerner_transition: false,
                                          not_refillable_display_message: 'test',
@@ -74,6 +74,129 @@ describe PrescriptionDetails do
 
     it 'sorted_dispensed_date should be nil' do
       expect(subject.sorted_dispensed_date).to be_nil
+    end
+  end
+
+  describe '#pharmacy_phone_number' do
+    context 'when cmop_division_phone is present' do
+      subject do
+        described_class.new(attributes_for(:prescription_details,
+                                           cmop_division_phone: '555-123-4567',
+                                           dial_cmop_division_phone: '555-987-6543'))
+      end
+
+      it 'returns cmop_division_phone' do
+        expect(subject.pharmacy_phone_number).to eq('555-123-4567')
+      end
+    end
+
+    context 'when only dial_cmop_division_phone is present' do
+      subject do
+        described_class.new(attributes_for(:prescription_details,
+                                           cmop_division_phone: nil,
+                                           dial_cmop_division_phone: '555-987-6543'))
+      end
+
+      it 'returns dial_cmop_division_phone' do
+        expect(subject.pharmacy_phone_number).to eq('555-987-6543')
+      end
+    end
+
+    context 'when phone numbers are in rx_rf_records' do
+      subject do
+        described_class.new(attributes_for(
+                              :prescription_details,
+                              cmop_division_phone: nil,
+                              dial_cmop_division_phone: nil,
+                              rx_rf_records: [
+                                [
+                                  'rf_record',
+                                  [
+                                    { cmop_division_phone: '555-111-2222' },
+                                    { dial_cmop_division_phone: '555-333-4444' }
+                                  ]
+                                ]
+                              ]
+                            ))
+      end
+
+      it 'returns cmop_division_phone from rx_rf_records' do
+        expect(subject.pharmacy_phone_number).to eq('555-111-2222')
+      end
+    end
+
+    context 'when only dial_cmop_division_phone is in rx_rf_records' do
+      subject do
+        described_class.new(attributes_for(
+                              :prescription_details,
+                              cmop_division_phone: nil,
+                              dial_cmop_division_phone: nil,
+                              rx_rf_records: [
+                                [
+                                  'rf_record',
+                                  [
+                                    { dial_cmop_division_phone: '555-333-4444' }
+                                  ]
+                                ]
+                              ]
+                            ))
+      end
+
+      it 'returns dial_cmop_division_phone from rx_rf_records' do
+        expect(subject.pharmacy_phone_number).to eq('555-333-4444')
+      end
+    end
+
+    context 'when no phone numbers are available' do
+      subject do
+        described_class.new(attributes_for(
+                              :prescription_details,
+                              cmop_division_phone: nil,
+                              dial_cmop_division_phone: nil,
+                              rx_rf_records: []
+                            ))
+      end
+
+      it 'returns nil' do
+        expect(subject.pharmacy_phone_number).to be_nil
+      end
+    end
+
+    context 'when rx_rf_records is nil' do
+      subject do
+        described_class.new(attributes_for(
+                              :prescription_details,
+                              cmop_division_phone: nil,
+                              dial_cmop_division_phone: nil,
+                              rx_rf_records: nil
+                            ))
+      end
+
+      it 'returns nil' do
+        expect(subject.pharmacy_phone_number).to be_nil
+      end
+    end
+
+    context 'when rx_rf_records has empty phone numbers' do
+      subject do
+        described_class.new(attributes_for(
+                              :prescription_details,
+                              cmop_division_phone: nil,
+                              dial_cmop_division_phone: nil,
+                              rx_rf_records: [
+                                [
+                                  'rf_record',
+                                  [
+                                    { cmop_division_phone: '', dial_cmop_division_phone: '' }
+                                  ]
+                                ]
+                              ]
+                            ))
+      end
+
+      it 'returns nil' do
+        expect(subject.pharmacy_phone_number).to be_nil
+      end
     end
   end
 end

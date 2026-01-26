@@ -1,0 +1,707 @@
+
+{
+    "vista": {
+        "resourceType": "Bundle",
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "76ad925b-0c2c-4401-ac0a-13542d6b6ef5",
+                    "meta": {
+                        "profile": [
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                        ]
+                    },
+                    "contained": [
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "130032ee-04c5-48e0-a73a-003921a90d43",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "c96f1a0f-beb3-4259-a69c-e4eb72c8ac66",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Location",
+                            "id": "caeabff4-ae2f-4b90-b463-3ffe0706f4ce",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "LocationTO.983"
+                                }
+                            ],
+                            "name": "CHYSHR TEST LAB"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                            "use": "usual",
+                            "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                            "value": "NoteTO.1834074"
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
+                    ],
+                    "status": "current",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "11506-3"
+                            }
+                        ],
+                        "text": "CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE"
+                    },
+                    "category": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                    "code": "clinical-note",
+                                    "display": "Clinical Note"
+                                }
+                            ]
+                        }
+                    ],
+                    "subject": {
+                        "reference": "Patient/24643801"
+                    },
+                    "date": "2025-01-14T09:18:00.000+00:00",
+                    "author": [
+                        {
+                            "reference": "Practitioner/130032ee-04c5-48e0-a73a-003921a90d43"
+                        }
+                    ],
+                    "authenticator": {
+                        "extension": [
+                            {
+                                "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                "valueDateTime": "2025-01-14T09:29:26+00:00"
+                            }
+                        ],
+                        "reference": "Practitioner/c96f1a0f-beb3-4259-a69c-e4eb72c8ac66"
+                    },
+                    "content": [
+                        {
+                            "attachment": {
+                                "contentType": "text/plain",
+                                "data": "VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBkaXNjaGFyZ2Ugbm90ZS4NCg==",
+                                "title": "CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE",
+                                "creation": "2025-01-14T09:18:00+00:00"
+                            }
+                        }
+                    ],
+                    "context": {
+                        "related": [
+                            {
+                                "reference": "Location/caeabff4-ae2f-4b90-b463-3ffe0706f4ce"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "2e1d581e-bb36-4041-9350-40dbb5651d5c",
+                    "meta": {
+                        "profile": [
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                        ]
+                    },
+                    "contained": [
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "0374019d-fcab-4024-ac47-1da54905d14a",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "d389cf83-76f2-4bf7-b9c8-9ea437036d84",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "DocumentReference",
+                            "id": "8000397f-46d4-4279-9ca3-d37980e0adb6",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "NoteTO.1833586"
+                                }
+                            ],
+                            "status": "current",
+                            "type": {
+                                "coding": [
+                                    {
+                                        "system": "http://loinc.org",
+                                        "code": "11506-3"
+                                    }
+                                ],
+                                "text": "UROLOGY PROGRESS NOTE"
+                            },
+                            "category": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                            "code": "clinical-note",
+                                            "display": "Clinical Note"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "subject": {
+                                "reference": "Patient/24643801"
+                            },
+                            "date": "2024-12-17T17:13:00.000+00:00",
+                            "author": [
+                                {
+                                    "reference": "Practitioner/2567fe8c-bb79-4394-860b-082416810471"
+                                }
+                            ],
+                            "authenticator": {
+                                "extension": [
+                                    {
+                                        "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                        "valueDateTime": "2024-12-17T17:14:42+00:00"
+                                    }
+                                ],
+                                "reference": "Practitioner/d199313d-7e4a-4396-887b-58fe0c3f814c"
+                            },
+                            "content": [
+                                {
+                                    "attachment": {
+                                        "contentType": "text/plain",
+                                        "data": "TGFyZ2UgbnVtYmVycyBvZiBiYWN0ZXJpYSBpbiB1cmluZSBpbmRpY2F0aXZlIG9mIFVUSS4gUHJlc2NyaWJpbmcgTWFjcm9iaWQgDQpwZW5kaW5nIGNvbXBsZXRlIGxhYiByZXN1bHRzLg0KDQpUaGlzIG5vdGUgZHVwbGljYXRlcyBhbiBlYXJsaWVyIG5vdGUsIGJ1dCBzaG91bGQgYmUgcmVsZWFzZWQgc29vbmVyLg0KDQo=",
+                                        "title": "UROLOGY PROGRESS NOTE",
+                                        "creation": "2024-12-17T17:13:00+00:00"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Location",
+                            "id": "b632dad9-5881-48ab-a566-334ff6c79db8",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "LocationTO.983"
+                                }
+                            ],
+                            "name": "CHYSHR TEST LAB"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                            "use": "usual",
+                            "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                            "value": "NoteTO.1833586"
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833586"}
+                    ],
+                    "status": "current",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "11506-3"
+                            }
+                        ],
+                        "text": "UROLOGY PROGRESS NOTE"
+                    },
+                    "category": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                    "code": "clinical-note",
+                                    "display": "Clinical Note"
+                                }
+                            ]
+                        }
+                    ],
+                    "subject": {
+                        "reference": "Patient/24643801"
+                    },
+                    "date": "2024-12-18T05:22:40.000+00:00",
+                    "author": [
+                        {
+                            "reference": "Practitioner/0374019d-fcab-4024-ac47-1da54905d14a"
+                        }
+                    ],
+                    "authenticator": {
+                        "extension": [
+                            {
+                                "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                "valueDateTime": "2024-12-18T05:25:10+00:00"
+                            }
+                        ],
+                        "reference": "Practitioner/d389cf83-76f2-4bf7-b9c8-9ea437036d84"
+                    },
+                    "relatesTo": [
+                        {
+                            "code": "appends",
+                            "target": {
+                                "reference": "DocumentReference/8000397f-46d4-4279-9ca3-d37980e0adb6"
+                            }
+                        }
+                    ],
+                    "content": [
+                        {
+                            "attachment": {
+                                "contentType": "text/plain",
+                                "data": "VXJpbmFseXNpcyBwb3NpdGl2ZSBmb3IgUHJvdGV1cyBtaXJhYmlsaXMuIFByZXNjcmliZWQgQXVnbWVudGluIGFuZCBpbnN0cnVjdGVkIA0KTXIuIFNpbHZhIHRvIGRpc2NvbnRpbnVlIHRoZSBvcmlnaW5hbCBSeC4NCg==",
+                                "title": "UROLOGY PROGRESS NOTE",
+                                "creation": "2024-12-18T05:22:40+00:00"
+                            }
+                        }
+                    ],
+                    "context": {
+                        "related": [
+                            {
+                                "reference": "Location/b632dad9-5881-48ab-a566-334ff6c79db8"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "51b17767-5226-4260-8fd3-7c9acf1675b0",
+                    "meta": {
+                        "profile": [
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                        ]
+                    },
+                    "contained": [
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "9da0745d-3fb5-4cbb-a9c1-90ed3c8e4f00",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "9fa15325-b632-4fb0-b2e6-bffa87db3073",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650339"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "MCGUIRE,MARCI P",
+                                    "family": "MCGUIRE,MARCI P"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "DocumentReference",
+                            "id": "60f9ff1d-52a2-4aab-892c-17848808eccc",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "NoteTO.1833381"
+                                }
+                            ],
+                            "status": "current",
+                            "type": {
+                                "coding": [
+                                    {
+                                        "system": "http://loinc.org",
+                                        "code": "11488-4"
+                                    }
+                                ],
+                                "text": "AUDIOLOGY TEMPLATE CONSULT REPORT"
+                            },
+                            "category": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                            "code": "clinical-note",
+                                            "display": "Clinical Note"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "subject": {
+                                "reference": "Patient/24643801"
+                            },
+                            "date": "2024-12-05T01:38:00.000+00:00",
+                            "author": [
+                                {
+                                    "reference": "Practitioner/f8aedbfe-8c94-4cb8-9028-4432c347a7ce"
+                                }
+                            ],
+                            "authenticator": {
+                                "extension": [
+                                    {
+                                        "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                        "valueDateTime": "2024-12-05T01:45:17+00:00"
+                                    }
+                                ],
+                                "reference": "Practitioner/9e22189f-3266-44c9-a28e-25140199c631"
+                            },
+                            "content": [
+                                {
+                                    "attachment": {
+                                        "contentType": "text/plain",
+                                        "data": "QXVkaW9sb2d5IEV4YW0NCg0KT3Rvc2NvcGljIEV4YW06IFdpdGhpbiBOb3JtYWwgTGltaXRzLCBiaWxhdGVyYWxseQ0KDQoNCkF1ZGlvbG9naWNhbCBBc3Nlc3NtZW50Og0KICAgICAgICBBaXIvIEJvbmUgICAgICAgICAgICAgICAgICBBaXIvIEJvbmUNClIyNTA6ICAvICAgICAgICAgICAgICAgIEwyNTA6ICAvDQpSNTAwOiAgLyAgICAgICAgICAgICAgICBMNTAwOiAgLw0KUjEwMDA6IC8gICAgICAgICAgICAgICAgTDEwMDA6IC8NClIxNTAwOiAvICAgICAgICAgICAgICAgIEwxNTAwOiAvDQpSMjAwMDogLyAgICAgICAgICAgICAgICBMMjAwMDogLw0KUjMwMDA6IC8gICAgICAgICAgICAgICAgTDMwMDA6IC8NClI0MDAwOiAvICAgICAgICAgICAgICAgIEw0MDAwOiAvDQpSNjAwMDogLyAgICAgICAgICAgICAgICBMNjAwMDogLw0KUjgwMDA6IC8gICAgICAgICAgICAgICAgTDgwMDA6IC8NCg0KU3BlZWNoIFJlY29nbml0aW9uIFNjb3JlczoNCkNOQyBSOiANCkNOQyBMOiANCg0KU3BlZWNoIFJlY2VwdGlvbiBUaHJlc2hvbGRzOiANClI6ICBkQkhMDQpMOiAgZEJITA0KDQpQdXJlIFRvbmUgU3RlbmdlcjogDQpGcmVxdWVuY3k6IFBvc2l0aXZlDQoNCkFjb3VzdGljIEltbWl0dGFuY2UNClByb2JlIFJpZ2h0Og0KUmVzdGluZyBQcmVzc3VyZTogICBQVlQ6ICAgU3RhdGljIE1lYXN1cmVtZW50OiANClByb2JlIExlZnQ6DQpSZXN0aW5nIFByZXNzdXJlOiAgIFBWVDogICBTdGF0aWMgTWVhc3VyZW1lbnQ6IA0KDQpBY291c3RpYyBSZWZsZXggVGVzdGluZzoNCg0KQ29udHJhbGF0ZXJhbCBUaHJlc2hvbGRzDQpTdGltdWx1cyBSaWdodCAgICAgICBSZWZsZXggRGVjYXkgDQo1MDA6ICAgICAgICAgICAgNTAwOiANCjEwMDA6ICAgICAgICAgICAxMDAwOiANCjIwMDA6IA0KNDAwMDogDQoNClN0aW11bHVzIExlZnQgICAgICAgUmVmbGV4IERlY2F5DQo1MDA6ICAgICAgICAgICAgNTAwOiANCjEwMDA6ICAgICAgICAgICAxMDAwOg0KMjAwMDogDQo0MDAwOiANCg0KDQpJcHNpbGF0ZXJhbCBUaHJlc2hvbGRzDQpTdGltdWx1cyBSaWdodCAgICAgICAgICAgICAgICAgICAgICAgICAgICBTdGltdWx1cyBMZWZ0IA0KNTAwOiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDUwMDogDQoxMDAwOiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTAwMDogDQoyMDAwOiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjAwMDogDQo0MDAwOiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNDAwMDogDQoNClJlbWFya3M6IA0KDQpDYXNlIEhpc3Rvcnk6IA0KRHVyYXRpb24gb2YgaGVhcmluZyBsb3NzOiA2IG1vbnRocw0KRGl6emluZXNzOiBObw0KVGlubml0dXM6IE5vDQpFYXIgcGFpbi9kaXNjaGFyZ2Uvc3VyZ2VyeTogTm8NCk90b3RveGljIG1lZGljYXRpb25zOiBObw0KTm9pc2UgZXhwb3N1cmU6IE5vDQpIZWFyaW5nIGFpZCB1c2U6IE5vDQpDb21tZW50czogTG9zcyBvZiBoZWFyaW5nIGF0dHJpYnV0ZWQgdG8gY29tcGFjdGVkIGNlcnVtZW4uIA0KDQoNCkRpYWdub3NpcyBhbmQgVHJlYXRtZW50IFBsYW46ICBQZXJmb3JtZWQgYmlsYXRlcmFsIGNsZWFuaW5nIGFuZCByZW1vdmFsIG9mDQpjb21wYWN0ZWQgbWF0ZXJpYWwNCg==",
+                                        "title": "AUDIOLOGY TEMPLATE CONSULT REPORT",
+                                        "creation": "2024-12-05T01:38:00+00:00"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Location",
+                            "id": "5389c4fa-ea9e-41aa-b77a-ad656a5c3118",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "LocationTO.983"
+                                }
+                            ],
+                            "name": "CHYSHR TEST LAB"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                            "use": "usual",
+                            "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                            "value": "NoteTO.1833381"
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833381"}
+                    ],
+                    "status": "current",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "11488-4"
+                            }
+                        ],
+                        "text": "AUDIOLOGY TEMPLATE CONSULT REPORT"
+                    },
+                    "category": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                    "code": "clinical-note",
+                                    "display": "Clinical Note"
+                                }
+                            ]
+                        }
+                    ],
+                    "subject": {
+                        "reference": "Patient/24643801"
+                    },
+                    "date": "2024-12-12T10:21:24.000+00:00",
+                    "author": [
+                        {
+                            "reference": "Practitioner/9da0745d-3fb5-4cbb-a9c1-90ed3c8e4f00"
+                        }
+                    ],
+                    "authenticator": {
+                        "extension": [
+                            {
+                                "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                "valueDateTime": "2024-12-12T10:22:32+00:00"
+                            }
+                        ],
+                        "reference": "Practitioner/9fa15325-b632-4fb0-b2e6-bffa87db3073"
+                    },
+                    "relatesTo": [
+                        {
+                            "code": "appends",
+                            "target": {
+                                "reference": "DocumentReference/60f9ff1d-52a2-4aab-892c-17848808eccc"
+                            }
+                        }
+                    ],
+                    "content": [
+                        {
+                            "attachment": {
+                                "contentType": "text/plain",
+                                "data": "VGhpcyBpcyBhbiBhZGRlbmR1bSB0byBjb3JyZWN0IHByZXZpb3MgQXVkaW9sb2d5IHJlcG9ydC4gDQo=",
+                                "title": "AUDIOLOGY TEMPLATE CONSULT REPORT",
+                                "creation": "2024-12-12T10:21:24+00:00"
+                            }
+                        }
+                    ],
+                    "context": {
+                        "related": [
+                            {
+                                "reference": "Location/5389c4fa-ea9e-41aa-b77a-ad656a5c3118"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "1c0b0ba5-4ea3-4fac-b6ba-6ba089ac7175",
+                    "meta": {
+                        "profile": [
+                            "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.note"
+                        ]
+                    },
+                    "contained": [
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "83602631-2ccc-49af-b4f2-5f5aac176d4a",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650352"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "BORLAND,VICTORIA A",
+                                    "family": "BORLAND,VICTORIA A"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Practitioner",
+                            "id": "c80e33a5-3078-41b7-97bd-36b51262858a",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.practitioner"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "AuthorTO.520650352"
+                                }
+                            ],
+                            "name": [
+                                {
+                                    "text": "BORLAND,VICTORIA A",
+                                    "family": "BORLAND,VICTORIA A"
+                                }
+                            ]
+                        },
+                        {
+                            "resourceType": "Location",
+                            "id": "0d8abab7-ea07-4d48-88bd-ad2eafc51fd8",
+                            "meta": {
+                                "profile": [
+                                    "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.location"
+                                ]
+                            },
+                            "identifier": [
+                                {
+                                    "use": "usual",
+                                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                                    "value": "LocationTO.983"
+                                }
+                            ],
+                            "name": "CHYSHR TEST LAB"
+                        }
+                    ],
+                    "identifier": [
+                        {
+                            "use": "usual",
+                            "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                            "value": "NoteTO.1833578"
+                        },
+                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833578"}
+                    ],
+                    "status": "current",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "11506-3"
+                            }
+                        ],
+                        "text": "C&P UROLOGY"
+                    },
+                    "category": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                    "code": "clinical-note",
+                                    "display": "Clinical Note"
+                                }
+                            ]
+                        }
+                    ],
+                    "subject": {
+                        "reference": "Patient/24643801"
+                    },
+                    "date": "2024-12-17T11:07:00.000+00:00",
+                    "author": [
+                        {
+                            "reference": "Practitioner/83602631-2ccc-49af-b4f2-5f5aac176d4a"
+                        }
+                    ],
+                    "authenticator": {
+                        "extension": [
+                            {
+                                "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/noteAuthenticatedWhen",
+                                "valueDateTime": "2024-12-17T11:09:35+00:00"
+                            }
+                        ],
+                        "reference": "Practitioner/c80e33a5-3078-41b7-97bd-36b51262858a"
+                    },
+                    "content": [
+                        {
+                            "attachment": {
+                                "contentType": "text/plain",
+                                "data": "TGFyZ2UgbnVtYmVycyBvZiBiYWN0ZXJpYSBpbiB1cmluZSBpbmRpY2F0aXZlIG9mIFVUSS4gUHJlc2NyaWJpbmcgTWFjcm9iaWQgDQpwZW5kaW5nIGNvbXBsZXRlIGxhYiByZXN1bHRzLg0K",
+                                "title": "C&P UROLOGY",
+                                "creation": "2024-12-17T11:07:00+00:00"
+                            }
+                        }
+                    ],
+                    "context": {
+                        "related": [
+                            {
+                                "reference": "Location/0d8abab7-ea07-4d48-88bd-ad2eafc51fd8"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "oracle-health": {}
+}

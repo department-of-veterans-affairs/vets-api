@@ -43,6 +43,9 @@ RSpec.describe VANotifyEmailJob, type: :model do
               error: :va_notify_email_job
             }
           )
+          # expect(job).to receive(:log_exception_to_rails).with(
+          #   instance_of(VANotify::BadRequest)
+          # )
 
           job.perform(email, template_id)
         end

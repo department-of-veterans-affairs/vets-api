@@ -325,7 +325,7 @@ RSpec.describe 'CheckIn::V2::Sessions', type: :request do
           end
 
           it 'returns a 401 error' do
-            expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+            expect_any_instance_of(Vets::SharedLogging).not_to receive(:log_exception_to_sentry)
 
             VCR.use_cassette 'check_in/lorota/token/token_401' do
               post '/check_in/v2/sessions', **session_params_with_dob

@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake_url.com/suite/webapi/chapter31-eligibility-details-search
+    body:
+      encoding: UTF-8
+      string: '{"icn":"1018616478V531227"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Appian-API-Key:
+      - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNDdiNzNjMy04ZTgzLTQ5MzQtODViMS1kOTNhMmNhMjgxN2UifQ.8TqYLKpQKmdK5PrWvS1FeA7nE2a8HU9S0BuTVXIR5Gw
+  response:
+    status:
+      code: 200
+      message: '200'
+    headers:
+      date:
+      - Mon, 06 Oct 2025 15:51:09 GMT
+      content-type:
+      - application/json;charset=UTF-8
+      content-length:
+      - '391'
+      connection:
+      - keep-alive
+      server:
+      - Apache
+      cache-control:
+      - no-cache, private
+      x-trace-id:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      x-frame-options:
+      - SAMEORIGIN
+      content-security-policy-report-only:
+      - 'style-src ''unsafe-inline'' ''self'' ''strict-dynamic'' ''nonce-MzZlOTkyZDAtOTI3NS00Y2QxLTgxNWMtYzYzZmY1NTg5MGIy'';
+        child-src ''none''; script-src ''self'' ''unsafe-inline'' ''unsafe-eval''
+        ''strict-dynamic'' ''nonce-MmRlYTdiOTItNWI5My00ZmRlLTg1MzMtOGNmZjYwM2RlNjIx'';
+        object-src https:; frame-src https:; img-src https:; default-src ''self'';
+        font-src ''self'' https: data:; report-uri /suite/rest/a/logging/latest/csp/report;
+        report-to report;'
+      content-security-policy:
+      - report-uri /suite/rest/a/logging/latest/csp/report; report-to report;
+      reporting-endpoints:
+      - report="/suite/rest/a/logging/latest/csp/report"
+      x-xss-protection:
+      - 1; mode=block
+      requested-while-authenticated:
+      - 'false'
+      vary:
+      - Accept-Encoding
+      content-encoding:
+      - gzip
+      x-content-type-options:
+      - nosniff
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"veteranProfile":{"firstName":"VICTORIA","lastName":"DUNCAN","dob":"1901-09-11Z","characterOfDischarge":"Honorable","servicePeriod":[{"serviceBeganDate":"1941-12-05Z","serviceEndDate":"1960-12-07Z","characterOfDischarge":"Honorable"},{"serviceBeganDate":"2021-01-01Z","serviceEndDate":"2023-04-01Z","characterOfDischarge":"Honorable"}]},"disabilityRating":{"combinedScd":0,"scdDetails":[]},"irndDate":"2025-08-04Z","eligibilityTerminationDate":null,"entitlementDetails":{"maxCh31Entitlement":{"month":48,"days":0},"ch31EntitlementRemaining":{"month":0,"days":0},"entitlementUsed":{"month":0,"days":0}},"resCaseId":685,"qualifyingMilitaryServiceStatus":"Eligible","characterOfDischargeStatus":"Eligible","disabilityRatingStatus":"Ineligible","irndStatus":"Eligible","eligibilityTerminationDateStatus":"Eligible","resEligibilityRecommendation":"Ineligible"}'
+  recorded_at: Mon, 06 Oct 2025 15:51:09 GMT
+recorded_with: VCR 6.3.1

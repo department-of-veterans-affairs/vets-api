@@ -160,12 +160,15 @@ type: integer in schema #{uuid_regex}"\]})
 
     context 'when schema contract does not exist in db' do
       it 'raises errors' do
-        error_message = %({:error_type=>"Unknown", :record_id=>"1", \
-:details=>"Couldn't find SchemaContract::Validation with 'id'=1"})
-
-        expect do
+        error = nil
+        begin
           SchemaContract::Validator.new('1').validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, error_message)
+        rescue SchemaContract::Validator::SchemaContractValidationError => e
+          error = e
+        end
+
+        expect(error).to be_a(SchemaContract::Validator::SchemaContractValidationError)
+        expect(error.message).to match(/Couldn't find SchemaContract::Validation with 'id'/)
       end
     end
 

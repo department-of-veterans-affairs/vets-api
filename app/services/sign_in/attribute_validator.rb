@@ -2,36 +2,8 @@
 
 module SignIn
   class AttributeValidator
-    attr_reader :idme_uuid,
-                :logingov_uuid,
-                :auto_uplevel,
-                :current_ial,
-                :service_name,
-                :first_name,
-                :last_name,
-                :birth_date,
-                :credential_email,
-                :address,
-                :ssn,
-                :mhv_icn,
-                :edipi,
-                :mhv_credential_uuid
-
     def initialize(user_attributes:)
-      @idme_uuid = user_attributes[:idme_uuid]
-      @logingov_uuid = user_attributes[:logingov_uuid]
-      @auto_uplevel = user_attributes[:auto_uplevel]
-      @current_ial = user_attributes[:current_ial]
-      @service_name = user_attributes[:service_name]
-      @first_name = user_attributes[:first_name]
-      @last_name = user_attributes[:last_name]
-      @birth_date = user_attributes[:birth_date]
-      @credential_email = user_attributes[:csp_email]
-      @address = user_attributes[:address]
-      @ssn = user_attributes[:ssn]
-      @mhv_icn = user_attributes[:mhv_icn]
-      @edipi = user_attributes[:edipi]
-      @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
+      @user_attributes = user_attributes
     end
 
     def perform
@@ -44,6 +16,7 @@ module SignIn
         validate_existing_mpi_attributes
       elsif mpi_record_exists?
         validate_existing_mpi_attributes
+        validate_sec_id
         update_mpi_correlation_record
       else
         add_mpi_user
@@ -55,6 +28,8 @@ module SignIn
 
     private
 
+    attr_reader :user_attributes
+
     def validate_existing_mpi_attributes
       check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
       check_lock_flag(mpi_response_profile.deceased_date, 'Death Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
@@ -62,6 +37,12 @@ module SignIn
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
       check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN,
                         raise_error: false)
+    end
+
+    def validate_sec_id
+      return if sec_id.present?
+
+      sign_in_logger.info('mpi record missing sec_id', icn: verified_icn, pce_status: sec_id_pce_status)
     end
 
     def add_mpi_user
@@ -84,6 +65,9 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
+
+      return unless credential_attributes_digest_changed?
+
       update_profile_response = mpi_service.update_profile(last_name:,
                                                            ssn:,
                                                            birth_date:,
@@ -172,6 +156,10 @@ module SignIn
       end
     end
 
+    def credential_attributes_digest_changed?
+      user_verification&.credential_attributes_digest != credential_attributes_digest
+    end
+
     def handle_error(error_message, error_code, error: nil, raise_error: true)
       sign_in_logger.info('attribute validator error', { errors: error_message,
                                                          credential_uuid:,
@@ -200,6 +188,14 @@ module SignIn
       @verified_icn ||= mpi_response_profile.icn
     end
 
+    def sec_id
+      @sec_id ||= mpi_response_profile.sec_id
+    end
+
+    def sec_id_pce_status
+      @sec_id_pce_status ||= mpi_response_profile.full_mvi_ids.any? { |id| id.include? '200PROV^USDVA^PCE' }
+    end
+
     def credential_uuid
       @credential_uuid ||= idme_uuid || logingov_uuid
     end
@@ -226,6 +222,35 @@ module SignIn
 
     def verified_credential?
       current_ial == Constants::Auth::IAL_TWO
+    end
+
+    def user_verification
+      @user_verification ||= UserVerification.find_by_type(service_name, user_verification_identifier)
+    end
+
+    def idme_uuid                    = user_attributes[:idme_uuid]
+    def logingov_uuid                = user_attributes[:logingov_uuid]
+    def auto_uplevel                 = user_attributes[:auto_uplevel]
+    def current_ial                  = user_attributes[:current_ial]
+    def service_name                 = user_attributes[:service_name]
+    def first_name                   = user_attributes[:first_name]
+    def last_name                    = user_attributes[:last_name]
+    def birth_date                   = user_attributes[:birth_date]
+    def credential_email             = user_attributes[:csp_email]
+    def address                      = user_attributes[:address]
+    def ssn                          = user_attributes[:ssn]
+    def mhv_icn                      = user_attributes[:mhv_icn]
+    def edipi                        = user_attributes[:edipi]
+    def mhv_credential_uuid          = user_attributes[:mhv_credential_uuid]
+    def credential_attributes_digest = user_attributes[:digest]
+
+    def user_verification_identifier
+      case service_name
+      when Constants::Auth::MHV      then mhv_credential_uuid
+      when Constants::Auth::IDME     then idme_uuid
+      when Constants::Auth::DSLOGON  then edipi
+      when Constants::Auth::LOGINGOV then logingov_uuid
+      end
     end
 
     def sign_in_logger

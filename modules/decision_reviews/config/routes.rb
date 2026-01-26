@@ -17,10 +17,6 @@ DecisionReviews::Engine.routes.draw do
     resources :supplemental_claims, only: %i[create show]
 
     resource :decision_review_evidence, only: :create
-
-    scope format: false do
-      resources :decision_review_notification_callbacks, only: [:create]
-    end
   end
 
   namespace :v2, defaults: { format: 'json' } do

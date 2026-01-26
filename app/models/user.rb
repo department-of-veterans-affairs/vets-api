@@ -4,7 +4,6 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'evss/auth_headers'
 require 'evss/common_service'
-require 'evss/pciu/service'
 require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
@@ -64,18 +63,6 @@ class User < Common::RedisStore
 
   def user_account_uuid
     @user_account_uuid ||= user_account&.id
-  end
-
-  def pciu_email
-    pciu&.get_email_address&.email
-  end
-
-  def pciu_primary_phone
-    pciu&.get_primary_phone&.to_s
-  end
-
-  def pciu_alternate_phone
-    pciu&.get_alternate_phone&.to_s
   end
 
   # Identity attributes & methods
@@ -184,6 +171,7 @@ class User < Common::RedisStore
   delegate :mhv_correlation_id, to: :mpi, prefix: true
   delegate :mhv_ien, to: :mpi
   delegate :mhv_iens, to: :mpi, prefix: true
+  delegate :npi_id, to: :mpi
   delegate :participant_id, to: :mpi
   delegate :participant_ids, to: :mpi, prefix: true
   delegate :person_types, to: :mpi
@@ -395,17 +383,9 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled &&
-                      (
-                        (!Flipper.enabled?(:remove_pciu, self) && vet360_id.present?) ||
-                        (Flipper.enabled?(:remove_pciu, self) && icn.present?)
-                      )
+    return nil unless vet360_id.present? || icn.present?
 
-    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self) && icn.present?
-                               VAProfileRedis::V2::ContactInformation.for_user(self)
-                             elsif !Flipper.enabled?(:remove_pciu, self) && vet360_id.present?
-                               VAProfileRedis::ContactInformation.for_user(self)
-                             end
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
@@ -526,10 +506,6 @@ class User < Common::RedisStore
     return unless bgs_dependents.presence && bgs_dependents[:persons]
 
     bgs_dependents[:persons].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }
-  end
-
-  def pciu
-    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 
   def log_mhv_user_account_error(error_message)

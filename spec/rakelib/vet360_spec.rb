@@ -12,11 +12,10 @@ describe 'vet360 rake tasks' do
   before do
     # Prevents cross-pollination between tests
     ENV['VET360_RAKE_DATA'] = nil
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
   end
 
-  service = VAProfile::ContactInformation::Service
-  cassette_path = 'va_profile/contact_information'
+  service = VAProfile::ContactInformation::V2::Service
+  cassette_path = 'va_profile/v2/contact_information'
 
   describe 'rake vet360:get_person' do
     let :run_rake_task do
@@ -82,20 +81,6 @@ describe 'vet360 rake tasks' do
     end
   end
 
-  describe 'rake vet360:get_permission_transaction_status' do
-    let :run_rake_task do
-      Rake::Task['vet360:get_permission_transaction_status'].reenable
-      Rake.application.invoke_task 'vet360:get_permission_transaction_status[1,b1b06a34-c6a8-412e-82e7-df09d84862f3]'
-    end
-
-    it 'runs without errors' do
-      expect_any_instance_of(service).to receive(:get_permission_transaction_status)
-      VCR.use_cassette("#{cassette_path}/permission_transaction_status", VCR::MATCH_EVERYTHING) do
-        expect { silently { run_rake_task } }.not_to raise_error
-      end
-    end
-  end
-
   describe 'rake vet360:put_email' do
     let :run_rake_task do
       data = '{"email_address_text":"person42@example.com","email_id":42,' \
@@ -135,7 +120,7 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:put_address' do
     let :run_rake_task do
       data = '{"address_id":437,"address_line1":"1494 Martin Luther King Rd","address_line2":null,' \
-             '"address_line3":null,"address_pou":"RESIDENCE/CHOICE","address_type":"domestic","city_name":"Fulton",' \
+             '"address_line3":null,"address_pou":"RESIDENCE","address_type":"domestic","city_name":"Fulton",' \
              '"country_code_ios2":null,"country_code_iso3":null,"country_name":"USA","county":{"county_code":null,' \
              '"county_name":null},"int_postal_code":null,"province_name":null,"state_code":"MS","zip_code5":"38843",' \
              '"zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00",' \
@@ -148,24 +133,6 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(service).to receive(:put_address)
       VCR.use_cassette("#{cassette_path}/put_address_success", VCR::MATCH_EVERYTHING) do
-        expect { silently { run_rake_task } }.not_to raise_error
-      end
-    end
-  end
-
-  describe 'rake vet360:put_permission' do
-    let :run_rake_task do
-      data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",' \
-             '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":42,' \
-             '"vet360_id":"1"}'
-      ENV['VET360_RAKE_DATA'] = data
-      Rake::Task['vet360:put_permission'].reenable
-      Rake.application.invoke_task 'vet360:put_permission'
-    end
-
-    it 'runs without errors' do
-      expect_any_instance_of(service).to receive(:put_permission)
-      VCR.use_cassette("#{cassette_path}/put_permission_success", VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -210,11 +177,13 @@ describe 'vet360 rake tasks' do
   describe 'rake vet360:post_address' do
     let :run_rake_task do
       data = '{"address_id":null,"address_line1":"1493 Martin Luther King Rd","address_line2":null,' \
-             '"address_line3":null,"address_pou":"RESIDENCE/CHOICE","address_type":"domestic","city_name":"Fulton",' \
-             '"country_code_iso2":null,"country_code_iso3":null,"country_name":"USA","county":{"county_code":null,' \
-             '"county_name":null},"int_postal_code":null,"province_name":null,"state_code":"MS","zip_code5":"38843",' \
-             '"zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00",' \
-             '"vet360_id":"1"}'
+             '"address_line3":null,"address_pou":"RESIDENCE","address_type":"domestic","city_name":"Fulton",' \
+             '"country":{"country_code_iso2":null,"country_code_iso3":"USA","country_name":"USA"},' \
+             '"county":{"county_code":null,"county_name":null},' \
+             '"int_postal_code":null,"province":{"province_name":null,"province_code":null},' \
+             '"state":{"state_name":"null","state_code":"MS"},"int_postal_code":null,"zip_code5":"38843",' \
+             '"zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2024-08-27T18:51:06.000Z",' \
+             '"effective_start_date":"2024-08-27T18:51:06.000Z","effective_end_date":null}'
       ENV['VET360_RAKE_DATA'] = data
       Rake::Task['vet360:post_address'].reenable
       Rake.application.invoke_task 'vet360:post_address'
@@ -223,24 +192,6 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(service).to receive(:post_address)
       VCR.use_cassette("#{cassette_path}/post_address_success", VCR::MATCH_EVERYTHING) do
-        expect { silently { run_rake_task } }.not_to raise_error
-      end
-    end
-  end
-
-  describe 'rake vet360:post_permission' do
-    let :run_rake_task do
-      data = '{"originating_source_system":"VET360-TEST-PARTNER","permission_type":"TextPermission",' \
-             '"permission_value":true,"source_date":"2019-09-23T20:09:50.000-06:00","permission_id":null,' \
-             '"vet360_id":"1"}'
-      ENV['VET360_RAKE_DATA'] = data
-      Rake::Task['vet360:post_permission'].reenable
-      Rake.application.invoke_task 'vet360:post_permission'
-    end
-
-    it 'runs without errors' do
-      expect_any_instance_of(service).to receive(:post_permission)
-      VCR.use_cassette("#{cassette_path}/post_permission_success", VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -268,7 +219,7 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      VCR.use_cassette('va_profile/person/init_vet360_id_success') do
+      VCR.use_cassette('va_profile/v2/person/init_vet360_id_success') do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end

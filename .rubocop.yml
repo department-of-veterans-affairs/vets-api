@@ -170,6 +170,10 @@ Naming/MemoizedInstanceVariableName:
 Rails/ActiveRecordAliases:
   Enabled: false
 
+# The suggestions would break 54 files. Skip for now.
+Rails/Pluck:
+  Enabled: false
+
 # The use of variables such as n to represent number, x and y for x-axis and y-axis, el for element,
 # v for value, i for index, and e for error are all standard abbreviations and should be excluded.
 Naming/MethodParameterName:
@@ -189,14 +193,12 @@ RSpec/SpecFilePathFormat:
     - 'modules/**/*'
     - 'spec/lib/common/models/**/*'
     - 'spec/lib/saml/*_user_spec.rb'
-    - 'spec/lib/ihub/appointments/service_spec.rb'
     - 'spec/requests/in_progress_forms_request_spec.rb'
     - 'spec/sidekiq/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
     - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
-    - 'spec/lib/evss/pciu_address/pciu_address_spec.rb'
     - 'spec/lib/sm/client/message_drafts_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
     - 'spec/lib/mail_automation/integration/client_spec.rb'
@@ -339,7 +341,6 @@ RSpec/ScatteredLet:
     - 'spec/lib/sentry/scrubbers/log_as_warning_spec.rb'
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
-    - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'

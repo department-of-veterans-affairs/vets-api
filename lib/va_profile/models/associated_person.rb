@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-require 'common/models/attribute_types/titlecase_string'
+require_relative 'base'
 
 module VAProfile
   module Models
@@ -27,9 +26,9 @@ module VAProfile
       ].freeze
 
       attribute :contact_type, String
-      attribute :given_name, Common::TitlecaseString
-      attribute :middle_name, Common::TitlecaseString
-      attribute :family_name, Common::TitlecaseString
+      attribute :given_name, Vets::Type::TitlecaseString
+      attribute :middle_name, Vets::Type::TitlecaseString
+      attribute :family_name, Vets::Type::TitlecaseString
       attribute :relationship, String
       attribute :address_line1, String
       attribute :address_line2, String

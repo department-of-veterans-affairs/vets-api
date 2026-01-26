@@ -28,6 +28,12 @@ module AccreditedRepresentativePortal
       attribute :creator_id do |resolution|
         resolution.resolving.creator_id
       end
+
+      attribute :accredited_individual do |resolution|
+        resolution.resolving.accredited_individual&.then do |individual|
+          AccreditedIndividualSerializer.new(individual).serializable_hash
+        end
+      end
     end
   end
 end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/external/optinout/optout"
+    uri: "<MHV_HOST>/v1/bluebutton/external/optinout/optout"
     body:
       encoding: UTF-8
       string: "{}"

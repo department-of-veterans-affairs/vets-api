@@ -8,11 +8,6 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   let(:user) { build(:user, :loa3) }
 
-  before do
-    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-  end
-
   describe '#identity_path' do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
@@ -42,49 +37,20 @@ describe VAProfile::MilitaryPersonnel::Service do
         end
       end
 
-      context 'with vet_status_stage_1 enabled' do
-        before do
-          Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-        end
+      it 'returns not eligible if character_of_discharge_codes are missing' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+          response = subject.get_service_history
 
-        it 'returns not eligible if character_of_discharge_codes are missing' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-            response = subject.get_service_history
-
-            expect(response.vet_status_eligibility[:confirmed]).to be(false)
-            expect(response.vet_status_eligibility[:message]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
-            )
-            expect(response.vet_status_eligibility[:title]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
-            )
-            expect(response.vet_status_eligibility[:status]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
-            )
-          end
-        end
-      end
-
-      context 'with vet_status_stage_1 disabled' do
-        before do
-          Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
-        end
-
-        it 'returns not eligible if character_of_discharge_codes are missing' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-            response = subject.get_service_history
-
-            expect(response.vet_status_eligibility[:confirmed]).to be(false)
-            expect(response.vet_status_eligibility[:message]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-            )
-            expect(response.vet_status_eligibility[:title]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
-            )
-            expect(response.vet_status_eligibility[:status]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
-            )
-          end
+          expect(response.vet_status_eligibility[:confirmed]).to be(false)
+          expect(response.vet_status_eligibility[:message]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+          )
+          expect(response.vet_status_eligibility[:title]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+          )
+          expect(response.vet_status_eligibility[:status]).to eq(
+            VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
+          )
         end
       end
     end
@@ -102,7 +68,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       it 'logs exception to sentry' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404') do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          expect_any_instance_of(Vets::SharedLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
             { va_profile: :service_history_not_found },
@@ -121,6 +87,56 @@ describe VAProfile::MilitaryPersonnel::Service do
       it 'raises a BackendServiceException error' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
           expect { subject.get_service_history }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_CORE100')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#get_dod_service_summary' do
+    context 'when successful' do
+      it 'returns a dod service summary' do
+        VCR.use_cassette('va_profile/military_personnel/dod_service_summary_200') do
+          response = subject.get_dod_service_summary
+
+          expect(response).to be_ok
+          expect(response.dod_service_summary).to be_a(VAProfile::Models::DodServiceSummary)
+          expect(response.dod_service_summary.dod_service_summary_code).to eq('V')
+          expect(response.dod_service_summary.calculation_model_version).to eq('1.0')
+          expect(response.dod_service_summary.effective_start_date).to eq('2020-01-01')
+        end
+      end
+    end
+
+    context 'when not successful' do
+      it 'returns nil dod service summary with 400' do
+        VCR.use_cassette('va_profile/military_personnel/dod_service_summary_400') do
+          response = subject.get_dod_service_summary
+
+          expect(response).not_to be_ok
+          expect(response.dod_service_summary).to be_nil
+        end
+      end
+
+      it 'logs warning with 404' do
+        VCR.use_cassette('va_profile/military_personnel/dod_service_summary_404') do
+          expect(Rails.logger).to receive(:warn).with('Dod Service Summary not found', edipi: '384759483')
+
+          response = subject.get_dod_service_summary
+
+          expect(response).not_to be_ok
+          expect(response.dod_service_summary).to be_nil
+        end
+      end
+    end
+
+    context 'when service returns a 500 error code' do
+      it 'raises a BackendServiceException error' do
+        VCR.use_cassette('va_profile/military_personnel/dod_service_summary_500') do
+          expect { subject.get_dod_service_summary }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE100')

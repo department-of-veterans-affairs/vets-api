@@ -119,10 +119,10 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
     it 'returns a 401 error' do
       expect { facilities_client.get_by_id('vha_358') }
         .to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::BackendServiceException)
-        expect(e.status_code).to eq(401)
-        expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
-        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(401)
+          expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
       end
     end
   end
@@ -190,16 +190,16 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
       instructions = ['More hours are available for some services. To learn more, call our main phone number.',
                       'If you need to talk to someone or get advice right away, call the Vet Center anytime at ' \
                       '1-877-WAR-VETS (1-877-927-8387).']
-      expect(r[:operational_hours_special_instructions]).to eql(instructions)
+      expect(r.operational_hours_special_instructions).to eql(instructions)
     end
 
     it 'returns a 404 error' do
       expect { facilities_client.get_by_id('bha_358') }
         .to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::BackendServiceException)
-        expect(e.status_code).to eq(404)
-        expect(e.errors.first[:detail]).to eq('Record not found')
-        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(404)
+          expect(e.errors.first[:detail]).to eq('Record not found')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
       end
     end
   end

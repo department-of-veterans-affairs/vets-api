@@ -13,6 +13,30 @@ describe ClaimsApi::VANotifyFollowUpJob, type: :job do
     let(:notification_id) { '111111-1111-1111-11111111' }
     let(:temp) { create(:power_of_attorney, :with_full_headers) }
 
+    context 'queue up the job' do
+      before do
+        allow_any_instance_of(described_class).to receive(:notification_response_status).and_return('delivered')
+      end
+
+      it 'queues up with just the notification_id' do
+        expect do
+          subject.perform(notification_id)
+        end.not_to raise_error
+      end
+
+      it 'queues up with notification_id and poa_id' do
+        expect do
+          subject.perform(notification_id, temp.id)
+        end.not_to raise_error
+      end
+
+      it 'throws an argument error when other params are added' do
+        expect do
+          subject.perform(notification_id, 'status_id', temp.id)
+        end.to raise_error(ArgumentError)
+      end
+    end
+
     context 'no retry statues' do
       shared_examples 'does not requeue the job' do |status|
         it "when the status is #{status}" do
@@ -40,7 +64,10 @@ describe ClaimsApi::VANotifyFollowUpJob, type: :job do
           allow_any_instance_of(described_class).to receive(:notification_response_status).and_return(status)
           expect do
             subject.perform(notification_id, power_of_attorney.id)
-          end.to raise_error(RuntimeError, "Status for notification #{notification_id} was '#{status}'")
+          end.to raise_error(
+            RuntimeError,
+            "Status for notification #{notification_id} was '#{status}'. POA ID: #{power_of_attorney.id}"
+          )
         end
       end
 
@@ -79,8 +106,10 @@ describe ClaimsApi::VANotifyFollowUpJob, type: :job do
           allow_any_instance_of(described_class).to receive(:notification_response_status).and_return(status)
           expect do
             subject.perform(notification_id, power_of_attorney.id)
-          end.to raise_error(RuntimeError, "Status for notification #{notification_id} was '#{status}'")
-
+          end.to raise_error(
+            RuntimeError,
+            "Status for notification #{notification_id} was '#{status}'. POA ID: #{power_of_attorney.id}"
+          )
           process = ClaimsApi::Process.find_by(processable: power_of_attorney, step_type: 'CLAIMANT_NOTIFICATION')
           expect(process.completed_at).to be_nil
         end

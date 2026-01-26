@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'lighthouse/benefits_education/enrollment'
 require 'lighthouse/benefits_education/entitlement'
+require 'vets/shared_logging'
 
 module BenefitsEducation
   ##
@@ -38,8 +39,9 @@ module BenefitsEducation
   #   @return [Boolean] Is the user on active duty
   # @!attribute enrollments
   #   @return [Array[Enrollment]] An array of the user's enrollments
-  class Response < Common::Base
-    include SentryLogging
+  class Response
+    include Vets::Model
+    include Vets::SharedLogging
 
     attribute :first_name, String
     attribute :last_name, String
@@ -53,9 +55,9 @@ module BenefitsEducation
     attribute :original_entitlement, Entitlement
     attribute :used_entitlement, Entitlement
     attribute :remaining_entitlement, Entitlement
-    attribute :veteran_is_eligible, Boolean
-    attribute :active_duty, Boolean
-    attribute :enrollments, Array[Enrollment]
+    attribute :veteran_is_eligible, Bool
+    attribute :active_duty, Bool
+    attribute :enrollments, Enrollment, array: true
 
     def initialize(_status, response = nil)
       @response = response

@@ -1,0 +1,27 @@
+{
+  "totalNetWorth": false,
+  "transferredAssets": false,
+  "homeOwnership": false,
+  "homeAcreageMoreThanTwo": false,
+  "landMarketable": false,
+  "moreThanFourIncomeSources": false,
+  "otherIncome": false,
+  "incomeEntries": [
+    {
+      "recipient": "CHILD",
+      "incomeType": "INTEREST_DIVIDENDS"
+    },
+    {
+      "recipient": "CHILD",
+      "incomeType": "INTEREST_DIVIDENDS"
+    },
+    {
+      "recipient": "CHILD",
+      "incomeType": "INTEREST_DIVIDENDS"
+    },
+    {
+      "recipient": "CHILD",
+      "incomeType": "INTEREST_DIVIDENDS"
+    }
+  ]
+}

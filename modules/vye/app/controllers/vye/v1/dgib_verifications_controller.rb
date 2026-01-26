@@ -4,7 +4,12 @@ require 'vye/dgib/service'
 
 module Vye
   module V1
-    class DgibVerificationsController < Vye::V1::ApplicationController
+    class DgibVerificationsController < ::ApplicationController
+      service_tag 'verify-your-enrollment'
+      rescue_from Pundit::NotAuthorizedError, with: -> { render json: { error: 'Forbidden' }, status: :forbidden }
+
+      after_action :verify_authorized
+
       before_action { authorize :vye, :access? }
 
       def verification_record
@@ -48,27 +53,22 @@ module Vye
       end
 
       def process_response(response, serializer)
-        Rails.logger.debug { "Processing response with status: #{response&.status}" }
         case response.status
         when 200
-          Rails.logger.debug 'Rendering JSON response'
           render json: serializer.new(response).to_json
         when 204
-          Rails.logger.debug 'Sending no content'
           head :no_content
         when 403
-          Rails.logger.debug 'Sending forbidden'
           head :forbidden
         when 404
-          Rails.logger.debug 'Sending not found'
           head :not_found
         when 422
-          Rails.logger.debug 'Sending unprocessable entity'
           head :unprocessable_entity
         when nil
-          Rails.logger.debug 'No response from server'
+          Rails.logger.error "#{self.class.name}##{__method__} - Nil response status - possible network/client error"
+          head :service_unavailable
         else
-          Rails.logger.debug 'Sending internal server error'
+          Rails.logger.error "#{self.class.name}##{__method__} - Unexpected response status: #{response&.status}"
           head :internal_server_error
         end
       end

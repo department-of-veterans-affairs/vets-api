@@ -98,12 +98,32 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   describe '.submit_to_vha' do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
 
-    it 'enqueues both VHA submission jobs' do
-      expect do
-        form5655_submission.submit_to_vha
+    context 'when financial_management_vbs_only is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(false)
       end
-        .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
-        .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
+
+      it 'enqueues both VHA submission jobs' do
+        expect do
+          form5655_submission.submit_to_vha
+        end
+          .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size)
+          .by(1)
+          .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'when financial_management_vbs_only is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:financial_management_vbs_only).and_return(true)
+      end
+
+      it 'only enqueues the VBS submission job' do
+        expect do
+          form5655_submission.submit_to_vha
+        end.to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
+           .and not_change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size)
+      end
     end
   end
 
@@ -239,7 +259,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       )
     end
 
-    it 'sends an email' do
+    it 'sends an email with cache_key instead of user info' do
       Timecop.freeze(Time.new(2025, 1, 1).utc) do
         expected_personalization_info = {
           'first_name' => 'Travis',
@@ -248,16 +268,33 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           'updated_at' => form5655_submission.updated_at
         }
 
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
+
+        expect(Sidekiq::AttrPackage).to receive(:create).with(
+          hash_including(
+            email: 'test2@test1.net',
+            personalisation: expected_personalization_info
+          )
+        ).and_return('test_cache_key')
+
         expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
           24.hours,
-          'test2@test1.net',
+          nil,
           'fake_template_id',
-          expected_personalization_info,
-          { id_type: 'email', failure_mailer: true }
+          nil,
+          { id_type: 'email', failure_mailer: true, cache_key: 'test_cache_key' }
         )
 
         form5655_submission.send_failed_form_email
       end
+    end
+
+    it 'raises when AttrPackage.create fails' do
+      allow(Sidekiq::AttrPackage).to receive(:create).and_raise(
+        Sidekiq::AttrPackageError.new('create', 'Redis connection failed')
+      )
+
+      expect { form5655_submission.send_failed_form_email }.to raise_error(Sidekiq::AttrPackageError)
     end
   end
 

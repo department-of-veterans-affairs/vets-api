@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require_relative '../pdf_mapper_base'
 
 module ClaimsApi
   module V2
     class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
       include DisabilityCompensationSharedServiceModule
+      include PdfMapperBase
 
       NATIONAL_GUARD_COMPONENTS = {
         'National Guard' => 'NATIONAL_GUARD',
@@ -133,7 +135,7 @@ module ClaimsApi
           @auto_claim&.dig('changeOfAddress')&.deep_symbolize_keys
 
         country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
-        abbr_country = country == 'USA' ? 'US' : country
+        abbr_country = format_country(country)
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(
           newAddress: { country: abbr_country }
         )
@@ -188,16 +190,7 @@ module ClaimsApi
       end
 
       def chg_addr_zip
-        zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
-        zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
-        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
-        zip = if zip_last_four.present?
-                "#{zip_first_five}-#{zip_last_four}"
-              elsif international_zip.present?
-                international_zip
-              else
-                zip_first_five
-              end
+        zip = concatenate_zip_code(@auto_claim&.dig('changeOfAddress'))
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
@@ -390,11 +383,6 @@ module ClaimsApi
         zip
       end
 
-      def concatenate_address(address_line_one, address_line_two, address_line_three)
-        concatted = "#{address_line_one || ''} #{address_line_two || ''} #{address_line_three || ''}"
-        concatted.strip
-      end
-
       def zip
         zip_first_five = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || ''
@@ -451,22 +439,18 @@ module ClaimsApi
             exposure = disability['exposureOrEventOrInjury']
             service_relevance = disability['serviceRelevance']
 
-            disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            disabilities_list << build_disability_item(dis_name, dis_date, service_relevance, exposure)
             if disability['secondaryDisabilities'].present?
               disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
                 dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
                 dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
                 exposure = disability['exposureOrEventOrInjury']
                 service_relevance = secondary_disability['serviceRelevance']
-                build_disability_item(dis_name, dis_date, exposure, service_relevance)
+                build_disability_item(dis_name, dis_date, service_relevance, exposure)
               end
             end
           end
         end.flatten
-      end
-
-      def build_disability_item(disability, approximate_date, exposure, service_relevance)
-        { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure, serviceRelevance: service_relevance }.compact
       end
 
       def conditions_related_to_exposure?
@@ -754,10 +738,6 @@ module ClaimsApi
         end
       end
 
-      def handle_yes_no(pay)
-        pay ? 'YES' : 'NO'
-      end
-
       def handle_branch(branch)
         { branch: }
       end
@@ -810,15 +790,6 @@ module ClaimsApi
         }
       end
 
-      def convert_phone(phone)
-        phone&.gsub!(/[^0-9]/, '')
-        return nil if phone.nil? || (phone.length < 10)
-
-        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
-
-        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
-      end
-
       def convert_date_string_to_format_yyyy(date_string)
         date = Date.strptime(date_string, '%Y')
         {
@@ -833,53 +804,13 @@ module ClaimsApi
           middleInitial: @middle_initial
         }
         birth_date_data = @auth_headers[:va_eauth_birthdate]
-        if birth_date_data
-          birth_date =
-            {
-              month: birth_date_data[5..6].to_s,
-              day: birth_date_data[8..9].to_s,
-              year: birth_date_data[0..3].to_s
-            }
-        end
-        ssn = @auth_headers[:va_eauth_pnid]
-        formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+        birth_date = format_birth_date(birth_date_data) if birth_date_data
+
+        formated_ssn = format_ssn(@auth_headers[:va_eauth_pnid]) if @auth_headers[:va_eauth_pnid].present?
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
         @pdf_data
-      end
-
-      def regex_date_conversion(date)
-        if date.present?
-          date_match = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
-          date_match&.values_at(:year, :month, :day)
-        end
-      end
-
-      def make_date_object(date, date_length)
-        year, month, day = regex_date_conversion(date)
-        return if year.nil? || date_length.nil?
-
-        if date_length == 4
-          { year: }
-        elsif date_length == 7
-          { month:, year: }
-        else
-          { year:, month:, day: }
-        end
-      end
-
-      def make_date_string_month_first(date, date_length)
-        year, month, day = regex_date_conversion(date)
-        return if year.nil? || date_length.nil?
-
-        if date_length == 4
-          year.to_s
-        elsif date_length == 7
-          "#{month}/#{year}"
-        else
-          "#{month}/#{day}/#{year}"
-        end
       end
     end
   end

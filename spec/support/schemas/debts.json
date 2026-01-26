@@ -63,6 +63,68 @@
                 }
               }
             }
+          },
+          "fiscalTransactionData": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "debtId": {
+                  "type": "integer"
+                },
+                "debtIncreaseAmount": {
+                  "type": "number"
+                },
+                "hinesCode": {
+                  "type": "string"
+                },
+                "offsetAmount": {
+                  "type": "number"
+                },
+                "offsetType": {
+                  "type": "string"
+                },
+                "paymentType": {
+                  "type": "string"
+                },
+                "transactionAdminAmount": {
+                  "type": "number"
+                },
+                "transactionCourtAmount": {
+                  "type": "number"
+                },
+                "transactionDate": {
+                  "type": "string"
+                },
+                "transactionDescription": {
+                  "type": "string"
+                },
+                "transactionExplanation": {
+                  "type": "string"
+                },
+                "transactionFiscalCode": {
+                  "type": "string"
+                },
+                "transactionFiscalSource": {
+                  "type": "string"
+                },
+                "transactionFiscalYear": {
+                  "type": "string"
+                },
+                "transactionInterestAmount": {
+                  "type": "number"
+                },
+                "transactionMarshallAmount": {
+                  "type": "number"
+                },
+                "transactionPrincipalAmount": {
+                  "type": "number"
+                },
+                "transactionTotalAmount": {
+                  "type": "number"
+                }
+              }
+            }
           }
         }
       }

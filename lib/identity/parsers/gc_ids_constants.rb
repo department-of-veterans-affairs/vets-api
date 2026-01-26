@@ -6,6 +6,7 @@ module Identity
       # Originating IDs, defines what underlying system the ID has been sourced from
       VA_ROOT_OID = '2.16.840.1.113883.4.349'
       DOD_ROOT_OID = '2.16.840.1.113883.3.42.10001.100001.12'
+      NPI_ROOT_OID = '2.16.840.1.113883.4.6'
 
       # The follow set of regex match each full ID format and extract the specific ID value from each
       # They tend to follow the format: <id>^<id_type>^<assigning_facility>^<assigning_authority>^<id_state>
@@ -41,7 +42,7 @@ module Identity
       LOGINGOV_ID_REGEX = /^[\w-]+\^PN\^200VLGN\^USDVA\^A$/
 
       # VHA_FACILITY_IDS_REGEX, ex. 123456{-1,.123,_123}^PI^200MHV^USVHA^A
-      VHA_FACILITY_IDS_REGEX = /^[0-9A-Za-z\-\._]+\^PI\^\w+\^USVHA\^\w+$/
+      VHA_FACILITY_IDS_REGEX = /^[0-9A-Za-z\-._]+\^PI\^\w+\^USVHA\^\w+$/
 
       # CERNER_FACILITY_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^C
       CERNER_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^C$/
@@ -56,6 +57,9 @@ module Identity
       VET360_ID_REGEX = /^\w+\^PI\^200VETS\^USDVA\^A$/
 
       ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
+
+      # NPI_REGEX ex. 12345^NI^200ENPI^USDVA^A
+      NPI_ID_REGEX = /^\w+\^NI\^200ENPI\^USDVA\^\w+$/
 
       # Defines the tokens we use to split identifiers or multiple ids in a single string
       IDENTIFIERS_SPLIT_TOKEN = '^'
@@ -83,7 +87,8 @@ module Identity
         vha_facility_ids: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
         cerner_facility_ids: { regex: CERNER_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
         icn_with_aaid: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :icn_with_aaid },
-        vha_facility_hash: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility_to_ids }
+        vha_facility_hash: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility_to_ids },
+        npi_id: { regex: NPI_ID_REGEX, root_oid: NPI_ROOT_OID, type: :single_id }
       }.freeze
     end
   end

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'decision_reviews/v1/helpers'
 module DecisionReviews
   module V1
     class NoticeOfDisagreementsController < AppealsBaseController
+      include DecisionReviews::V1::Helpers
       service_tag 'board-appeal'
 
       def show
@@ -15,9 +17,10 @@ module DecisionReviews
       end
 
       def create
+        req_body_obj = normalize_area_code_for_lighthouse_schema(request_body_hash)
         nod_response_body = AppealSubmission.submit_nod(
           current_user: @current_user,
-          request_body_hash:,
+          request_body_hash: req_body_obj,
           decision_review_service:
         )
 

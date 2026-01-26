@@ -143,7 +143,12 @@ module Form526ClaimFastTrackingConcern
 
   def classify_vagov_contentions(params)
     cc_client = ContentionClassification::Client.new
-    response = cc_client.classify_vagov_contentions_expanded(params)
+    current_user = OpenStruct.new({ flipper_id: user_uuid })
+    response = if Flipper.enabled?(:contention_classification_ml_classifier, current_user)
+                 cc_client.classify_vagov_contentions_hybrid(params)
+               else
+                 cc_client.classify_vagov_contentions_expanded(params)
+               end
     response.body
   end
 
@@ -211,7 +216,7 @@ module Form526ClaimFastTrackingConcern
                             "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def send_post_evss_notifications!
@@ -238,6 +243,18 @@ module Form526ClaimFastTrackingConcern
 
   private
 
+  def log_error(error)
+    Rails.logger.error(
+      "Form526ClaimsFastTrackingConcern #{id} encountered an error",
+      submission_id: id,
+      error_message: error.message
+    )
+  rescue
+    # We need this to not ever fail or it blocks submission
+    # So no variables or methods called in this block, to reduce chance of further errors
+    Rails.logger.error('Form526ClaimsFastTrackingConcern Failed to log error')
+  end
+
   def in_progress_form
     @in_progress_form ||= InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
   end
@@ -263,6 +280,10 @@ module Form526ClaimFastTrackingConcern
   def open_claims
     @open_claims ||= begin
       icn = account.icn
+      if icn.blank?
+        Rails.logger.error('Form526ClaimFastTrackingConcern#open_claims ICN is null')
+        raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+      end
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
@@ -277,9 +298,14 @@ module Form526ClaimFastTrackingConcern
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
-  def all_rated_disabilities
+  def all_rated_disabilities # rubocop:disable Metrics/MethodLength
     settings = Settings.lighthouse.veteran_verification.form526
     icn = account&.icn
+    if icn.blank?
+      Rails.logger.error('Form526ClaimFastTrackingConcern#all_rated_disabilities ICN is null')
+      raise Common::Exceptions::Unauthorized.new(detail: 'ICN not found for submission')
+    end
+
     invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
@@ -356,7 +382,7 @@ module Form526ClaimFastTrackingConcern
                       private_medical_docs_by_type:)
   rescue => e
     # Log the exception but do not fail
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def get_group_docs(form_data, group_key)
@@ -399,7 +425,7 @@ module Form526ClaimFastTrackingConcern
                       disabilities: extract_disability_summary)
   rescue => e
     # Log the exception but do not fail
-    log_exception_to_sentry(e)
+    log_error(e)
   end
 
   def extract_disability_summary

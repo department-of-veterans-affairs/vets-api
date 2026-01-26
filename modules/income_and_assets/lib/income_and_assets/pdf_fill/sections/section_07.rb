@@ -33,6 +33,7 @@ module IncomeAndAssets
           },
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            limit: 22,
             question_num: 7,
             question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)",
@@ -53,6 +54,7 @@ module IncomeAndAssets
           },
           'otherTransferMethod' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            limit: 33,
             question_num: 7,
             question_suffix: '(2)(OTHER)',
             question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)',
@@ -60,19 +62,17 @@ module IncomeAndAssets
           },
           # Q3
           'assetType' => {
-            key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]"
-          },
-          'assetTypeOverflow' => {
+            key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]",
+            limit: 46,
             question_num: 7,
             question_suffix: '(3)',
             question_text: 'WHAT ASSET WAS TRANSFERRED?',
-            question_label: 'What Was Transferred'
+            question_label: 'Asset Type'
           },
           # Q4
           'newOwnerName' => {
-            key: "F[0].WhoReceivedAsset[#{ITERATOR}]"
-          },
-          'newOwnerNameOverflow' => {
+            key: "F[0].WhoReceivedAsset[#{ITERATOR}]",
+            limit: 46,
             question_num: 7,
             question_suffix: '(4)',
             question_text: 'WHO RECEIVED THE ASSET?',
@@ -80,9 +80,8 @@ module IncomeAndAssets
           },
           # Q5
           'newOwnerRelationship' => {
-            key: "F[0].RelationshipToNewOwner[#{ITERATOR}]"
-          },
-          'newOwnerRelationshipOverflow' => {
+            key: "F[0].RelationshipToNewOwner[#{ITERATOR}]",
+            limit: 46,
             question_num: 7,
             question_suffix: '(5)',
             question_text: 'RELATIONSHIP TO NEW OWNER',
@@ -144,6 +143,7 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 7,
             question_suffix: '(9)',
@@ -166,6 +166,7 @@ module IncomeAndAssets
             }
           },
           'saleValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 7,
             question_suffix: '(10)',
@@ -188,6 +189,7 @@ module IncomeAndAssets
             }
           },
           'capitalGainValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 7,
             question_suffix: '(11)',
@@ -207,7 +209,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         transfers = form_data['assetTransfers']
-        form_data['assetTransfer'] = transfers&.length ? 0 : 1
+        form_data['assetTransfer'] = radio_yesno(transfers&.length)
         form_data['assetTransfers'] = transfers&.map { |item| expand_item(item) }
       end
 
@@ -230,20 +232,17 @@ module IncomeAndAssets
           'transferMethodOverflow' => item['transferMethod'],
           'otherTransferMethod' => item['otherTransferMethod'],
           'assetType' => item['assetType'],
-          'assetTypeOverflow' => item['assetType'],
           'newOwnerName' => new_owner_name,
-          'newOwnerNameOverflow' => new_owner_name,
           'newOwnerRelationship' => item['newOwnerRelationship'],
-          'newOwnerRelationshipOverflow' => item['newOwnerRelationship'],
           'saleReportedToIrs' => item['saleReportedToIrs'] ? 0 : 1,
           'transferDate' => split_date(item['transferDate']),
           'assetTransferredUnderFairMarketValue' => item['assetTransferredUnderFairMarketValue'] ? 0 : 1,
           'fairMarketValue' => split_currency_amount_lg(item['fairMarketValue']),
-          'fairMarketValueOverflow' => item['fairMarketValue'],
+          'fairMarketValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['fairMarketValue']),
           'saleValue' => split_currency_amount_lg(item['saleValue']),
-          'saleValueOverflow' => item['saleValue'],
+          'saleValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['saleValue']),
           'capitalGainValue' => split_currency_amount_lg(item['capitalGainValue']),
-          'capitalGainValueOverflow' => item['capitalGainValue']
+          'capitalGainValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(item['capitalGainValue'])
         }
       end
     end

@@ -23,7 +23,8 @@
       "rank": "rank1",
       "serviceNumber": "sn1",
       "placeOfEntry": "placeOfEntry1",
-      "placeOfSeparation": "place1"
+      "placeOfSeparation": "place1",
+      "militaryServiceNumber": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     },
     {
       "dateRange": {
@@ -59,6 +60,11 @@
       "placeOfSeparation": "place3"
     }
   ],
+  "finalRestingPlace": {
+    "location": {
+      "other": "OTHER PLACE"
+    }
+  },
   "officialPosition": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "benefitsUnclaimedRemains": false,
   "previouslyReceivedAllowance": false,
@@ -69,7 +75,9 @@
   "amountIncurred": 9999999999999999999,
   "stateCemetery": false,
   "federalCemetery": false,
-  "burialAllowanceRequested": {"nonService":true},
+  "burialAllowanceRequested": {
+    "nonService": true
+  },
   "govtContributions": false,
   "placeOfRemains": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "previousNames": [
@@ -106,12 +114,17 @@
   "firmName": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "claimantAddress": {
     "street": "cXXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX",
+    "street2": "XXXXXXXXXXXX",
     "aptNum": "10A",
     "city": "cXXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX",
     "state": "VA",
     "country": "US",
     "postalCode": "12345"
   },
+  "claimantPrintedName": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "firmNameAndAddr": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "claimantIntPhone": "+1 215-345-3455",
+  "claimantDateOfBirth": "2010-06-20",
   "claimantEmail": "XXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXX.com",
   "veteranFullName": {
     "first": "XXXXXXXXXXXXXXXXXXXX",

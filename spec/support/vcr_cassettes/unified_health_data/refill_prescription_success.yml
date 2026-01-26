@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+    body:
+      encoding: UTF-8
+      string: '{"appId":"<MHV_UHD_APP_ID>","appToken":"<MHV_UHD_APP_TOKEN>","subject":"Proxy
+        Client","userType":"SYSTEM"}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 17 Dec 2025 16:50:34 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1054531285", dtSInfo;desc="0"
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+      Authorization: Bearer <TOKEN>
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Frame-Options:
+      - DENY
+    body:
+      encoding: UTF-8
+      string: '{"id":702,"name":"VA.gov SCDF Proxy Client","permissions":["system/Practitioner.read","system/Condition.read","system/MedicationDispense.read","system/Appointment.read","system/ServiceRequest.read","Patient","system/Immunization.read","system/Person.read","system/MedicationRequest.read","system/Location.read","system/Procedure.read","System","system/DiagnosticReport.read","system/AllergyIntolerance.read","system/Patient.read","system/Organization.read","system/RelatedPerson.read","system/DocumentReference.read","PHR-RW","system/Observation.read","system/Binary.read","system/Encounter.read"]}'
+  recorded_at: Wed, 17 Dec 2025 16:50:34 GMT
+- request:
+    method: post
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/medications/rx/refill"
+    body:
+      encoding: UTF-8
+      string: '{"patientId":"<ICN>","orders":[{"orderId":"20848650695","stationNumber":"668"},{"orderId":"0000000000001","stationNumber":"570"}]}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Authorization: Bearer <TOKEN>
+      X-Api-Key:
+      - "<MHV_UHD_X_API_KEY>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 17 Dec 2025 16:51:03 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '312'
+      Connection:
+      - keep-alive
+      X-Amzn-Requestid:
+      - 31444629-e940-4feb-a203-1acd1fbbec2e
+      X-Amz-Apigw-Id:
+      - VvfWLForPHMFq6g=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Frame-Options:
+      - DENY
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+    body:
+      encoding: UTF-8
+      string: '[{"success":true,"order":{"orderId":"20848650695","stationNumber":"668","sourceSystem":"NP_API","pharmacy":"PUGET
+        SOUND HEALTH CARE SYSTEM"},"message":"Refill Submitted"},{"success":false,"order":{"orderId":"0000000000001","stationNumber":"570","sourceSystem":"NP_API","pharmacy":null},"message":"Prescription
+        is not Found"}]'
+  recorded_at: Wed, 17 Dec 2025 16:51:03 GMT
+recorded_with: VCR 6.3.1

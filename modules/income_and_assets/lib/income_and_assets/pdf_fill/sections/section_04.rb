@@ -33,6 +33,7 @@ module IncomeAndAssets
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship4[#{ITERATOR}]",
+            limit: 22,
             question_num: 4,
             question_suffix: '(1)(OTHER)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
@@ -41,6 +42,7 @@ module IncomeAndAssets
           # Q2
           'recipientName' => {
             key: "F[0].NameofIncomeRecipient4[#{ITERATOR}]",
+            limit: 46,
             question_num: 4,
             question_suffix: '(2)',
             question_text:
@@ -50,6 +52,7 @@ module IncomeAndAssets
           # Q3
           'payer' => {
             key: "F[0].IncomePayer4[#{ITERATOR}]",
+            limit: 46,
             question_num: 4,
             question_suffix: '(3)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
@@ -70,6 +73,7 @@ module IncomeAndAssets
           },
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType4[#{ITERATOR}]",
+            limit: 25,
             question_num: 4,
             question_suffix: '(4)(OTHER)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
@@ -88,6 +92,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            limit: 10,
             dollar: true,
             question_num: 4,
             question_suffix: '(5)',
@@ -110,6 +115,7 @@ module IncomeAndAssets
             }
           },
           'accountValueOverflow' => {
+            limit: 14,
             dollar: true,
             question_num: 4,
             question_suffix: '(6)',
@@ -128,7 +134,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         associated_incomes = form_data['associatedIncomes']
-        form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
+        form_data['associatedIncome'] = radio_yesno(associated_incomes&.length)
         form_data['associatedIncomes'] = associated_incomes&.map do |item|
           expand_item(item)
         end
@@ -156,9 +162,9 @@ module IncomeAndAssets
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => item['otherIncomeType'],
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'grossMonthlyIncomeOverflow' => ActiveSupport::NumberHelper.number_to_currency(gross_monthly_income),
           'accountValue' => split_currency_amount_lg(account_value),
-          'accountValueOverflow' => account_value
+          'accountValueOverflow' => ActiveSupport::NumberHelper.number_to_currency(account_value)
         }
       end
     end

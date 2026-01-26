@@ -19,7 +19,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_4138.json',
     'vba_21_4140.json',
     'vba_21_4142.json',
+    'vba_21p_601.json',
     'vba_21p_0847.json',
+    'vba_21p_0537.json',
     'vba_40_0247.json',
     'vba_40_10007.json'
   ]
@@ -418,7 +420,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           expect(response.body).to include("expected ',' or '}' after object value, got:")
 
@@ -627,6 +628,65 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
     end
+
+    it 'returns a user-friendly error message when document validation fails for form 40-10007' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      invalid_service = double
+      error = BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid file format')
+      allow(invalid_service).to receive(:valid_document?).and_raise(error)
+
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
+
+      data = { form_id: '40-10007', file: invalid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['errors']).to be_an(Array)
+      expect(resp['errors'][0]['detail']).to eq(
+        "We weren't able to upload your file. Make sure the file is in an accepted format and size before continuing."
+      )
+    end
+
+    it 'skips document validation for non-PDF files' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # Mock a non-PDF file
+      non_pdf_file = fixture_file_upload('doctors-note.gif')
+
+      # BenefitsIntakeService should not be called for non-PDF files
+      expect(BenefitsIntakeService::Service).not_to receive(:new)
+
+      data = { form_id: '40-0247', file: non_pdf_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.to change(PersistentAttachment, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'skips document validation for form types that do not require it' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # BenefitsIntakeService should not be called for form 20-10207
+      expect(BenefitsIntakeService::Service).not_to receive(:new)
+
+      data = { form_id: '20-10207', file: valid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.to change(PersistentAttachment, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   describe '#get_intents_to_file' do
@@ -745,6 +805,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
     before do
       sign_in(user)
+      allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
     end
 
     describe '21_4142' do
@@ -771,6 +832,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_4142',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_4142 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -812,6 +886,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_10210',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_10210 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -859,6 +946,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21p_0847',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21p_0847 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -901,6 +1001,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number
+          },
+          'fake_secret',
+          {
+            callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              notification_type: 'confirmation',
+              form_number: 'vba_21_0972',
+              confirmation_number:,
+              statsd_tags: {
+                'service' => 'veteran-facing-forms',
+                'function' => 'vba_21_0972 form submission to Lighthouse'
+              }
+            }
           }
         )
       end
@@ -933,6 +1046,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           allow_any_instance_of(User).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
           allow_any_instance_of(User).to receive(:participant_id).and_return('fake-participant-id')
           allow(VANotify::EmailJob).to receive(:perform_async)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         context 'veteran preparer' do
@@ -962,6 +1076,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => 'January 14, 2026'
+              },
+              'fake_secret',
+              {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+                callback_metadata: {
+                  notification_type: 'received',
+                  form_number: 'vba_21_0966_intent_api',
+                  confirmation_number:,
+                  statsd_tags: {
+                    'service' => 'veteran-facing-forms',
+                    'function' => 'vba_21_0966_intent_api form submission to Lighthouse'
+                  }
+                }
               }
             )
           end
@@ -987,6 +1114,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => nil
+              },
+              'fake_secret',
+              {
+                callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+                callback_metadata: {
+                  notification_type: 'confirmation',
+                  form_number: 'vba_21_0966',
+                  confirmation_number:,
+                  statsd_tags: {
+                    'service' => 'veteran-facing-forms',
+                    'function' => 'vba_21_0966 form submission to Lighthouse'
+                  }
+                }
               }
             )
           end
@@ -1041,6 +1181,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a confirmation email' do
@@ -1057,6 +1198,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => reference_number
+            },
+            'fake_secret',
+            {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+              callback_metadata: {
+                notification_type: 'confirmation',
+                form_number: 'vba_26_4555',
+                confirmation_number: reference_number,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end
@@ -1072,6 +1226,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a rejected email' do
@@ -1088,6 +1243,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => reference_number
+            },
+            'fake_secret',
+            {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+              callback_metadata: {
+                notification_type: 'rejected',
+                form_number: 'vba_26_4555',
+                confirmation_number: reference_number,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end
@@ -1102,6 +1270,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+          allow(Flipper).to receive(:enabled?).with(:simple_forms_email_delivery_callback).and_return(true)
         end
 
         it 'sends a duplicate email' do
@@ -1117,6 +1286,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             {
               'first_name' => 'Veteran',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+            },
+            'fake_secret',
+            {
+              callback_klass: 'SimpleFormsApi::Notification::EmailDeliveryStatusCallback',
+              callback_metadata: {
+                notification_type: 'duplicate',
+                form_number: 'vba_26_4555',
+                confirmation_number: nil,
+                statsd_tags: {
+                  'service' => 'veteran-facing-forms',
+                  'function' => 'vba_26_4555 form submission to Lighthouse'
+                }
+              }
             }
           )
         end

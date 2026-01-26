@@ -62,8 +62,14 @@ sign_in:
   vamobile_client_id:
     - vamobile
     - vamobile_test
+    - vamobile_test_dev
 
 ssoe_eauth_cookie:
   domain: .va.gov
   name: vagov_saml_request_staging
   secure: true
+
+ssoe_get_traits:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  url: https://sqa.services.eauth.va.gov:9303/psim_webservice/sqa/IdMSSOeWebService

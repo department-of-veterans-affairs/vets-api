@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# SubmissionJob
+#
+# This Sidekiq job processes and submits 10-10CG (Caregiver Assistance) claims to the CARMA backend.
+# It manages the full lifecycle of a claim submission, including error handling, logging, and notification.
+#
+# Why:
+# - Automates the asynchronous submission of caregiver claims, improving reliability and scalability.
+# - Ensures claims are processed even if the web request fails or times out.
+# - Provides robust error handling, retry logic, and user notification on failure.
+#
+# How:
+# - Loads the claim by ID and processes it using Form1010cg::Service.
+# - Destroys the claim after successful processing to prevent duplicate submissions.
+# - Handles and logs errors, including parsing errors from CARMA and general exceptions.
+# - Sends failure notification emails to users if submission fails after all retries.
+# - Tracks job metrics and durations for monitoring and analytics.
+
 require 'sidekiq/monitored_worker'
 
 module Form1010cg
@@ -21,7 +38,6 @@ module Form1010cg
 
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
-    include SentryLogging
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -104,11 +120,7 @@ module Form1010cg
     private
 
     def log_error(exception, message, claim_id)
-      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
-        Rails.logger.error(message, { exception:, claim_id: })
-      else
-        log_exception_to_sentry(exception, { claim_id: })
-      end
+      Rails.logger.error(message, { exception:, claim_id: })
     end
   end
 end

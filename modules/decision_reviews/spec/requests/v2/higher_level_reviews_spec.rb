@@ -56,6 +56,52 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
 
   before { sign_in_as(user) }
 
+  describe '#show' do
+    subject do
+      get "/decision_reviews/v2/higher_level_reviews/#{id}",
+          headers:
+    end
+
+    let(:id) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+
+    def personal_information_logs
+      PersonalInformationLog.where 'error_class like ?',
+                                   'DecisionReviews::V2::HigherLevelReviewsController#show exception % (HLR_V2)'
+    end
+
+    context 'successful GET request' do
+      it 'returns the HLR data' do
+        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200_V2') do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response.dig('data', 'id')).to eq(id)
+          expect(parsed_response.dig('data', 'type')).to eq('higherLevelReview')
+        end
+      end
+    end
+
+    context 'when the service raises an error' do
+      let(:expected_error_class) do
+        'DecisionReviews::V2::HigherLevelReviewsController#show exception ' \
+          'VCR::Errors::UnhandledHTTPRequestError (HLR_V2)'
+      end
+
+      it 'logs the exception properly' do
+        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404_V1') do
+          expect(personal_information_logs.count).to be 0
+          subject
+          expect(personal_information_logs.count).to be 1
+
+          expect(response).to have_http_status(:internal_server_error)
+          pil = personal_information_logs.first
+          expect(pil.error_class).to eq(expected_error_class)
+        end
+      end
+    end
+  end
+
   describe '#create' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
@@ -93,35 +139,24 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
     end
 
     context 'when an error occurs with the api call' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
-      end
-
       it 'adds to the PersonalInformationLog' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
           expect(personal_information_logs.count).to be 0
 
           allow(Rails.logger).to receive(:error)
           expect(Rails.logger).to receive(:error).with(error_log_args)
-          expect(Rails.logger).to receive(:error).with(
-            message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
-            backtrace: anything
-          )
-          expect(Rails.logger).to receive(:error) do |message|
-            expect(message).to include(extra_error_log_message)
-          end
           allow(StatsD).to receive(:increment)
           expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
 
           subject
-          expect(personal_information_logs.count).to be 1
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(personal_information_logs.count).to be >= 1
           pil = personal_information_logs.first
           %w[
             first_name last_name birls_id icn edipi mhv_correlation_id
             participant_id vet360_id ssn assurance_level birth_date
           ].each { |key| expect(pil.data['user'][key]).to be_truthy }
-          %w[message backtrace key response_values original_status original_body]
-            .each { |key| expect(pil.data['error'][key]).to be_truthy }
+          %w[message backtrace].each { |key| expect(pil.data['error'][key]).to be_truthy }
           expect(pil.data['additional_data']['request']['body']).not_to be_empty
         end
       end

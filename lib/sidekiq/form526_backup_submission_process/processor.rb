@@ -63,6 +63,7 @@ module Sidekiq
         21-0781V2
         21-8940
       ].freeze
+      MAX_FILENAME_LENGTH = 100
 
       SUB_METHOD = (BKUP_SETTINGS.submission_method || 'single').to_sym
 
@@ -120,7 +121,8 @@ module Sidekiq
         end
         metadata = get_meta_data(FORM_526_DOC_TYPE)
         zipname = "#{submission.id}.zip"
-        generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
+        generate_zip_and_upload(params_docs, zipname, metadata,
+                                return_url, url_life_length)
       end
 
       def instantiate_upload_info_from_lighthouse
@@ -137,7 +139,7 @@ module Sidekiq
         [is_526_or_evidence[true], is_526_or_evidence[false]]
       end
 
-      def generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
+      def generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length) # rubocop:disable Metrics/MethodLength
         zip_path_and_name = "tmp/#{zipname}"
         Zip::File.open(zip_path_and_name, create: true) do |zipfile|
           zipfile.get_output_stream('metadata.json') { |f| f.puts metadata.to_json }
@@ -148,9 +150,27 @@ module Sidekiq
           end
           params_docs.each { |doc| zipfile.add(doc[:file_name], doc[:file_path]) }
         end
+
         s3_resource = new_s3_resource
-        obj = s3_resource.bucket(s3_bucket).object(zipname)
-        obj_ret = obj.upload_file(zip_path_and_name, content_type: 'application/zip')
+
+        if Aws::S3.const_defined?(:TransferManager)
+          options = {
+            content_type: 'application/zip',
+            multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
+          }
+          Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
+            zip_path_and_name,
+            bucket: s3_bucket,
+            key: zipname,
+            **options
+          )
+          obj = s3_resource.bucket(s3_bucket).object(zipname)
+          obj_ret = true
+        else
+          obj = s3_resource.bucket(s3_bucket).object(zipname)
+          obj_ret = obj.upload_file(zip_path_and_name, content_type: 'application/zip')
+        end
+
         if return_url
           obj.presigned_url(:get, expires_in: url_life_length)
         else
@@ -326,7 +346,7 @@ module Sidekiq
 
       def get_form526_pdf
         headers = submission.auth_headers
-        submission_create_date = submission.created_at.iso8601
+        submission_create_date = submission.created_at.strftime('%Y-%m-%d')
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
@@ -359,8 +379,9 @@ module Sidekiq
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
-          fname = File.basename(file.path)
-          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{fname}"
+          filename = File.basename(file.path, '.*')[0..MAX_FILENAME_LENGTH]
+          file_extension = File.extname(file.path)
+          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{filename}#{file_extension}"
           File.binwrite(entropied_fname, file.read)
           docs << upload.merge!(file: entropied_fname, type: FORM_526_UPLOADS_DOC_TYPE,
                                 evssDocType: upload['attachmentId'])

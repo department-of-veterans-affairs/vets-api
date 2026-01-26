@@ -12,15 +12,12 @@ describe MPI::Services::AddPersonResponseCreator do
     let(:error) { 'some-error' }
 
     shared_examples 'error response' do
-      let(:expected_error_message) { "MPI #{type} response error" }
-      let(:sentry_context) { { error_message: expected_error.message } }
-      let(:sentry_log_level) { :warn }
+      let(:expected_error_message) { "[MPI][Services][AddPersonResponseCreator] MPI #{type} response error" }
+      let(:rails_logger_context) { { error_message: expected_error.message } }
       let(:expected_status) { :server_error }
 
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
+      it 'logs error to Rails logger' do
+        expect(Rails.logger).to receive(:warn).with(expected_error_message, rails_logger_context)
         subject
       end
 

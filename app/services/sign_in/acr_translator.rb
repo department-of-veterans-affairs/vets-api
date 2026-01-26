@@ -11,7 +11,7 @@ module SignIn
     end
 
     def perform
-      translate_acr
+      { acr: translate_acr, acr_comparison: translate_acr_comparison }.compact
     end
 
     private
@@ -31,16 +31,22 @@ module SignIn
       end
     end
 
+    def translate_acr_comparison
+      type == Constants::Auth::IDME && acr == 'min' && !uplevel ? Constants::Auth::IDME_COMPARISON_MINIMUM : nil
+    end
+
     def translate_idme_values
       case acr
       when 'loa1'
         Constants::Auth::IDME_LOA1
       when 'loa3'
         Constants::Auth::IDME_LOA3_FORCE
+      when Constants::Auth::IAL2_REQUIRED
+        ial2_enabled?(type:) ? Constants::Auth::IDME_IAL2 : invalid_acr!(type:)
       when 'min'
         uplevel ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
       else
-        raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
+        invalid_acr!(type:)
       end
     end
 
@@ -63,16 +69,28 @@ module SignIn
     end
 
     def translate_logingov_values
+      ial2_enabled = ial2_enabled?(type:)
+
       case acr
-      when 'ial1'
-        Constants::Auth::LOGIN_GOV_IAL1
-      when 'ial2'
-        Constants::Auth::LOGIN_GOV_IAL2
+      when 'ial1' then Constants::Auth::LOGIN_GOV_IAL1
+      when 'ial2' then Constants::Auth::LOGIN_GOV_IAL2
+      when Constants::Auth::IAL2_REQUIRED
+        ial2_enabled ? Constants::Auth::LOGIN_GOV_IAL2_REQUIRED : invalid_acr!(type:)
+      when Constants::Auth::IAL2_PREFERRED
+        ial2_enabled ? Constants::Auth::LOGIN_GOV_IAL2_PREFERRED : invalid_acr!(type:)
       when 'min'
-        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL1
+        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL0
       else
-        raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
+        invalid_acr!(type:)
       end
+    end
+
+    def ial2_enabled?(type:)
+      Flipper.enabled?("identity_#{type}_ial2_enforcement")
+    end
+
+    def invalid_acr!(type:)
+      raise Errors::InvalidAcrError.new message: "Invalid ACR for #{type}"
     end
   end
 end

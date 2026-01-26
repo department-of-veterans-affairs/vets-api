@@ -906,7 +906,7 @@ FactoryBot.define do
           'view:completed_dependent' => false,
           'view:completed_household_child' => false,
           'report_divorce' => {
-            'spouse_income' => false,
+            'spouse_income' => 'N',
             'date' => '2023-05-03',
             'divorce_location' => {
               'location' => {
@@ -934,7 +934,7 @@ FactoryBot.define do
             'date' => '2025-01-01'
           },
           'does_live_with_spouse' => {
-            'spouse_income' => true,
+            'spouse_income' => 'Y',
             'current_spouse_reason_for_separation' => 'OTHER',
             'other' => 'other reasons',
             'address' => {
@@ -1004,7 +1004,7 @@ FactoryBot.define do
             'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'myformerspouse' }
           }],
           'children_to_add' => [{
-            'income_in_last_year' => false,
+            'income_in_last_year' => 'N',
             'marriage_end_date' => '2024-06-01',
             'marriage_end_reason' => 'annulment',
             'marriage_end_description' => 'description of annulment',
@@ -1065,9 +1065,9 @@ FactoryBot.define do
               'state' => 'ME',
               'postal_code' => '04102'
             },
-            'student_income' => true,
+            'student_income' => 'Y',
             'ssn' => '987654321',
-            'is_parent' => true,
+            'relationship_to_student' => 'biological',
             'full_name' => {
               'first' => 'test',
               'middle' => 'middle',
@@ -1097,7 +1097,7 @@ FactoryBot.define do
             'birth_date' => '2009-04-01'
           }],
           'deaths' => [{
-            'deceased_dependent_income' => false,
+            'deceased_dependent_income' => 'N',
             'dependent_death_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
             'dependent_death_date' => '2024-08-01',
             'dependent_type' => 'SPOUSE',
@@ -1106,14 +1106,14 @@ FactoryBot.define do
             'birth_date' => '1960-01-01'
           }],
           'child_marriage' => [{
-            'dependent_income' => false,
+            'dependent_income' => 'N',
             'date_married' => '2025-01-01',
             'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'name' },
             'ssn' => '987654321',
             'birth_date' => '2008-04-05'
           }],
           'child_stopped_attending_school' => [{
-            'dependent_income' => false,
+            'dependent_income' => 'N',
             'date_child_left_school' => '2024-08-03',
             'full_name' => { 'first' => 'tset', 'middle' => 'middle', 'last' => 'last' },
             'ssn' => '987654321',
@@ -1140,7 +1140,6 @@ FactoryBot.define do
             'ssn' => '987654321',
             'va_file_number' => '987654321'
           },
-          'use_v2' => true,
           'days_till_expires' => 365,
           'privacy_agreement_accepted' => true
         },
@@ -1148,12 +1147,13 @@ FactoryBot.define do
           'birth_date' => '1809-02-12',
           'full_name' => {
             'first' => 'Wesley',
-            'last' => 'Ford',
-            'middle' => nil
+            'last' => 'Ford'
           },
           'ssn' => '987654321',
           'va_file_number' => '987654321'
-        }
+        },
+        'statement_of_truth_signature' => 'Wesley Ford',
+        'statement_of_truth_certified' => true
       }
     end
   end

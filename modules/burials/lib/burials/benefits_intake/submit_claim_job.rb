@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'pdf_utilities/datestamp_pdf'
 require 'burials/monitor'
 require 'burials/notification_email'
+require 'burials/pdf_stamper'
 require 'lighthouse/benefits_intake/metadata'
 require 'lighthouse/benefits_intake/service'
 
@@ -44,8 +44,8 @@ module Burials
         return if lighthouse_submission_pending_or_success
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
-        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        @form_path = generate_form_pdf
+        @attachment_paths = generate_attachment_pdfs
         @metadata = generate_metadata
 
         upload_document
@@ -101,35 +101,11 @@ module Burials
       # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
       #
       # @param file_path [String] pdf file path
+      # @param stamp_set [String|Symbol] the stamps to apply
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
-        document = PDFUtilities::DatestampPdf.new(file_path).run(
-          text: 'VA.GOV',
-          timestamp: @claim.created_at,
-          x: 5,
-          y: 5
-        )
-
-        document = PDFUtilities::DatestampPdf.new(document).run(
-          text: 'FDC Reviewed - VA.gov Submission',
-          timestamp: @claim.created_at,
-          x: 400,
-          y: 770,
-          text_only: true
-        )
-
-        document = PDFUtilities::DatestampPdf.new(document).run(
-          text: 'Application Submitted on va.gov',
-          x: 425,
-          y: 675,
-          text_only: true, # passing as text only because we override how the date is stamped in this instance
-          timestamp: @claim.created_at,
-          page_number: 5,
-          size: 9,
-          template: Burials::PDF_PATH,
-          multistamp: true
-        )
+      def process_document(file_path, stamp_set)
+        document = Burials::PDFStamper.new(stamp_set).run(file_path, timestamp: @claim.created_at)
 
         @intake_service.valid_document?(document:)
       end
@@ -153,6 +129,25 @@ module Burials
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
         response = @intake_service.perform_upload(**payload)
         raise BurialsBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Generate form PDF based on feature flag
+      #
+      # @return [String] path to processed PDF document
+      def generate_form_pdf
+        if Flipper.enabled?(:burial_extras_redesign_enabled)
+          pdf_path = @claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true })
+          process_document(pdf_path, :burials_generated_claim)
+        else
+          process_document(@claim.to_pdf, :burials_generated_claim)
+        end
+      end
+
+      # Generate the form attachment pdfs
+      #
+      # @return [Array<String>] path to processed PDF document
+      def generate_attachment_pdfs
+        @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, :burials_received_at) }
       end
 
       # Generate form metadata to send in upload to Benefits Intake API

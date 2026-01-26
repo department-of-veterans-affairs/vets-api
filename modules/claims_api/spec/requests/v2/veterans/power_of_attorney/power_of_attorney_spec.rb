@@ -4,10 +4,10 @@ require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
-require 'bgs/power_of_attorney_verifier'
+require 'bgsv2/power_of_attorney_verifier'
 require 'bgs_service/org_web_service'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
@@ -43,8 +43,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
             context 'when BGS returns a POA code with an endDate in the past' do
               before do
-                create(:representative, representative_id: '67890', poa_codes: ['074'], first_name: 'Abraham',
-                                        last_name: 'Lincoln')
+                create(:representative, :with_rep_id, poa_codes: ['074'], first_name: 'Abraham',
+                                                      last_name: 'Lincoln')
               end
 
               it 'returns an empty 200 response' do
@@ -65,7 +65,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             context 'when the current poa is not associated with an organization' do
               context 'when there is one unique representative_id' do
                 before do
-                  create(:veteran_representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
+                  create(:veteran_representative, representative_id: '12346', first_name: 'Robert', last_name: 'Lawlaw',
                                                   poa_codes: ['ABC'], phone: '321-654-0987', created_at: Time.zone.now)
                 end
 
@@ -95,7 +95,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
                 context 'when there are multiple unique representative_ids' do
                   before do
-                    create(:veteran_representative, representative_id: '67890', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '55369', poa_codes: ['EDF'])
                     create(:veteran_representative, representative_id: '54321', poa_codes: ['EDF'])
                   end
 
@@ -156,7 +156,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
           }
 
           # Simulate BGS returning a different (old) code
-          allow_any_instance_of(BGS::PowerOfAttorneyVerifier).to receive(:current_poa_code).and_return('OLDCODE')
+          allow_any_instance_of(BGSV2::PowerOfAttorneyVerifier).to receive(:current_poa_code).and_return('OLDCODE')
 
           poa = ClaimsApi::PowerOfAttorney.create!(
             status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -174,10 +174,10 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
   end
 
   def mock_poa_verifier_call(method:, return_value:, method_args: anything)
-    dbl = instance_double(BGS::PowerOfAttorneyVerifier)
-    # Intercepting `new` here since we don't have a cascade of VCR casettes recorded for all the HTTP
-    # calls invoked when initializing & using BGS::PowerOfAttorneyVerifier
-    allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
+    dbl = instance_double(BGSV2::PowerOfAttorneyVerifier)
+    # Intercepting `new` here since we don't have a cascade of VCR cassettes recorded for all the HTTP
+    # calls invoked when initializing & using BGSV2::PowerOfAttorneyVerifier
+    allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
     allow(dbl).to receive(method).with(method_args).and_return(return_value)
   end
 end

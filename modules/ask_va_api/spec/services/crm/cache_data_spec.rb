@@ -27,7 +27,7 @@ RSpec.describe Crm::CacheData do
         expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_return(cache_data)
         expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics',
                                                           data: cache_data,
-                                                          ttl: 86_400)
+                                                          ttl: 3540)
         expect(cache_data_instance.call(endpoint: 'topics',
                                         cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end

@@ -16,7 +16,7 @@ class LighthouseGeneratePdfProvider
   end
 
   def transform_service
-    @transform_service ||= EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+    @transform_service ||= EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new(pdf_request: true)
   end
 
   def service

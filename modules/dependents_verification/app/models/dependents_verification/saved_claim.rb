@@ -13,10 +13,10 @@ module DependentsVerification
     #
     # @return [Array<String>] the address lines of the regional office
     def regional_office
-      ['Department of Veteran Affairs',
-       'Example Address',
-       'P.O. Box 0000',
-       'Janesville, Wisconsin 53547-5365'] # TODO: update this when we have real address
+      ['Department of Veterans Affairs',
+       'Evidence Intake Center',
+       'P.O. Box 4444',
+       'Janesville, Wisconsin 53547-4444']
     end
 
     ##
@@ -24,28 +24,32 @@ module DependentsVerification
     #
     # @return [String]
     def business_line
-      'TEST' # TODO: update this when we know the business line
+      'OTH'
     end
 
     # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email
     def email
-      parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
+      if Flipper.enabled?(:lifestage_va_profile_email)
+        parsed_form['va_profile_email'] || parsed_form['email']
+      else
+        parsed_form['email']
+      end
     end
 
     # Utility function to retrieve veteran first name from form
     #
     # @return [String]
     def veteran_first_name
-      parsed_form.dig('veteranFullName', 'first')
+      parsed_form.dig('veteranInformation', 'fullName', 'first')
     end
 
     # Utility function to retrieve veteran last name from form
     #
     # @return [String]
     def veteran_last_name
-      parsed_form.dig('veteranFullName', 'last')
+      parsed_form.dig('veteranInformation', 'fullName', 'last')
     end
   end
 end

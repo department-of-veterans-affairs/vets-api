@@ -13,8 +13,6 @@ RSpec.describe V0::InProgressFormsController do
 
     before do
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).and_call_original
@@ -196,10 +194,6 @@ RSpec.describe V0::InProgressFormsController do
       end
 
       context 'for an MDOT form sans addresses' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-        end
-
         let(:user_details) do
           {
             first_name: 'Greg',
@@ -236,17 +230,15 @@ RSpec.describe V0::InProgressFormsController do
             'veteranDateOfBirth' => user.birth_date,
             'veteranSocialSecurityNumber' => user.ssn.to_s,
             'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postalCode' => user.address[:postal_code].slice(0, 5)
+              'street' => '140 Rock Creek Rd',
+              'city' => 'Washington',
+              'state' => 'DC',
+              'country' => 'USA',
+              'postalCode' => '20011'
             },
-            'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
+            'homePhone' => '3035551234'
           }
         end
-        let(:phone_response) { stub_evss_pciu(user).second }
 
         it 'returns pre-fill data' do
           expected_data
@@ -298,13 +290,98 @@ RSpec.describe V0::InProgressFormsController do
       let(:user) { loa3_user }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled,
                                                   instance_of(User)).and_return(true)
       end
 
       context 'with a new form' do
         let(:new_form) { create(:in_progress_form, user_uuid: user.uuid, user_account: user.user_account) }
+
+        context 'when handling race condition' do
+          context 'with in_progress_form_atomicity flipper on' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity,
+                                                        instance_of(User)).and_return(true)
+            end
+
+            it 'handles concurrent requests creating the same form' do
+              form_id = '22-1990'
+              form_data = { test: 'data' }.to_json
+              metadata = { version: 1 }
+
+              # Simulate race condition: two concurrent requests both find no existing form
+              # then both try to create one
+              allow(InProgressForm).to receive(:form_for_user).and_return(nil).twice
+
+              # First request should succeed with create_or_find_by!
+              expect do
+                put v0_in_progress_form_url(form_id), params: {
+                  form_data:,
+                  metadata:
+                }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+              end.to change(InProgressForm, :count).by(1)
+
+              expect(response).to have_http_status(:ok)
+
+              # Second concurrent request should not raise duplicate key error
+              # It should find the existing form or handle the constraint violation
+              expect do
+                put v0_in_progress_form_url(form_id), params: {
+                  form_data: { test: 'updated_data' }.to_json,
+                  metadata:
+                }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+              end.not_to change(InProgressForm, :count)
+
+              expect(response).to have_http_status(:ok)
+
+              # Verify the form was updated with the second request's data
+              updated_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+              expect(JSON.parse(updated_form.form_data)).to eq({ 'test' => 'updated_data' })
+            end
+          end
+
+          context 'with in_progress_form_atomicity flipper off' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:in_progress_form_atomicity,
+                                                        instance_of(User)).and_return(false)
+            end
+
+            it 'fails when concurrent requests create the same form' do
+              form_id = '22-1990'
+              form_data = { test: 'data' }.to_json
+              metadata = { version: 1 }
+
+              # Simulate race condition: two concurrent requests both find no existing form
+              # then both try to create one
+              allow(InProgressForm).to receive(:form_for_user).and_return(nil).twice
+
+              # First request should succeed
+              expect do
+                put v0_in_progress_form_url(form_id), params: {
+                  form_data:,
+                  metadata:
+                }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+              end.to change(InProgressForm, :count).by(1)
+
+              expect(response).to have_http_status(:ok)
+
+              # Second concurrent request will raise duplicate key error
+              # since the non-atomic path does not handle it
+              expect do
+                put v0_in_progress_form_url(form_id), params: {
+                  form_data: { test: 'updated_data' }.to_json,
+                  metadata:
+                }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+              end.not_to change(InProgressForm, :count)
+
+              expect(response).to have_http_status(:internal_server_error)
+
+              # Verify the form was not updated with the second request's data
+              updated_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+              expect(JSON.parse(updated_form.form_data)).to eq({ 'test' => 'data' })
+            end
+          end
+        end
 
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
@@ -322,8 +399,10 @@ RSpec.describe V0::InProgressFormsController do
 
         it 'runs the LogEmailDiffJob job' do
           new_form.form_id = '1010ez'
+          allow(HCA::LogEmailDiffJob).to receive(:perform_async)
           new_form.save!
-          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid, user.user_account_uuid)
+          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid,
+                                                                       user.user_account_uuid)
 
           put v0_in_progress_form_url(new_form.form_id), params: {
             formData: new_form.form_data,
@@ -353,6 +432,35 @@ RSpec.describe V0::InProgressFormsController do
             'submission' => { 'status' => false, 'error_message' => false, 'id' => false, 'timestamp' => false,
                               'has_attempted_submit' => false }
           )
+        end
+
+        it 'sets expires_at to 60 days from now for regular forms', run_at: '2017-01-01' do
+          put v0_in_progress_form_url(new_form.form_id), params: {
+            formData: new_form.form_data,
+            metadata: new_form.metadata
+          }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          in_progress_form = InProgressForm.last
+          expect(in_progress_form.expires_at.to_i).to eq(1_488_412_800)
+        end
+
+        it 'preserves existing expires_at for form526 (skippable form)', run_at: '2017-01-01' do
+          form526 = create(:in_progress_526_form, user_uuid: user.uuid, user_account: user.user_account)
+          # Factory sets expires_at to 1 year from now
+          initial_expires_at = form526.expires_at
+
+          put v0_in_progress_form_url(form526.form_id), params: {
+            formData: form526.form_data,
+            metadata: form526.metadata
+          }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          in_progress_form = InProgressForm.find_by(form_id: form526.form_id, user_uuid: user.uuid)
+          # expires_at should be preserved, not updated to current time
+          expect(in_progress_form.expires_at).to eq(initial_expires_at)
         end
 
         it 'can have nil metadata' do
@@ -391,18 +499,7 @@ RSpec.describe V0::InProgressFormsController do
         end
 
         context 'when form type is pension' do
-          let(:itf_job) { Lighthouse::CreateIntentToFileJob.new }
-
-          before do
-            allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
-            allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
-            allow(itf_job).to receive(:perform)
-          end
-
-          it 'calls synchronous CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
-                                                       instance_of(User)).and_return(true)
-
+          it 'creates pension form successfully' do
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
                   formData: new_form.form_data,
@@ -410,9 +507,9 @@ RSpec.describe V0::InProgressFormsController do
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
+            expect(response).to have_http_status(:ok)
             latest_form = InProgressForm.last
-            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
-            expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
+            expect(latest_form.form_id).to eq('21P-527EZ')
           end
         end
       end
@@ -424,9 +521,41 @@ RSpec.describe V0::InProgressFormsController do
 
         it 'updates the right form' do
           put v0_in_progress_form_url(existing_form.form_id), params: { form_data: }
+
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(form_data)
+        end
+
+        it 'updates expires_at on each update', run_at: '2017-01-01' do
+          # Set initial expires_at to a different time
+          existing_form.update!(expires_at: Time.zone.parse('2017-02-01'))
+          initial_expires_at = existing_form.expires_at
+
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: }
+
+          expect(response).to have_http_status(:ok)
+
+          existing_form.reload
+          # expires_at should be updated to 60 days from 2017-01-01 = 1488412800
+          expect(existing_form.expires_at.to_i).to eq(1_488_412_800)
+          expect(existing_form.expires_at).not_to eq(initial_expires_at)
+        end
+
+        it 'preserves expires_at for form526 on update', run_at: '2017-01-01' do
+          form526 = create(:in_progress_526_form, user_uuid: user.uuid, user_account: user.user_account)
+          # Set a specific expires_at
+          form526.update!(expires_at: Time.zone.parse('2018-06-01'))
+          initial_expires_at = form526.expires_at
+          form_data = { updated: 'data' }.to_json
+
+          put v0_in_progress_form_url(form526.form_id), params: { form_data: }
+
+          expect(response).to have_http_status(:ok)
+
+          form526.reload
+          # expires_at should remain unchanged for form526 (skippable form)
+          expect(form526.expires_at).to eq(initial_expires_at)
         end
 
         context 'has checked \'One or more of my rated conditions that have gotten worse\'' do

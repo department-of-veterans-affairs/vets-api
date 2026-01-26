@@ -2,15 +2,23 @@
 
 require 'res/ch31_form'
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include Vets::SharedLogging
 
   FORM = '28-1900'
-  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
+
+  VBMS_CONFIRMATION = :confirmation_vbms
+  LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
+
+  CONFIRMATION_EMAIL_TEMPLATES = [
+    VBMS_CONFIRMATION,
+    LIGHTHOUSE_CONFIRMATION
+  ].freeze
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -74,12 +82,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
-  after_initialize do
-    if form.present?
-      self.form_id = [true, false].include?(parsed_form['useEva']) ? self.class::FORM : '28-1900-V2'
-    end
-  end
-
   def initialize(args)
     @sent_to_lighthouse = false
     super
@@ -127,8 +129,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # Common method for VRE form submission:
   # * Adds information from user to payload
   # * Submits to VBMS if participant ID is there, to Lighthouse if not.
-  # * Sends email if user is present
   # * Sends to RES service
+  # * Sends confirmation email
   # @param user [User] user account of submitting user
   # @return [Hash] Response payload of service that was used (RES)
   def send_to_vre(user)
@@ -148,10 +150,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                            @sent_to_lighthouse).deliver_later
 
     send_to_res(user)
+
+    send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
-  # adds document ID from VBMS to form info, and sends confirmation email to user
+  # adds document ID from VBMS to form info
   # Submits to Lighthouse on failure
   # @param user [User] user account of submitting user
   # @return None
@@ -165,6 +169,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     log_to_statsd('vbms') do
+      Rails.logger.info('Uploading VRE claim to VBMS', { user_uuid: user&.uuid })
       response = uploader.upload!
 
       if response[:vbms_document_series_ref_id].present?
@@ -173,8 +178,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         update!(form: updated_form.to_json)
       end
     end
-
-    send_vbms_confirmation_email(user)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, messsage: e.message })
     send_to_lighthouse!(user)
@@ -184,8 +187,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     PdfFill::Filler.fill_form(self, file_name, { created_at: })
   end
 
-  # Submit claim into lighthouse service, adds veteran info to top level of form,
-  # and sends confirmation email to user
+  # Submit claim into lighthouse service, adds veteran info to top level of form
   # @param user [User] user account of submitting user
   # @return None
   def send_to_lighthouse!(user)
@@ -207,8 +209,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     process_attachments!
     @sent_to_lighthouse = true
-
-    send_lighthouse_confirmation_email(user)
   rescue => e
     Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
     raise
@@ -243,37 +243,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def form_matches_schema
     return unless form_is_string
 
-    if form_id == self.class::FORM
-      validate_form_v1
-    else
-      validate_form_v2
-    end
+    validate_form
   end
 
-  def validate_form_v1
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
-
-    schema_errors = validate_schema(schema)
-    validation_errors = validate_form(schema)
-
-    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
-      schema_v2_errors = validate_schema(schema_v2)
-      v2_errors = validate_form(schema_v2)
-      add_errors_from_form_validation(v2_errors)
-      return schema_v2_errors.empty? && v2_errors.empty?
-    end
-
-    add_errors_from_form_validation(validation_errors)
-
-    schema_errors.empty? && validation_errors.empty?
-  end
-
-  def validate_form_v2
+  def validate_form
     validate_required_fields
     validate_string_fields
+    validate_boolean_fields
     validate_name_length
-    validate_is_moving
     validate_email
     validate_phone_numbers
     validate_dob
@@ -290,39 +267,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     []
   end
 
-  def send_vbms_confirmation_email(user)
-    if user.va_profile_email.blank?
-      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user&.uuid })
-      return
+  # Sends notification email via VeteranFacingServices::NotificationEmail library
+  def send_email(email_type)
+    VRE::NotificationEmail.new(id).deliver(email_type)
+    if CONFIRMATION_EMAIL_TEMPLATES.include?(email_type)
+      Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
+    else
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     end
-
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
-    Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
-  end
-
-  def send_lighthouse_confirmation_email(user)
-    if user.va_profile_email.blank?
-      Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
-                        { user_uuid: user&.uuid })
-      return
-    end
-
-    VANotify::EmailJob.perform_async(
-      user.va_profile_email,
-      Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
-      {
-        'first_name' => user&.first_name&.upcase.presence,
-        'date' => Time.zone.today.strftime('%B %d, %Y')
-      }
-    )
-    Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
   end
 
   def process_attachments!
@@ -338,25 +290,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-  def send_failure_email(email)
-    if email.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
-      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
-    else
-      Rails.logger.warn('VRE claim failure email not sent: email not present.')
-    end
+  def email
+    @email ||= parsed_form['email']
+  end
+
+  def flipper_id
+    email || guid
   end
 
   private
@@ -364,6 +303,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def check_office_location
     service = bgs_client
     vet_info = parsed_form['veteranAddress']
+
+    Rails.logger.warn('VRE claim: Veteran address is missing, cannot determine regional office.') if vet_info.blank?
 
     regional_office_response = service.routing.get_regional_office_by_zip_code(
       vet_info['postalCode'], vet_info['country'], vet_info['state'], 'VRE', parsed_form['veteranInformation']['ssn']
@@ -380,13 +321,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def bgs_client
     @service ||= BGS::Services.new(
-      external_uid: parsed_form['email'],
+      external_uid: email,
       external_key:
     )
   end
 
   def external_key
-    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || email
   end
 
   def veteran_information
@@ -410,7 +351,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def validate_required_fields
     required_fields = %w[email isMoving yearsOfEducation veteranInformation/fullName veteranInformation/fullName/first
-                         veteranInformation/fullName/last veteranInformation/dob]
+                         veteranInformation/fullName/last veteranInformation/dob privacyAgreementAccepted]
     required_fields.each do |field|
       value = parsed_form.dig(*field.split('/'))
       value = value.to_s if [true, false].include?(value)
@@ -427,6 +368,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
+  def validate_boolean_fields
+    boolean_fields = %w[isMoving privacyAgreementAccepted]
+    boolean_fields.each do |field|
+      errors.add("/#{field}", 'must be a boolean') unless [true, false].include?(parsed_form[field])
+    end
+  end
+
   def validate_name_length
     max_30_fields = %w[veteranInformation/fullName/first veteranInformation/fullName/middle
                        veteranInformation/fullName/last]
@@ -438,16 +386,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
-  def validate_is_moving
-    errors.add('/isMoving', 'must be a boolean') unless [true, false].include?(parsed_form['isMoving'])
-  end
-
   def validate_email
-    value = parsed_form['email']
-    if value.present? && value.is_a?(String) && value.length > 256
+    if email.present? && email.is_a?(String) && email.length > 256
       errors.add('/email', 'must be 256 characters or less')
     end
-    if value.present? && value.is_a?(String) && !value.match?(/.+@.+\..+/i) # pulled from profile email model
+    if email.present? && email.is_a?(String) && !email.match?(/.+@.+\..+/i) # pulled from profile email model
       errors.add('/email', 'must be a valid email address')
     end
   end

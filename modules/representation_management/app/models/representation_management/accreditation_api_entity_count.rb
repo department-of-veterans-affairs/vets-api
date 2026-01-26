@@ -22,9 +22,17 @@ module RepresentationManagement
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
     ENTITY_CONFIG = RepresentationManagement::ENTITY_CONFIG
 
+    # Map internal types to their expected report labels
+    TYPE_LABELS = {
+      agents: 'Agents',
+      attorneys: 'Attorneys',
+      representatives: 'VSO Representatives',
+      veteran_service_organizations: 'Veteran Service Organizations'
+    }.freeze
+
     # The total number of representatives and organizations parsed from the GCLAWS API
     # must not decrease by more than this percentage from the previous count
-    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
+    DECREASE_THRESHOLD = -0.20 # -20% maximum decrease allowed (negative value for decrease)
 
     # Retrieves current counts from the API and saves them to the database
     # if they pass validation checks.
@@ -38,8 +46,8 @@ module RepresentationManagement
         else
           previous_count = current_db_counts[type]
           new_count = current_api_counts[type]
-          decrease_percentage = (previous_count - new_count).to_f / previous_count
-          notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD)
+          change_percentage = percentage_change(previous_count, new_count)
+          notify_threshold_exceeded(type, previous_count, new_count, change_percentage)
         end
       end
 
@@ -64,9 +72,33 @@ module RepresentationManagement
       # If new count is greater or equal, allow the update
       return true if new_count >= previous_count
 
-      # Calculate decrease percentage
-      decrease_percentage = (previous_count - new_count).to_f / previous_count
-      decrease_percentage <= DECREASE_THRESHOLD
+      # Calculate percentage change and compare against threshold
+      change_percentage = percentage_change(previous_count, new_count)
+      decrease_percentage = change_percentage / 100.0 # Convert to decimal for threshold comparison
+      decrease_percentage > DECREASE_THRESHOLD # Valid if decrease is not beyond threshold
+    end
+
+    def count_report
+      report = "Accreditation API Entity Counts Report:\n"
+      TYPES.each do |type|
+        type = type.to_sym
+        label = TYPE_LABELS[type]
+        current_count = current_api_counts[type]
+        previous_count = current_db_counts[type]
+        change_percentage = percentage_change(previous_count, current_count)
+
+        report += "#{label}: Current: #{current_count}, Previous: #{previous_count}, " \
+                  "Change: #{change_percentage}%\n"
+      end
+      report << db_record_count_report
+      report
+    rescue => e
+      log_error("Error generating count report: #{e.message}")
+    end
+
+    # @return [Hash] The current counts from the API for all entity types
+    def current_api_counts
+      @current_api_counts ||= get_counts_from_api
     end
 
     private
@@ -74,11 +106,6 @@ module RepresentationManagement
     # @return [RepresentationManagement::GCLAWS::Client] The client for GCLAWS API calls
     def client
       RepresentationManagement::GCLAWS::Client
-    end
-
-    # @return [Hash] The current counts from the API for all entity types
-    def current_api_counts
-      @current_api_counts ||= get_counts_from_api
     end
 
     # Fetches entity counts from the GCLAWS API
@@ -128,35 +155,65 @@ module RepresentationManagement
       AccreditedIndividual.where(individual_type: type).count
     end
 
+    # Calculates the percentage change between two values
+    #
+    # @param previous_value [Integer] The previous value
+    # @param new_value [Integer] The new value
+    # @return [Float] The percentage change (positive for increase, negative for decrease)
+    def percentage_change(previous_value, new_value)
+      return 0.0 if previous_value.nil? || previous_value.zero?
+
+      result = ((new_value.to_i - previous_value.to_i).to_f / previous_value.to_i) * 100
+      result.round(2)
+    end
+
     # Notification and logging methods
     # Notifies stakeholders when an entity count decreases beyond the threshold
     #
     # @param rep_type [Symbol] The entity type that exceeded the threshold
     # @param previous_count [Integer] The previous count
     # @param new_count [Integer] The new count
-    # @param decrease_percentage [Float] The calculated decrease percentage
+    # @param decrease_percentage [Float] The calculated decrease percentage (as decimal)
     # @param threshold [Float] The threshold that was exceeded
-    def notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
+    def notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage)
+      threshold_display = (DECREASE_THRESHOLD * 100).round(2)
+
       message = "⚠️ AccreditationApiEntityCount Alert: #{rep_type.to_s.humanize} count decreased beyond threshold!\n" \
                 "Previous: #{previous_count}\n" \
                 "New: #{new_count}\n" \
-                "Decrease: #{(decrease_percentage * 100).round(2)}%\n" \
-                "Threshold: #{(threshold * 100).round(2)}%\n" \
+                "Decrease: #{decrease_percentage}%\n" \
+                "Threshold: #{threshold_display}%\n" \
                 'Action: Update skipped, manual review required'
 
       log_to_slack_threshold_channel(message)
       log_error("AccreditationApiEntityCount threshold exceeded for #{rep_type}, previous: #{previous_count}, " \
-                "new: #{new_count}, decrease: #{(decrease_percentage * 100).round(2)}%")
+                "new: #{new_count}, change: #{decrease_percentage}%")
     end
 
     # Sends a notification to the Slack channel
     #
     # @param message [String] The message to send to Slack
     def log_to_slack_threshold_channel(message)
-      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+      return unless Settings.vsp_environment == 'production'
+
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                              channel: '#benefits-representation-management-notifications',
                                              username: 'RepresentationManagement::AccreditationApiEntityCount')
       slack_client.notify(message)
+    end
+
+    def db_record_count_report
+      report = String.new("Accreditation Entity Database Record Counts Report:\n")
+      AccreditedIndividual.individual_types.each_key do |type|
+        count = AccreditedIndividual.where(individual_type: type).count
+        count_with_location = AccreditedIndividual.where(individual_type: type).where.not(location: nil).count
+        percentage_with_location = count.zero? ? 0.0 : (count_with_location.to_f / count * 100)
+        report << "#{type.to_s.humanize}: #{count} (#{percentage_with_location.round(2)}% with location)\n"
+      end
+      report << "Veteran Service Organizations: #{AccreditedOrganization.count} (No location data)\n"
+      report
+    rescue => e
+      log_error("Error generating database record count report: #{e.message}")
     end
 
     # Logs an error message to the Rails logger

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'bgs/utilities/helpers'
+require 'bgsv2/utilities/helpers'
 
 module BGS
   class Job
-    include BGS::Utilities::Helpers
+    include BGSV2::Utilities::Helpers
     FILTERED_ERRORS = [
       'insertBenefitClaim: Invalid zipcode.',
       'Maximum number of EPs reached for this bnftClaimTypeCd',
@@ -44,7 +44,7 @@ module BGS
           val.each { |v| normalize_names_and_addresses!(v) if v.is_a?(Hash) }
         else
           is_name_key = %w[first middle last].include?(key)
-          if val && (is_name_key || key.include?('address_line'))
+          if val && (is_name_key || key.include?('address_line') || key.include?('street'))
             val = normalize_composite_characters(val)
             val = remove_special_characters_from_name(val) if is_name_key
             hash[key] = val

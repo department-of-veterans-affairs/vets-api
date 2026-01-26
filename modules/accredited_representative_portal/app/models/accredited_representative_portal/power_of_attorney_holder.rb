@@ -3,21 +3,14 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyHolder <
     Data.define(
-      :type,
-      :poa_code,
+      :type, :poa_code, :name,
       :can_accept_digital_poa_requests
     )
-
     module Types
       ALL = [
-        ##
-        # Future types:
-        # ```
-        # ATTORNEY = 'attorney',
-        # CLAIMS_AGENT = 'claims_agent',
-        # ```
-        #
-        VETERAN_SERVICE_ORGANIZATION = 'veteran_service_organization'
+        VETERAN_SERVICE_ORGANIZATION = 'veteran_service_organization',
+        CLAIMS_AGENT = 'claims_agent',
+        ATTORNEY = 'attorney'
       ].freeze
     end
 

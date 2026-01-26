@@ -1,0 +1,29 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "validMarriage": true,
+  "marriageValidityExplanation": "4A. Any reason the marriage might not be legally valid",
+  "marriedToVeteranAtTimeOfDeath": true,
+  "howMarriageEnded": "death",
+  "howMarriageEndedExplanation": "4C How Marriage Ended",
+  "marriageDates": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  },
+  "placeOfMarriage": "4E Place of Marriage",
+  "placeOfMarriageTermination": "4F Place of Marriage Termination",
+  "marriageType": "other",
+  "marriageTypeExplanation": "4G Marriage Type Explanation",
+  "childWithVeteran": true,
+  "pregnantWithVeteran": true,
+  "livedContinuouslyWithVeteran": true,
+  "separationDueToAssignedReasons": true,
+  "separationExplanation": "4K Separation Reasons",
+  "remarriedAfterVeteralDeath": true,
+  "remarriageDates": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  },
+  "remarriageEndCause": "didNotEnd",
+  "remarriageEndCauseExplanation": "4N Remarriage End Explanation",
+  "claimantHasAdditionalMarriages": true
+}

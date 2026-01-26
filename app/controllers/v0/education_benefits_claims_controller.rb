@@ -10,12 +10,16 @@ module V0
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
       unless claim.save
-        StatsD.increment("#{stats_key}.failure")
+        StatsD.increment("#{stats_key('create')}.failure")
+        StatsD.increment("#{stats_key("create.22#{form_type}")}.failure")
+        Rails.logger.error "EBCC::create Failed to create claim 22#{form_type}"
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      StatsD.increment("#{stats_key}.success")
+      StatsD.increment("#{stats_key('create')}.success")
+      StatsD.increment("#{stats_key("create.22#{form_type}")}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
+
       claim.after_submit(@current_user)
       clear_saved_form(claim.in_progress_form_id)
       render json: EducationBenefitsClaimSerializer.new(claim.education_benefits_claim)
@@ -29,7 +33,7 @@ module V0
     end
 
     def download_pdf
-      education_claim = EducationBenefitsClaim.find(params[:id].to_i)
+      education_claim = EducationBenefitsClaim.find_by!(token: params[:id])
       saved_claim = SavedClaim.find(education_claim.saved_claim_id)
 
       source_file_path = PdfFill::Filler.fill_form(
@@ -45,6 +49,11 @@ module V0
                 filename: client_file_name,
                 type: 'application/pdf',
                 disposition: 'attachment'
+      StatsD.increment("#{stats_key('pdf_download')}.22#{education_claim.form_type}.success")
+    rescue => e
+      StatsD.increment("#{stats_key('pdf_download')}.failure")
+      Rails.logger.error "EBCC::download_pdf Failed to download pdf ClaimID=#{params[:id]} #{e.message}"
+      raise e
     ensure
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
@@ -66,8 +75,8 @@ module V0
       params.require(:education_benefits_claim).permit(:form)
     end
 
-    def stats_key
-      "api.education_benefits_claim.22#{form_type}"
+    def stats_key(action)
+      "api.education_benefits_claim.#{action}"
     end
   end
 end

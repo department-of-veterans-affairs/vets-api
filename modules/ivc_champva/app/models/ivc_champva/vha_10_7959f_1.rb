@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module IvcChampva
   class VHA107959f1
     STATS_KEY = 'api.ivc_champva_form.10_7959f_1'
 
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
     include Attachments
+    include StampableLogging
 
-    attribute :data
+    attribute :data, Hash
     attr_reader :form_id
 
     def initialize(data)
@@ -17,10 +20,12 @@ module IvcChampva
     end
 
     def metadata
+      name_prefix = Flipper.enabled?(:champva_update_metadata_keys) ? 'sponsor' : 'veteran'
+
       {
-        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
-        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
-        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        "#{name_prefix}FirstName" => @data.dig('veteran', 'full_name', 'first'),
+        "#{name_prefix}MiddleName" => @data.dig('veteran', 'full_name', 'middle'),
+        "#{name_prefix}LastName" => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn'),
         'zipCode' => @data.dig('veteran', 'mailing_address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
@@ -35,7 +40,15 @@ module IvcChampva
     end
 
     def desired_stamps
-      [{ coords: [26, 82.5], text: data['statement_of_truth_signature'], page: 0 }]
+      signature = data['statement_of_truth_signature']
+
+      log_missing_stamp_data({
+                               'statement_of_truth_signature' => {
+                                 value: signature.present? ? 'present' : nil
+                               }
+                             })
+
+      [{ coords: [26, 82.5], text: signature, page: 0 }]
     end
 
     def track_current_user_loa(current_user)
@@ -54,7 +67,7 @@ module IvcChampva
       args&.first
     end
 
-    def respond_to_missing?(_)
+    def respond_to_missing?(_method_name, _include_private = false)
       true
     end
   end

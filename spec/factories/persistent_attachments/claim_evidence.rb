@@ -6,10 +6,13 @@ FactoryBot.define do
       file_path { nil }
     end
 
-    after(:build) do |pension_burial, evaluator|
-      file_path = evaluator.file_path || 'spec/fixtures/evss_claim/converted_image.TIF.jpg'
+    after(:build) do |claim_evidence, evaluator|
+      # Using a JPG because a PDF causes:
+      #   SHRINE WARNING: Error occurred when attempting to extract image dimensions:
+      #   <FastImage::UnknownImageType: FastImage::UnknownImageType>
+      file_path = evaluator.file_path || 'spec/fixtures/files/doctors-note.jpg'
 
-      pension_burial.file = File.open(file_path)
+      claim_evidence.file = File.open(file_path)
     end
   end
 end

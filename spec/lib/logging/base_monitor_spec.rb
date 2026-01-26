@@ -29,12 +29,16 @@ RSpec.describe Logging::BaseMonitor do
   let(:base_monitor) { TestMonitor.new('test-application') }
 
   describe 'included modules' do
-    it 'includes Logging::Controller::Monitor' do
-      expect(described_class.included_modules).to include(Logging::Controller::Monitor)
+    it 'includes Logging::Include::Controller' do
+      expect(described_class.included_modules).to include(Logging::Include::Controller)
     end
 
-    it 'includes Logging::BenefitsIntake::Monitor' do
-      expect(described_class.included_modules).to include(Logging::BenefitsIntake::Monitor)
+    it 'includes Logging::Include::BenefitsIntake' do
+      expect(described_class.included_modules).to include(Logging::Include::BenefitsIntake)
+    end
+
+    it 'includes Logging::Include::ZeroSilentFailures' do
+      expect(described_class.included_modules).to include(Logging::Include::ZeroSilentFailures)
     end
   end
 

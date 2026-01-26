@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+# HealthFacilitiesImportJob
+#
+
+# This Sidekiq job imports and synchronizes VA health facility data from the Lighthouse API
+# into the HealthFacility table. It ensures that the local database reflects the current
+# set of health facilities, including removing facilities that no longer exist in the source.
+
+# Why:
+# - Keeps our health facility data up-to-date for downstream services and user-facing features.
+# - Ensures data integrity by removing stale records.
+# - Handles edge cases where environments may have missing reference data (see ensure_std_states_populated).
+
+# How:
+# - Fetches all health facilities from Lighthouse, paginating as needed.
+# - Maps and transforms the data to match our schema.
+# - Upserts (inserts or updates) all current facilities.
+# - Deletes any facilities not present in the latest import.
+# - Logs progress and errors for monitoring and debugging.
+
 module HCA
   class HealthFacilitiesImportJob
     include Sidekiq::Job
@@ -23,7 +42,7 @@ module HCA
       health_facilities = facilities_with_postal_names(facilities_from_lighthouse)
 
       HealthFacility.upsert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
-      delete_old_facilities(health_facilities) if Flipper.enabled?(:hca_facility_import_job_filter_facilities)
+      delete_old_facilities(health_facilities)
 
       Rails.logger.info("[HCA] - Job ended with #{HealthFacility.count} health facilities.")
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_complete")
@@ -44,7 +63,7 @@ module HCA
           type: 'health',
           per_page: PER_PAGE,
           page:,
-          mobile: !Flipper.enabled?(:hca_facility_import_job_filter_facilities)
+          mobile: false
         )
         all_facilities.concat(facilities.map do |facility|
           {
@@ -80,11 +99,11 @@ module HCA
         .where(station_number: facilities_from_lighthouse.keys)
         .pluck(:station_number, 'std_states.postal_name')
         .map do |station_number, postal_name|
-        {
-          name: facilities_from_lighthouse[station_number][:name],
-          station_number:,
-          postal_name:
-        }
+          {
+            name: facilities_from_lighthouse[station_number][:name],
+            station_number:,
+            postal_name:
+          }
       end
     end
 

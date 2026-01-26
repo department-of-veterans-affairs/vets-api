@@ -1,11 +1,11 @@
 {
-   "veteran_id": {
+   "id_number": {
       "ssn": "547-90-1234",
       "va_file_number": "12345678"
    },
    "service_number": "A12345678",
-   "home_phone": "1231231233",
-   "mobile_phone": "9876543210",
+   "phone_number": "1231231233",
+   "mobile_phone_number": "9876543210",
    "email_address": "test@example.com",
    "address": {
       "country": "USA",
@@ -26,14 +26,14 @@
       {
          "type_of_work": "Full-time",
          "hours_per_week": "40",
-         "lost_time": "13",
-         "highest_income": "2300",
-         "date_range": {
+         "lost_time_from_illness": "13",
+         "highest_gross_income_per_month": 2300,
+         "employment_dates": {
             "from": "2018-03-15",
             "to": "2020-06-30"
          },
-         "name": "Test Employer",
-         "address": {
+         "employer_name": "Test Employer",
+         "employer_address": {
             "country": "USA",
             "street": "1234 Executive Ave",
             "city": "Metropolis",
@@ -44,14 +44,14 @@
       {
          "type_of_work": "Freelance",
          "hours_per_week": "20",
-         "lost_time": "30",
-         "highest_income": "1300",
-         "date_range": {
+         "lost_time_from_illness": "30",
+         "highest_gross_income_per_month": 1300,
+         "employment_dates": {
             "from": "2020-07-01",
             "to": "2022-09-13"
          },
-         "name": "Freelancer",
-         "address": {
+         "employer_name": "Freelancer",
+         "employer_address": {
             "country": "USA",
             "street": "123 Test St",
             "city": "Test City",
@@ -62,14 +62,14 @@
       {
          "type_of_work": "Sub-contractor",
          "hours_per_week": "60",
-         "lost_time": "56",
-         "highest_income": "600",
-         "date_range": {
+         "lost_time_from_illness": "56",
+         "highest_gross_income_per_month": 600,
+         "employment_dates": {
             "from": "2022-10-11",
             "to": "2024-04-07"
          },
-         "name": "Example Construction Company",
-         "address": {
+         "employer_name": "Example Construction Company",
+         "employer_address": {
             "country": "CAN",
             "street": "4321 Example Ave",
             "city": "Test City",
@@ -78,6 +78,20 @@
          }
       },
       {}
+   ],
+   "supporting_evidence": [
+      {
+         "name": "test_document.pdf",
+         "size": 12345,
+         "type": "application/pdf",
+         "confirmation_code": "guid1"
+      },
+      {
+         "name": "test_image.png",
+         "size": 67890,
+         "type": "image/png",
+         "confirmation_code": "guid2"
+      }
    ],
    "statement_of_truth_signature": "Example Test User",
    "statement_of_truth_certified": true,

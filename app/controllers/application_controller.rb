@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
+require 'vets/shared_logging'
 
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
@@ -11,7 +12,7 @@ class ApplicationController < ActionController::API
   include Instrumentation
   include Pundit::Authorization
   include ControllerLoggingContext
-  include SentryLogging
+  include Vets::SharedLogging
   include SentryControllerLogging
   include Traceable
 
@@ -22,6 +23,8 @@ class ApplicationController < ActionController::API
   # for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
+
+  around_action :tag_with_controller_name
 
   VERSION_STATUS = {
     draft: 'Draft Version',

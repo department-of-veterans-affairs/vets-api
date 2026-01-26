@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
+require 'vets/shared_logging'
 
 module VRE
   class Ch31Form < VRE::Service
     class Ch31Error < StandardError; end
     class Ch31NilClaimError < StandardError; end
 
-    include SentryLogging
+    include Vets::SharedLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.res'
 
@@ -32,6 +32,7 @@ module VRE
 
       raise Ch31Error if response_body['success_message'].blank?
 
+      Rails.logger.info('VRE Submit1900Job successful, Ch 31 claim sent to RES.')
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
@@ -41,14 +42,18 @@ module VRE
 
     private
 
+    def api_path
+      'form281900'
+    end
+
     def format_payload_for_res
       form_data = claim_form_hash
-
       res_payload = {
         useEva: form_data['useEva'],
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
         useTelecounseling: form_data['useTelecounseling'],
         appointmentTimePreferences: form_data['appointmentTimePreferences'],
+        privacyStatementAcknowledged: form_data['privacyAgreementAccepted'],
         yearsOfEducation: form_data['yearsOfEducation'],
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
@@ -96,6 +101,10 @@ module VRE
       vet_info['regionalOffice'] = vet_info['regionalOfficeName']
       vet_info.delete(:regionalOfficeName)
 
+      if Flipper.enabled?(:vre_send_icn_to_res)
+        vet_info['icn'] = @user&.icn.present? ? @user.icn : nil
+      end
+
       vet_info
     end
 
@@ -116,6 +125,8 @@ module VRE
     end
 
     def mapped_address_hash(client_hash)
+      return nil unless client_hash
+
       {
         country: client_hash['country'],
         street: client_hash['street'],

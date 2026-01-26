@@ -25,7 +25,7 @@ module SimpleFormsApi
       end
 
       def create_zip_file(zip_file_path, temp_dir)
-        Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+        Zip::File.open(zip_file_path, create: true) do |zipfile|
           add_files_to_zip(zipfile, temp_dir)
         end
         zip_file_path

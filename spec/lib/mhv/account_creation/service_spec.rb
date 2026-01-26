@@ -30,17 +30,31 @@ describe MHV::AccountCreation::Service do
       { user_profile_id:, premium:, champ_va:, patient:, sm_account_created:, message: }
     end
 
+    let(:access_key) { 'some-access-key' }
+    let(:sts_token) { 'some-token' }
+    let(:config) { instance_double(MHV::AccountCreation::Configuration) }
+
     before do
       allow(Rails.logger).to receive(:info)
       allow(Rails.logger).to receive(:error)
       allow_any_instance_of(SignInService::Sts).to receive(:base_url).and_return('https://staging-api.va.gov')
       allow(Time).to receive(:current).and_return(start_time, end_time)
+      allow(IdentitySettings.mhv.account_creation).to receive(:access_key).and_return(access_key)
+      allow(MHV::AccountCreation::Configuration).to receive(:new).and_return(config)
+      allow(config).to receive(:sts_token).with(user_identifier: icn).and_return(sts_token)
     end
 
     context 'when making a request' do
       let(:expected_tou_datetime) { tou_occurred_at.iso8601 }
       let(:expected_log_message) { "#{log_prefix} create_account request" }
       let(:expected_log_payload) { { icn: } }
+      let(:expected_request_headers) do
+        {
+          'Authorization' => "Bearer #{config.sts_token(user_identifier: icn)}",
+          'x-api-key' => access_key,
+          'mhvapi-idempotency-key' => icn
+        }
+      end
 
       it 'sends vaTermsOfUseDateTime in the correct format' do
         VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
@@ -54,6 +68,14 @@ describe MHV::AccountCreation::Service do
         VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
           subject
           expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+        end
+      end
+
+      it 'sends the expected headers' do
+        VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
+          subject
+          expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")
+                 .with(headers: expected_request_headers)).to have_been_made
         end
       end
     end
@@ -269,7 +291,7 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_payload) do
         {
           body: 'Internal Server Error',
-          error_message: "unexpected token 'Internal Server Error' at line 1 column 1",
+          error_message: "unexpected token 'Internal' at line 1 column 1",
           status: 500,
           icn:
         }

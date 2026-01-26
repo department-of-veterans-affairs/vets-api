@@ -29,6 +29,24 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
     }
   end
   let(:va_notify_client) { instance_double(VaNotify::Service) }
+  let(:monitor) { instance_double(Dependents::Monitor) }
+  let(:default_monitor_payload) do
+    {
+      service: 'dependent-change',
+      claim: @claim,
+      user_account_uuid: @claim&.user_account_id,
+      tags: { function: described_class::ZSF_DD_TAG_FUNCTION }
+    }
+  end
+
+  before do
+    allow(Dependents::Monitor).to receive(:new).with(claim_id).and_return(monitor)
+    allow(monitor).to receive_messages(
+      log_silent_failure: nil,
+      log_silent_failure_avoided: nil,
+      default_payload: default_monitor_payload
+    )
+  end
 
   describe '#perform' do
     before do
@@ -52,19 +70,29 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
       job.perform(claim_id, email, template_id, personalisation)
     end
 
+    it 'logs a silent failure when email is sent successfully' do
+      expect(monitor).to receive(:log_silent_failure_avoided).with(
+        default_monitor_payload,
+        call_location: anything
+      )
+
+      job.perform(claim_id, email, template_id, personalisation)
+    end
+
     context 'when an error occurs' do
       before do
         allow(va_notify_client).to receive(:send_email).and_raise(StandardError.new('Test error'))
       end
 
-      it 'logs the error and allows retry' do
+      it 'logs the error and raises error to kick off retries' do
         expect(Rails.logger).to receive(:warn).with(
           'Form686c674FailureEmailJob failed, retrying send...',
           { claim_id:, error: instance_of(StandardError) }
         )
 
-        # Should not raise error
-        expect { job.perform(claim_id, email, template_id, personalisation) }.not_to raise_error
+        expect(monitor).not_to receive(:log_silent_failure_avoided)
+
+        expect { job.perform(claim_id, email, template_id, personalisation) }.to raise_error(StandardError)
       end
     end
   end
@@ -80,6 +108,11 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
           saved_claim_id: claim_id,
           error_message: 'Test exhausted error'
         }
+      )
+
+      expect(monitor).to receive(:log_silent_failure).with(
+        default_monitor_payload.merge(message: ex.message),
+        call_location: anything
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, ex)
@@ -159,14 +192,28 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
         )
       end
 
-      it 'handles nil first_name gracefully' do
+      before do
+        allow(va_notify_client)
+          .to receive(:send_email)
+          .and_raise(StandardError.new('BadRequestError: Missing personalisation: first_name'))
+      end
+
+      it 'throws an error' do
         expect(va_notify_client).to receive(:send_email).with(
           email_address: email,
           template_id:,
           personalisation: hash_including('first_name' => nil)
         )
         personalisation['first_name'] = nil
-        job.perform(claim_id, email, template_id, personalisation)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Form686c674FailureEmailJob failed, retrying send...',
+          { claim_id:, error: instance_of(StandardError) }
+        )
+
+        expect(monitor).not_to receive(:log_silent_failure_avoided)
+
+        expect { job.perform(claim_id, email, template_id, personalisation) }.to raise_error(StandardError)
       end
     end
   end

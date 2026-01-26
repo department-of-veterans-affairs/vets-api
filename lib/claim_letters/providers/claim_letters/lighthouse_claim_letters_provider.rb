@@ -23,7 +23,10 @@ class LighthouseClaimLettersProvider
   def get_letters
     response = get_letters_allowed_doc_types
     @letters_metadata_cache = response.body['data'] # Cache the metadata
-    transform_claim_letters(@letters_metadata_cache)
+    claim_letters = transform_claim_letters(@letters_metadata_cache)
+
+    # Convert to hashes before returning
+    claim_letters.map(&:attributes)
   end
 
   # sends back only the raw response body from Lighthouse with the allowed doc_types set
@@ -110,8 +113,8 @@ class LighthouseClaimLettersProvider
     type_description =
       ClaimLetters::Utils::LetterTransformer.decorate_description(doc_type) || letter['documentTypeLabel']
 
-    received_at = Time.zone.parse(letter['receivedAt']) if letter['receivedAt']
-    upload_date = Time.zone.parse(letter['uploadedDateTime']) if letter['uploadedDateTime']
+    received_at = parse_date(letter['receivedAt'], 'received_at')
+    upload_date = parse_date(letter['uploadedDateTime'], 'upload_date')
 
     ClaimLetters::Responses::ClaimLetterResponse.new(
       # Please note:
@@ -148,5 +151,23 @@ class LighthouseClaimLettersProvider
     end
 
     documents
+  end
+
+  def parse_date(date, attribute_name)
+    return nil if date.nil? || date.to_s.strip.empty?
+
+    Date.parse(date)
+  rescue => e
+    Rails.logger.warn(
+      'Bad claim letter date',
+      {
+        user_uuid: @user.uuid,
+        attribute_name:,
+        date:,
+        error_type: e.class.to_s,
+        error_backtrace: e.backtrace&.first(3)
+      }
+    )
+    nil
   end
 end

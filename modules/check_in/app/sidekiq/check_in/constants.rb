@@ -5,6 +5,7 @@ module CheckIn
     # settings for travel claims for vista appts
     STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
     STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'
+    STATSD_NOTIFY_DELIVERED = 'worker.checkin.travel_claim.notify.delivered'
     STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
     STATSD_CIE_SILENT_FAILURE_TAGS = ['service:check-in',
                                       'function: CheckIn Travel Pay Notification Failure'].freeze
@@ -39,5 +40,22 @@ module CheckIn
     OH_STATSD_BTSSS_TIMEOUT = 'worker.oracle_health.travel_claim.btsss.timeout'
     OH_STATSD_BTSSS_CLAIM_FAILURE = 'worker.oracle_health.travel_claim.btsss.claim.failure'
     OH_STATSD_BTSSS_DUPLICATE = 'worker.oracle_health.travel_claim.btsss.duplicate'
+
+    # V1 specific Travel Claim Submission Step Metrics - CIE
+    CIE_STATSD_APPOINTMENT_ERROR = 'api.check_in.travel_claim.appointment.error'
+    CIE_STATSD_CLAIM_CREATE_ERROR = 'api.check_in.travel_claim.claim.create.error'
+    CIE_STATSD_EXPENSE_ADD_ERROR = 'api.check_in.travel_claim.expense.add.error'
+    CIE_STATSD_CLAIM_SUBMIT_ERROR = 'api.check_in.travel_claim.claim.submit.error'
+
+    # Travel Claim Submission Step Metrics - OH
+    OH_STATSD_APPOINTMENT_ERROR = 'api.oracle_health.travel_claim.appointment.error'
+    OH_STATSD_CLAIM_CREATE_ERROR = 'api.oracle_health.travel_claim.claim.create.error'
+    OH_STATSD_EXPENSE_ADD_ERROR = 'api.oracle_health.travel_claim.expense.add.error'
+    OH_STATSD_CLAIM_SUBMIT_ERROR = 'api.oracle_health.travel_claim.claim.submit.error'
+
+    # Check-in eligibility and demographics tracking
+    STATSD_CHECKIN_DATA_RETRIEVED = 'api.check_in.data.retrieved'
+    STATSD_CHECKIN_ELIGIBILITY = 'api.check_in.appointment.eligibility'
+    STATSD_CHECKIN_DEMOGRAPHICS_STATUS = 'api.check_in.demographics.status'
   end
 end

@@ -48,11 +48,11 @@ class Form1095B < ApplicationRecord
   private
 
   def pdf_template_path
-    "lib/form1095_b/templates/pdfs/1095b-#{tax_year}.pdf"
+    "lib/veteran_enrollment_system/form1095_b/templates/pdfs/1095b-#{tax_year}.pdf"
   end
 
   def txt_template_path
-    "lib/form1095_b/templates/txts/1095b-#{tax_year}.txt"
+    "lib/veteran_enrollment_system/form1095_b/templates/txts/1095b-#{tax_year}.txt"
   end
 
   def country_and_zip
@@ -67,12 +67,21 @@ class Form1095B < ApplicationRecord
     data[:last_4_ssn].present? ? '' : data[:birth_date]
   end
 
+  def full_name
+    [data[:first_name], data[:middle_name].presence, data[:last_name]].compact.join(' ')
+  end
+
+  def name_with_middle_initial
+    [data[:first_name], middle_initial.presence, data[:last_name]].compact.join(' ')
+  end
+
   def txt_form_data
     text_data = {
       birth_date_field: birthdate_unless_ssn,
       state_or_province: data[:state] || data[:province],
       country_and_zip:,
-      middle_init: middle_initial,
+      full_name:,
+      name_with_middle_initial:,
       corrected: data[:is_corrected] ? 'X' : '--'
     }
 

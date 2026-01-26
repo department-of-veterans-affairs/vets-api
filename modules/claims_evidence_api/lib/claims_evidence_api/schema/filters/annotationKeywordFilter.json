@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/annotationKeywordFilter.json",
+  "description" : "Filters results based on keywords in the title and comments of associated annotations",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "CONTAINS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "[\"keyword1\",\"keyword2\"]",
+      "type" : "string"
+    }
+  },
+  "title" : "Annotation Keyword Filter Request",
+  "type" : "object"
+}

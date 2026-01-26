@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema",
+  "$id": "https://claims_evidence_api.va.gov/schema/filters/regionalProcessingOfficeFilter.json",
+  "description" : "Filters results on regional processing office.",
+  "properties" : {
+    "evaluationType" : {
+      "enum" : [ "EQUALS" ],
+      "type" : "string"
+    },
+    "value" : {
+      "example" : "Buffalo",
+      "type" : "string"
+    }
+  },
+  "title" : "Regional Processing Office Filter Request",
+  "type" : "object"
+}

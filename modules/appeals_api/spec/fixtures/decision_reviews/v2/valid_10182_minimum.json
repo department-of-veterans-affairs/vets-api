@@ -5,7 +5,6 @@
       "veteran": {
         "homeless": true,
         "phone": {
-          "areaCode": "555",
           "phoneNumber": "8001111"
         },
         "email": "clause@north.com",

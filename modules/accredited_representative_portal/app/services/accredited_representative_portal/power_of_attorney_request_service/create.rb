@@ -40,31 +40,44 @@ module AccreditedRepresentativePortal
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def create_poa_request
-        request = nil
+        ar_monitoring.trace('ar.power_of_attorney_request_service.create',
+                            tags: { 'poa_request.poa_code' => @poa_code },
+                            root_tags: { 'poa_request.poa_code' => @poa_code }) do |_span|
+          request = nil
 
-        ActiveRecord::Base.transaction do
-          request = PowerOfAttorneyRequest.new(
-            claimant: @claimant,
-            power_of_attorney_holder_type: ORGANIZATION,
-            accredited_individual_registration_number: @registration_number,
-            power_of_attorney_holder_poa_code: @poa_code
-          )
+          ActiveRecord::Base.transaction do
+            request = PowerOfAttorneyRequest.new(
+              claimant: @claimant,
+              power_of_attorney_holder_type: ORGANIZATION,
+              accredited_individual_registration_number: @registration_number,
+              power_of_attorney_holder_poa_code: @poa_code
+            )
 
-          # PowerOfAttorneyForm expects the incoming data to be json, not a hash
-          request.build_power_of_attorney_form(data: @form_data.to_json)
+            # PowerOfAttorneyForm expects the incoming data to be json, not a hash
+            request.build_power_of_attorney_form(data: @form_data.to_json)
 
-          if unresolved_requests.any?
-            unresolved_requests.each do |unresolved|
-              unresolved.mark_replaced!(request)
+            if unresolved_requests.any?
+              unresolved_requests.each do |unresolved|
+                unresolved.mark_replaced!(request)
+              end
             end
+
+            request.save!
+            Monitoring.new.track_count('ar.poa.request.count')
           end
 
-          request.save!
-          Monitoring.new.track_count('ar.poa.request.count')
+          request
         end
+      end
+      # rubocop:enable Metrics/MethodLength
 
-        request
+      def ar_monitoring
+        @ar_monitoring ||= AccreditedRepresentativePortal::Monitoring.new(
+          AccreditedRepresentativePortal::Monitoring::NAME,
+          default_tags: [].compact
+        )
       end
 
       def unresolved_requests

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/shared_logging'
+
 module Preneeds
   module Middleware
     module Response
@@ -7,7 +9,7 @@ module Preneeds
       # exception for our application.
       #
       class EoasXmlErrors < Faraday::Middleware
-        include SentryLogging
+        include Vets::SharedLogging
         attr_reader :status, :fault, :code, :detail
 
         # Checks the response for service errors and raises an exception if appropriate
@@ -28,6 +30,7 @@ module Preneeds
           # strip percentages from xml because Sentry uses it for interpolation
           extra_context = { original_status: status, original_body: env.body&.delete('%') }
           log_message_to_sentry('Generalized XML error response from EOAS', :warn, extra_context)
+
           raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, env.body)
         end
 

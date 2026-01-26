@@ -24,14 +24,15 @@ module AccreditedRepresentativePortal
     validates_access_token_audience IdentitySettings.sign_in.arp_client_id
 
     before_action :track_unique_session
-    before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
     after_action :verify_pundit_authorization
 
     private
 
-    def deny_access_unless_686c_enabled
-      routing_error unless Flipper.enabled?(:accredited_representative_portal_submissions, @current_user)
+    def deny_access_unless_form_enabled(form_id)
+      form_class = SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)
+      routing_error if form_class&.const_defined?(:FEATURE_FLAG) &&
+                       !Flipper.enabled?(form_class::FEATURE_FLAG, @current_user)
     end
 
     def routing_error
@@ -60,17 +61,6 @@ module AccreditedRepresentativePortal
     rescue => e
       log_unexpected_error(e)
       raise e
-    end
-
-    def verify_pilot_enabled_for_user
-      return if Flipper.enabled?(:accredited_representative_portal_pilot, @current_user)
-
-      message = <<~MSG.squish
-        The accredited_representative_portal_pilot feature flag is disabled
-        for user with uuid: #{@current_user.uuid}
-      MSG
-
-      raise Common::Exceptions::Forbidden, detail: message
     end
 
     def log_auth_failure(exception)

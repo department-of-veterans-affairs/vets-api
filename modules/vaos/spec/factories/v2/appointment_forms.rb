@@ -251,6 +251,22 @@ FactoryBot.define do
       end
     end
 
+    trait :va_proposed_valid_reason_code_text_new_fields do
+      va_proposed_base
+      kind { 'clinic' }
+      reason_code do
+        { text: 'station: 983|modality: IN-PERSON|phone: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:colon:in:comment' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :va_proposed_valid_reason_code_text_old_and_new_fields do
+      va_proposed_base
+      kind { 'clinic' }
+      reason_code do
+        { text: 'station: 983|station id: 984|preferred modality: FACE TO FACE|modality: IN-PERSON|phone: 6195551234|phone number: 6195551235|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:colon:in:comment' } # rubocop:disable Layout/LineLength
+      end
+    end
+
     trait :va_proposed_valid_and_invalid_reason_code_text do
       va_proposed_base
       kind { 'clinic' }
@@ -386,6 +402,20 @@ FactoryBot.define do
       extension do
         {
           vvs_vista_video_appt: false
+        }
+      end
+    end
+
+    trait :cerner_telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+    end
+
+    trait :cerner_telehealth_url do
+      cerner_telehealth
+      telehealth do
+        {
+          url: 'https://vvc.va.gov/clinical/guest/appointment/52499028'
         }
       end
     end

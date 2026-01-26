@@ -1,4 +1,4 @@
-name: Audit Service Tags
+name: Service Tags
 on:
   pull_request:
     branches:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   audit_service_tags:
     permissions: write-all
-    name: Audit Service Tags
+    name: Check for Missing service_tag in Controllers
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-16-cores-latest
     steps:
       - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
@@ -104,7 +104,7 @@ jobs:
           fail_on_error: true
           number: ${{ github.event.pull_request.number }}
           labels: |
-            audit-service-failure
+            missing-service-tag
 
       - name: Remove Failure label
         if: ${{ success() }}
@@ -112,4 +112,4 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
-            audit-service-failure
+            missing-service-tag

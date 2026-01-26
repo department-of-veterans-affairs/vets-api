@@ -20,5 +20,17 @@ module DependentsVerification
                                         DependentsVerification::PdfFill::Va210538)
       end
     end
+
+    initializer 'dependents_verification.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require 'dependents_verification/benefits_intake/submission_handler'
+        require 'dependents_verification/benefits_intake/submit_claim_job'
+
+        # Register our DependentsVerification Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(DependentsVerification::FORM_ID,
+                                                               DependentsVerification::BenefitsIntake::SubmissionHandler)
+      end
+    end
   end
 end

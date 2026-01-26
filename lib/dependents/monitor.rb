@@ -17,46 +17,65 @@ module Dependents
     # stats key for pdf submission
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
-    # statsd key for backup sidekiq
+    # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.submit_686c_674_backup_submission'
 
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    def initialize(claim_id)
+    # statsd key for pension-related submissions
+    PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
+
+    # allowed logging params
+    ALLOWLIST = %w[
+      tags
+    ].freeze
+
+    attr_writer :form_id
+
+    # create a dependents monitor
+    #
+    # @param claim_id [Integer] the database SavedClaim id
+    # @param form_id [String] the form being monitored; 686c-674 or 21-674, etc
+    def initialize(claim_id = nil, form_id = nil)
       @claim_id = claim_id
       @claim = claim(claim_id)
-      @use_v2 = use_v2
-      super('dependents-application')
+      @form_id = form_id || @claim&.form_id
+
+      super('dependents-application', allowlist: ALLOWLIST)
+
+      @tags += ["service:#{service}"]
     end
 
-    def use_v2
-      return nil unless @claim
+    def name
+      self.class.to_s
+    end
 
-      @claim&.use_v2 || @claim&.form_id&.include?('-V2')
+    def form_id
+      @form_id ||= @claim&.form_id
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
     end
 
     def claim(claim_id)
-      SavedClaim::DependencyClaim.find(claim_id)
+      SavedClaim::DependencyClaim.find(claim_id) unless claim_id.nil?
     rescue => e
       Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
       nil
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
-    end
-
-    def tags
-      @tags ||= ["service:#{service}", "v2:#{@use_v2}"]
+      { service:, claim: @claim, user_account_uuid: nil, tags: }
     end
 
     def track_submission_exhaustion(msg, email = nil)
-      additional_context = default_payload.merge({ message: msg })
+      additional_context = default_payload.merge({ error: msg })
       if email
         # if an email address is present it means an email has been sent by vanotify
         # this means the silent failure is avoided.
-        log_silent_failure_no_confirmation(additional_context, call_location: caller_locations.first)
+        log_silent_failure_avoided(additional_context, call_location: caller_locations.first)
       else
         # if no email is present, log silent failure
         log_silent_failure(additional_context, call_location: caller_locations.first)
@@ -109,13 +128,24 @@ module Dependents
     end
 
     def track_send_received_email_failure(e, user_account_uuid = nil)
-      track_send_email_failure("'Received' email failure for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                               e, user_account_uuid)
+      track_send_email_failure(
+        @claim,
+        nil, # lighthouse_service (I don't know if we have this) TODO: Research by application team.
+        user_account_uuid,
+        'submitted',
+        e
+      )
+    end
+
+    def track_pdf_upload_error
+      metric = "#{CLAIM_STATS_KEY}.upload_pdf.failure"
+      payload = default_payload.merge({ statsd: metric })
+
+      track_event('error', 'DependencyClaim error in upload_to_vbms method', metric, payload)
     end
 
     def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
-      metric = "#{metric}.v2" if @use_v2
       payload = default_payload.merge({ statsd: metric, e:, form_id: })
 
       StatsD.increment(metric, tags:)
@@ -124,7 +154,6 @@ module Dependents
 
     def track_pdf_overflow_tracking_failure(e)
       metric = "#{CLAIM_STATS_KEY}.track_pdf_overflow.failure"
-      metric = "#{metric}.v2" if @use_v2
       payload = default_payload.merge({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
@@ -137,8 +166,27 @@ module Dependents
       StatsD.increment(metric, tags:)
     end
 
+    # Tracks a pension-related submission metric to StatsD
+    #
+    # @param form_id [String] The form identifier (e.g., '686C-674-V2')
+    # @param form_type [String] The type of form being submitted (e.g., '21-686c', '21-674', '686c-674')
+    # @return [void]
+    def track_pension_related_submission(form_id:, form_type:)
+      tags = ["form_id:#{form_id}"]
+      metric = "#{PENSION_SUBMISSION_STATS_KEY}.#{form_type}.submitted"
+      StatsD.increment(metric, tags:)
+    end
+
     def track_event(level, message, stats_key, payload = {})
-      submit_event(level, message, stats_key, default_payload.merge(payload))
+      payload = default_payload.merge(payload)
+      submit_event(level, message, stats_key, **payload)
+    rescue => e
+      Rails.logger.error('Dependents::Monitor#track_event error',
+                         level:, message:, stats_key:, payload:, error: e.message)
+    end
+
+    def claim_stats_key
+      CLAIM_STATS_KEY
     end
   end
 end

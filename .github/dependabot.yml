@@ -13,9 +13,12 @@ updates:
       interval: "daily"
       time: "09:00"
       timezone: "UTC"
+    cooldown:
+      semver-major-days: 21
+      semver-minor-days: 14
+      semver-patch-days: 7
     ignore:
       - dependency-name: "vets_json_schema"
-      - dependency-name: "active_model_serializers"
       - dependency-name: "sidekiq"
       - dependency-name: "sidekiq-pro"
       - dependency-name: "sidekiq-ent"

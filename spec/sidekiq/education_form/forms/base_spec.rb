@@ -6,12 +6,6 @@ RSpec.describe EducationForm::Forms::Base, form: :education_benefits, type: :mod
   let!(:application) { create(:va1990).education_benefits_claim }
   let(:renderer) { described_class.new(application) }
 
-  context 'build' do
-    it 'returns 1990 forms' do
-      expect(described_class.build(application)).to be_a(EducationForm::Forms::VA1990)
-    end
-  end
-
   describe '#hours_and_type' do
     subject do
       renderer.hours_and_type(OpenStruct.new(training))
@@ -65,18 +59,6 @@ RSpec.describe EducationForm::Forms::Base, form: :education_benefits, type: :mod
     it 'returns YES for truthy values' do
       expect(renderer.yesno(true)).to eq('YES')
       expect(renderer.yesno('true')).to eq('YES')
-    end
-  end
-
-  describe '#benefit_type' do
-    subject do
-      described_class.new(education_benefits_claim)
-    end
-
-    let(:education_benefits_claim) { create(:va1990e).education_benefits_claim }
-
-    it 'returns the benefit type shorthand' do
-      expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
     end
   end
 

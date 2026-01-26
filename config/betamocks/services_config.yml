@@ -2,12 +2,24 @@
 :services:
 
 # BGS
+# FYI: mocks are generally managed in the bgs-ext gem.
 - :name: "BGS"
   :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/VDC/ManageRepresentativeService"
       :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+
+# BID Awards  
+- :name: "BID Awards"
+  :base_uri: "bid-api-test.dev.bip.va.gov:443"
+  :endpoints:
+    - :method: :get
+      :path: "/api/v1/awards/pension/*"
+      :file_path: "bid/awards/pension/"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/api\/v1\/awards\/pension\/(.+)'
 
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
@@ -42,11 +54,18 @@
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*"
-      :file_path: "/travel_pay/claims/show/default"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/[0-9a-fA-F-]{36}"
+      :file_path: "/travel_pay/claims/show"
       :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)'
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
     - :method: :patch
@@ -60,16 +79,21 @@
       :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
-    - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
-      :file_path: "/travel_pay/expenses/default"
-      :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
       :file_path: "/travel_pay/documents"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
+      :response_delay: 0.3
+    ## Expenses
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1/expenses/other"
+      :file_path: "/travel_pay/expenses/other/create"
       :response_delay: 0.3
 
 #CRM Token post
@@ -304,64 +328,6 @@
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
   :endpoints:
-  # PCIU email
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
-    :file_path: "evss/pciu/email"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
-    :file_path: "evss/pciu/post_email"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIU primary phone
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
-    :file_path: "evss/pciu/primary_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
-    :file_path: "evss/pciu/post_primary_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIU alternate phone
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
-    :file_path: "evss/pciu/alternate_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
-    :file_path: "evss/pciu/post_alternate_phone"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  # PCIUAddress
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address/states"
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
-    :file_path: "evss/pciu_address/countries"
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
-    :file_path: "evss/pciu_address/address"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
-    :file_path: "evss/pciu_address/address_update"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
 
   # Intent To File
   - :method: :get
@@ -615,15 +581,6 @@
       :uid_location: header
       :uid_locator: X-VA-SSN
 
-# IHUB
-- :name: 'IHub'
-  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
-  :endpoints:
-  # Appointments
-  - :method: :get
-    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
-    :file_path: "ihub/appointments/default"
-
 # Search
 - :name: 'Search'
   :base_uri: <%= "#{URI(Settings.search.url).host}:#{URI(Settings.search.url).port}" %>
@@ -678,8 +635,22 @@
         :uid_location: 'url'
         :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
     - :method: :get
-      :path: "/facilities/v2/facilities/*"
+      :path: "/vpg/v1/patients/*/appointments"
+      :file_path: "vaos/vpg/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vpg\/v1\/patients\/([a-zA-Z0-9]+)\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities"
       :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'ids'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities/get"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
@@ -727,27 +698,55 @@
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
 
-#Travel Claim VEIS Auth (BTSSS)
+#CheckIn Travel Claim VEIS Auth (BTSSS)
 - :name: "Travel Claim VEIS Auth Service"
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/v2.0/token" %>
-      :file_path: "/travel_claim/token/default"
+      :file_path: "/travel_claim/v0/token/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/token" %>
+      :file_path: "/travel_claim/v1/token/default"
       :response_delay: 0.3
 
-#Travel Claim Ingest Service (BTSSS)
-- :name: "Travel Claim Ingest Service"
+#CheckIn Travel Claim Service (BTSSS)
+- :name: "CheckIn Travel Claim Service"
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).port}" %>
   :endpoints:
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/submitclaim" %>
-      :file_path: "/travel_claim/submitclaim/default"
-      :response_delay: 15
+      :file_path: "/travel_claim/v0/submitclaim/default"
+      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
-      :file_path: "/travel_claim/claimstatus/default"
-      :response_delay: 1
+      :file_path: "/travel_claim/v0/claimstatus/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v4/auth/system-access-token"
+      :file_path: "/travel_claim/v1/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/api/v3/claims"
+      :file_path: "/travel_claim/claims/index/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/appointments/find-or-add"
+      :file_path: "/travel_claim/v1/appointments/default"
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/api/v3/claims/*/submit"
+      :file_path: "/travel_claim/v1/claims/submit/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/claims"
+      :file_path: "/travel_claim/v1/claims/create/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/api/v3/expenses/mileage"
+      :file_path: "/travel_claim/v1/expenses/create/default"
+      :response_delay: 0.3
 
 #CHIP
 - :name: "CHIP"
@@ -915,6 +914,60 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/ChargeItem"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/charge_item"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Encounter"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/encounter"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Invoice"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/MedicationDispense"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/medication_dispense"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Organization"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Patient"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Invoice/*"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/invoice_detail"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/Invoice\/(.+)'
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Account"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/account"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
+    - :method: :get
+      :path: "/services/health-care-costs-coverage/v0/r4/Medication"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/medication"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
 
 # EPS (Enhanced Patient Services) API
 - :name: "EPS API"
@@ -1060,8 +1113,112 @@
   :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
   :endpoints:
     - :method: :get
-      :path: "/mhvapi/v1/medicalrecords/labs"
+      :path: "/v1/medicalrecords/allergies"
+      :file_path: "mhv/uhd/allergies"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
+    - :method: :get
+      :path: "/v1/medicalrecords/labs"
       :file_path: "mhv/uhd/labs"
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/conditions"
+      :file_path: "mhv/uhd/conditions"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
+    - :method: :get
+      :path: "/v1/medicalrecords/notes"
+      :file_path: "mhv/uhd/notes"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/vitals"
+      :file_path: "mhv/uhd/vitals"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"
+    - :method: :get
+      :path: "/v1/medicalrecords/ccd"
+      :file_path: "mhv/uhd/ccd"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patientId"
+
+# VRE
+- :name: "VRE"
+  :base_uri: <%= "#{URI(Settings.res.base_url).host}:#{URI(Settings.res.base_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/suite/webapi/chapter31-eligibility-details-search"
+      :file_path: "vre/ch31_eligibility"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+    - :method: :post
+      :path: "/suite/webapi/get-ch31-case-details"
+      :file_path: "vre/ch31_case_details"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+
+# SOB/DGI
+- :name: "SOB"
+  :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/external-api-service/api/v1/claimants"
+      :file_path: "dgi/sob"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'ssn":"(\w+)"'
+
+# VASS Auth Service
+- :name: "VASS Auth Service"
+  :base_uri: <%= "#{URI(Settings.vass.auth_url).host}:#{URI(Settings.vass.auth_url).port || 443}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.vass.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/vass/oauth_token/default"
+
+# VASS API
+- :name: "VASS API"
+  :base_uri: <%= "#{URI(Settings.vass.api_url).host}:#{URI(Settings.vass.api_url).port || 443}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/api/AppointmentAvailability"
+      :file_path: "/vass/appointment_availability/default"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'veteranId":"([^"]+)"'
+    - :method: :post
+      :path: "/api/CancelAppointment"
+      :file_path: "/vass/cancel_appointment/default"
+    - :method: :get
+      :path: "/api/GetAgentSkills"
+      :file_path: "/vass/agent_skills/default"
+    - :method: :get
+      :path: "/api/GetVeteran"
+      :file_path: "/vass/get_veteran"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'veteranId'
+    - :method: :get
+      :path: "/api/GetVeteranAppointment"
+      :file_path: "/vass/get_veteran_appointment"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'appointmentId'
+    - :method: :post
+      :path: "/api/GetVeteranAppointments"
+      :file_path: "/vass/get_veteran_appointments"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'veteranId":"([^"]+)"'
+    - :method: :post
+      :path: "/api/SaveAppointment"
+      :file_path: "/vass/save_appointment/default"

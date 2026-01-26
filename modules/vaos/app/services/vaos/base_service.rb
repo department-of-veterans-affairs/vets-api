@@ -2,11 +2,12 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'vets/shared_logging'
 
 module VAOS
   class BaseService < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include SentryLogging
+    include Vets::SharedLogging
 
     STATSD_KEY_PREFIX = 'api.vaos'
 

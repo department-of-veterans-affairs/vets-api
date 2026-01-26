@@ -12,6 +12,7 @@ require 'debt_management_center/sharepoint/request'
 require 'debts_api/v0/form5655/send_confirmation_email_job'
 require 'pdf_fill/filler'
 require 'sidekiq'
+require 'sidekiq/attr_package'
 require 'json'
 
 module DebtsApi
@@ -20,7 +21,7 @@ module DebtsApi
   # Allows users to submit financial status reports, and download copies of completed reports.
   #
   class V0::FinancialStatusReportService < DebtManagementCenter::BaseService
-    include SentryLogging
+    include Vets::SharedLogging
 
     class FSRNotFoundInRedis < StandardError; end
     class FSRInvalidRequest < StandardError; end
@@ -52,11 +53,12 @@ module DebtsApi
     #
     def submit_financial_status_report(form)
       if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
+        cache_key = Sidekiq::AttrPackage.create(email: @user.email, first_name: @user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
-            'email' => @user.email,
-            'first_name' => @user.first_name,
+            'submission_type' => 'fsr',
+            'cache_key' => cache_key,
             'user_uuid' => @user.uuid,
             'template_id' => IN_PROGRESS_TEMPLATE_ID
           }
@@ -172,13 +174,13 @@ module DebtsApi
 
     def send_vha_confirmation_email(_status, options)
       return if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
-      return if options['email'].blank?
+      return if options['cache_key'].blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        options['email'],
+        nil,
         options['template_id'],
-        options['email_personalization_info'],
-        { id_type: 'email', failure_mailer: false }
+        nil,
+        { id_type: 'email', failure_mailer: false, cache_key: options['cache_key'] }
       )
     end
 
@@ -224,16 +226,22 @@ module DebtsApi
       return unless defined?(Sidekiq::Batch)
 
       StatsD.increment("#{DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY}.initiated")
-      template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
 
       submission_batch = Sidekiq::Batch.new
-      submission_batch.on(
-        :success,
-        'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
-        'email' => @user.email&.downcase,
-        'email_personalization_info' => email_personalization_info,
-        'template_id' => template
-      )
+      email = @user.email&.downcase
+      if email.present?
+        template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
+        cache_key = Sidekiq::AttrPackage.create(
+          email:,
+          personalisation: email_personalization_info
+        )
+        submission_batch.on(
+          :success,
+          'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
+          'cache_key' => cache_key,
+          'template_id' => template
+        )
+      end
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
       end
@@ -249,7 +257,7 @@ module DebtsApi
         # Instead use #validate! to raise an ActiveModel::ValidationError error which contains a more detailed message
         fsr.validate!
       rescue ActiveModel::ValidationError => e
-        log_exception_to_sentry(e, { fsr_attributes: fsr.attributes, fsr_response: response.to_h })
+        log_exception_to_rails(e)
       end
     end
 
@@ -269,8 +277,12 @@ module DebtsApi
       email = @user.email&.downcase
       return if email.blank?
 
+      cache_key = Sidekiq::AttrPackage.create(
+        email:,
+        personalisation: email_personalization_info
+      )
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        email, template_id, email_personalization_info, { id_type: 'email' }
+        nil, template_id, nil, { id_type: 'email', cache_key: }
       )
     end
 

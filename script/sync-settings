@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# Wrapper script for sync_settings.rb - uses devops utilities
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SYNC_SCRIPT="$SCRIPT_DIR/sync_settings.rb"
+
+USAGE=$(cat <<-END
+sync-settings [OPTIONS] NAMESPACE ENVIRONMENT
+
+Sync settings from AWS Parameter Store to settings.local.yml
+Uses devops repository utilities for AWS operations.
+
+ARGUMENTS:
+  NAMESPACE     Settings namespace (e.g., 'mhv.rx', 'evss.letters')
+  ENVIRONMENT   Environment name (e.g., 'staging', 'dev', 'prod')
+
+OPTIONS:
+  --force       Overwrite existing values without prompting
+  --dry-run     Show what would be changed without making changes
+  -h, --help    Show this help message
+
+EXAMPLES:
+  sync-settings mhv.rx staging
+  sync-settings evss.letters dev --force
+  sync-settings bgs prod --dry-run
+
+REQUIREMENTS:
+  - devops repository cloned as sibling to vets-api
+  - devops/utilities/ssm-parameters.sh
+  - devops/utilities/ssm-portforwarding.sh
+
+The script will:
+1. Use devops/utilities/ssm-parameters.sh to fetch parameters
+2. Detect forward proxy URLs and set up local tunneling  
+3. Update settings.local.yml with the new values
+4. Update config/settings/test.local.yml for test environment
+5. Use devops/utilities/ssm-portforwarding.sh for proxy tunnels
+6. Prompt for confirmation before overwriting existing values (unless --force)
+
+Forward proxy URLs (fwdproxy-*.vfs.va.gov:*) will be automatically detected
+and replaced with localhost URLs. Tunnel startup scripts will be generated.
+END
+)
+
+if [[ $# -lt 2 ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+  echo "$USAGE"
+  exit 0
+fi
+
+# Parse arguments
+NAMESPACE=""
+ENVIRONMENT=""
+FORCE=""
+DRY_RUN=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --force)
+      FORCE="--force"
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN="--dry-run"
+      shift
+      ;;
+    -h|--help)
+      echo "$USAGE"
+      exit 0
+      ;;
+    *)
+      if [[ -z "$NAMESPACE" ]]; then
+        NAMESPACE="$1"
+      elif [[ -z "$ENVIRONMENT" ]]; then
+        ENVIRONMENT="$1"
+      else
+        echo "Error: Too many arguments"
+        echo "$USAGE"
+        exit 1
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$NAMESPACE" ]] || [[ -z "$ENVIRONMENT" ]]; then
+  echo "Error: Both NAMESPACE and ENVIRONMENT are required"
+  echo "$USAGE"
+  exit 1
+fi
+
+# Check if Ruby script exists
+if [[ ! -f "$SYNC_SCRIPT" ]]; then
+  echo "Error: Sync script not found: $SYNC_SCRIPT"
+  exit 1
+fi
+
+# Check if devops repo exists
+DEVOPS_PATH="$(cd "$SCRIPT_DIR/../../devops" 2>/dev/null && pwd)"
+if [[ ! -d "$DEVOPS_PATH" ]]; then
+  echo "Error: devops repository not found as sibling to vets-api"
+  echo "Expected location: $(dirname "$SCRIPT_DIR")/devops"
+  echo ""
+  echo "Please clone the devops repository:"
+  echo "  cd $(dirname "$SCRIPT_DIR")"
+  echo "  git clone [devops-repo-url] devops"
+  exit 1
+fi
+
+echo "Using devops utilities from: $DEVOPS_PATH"
+
+# Run the Ruby script
+exec ruby "$SYNC_SCRIPT" --namespace "$NAMESPACE" --environment "$ENVIRONMENT" $FORCE $DRY_RUN

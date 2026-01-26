@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'date'
-
+# rubocop:disable Metrics/ModuleLength
 module PdfFill
   module Forms
     module FormHelper
@@ -30,9 +30,15 @@ module PdfFill
         country = address['country'] || address['country_name']
         return if country.blank?
 
-        if country.size == 3
+        case country.size
+        when 3
+          # 3-character code (ISO 3166-1 alpha-3), convert to 2-character (alpha-2)
           IsoCountryCodes.find(country).alpha2
+        when 2
+          # Already a 2-character code (ISO 3166-1 alpha-2), return as-is
+          country
         else
+          # Country name or other format, search by name
           IsoCountryCodes.search_by_name(country)[0].alpha2
         end
       rescue IsoCountryCodes::UnknownCodeError
@@ -127,6 +133,49 @@ module PdfFill
         bool_attribute ? 'Yes' : 'No'
       end
 
+      def format_radio_yes_no(value)
+        return '' if value.nil?
+
+        case value
+        when 'Y'
+          'Yes'
+        when 'N'
+          'No'
+        else
+          # Value can sometimes be 'NA'
+          value
+        end
+      end
+
+      def split_currency_string(decimal_string)
+        return if decimal_string.blank?
+
+        dollars, cents = decimal_string.split('.')
+        dollars ||= ''
+        reverse_dollars = dollars.reverse.scan(/\d{1,3}/)
+
+        {
+          thousands: reverse_dollars[1]&.reverse&.rjust(3),
+          ones: reverse_dollars[0]&.reverse&.rjust(3),
+          cents: cents || '00'
+        }
+      end
+
+      def domestic?(country)
+        country.in?(%w[USA US])
+      end
+
+      def normalize_mailing_address(address)
+        # Not necessary to include country if domestic
+        if domestic?(address['country'])
+          address.delete('country')
+        else
+          address['country'] = extract_country(address)
+        end
+        # Format Mexican state names
+        address['state'] = address['state'].gsub('-', ' ').titleize if address['country'].in?(%w[MX])
+      end
+
       # Further readability improvements require various refactoring and code
       # de-duplication across different forms.
       module PhoneNumberFormatting
@@ -138,7 +187,12 @@ module PdfFill
             'phone_last_four_numbers' => phone_number[6..9]
           }
         end
+
+        def format_us_phone(number)
+          expand_phone_number(number).values.join('-')
+        end
       end
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

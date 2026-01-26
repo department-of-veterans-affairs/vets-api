@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-module AccreditedRepresentativePortal
+module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
   RSpec.describe PowerOfAttorneyRequestPolicy, type: :policy do
     subject(:policy) { described_class.new(user, power_of_attorney_request) }
 
@@ -11,7 +11,9 @@ module AccreditedRepresentativePortal
     let(:power_of_attorney_holders) { [] }
 
     before do
-      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      )
     end
 
     describe '#index?' do
@@ -23,8 +25,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has at least one POA holder but does not accept digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: false)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: false
+            )
+          ]
         end
 
         it 'denies access' do
@@ -34,8 +40,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has at least one POA holder that accepts digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: true)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: true
+            )
+          ]
         end
 
         it 'allows access' do
@@ -53,8 +63,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has a matching POA code but does not accept digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: false)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: false
+            )
+          ]
         end
 
         it 'denies access' do
@@ -64,8 +78,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has a matching POA code and accepts digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: true)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: true
+            )
+          ]
         end
 
         it 'allows access' do
@@ -97,8 +115,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has matching POA holders but does not accept digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: false)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: false
+            )
+          ]
         end
 
         it 'returns an empty scope' do
@@ -108,8 +130,12 @@ module AccreditedRepresentativePortal
 
       context 'when user has matching POA holders that accept digital POAs' do
         let(:power_of_attorney_holders) do
-          [PowerOfAttorneyHolder.new(type: 'veteran_service_organization', poa_code: 'POA123',
-                                     can_accept_digital_poa_requests: true)]
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization', poa_code: 'POA123',
+              name: 'Org Name', can_accept_digital_poa_requests: true
+            )
+          ]
         end
 
         it 'returns only matching requests' do

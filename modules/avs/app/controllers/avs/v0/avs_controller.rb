@@ -40,7 +40,7 @@ module Avs
 
         avs_response = avs_service.get_avs(sid)
 
-        if avs_response[:status] == 404
+        if avs_response.status == 404
           render_client_error('Not found', "No AVS found for sid #{sid}", :not_found)
           return
         end
@@ -92,7 +92,7 @@ module Avs
       end
 
       def normalize_icn(icn)
-        icn&.gsub(/V[\d]{6}$/, '')
+        icn&.gsub(/V\d{6}$/, '')
       end
 
       def icns_match?(icn_a, icn_b)

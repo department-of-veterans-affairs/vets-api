@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
+require 'vets/model'
 require 'common/exceptions'
 
 module AAL
-  class CreateAALForm < Common::Form
-    include SentryLogging
+  class CreateAALForm
+    include Vets::Model
+    include Vets::SharedLogging
 
     attribute :user_profile_id, Integer
     attribute :activity_type, String
     attribute :action, String
-    attribute :completion_time, Common::UTCTime
+    attribute :completion_time, Vets::Type::UTCTime
     attribute :performer_type, String
     attribute :detail_value, String
     attribute :status, Integer
