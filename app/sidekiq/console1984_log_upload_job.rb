@@ -20,7 +20,7 @@ class Console1984LogUploadJob
 
     Rails.logger.info "Successfully uploaded #{filename} to S3"
   ensure
-    File.delete(file_path) if File.exist?(file_path)
+    FileUtils.rm_f(file_path)
   end
 
   private
