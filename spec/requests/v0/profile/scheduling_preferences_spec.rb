@@ -12,7 +12,6 @@ RSpec.describe 'V0::Profile::SchedulingPreferences', type: :request do
     allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences).and_return(true)
     allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
 
-    # Mock service response
     service_response_mock = double(
       status: 200,
       person_options: [],
@@ -24,7 +23,6 @@ RSpec.describe 'V0::Profile::SchedulingPreferences', type: :request do
     allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
       .and_return(double)
 
-    # Mock transaction response
     transaction_mock = double(
       id: 'txn-123',
       transaction_id: 'txn-123',
@@ -35,7 +33,6 @@ RSpec.describe 'V0::Profile::SchedulingPreferences', type: :request do
     allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start)
       .and_return(transaction_mock)
 
-    # Mock serializer response
     allow_any_instance_of(AsyncTransaction::BaseSerializer).to receive(:serializable_hash)
       .and_return({
                     data: {
