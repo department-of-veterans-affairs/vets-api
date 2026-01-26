@@ -65,33 +65,8 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     context 'when user has a facility in facilities ready for info alert list' do
       let(:va_treatment_facility_ids) { %w[553 999] }
 
-      it 'returns true when user is behind feature toggle' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
-                                                  user).and_return(true)
+      it 'returns true' do
         expect(service.user_facility_ready_for_info_alert?).to be true
-      end
-
-      it 'returns false when user is not behind feature toggle' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(false)
-        expect(service.user_facility_ready_for_info_alert?).to be false
-      end
-
-      it 'returns false when power switch is disabled, even if others are enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
-                                                  user).and_return(true)
-        expect(service.user_facility_ready_for_info_alert?).to be false
-      end
-
-      it 'returns false when power switch is enabled, but all others disabled' do
-        oh_feature_toggles = MHV::OhFacilitiesHelper::Service::OH_FEATURE_TOGGLES
-
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(true)
-        oh_feature_toggles.each do |toggle|
-          allow(Flipper).to receive(:enabled?).with(toggle, user).and_return(false)
-        end
-        expect(service.user_facility_ready_for_info_alert?).to be false
       end
     end
 
@@ -122,18 +97,8 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     context 'when facility id is numeric and matches string in settings' do
       let(:va_treatment_facility_ids) { [553, 999] }
 
-      it 'returns true when user is behind feature toggles' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
-                                                  user).and_return(true)
-
+      it 'returns true' do
         expect(service.user_facility_ready_for_info_alert?).to be true
-      end
-
-      it 'returns false when user is not behind feature toggles' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled, user).and_return(false)
-
-        expect(service.user_facility_ready_for_info_alert?).to be false
       end
     end
   end

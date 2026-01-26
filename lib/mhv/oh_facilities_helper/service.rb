@@ -49,7 +49,7 @@ module MHV
         return false if @current_user.va_treatment_facility_ids.blank?
 
         @current_user.va_treatment_facility_ids.any? do |facility|
-          facilities_ready_for_info_alert.include?(facility.to_s) && feature_toggle_enabled?
+          facilities_ready_for_info_alert.include?(facility.to_s)
         end
       end
 

@@ -106,14 +106,40 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
   end
 
-  describe 'GET /v0/tsa_letter/:id' do
-    let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
-    let(:content) { File.read('spec/fixtures/files/error_message.txt') }
+  describe 'GET /v0/tsa_letter/:id/version/:version_id/download' do
+    let(:document_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }
+    let(:version_id) { '920debba-cc65-479c-ab47-db9b2a5cd95f' }
 
-    it 'sends the doc pdf' do
-      skip 'Pending migration to Claims Evidence API'
-      get "/v0/tsa_letter/#{CGI.escape(document_id)}"
-      expect(response.body).to eq(content)
+    it 'renders 200 and sends the doc pdf' do
+      VCR.use_cassette('tsa_letters/download_success', { match_requests_on: %i[method uri] }) do
+        get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+        expect(response.headers['Content-Disposition']).to include('attachment')
+        expect(response.headers['Content-Disposition']).to include('filename="VETS Safe Travel Outreach Letter.pdf"')
+        expect(response.body).to eq('%PDF-1.4 fake pdf content for testing purposes')
+      end
+    end
+
+    context 'when upstream returns error status' do
+      let(:document_id) { 'nonexistent-uuid' }
+      let(:version_id) { 'nonexistent-version' }
+
+      it 'renders 503' do
+        VCR.use_cassette('tsa_letters/download_not_found', { match_requests_on: %i[method uri] }) do
+          get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
+          expect(response).to have_http_status(:service_unavailable)
+        end
+      end
+    end
+
+    context 'when user does not have an ICN' do
+      let(:user) { build(:user, icn: nil) }
+
+      it 'renders 403' do
+        get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
+        expect(response).to have_http_status(:forbidden)
+      end
     end
   end
 end
