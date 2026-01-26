@@ -41,7 +41,7 @@ module PensionAwardHelper
       if current_awards_data.present?
         award_lines = extract_award_lines(current_awards_data)
         latest_award_line = find_latest_effective_award_line(award_lines)
-        is_receiving_pension = latest_award_line&.dig('awardLineType') == 'IP'
+        is_receiving_pension = latest_award_line&.dig('award_line_type') == 'IP'
 
         { is_in_receipt_of_pension: is_receiving_pension }
       else
@@ -61,8 +61,8 @@ module PensionAwardHelper
   # @param current_awards_data [Hash] The response body from get_current_awards
   # @return [Array] Array of award lines
   def extract_award_lines(current_awards_data)
-    current_awards_data.dig('Award', 'AwardEventList', 'awardEvents')&.flat_map do |award_event|
-      award_event.dig('awardLineList', 'awardLines') || []
+    current_awards_data.dig('award', 'award_event_list', 'award_events')&.flat_map do |award_event|
+      award_event.dig('award_line_list', 'award_lines') || []
     end || []
   end
 
@@ -78,12 +78,12 @@ module PensionAwardHelper
 
     # Filter lines with effective dates prior to today
     valid_lines = award_lines.filter_map do |line|
-      effective_date = DateTime.parse(line['effectiveDate']).to_date
+      effective_date = DateTime.parse(line['effective_date']).to_date
       line if effective_date < today
     end
 
     # Return the line with the latest effective date
-    valid_lines.max_by { |line| DateTime.parse(line['effectiveDate']).to_date }
+    valid_lines.max_by { |line| DateTime.parse(line['effective_date']).to_date }
   end
 
   ##
