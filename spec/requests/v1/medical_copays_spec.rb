@@ -132,7 +132,8 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         # Block the invoice GET (the unhandled request) without referencing Invoice::Service
         allow_any_instance_of(Lighthouse::HealthcareCostAndCoverage::Configuration)
-          .to receive(:get).and_raise(Common::Client::Errors::ClientError.new(nil, 400))
+          .to receive(:get)
+          .and_raise(Common::Client::Errors::ClientError.new(nil, 400))
 
         get '/v1/medical_copays/4-1abZUKu7LnbcQc'
 
