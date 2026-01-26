@@ -89,4 +89,23 @@ describe AppealsApi::EvidenceSubmissionSerializer, type: :serializer do
       expect(attributes['detail'][0, 100]).to include evidence_submission.detail[0, 100]
     end
   end
+
+  context 'when :decision_review_evidence_final_status_field flag is enabled' do
+    before { allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(true) }
+
+    it 'includes :finalStatus' do
+      expect(attributes['finalStatus']).to be_in([true, false])
+      expect(attributes['finalStatus']).to eq(evidence_submission.in_final_status?)
+    end
+  end
+
+  context 'when :decision_review_evidence_final_status_field flag is disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:decision_review_evidence_final_status_field).and_return(false)
+    end
+
+    it 'excludes :finalStatus' do
+      expect(attributes).not_to have_key('finalStatus')
+    end
+  end
 end

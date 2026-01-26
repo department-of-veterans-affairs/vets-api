@@ -89,4 +89,102 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       expect(described_class.new(data).notification_email_address).to eq('john@example.com')
     end
   end
+
+  describe '#overflow_pdf' do
+    context 'when statement is within the character limit' do
+      let(:data) do
+        {
+          'statement' => 'a' * 3682,
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'ssn' => '123456789' }
+        }
+      end
+
+      it 'returns nil' do
+        result = described_class.new(data).overflow_pdf
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when statement exceeds the character limit' do
+      let(:data) do
+        {
+          'statement' => 'a' * 4000,
+          'full_name' => { 'first' => 'Jane', 'last' => 'Smith' },
+          'id_number' => { 'ssn' => '987654321' }
+        }
+      end
+
+      it 'creates a PDF file' do
+        result = described_class.new(data).overflow_pdf
+        expect(result).to be_a(String)
+        expect(File.exist?(result)).to be true
+
+        # Cleanup
+        File.delete(result) if result && File.exist?(result)
+      end
+    end
+
+    context 'when statement is exactly at the limit' do
+      let(:data) do
+        {
+          'statement' => 'a' * 3685,
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'ssn' => '123456789' }
+        }
+      end
+
+      it 'returns nil' do
+        result = described_class.new(data).overflow_pdf
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when statement is one character over the limit' do
+      let(:data) do
+        {
+          'statement' => 'a' * 3687,
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'ssn' => '123456789' }
+        }
+      end
+
+      it 'returns a file path' do
+        result = described_class.new(data).overflow_pdf
+        expect(result).not_to be_nil
+
+        # Cleanup
+        File.delete(result) if result && File.exist?(result)
+      end
+    end
+
+    context 'when statement is nil' do
+      let(:data) do
+        {
+          'statement' => nil,
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'ssn' => '123456789' }
+        }
+      end
+
+      it 'returns nil' do
+        result = described_class.new(data).overflow_pdf
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe 'constants' do
+    it 'defines REMARKS_SLICE_1' do
+      expect(described_class::REMARKS_SLICE_1).to eq(0..1510)
+    end
+
+    it 'defines REMARKS_SLICE_2' do
+      expect(described_class::REMARKS_SLICE_2).to eq(1511..3685)
+    end
+
+    it 'defines ALLOTTED_REMARKS_LAST_INDEX' do
+      expect(described_class::ALLOTTED_REMARKS_LAST_INDEX).to eq(3685)
+    end
+  end
 end

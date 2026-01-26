@@ -12,6 +12,9 @@ accredited_representative_portal:
       repo: department-of-veterans-affairs/va.gov-team-sensitive
   frontend_base_url: <%= ENV['accredited_representative_portal__frontend_base_url'] %>
   lighthouse:
+    benefits_claims:
+      host: <%= ENV['accredited_representative_portal__lighthouse__benefits_claims__host'] %>
+      path: <%= ENV['accredited_representative_portal__lighthouse__benefits_claims__path'] %>
     benefits_intake:
       api_key: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__api_key'] %>
       host: <%= ENV['accredited_representative_portal__lighthouse__benefits_intake__host'] %>
@@ -899,6 +902,7 @@ maintenance:
     vapro_military_info: <%= ENV['maintenance__services__vapro_military_info'] %>
     vapro_notification_settings: <%= ENV['maintenance__services__vapro_notification_settings'] %>
     vapro_personal_info: <%= ENV['maintenance__services__vapro_personal_info'] %>
+    vass: <%= ENV['maintenance__services__vass'] %>
     vbms: <%= ENV['maintenance__services__vbms'] %>
     vet360: <%= ENV['maintenance__services__vet360'] %>
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
@@ -1216,6 +1220,9 @@ reports:
     - hocine.halli@accenturefederal.com
     - adam.freemer@accenturefederal.com
 representation_management:
+  geocoder:
+    mapbox:
+      api_key: <%= ENV['representation_management__geocoder__mapbox__api_key'] %>
   ogc_attorney_excel_list_uri: ~
   ogc_claims_agent_excel_list_uri: ~
   ogc_organizations_excel_list_uri: ~
