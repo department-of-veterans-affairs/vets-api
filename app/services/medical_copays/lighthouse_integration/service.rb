@@ -102,8 +102,12 @@ module MedicalCopays
       end
 
       def retrieve_city(org_id)
-        org_data = organization_service.read(org_id)
-        org_data.dig('entry', 0, 'resource', 'address', 0, 'city')
+        address = Rails.cache.fetch("lighthouse:org:#{org_id}:address", expires_in: 24.hours) do
+          org_data = organization_service.read(org_id)
+          org_data.dig('entry', 0, 'resource', 'address', 0)
+        end
+
+        address&.dig('city')
       end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
