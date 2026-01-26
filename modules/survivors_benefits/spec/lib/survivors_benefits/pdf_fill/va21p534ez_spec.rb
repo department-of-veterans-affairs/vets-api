@@ -18,7 +18,8 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
           empty
           section-1 section-1_2
           section-2 section-2_1 section-2_2 section-2_3
-          section-3 section-3_1 section-3_2 section-3_3 section-3_4 section-3_5 section-3_6 section-3_7 section-3_8 section-3_9
+          section-3 section-3_1 section-3_2 section-3_3 section-3_4 section-3_5 section-3_6 section-3_7
+          section-3_8 section-3_9
           section-4 section-4_1 section-4_2 section-4_3
           section-5 section-5_1 section-5_2
           section-6 section-6_1
