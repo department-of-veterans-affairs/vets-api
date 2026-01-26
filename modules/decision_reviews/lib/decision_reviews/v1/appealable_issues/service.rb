@@ -37,6 +37,11 @@ module DecisionReviews
           400 => Common::Exceptions::BadRequest
         }.freeze
 
+        # API paths
+        HIGHER_LEVEL_REVIEWS_PATH = 'appealable-issues/higher-level-reviews'
+        NOTICE_OF_DISAGREEMENT_PATH = 'appealable-issues/notice-of-disagreements'
+        SUPPLEMENTAL_CLAIMS_PATH = 'appealable-issues/supplemental-claims'
+
         ##
         # Get appealable issues for higher level reviews
         # Uses 'compensation' as the default benefit type since it's the most common
@@ -50,10 +55,12 @@ module DecisionReviews
             common_log_params = { key: :get_contestable_issues, form_id: '996', user_uuid: user.uuid,
                                   upstream_system: 'Lighthouse (New Appealable Issues API)' }
             begin
-              response = config.get_higher_level_review_issues(
-                icn: user.icn.presence, # you can uncomment and use "1012832025V743496" for testing
-                benefit_type:
-              )
+              query = {
+                icn: user.icn,
+                benefitType: benefit_type,
+                receiptDate: Time.zone.now.strftime('%Y-%m-%d')
+              }
+              response = perform(:get, HIGHER_LEVEL_REVIEWS_PATH, query, config.auth_headers)
               log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
@@ -62,7 +69,7 @@ module DecisionReviews
               raise e
             end
 
-            handle_response(response, ' (HLR_V1)')
+            handle_response(response, '(HLR_V1)')
           end
         end
         ##
@@ -78,12 +85,14 @@ module DecisionReviews
             common_log_params = { key: :get_contestable_issues, form_id: '10182', user_uuid: user.uuid,
                                   upstream_system: 'Lighthouse (New Appealable Issues API)' }
             begin
-              response = config.get_notice_of_disagreement_issues(
-                icn: user.icn.presence, # you can uncomment and use "1012832025V743496" for testing
+              query = {
+                icn: user.icn,
                 # Fallback to 'compensation' since NOD benefit_type is optional per API docs
                 # (required for HLR/SC, but not NOD). Route has no path param, so may be nil.
-                benefit_type: benefit_type.presence || 'compensation'
-              )
+                benefitType: benefit_type.presence || 'compensation',
+                receiptDate: Time.zone.now.strftime('%Y-%m-%d')
+              }
+              response = perform(:get, NOTICE_OF_DISAGREEMENT_PATH, query, config.auth_headers)
               log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
@@ -92,7 +101,7 @@ module DecisionReviews
               raise e
             end
 
-            handle_response(response, ' (NOD_V1)')
+            handle_response(response, '(NOD_V1)')
           end
         end
 
@@ -109,10 +118,12 @@ module DecisionReviews
             common_log_params = { key: :get_contestable_issues, form_id: '995', user_uuid: user.uuid,
                                   upstream_system: 'Lighthouse (New Appealable Issues API)' }
             begin
-              response = config.get_supplemental_claim_issues(
-                icn: user.icn.presence, # you can uncomment and use "1012832025V743496" for testing
-                benefit_type:
-              )
+              query = {
+                icn: user.icn,
+                benefitType: benefit_type,
+                receiptDate: Time.zone.now.strftime('%Y-%m-%d')
+              }
+              response = perform(:get, SUPPLEMENTAL_CLAIMS_PATH, query, config.auth_headers)
               log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
@@ -121,7 +132,7 @@ module DecisionReviews
               raise e
             end
 
-            handle_response(response, ' (SC_V1)')
+            handle_response(response, '(SC_V1)')
           end
         end
 

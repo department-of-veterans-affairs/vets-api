@@ -291,7 +291,11 @@ decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
   appealable_issues:
     auth:
-      rsa_key: <%= ENV['decision_review__appealable_issues__auth__rsa_key'] %>
+      aud_claim_url: <%= ENV['decision_review__appealable_issues__auth__aud_claim_url'] %>
+      client_id: <%= ENV['decision_review__appealable_issues__auth__client_id'] %>
+      rsa_key_path: <%= ENV['decision_review__appealable_issues__auth__rsa_key_path'] %>
+      token_url: <%= ENV['decision_review__appealable_issues__auth__token_url'] %>
+    mock: <%= ENV['decision_review__appealable_issues__mock'] %>
     url: <%= ENV['decision_review__appealable_issues__url'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
   email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>

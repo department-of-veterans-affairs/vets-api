@@ -75,11 +75,23 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues', typ
 
       it 'uses contestable issues service and returns issues successfully' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
-          allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:info).with(success_log_args)
-          subject
-          expect(response).to be_successful
-          expect(JSON.parse(response.body)['data']).to be_an Array
+          VCR.use_cassette('decision_review/SC-GET-LEGACY_APPEALS-RESPONSE-200_V1') do
+            allow(Rails.logger).to receive(:info)
+            expect(Rails.logger).to receive(:info).with(success_log_args)
+            subject
+            expect(response).to be_successful
+            expect(JSON.parse(response.body)['data']).to be_an Array
+          end
+        end
+      end
+
+      it 'fetches issues that the Veteran could contest via a supplemental claim, but empty Legacy Appeals' do
+        VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
+          VCR.use_cassette('decision_review/SC-GET-LEGACY_APPEALS-RESPONSE-200-EMPTY_V1') do
+            subject
+            expect(response).to be_successful
+            expect(JSON.parse(response.body)['data']).to be_an Array
+          end
         end
       end
 
@@ -107,11 +119,23 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues', typ
 
       it 'uses appealable issues service and returns issues successfully' do
         VCR.use_cassette('decision_review/appealable_issues/SC-GET-APPEALABLE-ISSUES-RESPONSE-200') do
-          allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:info).with(appealable_issues_service_success_log_args)
-          subject
-          expect(response).to be_successful
-          expect(JSON.parse(response.body)['data']).to be_an Array
+          VCR.use_cassette('decision_review/SC-GET-LEGACY_APPEALS-RESPONSE-200_V1') do
+            allow(Rails.logger).to receive(:info)
+            expect(Rails.logger).to receive(:info).with(appealable_issues_service_success_log_args)
+            subject
+            expect(response).to be_successful
+            expect(JSON.parse(response.body)['data']).to be_an Array
+          end
+        end
+      end
+
+      it 'fetches issues that the Veteran could contest via a supplemental claim, but empty Legacy Appeals' do
+        VCR.use_cassette('decision_review/appealable_issues/SC-GET-APPEALABLE-ISSUES-RESPONSE-200') do
+          VCR.use_cassette('decision_review/SC-GET-LEGACY_APPEALS-RESPONSE-200-EMPTY_V1') do
+            subject
+            expect(response).to be_successful
+            expect(JSON.parse(response.body)['data']).to be_an Array
+          end
         end
       end
 

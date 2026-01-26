@@ -10,15 +10,8 @@ module DecisionReviews
       class Configuration < Common::Client::Configuration::REST
         self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
 
-        # API paths
-        HIGHER_LEVEL_REVIEWS_PATH = 'appealable-issues/higher-level-reviews'.freeze
-        NOTICE_OF_DISAGREEMENT_PATH = 'appealable-issues/notice-of-disagreements'.freeze
-        SUPPLEMENTAL_CLAIMS_PATH = 'appealable-issues/supplemental-claims'.freeze
-        TOKEN_PATH = 'oauth2/appeals/system/v1/token'
-
         # API configuration
         API_SCOPES = ['system/AppealableIssues.read'].freeze
-        DEFAULT_BENEFIT_TYPE = 'compensation'
 
         def base_path
           Settings.decision_review.appealable_issues.url
@@ -33,60 +26,12 @@ module DecisionReviews
         end
 
         ##
-        # Get appealable issues for higher level reviews
-        # Automatically sets benefit_type to 'compensation' as it's required and most common
+        # Returns authorization headers for API requests
         #
-        # @param [String] icn - Veteran's ICN
-        # @param [String] benefit_type - Type of benefit (defaults to 'compensation')
-        # @return [Faraday::Response] response from GET request
+        # @return [Hash] Headers hash with Bearer token
         #
-        def get_higher_level_review_issues(icn:, benefit_type: DEFAULT_BENEFIT_TYPE)
-          headers = { 'Authorization' => "Bearer #{access_token}" }
-          query = {
-            icn:,
-            benefitType: benefit_type,
-            receiptDate: Time.zone.now.strftime('%Y-%m-%d')
-          }
-
-          connection.get(HIGHER_LEVEL_REVIEWS_PATH, query, headers)
-        end
-
-        ##
-        # Get appealable issues for notice of disagreement
-        # Automatically sets benefit_type to 'compensation' as it's required and most common
-        #
-        # @param [String] icn - Veteran's ICN
-        # @param [String] benefit_type - Type of benefit (defaults to 'compensation')
-        # @return [Faraday::Response] response from GET request
-        #
-        def get_notice_of_disagreement_issues(icn:, benefit_type: DEFAULT_BENEFIT_TYPE)
-          headers = { 'Authorization' => "Bearer #{access_token}" }
-          query = {
-            icn:,
-            benefitType: benefit_type,
-            receiptDate: Time.zone.now.strftime('%Y-%m-%d')
-          }
-
-          connection.get(NOTICE_OF_DISAGREEMENT_PATH, query, headers)
-        end
-
-        ##
-        # Get appealable issues for supplemental claims
-        # Automatically sets benefit_type to 'compensation' as it's required and most common
-        #
-        # @param [String] icn - Veteran's ICN
-        # @param [String] benefit_type - Type of benefit (defaults to 'compensation')
-        # @return [Faraday::Response] response from GET request
-        #
-        def get_supplemental_claim_issues(icn:, benefit_type: DEFAULT_BENEFIT_TYPE)
-          headers = { 'Authorization' => "Bearer #{access_token}" }
-          query = {
-            icn:,
-            benefitType: benefit_type,
-            receiptDate: Time.zone.now.strftime('%Y-%m-%d')
-          }
-
-          connection.get(SUPPLEMENTAL_CLAIMS_PATH, query, headers)
+        def auth_headers
+          { 'Authorization' => "Bearer #{access_token}" }
         end
 
         ##
