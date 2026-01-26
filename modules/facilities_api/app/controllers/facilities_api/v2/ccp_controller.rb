@@ -2,6 +2,7 @@
 
 module FacilitiesApi
   class V2::CcpController < ApplicationController
+    include FacilitiesApi::V2::FacilitiesErrorHandler
     # Provider supports the following query parameters:
     # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
     # @param services - Optional specialty services filter
@@ -23,7 +24,6 @@ module FacilitiesApi
                     else
                       api.provider_locator(ppms_provider_params)
                     end
-
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
 
