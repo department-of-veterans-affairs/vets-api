@@ -30,6 +30,8 @@ module Ibm
       form = JSON.parse(form)
 
       perform :put, upload_url(guid:), form.to_json, { 'Content-Type' => 'application/json' }
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error("IBM MMS Upload Error: #{e.message}", guid:)
     end
 
     def upload_url(guid:)

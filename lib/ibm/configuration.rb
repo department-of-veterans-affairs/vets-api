@@ -32,9 +32,6 @@ module Ibm
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 
-        # faraday.ssl.client_cert = OpenSSL::X509::Certificate.new(File.read('/Users/joshuakfarrar/Downloads/dev-huntridge-bio.crt'))
-        # faraday.ssl.client_key = OpenSSL::PKey.read(File.read('/Users/joshuakfarrar/gcio/dev/mas-client-pkcs8.key'))
-
         faraday.request :json
 
         faraday.response :betamocks if use_mocks?

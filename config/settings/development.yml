@@ -630,7 +630,7 @@ iam_ssoe:
   timeout: 20
 ibm:
   breakers_error_threshold: 80
-  host: api-dev.digitization.gcio.com
+  host: ~
   path: "/api/validated-forms"
   use_mocks: false
   version: v1
