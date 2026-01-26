@@ -2,9 +2,9 @@
 
 ## Detect
 Patterns to flag in code reviews:
-- `rescue => e` without exception class - catches everything including typos
+- `rescue => e` without exception class - catches all `StandardError` (including `NoMethodError` from typos)
 - `rescue` without any class - same as above
-- `rescue Exception` - catches SystemExit, Ctrl+C, never use
+- `rescue Exception` - catches `StandardError` AND `SystemExit`/`Interrupt` (Ctrl+C), almost never correct
 - Any broad rescue returning nil/false - hides code bugs as "no results"
 
 ## Fix

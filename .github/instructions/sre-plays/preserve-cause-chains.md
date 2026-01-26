@@ -44,4 +44,4 @@ end
 ```
 
 ## Why
-Wrapping exceptions without preserving response data loses HTTP status codes needed for proper error classification. `Lighthouse::ServiceException.send_error` logs to Sentry with full context and maps status codes correctly (504 for timeout, 503 for connection failure, 502 for upstream errors).
+Wrapping exceptions without preserving response data loses HTTP status codes needed for proper error classification. `Lighthouse::ServiceException.send_error` logs to Sentry with full context and maps the response's HTTP status to the appropriate exception class (e.g., 502→BadGateway, 503→ServiceUnavailable). Note: `Faraday::TimeoutError` has no response, so handle it explicitly before calling `send_error`.

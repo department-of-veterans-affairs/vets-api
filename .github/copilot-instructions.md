@@ -154,7 +154,7 @@ Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` f
 
 **Code Examples to Flag:**
 ```ruby
-# Bad: Bare rescue swallows everything
+# Bad: Bare rescue catches all StandardError (including NoMethodError from typos)
 rescue => e
   Rails.logger.warn("Failed"); nil
 
@@ -166,9 +166,10 @@ rescue Faraday::Error => e
 rescue Faraday::ClientError, Faraday::ServerError => e
   raise Common::Exceptions::ServiceUnavailable.new
 
-# Good: Use Lighthouse::ServiceException for proper status mapping
+# Good: Handle TimeoutError explicitly (no response to extract status from)
 rescue Faraday::TimeoutError
   raise Common::Exceptions::GatewayTimeout  # 504, no arguments
+# Good: Use Lighthouse::ServiceException for errors with responses
 rescue Faraday::ClientError, Faraday::ServerError => e
   Lighthouse::ServiceException.send_error(e, self.class.to_s.underscore, client_id, url)
 

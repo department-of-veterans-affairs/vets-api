@@ -27,7 +27,8 @@ end
 rescue Faraday::ClientError, Faraday::ServerError => e
   handle_error(e, lighthouse_client_id, endpoint)
 
-# Good: Or use BenefitsClaims::ServiceException pattern with explicit timeout handling
+# Good: Or use BenefitsClaims::ServiceException pattern
+# Note: TimeoutError has no response, so handle it explicitly first
 rescue Faraday::TimeoutError
   raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
 rescue Faraday::ClientError, Faraday::ServerError => e
