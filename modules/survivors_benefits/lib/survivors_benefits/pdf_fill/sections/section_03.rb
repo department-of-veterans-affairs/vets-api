@@ -166,7 +166,9 @@ module SurvivorsBenefits
         form_data['nationalGuardActivated'] = to_radio_yes_no(form_data['nationalGuardActivated'])
         form_data['nationalGuardActivationDate'] = split_date(form_data['nationalGuardActivationDate'])
         form_data['unitNameAndAddress'] = split_unit_into_lines(form_data['unitNameAndAddress'])
-        form_data['unitPhone'] = expand_phone_number(form_data['unitPhone']) unless form_data['unitPhone'].nil?
+        unit_phone = form_data['unitPhone']
+        unit_phone = unit_phone['contact'] if unit_phone.is_a?(Hash)
+        form_data['unitPhone'] = expand_phone_number(unit_phone.to_s)
         form_data['pow'] = to_radio_yes_no(form_data['pow'])
         form_data['powDateRange'] = {
           'from' => split_date(form_data.dig('powDateRange', 'from')),

@@ -9,6 +9,8 @@ module V0
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
+    RESULTS_PER_PAGE = 5
+    SEARCH_RADIUS = 500
 
     skip_before_action :authenticate
     before_action :load_user, only: :create
@@ -58,8 +60,12 @@ module V0
     end
 
     def facilities
-      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(lighthouse_facilities_params)
+      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(
+        lighthouse_facilities_params.merge(per_page: RESULTS_PER_PAGE)
+      )
       render(json: lighthouse_facilities)
+    rescue => e
+      Rails.logger.error("10-10CG - Error retrieving facilities: #{e.message}", params[:facility_ids])
     end
 
     private
@@ -74,16 +80,18 @@ module V0
         :state,
         :lat,
         :long,
-        :radius,
         :visn,
         :type,
         :mobile,
         :page,
-        :per_page,
         :facility_ids,
         services: [],
         bbox: []
       )
+
+      # Per Lighthouse docs, Radius may only be supplied if both lat and long are present.
+      # https://developer.va.gov/explore/api/va-facilities/docs?version=current
+      permitted_params.merge!(radius: SEARCH_RADIUS) if permitted_params[:lat] && permitted_params[:long]
 
       # The Lighthouse Facilities api expects the facility ids param as `facilityIds`
       permitted_params.to_h.transform_keys { |key| key == 'facility_ids' ? 'facilityIds' : key }

@@ -113,6 +113,7 @@ Mobile::Engine.routes.draw do
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
     get '/vet_verification_status', to: 'vet_verification_statuses#show'
+    resource :veteran_status_card, only: :show
   end
 
   namespace :v1 do
