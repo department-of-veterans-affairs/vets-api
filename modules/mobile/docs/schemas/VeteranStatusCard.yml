@@ -7,10 +7,16 @@ required:
 properties:
   type:
     type: string
+    enum:
+      - veteran_status_card
+      - veteran_status_alert
     description: "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility"
     example: veteran_status_card
   veteranStatus:
     type: string
+    enum:
+      - confirmed
+      - not confirmed
     description: "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card"
     example: confirmed
   serviceSummaryCode:
@@ -71,6 +77,10 @@ properties:
           properties:
             type:
               type: string
+              enum:
+                - text
+                - phone
+                - link
               description: The type of message component - can be 'text', 'phone', or 'link'
               example: text
             value:
