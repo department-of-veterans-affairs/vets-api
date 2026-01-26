@@ -22,6 +22,10 @@ class CreateFormIntakeSubmissions < ActiveRecord::Migration[7.0]
       t.text :request_payload_ciphertext
       t.text :response_ciphertext
       t.text :error_message_ciphertext
+      
+      # KMS encryption key management
+      t.text :encrypted_kms_key, comment: 'KMS key used to encrypt sensitive data'
+      t.boolean :needs_kms_rotation, default: false, null: false
 
       # Timestamps for tracking submission lifecycle
       t.datetime :submitted_at
