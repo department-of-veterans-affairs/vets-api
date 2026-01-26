@@ -82,27 +82,35 @@ class FlakySpecBisect
     puts "Processing: #{group_name}"
     puts '=' * 60
 
-    # Job name is "Test (Group X)" but artifact name is "Test Results Group X"
-    group_number = group_name.match(/Group\s*(\d+)/)[1]
-    artifact_name = "Test Results Group #{group_number}"
+    artifact_name = artifact_name_for_group(group_name)
     xml_content = download_artifact(artifact_name)
-
     seed, spec_files, failures = parse_xml(xml_content)
 
     puts "Seed: #{seed}"
     puts "Spec files: #{spec_files.length}"
     puts "Files: #{spec_files.first(3).join(', ')}#{spec_files.length > 3 ? '...' : ''}" if @verbose
-
-    if failures.any?
-      puts "\nFailed specs (#{failures.length}):"
-      failures.each do |failure|
-        puts "  - #{failure[:file]}"
-        puts "    #{failure[:name]}"
-        puts "    #{failure[:message]}" if @verbose && failure[:message]
-      end
-    end
-
+    print_failures(failures)
     run_bisect(seed, spec_files)
+  end
+
+  def artifact_name_for_group(group_name)
+    match = group_name.match(/Group\s*(\d+)/)
+    unless match
+      puts "Error: Could not extract group number from '#{group_name}'"
+      exit 1
+    end
+    "Test Results Group #{match[1]}"
+  end
+
+  def print_failures(failures)
+    return if failures.empty?
+
+    puts "\nFailed specs (#{failures.length}):"
+    failures.each do |failure|
+      puts "  - #{failure[:file]}"
+      puts "    #{failure[:name]}"
+      puts "    #{failure[:message]}" if @verbose && failure[:message]
+    end
   end
 
   def download_artifact(artifact_name)
@@ -133,31 +141,50 @@ class FlakySpecBisect
   end
 
   def parse_xml(xml_content)
-    doc = REXML::Document.new(xml_content)
+    doc = parse_xml_document(xml_content)
+    seed = extract_seed(doc)
+    spec_files, failures = extract_testcases(doc)
+    [seed, spec_files, failures]
+  end
 
+  def parse_xml_document(xml_content)
+    REXML::Document.new(xml_content)
+  rescue REXML::ParseException => e
+    puts "Error: Failed to parse rspec.xml - #{e.message.lines.first.strip}"
+    exit 1
+  end
+
+  def extract_seed(doc)
     seed = nil
     doc.elements.each('testsuite/properties/property') do |prop|
       seed = prop.attributes['value'] if prop.attributes['name'] == 'seed'
     end
+    unless seed
+      puts 'Error: Could not find seed in rspec.xml'
+      exit 1
+    end
+    seed
+  end
 
+  def extract_testcases(doc)
     spec_files = Set.new
     failures = []
-
     doc.elements.each('testsuite/testcase') do |testcase|
       file = testcase.attributes['file']
       spec_files.add(file.sub(%r{^\./}, '')) if file
-
-      # Check for failures
-      testcase.elements.each('failure') do |failure|
-        failures << {
-          name: testcase.attributes['name'],
-          file: file&.sub(%r{^\./}, ''),
-          message: failure.attributes['message']&.slice(0, 200)
-        }
-      end
+      extract_failure(testcase, file, failures)
     end
+    [spec_files.to_a.sort, failures]
+  end
 
-    [seed, spec_files.to_a.sort, failures]
+  def extract_failure(testcase, file, failures)
+    testcase.elements.each('failure') do |failure|
+      failures << {
+        name: testcase.attributes['name'],
+        file: file&.sub(%r{^\./}, ''),
+        message: failure.attributes['message']&.slice(0, 200)
+      }
+    end
   end
 
   def run_bisect(seed, spec_files)
@@ -172,7 +199,8 @@ class FlakySpecBisect
     puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
     ensure_bundle_ready(needs_bundle_install)
     puts
-    system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
+    success = system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
+    exit 1 unless success
   end
 
   def bundle_ready?
@@ -255,6 +283,11 @@ ARGV.each do |arg|
       args << arg
     end
   end
+end
+
+if options[:next_is_group]
+  puts 'Error: --group requires a value'
+  exit 1
 end
 
 if args.empty?
