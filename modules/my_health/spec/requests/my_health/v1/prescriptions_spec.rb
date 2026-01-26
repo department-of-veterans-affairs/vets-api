@@ -560,46 +560,46 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(error).to include('errors')
       end
 
-      it 'allows upstream service errors to bubble up for DataDog alerting' do
+      it 'returns 500 when upstream service fails' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ServerError.new('Service unavailable'))
 
-        expect do
-          VCR.use_cassette('rx_client/prescriptions/upstream_server_error') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-        end.to raise_error(Faraday::ServerError)
+        VCR.use_cassette('rx_client/prescriptions/upstream_server_error') do
+          get '/my_health/v1/prescriptions/21296515/documentation'
+        end
+
+        expect(response).to have_http_status(:internal_server_error)
       end
 
-      it 'allows connection failures to bubble up for DataDog alerting' do
+      it 'returns 500 when connection fails' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ConnectionFailed.new('Connection failed'))
 
-        expect do
-          VCR.use_cassette('rx_client/prescriptions/upstream_connection_failed') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-        end.to raise_error(Faraday::ConnectionFailed)
+        VCR.use_cassette('rx_client/prescriptions/upstream_connection_failed') do
+          get '/my_health/v1/prescriptions/21296515/documentation'
+        end
+
+        expect(response).to have_http_status(:internal_server_error)
       end
 
-      it 'allows client errors to bubble up for DataDog alerting' do
+      it 'returns 500 when client error occurs' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ClientError.new('Bad request'))
 
-        expect do
-          VCR.use_cassette('rx_client/prescriptions/upstream_client_error') do
-            get '/my_health/v1/prescriptions/21296515/documentation'
-          end
-        end.to raise_error(Faraday::ClientError)
+        VCR.use_cassette('rx_client/prescriptions/upstream_client_error') do
+          get '/my_health/v1/prescriptions/21296515/documentation'
+        end
+
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
 
