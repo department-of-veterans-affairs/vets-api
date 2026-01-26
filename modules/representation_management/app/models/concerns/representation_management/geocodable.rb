@@ -12,7 +12,8 @@ module RepresentationManagement
     # @return [Boolean] true if geocoding succeeded, false otherwise
     def geocode_and_update_location!
       # Early return if Mapbox API key is not configured
-      return false if Geocoder.config.api_key.blank?
+      # Returning true ensures the job won't be retried if the API key is missing
+      return true if Geocoder.config.api_key.blank?
 
       address = formatted_raw_address
       return false if address.blank?
