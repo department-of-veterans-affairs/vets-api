@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_service_history_enabled:
+    actor_type: user
+    description: Enables Service History flow in the 10-10EZR form.
+    enable_in_development: false   
   ezr_spouse_confirmation_flow_enabled:
     actor_type: user
     description: Enables the spouse (V2) confirmation flow in the 10-10EZR form.
@@ -1426,6 +1430,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Recent Recipients
     enable_in_development: true
+  mhv_secure_messaging_612_care_systems_fix:
+    actor_type: user
+    description: Enables/disables fix for 612 care systems bug just in case of catastrophic failure during shutdown
   mhv_secure_messaging_medications_renewal_request:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature

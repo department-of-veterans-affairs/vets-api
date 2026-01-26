@@ -7,7 +7,9 @@ module DecisionReviews
     private
 
     def records_to_update
-      @higher_level_reviews ||= ::SavedClaim::HigherLevelReview.where(delete_date: nil).order(created_at: :asc).to_a
+      ::SavedClaim::HigherLevelReview
+        .where(delete_date: nil)
+        .order(created_at: :asc)
     end
 
     def statsd_prefix
