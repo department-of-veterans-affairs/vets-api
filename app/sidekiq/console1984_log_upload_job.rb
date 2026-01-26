@@ -89,12 +89,16 @@ class Console1984LogUploadJob
       timestamp: command.created_at,
       statements: command.statements,
       sensitive: command.sensitive_access_id.present?,
-      sensitive_access: if command.sensitive_access
-                          {
-                            id: command.sensitive_access_id,
-                            justification: command.sensitive_access.justification
-                          }
-                        end
+      sensitive_access: sensitive_access_for_command(command)
+    }
+  end
+
+  def sensitive_access_for_command(command)
+    return nil unless command.sensitive_access
+
+    {
+      id: command.sensitive_access_id,
+      justification: command.sensitive_access.justification
     }
   end
 end
