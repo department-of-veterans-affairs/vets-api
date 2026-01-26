@@ -9,11 +9,16 @@ RSpec.describe Ibm::Service do
   let(:service) { Ibm::Service.new }
   let(:valid_guid) { '123e4567-e89b-12d3-a456-426614174000' }
   let(:valid_form) { { 'field1' => 'value1', 'field2' => 'value2' }.to_json }
+  let(:service_path) { 'https://fake.host/api/v1' }
+
+  before do
+    allow(Ibm::Configuration.instance).to receive(:service_path).and_return(service_path)
+  end
 
   describe '#upload_form' do
     context 'with valid parameters' do
       it 'performs a PUT request to the correct URL' do
-        stub_request(:put, "#{Ibm::Configuration.instance.service_path}/#{valid_guid}")
+        stub_request(:put, "#{service_path}/#{valid_guid}")
           .with(
             body: valid_form,
             headers: { 'Content-Type' => 'application/json' }
@@ -37,7 +42,7 @@ RSpec.describe Ibm::Service do
 
     context 'when the upload fails' do
       it 'logs an error message' do
-        stub_request(:put, "#{Ibm::Configuration.instance.service_path}/#{valid_guid}")
+        stub_request(:put, "#{service_path}/#{valid_guid}")
           .with(
             body: valid_form,
             headers: { 'Content-Type' => 'application/json' }
@@ -53,7 +58,7 @@ RSpec.describe Ibm::Service do
 
   describe '#upload_url' do
     it 'returns the correct upload URL' do
-      expected_url = "#{Ibm::Configuration.instance.service_path}/#{valid_guid}"
+      expected_url = "#{service_path}/#{valid_guid}"
       expect(service.upload_url(guid: valid_guid)).to eq(expected_url)
     end
   end
