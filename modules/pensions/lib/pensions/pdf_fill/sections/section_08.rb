@@ -141,14 +141,22 @@ module Pensions
           first_key: 'first',
           'first' => {
             limit: 12,
-            key: 'form1[0].#subform[51].Custodians_FirstName[0]'
+            key: 'form1[0].#subform[51].Custodians_FirstName[0]',
+            question_num: 8,
+            question_suffix: 'R',
+            question_label: "Custodian's First Name",
+            question_text: 'CUSTODIAN\'S FIRST NAME'
           },
           'middle' => {
             key: 'form1[0].#subform[51].Custodians_MiddleInitial1[0]'
           },
           'last' => {
             limit: 18,
-            key: 'form1[0].#subform[51].Custodians_LastName[0]'
+            key: 'form1[0].#subform[51].Custodians_LastName[0]',
+            question_num: 8,
+            question_suffix: 'R',
+            question_label: "Custodian's Last Name",
+            question_text: 'CUSTODIAN\'S LAST NAME'
           },
           'custodianAddress' => {
             'street' => {
@@ -179,13 +187,13 @@ module Pensions
             }
           },
           'custodianAddressOverflow' => {
-            question_num: 8.2,
+            question_num: 8,
             question_suffix: 'R',
             question_label: "Custodian's Address",
             question_text: 'CUSTODIAN\'S ADDRESS'
           },
           'dependentsWithCustodianOverflow' => {
-            question_num: 8.2,
+            question_num: 8,
             question_suffix: 'R',
             question_label: 'Dependents Living With This Custodian',
             question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'

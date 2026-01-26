@@ -10,6 +10,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<BENEFITS_INTAKE_SERVICE_API_KEY>') { Settings.benefits_intake_service.api_key }
   c.filter_sensitive_data('<CLAIMS_API_BD_URL>') { Settings.claims_api.benefits_documents.host }
+  c.filter_sensitive_data('<CLAIMS_EVIDENCE_API_URL>') { Settings.claims_evidence_api.base_url }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
   c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
@@ -78,6 +79,9 @@ VCR.configure do |c|
   end
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
+  c.filter_sensitive_data('<ARP_BENEFITS_CLAIMS_PATH>') do
+    Settings.accredited_representative_portal.lighthouse.benefits_claims.path
+  end
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }

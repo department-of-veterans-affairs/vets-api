@@ -88,4 +88,139 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
       expect(patient_check_in_with_data.error_message).to eq(resp)
     end
   end
+
+  describe '#approved' do
+    let(:uuid) { Faker::Internet.uuid }
+    let(:check_in) { double('Session', uuid:) }
+    let(:appointment_data) do
+      {
+        payload: {
+          appointments: [],
+          demographics: {},
+          patientDemographicsStatus: {
+            demographicsNeedsUpdate: true,
+            nextOfKinNeedsUpdate: false
+          }
+        }
+      }
+    end
+    let(:data) { double('FaradayResponse', status: 200, body: appointment_data.to_json) }
+
+    context 'when flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_detailed_logging).and_return(true)
+      end
+
+      it 'logs response structure' do
+        patient_check_in_with_data = subject.build(data:, check_in:)
+
+        expect(Rails.logger).to receive(:info).with(
+          hash_including(
+            message: 'Check-in response structure',
+            check_in_uuid: uuid
+          )
+        )
+
+        patient_check_in_with_data.approved
+      end
+
+      it 'tracks demographics flags' do
+        patient_check_in_with_data = subject.build(data:, check_in:)
+
+        expect(StatsD).to receive(:increment).with(
+          CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+          tags: ['service:check_in', 'flag:demographics_needs_update', 'needs_update:true']
+        )
+
+        expect(StatsD).to receive(:increment).with(
+          CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+          tags: ['service:check_in', 'flag:next_of_kin_needs_update', 'needs_update:false']
+        )
+
+        patient_check_in_with_data.approved
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_detailed_logging).and_return(false)
+      end
+
+      it 'does not log response structure' do
+        patient_check_in_with_data = subject.build(data:, check_in:)
+
+        expect(Rails.logger).not_to receive(:info)
+
+        patient_check_in_with_data.approved
+      end
+
+      it 'does not track demographics flags' do
+        patient_check_in_with_data = subject.build(data:, check_in:)
+
+        expect(StatsD).not_to receive(:increment)
+
+        patient_check_in_with_data.approved
+      end
+    end
+  end
+
+  describe '#log_response_structure' do
+    let(:uuid) { Faker::Internet.uuid }
+    let(:check_in) { double('Session', uuid:) }
+    let(:data_with_demographics) do
+      {
+        payload: {
+          appointments: [{ appointmentIEN: '123' }],
+          demographics: { homePhone: '555-1234' },
+          patientDemographicsStatus: {
+            demographicsNeedsUpdate: true,
+            nextOfKinNeedsUpdate: false,
+            emergencyContactNeedsUpdate: true
+          }
+        }
+      }
+    end
+    let(:data) { double('FaradayResponse', status: 200, body: data_with_demographics.to_json) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:check_in_experience_detailed_logging).and_return(true)
+    end
+
+    it 'logs the presence of key fields' do
+      patient_check_in_with_data = subject.build(data:, check_in:)
+
+      expect(Rails.logger).to receive(:info).with(
+        hash_including(
+          message: 'Check-in response structure',
+          check_in_uuid: uuid,
+          has_appointments: true,
+          has_demographics: true,
+          has_demographics_status: true
+        )
+      )
+
+      patient_check_in_with_data.approved
+    end
+
+    it 'tracks demographics status flags with correct tags' do
+      patient_check_in_with_data = subject.build(data:, check_in:)
+
+      expect(StatsD).to receive(:increment).with(
+        CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+        tags: ['service:check_in', 'flag:demographics_needs_update', 'needs_update:true']
+      )
+
+      expect(StatsD).to receive(:increment).with(
+        CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+        tags: ['service:check_in', 'flag:next_of_kin_needs_update', 'needs_update:false']
+      )
+
+      expect(StatsD).to receive(:increment).with(
+        CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+        tags: ['service:check_in', 'flag:emergency_contact_needs_update', 'needs_update:true']
+      )
+
+      patient_check_in_with_data.approved
+    end
+  end
 end
