@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lib/pdf_fill/fill_form_examples'
 require 'survivors_benefits/pdf_fill/va21p534ez'
+require 'pdf_utilities/datestamp_pdf'
 require 'fileutils'
 require 'tmpdir'
 require 'timecop'
@@ -53,6 +54,76 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
           expect(filtered).to eq(data)
         end
       end
+    end
+  end
+
+  describe '.stamp_signature' do
+    let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_path) { '/tmp/test_form_stamped.pdf' }
+    let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:coordinates) { { x: 123, y: 456, page_number: 7 } }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(datestamp_instance)
+      allow(described_class).to receive(:signature_overlay_coordinates).and_return(coordinates)
+    end
+
+    it 'stamps the signature when present' do
+      expect(datestamp_instance).to receive(:run).with(
+        text: 'Jane Doe',
+        x: coordinates[:x],
+        y: coordinates[:y],
+        page_number: coordinates[:page_number],
+        size: described_class::SIGNATURE_FONT_SIZE,
+        text_only: true,
+        timestamp: '',
+        template: pdf_path,
+        multistamp: true
+      ).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path, { 'claimantSignature' => 'Jane Doe' })
+      expect(result).to eq(stamped_path)
+    end
+
+    it 'builds the signature from claimant name when signature is blank' do
+      expect(datestamp_instance).to receive(:run).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path,
+                                               { 'claimantFullName' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                                 'claimantSignature' => '' })
+      expect(result).to eq(stamped_path)
+    end
+
+    it 'returns the original PDF when signature is missing' do
+      result = described_class.stamp_signature(pdf_path, { 'claimantSignature' => '' })
+      expect(result).to eq(pdf_path)
+      expect(PDFUtilities::DatestampPdf).not_to have_received(:new)
+    end
+
+    it 'returns nil when pdf_path is nil' do
+      result = described_class.stamp_signature(nil, { 'claimantSignature' => 'Jane Doe' })
+
+      expect(result).to be_nil
+      expect(described_class).not_to have_received(:signature_overlay_coordinates)
+      expect(PDFUtilities::DatestampPdf).not_to have_received(:new)
+    end
+
+    it 'falls back to template coordinates when filled PDF lacks widget' do
+      allow(described_class).to receive(:signature_overlay_coordinates).with(pdf_path).and_return(nil)
+      allow(described_class).to receive(:signature_overlay_coordinates)
+        .with(described_class::TEMPLATE).and_return(coordinates)
+
+      expect(datestamp_instance).to receive(:run).and_return(stamped_path)
+
+      result = described_class.stamp_signature(pdf_path, { 'claimantSignature' => 'Jane Doe' })
+      expect(result).to eq(stamped_path)
+    end
+
+    it 'rescues errors and returns the original PDF path' do
+      allow(datestamp_instance).to receive(:run).and_raise(StandardError, 'boom')
+
+      result = described_class.stamp_signature(pdf_path, { 'claimantSignature' => 'Jane Doe' })
+      expect(result).to eq(pdf_path)
     end
   end
 end

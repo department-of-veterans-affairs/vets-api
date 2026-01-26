@@ -61,32 +61,31 @@ RSpec.describe BID::Awards::Service do
         response = service.get_current_awards
 
         expect(response.status).to eq(200)
-        expect(response.body).to have_key('Award')
+        expect(response.body).to have_key('award')
 
-        award = response.body['Award']
-        expect(award['awardType']).to eq('CPL')
-        expect(award['awardTypeDesc']).to eq('Compensation/Pension Live')
-        expect(award['beneficiaryID']).to eq(12_960_359)
-        expect(award['veteranID']).to eq(12_960_359)
-
-        expect(award['AwardEventList']).to have_key('awardEvents')
-        award_events = award['AwardEventList']['awardEvents']
+        award = response.body['award']
+        expect(award['award_type']).to eq('CPL')
+        expect(award['award_type_desc']).to eq('Compensation/Pension Live')
+        expect(award['beneficiary_id']).to eq(12_960_359)
+        expect(award['veteran_id']).to eq(12_960_359)
+        expect(award['award_event_list']).to have_key('award_events')
+        award_events = award['award_event_list']['award_events']
         expect(award_events).to be_an(Array)
         expect(award_events.length).to be > 0
 
         first_event = award_events.first
-        expect(first_event['awardEventStatus']).to eq('Authorized')
-        expect(first_event['awardEventType']).to eq('S')
+        expect(first_event['award_event_status']).to eq('Authorized')
+        expect(first_event['award_event_type']).to eq('S')
 
-        expect(first_event['awardLineList']).to have_key('awardLines')
-        award_lines = first_event['awardLineList']['awardLines']
+        expect(first_event['award_line_list']).to have_key('award_lines')
+        award_lines = first_event['award_line_list']['award_lines']
         expect(award_lines).to be_an(Array)
         expect(award_lines.length).to be > 0
 
         first_line = award_lines.first
-        expect(first_line['awardLineType']).to eq('IP')
-        expect(first_line['grossAmount']).to eq('462.00')
-        expect(first_line['netAmount']).to eq('462.00')
+        expect(first_line['award_line_type']).to eq('IP')
+        expect(first_line['gross_amount']).to eq('462.00')
+        expect(first_line['net_amount']).to eq('462.00')
       end
     end
 
