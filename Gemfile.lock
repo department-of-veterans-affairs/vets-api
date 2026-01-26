@@ -348,6 +348,11 @@ GEM
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
     connection_pool (2.5.4)
+    console1984 (0.2.2)
+      irb (~> 1.13)
+      parser
+      rails (>= 7.0)
+      rainbow
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -1304,6 +1309,7 @@ DEPENDENCIES
   committee-rails
   config
   connect_vbms!
+  console1984
   coverband
   csv
   danger
