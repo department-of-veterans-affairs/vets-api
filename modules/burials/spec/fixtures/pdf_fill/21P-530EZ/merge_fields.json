@@ -18,7 +18,8 @@
     "plotAllowance":true,
     "processOption":false,
     "transportation":true,
-    "previousNames":"previous other name Jr. (navy)",
+    "previousNames": "John Jacob Schmitt Jr. ",
+    "powPeriods": [{"powDateRange": {"from": "1971-02-26", "to": "1973-03-02"}}],
     "militaryServiceNumber":"123123",
     "toursOfDuty":[
         {
