@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'hexapdf'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'pdf_utilities/datestamp_pdf'
 require 'survivors_benefits/constants'
 require 'survivors_benefits/helpers'
 require 'survivors_benefits/pdf_fill/sections/section_01'
@@ -85,6 +87,17 @@ module SurvivorsBenefits
       # Form configuration hash
       KEY = key.freeze
 
+      # Name of the AcroForm field that contains the claimant signature widget (12B)
+      SIGNATURE_FIELD_NAME = 'form1[0].#subform[218].SignatureField1[1]'
+      # Font size (points) used when stamping the signature
+      SIGNATURE_FONT_SIZE = 10
+      # Horizontal padding (points) applied to the derived signature x coordinate
+      SIGNATURE_PADDING_X = 2
+      # Vertical padding (points) applied to the derived signature y coordinate
+      SIGNATURE_PADDING_Y = 1
+      # Zero-based page index where the signature widget lives (visible page 18)
+      SIGNATURE_PAGE_INDEX = 17
+
       # Default label column width (points) for redesigned extras in this form
       DEFAULT_LABEL_WIDTH = 130
 
@@ -98,6 +111,88 @@ module SurvivorsBenefits
       def merge_fields(_options = {})
         SECTION_CLASSES.each { |section| section.new.expand(form_data) }
         form_data
+      end
+
+      # Stamp a typed signature string onto the PDF using DatestampPdf.
+      #
+      # @param pdf_path [String] Path to the PDF to stamp
+      # @param form_data [Hash] The form data containing the signature
+      # @return [String] Path to the stamped PDF (or the original path if signature is blank/on failure)
+      def self.stamp_signature(pdf_path, form_data)
+        return pdf_path if pdf_path.blank?
+
+        signature_text = signature_text_for(form_data)
+        return pdf_path if signature_text.blank?
+
+        coordinates = signature_overlay_coordinates(pdf_path) ||
+                      signature_overlay_coordinates(TEMPLATE)
+        unless coordinates
+          Rails.logger.warn(
+            'SurvivorsBenefits 21P-534EZ: Unable to derive signature coordinates; returning original PDF',
+            pdf_path:
+          )
+          return pdf_path
+        end
+
+        stamp_pdf(pdf_path, signature_text, coordinates)
+      rescue => e
+        Rails.logger.error('SurvivorsBenefits 21P-534EZ: Error stamping signature',
+                           error: e.message, backtrace: e.backtrace)
+        pdf_path
+      end
+
+      # Derive signature widget coordinates from the PDF template so the stamped
+      # signature text can be positioned correctly.
+      #
+      # @param pdf_path [String] Path to the PDF template
+      # @return [Hash, nil] Coordinates hash of the form
+      #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
+      def self.signature_overlay_coordinates(pdf_path = TEMPLATE)
+        signature_overlay_coordinates_for(pdf_path)
+      rescue => e
+        Rails.logger.error('SurvivorsBenefits 21P-534EZ: Error deriving signature coordinates',
+                           error: e.message, backtrace: e.backtrace)
+        nil
+      end
+
+      def self.signature_overlay_coordinates_for(pdf_path)
+        HexaPDF::Document.open(pdf_path) do |doc|
+          field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
+          widget = field&.each_widget&.first
+          next unless widget
+
+          rect = widget[:Rect]
+          next unless rect
+
+          llx, lly, _urx, ury = rect
+          height = ury - lly
+          y = lly + [((height - SIGNATURE_FONT_SIZE) / 2.0), 0].max + SIGNATURE_PADDING_Y
+
+          { x: llx + SIGNATURE_PADDING_X, y:, page_number: SIGNATURE_PAGE_INDEX }
+        end
+      end
+
+      def self.signature_text_for(form_data)
+        form_data['claimantSignature'].presence || claimant_full_name(form_data)
+      end
+
+      def self.claimant_full_name(form_data)
+        [form_data&.dig('claimantFullName', 'first'),
+         form_data&.dig('claimantFullName', 'last')].compact_blank.join(' ')
+      end
+
+      def self.stamp_pdf(pdf_path, signature_text, coordinates)
+        PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: signature_text,
+          x: coordinates[:x],
+          y: coordinates[:y],
+          page_number: coordinates[:page_number],
+          size: SIGNATURE_FONT_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        )
       end
     end
   end

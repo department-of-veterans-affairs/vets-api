@@ -108,7 +108,7 @@ module DependentsVerification
     end
 
     def dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(user)
+      @dependent_service ||= BGS::DependentService.new(user)
     end
 
     def monitor

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_15_225526) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -100,6 +100,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_15_225526) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "fallback_location_updated_at"
     t.index ["full_name"], name: "index_accredited_individuals_on_full_name"
     t.index ["location"], name: "index_accredited_individuals_on_location", using: :gist
     t.index ["poa_code"], name: "index_accredited_individuals_on_poa_code"
@@ -731,6 +732,40 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_15_225526) do
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
+  end
+
+  create_table "console1984_commands", force: :cascade do |t|
+    t.text "statements"
+    t.bigint "sensitive_access_id"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sensitive_access_id"], name: "index_console1984_commands_on_sensitive_access_id"
+    t.index ["session_id", "created_at", "sensitive_access_id"], name: "on_session_and_sensitive_chronologically"
+  end
+
+  create_table "console1984_sensitive_accesses", force: :cascade do |t|
+    t.text "justification"
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_console1984_sensitive_accesses_on_session_id"
+  end
+
+  create_table "console1984_sessions", force: :cascade do |t|
+    t.text "reason"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_console1984_sessions_on_created_at"
+    t.index ["user_id", "created_at"], name: "index_console1984_sessions_on_user_id_and_created_at"
+  end
+
+  create_table "console1984_users", force: :cascade do |t|
+    t.string "username", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_console1984_users_on_username"
   end
 
   create_table "debt_transaction_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1486,6 +1521,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_15_225526) do
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
   end
 
+  create_table "representation_management_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "idx_on_created_at_5b6fb39541"
+  end
+
   create_table "saved_claim_groups", force: :cascade do |t|
     t.uuid "claim_group_guid", null: false
     t.integer "parent_claim_id", null: false, comment: "ID of the saved claim in vets-api"
@@ -1984,6 +2029,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_15_225526) do
     t.string "address_line2"
     t.string "address_line3"
     t.string "phone_number"
+    t.datetime "fallback_location_updated_at"
     t.index "lower((email)::text)", name: "index_veteran_representatives_on_lower_email"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist

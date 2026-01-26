@@ -1359,13 +1359,23 @@ paths:
     get:
       description: Returns a list of user's debts.
       parameters:
+        - description: When true, returns the count of the list of the user's debts
+            only. When false (default), returns the full list of the user's debts.
+          example: true
+          in: query
+          name: countOnly
+          required: false
+          schema:
+            type: boolean
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: ./schemas/Debts.yml
+                oneOf:
+                  - $ref: ./schemas/Debts.yml
+                  - $ref: ./schemas/DebtsCount.yml
           description: OK
         '400':
           $ref: '#/components/responses/400'
