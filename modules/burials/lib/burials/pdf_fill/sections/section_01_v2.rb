@@ -145,7 +145,7 @@ module Burials
       # Extracts and normalizes the VA file number
       #
       # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
-      # 7-9 digits. The file number field on this form has space for 9 characters so trim the
+      # 7-9 digits. The file number field on this form has space for 9 characters, so trim the
       # potential leading 'c' to ensure the file number will fit into the form without overflow.
       #
       # @param va_file_number [String, nil]
