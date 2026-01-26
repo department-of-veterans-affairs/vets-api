@@ -64,6 +64,8 @@ module V0
         lighthouse_facilities_params.merge(per_page: RESULTS_PER_PAGE)
       )
       render(json: lighthouse_facilities)
+    rescue => e
+      Rails.logger.error("10-10CG - Error retrieving facilities: #{e.message}", params[:facility_ids])
     end
 
     private
