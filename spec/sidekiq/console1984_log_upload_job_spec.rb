@@ -14,6 +14,9 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   let!(:user) { create(:console1984_user, username: 'test.person@va.gov') }
 
   before do
+    # stub to check file contents
+    allow(job).to receive(:delete_log_file)
+
     FileUtils.mkdir_p(temp_dir)
 
     allow(Date).to receive(:yesterday).and_return(yesterday_date)
@@ -60,7 +63,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         let!(:command_with_sensitive) do
           create(:console1984_command,
                  session:,
-                 statements: 'User.find(12345).email',
+                 statements: 'User.find([REDACTED]).email',
                  sensitive_access:,
                  created_at: yesterday_date.beginning_of_day + 2.hours + 10.minutes)
         end
@@ -105,7 +108,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
 
           expect(sensitive_cmd).to include(
             'id' => command_with_sensitive.id,
-            'statements' => 'User.find(12345).email',
+            'statements' => 'User.find([REDACTED]).email',
             'sensitive' => true
           )
           expect(sensitive_cmd['sensitive_access']).to include(

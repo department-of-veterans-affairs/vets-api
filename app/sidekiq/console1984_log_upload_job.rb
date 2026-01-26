@@ -20,7 +20,7 @@ class Console1984LogUploadJob
 
     Rails.logger.info "Successfully uploaded #{filename} to S3"
   ensure
-    FileUtils.rm_f(file_path)
+    delete_log_file
   end
 
   private
@@ -106,5 +106,9 @@ class Console1984LogUploadJob
       id: command.sensitive_access_id,
       justification: command.sensitive_access.justification
     }
+  end
+
+  def delete_log_file
+    FileUtils.rm_f(file_path)
   end
 end
