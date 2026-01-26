@@ -106,8 +106,10 @@ module MedicalCopays
       end
 
       def retrieve_organization_address(org_id)
-        org_data = organization_service.read(org_id)
-        address = org_data.dig('entry', 0, 'resource', 'address', 0)
+        address = Rails.cache.fetch("lighthouse:org:#{org_id}:address", expires_in: 24.hours) do
+          org_data = organization_service.read(org_id)
+          org_data.dig('entry', 0, 'resource', 'address', 0)
+        end
 
         return nil unless address
 
