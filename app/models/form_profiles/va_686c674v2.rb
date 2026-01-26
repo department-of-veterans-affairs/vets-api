@@ -3,7 +3,13 @@
 require 'vets/model'
 require 'bid/awards/service'
 
+# Form profile for VA 686c-674v2
+# This class handles prefilling form data for 686c-674v2,
+# including dependent information and address details from various VA services.
 class FormProfiles::VA686c674v2 < FormProfile
+  include PensionAwardHelper
+
+  # Model representing dependent information for the 686c-674v2 form
   class DependentInformation
     include Vets::Model
 
@@ -14,6 +20,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     attribute :award_indicator, String
   end
 
+  # Model representing address information for the 686c-674v2 form
   class FormAddress
     include Vets::Model
 
@@ -31,6 +38,8 @@ class FormProfiles::VA686c674v2 < FormProfile
   attribute :form_address, FormAddress
   attribute :dependents_information, DependentInformation, array: true
 
+  # Prefills the form with user data from various VA services
+  # @return [void]
   def prefill
     prefill_form_address
     prefill_dependents_information
@@ -38,6 +47,8 @@ class FormProfiles::VA686c674v2 < FormProfile
     super
   end
 
+  # Returns metadata configuration for the form
+  # @return [Hash] metadata including version, prefill status, and return URL
   def metadata
     {
       version: 0,
@@ -48,6 +59,8 @@ class FormProfiles::VA686c674v2 < FormProfile
 
   private
 
+  # Prefills the form address using mailing address from VA Profile
+  # @return [void]
   def prefill_form_address
     begin
       mailing_address = VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
@@ -66,46 +79,13 @@ class FormProfiles::VA686c674v2 < FormProfile
     )
   end
 
+  # Returns the last four digits of the VA file number or SSN
+  # @return [String, nil] the last four digits of file number or SSN
   def va_file_number_last_four
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     (
       response.file_number.presence || user.ssn.presence
     )&.last(4)
-  end
-
-  # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
-  # Needed for FE to differentiate between 200 response and error
-  def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
-    case awards_pension[:is_in_receipt_of_pension]
-    when true
-      1
-    when false
-      0
-    else
-      -1
-    end
-  end
-
-  # @return [Integer] the net worth limit for pension, default is 163,699 as of 2026
-  # Default will be cached in future enhancement
-  def net_worth_limit
-    awards_pension[:net_worth_limit] || 163_699
-  end
-
-  # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
-  def awards_pension
-    @awards_pension ||= begin
-      response = pension_award_service.get_awards_pension
-      response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
-    rescue => e
-      payload = {
-        user_account_uuid: user&.user_account_uuid,
-        error: e.message,
-        form_id:
-      }
-      Rails.logger.warn('Failed to retrieve awards pension data', payload)
-      {}
-    end
   end
 
   ##
@@ -161,16 +141,35 @@ class FormProfiles::VA686c674v2 < FormProfile
     )
   end
 
+  # Returns the BGS dependent service instance
+  # @return [BGS::DependentV2Service] service for retrieving dependent information
   def dependent_service
-    @dependent_service ||= BGS::DependentV2Service.new(user)
+    @dependent_service ||= BGS::DependentService.new(user)
   end
 
+  # Returns the BID Awards pension service instance
+  # @return [BID::Awards::Service] service for retrieving pension award information
   def pension_award_service
     @pension_award_service ||= BID::Awards::Service.new(user)
   end
 
+  # Returns the dependents monitor instance for logging
+  # @return [Dependents::Monitor] monitor for tracking dependent events
   def monitor
     @monitor ||= Dependents::Monitor.new(nil)
+  end
+
+  ##
+  # Implementation of abstract method from PensionAwardHelper
+  # Tracks pension award errors using the monitor service
+  #
+  # @param error [Exception] The error that occurred during pension award retrieval
+  def track_pension_award_error(error)
+    monitor.track_event('warn', 'Failed to retrieve awards pension data', 'awards_pension_error', {
+                          user_account_uuid: user&.user_account_uuid,
+                          error: error.message,
+                          form_id:
+                        })
   end
 
   ##

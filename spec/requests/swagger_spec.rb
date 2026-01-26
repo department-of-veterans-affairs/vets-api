@@ -9,7 +9,7 @@ require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
 require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
-require 'bgs/service'
+require 'bgsv2/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
@@ -2410,24 +2410,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             expect(subject).to validate(:post, '/v0/search_click_tracking/?position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
-        end
-      end
-    end
-
-    describe 'search typeahead' do
-      context 'when successful' do
-        it 'returns an array of suggestions' do
-          VCR.use_cassette('search_typeahead/success') do
-            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=ebenefits')
-          end
-        end
-      end
-
-      context 'with an empty search query' do
-        it 'returns a 200 with empty results' do
-          VCR.use_cassette('search_typeahead/missing_query') do
-            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=')
-          end
         end
       end
     end

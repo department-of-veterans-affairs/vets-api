@@ -112,6 +112,13 @@ module MedicalExpenseReports
     end
 
     ##
+    # Converts the form_data into json that can be read by the IBM - GOVCIO mms connection
+    #
+    def to_ibm
+      build_ibm_payload(parsed_form)
+    end
+
+    ##
     # Class name for notification email
     # @return [Class]
     def send_email(email_type)
