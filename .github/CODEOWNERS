@@ -610,6 +610,7 @@ app/swagger/swagger/requests/travel_pay.rb @department-of-veterans-affairs/trave
 app/swagger/swagger/requests/upload_supporting_evidence.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/user.rb @department-of-veterans-affairs/octo-identity
 app/swagger/swagger/requests/veteran_readiness_employment_claims.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-core-veteran-experiences
+app/swagger/swagger/requests/veteran_status_cards.rb @department-of-veterans-affairs/mobile-api-team
 app/swagger/swagger/responses/authentication_error.rb @department-of-veterans-affairs/octo-identity
 app/swagger/swagger/responses/service_unavailable_error.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/async_transaction @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
