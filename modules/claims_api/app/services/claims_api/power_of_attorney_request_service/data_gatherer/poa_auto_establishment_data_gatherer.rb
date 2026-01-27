@@ -117,9 +117,8 @@ module ClaimsApi
         def validate_phone_data(fetched_phone_number, key)
           phone_metadata = @metadata.dig(key, 'phone_data')
           expected_phone = "#{phone_metadata&.dig('areaCode')}#{phone_metadata&.dig('phoneNumber')}"
-          fetched_phone = fetched_phone_number
 
-          if expected_phone != fetched_phone
+          if expected_phone != fetched_phone_number
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: "Phone data mismatch for #{key}"
             )
