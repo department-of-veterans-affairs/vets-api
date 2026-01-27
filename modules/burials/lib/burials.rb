@@ -14,15 +14,24 @@ module Burials
 
   # Path to the PDF - conditionally toggle between V1 and V2 versions
   def self.pdf_path
-    if Flipper.enabled?(:burial_pdf_form_alignment)
-      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
-    else
+    begin
+      if Flipper.enabled?(:burial_pdf_form_alignment)
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
+      else
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+      end
+    rescue PG::UndefinedTable, ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid
+      # Return default PDF path if Flipper table doesn't exist (during migrations)
       "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
     end
   end
 
   def self.use_v2?
-    Flipper.enabled?(:burial_pdf_form_alignment)
+    begin
+      Flipper.enabled?(:burial_pdf_form_alignment)
+    rescue PG::UndefinedTable, ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid
+      false
+    end
   end
 
   # Path to the PDF

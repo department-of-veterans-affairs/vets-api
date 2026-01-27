@@ -91,6 +91,70 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
       expect_aal_logged(1)
     end
 
+    context 'with pagination parameters' do
+      it 'returns paginated results with pagination metadata' do
+        VCR.use_cassette('mr_client/get_self_entered_information') do
+          get '/my_health/v1/medical_records/self_entered', params: { page: 1, per_page: 10 }
+        end
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        # Should have pagination metadata
+        expect(json).to have_key('pagination')
+        expect(json['pagination']['current_page']).to eq(1)
+        expect(json['pagination']['per_page']).to eq(10)
+        expect(json['pagination']).to have_key('total_entries')
+        expect(json['pagination']).to have_key('total_pages')
+
+        # Should still have responses and errors
+        expect(json).to have_key('responses')
+        expect(json).to have_key('errors')
+
+        expect_aal_logged(1)
+      end
+
+      it 'enforces maximum per_page limit' do
+        VCR.use_cassette('mr_client/get_self_entered_information') do
+          get '/my_health/v1/medical_records/self_entered', params: { page: 1, per_page: 200 }
+        end
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        # Should cap at MAX_PER_PAGE (100)
+        expect(json['pagination']['per_page']).to eq(100)
+
+        expect_aal_logged(1)
+      end
+
+      it 'defaults to page 1 if page is 0 or negative' do
+        VCR.use_cassette('mr_client/get_self_entered_information') do
+          get '/my_health/v1/medical_records/self_entered', params: { page: 0, per_page: 10 }
+        end
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        expect(json['pagination']['current_page']).to eq(1)
+
+        expect_aal_logged(1)
+      end
+
+      it 'uses default per_page of 20 when only page is provided' do
+        VCR.use_cassette('mr_client/get_self_entered_information') do
+          get '/my_health/v1/medical_records/self_entered', params: { page: 1 }
+        end
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        expect(json['pagination']['per_page']).to eq(20)
+
+        expect_aal_logged(1)
+      end
+    end
+
     context 'when one of the upstream calls error out with a 502 XML error' do
       # Test that the :mhv_xml_html_errors middleware is bypassed
       it 'reports an error for one service but still succeeds overall' do
