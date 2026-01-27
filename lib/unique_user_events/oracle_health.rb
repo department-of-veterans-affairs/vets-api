@@ -37,16 +37,14 @@ module UniqueUserEvents
     def self.generate_events(user:, event_name:, event_facility_ids: nil)
       return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
 
-      matching_facilities = if event_facility_ids
-                              filter_tracked_facilities(event_facility_ids)
-                            else
-                              return [] unless TRACKED_EVENTS.include?(event_name)
+      if event_facility_ids
+        matching_facilities = filter_tracked_facilities(event_facility_ids)
+        matching_facilities.map { |facility_id| "#{event_name}_site_#{facility_id}" }
+      else
+        return [] unless TRACKED_EVENTS.include?(event_name)
 
-                              get_user_tracked_facilities(user)
-                            end
-
-      matching_facilities.map do |facility_id|
-        "#{event_name}_oh_site_#{facility_id}"
+        matching_facilities = get_user_tracked_facilities(user)
+        matching_facilities.map { |facility_id| "#{event_name}_oh_site_#{facility_id}" }
       end
     end
 

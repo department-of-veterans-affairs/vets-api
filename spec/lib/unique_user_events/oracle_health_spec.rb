@@ -115,17 +115,17 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     end
 
     context 'when facility IDs match tracked facilities' do
-      it 'generates OH events for matching facilities' do
+      it 'generates site events for matching facilities' do
         result = described_class.generate_events(
           user:,
           event_name:,
           event_facility_ids: %w[757 688]
         )
 
-        expect(result).to contain_exactly('prescriptions_refill_requested_oh_site_757')
+        expect(result).to contain_exactly('prescriptions_refill_requested_site_757')
       end
 
-      it 'generates OH events for multiple matching facilities' do
+      it 'generates site events for multiple matching facilities' do
         # Temporarily stub TRACKED_FACILITY_IDS to include multiple facilities for this test
         stub_const('UniqueUserEvents::OracleHealth::TRACKED_FACILITY_IDS', %w[757 688])
 
@@ -136,8 +136,8 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         )
 
         expect(result).to contain_exactly(
-          'prescriptions_refill_requested_oh_site_757',
-          'prescriptions_refill_requested_oh_site_688'
+          'prescriptions_refill_requested_site_757',
+          'prescriptions_refill_requested_site_688'
         )
       end
     end
@@ -174,7 +174,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
           event_facility_ids: [757, 688]
         )
 
-        expect(result).to contain_exactly('prescriptions_refill_requested_oh_site_757')
+        expect(result).to contain_exactly('prescriptions_refill_requested_site_757')
       end
     end
 
@@ -189,7 +189,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
           event_facility_ids: %w[757]
         )
 
-        expect(result).to contain_exactly("#{non_tracked_event}_oh_site_757")
+        expect(result).to contain_exactly("#{non_tracked_event}_site_757")
       end
     end
   end

@@ -109,19 +109,19 @@ RSpec.describe UniqueUserEvents::Service do
         )
       end
 
-      it 'includes Oracle Health events when facility matches' do
-        oh_event = "#{event_name}_oh_site_757"
+      it 'includes site events when facility matches' do
+        site_event = "#{event_name}_site_757"
         allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
           .with(user:, event_name:, event_facility_ids:)
-          .and_return([oh_event])
+          .and_return([site_event])
 
         result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 
-        expect(result).to eq([event_name, oh_event])
+        expect(result).to eq([event_name, site_event])
         expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
           [
             { user_id:, event_name: },
-            { user_id:, event_name: oh_event }
+            { user_id:, event_name: site_event }
           ]
         )
       end
