@@ -130,20 +130,20 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
           OpenStruct.new(cmop_ndc_value: '00013264682', prescription_image: nil)
         ]
 
-        fetch_call_count = 0
+        fetch_call_count = Concurrent::AtomicFixnum.new(0)
         allow(controller).to receive(:get_image_uri) do |ndc|
           "https://www.myhealth.va.gov/static/MILDrugImages/1/NDC#{ndc}.jpg"
         end
 
         allow(controller).to receive(:fetch_image) do
-          fetch_call_count += 1
+          fetch_call_count.increment
           'data:image/jpeg;base64,fake_image_data'
         end
 
         controller.send(:fetch_and_include_images, mixed_data)
 
         # Should only fetch images for prescriptions with NDC values (2 out of 4)
-        expect(fetch_call_count).to eq(2)
+        expect(fetch_call_count.value).to eq(2)
       end
     end
   end
