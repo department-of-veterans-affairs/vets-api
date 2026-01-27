@@ -112,29 +112,32 @@ module MyHealth
           all_items = flatten_category_data(data[:responses])
 
           page = [params[:page].to_i, 1].max
+          per_page = calculate_per_page
 
-          # Handle per_page: default to 20 if not provided, cap at MAX_PER_PAGE
-          if params[:per_page].present?
-            per_page = [[params[:per_page].to_i, MAX_PER_PAGE].min, 1].max
-          else
-            per_page = 20
-          end
-
-          total_items = all_items.length
-          start_index = (page - 1) * per_page
-          end_index = start_index + per_page - 1
-
-          paginated_items = all_items[start_index..end_index] || []
-
-          # Group paginated items back by category
+          paginated_items = paginate_items(all_items, page, per_page)
           paginated_responses = group_by_category(paginated_items)
 
+          build_paginated_response(data[:errors], paginated_responses, page, per_page, all_items.length)
+        end
+
+        def calculate_per_page
+          # Handle per_page: default to 20 if not provided, cap at MAX_PER_PAGE
+          params[:per_page].present? ? [[params[:per_page].to_i, MAX_PER_PAGE].min, 1].max : 20
+        end
+
+        def paginate_items(all_items, page, per_page)
+          start_index = (page - 1) * per_page
+          end_index = start_index + per_page - 1
+          all_items[start_index..end_index] || []
+        end
+
+        def build_paginated_response(errors, responses, page, per_page, total_items)
           {
-            responses: paginated_responses,
-            errors: data[:errors],
+            responses:,
+            errors:,
             pagination: {
               current_page: page,
-              per_page: per_page,
+              per_page:,
               total_entries: total_items,
               total_pages: (total_items.to_f / per_page).ceil
             }
@@ -148,12 +151,12 @@ module MyHealth
 
             # Handle different data structures
             if category_data.is_a?(Array)
-              category_data.each { |item| items << { category: category, data: item } }
+              category_data.each { |item| items << { category:, data: item } }
             elsif category_data.is_a?(Hash)
               # For nested structures, try to extract arrays
               extract_items_from_hash(category_data, category, items)
             else
-              items << { category: category, data: category_data }
+              items << { category:, data: category_data }
             end
           end
           items
@@ -165,10 +168,10 @@ module MyHealth
 
           if array_keys.any?
             array_keys.each do |key|
-              hash[key].each { |item| items << { category: category, data: item } }
+              hash[key].each { |item| items << { category:, data: item } }
             end
           else
-            items << { category: category, data: hash }
+            items << { category:, data: hash }
           end
         end
 
