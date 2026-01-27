@@ -216,18 +216,8 @@ module MyHealth
 
       def set_filter_metadata(list, non_modified_collection)
         # Calculate all_medications count using the non-modified collection
-        # but avoid keeping the full copy around longer than necessary
         all_medications_count = count_grouped_prescriptions(non_modified_collection)
-        
-        {
-          filter_count: {
-            all_medications: all_medications_count,
-            active: count_active_medications(list),
-            recently_requested: get_recently_requested_prescriptions(list).length,
-            renewal: list.select(&method(:renewable)).length,
-            non_active: count_non_active_medications(list)
-          }
-        }
+        set_filter_metadata_with_count(list, all_medications_count)
       end
 
       def set_filter_metadata_with_count(list, all_medications_count)
@@ -266,6 +256,7 @@ module MyHealth
       def sort_prescriptions_with_pd_at_top(prescriptions)
         # Use sort_by which creates a new array instead of modifying in-place
         # This prevents unintended side effects when the array is referenced elsewhere
+        # Convert boolean to 0 or 1 for stable sorting: PD prescriptions (0) come first, others (1) come second
         prescriptions.sort_by { |med| med.prescription_source == 'PD' ? 0 : 1 }
       end
     end

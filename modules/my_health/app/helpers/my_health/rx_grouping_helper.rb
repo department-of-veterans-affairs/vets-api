@@ -40,28 +40,25 @@ module MyHealth
     def count_grouped_prescriptions(prescriptions)
       return 0 if prescriptions.nil?
 
-      # Use a Set to track processed prescription numbers for O(1) lookup
-      # This avoids creating a full copy of the prescriptions array
-      processed = Set.new
+      # Create a duplicate to avoid modifying the original array
+      # This is more efficient than the caller keeping a full copy just for this count
+      prescriptions = prescriptions.dup
       count = 0
 
-      # Sort once without mutating the original array
-      sorted_prescriptions = prescriptions.sort_by(&:prescription_number)
+      prescriptions.sort_by!(&:prescription_number)
 
-      sorted_prescriptions.each do |prescription|
-        # Skip if we've already counted this prescription as part of a group
-        next if processed.include?(prescription.prescription_id)
+      while prescriptions.any?
+        prescription = prescriptions[0]
+        related = select_related_rxs(prescriptions, prescription)
 
-        # Get related prescriptions
-        related = sorted_prescriptions.select do |p|
-          base_prescription = prescription.prescription_number.sub(/[A-Z]$/, '')
-          current_prescription_number = p.prescription_number.sub(/[A-Z]$/, '')
-          current_prescription_number == base_prescription && p.station_number == prescription.station_number
+        if related.length <= 1
+          count += 1
+          prescriptions.delete(prescription)
+          next
         end
 
-        # Mark all related prescriptions as processed
-        related.each { |rx| processed.add(rx.prescription_id) }
         count += 1
+        related.each { |rx| prescriptions.delete(rx) }
       end
 
       count
