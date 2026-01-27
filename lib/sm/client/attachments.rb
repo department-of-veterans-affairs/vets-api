@@ -47,6 +47,75 @@ module SM
       end
 
       ##
+      # Stream a message attachment without loading full content into memory
+      # Endpoint returns either a binary file response, or object with AWS S3 URL details.
+      # If the response is a URL, it will stream the file from that URL.
+      #
+      # @param message_id [Fixnum] the message id
+      # @param attachment_id [Fixnum] the attachment id
+      # @param header_callback [Proc] a callable that will accept response headers
+      # @yield [String] streams chunks of the attachment data to the caller
+      #
+      def stream_attachment(message_id, attachment_id, header_callback)
+        path = "message/#{message_id}/attachment/#{attachment_id}"
+        response = perform(:get, path, nil, token_headers)
+        data = response.body[:data] if response.body.is_a?(Hash)
+
+        # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
+        if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+          url = data[:url]
+          uri = URI.parse(url)
+          
+          # Set response headers based on metadata
+          headers = {
+            'Content-Type' => data[:mime_type],
+            'Content-Disposition' => "#{CONTENT_DISPOSITION}\"#{data[:name]}\""
+          }
+          header_callback.call(headers.to_a)
+          
+          # Stream the file from S3
+          Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            request = Net::HTTP::Get.new(uri)
+            http.request(request) do |file_response|
+              unless file_response.is_a?(Net::HTTPSuccess)
+                Rails.logger.error('Failed to fetch attachment from presigned URL')
+                raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+                                                                      file_response.code)
+              end
+              
+              # Stream the response body in chunks
+              file_response.read_body do |chunk|
+                yield chunk
+              end
+            end
+          end
+        else
+          # Default: stream binary file response directly from MHV
+          # Extract headers from the response
+          content_type = response.response_headers['content-type'] || 'application/octet-stream'
+          content_disposition = response.response_headers['content-disposition'] || 
+                                "#{CONTENT_DISPOSITION}\"attachment\""
+          
+          headers = {
+            'Content-Type' => content_type,
+            'Content-Disposition' => content_disposition
+          }
+          header_callback.call(headers.to_a)
+          
+          # For direct MHV responses, the body is already loaded, but we yield it in chunks
+          # to maintain consistent interface
+          body = response.body
+          chunk_size = 8192
+          offset = 0
+          while offset < body.bytesize
+            chunk = body.byteslice(offset, chunk_size)
+            yield chunk if chunk
+            offset += chunk_size
+          end
+        end
+      end
+
+      ##
       # Create a presigned URL for an attachment
       # @param file [ActionDispatch::Http::UploadedFile] the file to be uploaded
       # @return [String] the MHV S3 presigned URL for the attachment

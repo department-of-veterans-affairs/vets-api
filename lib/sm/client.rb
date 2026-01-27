@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/concerns/streaming_client'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'sm/client/preferences'
@@ -18,6 +19,7 @@ module SM
   #
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
+    include Common::Client::Concerns::StreamingClient
     include Preferences
     include Folders
     include MessageDrafts

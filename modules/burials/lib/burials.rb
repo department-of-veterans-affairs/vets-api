@@ -14,15 +14,27 @@ module Burials
 
   # Path to the PDF - conditionally toggle between V1 and V2 versions
   def self.pdf_path
-    if Flipper.enabled?(:burial_pdf_form_alignment)
-      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
-    else
+    begin
+      if Flipper.enabled?(:burial_pdf_form_alignment)
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
+      else
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+      end
+    rescue StandardError => e
+      # Default to V1 PDF path when database is not available or Flipper fails
+      Rails.logger.debug("Burials.pdf_path: Error accessing Flipper (#{e.class}: #{e.message}), using default V1 PDF path")
       "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
     end
   end
 
   def self.use_v2?
-    Flipper.enabled?(:burial_pdf_form_alignment)
+    begin
+      Flipper.enabled?(:burial_pdf_form_alignment)
+    rescue StandardError => e
+      # Default to false when database is not available or Flipper fails
+      Rails.logger.debug("Burials.use_v2?: Error accessing Flipper (#{e.class}: #{e.message}), defaulting to false")
+      false
+    end
   end
 
   # Path to the PDF
