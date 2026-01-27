@@ -39,7 +39,9 @@ RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, t
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
-        expect(json_response['data'].count).to eq(13)
+        # Cassette contains 13 allergies total, but 2 have 'entered-in-error' status
+        # (1 VistA ASPIRIN, 1 Oracle Health Cashews) which are filtered out
+        expect(json_response['data'].count).to eq(11)
         expect(json_response['data']).to be_an(Array)
         expect(json_response['data'].first['type']).to eq('allergy')
         expect(json_response['data'].first).to include(
@@ -67,6 +69,20 @@ RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, t
             UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED
           ]
         )
+      end
+
+      it 'filters out allergies with entered-in-error verificationStatus from both VistA and Oracle Health' do
+        VCR.use_cassette('unified_health_data/get_allergies_200', match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/allergies', headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+
+        # Verify that entered-in-error allergies are not included in the response
+        # VistA: ASPIRIN (id: 2676) and Oracle Health: Cashews (id: 132316427) should be filtered out
+        allergy_ids = json_response['data'].map { |a| a['id'] }
+        expect(allergy_ids).not_to include('2676')       # VistA entered-in-error
+        expect(allergy_ids).not_to include('132316427')  # Oracle Health entered-in-error
       end
 
       it 'returns a successful response with an empty data array' do

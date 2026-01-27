@@ -16,6 +16,72 @@ RSpec.describe 'AllergyAdapter' do
     allow(UnifiedHealthData::Allergy).to receive(:new).and_call_original
   end
 
+  describe '#parse' do
+    context 'when filter_by_status is true (default)' do
+      it 'filters out VistA allergies with entered-in-error verificationStatus' do
+        vista_records = allergy_sample_response['vista']['entry']
+        parsed_allergies = adapter.parse(vista_records)
+
+        # VistA sample has ASPIRIN with entered-in-error status (identifier value: 2676)
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).not_to include('2676')
+      end
+
+      it 'filters out Oracle Health allergies with entered-in-error verificationStatus' do
+        oh_records = allergy_sample_response['oracle-health']['entry']
+        parsed_allergies = adapter.parse(oh_records)
+
+        # Oracle Health sample has Cashews with entered-in-error status (id: 132316427)
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).not_to include('132316427')
+      end
+
+      it 'includes allergies with active clinicalStatus' do
+        vista_records = allergy_sample_response['vista']['entry']
+        parsed_allergies = adapter.parse(vista_records)
+
+        # Should include active allergies like TRAZODONE
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).to include('TRAZODONE')
+      end
+
+      it 'includes allergies with confirmed verificationStatus' do
+        oh_records = allergy_sample_response['oracle-health']['entry']
+        parsed_allergies = adapter.parse(oh_records)
+
+        # Should include confirmed allergies like Penicillin
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).to include('Penicillin')
+      end
+    end
+
+    context 'when filter_by_status is false' do
+      it 'includes VistA allergies with entered-in-error verificationStatus' do
+        vista_records = allergy_sample_response['vista']['entry']
+        # Manually add the id that would be set by the service
+        vista_records.each do |record|
+          next unless record['resource'] && record['resource']['identifier']
+
+          identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+          record['resource']['id'] = identifier['value'] if identifier
+        end
+
+        parsed_allergies = adapter.parse(vista_records, filter_by_status: false)
+
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).to include('2676')
+      end
+
+      it 'includes Oracle Health allergies with entered-in-error verificationStatus' do
+        oh_records = allergy_sample_response['oracle-health']['entry']
+        parsed_allergies = adapter.parse(oh_records, filter_by_status: false)
+
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).to include('132316427')
+      end
+    end
+  end
+
   describe '#parse_single_allergy' do
     it 'returns the expected fields for happy path for vista allergy with all fields' do
       vista_single_record = allergy_sample_response['vista']['entry'][0]

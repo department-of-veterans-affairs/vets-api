@@ -17,11 +17,21 @@ module UnifiedHealthData
         PRACTITIONER: 'Practitioner'
       }.freeze
 
-      def parse(records)
+      # Parses allergy records from FHIR AllergyIntolerance resources
+      #
+      # @param records [Array] Array of FHIR entry records
+      # @param filter_by_status [Boolean] When true, excludes allergies with 'entered-in-error'
+      #   verification status. Defaults to true.
+      # @return [Array<UnifiedHealthData::Allergy>] Array of parsed allergy objects
+      def parse(records, filter_by_status: true)
         return [] if records.blank?
 
         filtered = records.select do |record|
-          record['resource'] && record['resource']['resourceType'] == 'AllergyIntolerance'
+          resource = record['resource']
+          next false unless resource && resource['resourceType'] == 'AllergyIntolerance'
+          next true unless filter_by_status
+
+          should_include_allergy?(resource)
         end
         parsed = filtered.map { |record| parse_single_allergy(record) }
         parsed.compact
@@ -49,6 +59,18 @@ module UnifiedHealthData
       end
 
       private
+
+      # Determines if an allergy should be included based on its status
+      # Excludes allergies with verificationStatus of 'entered-in-error'
+      #
+      # @param resource [Hash] FHIR AllergyIntolerance resource
+      # @return [Boolean] true if the allergy should be included
+      def should_include_allergy?(resource)
+        verification_status = resource.dig('verificationStatus', 'coding', 0, 'code')
+
+        # Exclude 'entered-in-error' allergies
+        verification_status != 'entered-in-error'
+      end
 
       def extract_reactions(resource)
         return [] if resource['reaction'].blank?
