@@ -24,16 +24,26 @@ module UniqueUserEvents
       EventRegistry::MEDICAL_RECORDS_CONDITIONS_ACCESSED
     ].freeze
 
-    # Generate Oracle Health events for a user and event
+    # Generate facility-specific events for a user and event
     #
-    # When event_facility_ids is provided, those IDs are checked against tracked OH facilities.
-    # Otherwise, the user's VHA facilities are used and TRACKED_EVENTS is checked.
+    # This method has two modes of operation:
+    #
+    # 1. With event_facility_ids (explicit facility context):
+    #    - Generates `#{event_name}_site_#{facility_id}` for matching facilities
+    #    - Does NOT check TRACKED_EVENTS - any event can generate site-specific variants
+    #    - Use this when the operation context provides facility info (e.g., prescription refill)
+    #
+    # 2. Without event_facility_ids (user-based):
+    #    - Generates `#{event_name}_oh_site_#{facility_id}` for matching facilities
+    #    - Only generates events for event names in TRACKED_EVENTS
+    #    - Uses the user's VHA facility registrations
     #
     # @param user [User] the authenticated User object
     # @param event_name [String] Name of the original event
     # @param event_facility_ids [Array<String>, nil] Optional facility IDs from operation context.
-    #   When provided, these are checked against tracked OH facilities instead of user's facilities.
-    # @return [Array<String>] Array of OH event names to be logged
+    #   When provided, these are checked against tracked facilities instead of user's facilities,
+    #   and TRACKED_EVENTS validation is bypassed (caller is responsible for appropriate usage).
+    # @return [Array<String>] Array of facility-specific event names to be logged
     def self.generate_events(user:, event_name:, event_facility_ids: nil)
       return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
 
