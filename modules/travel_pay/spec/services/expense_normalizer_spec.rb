@@ -55,5 +55,62 @@ RSpec.describe TravelPay::ExpenseNormalizer do
       expect(normalizer.normalize_expenses(nil)).to be_nil
       expect(normalizer.normalize_expenses({})).to eq({})
     end
+
+    it 'normalizes CamelCase reasonNotUsingPOV for CommonCarrier expenses' do
+      expense = {
+        'expenseType' => 'CommonCarrier',
+        'reasonNotUsingPOV' => 'PrivatelyOwnedVehicleNotAvailable'
+      }
+
+      normalizer.normalize_expense(expense)
+
+      expect(expense['reasonNotUsingPOV'])
+        .to eq('Privately Owned Vehicle Not Available')
+    end
+
+    it 'normalizes snake_case reasonNotUsingPOV for CommonCarrier expenses' do
+      expense = {
+        'expenseType' => 'CommonCarrier',
+        'reasonNotUsingPOV' => 'medically_indicated'
+      }
+
+      normalizer.normalize_expense(expense)
+
+      expect(expense['reasonNotUsingPOV']).to eq('Medically Indicated')
+    end
+
+    it 'does not change already normalized CommonCarrier values' do
+      expense = {
+        'expenseType' => 'CommonCarrier',
+        'reasonNotUsingPOV' => 'Other'
+      }
+
+      normalizer.normalize_expense(expense)
+
+      expect(expense['reasonNotUsingPOV']).to eq('Other')
+    end
+
+    it 'does not normalize reasonNotUsingPOV for non-CommonCarrier expenses' do
+      expense = {
+        'expenseType' => 'Mileage',
+        'reasonNotUsingPOV' => 'PrivatelyOwnedVehicleNotAvailable'
+      }
+
+      normalizer.normalize_expense(expense)
+
+      expect(expense['reasonNotUsingPOV'])
+        .to eq('PrivatelyOwnedVehicleNotAvailable')
+    end
+
+    it 'returns the original value when normalization key is unknown' do
+      expense = {
+        'expenseType' => 'CommonCarrier',
+        'reasonNotUsingPOV' => 'TotallyUnknownValue'
+      }
+
+      normalizer.normalize_expense(expense)
+
+      expect(expense['reasonNotUsingPOV']).to eq('TotallyUnknownValue')
+    end
   end
 end
