@@ -662,7 +662,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       let(:controller) { MyHealth::V1::PrescriptionsController.new }
       let(:image_url) { 'https://www.myhealth.va.gov/static/MILDrugImages/1/NDC00013264681.jpg' }
       let(:small_image_data) { 'fake_image_data' }
-      let(:large_image_data) { 'x' * (MyHealth::V1::PrescriptionsController::MAX_IMAGE_SIZE + 1) }
+      # Use a smaller test string for performance
+      let(:large_image_data) { 'x' * 1024 } # 1KB is sufficient for testing
 
       before do
         allow(controller).to receive(:current_user).and_return(current_user)
@@ -698,10 +699,12 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       end
 
       it 'returns nil when image body exceeds max size' do
+        # Simulate a large body without Content-Length header
+        large_body = 'x' * (MyHealth::V1::PrescriptionsController::MAX_IMAGE_SIZE + 1)
         stub_request(:get, image_url)
           .to_return(
             status: 200,
-            body: large_image_data,
+            body: large_body,
             headers: { 'content-type' => 'image/jpeg' }
           )
 
@@ -726,6 +729,18 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(result).to be_nil
       end
 
+      it 'handles non-numeric Content-Length header gracefully' do
+        stub_request(:get, image_url)
+          .to_return(
+            status: 200,
+            body: small_image_data,
+            headers: { 'content-type' => 'image/jpeg', 'content-length' => 'invalid' }
+          )
+
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to start_with('data:image/jpeg;base64,')
+      end
+
       it 'returns nil and logs warning on other errors' do
         allow(Net::HTTP).to receive(:new).and_raise(StandardError, 'Network error')
 
@@ -740,9 +755,14 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow(http_double).to receive(:use_ssl=)
         allow(http_double).to receive(:open_timeout=)
         allow(http_double).to receive(:read_timeout=)
-        allow(http_double).to receive(:request).and_return(
-          instance_double(Net::HTTPSuccess, is_a?: false)
-        )
+
+        # Create a proper HTTPSuccess response
+        response_double = instance_double(Net::HTTPSuccess)
+        allow(response_double).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+        allow(response_double).to receive(:[]).with('content-length').and_return('100')
+        allow(response_double).to receive(:[]).with('content-type').and_return('image/jpeg')
+        allow(response_double).to receive(:body).and_return('test_data')
+        allow(http_double).to receive(:request).and_return(response_double)
 
         controller.send(:fetch_image, image_url)
 

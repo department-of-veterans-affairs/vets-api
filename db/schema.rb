@@ -822,7 +822,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", id: :bigint, force: :cascade do |t|
     t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"

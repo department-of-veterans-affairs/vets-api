@@ -155,10 +155,13 @@ module MyHealth
         return nil unless response.is_a?(Net::HTTPSuccess)
 
         # Check Content-Length header first if available
-        content_length = response['content-length']&.to_i
-        if content_length && content_length > MAX_IMAGE_SIZE
-          Rails.logger.warn("Image too large: #{content_length} bytes from #{uri.host}")
-          return nil
+        content_length_str = response['content-length']
+        if content_length_str&.match?(/^\d+$/)
+          content_length = content_length_str.to_i
+          if content_length > MAX_IMAGE_SIZE
+            Rails.logger.warn("Image too large: #{content_length} bytes from #{uri.host}")
+            return nil
+          end
         end
 
         image_data = response.body
@@ -169,10 +172,10 @@ module MyHealth
 
         "data:#{response['content-type']};base64,#{Base64.strict_encode64(image_data)}"
       rescue Net::OpenTimeout, Net::ReadTimeout => e
-        Rails.logger.warn("Image fetch timeout: #{e.message} for #{uri.host}")
+        Rails.logger.warn("Image fetch timeout for #{uri.host}")
         nil
       rescue StandardError => e
-        Rails.logger.warn("Image fetch error: #{e.message} for #{uri.host}")
+        Rails.logger.warn("Image fetch error for #{uri.host}: #{e.class}")
         nil
       end
 

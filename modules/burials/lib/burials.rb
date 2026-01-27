@@ -14,15 +14,32 @@ module Burials
 
   # Path to the PDF - conditionally toggle between V1 and V2 versions
   def self.pdf_path
-    if Flipper.enabled?(:burial_pdf_form_alignment)
-      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
-    else
-      "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+    begin
+      if Flipper.enabled?(:burial_pdf_form_alignment)
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}-V2.pdf"
+      else
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+      end
+    rescue => e
+      # If flipper_gates table doesn't exist (e.g., during db:create), use default
+      if e.is_a?(PG::UndefinedTable) || e.message.include?('flipper_gates')
+        "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
+      else
+        raise
+      end
     end
   end
 
   def self.use_v2?
-    Flipper.enabled?(:burial_pdf_form_alignment)
+    begin
+      Flipper.enabled?(:burial_pdf_form_alignment)
+    rescue => e
+      if e.is_a?(PG::UndefinedTable) || e.message.include?('flipper_gates')
+        false
+      else
+        raise
+      end
+    end
   end
 
   # Path to the PDF
