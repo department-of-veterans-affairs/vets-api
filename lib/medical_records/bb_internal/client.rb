@@ -212,8 +212,7 @@ module BBInternal
     # @param yielder [Enumerator::Yielder] - Yielder to stream chunks to
     # @param format [Symbol] - The format (:xml, :html, or :pdf)
     #
-    # @return [void] This method does not return a value. Instead, it yields chunks of the response
-    # body via the provided yielder.
+    # @return [void] Streams response chunks to the provided yielder
     #
     def stream_download_ccd(date:, header_callback:, yielder:, format: :xml)
       fmt = format.to_s.upcase # XML | HTML | PDF

@@ -4,6 +4,8 @@ module MyHealth
   module V1
     module MedicalRecords
       class CcdController < MRController
+        # Enables response streaming to avoid buffering large CCD documents in memory.
+        # ActionController::Live allows writing response chunks incrementally via response.stream
         include ActionController::Live
         include MyHealth::AALClientConcerns
 
@@ -49,8 +51,6 @@ module MyHealth
         # Streams the CCD response to the client with AAL logging
         #
         def stream_ccd_response(generated_datetime, fmt)
-          log_aal_action('Download My VA Health Summary', 1)
-
           chunk_stream = Enumerator.new do |stream|
             bb_client.stream_download_ccd(
               date: generated_datetime,
@@ -61,6 +61,7 @@ module MyHealth
           end
 
           chunk_stream.each { |chunk| response.stream.write(chunk) }
+          log_aal_action('Download My VA Health Summary', 1)
         rescue => e
           log_aal_action('Download My VA Health Summary', 0)
           raise e
