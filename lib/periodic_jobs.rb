@@ -102,6 +102,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
+  if Flipper.enabled?(:delete_old_education_benefits_job)
+    # Clear out SavedClaim::EducationBenefits models with an old enough `delete_date`
+    mgr.register('0 3 * * *', 'EducationForm::DeleteOldEducationBenefitsClaims')
+  end
+
   # Checks in TUD users that weren't properly checked in.
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
 
@@ -230,7 +235,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
   # Updates all accredited entities (agents, attorneys, representatives, veteran service organizations)
-  mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
+  # This job is currently disabled until the GCLAWS Accreditation API is up and running
+  # mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
 
   # Sends emails to power of attorney claimants whose request will expire in 30 days
   mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
