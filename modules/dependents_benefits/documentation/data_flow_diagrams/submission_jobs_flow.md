@@ -72,11 +72,11 @@ graph TD
     classDef failure fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
     
     class Start trigger
-    class JobBGS,JobClaims,SkipBGS,SkipClaims,GenerateProcID,CollectBGS,CollectClaims,LoopBGS,LoopClaims,UpdateBGSSuccess,UpdateClaimsSuccess,UpdateFailedBGS,UpdateFailedClaims,MarkFailedBGS,MarkFailedClaims,MarkGroupBGS,MarkGroupClaims,WaitBGS,WaitClaims,FinalBGS,FinalClaims,RetryJobBGS,RetryJobClaims process
+    class JobBGS,JobClaims,SkipBGS,SkipClaims,GenerateProcID,CollectBGS,CollectClaims,LoopBGS,LoopClaims,UpdateClaimsSuccess,UpdateFailedClaims,MarkFailedClaims,MarkGroupClaims,WaitClaims,FinalClaims,RetryJobClaims process
     class DBBGS1,DBBGS2,DBClaims1,DBClaims2 database
     class Submit686BGS,Submit674BGS,SubmitClaims service
-    class Split,CheckBGS,CheckClaims,CheckFormType,SuccessBGS,SuccessClaims,RetryBGS,RetryClaims,CheckSiblingsBGS,CheckSiblingsClaims,PermFailureBGS,PermFailureClaims decision
-    class BackupBGS,BackupClaims failure
+    class Split,CheckBGS,CheckClaims,CheckFormType,SuccessClaims,RetryClaims,CheckSiblingsClaims,PermFailureClaims decision
+    class BackupClaims failure
 ```
 
 ## Next Steps
