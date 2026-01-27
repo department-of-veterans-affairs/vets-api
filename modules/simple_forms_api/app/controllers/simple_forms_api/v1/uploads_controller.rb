@@ -139,9 +139,9 @@ module SimpleFormsApi
       def handle264555
         parsed_form_data = JSON.parse(params.to_json)
         form = SimpleFormsApi::VBA264555.new(parsed_form_data)
-        
-        raise Common::Exceptions::Unauthorized, 'ICN is required for LGY service' unless icn.present?
-        
+
+        raise Common::Exceptions::Unauthorized, 'ICN is required for LGY service' if icn.blank?
+
         lgy_response = LGY::Service.new(icn:).post_grant_application(payload: form.as_payload)
         reference_number = lgy_response.body['reference_number']
         status = lgy_response.body['status']
@@ -212,7 +212,7 @@ module SimpleFormsApi
 
         if %w[vba_40_0247 vba_40_10007 vba_40_1330m vba_21p_601].include?(form_id)
           raise "Generated PDF does not exist: #{file_path}" unless File.exist?(file_path)
-          
+
           form.handle_attachments(file_path)
         end
 
