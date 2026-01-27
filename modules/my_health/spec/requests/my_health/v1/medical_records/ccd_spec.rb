@@ -90,7 +90,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
 
       it 'returns 500 and logs an AAL error when API call fails' do
         allow_any_instance_of(BBInternal::Client)
-          .to receive(:get_download_ccd)
+          .to receive(:stream_download_ccd)
           .and_raise(StandardError.new('ccd download failed'))
 
         VCR.use_cassette('mr_client/get_ccd_download_error') do
@@ -103,7 +103,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
 
       it 'returns 400 and logs an AAL error when date is missing' do
         allow_any_instance_of(BBInternal::Client)
-          .to receive(:get_download_ccd)
+          .to receive(:stream_download_ccd)
           .and_raise(StandardError.new('ccd download failed'))
 
         VCR.use_cassette('mr_client/get_ccd_download_missing_date_param') do

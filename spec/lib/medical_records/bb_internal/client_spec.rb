@@ -239,6 +239,48 @@ describe BBInternal::Client do
     end
   end
 
+  describe '#stream_download_ccd' do
+    let(:date) { '2024-10-23T12:42:48.000-0400' }
+    let(:response_body) { '<ClinicalDocument>...</ClinicalDocument>' }
+
+    context 'when streaming XML format' do
+      it 'streams a previously generated CCD without buffering' do
+        yielder = StringIO.new
+        header_callback = ->(headers) {}
+
+        VCR.use_cassette 'mr_client/bb_internal/download_ccd_streaming' do
+          client.stream_download_ccd(date:, format: :xml, header_callback:, yielder:)
+          expect(yielder.string).to be_a(String)
+          expect(yielder.string).to include('<ClinicalDocument')
+        end
+      end
+    end
+
+    context 'when streaming PDF format' do
+      it 'streams a CCD PDF without buffering' do
+        yielder = StringIO.new
+        header_callback = ->(headers) {}
+
+        VCR.use_cassette 'mr_client/bb_internal/download_ccd_pdf' do
+          client.stream_download_ccd(date:, format: :pdf, header_callback:, yielder:)
+          expect(yielder.string).not_to be_empty
+        end
+      end
+    end
+
+    context 'when streaming HTML format' do
+      it 'streams a CCD HTML without buffering' do
+        yielder = StringIO.new
+        header_callback = ->(headers) {}
+
+        VCR.use_cassette 'mr_client/bb_internal/download_ccd_html' do
+          client.stream_download_ccd(date:, format: :html, header_callback:, yielder:)
+          expect(yielder.string).not_to be_empty
+        end
+      end
+    end
+  end
+
   describe '#get_study_status' do
     it 'retrieves the status of all study jobs' do
       VCR.use_cassette 'mr_client/bb_internal/study_status' do
