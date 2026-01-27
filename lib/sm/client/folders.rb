@@ -118,8 +118,9 @@ module SM
 
         json = perform(:get, path, nil, token_headers).body
         is_oh = json[:data].any? { |msg| msg[:isOhMessage] == true }
+        result = Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
         track_metric('get_folder_threads', is_oh:, status: 'success')
-        Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
+        result
       rescue => e
         track_metric('get_folder_threads', is_oh: false, status: 'failure')
         raise e

@@ -54,8 +54,10 @@ module SM
 
         json = perform(:get, path, nil, token_headers).body
         is_oh = json[:data].any? { |msg| msg[:isOhMessage] == true }
+        result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
+                                                                         errors: json[:errors])
         track_metric('get_messages_for_thread', is_oh:, status: 'success')
-        Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
+        result
       rescue => e
         track_metric('get_messages_for_thread', is_oh: false, status: 'failure')
         raise e
@@ -72,8 +74,10 @@ module SM
         path = append_requires_oh_messages_query(path)
         json = perform(:get, path, nil, token_headers).body
         is_oh = json[:data].any? { |msg| msg[:isOhMessage] == true }
+        result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
+                                                                         errors: json[:errors])
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
-        Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
+        result
       rescue => e
         track_metric('get_full_messages_for_thread', is_oh: false, status: 'failure')
         raise e
