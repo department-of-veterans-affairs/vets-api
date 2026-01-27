@@ -93,14 +93,19 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     describe '#get_detail' do
       let(:invoice_data) { { 'id' => 'invoice-1', 'account' => { 'reference' => 'Account/acc-1' } } }
       let(:mock_detail) { instance_double(Lighthouse::HCC::CopayDetail) }
+      let(:base_stubs) do
+        {
+          invoice_service: double(read: invoice_data),
+          fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
+          fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
+          fetch_medications: {}
+        }
+      end
 
       context 'on success' do
         before do
+          allow(service).to receive_messages(base_stubs)
           allow(service).to receive_messages(
-            invoice_service: double(read: invoice_data),
-            fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
-            fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
-            fetch_medications: {},
             fetch_organization_address: {
               address_line1: '123 Test St',
               address_line2: nil,
@@ -131,6 +136,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       context 'when organization address is missing' do
         before do
+          allow(service).to receive_messages(base_stubs)
           allow(service).to receive(:fetch_organization_address).and_return(nil)
         end
 
