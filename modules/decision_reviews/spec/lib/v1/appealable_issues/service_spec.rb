@@ -60,8 +60,9 @@ describe DecisionReviews::V1::AppealableIssues::Service do
 
     context '200 response with a malformed body' do
       def personal_information_logs
-        PersonalInformationLog.where error_class: 'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (HLR_V1)'
+        PersonalInformationLog.where error_class:
+          'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
+          ' exception Common::Exceptions::SchemaValidationErrors (HLR_V1)'
       end
 
       it 'returns a schema error' do
@@ -100,7 +101,6 @@ describe DecisionReviews::V1::AppealableIssues::Service do
     end
   end
 
-
   describe '#get_notice_of_disagreement_issues' do
     subject do
       described_class.new.get_notice_of_disagreement_issues(user:, benefit_type:)
@@ -122,8 +122,9 @@ describe DecisionReviews::V1::AppealableIssues::Service do
 
     context '200 response with a malformed body' do
       def personal_information_logs
-        PersonalInformationLog.where error_class: 'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (NOD_V1)'
+        PersonalInformationLog.where error_class:
+          'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
+          ' exception Common::Exceptions::SchemaValidationErrors (NOD_V1)'
       end
 
       it 'returns a schema error' do
@@ -183,8 +184,9 @@ describe DecisionReviews::V1::AppealableIssues::Service do
 
     context '200 response with a malformed body' do
       def personal_information_logs
-        PersonalInformationLog.where error_class: 'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (SC_V1)'
+        PersonalInformationLog.where error_class:
+          'DecisionReviews::V1::AppealableIssues::Service#validate_against_schema' \
+          ' exception Common::Exceptions::SchemaValidationErrors (SC_V1)'
       end
 
       it 'returns a schema error' do

@@ -57,6 +57,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues', typ
   before { sign_in_as(user) }
 
   describe '#index' do
+    subject { get '/decision_reviews/v1/supplemental_claims/contestable_issues/compensation' }
+
     around do |example|
       Timecop.freeze(Time.zone.parse('2026-01-23')) do
         example.run
@@ -68,10 +70,10 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues', typ
                                    'DecisionReviews::V1::SupplementalClaims::ContestableIssuesController#index exception % (SC_V1)' # rubocop:disable Layout/LineLength
     end
 
-    subject { get '/decision_reviews/v1/supplemental_claims/contestable_issues/compensation' }
-
     context 'with feature flag disabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:decision_review_use_new_appealable_issues_service).and_return(false) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_use_new_appealable_issues_service).and_return(false)
+      end
 
       it 'uses contestable issues service and returns issues successfully' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do

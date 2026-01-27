@@ -27,6 +27,8 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements::ContestableIssues', 
   before { sign_in_as(user) }
 
   describe '#index' do
+    subject { get '/decision_reviews/v1/notice_of_disagreements/contestable_issues' }
+
     around do |example|
       Timecop.freeze(Time.zone.parse('2026-01-23')) do
         example.run
@@ -38,10 +40,10 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements::ContestableIssues', 
                                    'DecisionReviews::V1::NoticeOfDisagreements::ContestableIssuesController#index exception % (NOD_V1)' # rubocop:disable Layout/LineLength
     end
 
-    subject { get '/decision_reviews/v1/notice_of_disagreements/contestable_issues' }
-
     context 'with feature flag disabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:decision_review_use_new_appealable_issues_service).and_return(false) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_use_new_appealable_issues_service).and_return(false)
+      end
 
       it 'fetches issues that the Veteran could contest via a notice of disagreement' do
         VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do

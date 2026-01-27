@@ -61,7 +61,8 @@ module DecisionReviews
                 receiptDate: Time.zone.now.strftime('%Y-%m-%d')
               }
               response = perform(:get, HIGHER_LEVEL_REVIEWS_PATH, query, config.auth_headers)
-              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status,
+                                                      body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
               # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
@@ -72,6 +73,7 @@ module DecisionReviews
             handle_response(response, '(HLR_V1)')
           end
         end
+
         ##
         # Get appealable issues for Notice of Disagreement
         # Uses 'compensation' as the default benefit type since it's the most common
@@ -93,7 +95,8 @@ module DecisionReviews
                 receiptDate: Time.zone.now.strftime('%Y-%m-%d')
               }
               response = perform(:get, NOTICE_OF_DISAGREEMENT_PATH, query, config.auth_headers)
-              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status,
+                                                      body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
               # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
@@ -124,7 +127,8 @@ module DecisionReviews
                 receiptDate: Time.zone.now.strftime('%Y-%m-%d')
               }
               response = perform(:get, SUPPLEMENTAL_CLAIMS_PATH, query, config.auth_headers)
-              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+              log_formatted(**common_log_params.merge(is_success: true, status_code: response.status,
+                                                      body: '[Redacted]'))
             rescue => e
               # We can freely log Lighthouse's error responses because they do not include PII or PHI.
               # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.

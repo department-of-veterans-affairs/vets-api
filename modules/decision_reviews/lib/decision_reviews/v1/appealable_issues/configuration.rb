@@ -53,6 +53,7 @@ module DecisionReviews
         end
 
         private
+
         ##
         # Gets access token for API requests
         #
