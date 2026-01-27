@@ -1055,6 +1055,27 @@ module DependentsBenefits
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
               }
             }, # end of supporting_stepchild
+            'biological_stepchild' => {
+              'first' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_first[%iterator%]',
+                limit: 12,
+                question_num: 21,
+                question_suffix: 'B',
+                question_text: 'NAMES OF STEPCHILD(REN) > FIRST NAME'
+              },
+              'middleInitial' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_middle[%iterator%]',
+                question_num: 21,
+                question_suffix: 'B',
+                question_text: 'NAMES OF STEPCHILDREN > MIDDLE INITIAL'
+              },
+              'last' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_last[%iterator%]',
+                question_num: 21,
+                question_suffix: 'B',
+                question_text: 'NAMES OF STEPCHILDREN > LAST NAME'
+              }
+            },
             'full_name' => {
               'first' => {
                 key: 'step_children.full_name.first[%iterator%]',
@@ -1844,6 +1865,7 @@ module DependentsBenefits
         step_children.each do |stepchild|
           # extract middle initial
           stepchild['full_name'] = extract_middle_i(stepchild, 'full_name')
+          stepchild['biological_stepchild'] = stepchild['full_name']
           stepchild['who_does_the_stepchild_live_with'] =
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
