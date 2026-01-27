@@ -54,7 +54,7 @@ module Burials
             ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
           end
         rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished
-          # Skip registration when database is not available (e.g., during db:create or migrations)
+          # Skip registration when database is not available (e.g., during db:create)
           Rails.logger.debug('Skipping Burials PDF stamper registration - database not available')
         end
       end
