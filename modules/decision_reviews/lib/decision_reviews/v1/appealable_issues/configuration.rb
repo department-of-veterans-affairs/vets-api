@@ -78,9 +78,20 @@ module DecisionReviews
             API_SCOPES,
             config.client_id,
             config.aud_claim_url,
-            File.read(config.rsa_key_path),
+            rsa_key,
             'decision_reviews_appealable_issues'
           )
+        end
+
+        ##
+        # Reads and parses the RSA private key from file
+        #
+        # @return [OpenSSL::PKey::RSA] the parsed RSA private key
+        #
+        def rsa_key
+          key_path = Settings.decision_review.appealable_issues.auth.rsa_key_path
+          key_file = File.read(key_path)
+          @rsa_key ||= OpenSSL::PKey::RSA.new(key_file)
         end
       end
     end

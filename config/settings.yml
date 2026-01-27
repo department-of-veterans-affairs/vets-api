@@ -304,7 +304,7 @@ decision_review:
     auth:
       aud_claim_url: <%= ENV['decision_review__appealable_issues__auth__aud_claim_url'] %>
       client_id: <%= ENV['decision_review__appealable_issues__auth__client_id'] %>
-      rsa_key_path: <%= ENV['decision_review__appealable_issues__auth__rsa_key_path'] %>
+      rsa_key: /srv/vets-api/secret/decision_review_appealable_issues.key
       token_url: <%= ENV['decision_review__appealable_issues__auth__token_url'] %>
     mock: <%= ENV['decision_review__appealable_issues__mock'] %>
     url: <%= ENV['decision_review__appealable_issues__url'] %>
