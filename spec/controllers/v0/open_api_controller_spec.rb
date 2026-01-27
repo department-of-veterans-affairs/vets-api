@@ -4,7 +4,20 @@ require 'rails_helper'
 
 RSpec.describe V0::OpenApiController, type: :controller do
   describe '#index' do
-    let(:openapi_file_path) { Rails.public_path.join('openapi.json') }
+    let(:openapi_file_path) { Rails.root.join('config', 'openapi', 'openapi.json') }
+
+    context 'when in production environment' do
+      before do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+      end
+
+      it 'returns a 404 status' do
+        get :index
+        expect(response).to have_http_status(:not_found)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['error']).to eq('OpenAPI specification is not available in production')
+      end
+    end
 
     context 'when OpenAPI file exists' do
       it 'returns a successful response' do

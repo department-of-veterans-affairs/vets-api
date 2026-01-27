@@ -5,7 +5,7 @@ require 'committee/unprocessable_entity_error'
 require 'form21p530a/monitor'
 require 'form214192/monitor'
 
-schema_path = Rails.public_path.join('openapi.json').to_s
+schema_path = Rails.root.join('config', 'openapi', 'openapi.json').to_s
 
 class CommitteeContext < ActiveSupport::CurrentAttributes
   attribute :controller, :action
