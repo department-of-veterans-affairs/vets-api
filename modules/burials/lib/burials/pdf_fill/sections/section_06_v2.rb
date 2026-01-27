@@ -4,11 +4,11 @@ require_relative '../section'
 
 module Burials
   module PdfFill
-    # Section VI: Plot / Transportation allowance Information
+    # Section VI (V2): Transportation allowance information
     class Section6V2 < Section
       # Section configuration hash
       KEY = {
-        # 24
+        # Transportation responsibility
         'hasTransportation' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportation[0]'
         }
