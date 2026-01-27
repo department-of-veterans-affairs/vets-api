@@ -43,7 +43,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       )
     )
 
-    # Set up session in Redis keyed by jti (JWT ID)
+    # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
     redis_client.save_session(uuid: veteran_id, jti:, edipi:, veteran_id:)
   end
