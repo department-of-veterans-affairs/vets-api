@@ -248,20 +248,44 @@ describe IvcChampva::FileUploader do
   describe '#handle_iterative_uploads' do
     let(:insert_db_row) { true }
 
-    before do
-      allow(uploader).to receive(:upload).and_return([200])
+    context 'when champva_bypass_persisting_ves_json_to_database is enabled' do
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_persisting_ves_json_to_database,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'uploads the _ves.json file but does not insert it into the database' do
+        expect(uploader).to receive(:upload).exactly(3).times
+        expect(uploader).to receive(:insert_form).with('file1.pdf', '[200]')
+        expect(uploader).to receive(:insert_form).with('file2.png', '[200]')
+        expect(uploader).not_to receive(:insert_form).with(
+          '4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json',
+          '[200]'
+        )
+
+        uploader.send(:handle_iterative_uploads)
+      end
     end
 
-    it 'uploads the _ves.json file but does not insert it into the database' do
-      expect(uploader).to receive(:upload).exactly(3).times
-      expect(uploader).to receive(:insert_form).with('file1.pdf', '[200]')
-      expect(uploader).to receive(:insert_form).with('file2.png', '[200]')
-      expect(uploader).not_to receive(:insert_form).with(
-        '4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json',
-        '[200]'
-      )
+    context 'when champva_bypass_persisting_ves_json_to_database is disabled' do
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_persisting_ves_json_to_database,
+                                                  @current_user).and_return(false)
+      end
 
-      uploader.send(:handle_iterative_uploads)
+      it 'uploads the _ves.json file and inserts it into the database' do
+        expect(uploader).to receive(:upload).exactly(3).times
+        expect(uploader).to receive(:insert_form).with('file1.pdf', '[200]')
+        expect(uploader).to receive(:insert_form).with('file2.png', '[200]')
+        expect(uploader).to receive(:insert_form).with(
+          '4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json',
+          '[200]'
+        )
+
+        uploader.send(:handle_iterative_uploads)
+      end
     end
   end
 end
