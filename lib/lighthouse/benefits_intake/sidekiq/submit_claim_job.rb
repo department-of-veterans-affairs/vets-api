@@ -19,7 +19,11 @@ module BenefitsIntake
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      claim = ::SavedClaim.find(msg['args'][0]) rescue nil
+      claim = begin
+        ::SavedClaim.find(msg['args'][0])
+      rescue
+        nil
+      end
 
       if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
         user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
@@ -40,19 +44,27 @@ module BenefitsIntake
     # On success send email
     #
     # @param saved_claim_id [Integer] the claim id
-    # @param user_uuid [UUID] the user submitting the form
+    # @param user_account_uuid [UUID] the user submitting the form
+    # @param config [Mixed] key-value pairs for process steps
+    # => email_type, source, claim_stamp_set, attachment_stamp_set
     #
     # @return [UUID] benefits intake upload uuid
-    def perform(saved_claim_id, user_account_uuid = nil)
-      init(saved_claim_id, user_account_uuid)
+    def perform(saved_claim_id, user_account_uuid = nil, **config)
+      init(saved_claim_id, user_account_uuid, config || {})
 
-      @form_path = generate_form_pdf
-      @attachment_paths = generate_attachment_pdfs
-      @metadata = generate_metadata
+      generate_form_pdf
+      generate_attachment_pdfs
+      generate_metadata
 
+      upload_document
+
+      send_claim_email
+      monitor.track_submission_success(claim, service, user_account_uuid)
+
+      benefits_intake_uuid
     rescue => e
       monitor.track_submission_retry(claim, service, user_account_uuid, e)
-      @lighthouse_submission_attempt&.fail!
+      submission_attempt&.fail!
       raise e
     ensure
       cleanup_file_paths
@@ -60,10 +72,43 @@ module BenefitsIntake
 
     private
 
-    attr_reader :claim, :service
+    attr_reader :config, :claim, :service, :form_path, :attachment_paths, :metadata, :submission, :submission_attempt
 
+    # get the user account uuid
     def user_account_uuid
       @user_account&.id
+    end
+
+    # get the benefits intake uuid for _this_ attempt
+    def benefits_intake_uuid
+      @service&.uuid
+    end
+
+    # get the email type to send when job is successful
+    def email_type
+      @config[:email_type]
+    end
+
+    # get the stamp set to be used on the generated pdf of the claim
+    def claim_stamp_set
+      @config[:claim_stamp_set] || default_stamp_set
+    end
+
+    # get the stamp set to be used on the claim evidence (attachments)
+    def attachment_stamp_set
+      @config[:attachment_stamp_set] || default_stamp_set
+    end
+
+    # the default stamp set to be used if none specified in config
+    def default_stamp_set
+      default = [{
+        text: 'VA.GOV',
+        timestamp: nil,
+        x: 5,
+        y: 5
+      }]
+
+      ::PDFUtilities::PDFStamper.get_stamp_set(:vagov_received_at) || default
     end
 
     # Create a monitor to be used for _this_ job
@@ -78,36 +123,44 @@ module BenefitsIntake
     # @raise [BenefitIntakeError] if unable to find claim
     #
     # @param (see #perform)
-    def init(saved_claim_id, user_account_uuid)
+    def init(saved_claim_id, user_account_uuid, config)
       if user_account_uuid.present?
         # UserAccount.find should raise an error if unable to find the user_account record
-        @user_account = ::UserAccount.find(user_account_uuid) rescue nil
+        @user_account = begin
+          ::UserAccount.find(user_account_uuid)
+        rescue
+          nil
+        end
         raise BenefitsIntakeError, "Unable to find ::UserAccount #{user_account_uuid}" unless @user_account
       end
 
-      @claim = ::SavedClaim.find(saved_claim_id) rescue nil
+      @claim = begin
+        ::SavedClaim.find(saved_claim_id)
+      rescue
+        nil
+      end
       raise BenefitsIntakeError, "Unable to find ::SavedClaim #{saved_claim_id}" unless @claim
 
+      @config = config || {}
+
       @service = ::BenefitsIntake::Service.new
-    rescue BenefitsIntakeError e
+    rescue BenefitsIntakeError => e
       sidekiq_options retry: false
       raise e
     end
 
     # Generate form PDF
     #
-    # @return [String] path to processed PDF document
+    # @return [String] path to processed PDF
     def generate_form_pdf
-      stamp_set = :vagov_recieved_at
-      process_document(@claim.to_pdf, stamp_set)
+      @form_path = process_document(claim.to_pdf, claim_stamp_set)
     end
 
     # Generate the form attachment pdfs
     #
-    # @return [Array<String>] path to processed PDF document
+    # @return [Array<String>] path to processed PDF
     def generate_attachment_pdfs
-      stamp_set = :vagov_recieved_at
-      @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, stamp_set) }
+      @attachment_paths = claim.persistent_attachments.map { |pa| process_document(pa.to_pdf, attachment_stamp_set) }
     end
 
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
@@ -129,24 +182,68 @@ module BenefitsIntake
     # @return [Hash] generated metadata for upload
     def generate_metadata
       # also validates/maniuplates the metadata
-      ::BenefitsIntake::Metadata.generate(
+      @metadata = ::BenefitsIntake::Metadata.generate(
         claim.veteran_first_name,
         claim.veteran_last_name,
         claim.veteran_filenumber,
         claim.postal_code,
-        self.class.to_s, # source
+        config[:source] || self.class.to_s,
         claim.form_id,
         claim.business_line
       )
     end
 
+    # Upload generated pdf to Benefits Intake API
+    def upload_document
+      monitor.track_submission_begun(claim, service, user_account_uuid)
+
+      # upload must be performed within 15 minutes of this request
+      service.request_upload
+      lighthouse_submission_polling
+
+      payload = {
+        upload_url: service.location,
+        document: form_path,
+        metadata: metadata.to_json,
+        attachments: attachment_paths
+      }
+
+      monitor.track_submission_attempted(claim, service, user_account_uuid, payload)
+      response = service.perform_upload(**payload)
+      raise BenefitsIntakeError, response.to_s unless response.success?
+    end
+
+    # Insert submission polling entries
+    def lighthouse_submission_polling
+      lighthouse_submission = {
+        form_id: claim.form_id,
+        reference_data: claim.to_json,
+        saved_claim: claim
+      }
+
+      Lighthouse::SubmissionAttempt.transaction do
+        @submission = Lighthouse::Submission.create(**lighthouse_submission)
+        @submission_attempt = Lighthouse::SubmissionAttempt.create(submission:, benefits_intake_uuid:)
+      end
+
+      Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', benefits_intake_uuid)
+    end
+
+    # send submission in progress email to veteran
+    #
+    def send_claim_email
+      claim.try(:send_email, email_type) if email_type
+    rescue => e
+      monitor.track_send_email_failure(claim, service, user_account_uuid, email_type, e)
+    end
+
     # Delete temporary stamped PDF files for this job instance
     # catches any error, logs but does NOT re-raise - prevent job retry
     def cleanup_file_paths
-      Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
-      @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+      Common::FileHelpers.delete_file_if_exists(form_path) if form_path
+      attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
-      monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+      monitor.track_file_cleanup_error(claim, service, user_account_uuid, e)
     end
 
     # end module BenefitsIntake

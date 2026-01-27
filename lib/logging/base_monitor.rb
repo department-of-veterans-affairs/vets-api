@@ -62,7 +62,9 @@ module Logging
       raise NotImplementedError, 'Subclasses must implement submission_stats_key'
     end
 
-
+    # Name to be used in monitor messages
+    # @see #message_prefix
+    # @return [String]
     def name
       raise NotImplementedError, 'Subclasses must implement name'
     end

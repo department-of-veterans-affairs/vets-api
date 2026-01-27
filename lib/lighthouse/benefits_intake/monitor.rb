@@ -8,6 +8,7 @@ module BenefitsIntake
   class Monitor < ::Logging::Monitor
     include ::Logging::Include::BenefitsIntake
 
+    # allowed logging params
     ALLOWLIST = %w[
       benefits_intake_uuid
       claim_id
@@ -18,8 +19,6 @@ module BenefitsIntake
     ].freeze
 
     # create a benefits intake monitor
-    #
-    # @param allowlist [Array<String>] list of allowed params
     def initialize
       super('lighthouse-benefits-intake', allowlist: ALLOWLIST)
     end
