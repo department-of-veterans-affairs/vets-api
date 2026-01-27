@@ -26,7 +26,7 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
           section-7 section-7_1 section-7_2
           section-8 section-8_1
           section-9 section-9_1 section-9_2 section-9_3 section-9_4
-          section-10 section-10_1 section-10_2
+          section-10 section-10_1 section-10_2 section-10_3
           section-11 section-11_1 section-11_2
         ]
         files.map do |file|
