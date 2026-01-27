@@ -172,28 +172,6 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
     end
   end
 
-  describe 'when form already has email_sent true' do
-    before do
-      @already_sent_form = create(:ivc_champva_form,
-                                  form_number: '10-7959A',
-                                  created_at: start_date + 1.hour,
-                                  form_uuid: SecureRandom.uuid,
-                                  file_name: 'test-uuid-1_10-7959A.pdf',
-                                  email: "sent-#{SecureRandom.hex(4)}@example.com",
-                                  email_sent: true,
-                                  s3_status: 'success')
-      test_records.push(@already_sent_form)
-    end
-
-    it 'excludes forms with email_sent true from query results' do
-      expect(notify_client).not_to receive(:send_email)
-
-      output = capture_stdout { task.invoke }
-      # Form is filtered out at query level, so no forms are found
-      expect(output).to include('No affected forms found')
-    end
-  end
-
   describe 'when email sending fails' do
     before do
       @failing_form = create(:ivc_champva_form,
@@ -258,7 +236,8 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
     before do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('DRY_RUN').and_return('true')
-      allow(ENV).to receive(:[]).with('MAX_RECORDS').and_return(nil)
+      allow(ENV).to receive(:[]).with('PAGE_SIZE').and_return(nil)
+      allow(ENV).to receive(:[]).with('PAGE').and_return(nil)
       @dry_run_form = create(:ivc_champva_form,
                              form_number: '10-7959A',
                              created_at: start_date + 1.hour,
@@ -289,11 +268,10 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
     end
   end
 
-  describe 'MAX_RECORDS limit' do
+  describe 'pagination' do
     before do
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('DRY_RUN').and_return(nil)
-      allow(ENV).to receive(:[]).with('MAX_RECORDS').and_return('3')
       # Create 6 affected forms
       6.times do |i|
         form = create(:ivc_champva_form,
@@ -301,38 +279,76 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
                       created_at: start_date + i.hours,
                       form_uuid: SecureRandom.uuid,
                       file_name: "test-uuid-#{i}_10-7959A.pdf",
-                      email: "max-records-#{i}-#{SecureRandom.hex(4)}@example.com",
+                      email: "pagination-#{i}-#{SecureRandom.hex(4)}@example.com",
                       email_sent: false,
                       s3_status: 'success')
         test_records.push(form)
       end
     end
 
-    it 'limits the number of records processed' do
-      expect(notify_client).to receive(:send_email).exactly(3).times
+    context 'with PAGE_SIZE=3 and PAGE=0' do
+      before do
+        allow(ENV).to receive(:[]).with('PAGE_SIZE').and_return('3')
+        allow(ENV).to receive(:[]).with('PAGE').and_return('0')
+      end
 
-      output = capture_stdout { task.invoke }
-      expect(output).to include('[MAX_RECORDS: 3]')
-      expect(output).to include('Emails sent successfully: 3')
+      it 'processes only the first page of records' do
+        expect(notify_client).to receive(:send_email).exactly(3).times
+
+        output = capture_stdout { task.invoke }
+        expect(output).to include('[PAGE: 0, PAGE_SIZE: 3]')
+        expect(output).to include('Total matching form_uuids: 6 (2 pages of 3)')
+        expect(output).to include('Emails sent successfully: 3')
+        expect(output).to include('Page 0 of 1')
+        expect(output).to include('Next page: PAGE=1 PAGE_SIZE=3')
+      end
     end
 
-    it 'processes different records on subsequent runs' do
-      # First run - process 3 records
-      capture_stdout { task.invoke }
+    context 'with PAGE_SIZE=3 and PAGE=1' do
+      before do
+        allow(ENV).to receive(:[]).with('PAGE_SIZE').and_return('3')
+        allow(ENV).to receive(:[]).with('PAGE').and_return('1')
+      end
 
-      # Get the UUIDs that were processed (email_sent = true)
-      first_run_uuids = test_records.select { |f| f.reload.email_sent }.map(&:form_uuid)
-      expect(first_run_uuids.size).to eq(3)
+      it 'processes the second page of records' do
+        expect(notify_client).to receive(:send_email).exactly(3).times
 
-      # Second run - should process different records
-      task.reenable
+        output = capture_stdout { task.invoke }
+        expect(output).to include('[PAGE: 1, PAGE_SIZE: 3]')
+        expect(output).to include('Emails sent successfully: 3')
+        expect(output).to include('Page 1 of 1')
+        expect(output).not_to include('Next page:')
+      end
+    end
 
-      second_run_output = capture_stdout { task.invoke }
-      expect(second_run_output).to include('Emails sent successfully: 3')
+    context 'with PAGE beyond available records' do
+      before do
+        allow(ENV).to receive(:[]).with('PAGE_SIZE').and_return('3')
+        allow(ENV).to receive(:[]).with('PAGE').and_return('5')
+      end
 
-      # All 6 should now be processed
-      processed_count = test_records.count { |f| f.reload.email_sent }
-      expect(processed_count).to eq(6)
+      it 'outputs no records on page message' do
+        expect(notify_client).not_to receive(:send_email)
+
+        output = capture_stdout { task.invoke }
+        expect(output).to include('No records on page 5')
+        expect(output).to include('Valid pages: 0 to 1')
+      end
+    end
+
+    context 'with default pagination' do
+      before do
+        allow(ENV).to receive(:[]).with('PAGE_SIZE').and_return(nil)
+        allow(ENV).to receive(:[]).with('PAGE').and_return(nil)
+      end
+
+      it 'uses default page size of 50 and page 0' do
+        expect(notify_client).to receive(:send_email).exactly(6).times
+
+        output = capture_stdout { task.invoke }
+        expect(output).to include('[PAGE: 0, PAGE_SIZE: 50]')
+        expect(output).to include('Emails sent successfully: 6')
+      end
     end
   end
 
