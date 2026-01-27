@@ -50,10 +50,10 @@ describe VAProfile::ContactInformation::V2::Service do
   describe '#get_person when user has no vet360_id', :skip_va_profile_user do
     before { allow(user).to receive(:vet360_id).and_return(nil) }
 
-    it 'raises an UnprocessableEntity error' do
-      expect { subject.get_person }.to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
-        expect(error.status_code).to eq(422)
-        expect(error.errors.first.detail).to eq('User does not have a VA Profile ID')
+    it 'raises a RecordNotFound error' do
+      expect { subject.get_person }.to raise_error(Common::Exceptions::RecordNotFound) do |error|
+        expect(error.status_code).to eq(404)
+        expect(error.errors.first.detail).to include('User does not have a VA Profile ID')
       end
     end
   end

@@ -238,9 +238,9 @@ module VAProfile
         def verify_vet360_id!
           return if @user&.vet360_id.present?
 
-          raise Common::Exceptions::UnprocessableEntity.new(
-            detail: 'User does not have a VA Profile ID',
-            source: 'VAProfile::ContactInformation::V2::Service'
+          raise Common::Exceptions::RecordNotFound.new(
+            @user&.uuid,
+            detail: 'User does not have a VA Profile ID'
           )
         end
 
