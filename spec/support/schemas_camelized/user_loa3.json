@@ -364,8 +364,22 @@
                     "userFacilityReadyForInfoAlert": {
                       "type": "boolean"
                     },
-                    "userFacilityMigratingToOh": {
-                      "type": "boolean"
+                    "ohMigrationInfo": {
+                      "type": "object",
+                      "properties": {
+                        "userFacilityMigratingToOh": {
+                          "type": "boolean"
+                        },
+                        "migrationSchedules": {
+                          "type": "array"
+                        },
+                        "userAtPretransitionedOhFacility": {
+                          "type": "boolean"
+                        },
+                        "userFacilityReadyForInfoAlert": {
+                          "type": "boolean"
+                        }
+                      }
                     },
                     "givenNames": {
                       "type": "array"
