@@ -672,7 +672,7 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+        :uid_locator: '\/facilities\/v2\/facilities\/([0-9]+)'
     - :method: :get
       :path: "/facilities/v2/facilities/*/clinics/*"
       :file_path: "vaos/clinics"
