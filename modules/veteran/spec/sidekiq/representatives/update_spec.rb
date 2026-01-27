@@ -619,7 +619,8 @@ RSpec.describe Representatives::Update do
                 'address_line3' => nil,
                 'city' => 'Some City',
                 'state_code' => 'ZZ',
-                'zip_code' => '99999'
+                'zip_code5' => '99999',
+                'zip_code4' => nil
               },
               email: 'new@example.com',
               phone_number: '555-555-5555',

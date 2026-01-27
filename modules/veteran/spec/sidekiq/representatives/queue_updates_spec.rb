@@ -20,7 +20,8 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
         'address_line3' => nil,
         'city' => 'Test City',
         'state_code' => 'NY',
-        'zip_code' => '12345'
+        'zip_code5' => '12345',
+        'zip_code4' => nil
       }
     end
     let(:processed_data) do
@@ -30,13 +31,18 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
         'Representatives' => [{ id: '345', address: {}, phone_number: '123-456-7890', raw_address: {} }]
       }
     end
+    let(:batch) { instance_double('Sidekiq::Batch') }
 
     before do
+      stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
       Veteran::Service::Representative.create(representative_id: '123', poa_codes: ['A1'])
       Veteran::Service::Representative.create(representative_id: '234', poa_codes: ['A1'])
       Veteran::Service::Representative.create(representative_id: '345', poa_codes: ['A1'])
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
       allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch)
+      allow(batch).to receive(:description=)
+      allow(batch).to receive(:jobs).and_yield
     end
 
     context 'when file processing is successful' do

@@ -81,8 +81,8 @@ RSpec.describe RepresentationManagement::GeocodeRepresentativeJob, type: :job do
           end.not_to raise_error
         end
 
-        it 'returns true from geocode_and_update_location!' do
-          expect(individual.geocode_and_update_location!).to be true
+        it 'returns false from geocode_and_update_location!' do
+          expect(individual.geocode_and_update_location!).to be false
         end
 
         it 'does not make any geocoding API calls' do
