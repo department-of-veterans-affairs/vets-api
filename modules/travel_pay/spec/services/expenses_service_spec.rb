@@ -310,6 +310,8 @@ describe TravelPay::ExpensesService do
       expect(result['reasonNotUsingPOV']).to eq(explanation_value)
       expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values)
         .to include(result['reasonNotUsingPOV'])
+      expect(result).to have_key('reasonNotUsingPOV')
+      expect(result).not_to have_key('reasonNotUsingPov')
     end
 
   end
