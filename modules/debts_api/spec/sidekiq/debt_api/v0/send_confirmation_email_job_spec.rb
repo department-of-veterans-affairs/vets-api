@@ -213,7 +213,7 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
               'email' => user.email,
               'first_name' => user.first_name,
               'user_uuid' => user.uuid,
-              'template_id' => DebtsApi::V0::DigitalDisputeSubmissionService::CONFIRMATION_TEMPLATE
+              'template_id' => DebtsApi::V0::DigitalDisputeSubmission::CONFIRMATION_TEMPLATE
             }
           end
 
