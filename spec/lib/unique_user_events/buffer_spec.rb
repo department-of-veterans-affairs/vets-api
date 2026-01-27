@@ -8,71 +8,101 @@ RSpec.describe UniqueUserEvents::Buffer do
   let(:event_name) { 'prescriptions_accessed' }
   let(:redis) { $redis }
 
-  describe '.push' do
-    it 'pushes event to Redis list and returns list length' do
-      result = described_class.push(user_id:, event_name:)
+  # Helper to push a single event for test setup
+  def push_event(uid: user_id, name: event_name)
+    described_class.push_batch([{ user_id: uid, event_name: name }])
+  end
+
+  describe '.push_batch' do
+    let(:user2_id) { SecureRandom.uuid }
+    let(:events) do
+      [
+        { user_id:, event_name: 'event_1' },
+        { user_id: user2_id, event_name: 'event_2' },
+        { user_id:, event_name: 'event_3' }
+      ]
+    end
+
+    it 'pushes all events in a single Redis call and returns list length' do
+      result = described_class.push_batch(events)
+
+      expect(result).to eq(3)
+      expect(described_class.pending_count).to eq(3)
+    end
+
+    it 'stores all events as JSON with correct fields' do
+      Timecop.freeze do
+        described_class.push_batch(events)
+
+        raw_events = redis.lrange(described_class::BUFFER_KEY, 0, -1)
+        expect(raw_events.length).to eq(3)
+
+        # Events are stored via LPUSH, so order is reversed (last pushed is at head)
+        parsed = raw_events.map { |e| JSON.parse(e, symbolize_names: true) }
+        expect(parsed.map { |e| e[:event_name] }).to eq(%w[event_3 event_2 event_1])
+        expect(parsed.all? { |e| e[:buffered_at] == Time.current.to_i }).to be(true)
+      end
+    end
+
+    it 'returns 0 when events array is empty' do
+      result = described_class.push_batch([])
+
+      expect(result).to eq(0)
+      expect(described_class.pending_count).to eq(0)
+    end
+
+    it 'returns 0 when events is nil' do
+      result = described_class.push_batch(nil)
+
+      expect(result).to eq(0)
+    end
+
+    it 'pushes single event when array has one element' do
+      result = described_class.push_batch([{ user_id:, event_name: }])
 
       expect(result).to eq(1)
       expect(described_class.pending_count).to eq(1)
     end
 
-    it 'stores event as JSON with user_id, event_name, and buffered_at' do
-      Timecop.freeze do
-        described_class.push(user_id:, event_name:)
-
-        raw_event = redis.lrange(described_class::BUFFER_KEY, 0, -1).first
-        parsed = JSON.parse(raw_event, symbolize_names: true)
-
-        expect(parsed[:user_id]).to eq(user_id)
-        expect(parsed[:event_name]).to eq(event_name)
-        expect(parsed[:buffered_at]).to eq(Time.current.to_i)
-      end
-    end
-
-    it 'supports multiple events in LIFO order via LPUSH' do
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
-      described_class.push(user_id:, event_name: 'event_3')
-
-      expect(described_class.pending_count).to eq(3)
-    end
-
     context 'with invalid inputs' do
-      it 'raises ArgumentError when user_id is blank' do
+      it 'raises ArgumentError when any user_id is blank' do
+        invalid_events = [
+          { user_id:, event_name: 'event_1' },
+          { user_id: '', event_name: 'event_2' }
+        ]
+
         expect do
-          described_class.push(user_id: '', event_name:)
+          described_class.push_batch(invalid_events)
         end.to raise_error(ArgumentError, 'user_id is required')
       end
 
-      it 'raises ArgumentError when user_id is nil' do
-        expect do
-          described_class.push(user_id: nil, event_name:)
-        end.to raise_error(ArgumentError, 'user_id is required')
-      end
+      it 'raises ArgumentError when any event_name is blank' do
+        invalid_events = [
+          { user_id:, event_name: 'event_1' },
+          { user_id:, event_name: '' }
+        ]
 
-      it 'raises ArgumentError when event_name is blank' do
         expect do
-          described_class.push(user_id:, event_name: '')
+          described_class.push_batch(invalid_events)
         end.to raise_error(ArgumentError, 'event_name is required')
       end
 
-      it 'raises ArgumentError when event_name is nil' do
-        expect do
-          described_class.push(user_id:, event_name: nil)
-        end.to raise_error(ArgumentError, 'event_name is required')
-      end
+      it 'raises ArgumentError when any event_name exceeds 50 characters' do
+        invalid_events = [
+          { user_id:, event_name: 'event_1' },
+          { user_id:, event_name: 'a' * 51 }
+        ]
 
-      it 'raises ArgumentError when event_name exceeds 50 characters' do
-        long_event_name = 'a' * 51
         expect do
-          described_class.push(user_id:, event_name: long_event_name)
+          described_class.push_batch(invalid_events)
         end.to raise_error(ArgumentError, 'event_name must be 50 characters or less')
       end
 
       it 'allows event_name of exactly 50 characters' do
-        valid_event_name = 'a' * 50
+        valid_events = [{ user_id:, event_name: 'a' * 50 }]
+
         expect do
-          described_class.push(user_id:, event_name: valid_event_name)
+          described_class.push_batch(valid_events)
         end.not_to raise_error
       end
     end
@@ -83,14 +113,14 @@ RSpec.describe UniqueUserEvents::Buffer do
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'logs error and re-raises exception' do
+      it 'logs error with event count and re-raises exception' do
         expect do
-          described_class.push(user_id:, event_name:)
+          described_class.push_batch(events)
         end.to raise_error(Redis::ConnectionError)
 
         expect(Rails.logger).to have_received(:error).with(
-          'UUM Buffer: Failed to push event',
-          { event_name:, error: 'Connection refused' }
+          'UUM Buffer: Failed to push batch',
+          { event_count: 3, error: 'Connection refused' }
         )
       end
     end
@@ -99,9 +129,9 @@ RSpec.describe UniqueUserEvents::Buffer do
   describe '.peek_batch' do
     before do
       # Push events: oldest first (LPUSH means first pushed is at tail)
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
-      described_class.push(user_id:, event_name: 'event_3')
+      push_event(name: 'event_1')
+      push_event(name: 'event_2')
+      push_event(name: 'event_3')
     end
 
     it 'returns oldest events first (from tail of list)' do
@@ -169,17 +199,17 @@ RSpec.describe UniqueUserEvents::Buffer do
       end
     end
 
-    context 'when JSON parsing fails' do
+    context 'when event JSON is malformed' do
       before do
-        # Push invalid JSON directly to Redis
-        redis.lpush(described_class::BUFFER_KEY, 'not valid json')
+        # Push a malformed event directly to Redis
+        redis.lpush(described_class::BUFFER_KEY, 'not-valid-json')
         allow(Rails.logger).to receive(:error)
       end
 
       it 'skips malformed events and logs error' do
         events = described_class.peek_batch(10)
 
-        # Should still get the 3 valid events, skip the malformed one
+        # Should get the 3 valid events, skipping the malformed one
         expect(events.length).to eq(3)
         expect(Rails.logger).to have_received(:error).with(
           'UUM Buffer: Failed to parse event',
@@ -191,9 +221,9 @@ RSpec.describe UniqueUserEvents::Buffer do
 
   describe '.trim_batch' do
     before do
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
-      described_class.push(user_id:, event_name: 'event_3')
+      push_event(name: 'event_1')
+      push_event(name: 'event_2')
+      push_event(name: 'event_3')
     end
 
     it 'removes events from the tail of the buffer' do
@@ -257,8 +287,8 @@ RSpec.describe UniqueUserEvents::Buffer do
     end
 
     it 'returns correct count after pushing events' do
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
+      push_event(name: 'event_1')
+      push_event(name: 'event_2')
 
       expect(described_class.pending_count).to eq(2)
     end
@@ -289,9 +319,9 @@ RSpec.describe UniqueUserEvents::Buffer do
     end
 
     it 'removes all events and returns the count' do
-      described_class.push(user_id:, event_name: 'event_1')
-      described_class.push(user_id:, event_name: 'event_2')
-      described_class.push(user_id:, event_name: 'event_3')
+      push_event(name: 'event_1')
+      push_event(name: 'event_2')
+      push_event(name: 'event_3')
 
       count = described_class.clear!
 
@@ -304,7 +334,7 @@ RSpec.describe UniqueUserEvents::Buffer do
     it 'processes events correctly with peek followed by trim' do
       # Push 5 events (LPUSH: event_1 first, event_5 last)
       # List order: [event_5, event_4, event_3, event_2, event_1] (head to tail)
-      5.times { |i| described_class.push(user_id:, event_name: "event_#{i + 1}") }
+      5.times { |i| push_event(name: "event_#{i + 1}") }
 
       # Peek at last 3 elements (oldest: event_3, event_2, event_1)
       events = described_class.peek_batch(3)
