@@ -12,52 +12,64 @@ module MyHealth
       def show
         message_id = params[:message_id]
         attachment_id = params[:id]
-        
+
         # Set Content-Transfer-Encoding header for binary data
         response.headers['Content-Transfer-Encoding'] = 'binary'
-        
+
         header_callback = lambda do |headers|
-          headers.each do |k, v|
-            if ATTACHMENT_HEADERS.include?(k)
-              # For Content-Disposition, format it to match Rails send_data format
-              if k == 'Content-Disposition' && v.match?(/filename=/)
-                # Extract filename from header
-                filename = v.match(/filename=["']?([^"';]+)["']?/)[1] rescue nil
-                if filename
-                  # Format as Rails does with send_data: both filename and filename* (RFC 5987)
-                  encoded_filename = CGI.escape(filename).gsub('+', '%20')
-                  response.headers[k] = "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{encoded_filename}"
-                  
-                  # Determine correct Content-Type based on filename extension
-                  mime_types = MIME::Types.of(filename)
-                  if mime_types.any?
-                    response.headers['Content-Type'] = mime_types.first.content_type
-                  end
-                else
-                  response.headers[k] = v
-                end
-              elsif k == 'Content-Type'
-                # Skip setting Content-Type here; it will be set from filename extension above
-                # unless no filename was found in the Content-Disposition header
-              end
-            end
-          end
+          process_response_headers(headers)
         end
 
         begin
           client.stream_attachment(message_id, attachment_id, header_callback) do |chunk|
             response.stream.write(chunk)
           end
-        rescue Common::Exceptions::RecordNotFound
+        rescue Common::Exceptions::RecordNotFound, Common::Exceptions::BackendServiceException
           raise
-        rescue Common::Exceptions::BackendServiceException
-          raise
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error("Error streaming attachment #{attachment_id} for message #{message_id}: #{e.message}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_STREAM_ERROR', {}, 500)
         ensure
           response.stream.close if response.committed?
         end
+      end
+
+      private
+
+      def process_response_headers(headers)
+        headers.each do |k, v|
+          next unless ATTACHMENT_HEADERS.include?(k)
+
+          if k == 'Content-Disposition' && v.match?(/filename=/)
+            process_content_disposition(k, v)
+          elsif k != 'Content-Type'
+            # Skip Content-Type here; it will be set from filename extension in process_content_disposition
+            response.headers[k] = v
+          end
+        end
+      end
+
+      def process_content_disposition(header_key, header_value)
+        filename = extract_filename(header_value)
+        return response.headers[header_key] = header_value unless filename
+
+        # Format as Rails does with send_data: both filename and filename* (RFC 5987)
+        encoded_filename = CGI.escape(filename).gsub('+', '%20')
+        response.headers[header_key] = "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{encoded_filename}"
+
+        # Determine correct Content-Type based on filename extension
+        set_content_type_from_filename(filename)
+      end
+
+      def extract_filename(header_value)
+        header_value.match(/filename=["']?([^"';]+)["']?/)[1]
+      rescue
+        nil
+      end
+
+      def set_content_type_from_filename(filename)
+        mime_types = MIME::Types.of(filename)
+        response.headers['Content-Type'] = mime_types.first.content_type if mime_types.any?
       end
     end
   end

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sm/client'
 
-describe 'SM Client Attachments' do
+describe SM::Client::Attachments do
   let(:client) do
     client = SM::Client.new(session: { user_id: '10616687' })
     allow(client).to receive(:session).and_return(double(token: 'fake_token'))
@@ -16,7 +16,7 @@ describe 'SM Client Attachments' do
     it 'retrieves an attachment', :vcr do
       VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
         result = client.get_attachment(message_id, attachment_id)
-        
+
         expect(result).to be_a(Hash)
         expect(result[:body]).to be_a(String)
         expect(result[:filename]).to eq('noise300x200.png')
@@ -85,7 +85,7 @@ describe 'SM Client Attachments' do
         chunks << chunk
       end
 
-      expect(chunks).to eq(['chunk1', 'chunk2'])
+      expect(chunks).to eq(%w[chunk1 chunk2])
       expect(headers_received.to_h['Content-Type']).to eq('application/pdf')
       expect(headers_received.to_h['Content-Disposition']).to include('test.pdf')
     end
@@ -112,7 +112,7 @@ describe 'SM Client Attachments' do
       allow(mock_http).to receive(:request).and_yield(mock_http_response)
       allow(Net::HTTP).to receive(:start).and_yield(mock_http)
 
-      header_callback = lambda { |_headers| }
+      header_callback = ->(_headers) {}
 
       expect do
         client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
