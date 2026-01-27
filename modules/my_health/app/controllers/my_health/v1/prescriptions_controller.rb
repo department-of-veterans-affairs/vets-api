@@ -154,29 +154,36 @@ module MyHealth
 
         return nil unless response.is_a?(Net::HTTPSuccess)
 
+        image_data = response.body
+        return nil unless valid_image_size?(response, image_data, uri.host)
+
+        "data:#{response['content-type']};base64,#{Base64.strict_encode64(image_data)}"
+      rescue Net::OpenTimeout, Net::ReadTimeout
+        Rails.logger.warn("Image fetch timeout for #{uri.host}")
+        nil
+      rescue => e
+        Rails.logger.warn("Image fetch error for #{uri.host}: #{e.class}")
+        nil
+      end
+
+      def valid_image_size?(response, image_data, host)
         # Check Content-Length header first if available
         content_length_str = response['content-length']
         if content_length_str&.match?(/^\d+$/)
           content_length = content_length_str.to_i
           if content_length > MAX_IMAGE_SIZE
-            Rails.logger.warn("Image too large: #{content_length} bytes from #{uri.host}")
-            return nil
+            Rails.logger.warn("Image too large: #{content_length} bytes from #{host}")
+            return false
           end
         end
 
-        image_data = response.body
+        # Check actual body size
         if image_data.bytesize > MAX_IMAGE_SIZE
-          Rails.logger.warn("Image exceeded max size: #{image_data.bytesize} bytes from #{uri.host}")
-          return nil
+          Rails.logger.warn("Image exceeded max size: #{image_data.bytesize} bytes from #{host}")
+          return false
         end
 
-        "data:#{response['content-type']};base64,#{Base64.strict_encode64(image_data)}"
-      rescue Net::OpenTimeout, Net::ReadTimeout => e
-        Rails.logger.warn("Image fetch timeout for #{uri.host}")
-        nil
-      rescue StandardError => e
-        Rails.logger.warn("Image fetch error for #{uri.host}: #{e.class}")
-        nil
+        true
       end
 
       def get_image_uri(cmop_ndc_number)
