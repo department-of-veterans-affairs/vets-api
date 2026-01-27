@@ -36,9 +36,12 @@ module MyHealth
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
 
         # Log unique user event for prescription refill requested
+        # Also logs OH-specific events if any facility IDs match tracked OH facilities
+        event_facility_ids = orders.map { |order| order['stationNumber'] }.compact.uniq
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+          event_facility_ids:
         )
 
         render json: response.serializable_hash
