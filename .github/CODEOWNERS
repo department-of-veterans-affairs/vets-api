@@ -2233,6 +2233,7 @@ spec/support/schemas/prescriptions.json @department-of-veterans-affairs/vfs-mhv-
 spec/support/schemas/rated_disabilities.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/rated_disability_base.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/rating_info_response.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/support/schemas/scheduling_preferences.json @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/search.json @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/service_and_deployment_history_response.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/service_history_response.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group

@@ -19,6 +19,7 @@ require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
 require_relative 'sections/section_05_v2'
 require_relative 'sections/section_07_v2'
+
 module Burials
   module PdfFill
     # Forms module
