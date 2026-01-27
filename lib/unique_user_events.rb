@@ -64,7 +64,17 @@ module UniqueUserEvents
   def self.log_events(user:, event_names:, event_facility_ids: nil)
     return EMPTY_RESPONSE unless Flipper.enabled?(:unique_user_metrics_logging)
 
-    do_log_events('log_events') { Service.buffer_events(user:, event_names:, event_facility_ids:) }
+    start_time = Time.current
+    buffered_event_names = Service.buffer_events(user:, event_names:, event_facility_ids:)
+
+    duration = (Time.current - start_time) * 1000.0
+    StatsD.measure('uum.unique_user_metrics.log_events.duration', duration)
+    buffered_event_names
+  rescue ArgumentError
+    raise
+  rescue => e
+    Rails.logger.error("UUM: Failed during log_events - Error: #{e.message}")
+    EMPTY_RESPONSE
   end
 
   # Check if an event has already been logged for a user
@@ -76,27 +86,4 @@ module UniqueUserEvents
   def self.event_logged?(user:, event_name:)
     Service.event_logged?(user:, event_name:)
   end
-
-  # Shared implementation for logging events
-  #
-  # @param method_name [String] Name of the calling method for metrics/logging
-  # @yield Block that performs the actual buffering and returns event names
-  # @return [Array<String>] Array of event names that were buffered (empty if disabled)
-  def self.do_log_events(method_name)
-    return EMPTY_RESPONSE unless Flipper.enabled?(:unique_user_metrics_logging)
-
-    start_time = Time.current
-    buffered_event_names = yield
-
-    duration = (Time.current - start_time) * 1000.0
-    StatsD.measure("uum.unique_user_metrics.#{method_name}.duration", duration)
-    buffered_event_names
-  rescue ArgumentError
-    raise
-  rescue => e
-    Rails.logger.error("UUM: Failed during #{method_name} - Error: #{e.message}")
-    EMPTY_RESPONSE
-  end
-
-  private_class_method :do_log_events
 end
