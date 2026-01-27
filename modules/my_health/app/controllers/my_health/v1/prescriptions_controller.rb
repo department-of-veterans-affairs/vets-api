@@ -32,7 +32,8 @@ module MyHealth
         resource = apply_sorting(resource, params[:sort])
         resource.records = sort_prescriptions_with_pd_at_top(resource.records)
         is_using_pagination = params[:page].present? || params[:per_page].present?
-        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
+        # Use resource.records to preserve sorting/filtering/grouping
+        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.records) : resource.records
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
@@ -68,7 +69,8 @@ module MyHealth
       end
 
       def filter_renewals(resource)
-        resource.records = resource.data.select(&method(:renewable))
+        # Use resource.records instead of resource.data to preserve grouping
+        resource.records = resource.records.select(&method(:renewable))
         resource.metadata = resource.metadata.merge({
                                                       'filter' => {
                                                         'disp_status' => {
@@ -183,7 +185,8 @@ module MyHealth
             filter_renewals(resource)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            resource.records = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
+            # Use resource.records instead of resource.data to preserve grouping
+            resource.records = resource.records.select { |item| filters.include?(item.disp_status.downcase) }
             resource.metadata[:filter][:dispStatus] = { eq: disp_status[:eq] }
           end
         end
