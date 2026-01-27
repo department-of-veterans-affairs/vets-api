@@ -17,10 +17,8 @@ module FacilitiesApi
         RADIUS_MIN = 1
         RESULTS_MAX = 50
         RESULTS_MIN = 2
-        LAT_MIN = -90.0
-        LAT_MAX = 90.0
-        LONG_MIN = -180.0
-        LONG_MAX = 180.0
+        LAT_RANGE = -90.0..90.0
+        LONG_RANGE = -180.0..180.0
 
         configuration FacilitiesApi::V2::PPMS::Configuration
 
@@ -126,41 +124,30 @@ module FacilitiesApi
           }
         end
 
-        def float?(str)
-          Float(str)
-          true
-        rescue ArgumentError, TypeError
-          false
-        end
-
-        def integer?(str)
-          Integer(str)
-          true
-        rescue ArgumentError, TypeError
-          false
-        end
-
         def fetch_lat_long_and_radius(params)
           lat_param = params.values_at(:lat, :latitude).compact.first
           long_param = params.values_at(:long, :longitude).compact.first
           radius_param = params.fetch(:radius)
-
-          raise Common::Exceptions::InvalidFieldValue.new('radius', radius_param) unless integer?(radius_param)
-          raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param) unless float?(lat_param)
-          raise Common::Exceptions::InvalidFieldValue.new('long', long_param) unless float?(long_param)
-
-          latitude = Float(lat_param).round(DEGREES_OF_ACCURACY)
-          longitude = Float(long_param).round(DEGREES_OF_ACCURACY)
-          unless latitude >= LAT_MIN && latitude <= LAT_MAX
-            raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param)
-          end
-          unless longitude >= LONG_MIN && longitude <= LONG_MAX
-            raise Common::Exceptions::InvalidFieldValue.new('long', long_param)
-          end
-
-          radius = Integer(radius_param).clamp(RADIUS_MIN, RADIUS_MAX)
-
+          latitude = parse_coordinate!(lat_param, 'lat', LAT_RANGE)
+          longitude = parse_coordinate!(long_param, 'long', LONG_RANGE)
+          radius = parse_radius!(radius_param)
           [latitude, longitude, radius]
+        end
+
+        def parse_coordinate!(value, field_name, valid_range)
+          coord = Float(value, exception: false)
+          raise Common::Exceptions::InvalidFieldValue.new(field_name, value) if coord.nil?
+          raise Common::Exceptions::InvalidFieldValue.new(field_name, value) unless valid_range.cover?(coord)
+
+          coord.round(DEGREES_OF_ACCURACY)
+        end
+
+        def parse_radius!(value)
+          # Validate as numeric, then convert to integer for clamping
+          radius = Float(value, exception: false)&.to_i
+          raise Common::Exceptions::InvalidFieldValue.new('radius', value) if radius.nil?
+
+          radius.clamp(RADIUS_MIN, RADIUS_MAX)
         end
 
         def fetch_pagination(params)
