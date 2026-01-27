@@ -144,10 +144,10 @@ module FacilitiesApi
 
           latitude = Float(lat_param).round(DEGREES_OF_ACCURACY)
           longitude = Float(long_param).round(DEGREES_OF_ACCURACY)
-          if lat_param >= LAT_MIN && lat_param <= LAT_MAX
+          if latitude >= LAT_MIN && latitude <= LAT_MAX
             raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param)
           end
-          if long_param >= LONG_MIN && long_param <= LONG_MAX
+          if longitude >= LONG_MIN && longitude <= LONG_MAX
             raise Common::Exceptions::InvalidFieldValue.new('long', long_param)
           end
 
