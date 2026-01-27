@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,6 +30,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
+
+  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -1166,26 +1168,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
     t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
   end
 
-  create_table "form_intake_submissions", force: :cascade do |t|
-    t.bigint "form_submission_id", null: false
-    t.string "aasm_state", default: "pending", null: false
-    t.integer "retry_count", default: 0, null: false
-    t.string "benefits_intake_uuid", null: false
-    t.string "form_intake_submission_id"
-    t.string "gcio_tracking_number"
-    t.text "request_payload_ciphertext"
-    t.text "response_ciphertext"
-    t.text "error_message_ciphertext"
-    t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
-    t.boolean "needs_kms_rotation", default: false, null: false
-    t.datetime "submitted_at"
-    t.datetime "completed_at"
-    t.datetime "last_attempted_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["form_submission_id"], name: "index_form_intake_submissions_on_form_submission_id"
-  end
-
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
@@ -2241,7 +2223,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_email_matches_profile_logs", "user_accounts"
-  add_foreign_key "form_intake_submissions", "form_submissions"
   add_foreign_key "form_submission_attempts", "form_submissions"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"
