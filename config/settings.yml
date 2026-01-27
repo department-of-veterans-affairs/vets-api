@@ -1465,7 +1465,7 @@ vanotify:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
     21_8940v1: &vanotify_services_increase_compensation
-      api_key: ~
+      api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       email:
         confirmation:
           flipper_id: false
