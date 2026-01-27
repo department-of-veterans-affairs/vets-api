@@ -38,6 +38,9 @@ module MyHealth
           raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
 
           stream_ccd_response(generated_datetime, fmt)
+        rescue => e
+          log_aal_action('Download My VA Health Summary', 0)
+          raise e
         end
 
         def product
@@ -61,9 +64,6 @@ module MyHealth
 
           chunk_stream.each { |chunk| response.stream.write(chunk) }
           log_aal_action('Download My VA Health Summary', 1)
-        rescue => e
-          log_aal_action('Download My VA Health Summary', 0)
-          raise e
         ensure
           response.stream.close if response.committed?
         end
