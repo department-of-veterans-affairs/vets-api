@@ -844,8 +844,6 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
-    pg (1.6.3-aarch64-linux)
-    pg (1.6.3-x64-mingw-ucrt)
     pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
