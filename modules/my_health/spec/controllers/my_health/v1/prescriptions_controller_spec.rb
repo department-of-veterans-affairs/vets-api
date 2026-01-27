@@ -79,6 +79,10 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
       end
 
       it 'respects timeout on individual futures' do
+        # Use only 5 prescriptions to match MAX_IMAGE_FETCH_THREADS
+        # This ensures all prescriptions are processed in a single batch
+        small_data = prescription_data[0..4]
+
         allow(controller).to receive(:get_image_uri) do |ndc|
           "https://www.myhealth.va.gov/static/MILDrugImages/1/NDC#{ndc}.jpg"
         end
@@ -91,12 +95,13 @@ RSpec.describe MyHealth::V1::PrescriptionsController, type: :controller do
 
         # Measure execution time
         start_time = Time.zone.now
-        controller.send(:fetch_and_include_images, prescription_data)
+        controller.send(:fetch_and_include_images, small_data)
         elapsed_time = Time.zone.now - start_time
 
-        # Should not wait for full 15 seconds per prescription
-        # With timeout of 10 seconds, should complete within 12 seconds
-        # (allowing for some overhead)
+        # With 5 prescriptions and 5 threads, all run concurrently in one batch
+        # Each future waits max 10 seconds (IMAGE_FETCH_TIMEOUT), not 15
+        # Total time should be ~10 seconds, not 15 seconds per prescription
+        # Allow 12 seconds for overhead
         expect(elapsed_time).to be < 12
       end
 
