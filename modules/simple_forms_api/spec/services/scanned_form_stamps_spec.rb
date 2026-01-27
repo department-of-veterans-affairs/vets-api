@@ -80,7 +80,7 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
     context 'with form 21P-535 (page override only)' do
       subject(:stamps) { described_class.new('21P-535').submission_date_stamps(timestamp) }
 
-      it 'stamps on page 2' do
+      it 'stamps on the third page (page index 2)' do
         expect(stamps.map { |s| s[:page] }).to all(eq(2))
       end
 
