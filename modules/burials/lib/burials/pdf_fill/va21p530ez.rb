@@ -137,10 +137,10 @@ module Burials
         # V2 sections grouping question numbers for overflow pages
         # These are placeholders and will be updated as V2 sections are implemented
         SECTIONS_V2 = [
-          { label: 'Section I: Deceased Veteran\'s Identification Information', question_nums: %w[1 2 3 4 5 6] },
+          { label: 'Section I: Personal Identification Of Veteran', question_nums: %w[1 2 3 4 5 6] },
           { label: 'Section II: Claimant\'s Information', question_nums: %w[7 8 9 10 11 12 13] },
           { label: 'Section III: Veteran\'s Service Information', question_nums: %w[14 15 16 17 18 19 20] },
-          { label: 'Section IV: Final Resting Place Information', question_nums: %w[21 22 23 24 25] }
+          { label: 'Section IV: Final Resting Place Information', question_nums: %w[21 22 23 24 25] },
           { label: 'Section V: Burial Allowance and Expenses', question_nums: %w[26 27 28 29] },
           { label: 'Section VI: Claim For Transportation Allowance', question_nums: %w[30] },
           { label: 'Section VII: Direct Deposit Information', question_nums: %w[31] },
