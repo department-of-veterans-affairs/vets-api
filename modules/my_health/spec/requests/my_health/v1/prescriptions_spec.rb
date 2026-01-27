@@ -541,7 +541,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           get '/my_health/v1/prescriptions/99999999/documentation'
         end
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:not_found)
         error = JSON.parse(response.body)
         expect(error).to include('errors')
       end
@@ -555,7 +555,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           get '/my_health/v1/prescriptions/13650541/documentation'
         end
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unprocessable_entity)
         error = JSON.parse(response.body)
         expect(error).to include('errors')
       end
