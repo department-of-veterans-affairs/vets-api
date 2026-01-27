@@ -31,6 +31,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
+  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
+
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
     t.integer "attorneys"
@@ -822,7 +824,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :bigint, default: nil, force: :cascade do |t|
+  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
     t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
