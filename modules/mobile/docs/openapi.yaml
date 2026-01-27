@@ -5204,6 +5204,37 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/phones
+  /v0/veteran_status_card:
+    get:
+      description: Retrieve a user Veteran Status Card
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/VeteranStatusCard.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/veteran_status_card
   /v0/vet_verification_status:
     get:
       description: Returns the veteran's Title 38 status as 'confirmed' or 'not confirmed'.
