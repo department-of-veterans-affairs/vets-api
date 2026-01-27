@@ -3,7 +3,6 @@
 module MyHealth
   class ApidocsController < MyHealth::ApplicationController
     service_tag 'mhv-messaging'
-    skip_before_action :validate_mhv_correlation_id
     skip_before_action :authenticate
 
     def index
