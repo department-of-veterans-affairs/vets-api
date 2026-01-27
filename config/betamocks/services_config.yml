@@ -52,14 +52,14 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
     - :method: :get
       :path: "/eis/api/btsss/travelclaim/api/v2/claims/[0-9a-fA-F-]{36}"
       :file_path: "/travel_pay/claims/show"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)'
     - :method: :get
       :path: "/eis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
@@ -680,7 +680,10 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
-
+    - :method: :get
+      :path: "/vaos/v1/locations/*/clinics"
+      :file_path: "vaos/v1/clinics"
+      :response_delay: 0.3
     # Get referral list
     - :method: :get
       :path: "/vaos/v1/patients/*/referrals"
