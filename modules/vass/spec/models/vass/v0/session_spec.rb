@@ -237,6 +237,42 @@ RSpec.describe Vass::V0::Session, type: :model do
       allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(last_name: 'SMITH'))
       expect(session.valid_otc?).to be true
     end
+
+    context 'with corrupted or invalid stored data' do
+      it 'returns false when stored code is nil' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: nil))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code is empty string' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: ''))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code is not a string' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: 123_456))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code key is missing' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return({ last_name:, dob: date_of_birth })
+        expect(session.valid_otc?).to be false
+      end
+    end
+
+    context 'with invalid provided OTC' do
+      it 'returns false when provided OTC is nil' do
+        session_nil_otp = described_class.new(uuid:, otp_code: nil, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        expect(session_nil_otp.valid_otc?).to be false
+      end
+
+      it 'returns false when provided OTC is empty string' do
+        session_empty_otp = described_class.new(uuid:, otp_code: '', last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        expect(session_empty_otp.valid_otc?).to be false
+      end
+    end
   end
 
   describe '#delete_otc' do
@@ -482,19 +518,19 @@ RSpec.describe Vass::V0::Session, type: :model do
   end
 
   describe '#create_authenticated_session' do
-    let(:session_token) { SecureRandom.uuid }
+    let(:jti) { SecureRandom.uuid }
     let(:metadata) { { edipi: '1234567890', veteran_id: uuid } }
 
-    it 'creates session with veteran metadata from Redis' do
+    it 'creates session with veteran metadata and jti from Redis' do
       session = described_class.new(uuid:, redis_client:)
       allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return(metadata)
       expect(redis_client).to receive(:save_session).with(
-        session_token:,
+        uuid:,
+        jti:,
         edipi: '1234567890',
-        veteran_id: uuid,
-        uuid:
+        veteran_id: uuid
       )
-      session.create_authenticated_session(session_token:)
+      session.create_authenticated_session(jti:)
     end
 
     it 'returns false when metadata is not found' do
@@ -507,7 +543,7 @@ RSpec.describe Vass::V0::Session, type: :model do
         .and_call_original
 
       expect(redis_client).not_to receive(:save_session)
-      expect(session.create_authenticated_session(session_token:)).to be false
+      expect(session.create_authenticated_session(jti:)).to be false
     end
   end
 end
