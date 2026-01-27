@@ -59,14 +59,6 @@ RSpec.describe Representatives::XlsxFileProcessor do
         end
       end
 
-      it 'formats zip_code correctly in raw_address with zip4' do
-        row_with_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].present? }
-        expect(row_with_zip4).to be_present, 'Fixture data should include at least one row with zip_code4'
-
-        expected_zip = "#{row_with_zip4[:address][:zip_code5]}-#{row_with_zip4[:address][:zip_code4]}"
-        expect(row_with_zip4[:raw_address]['zip_code']).to eq(expected_zip)
-      end
-
       it 'formats zip_code correctly in raw_address without zip4' do
         row_without_zip4 = result['Agents'].find { |r| r[:address][:zip_code4].nil? }
         expect(row_without_zip4).to be_present, 'Fixture data should include at least one row without zip_code4'
@@ -127,6 +119,25 @@ RSpec.describe Representatives::XlsxFileProcessor do
           end
         end
       end
+    end
+  end
+
+  describe '#format_raw_zip' do
+    subject(:processor) { described_class.new('') }
+
+    it 'formats zip_code correctly with zip4' do
+      result = processor.send(:format_raw_zip, '12345', '6789')
+      expect(result).to eq('12345-6789')
+    end
+
+    it 'formats zip_code correctly without zip4' do
+      result = processor.send(:format_raw_zip, '12345', nil)
+      expect(result).to eq('12345')
+    end
+
+    it 'returns nil when zip5 is blank' do
+      expect(processor.send(:format_raw_zip, nil, nil)).to be_nil
+      expect(processor.send(:format_raw_zip, '', nil)).to be_nil
     end
   end
 end
