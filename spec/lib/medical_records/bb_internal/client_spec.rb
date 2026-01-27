@@ -240,8 +240,8 @@ describe BBInternal::Client do
   end
 
   describe '#stream_download_ccd' do
-    let(:date) { '2024-10-23T12:42:48.000-0400' }
-    let(:response_body) { '<ClinicalDocument>...</ClinicalDocument>' }
+    let(:xml_date) { '2024-10-23T12:42:48.000-0400' }
+    let(:pdf_html_date) { '2025-05-06T09:26:08.000-0400' }
 
     context 'when streaming XML format' do
       it 'streams a previously generated CCD without buffering' do
@@ -249,7 +249,7 @@ describe BBInternal::Client do
         header_callback = ->(headers) {}
 
         VCR.use_cassette 'mr_client/bb_internal/download_ccd_streaming' do
-          client.stream_download_ccd(date:, format: :xml, header_callback:, yielder:)
+          client.stream_download_ccd(date: xml_date, format: :xml, header_callback:, yielder:)
           expect(yielder.string).to be_a(String)
           expect(yielder.string).to include('<ClinicalDocument')
         end
@@ -262,7 +262,7 @@ describe BBInternal::Client do
         header_callback = ->(headers) {}
 
         VCR.use_cassette 'mr_client/bb_internal/download_ccd_pdf' do
-          client.stream_download_ccd(date:, format: :pdf, header_callback:, yielder:)
+          client.stream_download_ccd(date: pdf_html_date, format: :pdf, header_callback:, yielder:)
           expect(yielder.string).not_to be_empty
         end
       end
@@ -274,7 +274,7 @@ describe BBInternal::Client do
         header_callback = ->(headers) {}
 
         VCR.use_cassette 'mr_client/bb_internal/download_ccd_html' do
-          client.stream_download_ccd(date:, format: :html, header_callback:, yielder:)
+          client.stream_download_ccd(date: pdf_html_date, format: :html, header_callback:, yielder:)
           expect(yielder.string).not_to be_empty
         end
       end
