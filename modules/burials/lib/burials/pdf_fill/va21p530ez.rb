@@ -18,6 +18,7 @@ require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
 require_relative 'sections/section_05_v2'
+
 module Burials
   module PdfFill
     # Forms module
@@ -101,7 +102,7 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section5V2].freeze
+        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section5V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
         QUESTION_KEY_V2 = [

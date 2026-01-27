@@ -305,9 +305,6 @@ module Burials
         pow_periods = form_data['powPeriods']
         return if pow_periods.blank?
 
-        # Limit to 2 entries
-        pow_periods = pow_periods.take(2)
-
         form_data['powPeriods'] = pow_periods.map do |period|
           {
             'powDateRange' => {
