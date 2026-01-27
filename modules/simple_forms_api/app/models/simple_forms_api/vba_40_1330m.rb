@@ -27,6 +27,9 @@ module SimpleFormsApi
     end
 
     def handle_attachments(file_path)
+      raise ArgumentError, 'file_path cannot be nil' if file_path.nil?
+      raise ArgumentError, "file_path does not exist: #{file_path}" unless File.exist?(file_path)
+
       attachments = get_attachments
       merged_pdf = HexaPDF::Document.open(file_path)
 
