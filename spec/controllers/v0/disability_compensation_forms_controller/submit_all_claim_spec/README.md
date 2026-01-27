@@ -16,7 +16,7 @@ Spec examples are authored using the `define_example` helper method.
 This helper applies different VCR request matching logic per upstream endpoint. This is what enables us to record _all_ HTTP interactions that occur within a spec example to just a _single_ cassette. The exact same per-endpoint request matching logic is applicable across all spec examples.
 
 That logic is registered at
-`spec/controllers/v0/disability_compensation_forms_controller/submit_all_claim_spec/vcr_matchers.rb`. It should be at least as strict as is needed to genuinely exercise everything that needs exercising. In other words, we want to avoid the VCR cheating we've engaged in thus far, because it prevents us from automatically noticing regressions that break the form 526 application.
+`spec/controllers/v0/disability_compensation_forms_controller/submit_all_claim_spec/vcr_endpoint_matchers.rb`. It should be at least as strict as is needed to genuinely exercise everything that needs exercising. In other words, we want to avoid the VCR cheating we've engaged in thus far, because it prevents us from automatically noticing regressions that break the form 526 application.
 
 ### Parameters
 Documented in `spec/controllers/v0/disability_compensation_forms_controller/submit_all_claim_spec/example_definition.rb`.
