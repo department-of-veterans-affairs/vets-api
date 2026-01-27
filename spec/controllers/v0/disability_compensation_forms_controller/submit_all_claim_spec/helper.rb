@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'example_definition'
-require_relative 'vcr_matchers'
+require_relative 'vcr_endpoint_matchers'
 
 module SubmitAllClaimSpec
   module Helper
@@ -79,8 +79,8 @@ module SubmitAllClaimSpec
     end
 
     VCR_OPTIONS = {
-      record: :once, allow_unused_http_interactions: false,
-      match_requests_on: [VcrMatchers.build].freeze
+      match_requests_on: [VcrEndpointMatchers.build].freeze,
+      allow_unused_http_interactions: false
     }.freeze
 
     PATH_PREFIX = Pathname('disability_compensation_form/submit_all_claim')
