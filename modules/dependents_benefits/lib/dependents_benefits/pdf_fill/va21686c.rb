@@ -1060,19 +1060,19 @@ module DependentsBenefits
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_first[%iterator%]',
                 limit: 12,
                 question_num: 21,
-                question_suffix: 'B',
+                question_suffix: 'A',
                 question_text: 'NAMES OF STEPCHILD(REN) > FIRST NAME'
               },
               'middleInitial' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_middle[%iterator%]',
                 question_num: 21,
-                question_suffix: 'B',
+                question_suffix: 'A',
                 question_text: 'NAMES OF STEPCHILDREN > MIDDLE INITIAL'
               },
               'last' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_last[%iterator%]',
                 question_num: 21,
-                question_suffix: 'B',
+                question_suffix: 'A',
                 question_text: 'NAMES OF STEPCHILDREN > LAST NAME'
               }
             },
