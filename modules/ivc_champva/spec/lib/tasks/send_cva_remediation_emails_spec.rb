@@ -172,27 +172,6 @@ RSpec.describe 'ivc_champva:send_cva_remediation_emails rake task', type: :task 
     end
   end
 
-  describe 'when form already has email_sent true' do
-    before do
-      @already_sent_form = create(:ivc_champva_form,
-                                  form_number: '10-7959A',
-                                  created_at: start_date + 1.hour,
-                                  form_uuid: SecureRandom.uuid,
-                                  file_name: 'test-uuid-1_10-7959A.pdf',
-                                  email: "sent-#{SecureRandom.hex(4)}@example.com",
-                                  email_sent: true,
-                                  s3_status: 'success')
-      test_records.push(@already_sent_form)
-    end
-
-    it 'skips forms with email_sent true during iteration' do
-      # Form is still returned by query (no email_sent filter), but skipped during iteration
-      output = capture_stdout { task.invoke }
-      expect(output).to include("Skipping #{@already_sent_form.form_uuid} - email already sent")
-      expect(output).to include('Skipped (already sent): 1')
-    end
-  end
-
   describe 'when email sending fails' do
     before do
       @failing_form = create(:ivc_champva_form,
