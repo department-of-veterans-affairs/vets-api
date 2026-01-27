@@ -102,6 +102,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
+  if Flipper.enabled?(:delete_old_education_benefits_job)
+    # Clear out SavedClaim::EducationBenefits models with an old enough `delete_date`
+    mgr.register('0 3 * * *', 'EducationForm::DeleteOldEducationBenefitsClaims')
+  end
+
   # Checks in TUD users that weren't properly checked in.
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
 
@@ -307,4 +312,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Process buffered Unique User Metrics events every 10 minutes
   mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
+
+  mgr.register('30 6 * * *', 'Console1984LogUploadJob')
 }
