@@ -3291,6 +3291,109 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
   end
 
+  describe 'scheduling preferences', :initiate_vaprofile do
+    let(:mhv_user) { build(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
+    before do
+      sign_in_as(mhv_user)
+      allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, mhv_user).and_return(true)
+      allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
+
+      service_response_mock = double(
+        status: 200,
+        person_options: [],
+        bio: { personOptions: [] }
+      )
+
+      allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:get_person_options)
+        .and_return(service_response_mock)
+      allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
+        .and_return(double)
+
+      transaction_mock = double(
+        id: 'txn-123',
+        transaction_id: 'txn-123',
+        transaction_status: 'RECEIVED',
+        type: 'AsyncTransaction::VAProfile::PersonOptionsTransaction'
+      )
+
+      allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start)
+        .and_return(transaction_mock)
+
+      allow_any_instance_of(AsyncTransaction::BaseSerializer).to receive(:serializable_hash)
+        .and_return({
+                      data: {
+                        id: 'txn-123',
+                        type: 'async_transaction_va_profile_person_options_transactions',
+                        attributes: {
+                          transaction_id: 'txn-123',
+                          transaction_status: 'RECEIVED',
+                          type: 'AsyncTransaction::VAProfile::PersonOptionsTransaction',
+                          metadata: []
+                        }
+                      }
+                    })
+
+      allow_any_instance_of(SchedulingPreferencesSerializer).to receive(:serializable_hash)
+        .and_return({
+                      data: {
+                        id: '',
+                        type: 'scheduling_preferences',
+                        attributes: {
+                          preferences: []
+                        }
+                      }
+                    })
+    end
+
+    it 'supports getting scheduling preferences' do
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 401)
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 200, headers)
+    end
+
+    it 'supports getting scheduling preferences with 403 for non-pilot users' do
+      allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(false)
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 403, headers)
+    end
+
+    it 'supports posting scheduling preferences' do
+      expect(subject).to validate(:post, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [5] }
+      expect(subject).to validate(
+        :post,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
+    end
+
+    it 'supports putting scheduling preferences' do
+      expect(subject).to validate(:put, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [7] }
+      expect(subject).to validate(
+        :put,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
+    end
+
+    it 'supports deleting scheduling preferences' do
+      expect(subject).to validate(:delete, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [5] }
+      expect(subject).to validate(
+        :delete,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
+    end
+  end
+
   describe 'DatadogAction endpoint' do
     it 'records a front-end metric and returns 204 No Content' do
       body = {
