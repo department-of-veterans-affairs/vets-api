@@ -694,7 +694,6 @@ config/form_profile_mappings/10-10EZR.yml @department-of-veterans-affairs/health
 config/form_profile_mappings/10-7959C.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/1010ez.yml @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/10182.yml @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/1330m.yml @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/20-0995.yml @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/20-0996.yml @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21-0538.yml @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
@@ -725,6 +724,7 @@ config/form_profile_mappings/26-4555.yml @department-of-veterans-affairs/platfor
 config/form_profile_mappings/28-1900.yml @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/28-8832.yml @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/40-10007.yml @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/40-1330m.yml @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/5655.yml @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/686C-674-V2.yml @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/686C-674.yml @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
