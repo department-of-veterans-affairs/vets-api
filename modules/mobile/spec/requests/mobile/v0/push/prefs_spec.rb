@@ -20,13 +20,6 @@ RSpec.describe 'Mobile::V0::Push::Prefs', type: :request do
           {
             auto_opt_in: false,
             endpoint_sid: '8c258cbe573c462f912e7dd74585a5a9',
-            preference_name: 'Claim Status Updates',
-            preference_id: 'claim_status_updates',
-            value: true
-          },
-          {
-            auto_opt_in: false,
-            endpoint_sid: '8c258cbe573c462f912e7dd74585a5a9',
             preference_name: 'Benefits claims and decision reviews',
             preference_id: 'claim_status_updates',
             value: true
@@ -55,7 +48,7 @@ RSpec.describe 'Mobile::V0::Push::Prefs', type: :request do
           get '/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('get_prefs')
-          expect(response.body).to include('Benefits claims and decision reviews')
+          expect(response.body).to include('claim_status_updates')
         end
       end
 
@@ -69,7 +62,7 @@ RSpec.describe 'Mobile::V0::Push::Prefs', type: :request do
           get '/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('get_prefs')
-          expect(response.body).not_to include('Benefits claims and decision reviews')
+          expect(response.body).not_to include('claim_status_updates')
         end
       end
     end
