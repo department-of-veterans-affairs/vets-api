@@ -561,7 +561,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Service unavailable'))
+          .and_raise(Common::Client::Errors::ClientError.new('Service unavailable', 503))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
@@ -573,7 +573,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Connection failed'))
+          .and_raise(Common::Client::Errors::ClientError.new('Connection failed', 503))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
@@ -585,7 +585,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Bad request'))
+          .and_raise(Common::Client::Errors::ClientError.new('Bad request', 400))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
