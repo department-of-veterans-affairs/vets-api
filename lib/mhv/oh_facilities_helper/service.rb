@@ -81,7 +81,7 @@ module MHV
 
       # Builds the migration response array for user's matching facilities
       def build_migration_response
-        # return [] if @current_user.va_treatment_facility_ids.blank?
+        return [] if @current_user.va_treatment_facility_ids.blank?
 
         parsed_migrations = parse_oh_migrations_list
         return [] if parsed_migrations.empty?
