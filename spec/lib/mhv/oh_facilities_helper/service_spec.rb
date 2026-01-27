@@ -478,11 +478,35 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
 
       context 'when migration_status is COMPLETE' do
-        it 'current phase is last phase' do
-          # After last phase the current phase will be the last phase (the last phase we passed)
+        it 'current phase is nil' do
+          # After last phase is complete, current phase should be nil
           allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 3)
           result = service.get_migration_schedules
+          expect(result.first[:phases][:current]).to be_nil
+        end
+      end
+
+      context 'when exactly at the last phase boundary' do
+        it 'current phase is the last phase' do
+          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset)
+          result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(last_phase_key)
+        end
+      end
+
+      context 'when one day after the last phase boundary' do
+        it 'current phase is nil (migration complete)' do
+          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 1)
+          result = service.get_migration_schedules
+          expect(result.first[:phases][:current]).to be_nil
+        end
+      end
+
+      context 'when well after the last phase' do
+        it 'current phase is nil' do
+          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 30)
+          result = service.get_migration_schedules
+          expect(result.first[:phases][:current]).to be_nil
         end
       end
     end

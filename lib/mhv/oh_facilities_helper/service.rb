@@ -81,7 +81,7 @@ module MHV
 
       # Builds the migration response array for user's matching facilities
       def build_migration_response
-        return [] if @current_user.va_treatment_facility_ids.blank?
+        # return [] if @current_user.va_treatment_facility_ids.blank?
 
         parsed_migrations = parse_oh_migrations_list
         return [] if parsed_migrations.empty?
@@ -145,7 +145,6 @@ module MHV
       # Filters migrations to only include user's facilities and merges same-date entries
       def filter_and_merge_user_facilities(migrations)
         user_facility_ids = @current_user.va_treatment_facility_ids.map(&:to_s)
-
         # Group by migration date and collect matching facilities
         grouped = migrations.each_with_object({}) do |migration, acc|
           matching_facilities = migration[:facilities].select do |facility|
@@ -183,6 +182,10 @@ module MHV
       def determine_current_phase(migration_date)
         today = Time.zone.today
         days_until_migration = (migration_date - today).to_i
+
+        # After the last phase is complete, return nil
+        last_phase_offset = PHASES.values.max
+        return nil if days_until_migration < -last_phase_offset
 
         # Find the current phase by checking from latest phase to earliest
         # Phase boundaries are inclusive - if today is day -45, we're in p1
