@@ -120,7 +120,7 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
       context 'when service raises a validation error' do
         before do
           allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card)
-            .and_raise(Common::Exceptions::ValidationErrors.new('this is a validation error'))
+            .and_raise(ValidationError.new('this is a validation error'))
         end
 
         it 'returns a validation error' do

@@ -36,7 +36,8 @@ module VeteranStatusCard
     def initialize(user)
       @user = user
 
-      raise Common::Exceptions::ValidationErrors, @user if @user.nil? || @user.edipi.blank? || @user.icn.blank?
+      raise ValidationError.new('User must be present') && return if @user.nil?
+      raise ValidationError, 'User missing required fields' if @user.edipi.blank? || @user.icn.blank?
     end
 
     ##

@@ -86,20 +86,20 @@ RSpec.describe VeteranStatusCard::Service do
     context 'when user is not nil' do
       context 'when user edipi and icn are nil' do
         it 'raises a validation error' do
-          expect(VeteranStatusCard::Service.new(user)).to raise(Common::Exceptions::ValidationErrors)
+          expect(VeteranStatusCard::Service.new(user)).to raise(ValidationError)
         end
       end
 
-      context 'when user edipi are icn are not nil' do
+      context 'when user edipi or icn are not nil' do
         it 'does not raise a validation error' do
-          expect(VeteranStatusCard::Service.new(user)).not_to raise(Common::Exceptions::ValidationErrors)
+          expect(VeteranStatusCard::Service.new(user)).not_to raise(ValidationError)
         end
       end
     end
 
     context 'when user is nil' do
       it 'raises a validation error' do
-        expect(VeteranStatusCard::Service.new(nil)).to raise(Common::Exceptions::ValidationErrors)
+        expect(VeteranStatusCard::Service.new(nil)).to raise(ValidationError)
       end
     end
   end
