@@ -671,7 +671,7 @@ describe TravelPay::ExpensesService do
                                'dateIncurred' => '2024-11-01',
                                'description' => 'Bus fare',
                                'costRequested' => 15.00,
-                               'reasonNotUsingPov' => 'NoVehicle',
+                               'reasonNotUsingPOV' => 'NoVehicle',
                                'carrierType' => 'Bus',
                                'claimId' => 'claim-123'
                              })
