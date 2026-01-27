@@ -602,6 +602,9 @@
           "content": [
             "If you don't already have a bank account, the Veterans Benefits Banking Program (VBBP) can connect you with a bank that will help you set up an account.",
             {
+              "type": "lineBreak"
+            },
+            {
               "type": "link",
               "text": "Set up a bank account through VBBP",
               "href": "https://veteransbenefitsbanking.org/",
