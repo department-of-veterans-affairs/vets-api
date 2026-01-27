@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
-require 'veteran_status_card/service'
+require 'mobile/v0/veteran_status_card/service'
 
 RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
   let!(:user) { sis_user }
@@ -28,7 +28,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       before do
-        allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(eligible_response)
+        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card).and_return(eligible_response)
       end
 
       it 'returns a successful response' do
@@ -59,7 +59,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       before do
-        allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(ineligible_response)
+        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card).and_return(ineligible_response)
       end
 
       it 'returns a successful response with error details' do
@@ -81,7 +81,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
 
     context 'when service raises an error' do
       before do
-        allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card)
+        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card)
           .and_raise(StandardError.new('Unexpected error'))
       end
 
