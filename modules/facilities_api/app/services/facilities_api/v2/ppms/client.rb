@@ -123,9 +123,10 @@ module FacilitiesApi
         end
 
         def float?(str)
-          return false if str.nil?
-
-          str.to_s.match?(/^[+-]?(\d+\.?\d*|\.\d+)$/)
+          Float(str)
+          true
+        rescue ArgumentError, TypeError
+          false
         end
 
         def fetch_lat_long_and_radius(params)
@@ -137,9 +138,9 @@ module FacilitiesApi
           raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param) unless float?(lat_param)
           raise Common::Exceptions::InvalidFieldValue.new('long', long_param) unless float?(long_param)
 
-          latitude = Float(params.values_at(:lat, :latitude).compact.first).round(DEGREES_OF_ACCURACY)
-          longitude = Float(params.values_at(:long, :longitude).compact.first).round(DEGREES_OF_ACCURACY)
-          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+          latitude = Float(lat_param).round(DEGREES_OF_ACCURACY)
+          longitude = Float(long_param).round(DEGREES_OF_ACCURACY)
+          radius = Integer(radius_param).clamp(RADIUS_MIN, RADIUS_MAX)
 
           [latitude, longitude, radius]
         end
