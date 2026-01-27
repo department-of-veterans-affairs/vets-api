@@ -556,40 +556,40 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(error).to include('errors')
       end
 
-      it 'returns 500 when upstream service fails' do
+      it 'returns 503 when upstream service fails' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Faraday::ServerError.new('Service unavailable'))
+          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Service unavailable'))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:service_unavailable)
       end
 
-      it 'returns 500 when connection fails' do
+      it 'returns 503 when connection fails' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Faraday::ConnectionFailed.new('Connection failed'))
+          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Connection failed'))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:service_unavailable)
       end
 
-      it 'returns 500 when client error occurs' do
+      it 'returns 503 when client error occurs' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
           double('Rx', cmop_ndc_value: '00378-6155-10')
         )
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
-          .and_raise(Faraday::ClientError.new('Bad request'))
+          .and_raise(Common::Client::Errors::ClientError.new('Rx::Client', 'Bad request'))
 
         get '/my_health/v1/prescriptions/21296515/documentation'
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
 
