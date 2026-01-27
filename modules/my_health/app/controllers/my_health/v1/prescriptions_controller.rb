@@ -9,6 +9,9 @@ module MyHealth
       include MyHealth::PrescriptionHelper::Filtering
       include MyHealth::PrescriptionHelper::Sorting
       include MyHealth::RxGroupingHelper
+
+      MAX_IMAGE_SIZE = 500.kilobytes
+      IMAGE_FETCH_TIMEOUT = 5 # seconds
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -140,15 +143,37 @@ module MyHealth
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
+
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = (uri.scheme == 'https')
+        http.open_timeout = IMAGE_FETCH_TIMEOUT
+        http.read_timeout = IMAGE_FETCH_TIMEOUT
+
         request = Net::HTTP::Get.new(uri.request_uri)
         response = http.request(request)
-        if response.is_a?(Net::HTTPSuccess)
-          image_data = response.body
-          base64_image = Base64.strict_encode64(image_data)
-          "data:#{response['content-type']};base64,#{base64_image}"
+
+        return nil unless response.is_a?(Net::HTTPSuccess)
+
+        # Check Content-Length header first if available
+        content_length = response['content-length']&.to_i
+        if content_length && content_length > MAX_IMAGE_SIZE
+          Rails.logger.warn("Image too large: #{content_length} bytes from #{uri.host}")
+          return nil
         end
+
+        image_data = response.body
+        if image_data.bytesize > MAX_IMAGE_SIZE
+          Rails.logger.warn("Image exceeded max size: #{image_data.bytesize} bytes from #{uri.host}")
+          return nil
+        end
+
+        "data:#{response['content-type']};base64,#{Base64.strict_encode64(image_data)}"
+      rescue Net::OpenTimeout, Net::ReadTimeout => e
+        Rails.logger.warn("Image fetch timeout: #{e.message} for #{uri.host}")
+        nil
+      rescue StandardError => e
+        Rails.logger.warn("Image fetch error: #{e.message} for #{uri.host}")
+        nil
       end
 
       def get_image_uri(cmop_ndc_number)

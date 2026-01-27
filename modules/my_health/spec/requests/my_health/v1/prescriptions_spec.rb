@@ -657,6 +657,103 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(prescription_attributes).to include('front_imprint')
       end
     end
+
+    context 'image fetching' do
+      let(:controller) { MyHealth::V1::PrescriptionsController.new }
+      let(:image_url) { 'https://www.myhealth.va.gov/static/MILDrugImages/1/NDC00013264681.jpg' }
+      let(:small_image_data) { 'fake_image_data' }
+      let(:large_image_data) { 'x' * (MyHealth::V1::PrescriptionsController::MAX_IMAGE_SIZE + 1) }
+
+      before do
+        allow(controller).to receive(:current_user).and_return(current_user)
+      end
+
+      it 'successfully fetches and encodes a valid image' do
+        stub_request(:get, image_url)
+          .to_return(
+            status: 200,
+            body: small_image_data,
+            headers: { 'content-type' => 'image/jpeg', 'content-length' => small_image_data.bytesize.to_s }
+          )
+
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to start_with('data:image/jpeg;base64,')
+        expect(result).to include(Base64.strict_encode64(small_image_data))
+      end
+
+      it 'returns nil when image exceeds max size via Content-Length header' do
+        stub_request(:get, image_url)
+          .to_return(
+            status: 200,
+            body: large_image_data,
+            headers: {
+              'content-type' => 'image/jpeg',
+              'content-length' => (MyHealth::V1::PrescriptionsController::MAX_IMAGE_SIZE + 1).to_s
+            }
+          )
+
+        expect(Rails.logger).to receive(:warn).with(/Image too large/)
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when image body exceeds max size' do
+        stub_request(:get, image_url)
+          .to_return(
+            status: 200,
+            body: large_image_data,
+            headers: { 'content-type' => 'image/jpeg' }
+          )
+
+        expect(Rails.logger).to receive(:warn).with(/Image exceeded max size/)
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil and logs warning on timeout' do
+        stub_request(:get, image_url).to_timeout
+
+        expect(Rails.logger).to receive(:warn).with(/Image fetch timeout/)
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when response is not successful' do
+        stub_request(:get, image_url)
+          .to_return(status: 404, body: 'Not Found')
+
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil and logs warning on other errors' do
+        allow(Net::HTTP).to receive(:new).and_raise(StandardError, 'Network error')
+
+        expect(Rails.logger).to receive(:warn).with(/Image fetch error/)
+        result = controller.send(:fetch_image, image_url)
+        expect(result).to be_nil
+      end
+
+      it 'sets appropriate timeout values' do
+        http_double = instance_double(Net::HTTP)
+        allow(Net::HTTP).to receive(:new).and_return(http_double)
+        allow(http_double).to receive(:use_ssl=)
+        allow(http_double).to receive(:open_timeout=)
+        allow(http_double).to receive(:read_timeout=)
+        allow(http_double).to receive(:request).and_return(
+          instance_double(Net::HTTPSuccess, is_a?: false)
+        )
+
+        controller.send(:fetch_image, image_url)
+
+        expect(http_double).to have_received(:open_timeout=).with(
+          MyHealth::V1::PrescriptionsController::IMAGE_FETCH_TIMEOUT
+        )
+        expect(http_double).to have_received(:read_timeout=).with(
+          MyHealth::V1::PrescriptionsController::IMAGE_FETCH_TIMEOUT
+        )
+      end
+    end
   end
 end
 # rubocop:enable Layout/LineLength
