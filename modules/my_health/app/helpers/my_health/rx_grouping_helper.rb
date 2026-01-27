@@ -30,10 +30,10 @@ module MyHealth
           sorted = rxs.sort_by(&:prescription_number).reverse
           base = sorted.first
           related = sorted[1..]
-          
+
           # Sort related prescriptions by suffix (descending) then by base number
           related_sorted = sort_related_prescriptions(related)
-          
+
           base.grouped_medications = related_sorted
           base
         end
