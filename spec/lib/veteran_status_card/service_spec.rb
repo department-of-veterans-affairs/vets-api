@@ -82,6 +82,28 @@ RSpec.describe VeteranStatusCard::Service do
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
   end
 
+  describe '#initialize' do
+    context 'when user is not nil' do
+      context 'when user edipi and icn are nil' do
+        it 'raises a validation error' do
+          expect(VeteranStatusCard::Service.new(user)).to raise(Common::Exceptions::ValidationErrors)
+        end
+      end
+
+      context 'when user edipi are icn are not nil' do
+        it 'does not raise a validation error' do
+          expect(VeteranStatusCard::Service.new(user)).not_to raise(Common::Exceptions::ValidationErrors)
+        end
+      end
+    end
+
+    context 'when user is nil' do
+      it 'raises a validation error' do
+        expect(VeteranStatusCard::Service.new(nil)).to raise(Common::Exceptions::ValidationErrors)
+      end
+    end
+  end
+
   describe '#status_card' do
     context 'when veteran is eligible' do
       context 'via vet_verification_eligible? (confirmed status)' do

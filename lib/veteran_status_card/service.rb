@@ -35,6 +35,8 @@ module VeteranStatusCard
     #
     def initialize(user)
       @user = user
+
+      raise Common::Exceptions::ValidationErrors, @user if @user.nil? || @user.edipi.blank? || @user.icn.blank?
     end
 
     ##

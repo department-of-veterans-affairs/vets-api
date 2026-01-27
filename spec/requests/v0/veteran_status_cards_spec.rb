@@ -116,6 +116,37 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
           )
         end
       end
+
+      context 'when service raises a validation error' do
+        before do
+          allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card)
+            .and_raise(Common::Exceptions::ValidationErrors.new('this is a validation error'))
+        end
+
+        it 'returns a validation error' do
+          get '/v0/veteran_status_card'
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'returns a validation error message in the response body' do
+          get '/v0/veteran_status_card'
+
+          json = JSON.parse(response.body)
+          expect(json['error']).to eq('A validation error occurred')
+        end
+
+        it 'logs the error with backtrace' do
+          allow(Rails.logger).to receive(:error)
+
+          get '/v0/veteran_status_card'
+
+          expect(Rails.logger).to have_received(:error).with(
+            'VeteranStatusCardsController validation error: this is a validation error',
+            hash_including(:backtrace)
+          )
+        end
+      end
     end
   end
 end
