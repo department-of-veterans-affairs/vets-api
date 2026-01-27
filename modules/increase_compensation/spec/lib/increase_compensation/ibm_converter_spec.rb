@@ -8,8 +8,17 @@ RSpec.describe IncreaseCompensation::IbmConverter do
   let(:dummy_class) { Class.new { include IncreaseCompensation::IbmConverter } }
 
   describe '#convert' do
+    it 'converts a blank obj into a blank list of keys' do
+      key_file = File.read File.join(__dir__, 'ibm_keys_blank.json')
+      keys = JSON.parse(key_file)
+      expect(subject.convert({})).to eq(keys)
+    end
+
     it 'converts a Claims parsed_form to the Keys and formats expected by IBM' do
-      expect(subject.convert({})).to eq({})
+      converted = File.read File.join(__dir__, 'ibm_keys_filled.json')
+      parsed_form = File.read File.join(__dir__, 'mock_parsed_form.json')
+
+      expect(subject.convert(JSON.parse(parsed_form))).to eq(converted)
     end
   end
 
