@@ -59,6 +59,19 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         end
       end
 
+      context 'with substitution codes' do
+        BenefitsClaims::TitleGenerator::SUBSTITUTION_CODES.each do |code|
+          it "returns substitution title for code #{code}" do
+            result = described_class.generate_titles('Some Type', code)
+
+            expect(result).to eq({
+                                   display_title: 'Request for substitution of claimant on record',
+                                   claim_type_base: 'request for substitution of claimant on record'
+                                 })
+          end
+        end
+      end
+
       context 'with generic pension codes' do
         BenefitsClaims::TitleGenerator::GENERIC_PENSION_CODES.each do |code|
           it "returns generic pension title for code #{code}" do
@@ -341,6 +354,13 @@ RSpec.describe BenefitsClaims::TitleGenerator do
       it 'contains the expected codes' do
         expected = %w[290DICEDPMC 020SMDICPMC 020IRDICPMC]
         expect(BenefitsClaims::TitleGenerator::DIC_CODES).to eq(expected)
+      end
+    end
+
+    describe 'SUBSTITUTION_CODES' do
+      it 'contains the expected codes' do
+        expected = %w[290SCNR 290SCPMC 290SCR]
+        expect(BenefitsClaims::TitleGenerator::SUBSTITUTION_CODES).to eq(expected)
       end
     end
 

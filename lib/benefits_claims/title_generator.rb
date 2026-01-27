@@ -38,6 +38,7 @@ module BenefitsClaims
     VETERANS_PENSION_CODES = %w[180AILP 180ORGPENPMC 180ORGPEN].freeze
     SURVIVORS_PENSION_CODES = %w[190ORGDPN 190ORGDPNPMC 190AID 140ISD 687NRPMC].freeze
     DIC_CODES = %w[290DICEDPMC 020SMDICPMC 020IRDICPMC].freeze
+    SUBSTITUTION_CODES = %w[290SCNR 290SCPMC 290SCR].freeze
 
     GENERIC_PENSION_CODES = %w[
       150ELECPMC 150INCNWPMC 150INCPMC 120INCPMC 150NWTHPMC
@@ -75,6 +76,14 @@ module BenefitsClaims
         mapping[code] = Title.new(
           display_title: 'Claim for Dependency and Indemnity Compensation',
           claim_type_base: 'Dependency and Indemnity Compensation claim'
+        )
+      end
+
+      # Add substitution codes
+      SUBSTITUTION_CODES.each do |code|
+        mapping[code] = Title.new(
+          display_title: 'Request for substitution of claimant on record',
+          claim_type_base: 'request for substitution of claimant on record'
         )
       end
 
