@@ -313,7 +313,6 @@ describe TravelPay::ExpensesService do
       expect(result).to have_key('reasonNotUsingPOV')
       expect(result).not_to have_key('reasonNotUsingPov')
     end
-
   end
 
   describe 'add_mileage_expense method' do
