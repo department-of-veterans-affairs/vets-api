@@ -9,7 +9,7 @@ module MyHealth
 
         raise Common::Exceptions::RecordNotFound, id if rx.nil?
 
-        if rx.cmop_ndc_value.nil?
+        if rx.cmop_ndc_value.blank?
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: 'Prescription is missing required drug information (NDC)'
           )
