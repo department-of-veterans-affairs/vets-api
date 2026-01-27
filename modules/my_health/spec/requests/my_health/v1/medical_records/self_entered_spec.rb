@@ -41,16 +41,16 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
         sign_in_as(invalid_user)
       end
 
-      it 'returns 403 Forbidden when mhv_correlation_id is missing' do
+      it 'returns 422 Unprocessable Entity when mhv_correlation_id is missing' do
         sign_in_as(invalid_user)
 
         get '/my_health/v1/medical_records/self_entered'
 
         expect(invalid_user.icn).not_to be_nil
         expect(invalid_user.mhv_correlation_id).to be_nil
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
-        expect(json['errors'].first['detail']).to eq('You do not have access to self-entered information')
+        expect(json['errors'].first['detail']).to eq('Unable to access MHV services. Please try signing in again.')
       end
     end
 
