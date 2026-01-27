@@ -4,7 +4,6 @@ required:
   - type
   - id
   - attributes
-  - relationships
 properties:
   type:
     type: string
@@ -66,6 +65,22 @@ properties:
         type: string
         nullable: true
         example: "Swelling"
+      location:
+        type: string
+        nullable: true
+        example: "Cheyenne VA Medical Center"
+      administrationSite:
+        type: string
+        nullable: true
+        example: "Left arm"
+      lotNumber:
+        type: string
+        nullable: true
+        example: "Lot12345"
+      status:
+        type: string
+        nullable: true
+        example: "completed"
   relationships:
     type: object
     additionalProperties: false

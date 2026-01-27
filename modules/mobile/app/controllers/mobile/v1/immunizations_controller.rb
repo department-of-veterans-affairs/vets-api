@@ -1,17 +1,19 @@
 # frozen_string_literal: true
 
 require 'unique_user_events'
+require 'unified_health_data/service'
+require 'unified_health_data/serializers/immunization_serializer'
 
 module Mobile
   module V1
     class ImmunizationsController < ApplicationController
+      include SortableRecords
       service_tag 'mhv-medical-records'
 
       FUTURE_DATE = '3000-01-01'
 
-      def index
-        paginated_immunizations, meta = Mobile::PaginationHelper.paginate(list: immunizations,
-                                                                          validated_params: pagination_params)
+      def index # rubocop:disable Metrics/MethodLength
+        immunizations = uhd_enabled? ? sort_records(uhd_service.get_immunizations) : lh_immunizations
 
         # Log unique user events for immunizations/vaccines accessed
         UniqueUserEvents.log_events(
@@ -22,10 +24,33 @@ module Mobile
           ]
         )
 
-        render json: Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
-      end
+        serialized_immunizations = if uhd_enabled?
+                                     meta = {
+                                       pagination: {
+                                         current_page: 1,
+                                         per_page: 5000,
+                                         total_pages: 1,
+                                         total_entries: immunizations.length
+                                       }
+                                     }
+                                     UnifiedHealthData::ImmunizationSerializer.new(
+                                       immunizations,
+                                       meta:
+                                     )
+                                   else
+                                     paginated_immunizations, meta =
+                                       Mobile::PaginationHelper.paginate(list: immunizations,
+                                                                         validated_params: pagination_params)
+                                     Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
+                                   end
+        render json: serialized_immunizations
+      end # rubocop:enable Metrics/MethodLength
 
       private
+
+      def uhd_enabled?
+        Flipper.enabled?(:mhv_accelerated_delivery_vaccines_enabled, current_user)
+      end
 
       def immunizations_adapter
         Mobile::V0::Adapters::Immunizations.new
@@ -33,6 +58,10 @@ module Mobile
 
       def service
         Mobile::V0::LighthouseHealth::Service.new(@current_user)
+      end
+
+      def uhd_service
+        @uhd_service ||= UnifiedHealthData::Service.new(@current_user)
       end
 
       def pagination_params
@@ -43,7 +72,7 @@ module Mobile
         )
       end
 
-      def immunizations
+      def lh_immunizations
         immunizations = Mobile::V0::Immunization.get_cached(@current_user) if pagination_params[:use_cache]
 
         unless immunizations
