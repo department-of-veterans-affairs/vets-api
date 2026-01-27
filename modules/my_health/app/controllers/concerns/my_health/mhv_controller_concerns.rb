@@ -25,7 +25,7 @@ module MyHealth
         action: action_name
       )
 
-      raise Common::Exceptions::UnprocessableEntity,
+      raise Common::Exceptions::Forbidden,
             detail: 'Unable to access MHV services. Please try signing in again.'
     end
 

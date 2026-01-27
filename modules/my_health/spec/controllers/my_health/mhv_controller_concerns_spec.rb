@@ -73,9 +73,9 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
         get :index
       end
 
-      it 'returns unprocessable entity' do
+      it 'returns forbidden' do
         get :index
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'does not call client.authenticate' do
@@ -102,9 +102,9 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
         allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('')
       end
 
-      it 'returns unprocessable entity' do
+      it 'returns forbidden' do
         get :index
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
@@ -181,9 +181,9 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
         allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return(nil)
       end
 
-      it 'returns unprocessable entity error' do
+      it 'returns forbidden error' do
         get :index
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:forbidden)
       end
 
       it 'includes user-friendly error message' do
