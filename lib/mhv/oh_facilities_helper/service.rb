@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'migrations_parser'
+
 module MHV
   module OhFacilitiesHelper
     class Service
@@ -101,45 +103,10 @@ module MHV
       end
 
       # Parses the oh_migrations_list parameter store string into structured data
-      # Format: "date1:[id1,name1],[id2,name2];date2:[id3,name3]"
       # @return [Array<Hash>] Array of { migration_date:, facilities: [] }
       def parse_oh_migrations_list
         raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
-        return [] if raw_value.to_s.strip.blank?
-
-        raw_value.to_s.split(';').filter_map do |migration_entry|
-          migration_entry = migration_entry.strip
-          next if migration_entry.blank?
-
-          parse_single_migration_entry(migration_entry)
-        end.compact
-      end
-
-      # Parses a single migration entry like "2026-05-01:[123,Facility A],[456,Facility B]"
-      def parse_single_migration_entry(entry)
-        date_part, facilities_part = entry.split(':', 2)
-        return nil if date_part.blank? || facilities_part.blank?
-
-        facilities = parse_facilities_from_string(facilities_part)
-        return nil if facilities.empty?
-
-        {
-          migration_date: date_part.strip,
-          facilities:
-        }
-      end
-
-      # Parses facilities from bracket-delimited string like "[123,Facility A],[456,Facility B]"
-      def parse_facilities_from_string(facilities_string)
-        facilities_string.scan(/\[([^\]]+)\]/).filter_map do |match|
-          parts = match[0].split(',', 2)
-          next if parts.length < 2 || parts[0].blank?
-
-          {
-            id: parts[0].strip,
-            name: parts[1]&.strip || ''
-          }
-        end
+        MigrationsParser.new(raw_value).parse
       end
 
       # Filters migrations to only include user's facilities and merges same-date entries
