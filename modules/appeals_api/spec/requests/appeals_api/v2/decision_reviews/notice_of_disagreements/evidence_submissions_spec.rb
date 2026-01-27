@@ -16,6 +16,14 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
   end
 
   describe '#create' do
+    let(:decision_review_evidence_final_status_field_enabled) { true }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:decision_review_evidence_final_status_field)
+        .and_return(decision_review_evidence_final_status_field_enabled)
+    end
+
     context 'when corresponding notice of disagreement record not found' do
       it 'returns an error' do
         stub_upload_location
@@ -45,6 +53,15 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
           expect(response.body).to include notice_of_disagreement.id
         end
 
+        it 'shows finalStatus field' do
+          stub_upload_location
+          notice_of_disagreement.update(board_review_option: 'evidence_submission')
+          post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
+
+          data = JSON.parse(response.body)['data']
+          expect(data['attributes']['finalStatus']).to be_falsey
+        end
+
         it "returns an error if request 'headers['X-VA-File-Number'] and NOD record File Number does not match" do
           stub_upload_location
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
@@ -53,6 +70,19 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
 
           expect(response).to have_http_status :unprocessable_entity
           expect(response.body).to include "'X-VA-File-Number' does not match"
+        end
+
+        context 'when decision review evidence final status field is disabled' do
+          let(:decision_review_evidence_final_status_field_enabled) { false }
+
+          it 'does not show finalStatus field' do
+            stub_upload_location
+            notice_of_disagreement.update(board_review_option: 'evidence_submission')
+            post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
+
+            data = JSON.parse(response.body)['data']
+            expect(data['attributes']).not_to be_key('finalStatus')
+          end
         end
       end
 
@@ -104,6 +134,14 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
   end
 
   describe '#show' do
+    let(:decision_review_evidence_final_status_field_enabled) { true }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:decision_review_evidence_final_status_field)
+        .and_return(decision_review_evidence_final_status_field_enabled)
+    end
+
     it 'successfully requests the evidence submission' do
       get "#{path}#{evidence_submissions.sample.guid}"
       expect(response).to have_http_status(:ok)
@@ -134,10 +172,29 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::Evidence
       expect(submission['attributes']['appealType']).to eq('NoticeOfDisagreement')
     end
 
+    it 'returns finalStatus for an evidence submission' do
+      es = evidence_submissions.sample
+      get "#{path}#{es.guid}"
+      submission = JSON.parse(response.body)['data']
+
+      expect(submission['attributes']['finalStatus']).to be_falsey
+    end
+
     it 'returns an error if record is not found' do
       get "#{path}/bueller"
       expect(response).to have_http_status :not_found
       expect(response.body).to include 'Record not found'
+    end
+
+    context 'when decision review evidence final status field is disabled' do
+      let(:decision_review_evidence_final_status_field_enabled) { false }
+
+      it 'does not return finalStatus for an evidence submission' do
+        es = evidence_submissions.sample
+        get "#{path}#{es.guid}"
+        submission = JSON.parse(response.body)['data']
+        expect(submission['attributes']).not_to be_key('finalStatus')
+      end
     end
   end
 end
