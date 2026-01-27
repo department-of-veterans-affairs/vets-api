@@ -133,12 +133,19 @@ module FacilitiesApi
           false
         end
 
+        def integer?(str)
+          Integer(str)
+          true
+        rescue ArgumentError, TypeError
+          false
+        end
+
         def fetch_lat_long_and_radius(params)
           lat_param = params.values_at(:lat, :latitude).compact.first
           long_param = params.values_at(:long, :longitude).compact.first
           radius_param = params.fetch(:radius)
 
-          raise Common::Exceptions::InvalidFieldValue.new('radius', radius_param) unless float?(radius_param)
+          raise Common::Exceptions::InvalidFieldValue.new('radius', radius_param) unless integer?(radius_param)
           raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param) unless float?(lat_param)
           raise Common::Exceptions::InvalidFieldValue.new('long', long_param) unless float?(long_param)
 
