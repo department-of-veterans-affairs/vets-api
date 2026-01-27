@@ -300,32 +300,10 @@ RSpec.describe SignIn::AttributeValidator do
           let(:type) { 'ssn' }
           let(:prevent_auth) { true }
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) { 'SSN does not match' }
+          let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH }
-          let(:expected_error_context) do
-            { credential_uuid: csp_id,
-              icn:,
-              type: user_attributes[:sign_in][:service_name] }
-          end
 
-          it 'raises the expected SSN mismatch error' do
-            validator = SignIn::AttributeValidator.new(user_attributes:)
-            expect do
-              validator.send(:attribute_mismatch_check, type, ssn, mpi_ssn, prevent_auth:)
-            end.to raise_error(
-              SignIn::Errors::AttributeMismatchError,
-              /Attribute mismatch, ssn in credential does not match MPI attribute/i
-            )
-          end
-
-          it 'sets the correct error code on the raised error' do
-            validator = SignIn::AttributeValidator.new(user_attributes:)
-            begin
-              validator.send(:attribute_mismatch_check, type, ssn, mpi_ssn, prevent_auth:)
-            rescue => e
-              expect(e.code).to eq(expected_error_code)
-            end
-          end
+          it_behaves_like 'error response'
         end
       end
 
