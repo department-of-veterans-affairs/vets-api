@@ -49,7 +49,6 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "style": "active",
               "testId": "VA Form 21-4142"
             }
           ]
@@ -93,7 +92,6 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "style": "active",
               "testId": "VA Form 21-4142a"
             }
           ]
@@ -147,7 +145,6 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "style": "active",
               "testId": "VA Form 21-4142"
             }
           ]
@@ -199,7 +196,6 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "style": "active",
               "testId": "VA Form 21-4142a"
             }
           ]
@@ -243,7 +239,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under \"what we need from you.\""
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
         },
         {
           "type": "paragraph",
@@ -256,7 +259,6 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "style": "active",
               "testId": "VA Form 21-4138"
             }
           ]
@@ -310,7 +312,6 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "style": "active",
               "testId": "VA Form 21-4142"
             }
           ]
@@ -319,6 +320,10 @@
     }
   },
   "ASB-tell us specific disability fm asbestos exposure": {
+    "friendlyName": "Disease or disability related to the asbestos exposure",
+    "supportAliases": [
+      "ASB-tell us specific disability fm asbestos exposure"
+    ],
     "canUploadFile": true,
     "isSensitive": true,
     "longDescription": {
@@ -342,7 +347,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under \"what we need from you.\""
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
         },
         {
           "type": "paragraph",
@@ -355,7 +367,6 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "style": "active",
               "testId": "VA Form 21-4138"
             }
           ]
@@ -396,7 +407,6 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "style": "active",
               "testId": "VA Form 21-4138"
             }
           ]
@@ -588,7 +598,6 @@
               "type": "link",
               "text": "Add or change direct deposit information",
               "href": "/profile/direct-deposit",
-              "style": "active",
               "testId": "Add or change direct deposit information"
             }
           ]
@@ -598,11 +607,14 @@
           "content": [
             "If you don't already have a bank account, the Veterans Benefits Banking Program (VBBP) can connect you with a bank that will help you set up an account.",
             {
+              "type": "lineBreak"
+            },
+            {
               "type": "link",
-              "text": "Set up a bank account through VBBP (opens in new tab)",
+              "text": "Set up a bank account through VBBP",
               "href": "https://veteransbenefitsbanking.org/",
               "style": "external",
-              "testId": "Set up a bank account through VBBP (opens in new tab)"
+              "testId": "Set up a bank account through VBBP"
             }
           ]
         }
@@ -653,7 +665,6 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "style": "active",
               "testId": "VA Form 21-4192"
             }
           ]
@@ -669,7 +680,6 @@
       "PMR Request"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -774,7 +784,6 @@
               "type": "link",
               "text": "VA Form 21-526EZ",
               "href": "/find-forms/about-form-21-526ez/",
-              "style": "active",
               "testId": "VA Form 21-526EZ"
             }
           ]
@@ -807,7 +816,6 @@
       "General Records Request (Medical)"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -841,8 +849,7 @@
       "PMR Request",
       "General Records Request (Medical)"
     ],
-    "canUploadFile": true,
-    "noActionNeeded": true
+    "canUploadFile": true
   },
   "PTSD - Need stressor details/med evid of stressful incdnt": {
     "friendlyName": "Details about cause of PTSD",
@@ -851,8 +858,7 @@
       "VA Form 21-0781",
       "PTSD - Need stressor details"
     ],
-    "canUploadFile": true,
-    "isProperNoun": true
+    "canUploadFile": true
   },
   "Proof of service (DD214, etc.)": {
     "friendlyName": "Proof of service",
@@ -862,7 +868,6 @@
       "Proof of Service (DD214, etc.)"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -892,7 +897,6 @@
       "RV1 - Reserve Records Request"
     ],
     "canUploadFile": true,
-    "noActionNeeded": true,
     "longDescription": {
       "blocks": [
         {
@@ -1025,7 +1029,6 @@
               "type": "link",
               "text": "VA Form 21-10210",
               "href": "/find-forms/about-form-21-10210/",
-              "style": "active",
               "testId": "VA Form 21-10210"
             }
           ]
@@ -1070,7 +1073,6 @@
               "type": "link",
               "text": "VA Form 21-8940",
               "href": "/find-forms/about-form-21-8940/",
-              "style": "active",
               "testId": "VA Form 21-8940"
             }
           ]
@@ -1091,7 +1093,6 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "style": "active",
               "testId": "VA Form 21-4192"
             }
           ]
