@@ -74,6 +74,9 @@ module SM
       #
       # @return [Common::Collection]
       #
+      # This method requires refactoring to avoid looping through pages -
+      # method length warning suppressed for now
+      # rubocop:disable Metrics/MethodLength
       def get_folder_messages(user_uuid, folder_id, use_cache)
         cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
         get_cached_or_fetch_data(use_cache, cache_key, Message) do
