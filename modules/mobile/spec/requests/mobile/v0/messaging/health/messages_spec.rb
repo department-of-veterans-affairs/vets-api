@@ -130,8 +130,14 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         context 'message' do
           it 'without attachments' do
             allow(UniqueUserEvents).to receive(:log_event)
-            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-              post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: { message: params }
+            # Use recipient_id that matches triage_team_id in cassette (station_number: '979')
+            params_with_matching_recipient = params.merge(recipient_id: 4_399_547)
+
+            VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+              VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+                post '/mobile/v0/messaging/health/messages', headers: sis_headers,
+                                                             params: { message: params_with_matching_recipient }
+              end
             end
 
             expect(response).to be_successful
@@ -142,10 +148,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
 
-            # Verify event logging was called
+            # Verify event logging was called with facility ID from triage team
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: ['979']
             )
           end
 
@@ -169,9 +176,14 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           it 'without attachments' do
             allow(UniqueUserEvents).to receive(:log_event)
-            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-              post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
-                   headers: sis_headers, params: { message: params }
+            # Use recipient_id that matches triage_team_id in cassette (station_number: '979')
+            params_with_matching_recipient = params.merge(recipient_id: 4_399_547)
+
+            VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+              VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+                post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
+                     headers: sis_headers, params: { message: params_with_matching_recipient }
+              end
             end
 
             expect(response).to be_successful
@@ -180,10 +192,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(response).to match_camelized_response_schema('message', strict: false)
 
-            # Verify event logging was called
+            # Verify event logging was called with facility ID from triage team
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: ['979']
             )
           end
 

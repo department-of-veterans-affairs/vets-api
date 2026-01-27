@@ -58,10 +58,11 @@ module Mobile
 
         client_response = build_create_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: recipient_facility_ids
         )
 
         options = { meta: {} }
@@ -93,10 +94,11 @@ module Mobile
 
         client_response = build_reply_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: recipient_facility_ids
         )
 
         options = {}
@@ -193,6 +195,11 @@ module Mobile
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      def recipient_facility_ids
+        client.find_recipient_facility_ids(@current_user.uuid, message_params[:recipient_id]&.to_i,
+                                           use_cache: use_cache?)
       end
     end
   end

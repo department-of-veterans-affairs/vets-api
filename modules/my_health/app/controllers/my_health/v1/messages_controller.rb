@@ -28,10 +28,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = create_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: recipient_facility_ids
         )
 
         options = build_response_options(client_response)
@@ -67,10 +68,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = reply_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: recipient_facility_ids
         )
 
         options = build_response_options(client_response)
@@ -178,6 +180,10 @@ module MyHealth
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      def recipient_facility_ids
+        client.find_recipient_facility_ids(current_user.uuid, message_params[:recipient_id]&.to_i)
       end
     end
   end
