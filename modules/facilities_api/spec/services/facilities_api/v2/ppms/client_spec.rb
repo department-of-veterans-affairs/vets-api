@@ -512,7 +512,7 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       it 'rounds latitude and longitude to 6 decimal places' do
         test_params = { lat: 40.4152171234567, long: -74.0571141234567, radius: 200 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(latitude).to eq(40.415217)
         expect(longitude).to eq(-74.057114)
@@ -520,14 +520,14 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       it 'clamps radius to minimum of 1' do
         test_params = { lat: 40.415217, long: -74.057114, radius: 0.5 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(radius).to eq(1)
       end
 
       it 'clamps radius to maximum of 500' do
         test_params = { lat: 40.415217, long: -74.057114, radius: 600 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(radius).to eq(500)
       end
@@ -543,42 +543,42 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       it 'accepts latitude parameter as alternative to lat' do
         test_params = { latitude: 40.415217, long: -74.057114, radius: 200 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        latitude, _longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(latitude).to eq(40.415217)
       end
 
       it 'accepts longitude parameter as alternative to long' do
         test_params = { lat: 40.415217, longitude: -74.057114, radius: 200 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(longitude).to eq(-74.057114)
       end
 
       it 'prefers lat over latitude when both are provided' do
         test_params = { lat: 40.415217, latitude: 50.0, long: -74.057114, radius: 200 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        latitude, _longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(latitude).to eq(40.415217)
       end
 
       it 'prefers long over longitude when both are provided' do
         test_params = { lat: 40.415217, long: -74.057114, longitude: 100.0, radius: 200 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(longitude).to eq(-74.057114)
       end
 
       it 'handles integer radius values' do
         test_params = { lat: 40.415217, long: -74.057114, radius: 150 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(radius).to eq(150)
       end
 
       it 'handles float radius values that convert to minimum after clamping' do
         test_params = { lat: 40.415217, long: -74.057114, radius: 0 }
-        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
 
         expect(radius).to eq(1)
       end
@@ -714,14 +714,6 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
       end
 
       it 'does not raise error when latitude is missing but lat is present' do
-        test_params = { lat: 40.415217, long: -74.057114, radius: 200 }
-
-        expect do
-          client.send(:fetch_lat_long_and_radius, test_params)
-        end.not_to raise_error
-      end
-
-      it 'does not raise error when longitude is missing but long is present' do
         test_params = { lat: 40.415217, long: -74.057114, radius: 200 }
 
         expect do
