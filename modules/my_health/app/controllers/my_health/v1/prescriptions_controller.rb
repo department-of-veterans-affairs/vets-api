@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'unique_user_events'
+require 'concurrent'
 
 module MyHealth
   module V1
@@ -118,25 +119,37 @@ module MyHealth
         end
       end
 
-      # rubocop:disable ThreadSafety/NewThread
-      # New threads are joined at the end
+      # Use bounded thread pool to prevent resource exhaustion
+      # Maximum 5 concurrent threads for image fetching
+      MAX_IMAGE_FETCH_THREADS = 5
+      IMAGE_FETCH_TIMEOUT = 10 # seconds per future
+
       def fetch_and_include_images(data)
-        threads = []
+        pool = Concurrent::FixedThreadPool.new(MAX_IMAGE_FETCH_THREADS)
+        futures = []
+
         data.each do |item|
-          cmop_ndc_number = item.cmop_ndc_value
-          if cmop_ndc_number.present?
-            image_uri = get_image_uri(cmop_ndc_number)
-            threads << Thread.new(item) do |thread_item|
-              thread_item.prescription_image = fetch_image(image_uri)
-            rescue => e
-              Rails.logger.debug { "Error fetching image for NDC #{thread_item.cmop_ndc_number}: #{e.message}" }
-            end
+          next if item.cmop_ndc_value.blank?
+
+          futures << Concurrent::Future.execute(executor: pool) do
+            image_uri = get_image_uri(item.cmop_ndc_value)
+            item.prescription_image = fetch_image(image_uri)
+          rescue => e
+            Rails.logger.debug { "Error fetching image for NDC #{item.cmop_ndc_number}: #{e.message}" }
           end
         end
-        threads.each(&:join)
+
+        # Wait for all futures with timeout
+        futures.each { |f| f.wait(IMAGE_FETCH_TIMEOUT) }
+
+        # Shutdown pool gracefully
+        pool.shutdown
+        pool.wait_for_termination(30)
         data
+      ensure
+        # Force kill pool if still running to prevent resource leaks
+        pool&.kill if pool&.running?
       end
-      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
