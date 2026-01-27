@@ -24,12 +24,11 @@ module MyHealth
           client.stream_attachment(message_id, attachment_id, header_callback) do |chunk|
             response.stream.write(chunk)
           end
-        rescue Common::Exceptions::RecordNotFound
+        rescue Common::Exceptions::RecordNotFound, Common::Exceptions::BackendServiceException
           raise
-        rescue Common::Exceptions::BackendServiceException
-          raise
-        rescue StandardError => e
-          Rails.logger.error("Error streaming attachment #{attachment_id} for message #{message_id}: #{e.class} - #{e.message}")
+        rescue => e
+          error_msg = "Error streaming attachment #{attachment_id} for message #{message_id}"
+          Rails.logger.error("#{error_msg}: #{e.class} - #{e.message}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_STREAM_ERROR', {}, 500)
         ensure
           response.stream.close if response.committed?
@@ -67,7 +66,7 @@ module MyHealth
 
       def extract_filename(header_value)
         header_value.match(/filename=["']?([^"';]+)["']?/)[1]
-      rescue StandardError
+      rescue
         nil
       end
 
