@@ -17,6 +17,10 @@ module FacilitiesApi
         RADIUS_MIN = 1
         RESULTS_MAX = 50
         RESULTS_MIN = 2
+        LAT_MIN = -90.0
+        LAT_MAX = 90.0
+        LONG_MIN = -180.0
+        LONG_MAX = 180.0
 
         configuration FacilitiesApi::V2::PPMS::Configuration
 
@@ -140,6 +144,13 @@ module FacilitiesApi
 
           latitude = Float(lat_param).round(DEGREES_OF_ACCURACY)
           longitude = Float(long_param).round(DEGREES_OF_ACCURACY)
+          if lat_param >= LAT_MIN && lat_param <= LAT_MAX
+            raise Common::Exceptions::InvalidFieldValue.new('lat', lat_param)
+          end
+          if long_param >= LONG_MIN && long_param <= LONG_MAX
+            raise Common::Exceptions::InvalidFieldValue.new('long', long_param)
+          end
+
           radius = Integer(radius_param).clamp(RADIUS_MIN, RADIUS_MAX)
 
           [latitude, longitude, radius]
