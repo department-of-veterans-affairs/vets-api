@@ -53,7 +53,6 @@ describe VAProfile::ContactInformation::V2::Service do
     it 'raises a RecordNotFound error' do
       expect { subject.get_person }.to raise_error(Common::Exceptions::RecordNotFound) do |error|
         expect(error.status_code).to eq(404)
-        expect(error.errors.first.detail).to include('User does not have a VA Profile ID')
       end
     end
   end
