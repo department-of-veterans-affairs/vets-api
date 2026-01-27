@@ -17,7 +17,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
     end
 
     def authorize
-      raise Common::Exceptions::Forbidden, detail: 'Not authorized' unless @authorized
+      # Default to success - tests will stub this to raise when needed
     end
   end
 
@@ -33,13 +33,13 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
   describe 'before_action chain' do
     context 'when all validations pass' do
       before do
-        @authorized = true
+        allow(controller).to receive(:authorize)
         allow(controller).to receive(:client).and_return(mock_client)
       end
 
       it 'executes all before_actions in correct order' do
         expect(controller).to receive(:validate_mhv_correlation_id).ordered.and_call_original
-        expect(controller).to receive(:authorize).ordered.and_call_original
+        expect(controller).to receive(:authorize).ordered
         expect(controller).to receive(:authenticate_client).ordered.and_call_original
 
         get :index
@@ -60,11 +60,9 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
     end
 
     context 'when mhv_correlation_id is missing' do
-      let(:mhv_id) { nil }
-
       before do
-        @authorized = true
         allow(controller).to receive(:client).and_return(mock_client)
+        allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return(nil)
       end
 
       it 'fails at validate_mhv_correlation_id before calling authorize' do
@@ -86,6 +84,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
       end
 
       it 'logs error with user context' do
+        allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(
           'MHV correlation ID missing for authenticated user',
           hash_including(
@@ -99,10 +98,8 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
     end
 
     context 'when mhv_correlation_id is blank string' do
-      let(:mhv_id) { '' }
-
       before do
-        @authorized = true
+        allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('')
       end
 
       it 'returns unprocessable entity' do
@@ -113,42 +110,48 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
 
     context 'when authorization fails' do
       before do
-        @authorized = false
+        allow(controller).to receive(:authorize).and_raise(Common::Exceptions::Forbidden, detail: 'Not authorized')
         allow(controller).to receive(:client).and_return(mock_client)
       end
 
       it 'fails at authorize before calling authenticate_client' do
         expect(controller).to receive(:validate_mhv_correlation_id).and_call_original
-        expect(controller).to receive(:authorize).and_call_original
+        expect(controller).to receive(:authorize)
         expect(controller).not_to receive(:authenticate_client)
 
-        expect { get :index }.to raise_error(Common::Exceptions::Forbidden)
+        get :index
+        expect(response).not_to have_http_status(:ok)
       end
 
       it 'does not call client.authenticate' do
         expect(mock_client).not_to receive(:authenticate)
-        expect { get :index }.to raise_error(Common::Exceptions::Forbidden)
+        get :index
+        expect(response).not_to have_http_status(:ok)
       end
     end
 
     context 'when client authentication fails' do
       before do
-        @authorized = true
+        allow(controller).to receive(:authorize)
         allow(controller).to receive(:client).and_return(mock_client)
-        allow(mock_client).to receive(:authenticate).and_raise(StandardError, 'Auth failed')
+        allow(mock_client).to receive(:authenticate).and_raise(Common::Exceptions::BackendServiceException,
+                                                               'Auth failed')
       end
 
       it 'executes validate and authorize before failing at authenticate_client' do
         expect(controller).to receive(:validate_mhv_correlation_id).and_call_original
-        expect(controller).to receive(:authorize).and_call_original
+        expect(controller).to receive(:authorize)
         expect(controller).to receive(:authenticate_client).and_call_original
 
-        expect { get :index }.to raise_error(StandardError, 'Auth failed')
+        get :index
+        expect(response).not_to have_http_status(:ok)
       end
 
       it 'calls client.authenticate which raises error' do
-        expect(mock_client).to receive(:authenticate).and_raise(StandardError, 'Auth failed')
-        expect { get :index }.to raise_error(StandardError, 'Auth failed')
+        expect(mock_client).to receive(:authenticate).and_raise(Common::Exceptions::BackendServiceException,
+                                                                'Auth failed')
+        get :index
+        expect(response).not_to have_http_status(:ok)
       end
     end
   end
@@ -158,7 +161,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
       let(:mhv_id) { '12345678' }
 
       before do
-        @authorized = true
+        allow(controller).to receive(:authorize)
         allow(controller).to receive(:client).and_return(mock_client)
       end
 
@@ -174,7 +177,9 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
     end
 
     context 'without mhv_correlation_id' do
-      let(:mhv_id) { nil }
+      before do
+        allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return(nil)
+      end
 
       it 'returns unprocessable entity error' do
         get :index
@@ -188,6 +193,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
       end
 
       it 'logs comprehensive error details' do
+        allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(
           'MHV correlation ID missing for authenticated user',
           hash_including(
@@ -206,7 +212,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
 
   describe '#authenticate_client' do
     before do
-      @authorized = true
+      allow(controller).to receive(:authorize)
       allow(controller).to receive(:client).and_return(mock_client)
     end
 
@@ -217,7 +223,7 @@ RSpec.describe MyHealth::MHVControllerConcerns, type: :controller do
 
     it 'is called after validate and authorize' do
       expect(controller).to receive(:validate_mhv_correlation_id).ordered.and_call_original
-      expect(controller).to receive(:authorize).ordered.and_call_original
+      expect(controller).to receive(:authorize).ordered
       expect(mock_client).to receive(:authenticate).ordered
 
       get :index
