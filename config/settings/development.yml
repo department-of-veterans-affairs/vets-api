@@ -222,7 +222,11 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
-    host: https://qa.lighthouse.va.gov
+        secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
+    service_url: ~
+    ssl: false
+    token_host: https://qa.lighthouse.va.gov
+    use_mocks: true
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -985,8 +989,8 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
-    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
+    oh_migrations_list: "2026-02-11:[983,Test 1],[984,Test 2];2026-05-01:[518,Cleveland VA]"
     pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
     app_token: ~
