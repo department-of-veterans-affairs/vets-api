@@ -25378,7 +25378,7 @@
             "required": [
               "isUserAtPretransitionedOhFacility",
               "isUserFacilityReadyForInfoAlert",
-              "isUserFacilityMigratingToOh"
+              "migratingFacilitiesList"
             ],
             "properties": {
               "isUserAtPretransitionedOhFacility": {
