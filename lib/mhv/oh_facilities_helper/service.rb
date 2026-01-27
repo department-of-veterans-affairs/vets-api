@@ -8,17 +8,6 @@ module MHV
         @current_user = user
       end
 
-      OH_FEATURE_TOGGLES = [
-        # List of OH feature toggles to check
-        :mhv_accelerated_delivery_allergies_enabled,
-        :mhv_accelerated_delivery_care_notes_enabled,
-        :mhv_accelerated_delivery_conditions_enabled,
-        :mhv_accelerated_delivery_labs_and_tests_enabled,
-        :mhv_accelerated_delivery_vital_signs_enabled,
-        :mhv_secure_messaging_cerner_pilot,
-        :mhv_medications_cerner_pilot
-      ].freeze
-
       # Phase boundaries are INCLUSIVE - day -45 is the START of p1
       PHASES = {
         p0: -60,
@@ -49,15 +38,7 @@ module MHV
         return false if @current_user.va_treatment_facility_ids.blank?
 
         @current_user.va_treatment_facility_ids.any? do |facility|
-          facilities_ready_for_info_alert.include?(facility.to_s) && feature_toggle_enabled?
-        end
-      end
-
-      def user_facility_migrating_to_oh?
-        return false if @current_user.va_treatment_facility_ids.blank?
-
-        @current_user.va_treatment_facility_ids.any? do |facility|
-          facilities_migrating_to_oh.include?(facility.to_s)
+          facilities_ready_for_info_alert.include?(facility.to_s)
         end
       end
 
@@ -92,28 +73,10 @@ module MHV
         )
       end
 
-      def facilities_migrating_to_oh
-        @facilities_migrating_to_oh ||= parse_facility_setting(
-          Settings.mhv.oh_facility_checks.facilities_migrating_to_oh
-        )
-      end
-
       def parse_facility_setting(value)
         return [] unless ActiveModel::Type::Boolean.new.cast(value)
 
         value.to_s.split(',').map(&:strip).compact_blank
-      end
-
-      def feature_toggle_enabled?
-        ActiveModel::Type::Boolean.new.cast(
-          # Check the main "power switch" toggle
-          Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&
-            # check list of all OH feature toggles
-            # if any are enabled, return true
-            OH_FEATURE_TOGGLES.any? { |toggle| Flipper.enabled?(toggle, @current_user) }
-        )
-      rescue
-        false
       end
 
       # Builds the migration response array for user's matching facilities
