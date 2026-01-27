@@ -19,11 +19,11 @@ module MyHealth
       def index
         resource = collection_resource
         recently_requested = get_recently_requested_prescriptions(resource.data)
-        
+
         # Calculate all_medications count BEFORE modifications
         # This avoids needing to keep a full copy of the data
         all_medications_count = count_grouped_prescriptions(resource.data)
-        
+
         resource.records = resource_data_modifications(resource)
 
         # Pass the count directly instead of the raw_data copy
@@ -32,8 +32,7 @@ module MyHealth
         resource = apply_sorting(resource, params[:sort])
         resource.records = sort_prescriptions_with_pd_at_top(resource.records)
         is_using_pagination = params[:page].present? || params[:per_page].present?
-        # Use resource.records to preserve sorting/filtering/grouping
-        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.records) : resource.records
+        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count).merge(recently_requested:) }
         options[:links] = pagination_links(resource) if is_using_pagination
@@ -69,8 +68,7 @@ module MyHealth
       end
 
       def filter_renewals(resource)
-        # Use resource.records instead of resource.data to preserve grouping
-        resource.records = resource.records.select(&method(:renewable))
+        resource.records = resource.data.select(&method(:renewable))
         resource.metadata = resource.metadata.merge({
                                                       'filter' => {
                                                         'disp_status' => {
@@ -185,8 +183,7 @@ module MyHealth
             filter_renewals(resource)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            # Use resource.records instead of resource.data to preserve grouping
-            resource.records = resource.records.select { |item| filters.include?(item.disp_status.downcase) }
+            resource.records = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
             resource.metadata[:filter][:dispStatus] = { eq: disp_status[:eq] }
           end
         end
@@ -254,10 +251,10 @@ module MyHealth
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        # Use sort_by which creates a new array instead of modifying in-place
-        # This prevents unintended side effects when the array is referenced elsewhere
-        # Convert boolean to 0 or 1 for stable sorting: PD prescriptions (0) come first, others (1) come second
-        prescriptions.sort_by { |med| med.prescription_source == 'PD' ? 0 : 1 }
+        pd_prescriptions = prescriptions.select { |med| med.prescription_source == 'PD' }
+        other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
+
+        pd_prescriptions + other_prescriptions
       end
     end
   end
