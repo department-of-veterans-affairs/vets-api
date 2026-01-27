@@ -65,7 +65,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
             .and_call_original
 
           get '/my_health/v1/messaging/messages/629999/attachments/629993'
-          
+
           expect(response).to be_successful
           expect(response.body).to be_a(String)
         end

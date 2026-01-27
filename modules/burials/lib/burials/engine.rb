@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pg'
+
 module Burials
   # @see https://api.rubyonrails.org/classes/Rails/Engine.html
   class Engine < ::Rails::Engine
@@ -53,9 +55,10 @@ module Burials
           stamp_sets.each do |identifier, stamps|
             ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
           end
-        rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished
+        rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
           # Skip registration when database is not available (e.g., during db:create)
-          Rails.logger.debug('Skipping Burials PDF stamper registration - database not available')
+          # or when Flipper tables don't exist yet (PG::UndefinedTable wrapped in ActiveRecord::StatementInvalid)
+          Rails.logger.debug("Skipping Burials PDF stamper registration - #{e.class}: #{e.message}")
         end
       end
     end
