@@ -204,6 +204,31 @@ module BBInternal
     end
 
     ##
+    # Stream a CCD download without buffering entire document in memory.
+    # This method uses chunked streaming to deliver large CCD files efficiently.
+    #
+    # @param date [String] - The generated datetime from get_generate_ccd
+    # @param format [Symbol] - The format (:xml, :html, or :pdf)
+    # @param header_callback [Lambda] - Callback to handle HTTP response headers
+    # @param yielder [Enumerator::Yielder] - Yielder to stream chunks to
+    #
+    # @return [void] This method does not return a value. Instead, it yields chunks of the response
+    # body via the provided yielder.
+    #
+    def stream_download_ccd(date:, format: :xml, header_callback:, yielder:)
+      fmt = format.to_s.upcase # XML | HTML | PDF
+      modified_headers = token_headers.dup
+
+      # The backend returns a 406 for 'application/pdf' and 'text/html' so we just use '*/*'
+      modified_headers['Accept'] = '*/*'
+
+      path = "bluebutton/healthsummary/#{date}/fileFormat/#{fmt}/ccdType/#{fmt}"
+      uri = URI.join(config.base_path_non_gateway, path)
+
+      streaming_get(uri, modified_headers, header_callback, yielder)
+    end
+
+    ##
     # check the status of a study job
     # @return [Array] - [{ status: "COMPLETE", studyIdUrn: "111-1234567" percentComplete: 100, fileSize: "1.01 MB",
     #   startDate: 1729777818853, endDate}]
