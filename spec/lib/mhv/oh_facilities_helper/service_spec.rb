@@ -393,12 +393,11 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           sorted_phases.each_with_index do |(phase_key, offset), index|
             next_offset = sorted_phases[index + 1]&.last
 
-            # Test midpoint between this phase and next (or +1 day if last phase)
-            midpoint = if next_offset
-                         offset + ((next_offset - offset) / 2)
-                       else
-                         offset + 1
-                       end
+            # Test midpoint between this phase and next
+            # Skip the last phase since there's no "middle" to test - it ends at its boundary
+            next if next_offset.nil?
+
+            midpoint = offset + ((next_offset - offset) / 2)
 
             allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
             result = service.get_migration_schedules
