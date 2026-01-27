@@ -1329,6 +1329,10 @@ features:
   medical_expense_reports_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  medical_expense_reports_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21p-8416"
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -2040,6 +2044,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_enhanced_uuid_validation:
+    actor_type: user
+    description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
@@ -2756,10 +2763,6 @@ features:
     actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true
-  unique_user_metrics_async_buffering:
-    actor_type: user
-    description: Enables asynchronous batch processing for unique user metrics.
-    enable_in_development: true
   form_8794_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
@@ -2839,6 +2842,9 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
+  delete_old_education_benefits_job:
+    actor_type: user
+    description: If enabled, allow the EducationForm::DeleteOldEducationBenefitsClaims job to run as normal
   fmp_benefits_authorization_letter:
     actor_type: user
     description: Enables displaying FMP Benefits Authorization letter on Letters page
@@ -2846,3 +2852,6 @@ features:
     actor_type: user
     description: Enable debug logging for Facilities API for errors
     enable_in_development: false
+  vets_model_nested_array:
+    actor_type: user
+    description: If enabled, allows Vets::Model to serialize nested array of objects

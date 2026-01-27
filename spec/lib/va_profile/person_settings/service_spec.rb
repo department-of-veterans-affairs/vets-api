@@ -81,7 +81,7 @@ RSpec.describe VAProfile::PersonSettings::Service do
 
       before do
         allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .with(:post, anything, person_options_data)
+          .with(:post, anything, person_options_data.to_json)
           .and_return(mock_response)
       end
 
@@ -96,7 +96,7 @@ RSpec.describe VAProfile::PersonSettings::Service do
 
       before do
         allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .with(:post, anything, person_options_data)
+          .with(:post, anything, person_options_data.to_json)
           .and_raise(Common::Client::Errors::ClientError.new('Bad Request', 400))
       end
 
