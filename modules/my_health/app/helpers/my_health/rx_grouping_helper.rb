@@ -2,12 +2,14 @@
 
 module MyHealth
   module RxGroupingHelper
+    SUFFIX_PATTERN = /[A-Z]+$/
+
     def group_prescriptions(prescriptions)
       return [] if prescriptions.blank?
 
       # Pre-compute base numbers once - O(n)
       rx_with_base = prescriptions.map do |rx|
-        base_number = rx.prescription_number.sub(/[A-Z]+$/, '')
+        base_number = rx.prescription_number.sub(SUFFIX_PATTERN, '')
         group_key = "#{base_number}-#{rx.station_number}"
         [rx, group_key]
       end
@@ -53,12 +55,12 @@ module MyHealth
 
     def sort_related_prescriptions(related_prescriptions)
       related_prescriptions.sort do |rx1, rx2|
-        suffix1 = rx1.prescription_number[/[A-Z]+$/] || ''
-        suffix2 = rx2.prescription_number[/[A-Z]+$/] || ''
+        suffix1 = rx1.prescription_number[SUFFIX_PATTERN] || ''
+        suffix2 = rx2.prescription_number[SUFFIX_PATTERN] || ''
 
         if suffix1 == suffix2
-          base_number1 = rx1.prescription_number.sub(/[A-Z]+$/, '').to_i
-          base_number2 = rx2.prescription_number.sub(/[A-Z]+$/, '').to_i
+          base_number1 = rx1.prescription_number.sub(SUFFIX_PATTERN, '').to_i
+          base_number2 = rx2.prescription_number.sub(SUFFIX_PATTERN, '').to_i
           base_number1 <=> base_number2
         else
           suffix2 <=> suffix1

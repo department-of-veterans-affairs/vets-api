@@ -461,7 +461,7 @@ RSpec.describe MyHealth::RxGroupingHelper do
             station_number: '989')
     end
 
-    it 'sorts grouped_medications in descending suffix order (B, A, base)' do
+    it 'sorts grouped_medications in descending suffix order (C, B, A, base)' do
       prescriptions = [prescription_base, prescription_a, prescription_b, prescription_c]
       result = helper.group_prescriptions(prescriptions)
 
