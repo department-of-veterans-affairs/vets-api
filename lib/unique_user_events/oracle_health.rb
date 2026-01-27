@@ -29,12 +29,12 @@ module UniqueUserEvents
     # When event_facility_ids is provided, those IDs are checked against tracked OH facilities.
     # Otherwise, the user's VHA facilities are used and TRACKED_EVENTS is checked.
     #
-    # @param user [User] the authenticated User object (required when event_facility_ids is nil)
+    # @param user [User] the authenticated User object
     # @param event_name [String] Name of the original event
     # @param event_facility_ids [Array<String>, nil] Optional facility IDs from operation context.
     #   When provided, these are checked against tracked OH facilities instead of user's facilities.
     # @return [Array<String>] Array of OH event names to be logged
-    def self.generate_events(event_name:, user: nil, event_facility_ids: nil)
+    def self.generate_events(user:, event_name:, event_facility_ids: nil)
       return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
 
       matching_facilities = if event_facility_ids

@@ -105,6 +105,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       it 'returns empty array without generating OH events' do
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: %w[757 688]
         )
@@ -116,6 +117,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when facility IDs match tracked facilities' do
       it 'generates OH events for matching facilities' do
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: %w[757 688]
         )
@@ -128,6 +130,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         stub_const('UniqueUserEvents::OracleHealth::TRACKED_FACILITY_IDS', %w[757 688])
 
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: %w[757 688 999]
         )
@@ -142,6 +145,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when no facility IDs match tracked facilities' do
       it 'returns empty array' do
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: %w[999 888]
         )
@@ -153,6 +157,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when facility IDs array is empty' do
       it 'returns empty array' do
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: []
         )
@@ -164,6 +169,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when facility IDs contain integers' do
       it 'normalizes to strings and matches' do
         result = described_class.generate_events(
+          user:,
           event_name:,
           event_facility_ids: [757, 688]
         )
@@ -178,6 +184,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         non_tracked_event = 'some_custom_event_not_in_tracked_list'
 
         result = described_class.generate_events(
+          user:,
           event_name: non_tracked_event,
           event_facility_ids: %w[757]
         )
