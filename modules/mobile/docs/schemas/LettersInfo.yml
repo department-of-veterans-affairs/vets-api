@@ -17,6 +17,7 @@ properties:
       - Dependent Benefit Summary Letter
       - Benefit Verification Letter
       - Certificate of Eligibility for Home Loan Letter
+      - Foreign Medical Program Letter
   letterType:
     type: string
     enum:
@@ -31,6 +32,7 @@ properties:
       - benefit_verification
       - certificate_of_eligibility
       - certificate_of_eligibility_home_loan
+      - foreign_medical_program
   referenceNumber:
     type: string
     description: Only for COE home loan letters
