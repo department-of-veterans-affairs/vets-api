@@ -110,23 +110,23 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
     end
 
-    context 'when service raises a validation error' do
+    context 'when service raises an argument error' do
       before do
         allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card)
-          .and_raise(ValidationError.new('this is a validation error'))
+          .and_raise(ArgumentError.new('this is an argument error'))
       end
 
-      it 'returns a validation error' do
+      it 'returns an argument error' do
         get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      it 'returns a validation error message in the response body' do
+      it 'returns an argument error message in the response body' do
         get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         json = JSON.parse(response.body)
-        expect(json['error']).to eq('A validation error occurred')
+        expect(json['error']).to eq('An argument error occurred')
       end
 
       it 'logs the error with backtrace' do
@@ -135,7 +135,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
         get '/mobile/v0/veteran_status_card', headers: sis_headers
 
         expect(Rails.logger).to have_received(:error).with(
-          'Mobile::VeteranStatusCardsController validation error: this is a validation error',
+          'Mobile::VeteranStatusCardsController argument error: this is an argument error',
           hash_including(:backtrace)
         )
       end
