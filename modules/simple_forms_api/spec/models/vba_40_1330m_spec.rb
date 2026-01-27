@@ -37,6 +37,9 @@ RSpec.describe SimpleFormsApi::VBA401330m do
 
       allow(original_pdf).to receive(:write).with(original_file_path, optimize: true)
 
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(original_file_path).and_return(true)
+
       form.handle_attachments(original_file_path)
 
       expect(original_pdf).to have_received(:write).with(original_file_path, optimize: true)
@@ -53,6 +56,9 @@ RSpec.describe SimpleFormsApi::VBA401330m do
       allow(HexaPDF::Document).to receive(:open).with(original_file_path).and_return(original_pdf)
       allow(original_pdf).to receive(:pages).and_return(pages_mock)
       allow(original_pdf).to receive(:write).with(original_file_path, optimize: true)
+
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(original_file_path).and_return(true)
 
       form.handle_attachments(original_file_path)
 

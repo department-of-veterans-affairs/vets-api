@@ -1,3 +1,23 @@
+<%
+  # Normalize branch name for Reserve/Guard components to base branch
+  raw_branch = form.data.dig('veteran_service_periods', 0, 'branch')
+  known_branches = ['Army', 'Marine Corps', 'Coast Guard', 'Merchant Marine', 'Navy', 'Air Force', 'Army Air Forces', 'Space Force', 'Public Health Service', 'NOAA']
+  
+  # Map Reserve/Guard components to their base branches
+  branch = case raw_branch
+    when 'Army Reserve', 'Army National Guard' then 'Army'
+    when 'Navy Reserve' then 'Navy'
+    when 'Marine Corps Reserve' then 'Marine Corps'
+    when 'Air Force Reserve', 'Air National Guard' then 'Air Force'
+    when 'Coast Guard Reserve' then 'Coast Guard'
+    when 'Space Force Reserve' then 'Space Force'
+    else raw_branch
+  end
+  
+  # Check if normalized branch is in known branches list
+  is_known_branch = known_branches.include?(branch)
+  is_other = !is_known_branch && branch.present?
+%>
 {
   "form1[0].#subform[7].RadioButtonList[0]": "<%= form.data['request_type'] %>",
   "form1[0].#subform[7].RadioButtonList[1]": "<%= form.data['replacement_reason'].present? ? form.data['replacement_reason'] : 'Off' %>",
@@ -24,18 +44,18 @@
   "form1[0].#subform[7].DateEntered2[0]": "<%= form.data.dig('veteran_service_periods', 1, 'date_entered') %>",
   "form1[0].#subform[7].DateSeparated1[0]": "<%= form.data.dig('veteran_service_periods', 0, 'date_separated') %>",
   "form1[0].#subform[7].DateSeparated2[0]": "<%= form.data.dig('veteran_service_periods', 1, 'date_separated') %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[0]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Army' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[1]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Marine Corps' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[2]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Coast Guard' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[3]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Merchant Marine' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[4]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Navy' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[5]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Air Force' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[6]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Army Air Forces' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[7]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Space Force' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[8]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'Public Health Service' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[9]": "<%= form.data.dig('veteran_service_periods', 0, 'branch') == 'NOAA' ? '1' : 'Off' %>",
-  "form1[0].#subform[7].BRANCHOFSERVICE[10]": "",
-  "form1[0].#subform[7].Other1[0]": "",
+  "form1[0].#subform[7].BRANCHOFSERVICE[0]": "<%= branch == 'Army' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[1]": "<%= branch == 'Marine Corps' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[2]": "<%= branch == 'Coast Guard' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[3]": "<%= branch == 'Merchant Marine' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[4]": "<%= branch == 'Navy' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[5]": "<%= branch == 'Air Force' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[6]": "<%= branch == 'Army Air Forces' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[7]": "<%= branch == 'Space Force' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[8]": "<%= branch == 'Public Health Service' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[9]": "<%= branch == 'NOAA' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[10]": "<%= is_other ? '1' : 'Off' %>",
+  "form1[0].#subform[7].Other1[0]": "<%= is_other ? raw_branch : '' %>",
   "form1[0].#subform[7].ApplicantIs[0]": "<%= form.data['applicant_type'] == 'Family Member' ? '1' : 'Off' %>",
   "form1[0].#subform[7].Relationship[0]": "<%= form.data['applicant_relationship_to_veteran'] %>",
   "form1[0].#subform[7].ApplicantIs[1]": "<%= form.data['applicant_type'] == 'Veterans Service Officer' ? '2' : 'Off' %>",
