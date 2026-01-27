@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# 
+
 require_relative '../../../lib/travel_pay/constants'
 module TravelPay
   module ExpenseNormalizer
