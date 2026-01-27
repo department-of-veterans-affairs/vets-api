@@ -20,6 +20,7 @@ module MedicalCopays
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
 
       class MissingOrganizationIdError < StandardError; end
+      class MissingOrganizationRefError < StandardError; end
       class MissingCityError < StandardError; end
 
       def initialize(icn)
@@ -67,6 +68,7 @@ module MedicalCopays
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
+        org_address = fetch_organization_address(invoice_data)
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
 
@@ -77,7 +79,8 @@ module MedicalCopays
           encounters: charge_item_deps[:encounters],
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
-          payments: invoice_deps[:payments]
+          payments: invoice_deps[:payments],
+          facility_address: org_address
         )
       end
 
@@ -91,7 +94,8 @@ module MedicalCopays
           org_id = parts.include?('Organization') ? parts.last : nil
           raise MissingOrganizationIdError, 'Missing org_id for invoice entry' if org_id.blank?
 
-          org_city = retrieve_city(org_id)
+          org_address = retrieve_organization_address(org_id)
+          org_city = org_address[:city] if org_address
           raise MissingCityError, "Missing city for org_id #{org_id}" if org_city.blank?
 
           enriched_resource = resource.merge('city' => org_city, 'facility_id' => org_id)
@@ -101,13 +105,22 @@ module MedicalCopays
         end
       end
 
-      def retrieve_city(org_id)
+      def retrieve_organization_address(org_id)
         address = Rails.cache.fetch("lighthouse:org:#{org_id}:address", expires_in: 24.hours) do
           org_data = organization_service.read(org_id)
           org_data.dig('entry', 0, 'resource', 'address', 0)
         end
 
-        address&.dig('city')
+        return nil unless address
+
+        {
+          address_line1: address.dig('line', 0),
+          address_line2: address.dig('line', 1),
+          address_line3: address.dig('line', 2),
+          city: address['city'],
+          state: address['state'],
+          postalCode: address['postalCode']
+        }
       end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
@@ -143,6 +156,19 @@ module MedicalCopays
         response.dig('entry', 0, 'resource')
       rescue => e
         Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.message}" }
+        nil
+      end
+
+      def fetch_organization_address(invoice_data)
+        org_ref = invoice_data.dig('issuer', 'reference')
+        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
+
+        org_id = org_ref.split('/').last
+        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
+
+        retrieve_organization_address(org_id)
+      rescue => e
+        Rails.logger.warn { "Failed to fetch organization address: #{e.message}" }
         nil
       end
 
