@@ -503,6 +503,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
           expect(response).to have_http_status(:ok)
           assert_schema_conform(200)
           expect(response.parsed_body['data']).to eq([])
+          expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(0)
         end
       end
 

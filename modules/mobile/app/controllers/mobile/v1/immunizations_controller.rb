@@ -12,7 +12,7 @@ module Mobile
 
       FUTURE_DATE = '3000-01-01'
 
-      def index
+      def index # rubocop:disable Metrics/MethodLength
         immunizations = uhd_enabled? ? sort_records(uhd_service.get_immunizations) : lh_immunizations
 
         # Log unique user events for immunizations/vaccines accessed
@@ -25,8 +25,17 @@ module Mobile
         )
 
         serialized_immunizations = if uhd_enabled?
+                                     meta = {
+                                       pagination: {
+                                         current_page: 1,
+                                         per_page: 5000,
+                                         total_pages: 1,
+                                         total_entries: immunizations.length
+                                       }
+                                     }
                                      UnifiedHealthData::ImmunizationSerializer.new(
-                                       immunizations
+                                       immunizations,
+                                       meta:
                                      )
                                    else
                                      paginated_immunizations, meta =
@@ -35,7 +44,7 @@ module Mobile
                                      Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
                                    end
         render json: serialized_immunizations
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       private
 
