@@ -541,9 +541,11 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'with malformed date in config' do
         let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
 
-        it 'returns empty array and logs error' do
-          expect(Rails.logger).to receive(:error).with('OH Migration Info Error: Failed to build migration response',
-                                                       hash_including(:error_class, :error_message))
+        it 'returns empty array and logs warning' do
+          expect(Rails.logger).to receive(:warn).with(
+            'OH Migration Info: Parser encountered errors',
+            hash_including(:errors, :user_uuid)
+          )
           result = service.get_migration_schedules
           expect(result).to eq([])
         end

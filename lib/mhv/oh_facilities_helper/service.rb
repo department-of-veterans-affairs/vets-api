@@ -106,7 +106,20 @@ module MHV
       # @return [Array<Hash>] Array of { migration_date:, facilities: [] }
       def parse_oh_migrations_list
         raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
-        MigrationsParser.new(raw_value).parse
+        parser = MigrationsParser.new(raw_value)
+        result = parser.parse
+
+        if parser.errors.present?
+          Rails.logger.warn(
+            'OH Migration Info: Parser encountered errors',
+            {
+              errors: parser.errors,
+              user_uuid: @current_user&.uuid
+            }
+          )
+        end
+
+        result
       end
 
       # Filters migrations to only include user's facilities and merges same-date entries
