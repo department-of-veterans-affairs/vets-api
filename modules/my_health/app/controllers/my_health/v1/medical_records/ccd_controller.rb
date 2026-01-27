@@ -36,26 +36,7 @@ module MyHealth
           raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
 
           set_response_headers(fmt)
-
-          begin
-            log_aal_action('Download My VA Health Summary', 1)
-
-            chunk_stream = Enumerator.new do |stream|
-              bb_client.stream_download_ccd(
-                date: generated_datetime,
-                format: fmt,
-                header_callback: header_callback,
-                yielder: stream
-              )
-            end
-
-            chunk_stream.each { |chunk| response.stream.write(chunk) }
-          rescue => e
-            log_aal_action('Download My VA Health Summary', 0)
-            raise e
-          ensure
-            response.stream.close if response.committed?
-          end
+          stream_ccd_response(generated_datetime, fmt)
         end
 
         def product
@@ -65,17 +46,38 @@ module MyHealth
         private
 
         ##
+        # Streams the CCD response to the client with AAL logging
+        #
+        def stream_ccd_response(generated_datetime, fmt)
+          log_aal_action('Download My VA Health Summary', 1)
+
+          chunk_stream = Enumerator.new do |stream|
+            bb_client.stream_download_ccd(
+              date: generated_datetime,
+              format: fmt,
+              header_callback:,
+              yielder: stream
+            )
+          end
+
+          chunk_stream.each { |chunk| response.stream.write(chunk) }
+        rescue => e
+          log_aal_action('Download My VA Health Summary', 0)
+          raise e
+        ensure
+          response.stream.close if response.committed?
+        end
+
+        ##
         # Sets appropriate Content-Type header based on requested format
         #
         def set_response_headers(fmt)
-          content_type = case fmt
-                         when :xml then 'application/xml; charset=utf-8'
-                         when :html then 'text/html; charset=utf-8'
-                         when :pdf then 'application/pdf'
-                         else
-                           'application/xml; charset=utf-8'
-                         end
-          response.headers['Content-Type'] = content_type
+          content_types = {
+            xml: 'application/xml; charset=utf-8',
+            html: 'text/html; charset=utf-8',
+            pdf: 'application/pdf'
+          }
+          response.headers['Content-Type'] = content_types[fmt]
           response.headers['Content-Disposition'] = 'attachment'
         end
 

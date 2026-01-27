@@ -208,14 +208,14 @@ module BBInternal
     # This method uses chunked streaming to deliver large CCD files efficiently.
     #
     # @param date [String] - The generated datetime from get_generate_ccd
-    # @param format [Symbol] - The format (:xml, :html, or :pdf)
     # @param header_callback [Lambda] - Callback to handle HTTP response headers
     # @param yielder [Enumerator::Yielder] - Yielder to stream chunks to
+    # @param format [Symbol] - The format (:xml, :html, or :pdf)
     #
     # @return [void] This method does not return a value. Instead, it yields chunks of the response
     # body via the provided yielder.
     #
-    def stream_download_ccd(date:, format: :xml, header_callback:, yielder:)
+    def stream_download_ccd(date:, header_callback:, yielder:, format: :xml)
       fmt = format.to_s.upcase # XML | HTML | PDF
       modified_headers = token_headers.dup
 
