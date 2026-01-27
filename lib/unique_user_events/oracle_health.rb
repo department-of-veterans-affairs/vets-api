@@ -30,6 +30,7 @@ module UniqueUserEvents
     # @param event_name [String] Name of the original event
     # @return [Array<String>] Array of OH event names to be logged
     def self.generate_events(user:, event_name:)
+      return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
       return [] unless TRACKED_EVENTS.include?(event_name)
 
       matching_facilities = get_user_tracked_facilities(user)
@@ -52,6 +53,8 @@ module UniqueUserEvents
     #   which will be checked against tracked OH facilities
     # @return [Array<String>] Array of OH event names to be logged for matching facilities
     def self.generate_events_for_facilities(event_name:, event_facility_ids:)
+      return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
+
       matching_facilities = filter_tracked_facilities(event_facility_ids)
       matching_facilities.map do |facility_id|
         "#{event_name}_oh_site_#{facility_id}"
