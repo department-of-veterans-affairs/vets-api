@@ -10,14 +10,12 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
   let(:va_treatment_facility_ids) { %w[516 553] }
   let(:pretransitioned_oh_facilities) { '516, 517, 518' }
   let(:facilities_ready_for_info_alert) { '553, 554' }
-  let(:facilities_migrating_to_oh) { '554' }
 
   before do
     allow(user).to receive(:va_treatment_facility_ids).and_return(va_treatment_facility_ids)
     allow(Settings.mhv.oh_facility_checks).to receive_messages(
       pretransitioned_oh_facilities:,
-      facilities_ready_for_info_alert:,
-      facilities_migrating_to_oh:
+      facilities_ready_for_info_alert:
     )
   end
 
@@ -101,48 +99,6 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       it 'returns true' do
         expect(service.user_facility_ready_for_info_alert?).to be true
-      end
-    end
-  end
-
-  describe '#user_facility_migrating_to_oh?' do
-    context 'when user has a facility in migrating OH facilities list' do
-      let(:va_treatment_facility_ids) { %w[516 554] }
-
-      it 'returns true' do
-        expect(service.user_facility_migrating_to_oh?).to be true
-      end
-    end
-
-    context 'when user has no facilities in migrating OH facilities list' do
-      let(:va_treatment_facility_ids) { %w[999 888] }
-
-      it 'returns false' do
-        expect(service.user_facility_migrating_to_oh?).to be false
-      end
-    end
-
-    context 'when user has nil va_treatment_facility_ids' do
-      let(:va_treatment_facility_ids) { nil }
-
-      it 'returns false' do
-        expect(service.user_facility_migrating_to_oh?).to be false
-      end
-    end
-
-    context 'when user has empty va_treatment_facility_ids' do
-      let(:va_treatment_facility_ids) { [] }
-
-      it 'returns false' do
-        expect(service.user_facility_migrating_to_oh?).to be false
-      end
-    end
-
-    context 'when facility id is numeric and matches string in settings' do
-      let(:va_treatment_facility_ids) { [516, 554] }
-
-      it 'returns true' do
-        expect(service.user_facility_migrating_to_oh?).to be true
       end
     end
   end

@@ -49,46 +49,6 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     exists
   end
 
-  # Record a unique user event (creates record only if it doesn't exist)
-  #
-  # @param user_id [String] UUID of the user
-  # @param event_name [String] Name of the event to record
-  # @return [Boolean] true if new event was created, false if already existed
-  # @raise [ActiveRecord::RecordInvalid] if validation fails
-  def self.record_event(user_id:, event_name:)
-    validate_inputs(user_id, event_name)
-
-    cache_key = generate_cache_key(user_id, event_name)
-
-    # Check Redis cache first - if exists, skip database entirely
-    if key_cached?(cache_key)
-      Rails.logger.debug('UUM: Event found in cache', { user_id:, event_name: })
-      return false
-    end
-
-    # Try to insert directly using INSERT ... ON CONFLICT DO NOTHING
-    # This avoids raising exceptions and database error logs for duplicate records
-    # rubocop:disable Rails/SkipsModelValidations
-    # Validations are already enforced by validate_inputs above and database constraint
-    result = insert(
-      { user_id:, event_name: },
-      unique_by: %i[user_id event_name],
-      returning: %i[user_id event_name]
-    )
-    # rubocop:enable Rails/SkipsModelValidations
-
-    # Cache that this event now exists (whether new or duplicate)
-    mark_key_cached(cache_key)
-
-    if result.rows.any?
-      Rails.logger.debug('UUM: New unique event recorded', { user_id:, event_name: })
-      true # NEW EVENT - top-level library should log to statsd
-    else
-      Rails.logger.debug('UUM: Duplicate event found in database', { user_id:, event_name: })
-      false # DUPLICATE EVENT - top-level library should NOT log to statsd
-    end
-  end
-
   # Generate consistent cache key for user/event combination
   #
   # @param user_id [String] UUID of the user
@@ -124,5 +84,5 @@ class MHVMetricsUniqueUserEvent < ApplicationRecord
     Rails.cache.write(key, true, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL)
   end
 
-  private_class_method :generate_cache_key, :validate_inputs, :key_cached?, :mark_key_cached
+  private_class_method :validate_inputs, :key_cached?, :mark_key_cached
 end

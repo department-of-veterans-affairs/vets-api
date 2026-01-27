@@ -40,7 +40,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
     # Stub the template_id method to return our test template ID
     template_id_stub = double('template_id', vass_otp_email: 'vass-otp-email-template-id')
-    vanotify_api_key = '11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
+    vanotify_api_key = 'name-11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
     allow(Settings.vanotify.services.va_gov).to receive_messages(
       api_key: vanotify_api_key,
       template_id: template_id_stub
@@ -172,6 +172,11 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
       it 'returns too many requests status' do
         # Rate limit check happens before any API calls, so no cassettes needed
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"action":"rate_limit_exceeded"', "\"vass_uuid\":\"#{uuid}"))
+          .and_call_original
+
         post '/vass/v0/request-otc', params:, as: :json
 
         expect(response).to have_http_status(:too_many_requests)
@@ -254,6 +259,17 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         expect(session_data[:veteran_id]).to eq(uuid)
         expect(session_data[:uuid]).to eq(uuid)
       end
+
+      it 'logs jwt_issued event with jti for audit trail' do
+        allow(Rails.logger).to receive(:info).and_call_original
+        expect(Rails.logger).to receive(:info).with(
+          a_string_including('"service":"vass"', '"action":"jwt_issued"', "\"vass_uuid\":\"#{uuid}\"", '"jti":')
+        ).and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'with invalid OTC' do
@@ -264,6 +280,11 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
 
       it 'returns unauthorized status' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn).with(
+          a_string_including('"service":"vass"', '"action":"invalid_otc"', %("vass_uuid":"#{uuid}"))
+        ).and_call_original
+
         invalid_params = params.deep_merge(session: { otc: '999999' })
         post '/vass/v0/authenticate-otc', params: invalid_params, as: :json
 
@@ -294,18 +315,149 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_parameter')
-        expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: otc')
+        expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
       end
     end
 
     context 'with expired OTC' do
       it 'returns unauthorized status' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"otc_expired"',
+                                                                       %("vass_uuid":"#{uuid}"))).and_call_original
+
         post '/vass/v0/authenticate-otc', params:, as: :json
 
         expect(response).to have_http_status(:unauthorized)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'][0]['code']).to eq('otc_expired')
+      end
+    end
+
+    context 'when validation rate limit is exceeded' do
+      before do
+        redis_client = Vass::RedisClient.build
+        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        # Exceed validation rate limit
+        5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
+      end
+
+      it 'returns too many requests status with account_locked code' do
+        allow(Rails.logger).to receive(:warn).and_call_original
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"action":"validation_rate_limit_exceeded"'))
+          .and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:too_many_requests)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'][0]['code']).to eq('account_locked')
+        expect(json_response['errors'][0]['detail']).to eq('Too many failed attempts. Please request a new OTC.')
+        expect(json_response['errors'][0]['retryAfter']).to be_a(Integer)
+      end
+    end
+
+    context 'when an exception occurs during successful authentication flow' do
+      before do
+        redis_client = Vass::RedisClient.build
+        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+      end
+
+      it 'returns 503 when Redis fails during reset_validation_rate_limit' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:service_unavailable)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('service_unavailable')
+      end
+
+      it 'returns 503 when Redis fails during session creation' do
+        allow(Rails.cache).to receive(:write).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:service_unavailable)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('service_unavailable')
+      end
+
+      it 'returns error response body when Redis exception occurs' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        json_response = JSON.parse(response.body)
+
+        expect(json_response).to have_key('errors')
+        expect(json_response).not_to have_key('data')
+      end
+
+      it 'returns 500 with audit_log_error code when log_vass_event raises JSON::GeneratorError' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise JSON::GeneratorError, 'Invalid encoding' if call_count == 1
+        end
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('audit_log_error')
+      end
+
+      it 'returns 500 with audit_log_error code when log_vass_event raises Encoding::UndefinedConversionError' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise Encoding::UndefinedConversionError, 'Invalid byte sequence' if call_count == 1
+        end
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['code']).to eq('audit_log_error')
+      end
+
+      it 'tracks failure and NOT success when Redis fails during handle_successful_authentication' do
+        allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        )
+        expect(StatsD).not_to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          anything
+        )
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
+      end
+
+      it 'tracks failure and NOT success when audit log fails' do
+        call_count = 0
+        allow(Rails.logger).to receive(:info) do
+          call_count += 1
+          raise JSON::GeneratorError, 'Invalid encoding' if call_count == 1
+        end
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        )
+        expect(StatsD).not_to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          anything
+        )
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
       end
     end
   end

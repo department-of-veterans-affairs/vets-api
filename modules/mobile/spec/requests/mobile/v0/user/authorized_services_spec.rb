@@ -54,7 +54,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
       )
     end
 
-    it 'includes properly set meta flags for user not at pretransitioned or actively migrating oh facility' do
+    it 'includes properly set meta flags for user not at pretransitioned oh facility' do
       Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
       Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '456, 789'
       Settings.mhv.oh_facility_checks.oh_migrations_list = ''

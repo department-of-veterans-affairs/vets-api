@@ -255,7 +255,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1207.0)
+    aws-partitions (1.1209.0)
     aws-sdk-core (3.241.4)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -274,8 +274,8 @@ GEM
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.110.0)
-      aws-sdk-core (~> 3, >= 3.241.0)
+    aws-sdk-sns (1.111.0)
+      aws-sdk-core (~> 3, >= 3.241.3)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -348,6 +348,11 @@ GEM
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
     connection_pool (2.5.4)
+    console1984 (0.2.2)
+      irb (~> 1.13)
+      parser
+      rails (>= 7.0)
+      rainbow
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -379,13 +384,14 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.22.0)
-      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
-      libdatadog (~> 22.0.1.1.0)
-      libddwaf (~> 1.25.1.1.0)
+    datadog (2.24.0)
+      cgi
+      datadog-ruby_core_source (~> 3.4, >= 3.4.2)
+      libdatadog (~> 24.0.1.1.0)
+      libddwaf (~> 1.30.0.0.0)
       logger
       msgpack
-    datadog-ruby_core_source (3.4.1)
+    datadog-ruby_core_source (3.5.2)
     date (3.5.1)
     date (3.5.1-java)
     date_time_precision (0.8.1)
@@ -536,6 +542,9 @@ GEM
       rspec-core (~> 3.0)
       ruby-progressbar (~> 1.4)
     gems (1.3.0)
+    geocoder (1.8.6)
+      base64 (>= 0.1.0)
+      csv (>= 3.0.0)
     geom2d (0.4.1)
     git (2.3.3)
       activesupport (>= 5.0)
@@ -567,27 +576,27 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.33.3)
+    google-protobuf (4.33.4)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.33.3-aarch64-linux-gnu)
+    google-protobuf (4.33.4-aarch64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.33.3-java)
+    google-protobuf (4.33.4-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.33.3-x64-mingw-ucrt)
+    google-protobuf (4.33.4-x64-mingw-ucrt)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.33.3-x86-mingw32)
+    google-protobuf (4.33.4-x86-mingw32)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.33.3-x86_64-linux-gnu)
+    google-protobuf (4.33.4-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    googleauth (1.16.0)
+    googleauth (1.16.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -704,14 +713,14 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.5)
-    libdatadog (22.0.1.1.0)
-    libdatadog (22.0.1.1.0-aarch64-linux)
-    libdatadog (22.0.1.1.0-x86_64-linux)
-    libddwaf (1.25.1.1.0)
+    libdatadog (24.0.1.1.0)
+    libdatadog (24.0.1.1.0-aarch64-linux)
+    libdatadog (24.0.1.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-aarch64-linux)
+    libddwaf (1.30.0.0.0-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.11.0)
@@ -755,7 +764,7 @@ GEM
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
-    multi_json (1.18.0)
+    multi_json (1.19.1)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
@@ -829,7 +838,7 @@ GEM
     parallel (1.27.0)
     parallel_tests (5.5.0)
       parallel
-    parser (3.3.10.0)
+    parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -866,7 +875,7 @@ GEM
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
-    prism (1.7.0)
+    prism (1.8.0)
     process_executer (1.3.0)
     pry (0.15.2)
       coderay (~> 1.1)
@@ -885,7 +894,7 @@ GEM
     psych (5.3.1-java)
       date
       jar-dependencies (>= 0.1.7)
-    public_suffix (7.0.0)
+    public_suffix (7.0.2)
     puma (7.1.0)
       nio4r (~> 2.0)
     puma (7.1.0-java)
@@ -1080,7 +1089,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
-    rubocop-rspec (3.8.0)
+    rubocop-rspec (3.9.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.81)
     rubocop-rspec_rails (2.32.0)
@@ -1301,6 +1310,7 @@ DEPENDENCIES
   committee-rails
   config
   connect_vbms!
+  console1984
   coverband
   csv
   danger
@@ -1338,6 +1348,7 @@ DEPENDENCIES
   flipper-ui
   foreman
   fuubar
+  geocoder (~> 1.8, >= 1.8.6)
   google-api-client
   google-apis-core
   google-apis-generator

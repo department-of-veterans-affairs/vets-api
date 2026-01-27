@@ -129,6 +129,12 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       context 'when booking session is missing from Redis' do
         it 'returns bad request with descriptive error message' do
           # No booking session setup - redis_client.get_booking_session will return nil
+          allow(Rails.logger).to receive(:warn).and_call_original
+          expect(Rails.logger).to receive(:warn)
+            .with(a_string_including('"service":"vass"', '"action":"missing_booking_session"',
+                                     "\"vass_uuid\":\"#{veteran_id}"))
+            .and_call_original
+
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -212,7 +218,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: topics')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -237,7 +243,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtStartUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -262,7 +268,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtEndUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
