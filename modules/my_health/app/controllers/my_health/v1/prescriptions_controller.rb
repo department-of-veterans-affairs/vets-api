@@ -19,10 +19,15 @@ module MyHealth
       def index
         resource = collection_resource
         recently_requested = get_recently_requested_prescriptions(resource.data)
-        raw_data = resource.data.dup
+        
+        # Calculate all_medications count BEFORE modifications
+        # This avoids needing to keep a full copy of the data
+        all_medications_count = count_grouped_prescriptions(resource.data)
+        
         resource.records = resource_data_modifications(resource)
 
-        filter_count = set_filter_metadata(resource.data, raw_data)
+        # Pass the count directly instead of the raw_data copy
+        filter_count = set_filter_metadata_with_count(resource.data, all_medications_count)
         resource = apply_filters(resource) if params[:filter].present?
         resource = apply_sorting(resource, params[:sort])
         resource.records = sort_prescriptions_with_pd_at_top(resource.records)
@@ -207,9 +212,27 @@ module MyHealth
       end
 
       def set_filter_metadata(list, non_modified_collection)
+        # Calculate all_medications count using the non-modified collection
+        # but avoid keeping the full copy around longer than necessary
+        all_medications_count = count_grouped_prescriptions(non_modified_collection)
+        
         {
           filter_count: {
-            all_medications: count_grouped_prescriptions(non_modified_collection),
+            all_medications: all_medications_count,
+            active: count_active_medications(list),
+            recently_requested: get_recently_requested_prescriptions(list).length,
+            renewal: list.select(&method(:renewable)).length,
+            non_active: count_non_active_medications(list)
+          }
+        }
+      end
+
+      def set_filter_metadata_with_count(list, all_medications_count)
+        # Optimized version that accepts pre-calculated all_medications count
+        # This avoids needing to keep a copy of the original data
+        {
+          filter_count: {
+            all_medications: all_medications_count,
             active: count_active_medications(list),
             recently_requested: get_recently_requested_prescriptions(list).length,
             renewal: list.select(&method(:renewable)).length,
@@ -238,10 +261,9 @@ module MyHealth
       end
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
-        pd_prescriptions = prescriptions.select { |med| med.prescription_source == 'PD' }
-        other_prescriptions = prescriptions.reject { |med| med.prescription_source == 'PD' }
-
-        pd_prescriptions + other_prescriptions
+        # Use sort_by which creates a new array instead of modifying in-place
+        # This prevents unintended side effects when the array is referenced elsewhere
+        prescriptions.sort_by { |med| med.prescription_source == 'PD' ? 0 : 1 }
       end
     end
   end

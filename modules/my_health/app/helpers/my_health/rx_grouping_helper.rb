@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'set'
+
 module MyHealth
   module RxGroupingHelper
     def group_prescriptions(prescriptions)
@@ -38,23 +40,28 @@ module MyHealth
     def count_grouped_prescriptions(prescriptions)
       return 0 if prescriptions.nil?
 
-      prescriptions = prescriptions.dup
+      # Use a Set to track processed prescription numbers for O(1) lookup
+      # This avoids creating a full copy of the prescriptions array
+      processed = Set.new
       count = 0
 
-      prescriptions.sort_by!(&:prescription_number)
+      # Sort once without mutating the original array
+      sorted_prescriptions = prescriptions.sort_by(&:prescription_number)
 
-      while prescriptions.any?
-        prescription = prescriptions[0]
-        related = select_related_rxs(prescriptions, prescription)
+      sorted_prescriptions.each do |prescription|
+        # Skip if we've already counted this prescription as part of a group
+        next if processed.include?(prescription.prescription_id)
 
-        if related.length <= 1
-          count += 1
-          prescriptions.delete(prescription)
-          next
+        # Get related prescriptions
+        related = sorted_prescriptions.select do |p|
+          base_prescription = prescription.prescription_number.sub(/[A-Z]$/, '')
+          current_prescription_number = p.prescription_number.sub(/[A-Z]$/, '')
+          current_prescription_number == base_prescription && p.station_number == prescription.station_number
         end
 
+        # Mark all related prescriptions as processed
+        related.each { |rx| processed.add(rx.prescription_id) }
         count += 1
-        related.each { |rx| prescriptions.delete(rx) }
       end
 
       count
