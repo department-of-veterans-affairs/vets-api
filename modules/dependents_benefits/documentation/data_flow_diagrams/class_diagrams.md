@@ -120,7 +120,7 @@ classDiagram
         -mark_submission_attempt_succeeded()
         -mark_submission_attempt_failed(exception)
         -mark_submission_failed(exception)
-        -parent_group_failed() Boolean
+        -parent_group_failed?() Boolean
     }
 
     DependentSubmissionJob <|-- BGSFormJob
