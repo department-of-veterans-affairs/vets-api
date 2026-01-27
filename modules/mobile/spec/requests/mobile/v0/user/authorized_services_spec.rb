@@ -286,6 +286,8 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     end
 
     it 'includes properly sets migratingFacilitiesList when user does have a migrating facility' do
+      Settings.mhv.oh_facility_checks.pretransitioned_oh_facilities = '612, 357'
+      Settings.mhv.oh_facility_checks.facilities_ready_for_info_alert = '612'
       Settings.mhv.oh_facility_checks.oh_migrations_list = '2026-10-01:[555,Facility A],[555,Facility B]'
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
