@@ -16,7 +16,7 @@ module MyHealth
         def index
           resource = handle_aal('Self entered health information', 'Download', once_per_session: true) do
             data = client.get_all_sei_data
-            
+
             # Apply pagination if requested
             if using_pagination?
               apply_pagination(data)
@@ -110,25 +110,25 @@ module MyHealth
         def apply_pagination(data)
           # Flatten all category data into a single array for pagination
           all_items = flatten_category_data(data[:responses])
-          
+
           page = [params[:page].to_i, 1].max
-          
+
           # Handle per_page: default to 20 if not provided, cap at MAX_PER_PAGE
           if params[:per_page].present?
             per_page = [[params[:per_page].to_i, MAX_PER_PAGE].min, 1].max
           else
             per_page = 20
           end
-          
+
           total_items = all_items.length
           start_index = (page - 1) * per_page
           end_index = start_index + per_page - 1
-          
+
           paginated_items = all_items[start_index..end_index] || []
-          
+
           # Group paginated items back by category
           paginated_responses = group_by_category(paginated_items)
-          
+
           {
             responses: paginated_responses,
             errors: data[:errors],
@@ -145,7 +145,7 @@ module MyHealth
           items = []
           responses.each do |category, category_data|
             next if category_data.blank?
-            
+
             # Handle different data structures
             if category_data.is_a?(Array)
               category_data.each { |item| items << { category: category, data: item } }
@@ -162,7 +162,7 @@ module MyHealth
         def extract_items_from_hash(hash, category, items)
           # Check for common array keys in the hash
           array_keys = hash.keys.select { |k| hash[k].is_a?(Array) }
-          
+
           if array_keys.any?
             array_keys.each do |key|
               hash[key].each { |item| items << { category: category, data: item } }
