@@ -3,31 +3,37 @@
 module MyHealth
   module RxGroupingHelper
     def group_prescriptions(prescriptions)
-      prescriptions ||= []
-      grouped_prescriptions = []
+      return [] if prescriptions.blank?
 
-      prescriptions.sort_by!(&:prescription_number)
-
-      while prescriptions.any?
-        prescription = prescriptions[0]
-
-        related_prescriptions = select_related_rxs(prescriptions, prescription)
-
-        if related_prescriptions.length <= 1
-          add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)
-          next
-        end
-
-        base_prescription, related_prescriptions = find_base_prescription(related_prescriptions, prescription)
-        related_prescriptions = sort_related_prescriptions(related_prescriptions)
-        base_prescription.grouped_medications ||= []
-        add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions)
-
-        grouped_prescriptions << base_prescription
-        prescriptions.delete(base_prescription)
+      # Pre-compute base numbers once - O(n)
+      rx_with_base = prescriptions.map do |rx|
+        base_number = rx.prescription_number.sub(/[A-Z]+$/, '')
+        group_key = "#{base_number}-#{rx.station_number}"
+        [rx, group_key]
       end
 
-      grouped_prescriptions
+      # Group by base prescription number + station in O(n)
+      groups = rx_with_base.group_by { |_, group_key| group_key }
+
+      # Process each group - total O(n) since each prescription processed once
+      groups.map do |_key, members|
+        rxs = members.map(&:first)
+
+        if rxs.length == 1
+          rxs.first
+        else
+          # Find the one with highest prescription number (latest renewal)
+          sorted = rxs.sort_by(&:prescription_number).reverse
+          base = sorted.first
+          related = sorted[1..]
+          
+          # Sort related prescriptions by suffix (descending) then by base number
+          related_sorted = sort_related_prescriptions(related)
+          
+          base.grouped_medications = related_sorted
+          base
+        end
+      end
     end
 
     def get_single_rx_from_grouped_list(prescriptions, id)
@@ -38,57 +44,12 @@ module MyHealth
     def count_grouped_prescriptions(prescriptions)
       return 0 if prescriptions.nil?
 
-      prescriptions = prescriptions.dup
-      count = 0
-
-      prescriptions.sort_by!(&:prescription_number)
-
-      while prescriptions.any?
-        prescription = prescriptions[0]
-        related = select_related_rxs(prescriptions, prescription)
-
-        if related.length <= 1
-          count += 1
-          prescriptions.delete(prescription)
-          next
-        end
-
-        count += 1
-        related.each { |rx| prescriptions.delete(rx) }
-      end
-
-      count
+      # Use the optimized group_prescriptions and just count the results
+      # This is O(n) instead of O(n²)
+      group_prescriptions(prescriptions.dup).length
     end
 
     private
-
-    def add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)
-      grouped_prescriptions << prescription
-      prescriptions.delete(prescription)
-    end
-
-    def add_group_meds_and_delete(related_prescriptions, base_prescription, prescriptions)
-      related_prescriptions.each do |renewal|
-        base_prescription.grouped_medications << renewal
-        prescriptions.delete(renewal)
-      end
-    end
-
-    def select_related_rxs(prescriptions, prescription)
-      prescriptions.select do |p|
-        base_prescription = prescription.prescription_number.sub(/[A-Z]$/, '')
-        current_prescription_number = p.prescription_number.sub(/[A-Z]$/, '')
-        current_prescription_number == base_prescription && p.station_number == prescription.station_number
-      end
-    end
-
-    def find_base_prescription(related_prescriptions, current_prescription)
-      all_prescriptions = [current_prescription] + related_prescriptions
-      highest_prescription = all_prescriptions.max_by { |p| [p.prescription_number] }
-
-      related_prescriptions.delete(highest_prescription)
-      [highest_prescription, related_prescriptions]
-    end
 
     def sort_related_prescriptions(related_prescriptions)
       related_prescriptions.sort do |rx1, rx2|
