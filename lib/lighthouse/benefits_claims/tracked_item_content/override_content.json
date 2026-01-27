@@ -320,6 +320,11 @@
     }
   },
   "ASB-tell us specific disability fm asbestos exposure": {
+    "friendlyName": "Disease or disability related to the asbestos exposure",
+    "supportAliases": [
+      "ASB-tell us specific disability fm asbestos exposure"
+    ],
+    "canUploadFile": true,
     "isSensitive": true,
     "longDescription": {
       "blocks": [
