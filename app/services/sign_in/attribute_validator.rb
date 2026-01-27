@@ -118,7 +118,7 @@ module SignIn
         error = prevent_auth ? Errors::AttributeMismatchError : nil
 
         error_code =
-          if type == ssn
+          if type.to_sym == :ssn
             Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH
           else
             Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
