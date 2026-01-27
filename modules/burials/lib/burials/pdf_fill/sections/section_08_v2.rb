@@ -4,8 +4,8 @@ require_relative '../section'
 
 module Burials
   module PdfFill
-    # Section IX: Signature
-    class Section9V2 < Section
+    # Section VIII: Signature
+    class Section8V2 < Section
       # Section configuration hash
       KEY = {
         'signature' => {
