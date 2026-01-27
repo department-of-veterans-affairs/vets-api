@@ -1480,6 +1480,10 @@ features:
     actor_type: user
     description: Enables updated hold time messaging
     enable_in_development: true
+  mhv_medical_records_images_domain:
+    actor_type: user
+    description: Pulls images out of Labs & Tests into its own top-level domain
+    enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
     description: Combines CVIX lab record list with the SCDF/Unified lab record list
