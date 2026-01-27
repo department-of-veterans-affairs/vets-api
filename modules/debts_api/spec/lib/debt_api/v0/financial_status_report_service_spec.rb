@@ -75,23 +75,44 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
       end
 
-      it 'fires the confirmation email' do
+      it 'fires the confirmation email with cache_key instead of user info' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
+            allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
+
+            expect(Sidekiq::AttrPackage).to receive(:create).with(
+              email: user.email,
+              first_name: user.first_name
+            ).and_return('test_cache_key')
+
             expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
               5.minutes,
-              {
+              hash_including(
                 'submission_type' => 'fsr',
-                'email' => user.email,
-                'first_name' => user.first_name,
+                'cache_key' => 'test_cache_key',
                 'template_id' => 'fake_template_id',
                 'user_uuid' => user.uuid
-              }
+              )
+            )
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in).with(
+              anything,
+              hash_including('email' => user.email)
             )
             expect(service).to receive(:submit_combined_fsr)
             service.submit_financial_status_report(combined_form_data)
           end
+        end
+      end
+
+      it 'raises when AttrPackage.create fails' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          service = described_class.new(user)
+          allow(Sidekiq::AttrPackage).to receive(:create).and_raise(
+            Sidekiq::AttrPackageError.new('create', 'Redis connection failed')
+          )
+
+          expect { service.submit_financial_status_report(combined_form_data) }.to raise_error(Sidekiq::AttrPackageError)
         end
       end
     end
@@ -152,20 +173,28 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         end
       end
 
-      it 'sends a confirmation email' do
+      it 'sends a confirmation email with cache_key instead of user info' do
         allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
+
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user_data)
-            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-              user_data.email.downcase,
-              described_class::VBA_CONFIRMATION_TEMPLATE,
-              {
+
+            expect(Sidekiq::AttrPackage).to receive(:create).with(
+              email: user_data.email.downcase,
+              personalisation: {
                 'name' => user_data.first_name,
                 'time' => '48 hours',
                 'date' => Time.zone.now.strftime('%m/%d/%Y')
-              },
-              { id_type: 'email' }
+              }
+            ).and_return('test_cache_key')
+
+            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+              nil,
+              described_class::VBA_CONFIRMATION_TEMPLATE,
+              nil,
+              { id_type: 'email', cache_key: 'test_cache_key' }
             )
             service.submit_vba_fsr(valid_form_data)
           end
@@ -582,6 +611,40 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
       service.create_vha_fsr(builder)
     end
+
+    it 'passes cache_key in batch callback options instead of user info' do
+      allow(StatsD).to receive(:increment)
+      allow(Sidekiq::AttrPackage).to receive(:create).and_return('test_cache_key')
+
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
+
+      batch_double = instance_double(Sidekiq::Batch)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
+      allow(batch_double).to receive(:jobs).and_yield
+
+      expect(Sidekiq::AttrPackage).to receive(:create).with(
+        email: user.email&.downcase,
+        personalisation: {
+          'name' => user.first_name,
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+      ).and_return('test_cache_key')
+
+      expect(batch_double).to receive(:on).with(
+        :success,
+        'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
+        hash_including('cache_key' => 'test_cache_key', 'template_id' => anything)
+      )
+      expect(batch_double).not_to receive(:on).with(
+        anything,
+        anything,
+        hash_including('email' => anything)
+      )
+
+      service.create_vha_fsr(builder)
+    end
   end
 
   describe '#send_vha_confirmation_email' do
@@ -590,23 +653,17 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
-      it 'creates a va notify job' do
-        email = 'foo@bar.com'
-        email_personalization_info = {
-          'name' => 'Joe',
-          'time' => '48 hours',
-          'date' => Time.zone.now.strftime('%m/%d/%Y')
-        }
+      it 'creates a va notify job with cache_key instead of user info' do
         service = described_class.new
         expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-          email,
-          described_class::VHA_CONFIRMATION_TEMPLATE,
-          email_personalization_info,
-          { id_type: 'email', failure_mailer: false }
+          nil,
+          'template_123',
+          nil,
+          { id_type: 'email', failure_mailer: false, cache_key: 'test_cache_key' }
         )
         service.send_vha_confirmation_email('ok',
-                                            { 'email' => email,
-                                              'email_personalization_info' => email_personalization_info })
+                                            { 'cache_key' => 'test_cache_key',
+                                              'template_id' => 'template_123' })
       end
     end
 
@@ -615,18 +672,12 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
       end
 
-      it 'creates a va notify job' do
-        email = 'foo@bar.com'
-        email_personalization_info = {
-          'name' => 'Joe',
-          'time' => '48 hours',
-          'date' => Time.zone.now.strftime('%m/%d/%Y')
-        }
+      it 'does not create a va notify job' do
         service = described_class.new
         expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
         service.send_vha_confirmation_email('ok',
-                                            { 'email' => email,
-                                              'email_personalization_info' => email_personalization_info })
+                                            { 'cache_key' => 'test_cache_key',
+                                              'template_id' => 'template_123' })
       end
     end
   end
