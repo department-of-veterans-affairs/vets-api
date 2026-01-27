@@ -95,7 +95,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     end
   end
 
-  describe '.generate_events_for_facilities' do
+  describe '.generate_events with event_facility_ids' do
     let(:event_name) { 'prescriptions_refill_requested' }
 
     context 'when mhv_oh_unique_user_metrics_logging is disabled' do
@@ -104,7 +104,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
       end
 
       it 'returns empty array without generating OH events' do
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: %w[757 688]
         )
@@ -115,7 +115,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
     context 'when facility IDs match tracked facilities' do
       it 'generates OH events for matching facilities' do
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: %w[757 688]
         )
@@ -127,7 +127,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         # Temporarily stub TRACKED_FACILITY_IDS to include multiple facilities for this test
         stub_const('UniqueUserEvents::OracleHealth::TRACKED_FACILITY_IDS', %w[757 688])
 
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: %w[757 688 999]
         )
@@ -141,7 +141,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
     context 'when no facility IDs match tracked facilities' do
       it 'returns empty array' do
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: %w[999 888]
         )
@@ -152,7 +152,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
     context 'when facility IDs array is empty' do
       it 'returns empty array' do
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: []
         )
@@ -161,20 +161,9 @@ RSpec.describe UniqueUserEvents::OracleHealth do
       end
     end
 
-    context 'when facility IDs is nil' do
-      it 'returns empty array' do
-        result = described_class.generate_events_for_facilities(
-          event_name:,
-          event_facility_ids: nil
-        )
-
-        expect(result).to eq([])
-      end
-    end
-
     context 'when facility IDs contain integers' do
       it 'normalizes to strings and matches' do
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name:,
           event_facility_ids: [757, 688]
         )
@@ -183,12 +172,12 @@ RSpec.describe UniqueUserEvents::OracleHealth do
       end
     end
 
-    context 'unlike generate_events' do
+    context 'unlike user-based generate_events' do
       it 'does not check TRACKED_EVENTS - any event can be logged with explicit facilities' do
         # This event is NOT in TRACKED_EVENTS, but should still work with explicit facilities
         non_tracked_event = 'some_custom_event_not_in_tracked_list'
 
-        result = described_class.generate_events_for_facilities(
+        result = described_class.generate_events(
           event_name: non_tracked_event,
           event_facility_ids: %w[757]
         )

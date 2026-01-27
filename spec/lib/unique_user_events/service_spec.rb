@@ -14,7 +14,6 @@ RSpec.describe UniqueUserEvents::Service do
     before do
       allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
       allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
-      allow(UniqueUserEvents::OracleHealth).to receive(:generate_events_for_facilities).and_return([])
       allow(UniqueUserEvents::Buffer).to receive(:push_batch)
     end
 
@@ -24,7 +23,8 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(result).to eq([event_name])
         expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
-        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).with(user:, event_name:)
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+          .with(user:, event_name:, event_facility_ids: nil)
         expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
           [{ user_id:, event_name: }]
         )
@@ -45,7 +45,7 @@ RSpec.describe UniqueUserEvents::Service do
       it 'includes Oracle Health events when applicable' do
         oh_events = ['mhv_sm_message_sent_oh_site_757']
         allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
-          .with(user:, event_name: oh_event_name)
+          .with(user:, event_name: oh_event_name, event_facility_ids: nil)
           .and_return(oh_events)
 
         result = described_class.buffer_events(user:, event_names: [oh_event_name])
@@ -102,9 +102,8 @@ RSpec.describe UniqueUserEvents::Service do
 
         expect(result).to eq([event_name])
         expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
-        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events_for_facilities)
-          .with(event_name:, event_facility_ids:)
-        expect(UniqueUserEvents::OracleHealth).not_to have_received(:generate_events)
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+          .with(user:, event_name:, event_facility_ids:)
         expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
           [{ user_id:, event_name: }]
         )
@@ -112,8 +111,8 @@ RSpec.describe UniqueUserEvents::Service do
 
       it 'includes Oracle Health events when facility matches' do
         oh_event = "#{event_name}_oh_site_757"
-        allow(UniqueUserEvents::OracleHealth).to receive(:generate_events_for_facilities)
-          .with(event_name:, event_facility_ids:)
+        allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
+          .with(user:, event_name:, event_facility_ids:)
           .and_return([oh_event])
 
         result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
@@ -131,7 +130,7 @@ RSpec.describe UniqueUserEvents::Service do
         result = described_class.buffer_events(user:, event_names: [event_name, event_name2], event_facility_ids:)
 
         expect(result).to eq([event_name, event_name2])
-        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events_for_facilities).twice
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).twice
       end
 
       context 'with empty facility IDs' do
@@ -141,8 +140,8 @@ RSpec.describe UniqueUserEvents::Service do
           result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 
           expect(result).to eq([event_name])
-          expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events_for_facilities)
-            .with(event_name:, event_facility_ids: [])
+          expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+            .with(user:, event_name:, event_facility_ids: [])
           expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
             [{ user_id:, event_name: }]
           )
@@ -153,7 +152,7 @@ RSpec.describe UniqueUserEvents::Service do
         let(:event_facility_ids) { %w[999 888] }
 
         it 'only buffers the base event without OH events' do
-          allow(UniqueUserEvents::OracleHealth).to receive(:generate_events_for_facilities).and_return([])
+          allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
 
           result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 

@@ -73,11 +73,7 @@ module UniqueUserEvents
     def self.get_all_events_to_log(user:, event_name:, event_facility_ids:)
       events = [event_name]
 
-      oh_events = if event_facility_ids
-                    OracleHealth.generate_events_for_facilities(event_name:, event_facility_ids:)
-                  else
-                    OracleHealth.generate_events(user:, event_name:)
-                  end
+      oh_events = OracleHealth.generate_events(user:, event_name:, event_facility_ids:)
 
       events.concat(oh_events)
       events

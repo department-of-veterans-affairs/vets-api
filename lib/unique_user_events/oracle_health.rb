@@ -26,36 +26,25 @@ module UniqueUserEvents
 
     # Generate Oracle Health events for a user and event
     #
-    # @param user [User] the authenticated User object
+    # When event_facility_ids is provided, those IDs are checked against tracked OH facilities.
+    # Otherwise, the user's VHA facilities are used and TRACKED_EVENTS is checked.
+    #
+    # @param user [User] the authenticated User object (required when event_facility_ids is nil)
     # @param event_name [String] Name of the original event
+    # @param event_facility_ids [Array<String>, nil] Optional facility IDs from operation context.
+    #   When provided, these are checked against tracked OH facilities instead of user's facilities.
     # @return [Array<String>] Array of OH event names to be logged
-    def self.generate_events(user:, event_name:)
-      return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
-      return [] unless TRACKED_EVENTS.include?(event_name)
-
-      matching_facilities = get_user_tracked_facilities(user)
-      matching_facilities.map do |facility_id|
-        "#{event_name}_oh_site_#{facility_id}"
-      end
-    end
-
-    # Generate Oracle Health events for explicit facility IDs
-    #
-    # This method allows callers to specify facility IDs directly rather than
-    # deriving them from the user object. Useful when facility context is known
-    # from the operation being performed (e.g., prescription refill at a specific station).
-    #
-    # Unlike generate_events, this method does not check TRACKED_EVENTS since the caller
-    # is explicitly requesting OH tracking by providing facility IDs.
-    #
-    # @param event_name [String] Name of the original event
-    # @param event_facility_ids [Array<String>] Facility IDs associated with the event/operation,
-    #   which will be checked against tracked OH facilities
-    # @return [Array<String>] Array of OH event names to be logged for matching facilities
-    def self.generate_events_for_facilities(event_name:, event_facility_ids:)
+    def self.generate_events(event_name:, user: nil, event_facility_ids: nil)
       return [] unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging)
 
-      matching_facilities = filter_tracked_facilities(event_facility_ids)
+      matching_facilities = if event_facility_ids
+                              filter_tracked_facilities(event_facility_ids)
+                            else
+                              return [] unless TRACKED_EVENTS.include?(event_name)
+
+                              get_user_tracked_facilities(user)
+                            end
+
       matching_facilities.map do |facility_id|
         "#{event_name}_oh_site_#{facility_id}"
       end
