@@ -3,13 +3,15 @@
 module MyHealth
   module RxGroupingHelper
     SUFFIX_PATTERN = /[A-Z]+$/
+    SINGLE_LETTER_SUFFIX = /[A-Z]$/
 
     def group_prescriptions(prescriptions)
       return [] if prescriptions.blank?
 
       # Pre-compute base numbers once - O(n)
+      # Note: Use SINGLE_LETTER_SUFFIX for grouping to match original behavior
       rx_with_base = prescriptions.map do |rx|
-        base_number = rx.prescription_number.sub(SUFFIX_PATTERN, '')
+        base_number = rx.prescription_number.sub(SINGLE_LETTER_SUFFIX, '')
         group_key = "#{base_number}-#{rx.station_number}"
         [rx, group_key]
       end
