@@ -189,9 +189,7 @@ module VeteranStatusCard
 
       return dishonorable_response if DISHONORABLE_SSC_CODES.include?(ssc_code)
 
-      if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
-        return ineligible_service_response
-      end
+      return ineligible_service_response if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
 
       return unknown_service_response if ssc_code == UNKNOWN_SERVICE_SSC_CODE
 
