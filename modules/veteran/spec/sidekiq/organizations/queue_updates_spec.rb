@@ -18,7 +18,7 @@ RSpec.describe Organizations::QueueUpdates, type: :job do
         'VSOs' => [{ id: '123', address: {} }]
       }
     end
-    let(:batch) { instance_double('Sidekiq::Batch') }
+    let(:batch) { instance_double(Sidekiq::Batch) }
 
     before do
       stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)

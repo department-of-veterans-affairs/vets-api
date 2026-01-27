@@ -31,7 +31,7 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
         'Representatives' => [{ id: '345', address: {}, phone_number: '123-456-7890', raw_address: {} }]
       }
     end
-    let(:batch) { instance_double('Sidekiq::Batch') }
+    let(:batch) { instance_double(Sidekiq::Batch) }
 
     before do
       stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
