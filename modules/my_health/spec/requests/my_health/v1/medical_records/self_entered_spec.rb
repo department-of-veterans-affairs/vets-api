@@ -50,7 +50,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
         expect(invalid_user.mhv_correlation_id).to be_nil
         expect(response).to have_http_status(:forbidden)
         json = JSON.parse(response.body)
-        expect(json['errors'].first['detail']).to eq('You do not have access to self-entered information')
+        expect(json['errors'].first['detail']).to eq('Unable to access MHV services. Please try signing in again.')
       end
     end
 
