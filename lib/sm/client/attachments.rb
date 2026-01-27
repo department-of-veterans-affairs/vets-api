@@ -26,7 +26,7 @@ module SM
         data = response.body[:data] if response.body.is_a?(Hash)
 
         # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
-        if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+        if s3_attachment?(data)
           url = data[:url]
           uri = URI.parse(url)
           file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|

@@ -42,8 +42,10 @@ module MyHealth
 
           if k == 'Content-Disposition' && v.match?(/filename=/)
             process_content_disposition(k, v)
-          elsif k != 'Content-Type'
-            # Skip Content-Type here; it will be set from filename extension in process_content_disposition
+          elsif k == 'Content-Type'
+            # Set Content-Type from header if not already set by process_content_disposition
+            response.headers[k] = v unless response.headers['Content-Type']
+          else
             response.headers[k] = v
           end
         end
@@ -63,7 +65,7 @@ module MyHealth
 
       def extract_filename(header_value)
         header_value.match(/filename=["']?([^"';]+)["']?/)[1]
-      rescue
+      rescue NoMethodError, StandardError
         nil
       end
 
