@@ -71,35 +71,53 @@ module Vass
     # ------------ One-Time Code (OTC) Management ------------
 
     ##
-    # Retrieves a stored OTC by UUID.
+    # Saves an OTC for a veteran UUID with short expiration.
+    # Stores the code along with identity data for validation during authentication.
     #
-    # @param uuid [String] Veteran UUID from email link
-    # @return [String, nil] OTC or nil if not found/expired
+    # @param uuid [String] Veteran UUID
+    # @param code [String] One-time code
+    # @param last_name [String] Veteran's last name (for identity verification)
+    # @param dob [String] Veteran's date of birth (for identity verification)
+    # @return [Boolean] true if write succeeds
     #
-    def otc(uuid:)
+    def save_otc(uuid:, code:, last_name:, dob:)
+      otc_data = {
+        code:,
+        last_name:,
+        dob:
+      }
+
       with_redis_error_handling do
-        Rails.cache.read(
+        Rails.cache.write(
           otc_key(uuid),
-          namespace: 'vass-otc-cache'
+          Oj.dump(otc_data),
+          namespace: 'vass-otc-cache',
+          expires_in: redis_otc_expiry
         )
       end
     end
 
     ##
-    # Saves an OTC for a veteran UUID with short expiration.
+    # Retrieves stored OTC data (code and identity info) by UUID.
     #
-    # @param uuid [String] Veteran UUID
-    # @param code [String] One-time code
-    # @return [Boolean] true if write succeeds
+    # @param uuid [String] Veteran UUID from email link
+    # @return [Hash, nil] Hash with :code, :last_name, :dob or nil if not found/expired
     #
-    def save_otc(uuid:, code:)
-      with_redis_error_handling do
-        Rails.cache.write(
+    def otc_data(uuid:)
+      cached = with_redis_error_handling do
+        Rails.cache.read(
           otc_key(uuid),
-          code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
+          namespace: 'vass-otc-cache'
         )
+      end
+
+      return nil if cached.nil?
+
+      begin
+        Oj.load(cached, symbol_keys: true)
+      rescue Oj::ParseError
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'otc_data')
+        nil
       end
     end
 
