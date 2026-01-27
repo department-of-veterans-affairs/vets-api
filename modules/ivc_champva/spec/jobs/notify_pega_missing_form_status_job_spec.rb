@@ -83,6 +83,7 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
   end
 
   it 'logs an error if an exception occurs' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_notify_pega_missing_form_status_job).and_return(true)
     allow(IvcChampvaForm).to receive(:where).and_raise(StandardError.new('Something went wrong'))
 
     expect(Rails.logger).to receive(:error).twice
