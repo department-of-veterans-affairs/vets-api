@@ -537,9 +537,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       it 'returns error when prescription is not found' do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(nil)
 
-        VCR.use_cassette('rx_client/prescriptions/rx_not_found') do
-          get '/my_health/v1/prescriptions/99999999/documentation'
-        end
+        get '/my_health/v1/prescriptions/99999999/documentation'
 
         expect(response).to have_http_status(:not_found)
         error = JSON.parse(response.body)
@@ -551,9 +549,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           double('Rx', cmop_ndc_value: nil)
         )
 
-        VCR.use_cassette('rx_client/prescriptions/rx_missing_ndc') do
-          get '/my_health/v1/prescriptions/13650541/documentation'
-        end
+        get '/my_health/v1/prescriptions/13650541/documentation'
 
         expect(response).to have_http_status(:unprocessable_entity)
         error = JSON.parse(response.body)
@@ -567,9 +563,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ServerError.new('Service unavailable'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_server_error') do
-          get '/my_health/v1/prescriptions/21296515/documentation'
-        end
+        get '/my_health/v1/prescriptions/21296515/documentation'
 
         expect(response).to have_http_status(:internal_server_error)
       end
@@ -581,9 +575,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ConnectionFailed.new('Connection failed'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_connection_failed') do
-          get '/my_health/v1/prescriptions/21296515/documentation'
-        end
+        get '/my_health/v1/prescriptions/21296515/documentation'
 
         expect(response).to have_http_status(:internal_server_error)
       end
@@ -595,9 +587,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
           .and_raise(Faraday::ClientError.new('Bad request'))
 
-        VCR.use_cassette('rx_client/prescriptions/upstream_client_error') do
-          get '/my_health/v1/prescriptions/21296515/documentation'
-        end
+        get '/my_health/v1/prescriptions/21296515/documentation'
 
         expect(response).to have_http_status(:internal_server_error)
       end
