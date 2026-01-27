@@ -4,6 +4,7 @@ module V0
   class OpenApiController < ApplicationController
     service_tag 'platform-base'
     skip_before_action :authenticate
+    before_action :restrict_to_non_production
 
     def index
       spec = openapi_spec
@@ -20,8 +21,14 @@ module V0
 
     private
 
+    def restrict_to_non_production
+      return unless Settings.vsp_environment == 'production'
+
+      render json: { error: 'OpenAPI specification is not available in production' }, status: :not_found
+    end
+
     def openapi_spec
-      path = Rails.public_path.join('openapi.json')
+      path = Rails.root.join('config', 'openapi', 'openapi.json')
       return unless File.exist?(path)
 
       cache_key = "openapi_spec_#{File.mtime(path).to_i}"
