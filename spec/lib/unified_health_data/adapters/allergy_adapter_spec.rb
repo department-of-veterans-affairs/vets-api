@@ -17,14 +17,30 @@ RSpec.describe 'AllergyAdapter' do
   end
 
   describe '#parse' do
+    # Helper method to simulate what the service's remap_vista_identifier does
+    def add_vista_ids(vista_records)
+      vista_records.each do |record|
+        next unless record['resource'] && record['resource']['identifier']
+
+        identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+        record['resource']['id'] = identifier['value'] if identifier
+      end
+    end
+
     context 'when filter_by_status is true (default)' do
       it 'filters out VistA allergies with entered-in-error verificationStatus' do
         vista_records = allergy_sample_response['vista']['entry']
+        # Add IDs like the service's remap_vista_identifier method does
+        add_vista_ids(vista_records)
+
         parsed_allergies = adapter.parse(vista_records)
 
         # VistA sample has ASPIRIN with entered-in-error status (identifier value: 2676)
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).not_to include('2676')
+        # Also verify ASPIRIN is not in the results by name
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).not_to include('ASPIRIN')
       end
 
       it 'filters out Oracle Health allergies with entered-in-error verificationStatus' do
@@ -34,10 +50,14 @@ RSpec.describe 'AllergyAdapter' do
         # Oracle Health sample has Cashews with entered-in-error status (id: 132316427)
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).not_to include('132316427')
+        # Also verify Cashew nut is not in the results by name
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).not_to include('Cashew nut (substance)')
       end
 
       it 'includes allergies with active clinicalStatus' do
         vista_records = allergy_sample_response['vista']['entry']
+        add_vista_ids(vista_records)
         parsed_allergies = adapter.parse(vista_records)
 
         # Should include active allergies like TRAZODONE
@@ -58,18 +78,16 @@ RSpec.describe 'AllergyAdapter' do
     context 'when filter_by_status is false' do
       it 'includes VistA allergies with entered-in-error verificationStatus' do
         vista_records = allergy_sample_response['vista']['entry']
-        # Manually add the id that would be set by the service
-        vista_records.each do |record|
-          next unless record['resource'] && record['resource']['identifier']
-
-          identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
-          record['resource']['id'] = identifier['value'] if identifier
-        end
+        # Add IDs like the service's remap_vista_identifier method does
+        add_vista_ids(vista_records)
 
         parsed_allergies = adapter.parse(vista_records, filter_by_status: false)
 
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).to include('2676')
+        # Also verify ASPIRIN is in the results by name
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).to include('ASPIRIN')
       end
 
       it 'includes Oracle Health allergies with entered-in-error verificationStatus' do
@@ -78,6 +96,9 @@ RSpec.describe 'AllergyAdapter' do
 
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).to include('132316427')
+        # Also verify Cashew nut is in the results by name
+        allergy_names = parsed_allergies.map(&:name)
+        expect(allergy_names).to include('Cashew nut (substance)')
       end
     end
   end
