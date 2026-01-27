@@ -100,7 +100,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               expect(response).to have_http_status(:ok)
               # OTP should be stored in Redis
               redis_client = Vass::RedisClient.build
-              stored_otp = redis_client.otc(uuid:)
+              stored_otp = redis_client.otc_data(uuid:)&.dig(:code)
               expect(stored_otp).to be_present
               expect(stored_otp.length).to eq(6)
             end
@@ -215,7 +215,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         # Store OTC and veteran metadata from create flow
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 
@@ -241,7 +241,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:ok)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to be_nil
       end
 
@@ -275,7 +275,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'with invalid OTC' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: '000000')
+        redis_client.save_otc(uuid:, code: '000000', last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 
@@ -301,7 +301,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:unauthorized)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to eq('000000')
       end
     end
@@ -337,7 +337,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'when validation rate limit is exceeded' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
         # Exceed validation rate limit
         5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
@@ -363,7 +363,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'when an exception occurs during successful authentication flow' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 
