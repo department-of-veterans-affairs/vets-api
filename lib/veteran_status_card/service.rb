@@ -62,7 +62,37 @@ module VeteranStatusCard
       end
     rescue => e
       Rails.logger.error("VeteranStatusCard::Service error: #{e.message}", backtrace: e.backtrace)
-      error_response_hash(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE)
+      error_response_hash(something_went_wrong_response)
+    end
+
+    protected
+
+    def something_went_wrong_response
+      VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+    end
+
+    def dishonorable_response
+      VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
+    end
+
+    def ineligible_service_response
+      VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
+    end
+
+    def unknown_service_response
+      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
+    end
+
+    def edipi_no_pnl_response
+      VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+    end
+
+    def currently_serving_response
+      VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
+    end
+
+    def error_response
+      VeteranStatusCard::Constants::ERROR_RESPONSE
     end
 
     private
@@ -114,7 +144,7 @@ module VeteranStatusCard
     # @return [Hash] the error response
     #
     def nil_user_error_response
-      alert_response = VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+      alert_response = something_went_wrong_response
       {
         type: 'veteran_status_alert',
         veteran_status: 'not confirmed',
@@ -157,22 +187,22 @@ module VeteranStatusCard
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
       # don't need to explicitly check for those reasons
 
-      return VeteranStatusCard::Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
+      return dishonorable_response if DISHONORABLE_SSC_CODES.include?(ssc_code)
 
       if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
-        return VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
+        return ineligible_service_response
       end
 
-      return VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE if ssc_code == UNKNOWN_SERVICE_SSC_CODE
+      return unknown_service_response if ssc_code == UNKNOWN_SERVICE_SSC_CODE
 
-      return VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE if ssc_code == EDIPI_NO_PNL_CODE
+      return edipi_no_pnl_response if ssc_code == EDIPI_NO_PNL_CODE
 
-      return VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE if CURRENTLY_SERVING_CODES.include?(ssc_code)
+      return currently_serving_response if CURRENTLY_SERVING_CODES.include?(ssc_code)
 
-      return VeteranStatusCard::Constants::ERROR_RESPONSE if ERROR_SSC_CODES.include?(ssc_code)
+      return error_response if ERROR_SSC_CODES.include?(ssc_code)
 
       # Default fallback
-      VeteranStatusCard::Constants::ERROR_RESPONSE
+      error_response
     end
 
     ##
@@ -360,9 +390,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: VeteranVerification::Constants::ERROR_MESSAGE,
-            title: VeteranVerification::Constants::ERROR_MESSAGE_TITLE,
-            status: VeteranVerification::Constants::ERROR_MESSAGE_STATUS
+            message: error_response[:message],
+            title: error_response[:title],
+            status: error_response[:status]
           }
         else
           {
