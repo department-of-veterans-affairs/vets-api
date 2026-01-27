@@ -37,7 +37,6 @@ module MyHealth
           generated_datetime = params[:date].to_s
           raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
 
-          set_response_headers(fmt)
           stream_ccd_response(generated_datetime, fmt)
         end
 
@@ -67,19 +66,6 @@ module MyHealth
           raise e
         ensure
           response.stream.close if response.committed?
-        end
-
-        ##
-        # Sets appropriate Content-Type header based on requested format
-        #
-        def set_response_headers(fmt)
-          content_types = {
-            xml: 'application/xml; charset=utf-8',
-            html: 'text/html; charset=utf-8',
-            pdf: 'application/pdf'
-          }
-          response.headers['Content-Type'] = content_types[fmt]
-          response.headers['Content-Disposition'] = 'attachment'
         end
 
         ##
