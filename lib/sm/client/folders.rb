@@ -90,7 +90,13 @@ module SM
 
             page += 1
           end
-          Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+          is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
+          result = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+          track_metric('get_folder_messages', is_oh:, status: 'success')
+          result
+        rescue => e
+          track_metric('get_folder_messages', is_oh:, status: 'failure')
+          raise e
         end
       end
 
@@ -117,7 +123,7 @@ module SM
         path = append_requires_oh_messages_query(path)
 
         json = perform(:get, path, nil, token_headers).body
-        is_oh = json[:data].any? { |msg| msg[:isOhMessage] == true }
+        is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
         result = Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
         track_metric('get_folder_threads', is_oh:, status: 'success')
         result
