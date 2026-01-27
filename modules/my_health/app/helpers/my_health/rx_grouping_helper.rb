@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 module MyHealth
   module RxGroupingHelper
     def group_prescriptions(prescriptions)
