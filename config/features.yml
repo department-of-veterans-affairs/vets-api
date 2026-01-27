@@ -2040,6 +2040,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_enhanced_uuid_validation:
+    actor_type: user
+    description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
@@ -2755,10 +2758,6 @@ features:
   unique_user_metrics_logging:
     actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
-    enable_in_development: true
-  unique_user_metrics_async_buffering:
-    actor_type: user
-    description: Enables asynchronous batch processing for unique user metrics.
     enable_in_development: true
   form_8794_release:
     actor_type: user
