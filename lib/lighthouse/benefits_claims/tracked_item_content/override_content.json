@@ -58,7 +58,7 @@
   },
   "21-4142 incomplete - need provider address": {
     "friendlyName": "Address of non-VA medical provider",
-    "shortDescription": "We need your private physician's address to request information for your claim.",
+    "shortDescription": "We need your private physician’s address to request information for your claim.",
     "supportAliases": [
       "21-4142 incomplete - need provider address"
     ],
@@ -67,7 +67,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "We need your non-VA medical provider's address to request information for your claim. Your Authorization and Consent to Release Information to the VA did not include an address or it included a wrong address."
+          "content": "We need your non-VA medical provider’s address to request information for your claim. Your Authorization and Consent to Release Information to the VA did not include an address or it included a wrong address."
         },
         {
           "type": "paragraph",
@@ -299,7 +299,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "If the biopsy or other exam was done at a VA facility, upload a document that includes the location and the month and year of the exam. We'll request your medical records for you."
+          "content": "If the biopsy or other exam was done at a VA facility, upload a document that includes the location and the month and year of the exam. We’ll request your medical records for you."
         },
         {
           "type": "paragraph",
@@ -390,7 +390,7 @@
         },
         {
           "type": "paragraph",
-          "content": "For example, if you listed a leg condition, we'd need to know if it affects your hip, knee, ankle, or foot—or if it's related to nerves or your skin."
+          "content": "For example, if you listed a leg condition, we’d need to know if it affects your hip, knee, ankle, or foot—or if it’s related to nerves or your skin."
         }
       ]
     },
@@ -429,14 +429,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested a disability exam for your hearing. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested a disability exam for your hearing. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ GU Male Reproductive Organ": {
     "friendlyName": "Reproductive health exam",
-    "shortDescription": "We've requested an exam to understand the condition affecting your reproductive health. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam to understand the condition affecting your reproductive health. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ GU Male Reproductive Organ"
     ],
@@ -446,14 +446,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam to understand the condition affecting your reproductive health. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam to understand the condition affecting your reproductive health. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ MUSC Back (thoracolumbar spine)": {
     "friendlyName": "Back pain exam",
-    "shortDescription": "We've requested an exam to understand your back condition. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam to understand your back condition. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ MUSC Back (thoracolumbar spine)"
     ],
@@ -463,14 +463,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam to understand your back condition. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam to understand your back condition. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ MUSC Knee and Lower Leg": {
     "friendlyName": "Knee and leg exam",
-    "shortDescription": "We've requested an exam for your knee and lower leg. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam for your knee and lower leg. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ MUSC Knee and Lower Leg"
     ],
@@ -480,14 +480,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam for your knee and lower leg. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam for your knee and lower leg. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ NEURO Headaches (including migraines)": {
     "friendlyName": "Headache and migraine exam",
-    "shortDescription": "We've requested an exam for your headaches. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam for your headaches. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ NEURO Headaches (including migraines)"
     ],
@@ -497,7 +497,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam for your headaches (including migraines). The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam for your headaches (including migraines). The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
@@ -513,14 +513,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested a mental health exam. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested a mental health exam. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ PSYCH PTSD Review": {
     "friendlyName": "PTSD claim follow-up exam",
-    "shortDescription": "We've requested a follow-up exam related to your PTSD. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested a follow-up exam related to your PTSD. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ PSYCH PTSD Review"
     ],
@@ -531,14 +531,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested a follow-up exam related to your PTSD. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested a follow-up exam related to your PTSD. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ PSYCH PTSD initial": {
     "friendlyName": "PTSD claim exam",
-    "shortDescription": "We've requested an exam related to your PTSD. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam related to your PTSD. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ PSYCH PTSD initial"
     ],
@@ -549,14 +549,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam related to your PTSD. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam related to your PTSD. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
   },
   "DBQ RESP Sleep Apnea": {
     "friendlyName": "Sleep apnea exam",
-    "shortDescription": "We've requested an exam to learn more about your sleep apnea. The examiner's office will contact you to schedule this appointment.",
+    "shortDescription": "We’ve requested an exam to learn more about your sleep apnea. The examiner’s office will contact you to schedule this appointment.",
     "supportAliases": [
       "DBQ RESP Sleep Apnea"
     ],
@@ -566,7 +566,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested an exam to learn more about your sleep apnea. The examiner's office will contact you to schedule this appointment."
+          "content": "For your benefits claim, we’ve requested an exam to learn more about your sleep apnea. The examiner’s office will contact you to schedule this appointment."
         }
       ]
     }
@@ -605,7 +605,7 @@
         {
           "type": "paragraph",
           "content": [
-            "If you don't already have a bank account, the Veterans Benefits Banking Program (VBBP) can connect you with a bank that will help you set up an account.",
+            "If you don’t already have a bank account, the Veterans Benefits Banking Program (VBBP) can connect you with a bank that will help you set up an account.",
             {
               "type": "lineBreak"
             },
@@ -674,7 +674,7 @@
   },
   "General Records Request (Medical)": {
     "friendlyName": "Non-VA medical records",
-    "shortDescription": "We've requested your non-VA medical records from your medical provider.",
+    "shortDescription": "We’ve requested your non-VA medical records from your medical provider.",
     "supportAliases": [
       "General Records Request (Medical)",
       "PMR Request"
@@ -684,7 +684,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested your non-VA medical records from your medical provider."
+          "content": "For your benefits claim, we’ve requested your non-VA medical records from your medical provider."
         },
         {
           "type": "paragraph",
@@ -704,7 +704,7 @@
   },
   "HAIMS STR Request": {
     "friendlyName": "Service treatment records",
-    "shortDescription": "We've requested your service treatment records from the Department of Defense.",
+    "shortDescription": "We’ve requested your service treatment records from the Department of Defense.",
     "supportAliases": [
       "HAIMS STR Request"
     ],
@@ -713,14 +713,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested your service treatment records from the Department of Defense."
+          "content": "For your benefits claim, we’ve requested your service treatment records from the Department of Defense."
         }
       ]
     }
   },
   "NG1 - National Guard Records Request": {
     "friendlyName": "National Guard service treatment records",
-    "shortDescription": "We've asked your National Guard unit for your service treatment records.",
+    "shortDescription": "We’ve asked your National Guard unit for your service treatment records.",
     "supportAliases": [
       "NG1 - National Guard Records Request"
     ],
@@ -730,14 +730,14 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've asked your National Guard unit for your service treatment records. These records help us understand when your medical condition may have started during your military service."
+          "content": "For your benefits claim, we’ve asked your National Guard unit for your service treatment records. These records help us understand when your medical condition may have started during your military service."
         }
       ]
     }
   },
   "Name of disability needed": {
     "friendlyName": "Name of disability",
-    "shortDescription": "We need to know what your disability is and how it's connected to your military service.",
+    "shortDescription": "We need to know what your disability is and how it’s connected to your military service.",
     "supportAliases": [
       "Name of disability needed"
     ],
@@ -746,7 +746,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "To review your claim, we need to know what your disability is and how it's connected to your military service."
+          "content": "To review your claim, we need to know what your disability is and how it’s connected to your military service."
         },
         {
           "type": "paragraph",
@@ -771,7 +771,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Use VA Form 21-526EZ to provide the name of your disability and how it's connected to your military service."
+          "content": "Use VA Form 21-526EZ to provide the name of your disability and how it’s connected to your military service."
         },
         {
           "type": "paragraph",
@@ -810,7 +810,7 @@
   },
   "PMR Pending": {
     "friendlyName": "Non-VA medical records",
-    "shortDescription": "We've requested your non-VA medical records from your medical provider.",
+    "shortDescription": "We’ve requested your non-VA medical records from your medical provider.",
     "supportAliases": [
       "PMR Pending",
       "General Records Request (Medical)"
@@ -820,7 +820,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested your non-VA medical records from your medical provider."
+          "content": "For your benefits claim, we’ve requested your non-VA medical records from your medical provider."
         },
         {
           "type": "paragraph",
@@ -844,7 +844,7 @@
   },
   "PMR Request": {
     "friendlyName": "Non-VA medical records",
-    "activityDescription": "We've requested your non-VA medical records on your behalf. No action is needed.",
+    "activityDescription": "We’ve requested your non-VA medical records on your behalf. No action is needed.",
     "supportAliases": [
       "PMR Request",
       "General Records Request (Medical)"
@@ -862,8 +862,8 @@
   },
   "Proof of service (DD214, etc.)": {
     "friendlyName": "Proof of service",
-    "activityDescription": "We've requested your proof of service on your behalf. No action is needed.",
-    "shortDescription": "We've requested all your DD Form 214's or other separation papers for all your periods of military service.",
+    "activityDescription": "We’ve requested your proof of service on your behalf. No action is needed.",
+    "shortDescription": "We’ve requested all your DD Form 214’s or other separation papers for all your periods of military service.",
     "supportAliases": [
       "Proof of Service (DD214, etc.)"
     ],
@@ -872,7 +872,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested all your DD Form 214's or other separation papers for all your periods of military service."
+          "content": "For your benefits claim, we’ve requested all your DD Form 214’s or other separation papers for all your periods of military service."
         },
         {
           "type": "paragraph",
@@ -891,8 +891,8 @@
   },
   "RV1 - Reserve Records Request": {
     "friendlyName": "Reserve records",
-    "activityDescription": "We've requested your reserve records on your behalf. No action is needed.",
-    "shortDescription": "We've requested your service records or treatment records from your reserve unit.",
+    "activityDescription": "We’ve requested your reserve records on your behalf. No action is needed.",
+    "shortDescription": "We’ve requested your service records or treatment records from your reserve unit.",
     "supportAliases": [
       "RV1 - Reserve Records Request"
     ],
@@ -901,7 +901,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've requested your service records or treatment records from your reserve unit."
+          "content": "For your benefits claim, we’ve requested your service records or treatment records from your reserve unit."
         },
         {
           "type": "paragraph",
@@ -934,7 +934,7 @@
         },
         {
           "type": "paragraph",
-          "content": "In case you don't have them, we also requested your service treatment records from the Department of Defense, reserve unit, or national guard unit. You don't need to request your service treatment records yourself."
+          "content": "In case you don’t have them, we also requested your service treatment records from the Department of Defense, reserve unit, or national guard unit. You don’t need to request your service treatment records yourself."
         },
         {
           "type": "paragraph",
@@ -950,14 +950,14 @@
         },
         {
           "type": "paragraph",
-          "content": "If you don't have certified copies of your service treatment records, no action is needed. We are requesting them for you."
+          "content": "If you don’t have certified copies of your service treatment records, no action is needed. We are requesting them for you."
         }
       ]
     }
   },
   "SSA medical evidence requested": {
     "friendlyName": "Medical records from the Social Security Administration",
-    "shortDescription": "We've asked the Social Security Administration (SSA) for your medical records.",
+    "shortDescription": "We’ve asked the Social Security Administration (SSA) for your medical records.",
     "supportAliases": [
       "SSA medical evidence requested"
     ],
@@ -966,7 +966,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "For your benefits claim, we've asked the Social Security Administration (SSA) for your medical records. This helps us understand your condition and how it might relate to your claim."
+          "content": "For your benefits claim, we’ve asked the Social Security Administration (SSA) for your medical records. This helps us understand your condition and how it might relate to your claim."
         },
         {
           "type": "paragraph",
