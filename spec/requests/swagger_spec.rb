@@ -2939,25 +2939,125 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
           end
 
-          context 'when the claim is not found' do
-            it 'returns a status of 404' do
-              VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
-                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 404, headers_with_id)
+          context 'with cst_multi_claim_provider disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('cst_multi_claim_provider', anything).and_return(false)
+            end
+
+            context 'when there is a bad request' do
+              it 'returns a status of 400' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::BadRequest.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 400, headers_with_id)
               end
             end
-          end
 
-          context 'when there is a gateway timeout' do
-            it 'returns a status of 504' do
-              VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
+            context 'when the claim is not found' do
+              it 'returns a status of 404' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
+                  expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 404, headers_with_id)
+                end
+              end
+            end
+
+            context 'when there is a rate limit exceeded' do
+              it 'returns a status of 429' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::TooManyRequests.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 429, headers_with_id)
+              end
+            end
+
+            context 'when there is an internal server error' do
+              it 'returns a status of 500' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 500, headers_with_id)
+              end
+            end
+
+            context 'when there is a bad gateway error' do
+              it 'returns a status of 502' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::BadGateway.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 502, headers_with_id)
+              end
+            end
+
+            context 'when there is a service unavailable' do
+              it 'returns a status of 503' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::ServiceUnavailable.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 503, headers_with_id)
+              end
+            end
+
+            context 'when there is a gateway timeout' do
+              it 'returns a status of 504' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::GatewayTimeout.new)
                 expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 504, headers_with_id)
               end
             end
+
+            it 'returns a status of 200' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 200, headers_with_id)
+              end
+            end
           end
 
-          it 'returns a status of 200' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 200, headers_with_id)
+          context 'with cst_multi_claim_provider enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('cst_multi_claim_provider', anything).and_return(true)
+            end
+
+            context 'when there is a bad request' do
+              it 'returns a status of 400' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::BadRequest.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 400, headers_with_id)
+              end
+            end
+
+            context 'when there is a rate limit exceeded' do
+              it 'returns a status of 429' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::TooManyRequests.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 429, headers_with_id)
+              end
+            end
+
+            context 'when there is an internal server error' do
+              it 'returns a status of 500' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 500, headers_with_id)
+              end
+            end
+
+            context 'when there is a bad gateway error' do
+              it 'returns a status of 502' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::BadGateway.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 502, headers_with_id)
+              end
+            end
+
+            context 'when there is a service unavailable' do
+              it 'returns a status of 503' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::ServiceUnavailable.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 503, headers_with_id)
+              end
+            end
+
+            context 'when there is a gateway timeout' do
+              it 'returns a status of 504' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::GatewayTimeout.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 504, headers_with_id)
+              end
             end
           end
         end
