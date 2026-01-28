@@ -29,7 +29,9 @@ module MyHealth
           Rails.logger.error("Error streaming attachment: #{e.class}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_STREAM_ERROR', {}, 500)
         ensure
-          response.stream.close if response.committed?
+          # Always attempt to close the stream, even if response wasn't committed
+          # (e.g., if exception occurred before any data was written)
+          response.stream.close rescue nil # rubocop:disable Style/RescueModifier
         end
       end
 
@@ -48,7 +50,8 @@ module MyHealth
           response.headers['Content-Type'] = content_type
         end
 
-        # Forward Content-Length so clients know the file size for progress indicators
+        # Forward Content-Length for download progress indicators and incomplete download detection.
+        # We know exact size from upstream (S3/MHV) and stream all bytes faithfully.
         response.headers['Content-Length'] = headers_hash['Content-Length'] if headers_hash['Content-Length']
       end
 
