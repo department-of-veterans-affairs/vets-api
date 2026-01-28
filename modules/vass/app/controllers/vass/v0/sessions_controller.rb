@@ -10,6 +10,7 @@ module Vass
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
+      include Vass::JwtAuthentication
       include Vass::MetricsTracking
 
       rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
@@ -90,7 +91,41 @@ module Vass
         raise
       end
 
+      ##
+      # POST /vass/v0/revoke-token
+      #
+      # Revokes an active JWT token (logout functionality).
+      # Deletes the session from Redis, making the token invalid for future requests.
+      #
+      # @return [JSON] Success message or error
+      #
+      def revoke_token
+        token = extract_token_from_header
+        return render_invalid_token_response unless token
+
+        payload = decode_jwt_for_revocation(token)
+        return render_invalid_token_response unless payload
+
+        uuid = payload['sub']
+        return render_invalid_token_response unless uuid && redis_client.session_exists?(uuid:)
+
+        redis_client.delete_session(uuid:)
+        log_vass_event(action: 'token_revoked', vass_uuid: uuid, jti: payload['jti'])
+        render json: { data: { message: 'Token successfully revoked' } }, status: :ok
+      end
+
       private
+
+      ##
+      # Renders invalid token error response.
+      #
+      def render_invalid_token_response
+        render_session_error_response(
+          code: 'invalid_token',
+          detail: 'Token is invalid or already revoked',
+          status: :unauthorized
+        )
+      end
 
       ##
       # Returns array of VASS API exception classes that should be handled uniformly.

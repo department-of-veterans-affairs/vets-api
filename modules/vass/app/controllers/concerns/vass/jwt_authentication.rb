@@ -142,6 +142,19 @@ module Vass
     end
 
     ##
+    # Decodes JWT without expiration verification.
+    # Used for token revocation - users should be able to logout even with expired tokens.
+    #
+    # @param token [String] JWT token
+    # @return [Hash, nil] Decoded payload or nil if invalid signature/format
+    #
+    def decode_jwt_for_revocation(token)
+      JWT.decode(token, jwt_secret, true, { algorithm: 'HS256', verify_expiration: false })[0]
+    rescue JWT::DecodeError
+      nil
+    end
+
+    ##
     # Returns JWT secret from VASS configuration.
     #
     # @return [String] JWT secret key
