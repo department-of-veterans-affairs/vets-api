@@ -38,6 +38,8 @@ module MyHealth
     def count_grouped_prescriptions(prescriptions)
       return 0 if prescriptions.nil?
 
+      # Create a duplicate to avoid modifying the original array
+      # This is more efficient than the caller keeping a full copy just for this count
       prescriptions = prescriptions.dup
       count = 0
 
