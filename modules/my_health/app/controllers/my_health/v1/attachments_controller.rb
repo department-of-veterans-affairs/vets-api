@@ -66,8 +66,9 @@ module MyHealth
       end
 
       def extract_filename(header_value)
-        header_value.match(/filename=["']?([^"';]+)["']?/)[1]
-      rescue NoMethodError
+        # Use Mail gem's Content-Disposition parser which handles RFC 5987 encoding
+        Mail::ContentDispositionField.new(header_value).filename
+      rescue
         nil
       end
 
