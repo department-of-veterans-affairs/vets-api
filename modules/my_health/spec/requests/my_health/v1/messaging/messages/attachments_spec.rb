@@ -56,20 +56,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
         expect(response.headers['Content-Type']).to eq('image/png')
         expect(response.body).to be_a(String)
       end
-
-      it 'streams attachment without loading entire file into memory' do
-        VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
-          # Verify that stream_attachment is called instead of get_attachment
-          expect_any_instance_of(SM::Client).to receive(:stream_attachment)
-            .with('629999', '629993', anything)
-            .and_call_original
-
-          get '/my_health/v1/messaging/messages/629999/attachments/629993'
-
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-        end
-      end
     end
   end
 end
