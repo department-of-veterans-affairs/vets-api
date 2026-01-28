@@ -10,6 +10,35 @@ module SM
       CONTENT_DISPOSITION = 'attachment; filename='
 
       ##
+      # Retrieve attachment metadata without downloading file content
+      # Used for X-Accel-Redirect streaming to avoid loading file into memory.
+      #
+      # NOTE: This currently makes a full GET request to the attachment endpoint.
+      # The MHV API may return the full file in some cases. Ideally, there would be
+      # a HEAD request or dedicated metadata endpoint to avoid this.
+      #
+      # @param message_id [Fixnum] the message id
+      # @param attachment_id [Fixnum] the attachment id
+      # @return [Hash] metadata including S3 URL, mime type, and filename, or nil if not S3-backed
+      #   { s3_url: string, mime_type: string, filename: string } or nil
+      #
+      def get_attachment_metadata(message_id, attachment_id)
+        path = "message/#{message_id}/attachment/#{attachment_id}"
+        response = perform(:get, path, nil, token_headers)
+        data = response.body[:data] if response.body.is_a?(Hash)
+
+        # Only return metadata for S3-backed attachments
+        if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
+          {
+            s3_url: data[:url],
+            mime_type: data[:mime_type],
+            filename: data[:name]
+          }
+        end
+        # Returns nil for non-S3 attachments (direct binary responses)
+      end
+
+      ##
       # Retrieve a message attachment
       # Endpoint returns either a binary file response, or object with AWS S3 URL details.
       # If the response is a URL (string or object format), it will fetch the file from that URL.

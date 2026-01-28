@@ -344,6 +344,81 @@ describe 'sm client' do
         end
       end
     end
+
+    context 'get_attachment_metadata method' do
+      let(:message_id) { 123 }
+      let(:attachment_id) { 456 }
+      let(:client) { SM::Client.new(session: { user_id: '10616687' }) }
+
+      before do
+        allow(client).to receive(:token_headers).and_return({})
+      end
+
+      context 'when response contains S3-backed attachment' do
+        let(:s3_url) { 'https://s3.us-gov-west-1.amazonaws.com/bucket/file.pdf?presigned=true' }
+        let(:mock_response) do
+          double('response',
+                 body: {
+                   data: {
+                     url: s3_url,
+                     mime_type: 'application/pdf',
+                     name: 'document.pdf'
+                   }
+                 })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'returns metadata without downloading file' do
+          result = client.get_attachment_metadata(message_id, attachment_id)
+
+          expect(result).to eq({
+                                 s3_url: s3_url,
+                                 mime_type: 'application/pdf',
+                                 filename: 'document.pdf'
+                               })
+        end
+
+        it 'does not make HTTP request to S3' do
+          expect(Net::HTTP).not_to receive(:start)
+          client.get_attachment_metadata(message_id, attachment_id)
+        end
+      end
+
+      context 'when response is direct binary (non-S3)' do
+        let(:mock_response) do
+          double('response',
+                 body: 'binary file content',
+                 response_headers: { 'content-disposition' => 'attachment; filename="file.pdf"' })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'returns nil for non-S3 attachments' do
+          result = client.get_attachment_metadata(message_id, attachment_id)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when response body is malformed' do
+        let(:mock_response) do
+          double('response', body: { data: { url: nil } })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'returns nil when URL is missing' do
+          result = client.get_attachment_metadata(message_id, attachment_id)
+          expect(result).to be_nil
+        end
+      end
+    end
   end
 
   describe '#build_lg_attachment' do
