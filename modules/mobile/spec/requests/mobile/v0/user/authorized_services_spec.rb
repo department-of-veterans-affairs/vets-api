@@ -13,6 +13,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
 
   describe 'GET /mobile/v0/user/authorized-services' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
                                                 instance_of(User)).and_return(false)
@@ -36,6 +37,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => false,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
@@ -118,8 +120,43 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     end
   end
 
+  describe 'when event_bus_gateway_letter_ready_push_notifications flag is enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_labs_and_tests_enabled,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_enabled,
+                                                instance_of(User)).and_return(false)
+    end
+
+    it 'includes benefitsPushNotification when user has ICN' do
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+      assert_schema_conform(200)
+
+      expect(attributes['authorizedServices']['benefitsPushNotification']).to be true
+    end
+
+    context 'when user has no ICN' do
+      let!(:user) { sis_user(vha_facility_ids: [402, 555], icn: nil) }
+
+      it 'excludes benefitsPushNotification' do
+        get '/mobile/v0/user/authorized-services', headers: sis_headers,
+                                                   params: { 'appointmentIEN' => '123', 'locationId' => '123' }
+        assert_schema_conform(200)
+
+        expect(attributes['authorizedServices']['benefitsPushNotification']).to be false
+      end
+    end
+  end
+
   describe 'when OH flippers are enabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot,
                                                 instance_of(User)).and_return(true)
@@ -143,6 +180,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => false,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
@@ -173,6 +211,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => true,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
@@ -205,6 +244,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => false,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
@@ -235,6 +275,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => false,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
@@ -265,6 +306,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
         { 'allergiesOracleHealthEnabled' => false,
           'appeals' => true,
           'appointments' => true,
+          'benefitsPushNotification' => false,
           'claims' => true,
           'decisionLetters' => true,
           'directDepositBenefits' => true,
