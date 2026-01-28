@@ -70,12 +70,12 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
 
       get '/survivors_benefits/v0/form534ez/:id', params: { id: 'non-existant-saved-claim' }
 
-      expect(response).to have_http_status(:internal_server_error)
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'returns a serialized claim' do
       claim = build(:survivors_benefits_claim)
-      allow(SurvivorsBenefits::SavedClaim).to receive(:find_by!).and_return(claim)
+      allow(SurvivorsBenefits::SavedClaim).to receive(:find_by).and_return(claim)
       mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
       allow_any_instance_of(SurvivorsBenefits::V0::ClaimsController)
         .to receive(:last_form_submission_attempt).and_return(mock_attempt)

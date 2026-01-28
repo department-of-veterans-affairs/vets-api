@@ -2,7 +2,6 @@
 
 require 'medical_expense_reports/benefits_intake/submit_claim_job'
 require 'medical_expense_reports/monitor'
-require 'medical_expense_reports/zsf_config'
 require 'persistent_attachments/sanitizer'
 
 module MedicalExpenseReports
@@ -29,18 +28,24 @@ module MedicalExpenseReports
 
       # GET serialized medical expense reports form data
       def show
-        claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
+        guid = params[:id]
+
+        claim = claim_class.find_by(guid:)
+        return render_not_found(guid) unless claim
+
+        # upload_to_s3 on create ensures there should be a SubmissionAttempt
         form_submission_attempt = last_form_submission_attempt(claim.guid)
+        return render_not_found(guid) unless form_submission_attempt
 
-        raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
+        pdf_url = s3_signed_url(
+          claim,
+          form_submission_attempt.created_at.to_date,
+          config: Settings.bio.medical_expense_reports
+        )
 
-        pdf_url = s3_signed_url(claim, form_submission_attempt.created_at.to_date, config: MedicalExpenseReports::ZsfConfig.new)
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
-      rescue ActiveRecord::RecordNotFound => e
-        monitor.track_show404(params[:id], current_user, e)
-        render(json: { error: e.to_s }, status: :not_found)
       rescue => e
-        monitor.track_show_error(params[:id], current_user, e)
+        monitor.track_show_error(guid, current_user, e)
         raise e
       end
 
@@ -66,7 +71,7 @@ module MedicalExpenseReports
 
         clear_saved_form(claim.form_id)
 
-        pdf_url = upload_to_s3(claim, config: MedicalExpenseReports::ZsfConfig.new)
+        pdf_url = upload_to_s3(claim, config: Settings.bio.medical_expense_reports)
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
