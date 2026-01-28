@@ -20,10 +20,13 @@ class FlakySpecBisect
     @verbose = options[:verbose]
     @skip_verify = options[:skip_verify]
     @download_dir = nil
+    @original_ref = nil
   end
 
   def run
     puts "Analyzing GitHub Actions run: #{@run_id}"
+
+    check_commit_mismatch
 
     failed_groups = find_failed_test_groups
     if failed_groups.empty?
@@ -48,6 +51,53 @@ class FlakySpecBisect
   end
 
   private
+
+  def check_commit_mismatch
+    ci_commit = fetch_ci_commit
+    return unless ci_commit
+
+    local_ref = current_git_ref
+    local_commit = `git rev-parse HEAD`.strip
+    return if local_commit.start_with?(ci_commit) || ci_commit.start_with?(local_commit)
+
+    puts "\nWarning: CI ran on commit #{ci_commit[0, 7]} but you're on #{local_commit[0, 7]}"
+    print "Check out commit #{ci_commit[0, 7]} now? [Y/n] "
+    if $stdin.gets&.strip&.downcase != 'n'
+      @original_ref = local_ref
+      register_restore_hook
+      system('git', 'checkout', ci_commit)
+      puts
+    end
+  end
+
+  def register_restore_hook
+    original = @original_ref
+    at_exit do
+      next unless original
+
+      puts "\nDone."
+      print "Check out #{original} now? [Y/n] "
+      system('git', 'checkout', original) if $stdin.gets&.strip&.downcase != 'n'
+    end
+  end
+
+  def current_git_ref
+    # Try to get branch name first, fall back to commit SHA
+    branch = `git symbolic-ref --short HEAD 2>/dev/null`.strip
+    branch.empty? ? `git rev-parse HEAD`.strip : branch
+  end
+
+  def fetch_ci_commit
+    output, status = Open3.capture2(
+      'gh', 'run', 'view', @run_id,
+      '--repo', REPO,
+      '--json', 'headSha',
+      '--jq', '.headSha'
+    )
+    return nil unless status.success?
+
+    output.strip.empty? ? nil : output.strip
+  end
 
   def extract_run_id(url_or_id)
     return url_or_id if url_or_id.match?(/^\d+$/)
@@ -362,5 +412,7 @@ if args.empty?
   puts "Run 'bin/flaky-spec-bisect --help' for usage"
   exit 1
 end
+
+Signal.trap('INT') { exit 130 }
 
 FlakySpecBisect.new(args.first, options).run
