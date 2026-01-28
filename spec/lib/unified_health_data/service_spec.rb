@@ -169,10 +169,9 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(sample_client_response)
 
           allergies = service.get_allergies
-          expect(allergies.size).to eq(13)
+          # 13 total AllergyIntolerance resources minus 2 with entered-in-error status = 11
+          expect(allergies.size).to eq(11)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
-            ['medication'],
             ['medication'],
             ['medication'],
             ['medication'],
@@ -244,9 +243,9 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(5)
+          # 5 AllergyIntolerance resources minus 1 with entered-in-error status = 4
+          expect(allergies.size).to eq(4)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
             ['medication'],
             ['medication'],
             ['medication'],
@@ -276,9 +275,9 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(8)
+          # 8 AllergyIntolerance resources minus 1 with entered-in-error status = 7
+          expect(allergies.size).to eq(7)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
             ['medication'],
             ['medication'],
             ['environment'],
