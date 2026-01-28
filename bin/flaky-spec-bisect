@@ -27,8 +27,8 @@ class FlakySpecBisect
     @dry_run = options[:dry_run]
     @verbose = options[:verbose]
     @skip_verify = options[:skip_verify]
-    @download_dir = nil
     @original_ref = nil
+    @restore_hook_registered = false
   end
 
   def run
@@ -65,35 +65,74 @@ class FlakySpecBisect
     return unless ci_commit
 
     local_ref = current_git_ref
-    local_commit = `git rev-parse HEAD`.strip
+    local_commit = local_head_commit
+    return unless local_commit
     return if local_commit.start_with?(ci_commit) || ci_commit.start_with?(local_commit)
 
     puts "\n#{Colors.yellow('Warning:')} CI ran on commit #{Colors.cyan(ci_commit[0, 7])} " \
          "but you're on #{Colors.cyan(local_commit[0, 7])}"
-    print "Check out commit #{Colors.cyan(ci_commit[0, 7])} now? #{Colors.bold('[Y/n]')} "
-    if $stdin.gets&.strip&.downcase != 'n'
-      @original_ref = local_ref
-      register_restore_hook
-      system('git', 'checkout', ci_commit)
-      puts
+    unless prompt_user("Check out commit #{Colors.cyan(ci_commit[0, 7])} now?", default_yes: true)
+      puts Colors.yellow('Skipping commit checkout. Running bisect against current code.')
+      return
     end
+
+    @original_ref = local_ref
+    register_restore_hook
+    checkout_commit(ci_commit)
+    puts "Checked out commit #{Colors.cyan(ci_commit[0, 7])}"
+  end
+
+  def local_head_commit
+    output, status = Open3.capture2('git', 'rev-parse', 'HEAD')
+    unless status.success?
+      puts Colors.yellow('Warning: Could not determine current git commit. Skipping commit check.')
+      return nil
+    end
+    output.strip
+  end
+
+  def checkout_commit(commit)
+    unless system('git', 'checkout', commit)
+      puts Colors.red("Error: Failed to checkout commit #{commit[0, 7]}")
+      puts 'You may have uncommitted changes. Stash or commit them first.'
+      exit 1
+    end
+    puts
   end
 
   def register_restore_hook
+    return if @restore_hook_registered
+
+    @restore_hook_registered = true
     original = @original_ref
     at_exit do
       next unless original
 
       puts "\n#{Colors.bold('Done.')}"
-      print "Check out #{Colors.cyan(original)} now? #{Colors.bold('[Y/n]')} "
-      system('git', 'checkout', original) if $stdin.gets&.strip&.downcase != 'n'
+      should_restore = if $stdin.tty?
+                         print "Check out #{Colors.cyan(original)} now? #{Colors.bold('[Y/n]')} "
+                         $stdin.gets&.strip&.downcase != 'n'
+                       else
+                         puts "Run #{Colors.cyan("git checkout #{original}")} to restore your original branch."
+                         false
+                       end
+      if should_restore && !system('git', 'checkout', original)
+        puts Colors.yellow("Warning: Failed to restore #{original}. Run 'git checkout #{original}' manually.")
+      end
     end
   end
 
   def current_git_ref
     # Try to get branch name first, fall back to commit SHA
-    branch = `git symbolic-ref --short HEAD 2>/dev/null`.strip
-    branch.empty? ? `git rev-parse HEAD`.strip : branch
+    branch, status = Open3.capture2('git', 'symbolic-ref', '--short', 'HEAD', err: File::NULL)
+    return branch.strip if status.success? && !branch.strip.empty?
+
+    commit, status = Open3.capture2('git', 'rev-parse', 'HEAD')
+    unless status.success?
+      puts Colors.red('Error: Unable to determine current git ref. Are you in a git repository?')
+      exit 1
+    end
+    commit.strip
   end
 
   def fetch_ci_commit
@@ -103,9 +142,15 @@ class FlakySpecBisect
       '--json', 'headSha',
       '--jq', '.headSha'
     )
-    return nil unless status.success?
+    unless status.success?
+      puts Colors.yellow('Warning: Could not fetch CI commit SHA. Skipping commit mismatch check.')
+      return nil
+    end
 
     output.strip.empty? ? nil : output.strip
+  rescue Errno::ENOENT
+    puts Colors.red('Error: GitHub CLI (gh) not found. Install from https://cli.github.com/')
+    exit 1
   end
 
   def extract_run_id(url_or_id)
@@ -180,7 +225,6 @@ class FlakySpecBisect
 
   def download_artifact(artifact_name)
     Dir.mktmpdir('flaky-spec-bisect') do |dir|
-      @download_dir = dir
       puts "Downloading artifact: #{Colors.cyan(artifact_name)}"
       fetch_artifact(artifact_name, dir)
       read_xml_file(dir)
@@ -271,7 +315,10 @@ class FlakySpecBisect
 
     ensure_bundle_ready(needs_bundle_install)
 
-    return unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, failed_files)
+    unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, failed_files)
+      puts Colors.yellow('Skipping bisect for this group.')
+      return
+    end
 
     puts "\n#{Colors.bold('Running bisect command...')}"
     puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
@@ -281,7 +328,7 @@ class FlakySpecBisect
   end
 
   def verify_failure_reproduces(seed, failed_files)
-    puts "\n#{Colors.bold('Verifying failure reproduces')} (3 attempts with just the failing spec)..."
+    puts "\n#{Colors.bold('Checking if failing spec passes in isolation')} (3 attempts)..."
     failures = count_failures(seed, failed_files, 3)
 
     case failures
@@ -311,16 +358,26 @@ class FlakySpecBisect
     puts "\n#{Colors.yellow("Warning: Failure only reproduced #{failures}/3 times.")}"
     puts 'The test may have timing issues or external dependencies.'
     puts 'Bisect may take longer due to inconsistent reproduction.'
-    print "Continue with bisect? #{Colors.bold('[Y/n]')} "
-    $stdin.gets&.strip&.downcase != 'n'
+    prompt_user('Continue with bisect?', default_yes: true)
   end
 
   def prompt_continue_with_consistent_failure
     puts "\n#{Colors.yellow('Warning: Failure reproduced 3/3 times - this may not be flaky.')}"
     puts 'If it fails consistently, bisect may run for a very long time.'
     puts 'Consider running the failing spec directly to debug.'
-    print "Continue with bisect anyway? #{Colors.bold('[y/N]')} "
-    $stdin.gets&.strip&.downcase == 'y'
+    prompt_user('Continue with bisect anyway?', default_yes: false)
+  end
+
+  def prompt_user(message, default_yes:)
+    unless $stdin.tty?
+      puts "Non-interactive mode: using default (#{default_yes ? 'yes' : 'no'})"
+      return default_yes
+    end
+
+    suffix = default_yes ? '[Y/n]' : '[y/N]'
+    print "#{message} #{Colors.bold(suffix)} "
+    response = $stdin.gets&.strip&.downcase
+    default_yes ? response != 'n' : response == 'y'
   end
 
   def bundle_ready?
