@@ -6,6 +6,7 @@ module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
       service_tag 'debt-resolution'
+      before_action :authorize_icn
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
@@ -13,6 +14,10 @@ module DebtsApi
       end
 
       private
+
+      def authorize_icn
+        raise Common::Exceptions::Forbidden, detail: 'User ICN is required' if current_user.icn.blank?
+      end
 
       def create_via_dmc!
         submission = initialize_submission

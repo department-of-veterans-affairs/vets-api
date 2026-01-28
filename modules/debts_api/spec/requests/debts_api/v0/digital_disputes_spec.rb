@@ -33,6 +33,17 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(mock_service)
     end
 
+    describe 'authorization' do
+      context 'when user ICN is blank' do
+        let(:user) { build(:user, :loa3, icn: nil) }
+
+        it 'returns forbidden' do
+          post '/debts_api/v0/digital_disputes', params: { metadata: metadata_json, files: [pdf_file_one] }
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
     describe 'successful submission' do
       before do
         allow(mock_service).to receive(:call!).and_return(

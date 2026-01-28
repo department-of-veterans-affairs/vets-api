@@ -78,17 +78,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeJob, type: :worker do
         described_class.new.perform(submission.id)
       end
     end
-
-    context 'when user account ICN is blank' do
-      before do
-        allow(submission.user_account).to receive(:icn).and_return(nil)
-      end
-
-      it 'raises MissingICNError' do
-        expect { described_class.new.perform(submission.id) }
-          .to raise_error(described_class::MissingICNError, 'User account ICN is required')
-      end
-    end
   end
 
   describe 'sidekiq_retries_exhausted hook' do
