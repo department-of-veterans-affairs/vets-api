@@ -245,7 +245,10 @@ class FlakySpecBisect
   end
 
   def print_failures(failures)
-    return if failures.empty?
+    if failures.empty?
+      puts Colors.yellow('Note: No failures in XML (job may have crashed, timed out, or failed in setup).')
+      return
+    end
 
     puts "\n#{Colors.red("Failed specs (#{failures.length}):")}"
     failures.each do |failure|
@@ -357,12 +360,25 @@ class FlakySpecBisect
     end
 
     ensure_bundle_ready(needs_bundle_install)
+    return unless should_run_bisect?(seed, failed_files)
 
-    unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, failed_files)
+    execute_bisect(seed, spec_files)
+  end
+
+  def should_run_bisect?(seed, failed_files)
+    if failed_files.empty?
+      puts Colors.yellow('Skipping bisect (no failed specs to isolate).')
+      return false
+    elsif @skip_verify
+      puts Colors.yellow('Skipping verification (--skip-verify flag).')
+    elsif !verify_failure_reproduces(seed, failed_files)
       puts Colors.yellow('Skipping bisect for this group.')
-      return
+      return false
     end
+    true
+  end
 
+  def execute_bisect(seed, spec_files)
     bisect_flag = @verbose ? '--bisect=verbose' : '--bisect'
     puts "\n#{Colors.bold('Running bisect command...')}"
     puts "Command: bundle exec rspec --seed #{seed} #{bisect_flag} <#{spec_files.length} files>" if @verbose
