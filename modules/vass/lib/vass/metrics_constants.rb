@@ -42,6 +42,7 @@ module Vass
     # ========================================
     SESSIONS_REQUEST_OTC = "#{CONTROLLER_PREFIX}.sessions.request_otc".freeze
     SESSIONS_AUTHENTICATE_OTC = "#{CONTROLLER_PREFIX}.sessions.authenticate_otc".freeze
+    SESSIONS_REVOKE_TOKEN = "#{CONTROLLER_PREFIX}.sessions.revoke_token".freeze
 
     # ========================================
     # Controller Metrics - Appointments

@@ -366,6 +366,42 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
     end
   end
 
+  describe '#decode_jwt_for_revocation' do
+    let(:payload) do
+      {
+        sub: veteran_id,
+        exp: 1.hour.from_now.to_i,
+        iat: Time.current.to_i,
+        jti: SecureRandom.uuid
+      }
+    end
+    let(:token) { JWT.encode(payload, secret, 'HS256') }
+
+    it 'decodes valid token and returns payload' do
+      decoded = controller.send(:decode_jwt_for_revocation, token)
+      expect(decoded['sub']).to eq(veteran_id)
+    end
+
+    it 'decodes expired token without raising error' do
+      expired_payload = payload.merge(exp: 1.hour.ago.to_i)
+      expired_token = JWT.encode(expired_payload, secret, 'HS256')
+
+      decoded = controller.send(:decode_jwt_for_revocation, expired_token)
+      expect(decoded['sub']).to eq(veteran_id)
+    end
+
+    it 'returns nil for invalid token format' do
+      decoded = controller.send(:decode_jwt_for_revocation, 'invalid-token')
+      expect(decoded).to be_nil
+    end
+
+    it 'returns nil for token with wrong signature' do
+      wrong_secret_token = JWT.encode(payload, 'wrong-secret', 'HS256')
+      decoded = controller.send(:decode_jwt_for_revocation, wrong_secret_token)
+      expect(decoded).to be_nil
+    end
+  end
+
   describe '#audit_metadata' do
     context 'when jti is present' do
       let(:jti) { SecureRandom.uuid }
