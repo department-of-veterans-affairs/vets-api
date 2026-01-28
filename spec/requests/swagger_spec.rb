@@ -16,6 +16,7 @@ require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 require 'debts_api/v0/digital_dispute_submission_service'
 require 'debts_api/v0/digital_dispute_dmc_service'
+require 'veteran_status_card/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -1193,7 +1194,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'submit_all_claim', 'all.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -3288,6 +3289,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
         end
       end
+    end
+  end
+
+  describe 'veteran_status_card' do
+    let(:user) { create(:user, :loa3) }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+    it 'returns ok status code' do
+      status_card_response = {
+        type: 'veteran_status_card',
+        veteran_status: 'confirmed',
+        service_summary_code: 'A1',
+        not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
+        attributes: {
+          full_name: 'John Doe',
+          disability_rating: 50,
+          latest_service: {
+            branch: 'Army',
+            begin_date: '2010-01-01',
+            end_date: '2015-12-31'
+          },
+          edipi: user.edipi
+        }
+      }
+      allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)
+      expect(subject).to validate(:get, '/v0/veteran_status_card', 200, headers)
     end
   end
 

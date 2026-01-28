@@ -282,6 +282,37 @@ describe TravelPay::ExpensesService do
 
       expect(result['expenseType']).to eq('Other')
     end
+
+    it 'returns reasonNotUsingPOV for common carrier expenses with a valid explanation value' do
+      explanation_value = TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values.first
+
+      common_carrier_expense_data = {
+        'data' => {
+          'id' => expense_id,
+          'expenseType' => 'CommonCarrier',
+          'claimId' => SecureRandom.uuid,
+          'dateIncurred' => '2024-10-02T14:36:38.043Z',
+          'description' => 'Taxi to appointment',
+          'reasonNotUsingPOV' => explanation_value,
+          'carrierType' => 'Taxi'
+        }
+      }
+
+      response = Faraday::Response.new(body: common_carrier_expense_data)
+
+      allow_any_instance_of(TravelPay::ExpensesClient)
+        .to receive(:get_expense)
+        .with(tokens[:veis_token], tokens[:btsss_token], 'commoncarrier', expense_id)
+        .and_return(response)
+
+      result = service.get_expense('commoncarrier', expense_id)
+
+      expect(result['reasonNotUsingPOV']).to eq(explanation_value)
+      expect(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.values)
+        .to include(result['reasonNotUsingPOV'])
+      expect(result).to have_key('reasonNotUsingPOV')
+      expect(result).not_to have_key('reasonNotUsingPov')
+    end
   end
 
   describe 'add_mileage_expense method' do
@@ -671,7 +702,7 @@ describe TravelPay::ExpensesService do
                                'dateIncurred' => '2024-11-01',
                                'description' => 'Bus fare',
                                'costRequested' => 15.00,
-                               'reasonNotUsingPov' => 'NoVehicle',
+                               'reasonNotUsingPOV' => 'NoVehicle',
                                'carrierType' => 'Bus',
                                'claimId' => 'claim-123'
                              })
