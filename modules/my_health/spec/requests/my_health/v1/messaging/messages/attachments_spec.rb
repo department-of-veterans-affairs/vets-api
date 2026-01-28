@@ -70,16 +70,17 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
         context 'when attachment is S3-backed' do
           it 'responds with X-Accel-Redirect headers and empty body' do
             s3_url = 'https://my-bucket.s3.us-gov-west-1.amazonaws.com/path/to/file.pdf?presigned=true'
-            metadata = {
+            attachment_info = {
               s3_url:,
               mime_type: 'application/pdf',
-              filename: 'test-document.pdf'
+              filename: 'test-document.pdf',
+              body: nil
             }
 
-            # Stub the metadata call to return S3 info
-            allow_any_instance_of(SM::Client).to receive(:get_attachment_metadata)
+            # Stub the unified method to return S3 info
+            allow_any_instance_of(SM::Client).to receive(:get_attachment_info)
               .with('629999', '629993')
-              .and_return(metadata)
+              .and_return(attachment_info)
 
             get '/my_health/v1/messaging/messages/629999/attachments/629993'
 
@@ -95,15 +96,16 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
 
           it 'sanitizes malicious filenames' do
             s3_url = 'https://my-bucket.s3.us-gov-west-1.amazonaws.com/file.pdf'
-            metadata = {
+            attachment_info = {
               s3_url:,
               mime_type: 'application/pdf',
-              filename: "test\r\nX-Evil-Header: injected\r\n.pdf"
+              filename: "test\r\nX-Evil-Header: injected\r\n.pdf",
+              body: nil
             }
 
-            allow_any_instance_of(SM::Client).to receive(:get_attachment_metadata)
+            allow_any_instance_of(SM::Client).to receive(:get_attachment_info)
               .with('629999', '629993')
-              .and_return(metadata)
+              .and_return(attachment_info)
 
             get '/my_health/v1/messaging/messages/629999/attachments/629993'
 
@@ -115,10 +117,16 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
           end
         end
 
-        context 'when metadata retrieval fails' do
+        context 'when get_attachment_info fails' do
           it 'falls back to legacy approach' do
-            allow_any_instance_of(SM::Client).to receive(:get_attachment_metadata)
+            # First call to get_attachment_info fails, triggering fallback
+            allow_any_instance_of(SM::Client).to receive(:get_attachment_info)
               .and_raise(StandardError, 'API error')
+
+            # Fallback uses get_attachment directly (which wraps get_attachment_info),
+            # so we stub it separately to return valid data for the fallback path
+            allow_any_instance_of(SM::Client).to receive(:get_attachment)
+              .and_return({ body: 'binary file content', filename: 'test.pdf' })
 
             VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
               get '/my_health/v1/messaging/messages/629999/attachments/629993'
@@ -132,20 +140,24 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
         end
 
         context 'when attachment is not S3-backed' do
-          it 'falls back to legacy send_data approach' do
-            # Stub metadata call to return nil (non-S3 attachment)
-            allow_any_instance_of(SM::Client).to receive(:get_attachment_metadata)
-              .with('629999', '629993')
-              .and_return(nil)
+          it 'uses send_data with body from single request' do
+            # Non-S3 attachment returns body directly, no second request needed
+            attachment_info = {
+              s3_url: nil,
+              mime_type: nil,
+              filename: 'noise300x200.png',
+              body: 'binary file content'
+            }
 
-            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
-              get '/my_health/v1/messaging/messages/629999/attachments/629993'
-            end
+            allow_any_instance_of(SM::Client).to receive(:get_attachment_info)
+              .with('629999', '629993')
+              .and_return(attachment_info)
+
+            get '/my_health/v1/messaging/messages/629999/attachments/629993'
 
             expect(response).to be_successful
             expect(response.headers['X-Accel-Redirect']).to be_nil
-            expect(response.body).to be_a(String)
-            expect(response.body.bytesize).to be_positive
+            expect(response.body).to eq('binary file content')
           end
         end
       end

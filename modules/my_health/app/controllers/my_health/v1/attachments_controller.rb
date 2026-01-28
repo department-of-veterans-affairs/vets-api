@@ -24,39 +24,48 @@ module MyHealth
     # @see https://nginx.org/en/docs/http/ngx_http_core_module.html#internal
     #
     class AttachmentsController < SMController
+      STATSD_KEY_PREFIX = 'api.my_health.attachments'
+
       def show
-        return if try_stream_via_revproxy
-
-        # Legacy approach: load file into memory and stream from Rails
-        response = client.get_attachment(params[:message_id], params[:id])
-        raise Common::Exceptions::RecordNotFound, params[:id] if response.blank?
-
-        send_data(response[:body], filename: response[:filename])
+        if Flipper.enabled?(:mhv_secure_messaging_stream_via_revproxy)
+          show_with_streaming
+        else
+          show_legacy
+        end
       end
 
       private
 
-      # Attempts X-Accel-Redirect streaming if feature flag enabled and S3-backed.
-      # @return [Boolean] true if handled via revproxy, false to fall back to legacy
-      def try_stream_via_revproxy
-        return false unless Flipper.enabled?(:mhv_secure_messaging_stream_via_revproxy)
+      # New approach: single request, use X-Accel-Redirect for S3 or send_data for non-S3
+      def show_with_streaming
+        attachment_info = client.get_attachment_info(params[:message_id], params[:id])
+        raise Common::Exceptions::RecordNotFound, params[:id] if attachment_info.blank?
 
-        metadata = client.get_attachment_metadata(params[:message_id], params[:id])
-
-        if metadata.present?
+        if attachment_info[:s3_url].present?
           log_info('Streaming attachment via X-Accel-Redirect')
-          stream_via_revproxy(metadata)
-          true
+          StatsD.increment("#{STATSD_KEY_PREFIX}.x_accel_redirect")
+          stream_via_revproxy(attachment_info)
         else
-          log_info('Attachment not S3-backed, using legacy stream')
-          false
+          log_info('Attachment not S3-backed, using send_data')
+          StatsD.increment("#{STATSD_KEY_PREFIX}.fallback", tags: ['reason:not_s3_backed'])
+          send_data(attachment_info[:body], filename: attachment_info[:filename])
         end
       rescue => e
-        Rails.logger.warn('Failed to get attachment metadata, falling back to legacy stream',
+        Rails.logger.warn('Failed to get attachment info, falling back to legacy',
                           message_id: params[:message_id],
                           attachment_id: params[:id],
                           error: e.message)
-        false
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fallback", tags: ['reason:error'])
+        show_legacy
+      end
+
+      # Legacy approach: uses get_attachment which fetches S3 content if needed
+      def show_legacy
+        StatsD.increment("#{STATSD_KEY_PREFIX}.legacy")
+        response = client.get_attachment(params[:message_id], params[:id])
+        raise Common::Exceptions::RecordNotFound, params[:id] if response.blank?
+
+        send_data(response[:body], filename: response[:filename])
       end
 
       def log_info(message)
@@ -65,13 +74,13 @@ module MyHealth
 
       # Sets response headers for nginx X-Accel-Redirect streaming.
       # nginx will intercept and proxy the request to S3 directly.
-      # @param metadata [Hash] with :s3_url, :mime_type, :filename
-      def stream_via_revproxy(metadata)
-        safe_filename = sanitize_filename(metadata[:filename])
-        encoded_url = CGI.escape(metadata[:s3_url])
+      # @param attachment_info [Hash] with :s3_url, :mime_type, :filename
+      def stream_via_revproxy(attachment_info)
+        safe_filename = sanitize_filename(attachment_info[:filename])
+        encoded_url = CGI.escape(attachment_info[:s3_url])
 
         response.headers['X-Accel-Redirect'] = "/internal-s3-proxy/#{encoded_url}"
-        response.headers['Content-Type'] = metadata[:mime_type]
+        response.headers['Content-Type'] = attachment_info[:mime_type]
         response.headers['Content-Disposition'] = "attachment; filename=\"#{safe_filename}\""
         response.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
