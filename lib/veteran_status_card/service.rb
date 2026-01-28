@@ -56,6 +56,9 @@ module VeteranStatusCard
     def status_card
       # Validate required user data
       if eligible?
+        # Check if service history exists before returning eligible response
+        return error_response_hash(unknown_service_response) unless has_service_history?
+
         eligible_response
       else
         error_details = error_results
@@ -246,8 +249,17 @@ module VeteranStatusCard
     end
 
     ##
+    # Checks if the user has any service history episodes
+    #
+    # @return [Boolean] true if service history episodes exist, false otherwise
+    #
+    def has_service_history?
+      service_history_response&.episodes.present?
+    end
+
+    ##
     # Gets the user's most recent military service history
-    # Returns hash with nil values if service call fails
+    # Returns hash with nil values if service call fails or no episodes exist
     #
     # @return [Hash] service history with keys:
     #   - :branch [String, nil] the branch of service (e.g., 'Army')
@@ -255,22 +267,36 @@ module VeteranStatusCard
     #   - :end_date [String, nil] the end of service date
     #
     def latest_service_history
-      return { branch: nil, begin_date: nil, end_date: nil } if @user.edipi.blank?
-
-      response = military_personnel_service.get_service_history
-
       # Get the most recent service episode (episodes are sorted by begin_date, oldest first)
-      last_service = response&.episodes&.last
+      last_service = service_history_response&.episodes&.last
+      return { branch: nil, begin_date: nil, end_date: nil } if last_service.nil?
+
       last_service_dates = format_service_date_range(last_service)
 
       {
-        branch: last_service&.branch_of_service,
+        branch: last_service.branch_of_service,
         begin_date: last_service_dates&.dig(:begin_date),
         end_date: last_service_dates&.dig(:end_date)
       }
-    rescue => e
-      Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}", backtrace: e.backtrace)
-      { branch: nil, begin_date: nil, end_date: nil }
+    end
+
+    ##
+    # Gets the service history response (memoized)
+    # Returns nil if service call fails or user missing EDIPI
+    #
+    # @return [VAProfile::MilitaryPersonnel::ServiceHistoryResponse, nil] the API response or nil on error
+    #
+    def service_history_response
+      return @service_history_response if defined?(@service_history_response)
+      return @service_history_response = nil if @user.edipi.blank?
+
+      @service_history_response = begin
+        military_personnel_service.get_service_history
+      rescue => e
+        Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}",
+                           backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##

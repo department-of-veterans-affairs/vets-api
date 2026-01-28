@@ -242,13 +242,14 @@ RSpec.describe VeteranStatusCard::Service do
         context 'with empty episodes array' do
           let(:service_episodes) { [] }
 
-          it 'returns nil values for service history' do
+          it 'returns UNKNOWN_SERVICE_RESPONSE alert' do
             result = subject.status_card
 
-            expect(result[:type]).to eq('veteran_status_card')
-            expect(result[:attributes][:latest_service][:branch]).to be_nil
-            expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-            expect(result[:attributes][:latest_service][:end_date]).to be_nil
+            expect(result[:type]).to eq('veteran_status_alert')
+            expect(result[:veteran_status]).to eq('not confirmed')
+            expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
+            expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
+            expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
           end
         end
       end
@@ -841,16 +842,17 @@ RSpec.describe VeteranStatusCard::Service do
             .and_raise(StandardError.new('Service history failed'))
         end
 
-        it 'logs the error and returns nil service history' do
+        it 'logs the error and returns UNKNOWN_SERVICE_RESPONSE' do
           expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(Service History\) error/,
                                                        anything)
 
           result = subject.status_card
 
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
         end
       end
 
@@ -929,12 +931,14 @@ RSpec.describe VeteranStatusCard::Service do
           allow(military_personnel_service).to receive(:get_service_history).and_return(nil)
         end
 
-        it 'latest_service_history returns nil values' do
+        it 'returns UNKNOWN_SERVICE_RESPONSE alert' do
           result = subject.status_card
 
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
         end
       end
 
@@ -947,10 +951,12 @@ RSpec.describe VeteranStatusCard::Service do
           )
         end
 
-        it 'latest_service_history handles nil episodes' do
+        it 'returns UNKNOWN_SERVICE_RESPONSE alert' do
           result = subject.status_card
 
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
         end
       end
 
@@ -1000,12 +1006,14 @@ RSpec.describe VeteranStatusCard::Service do
         let(:veteran_status) { 'confirmed' }
         let(:service_episodes) { [] }
 
-        it 'returns nil service history values' do
+        it 'returns UNKNOWN_SERVICE_RESPONSE alert' do
           result = subject.status_card
 
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
         end
       end
     end
