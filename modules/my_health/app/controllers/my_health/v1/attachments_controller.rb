@@ -78,13 +78,14 @@ module MyHealth
       def stream_via_revproxy(attachment_info)
         safe_filename = sanitize_filename(attachment_info[:filename])
         encoded_url = CGI.escape(attachment_info[:s3_url])
+        headers = response.headers
 
-        response.headers['X-Accel-Redirect'] = "/internal-s3-proxy/#{encoded_url}"
-        response.headers['Content-Type'] = attachment_info[:mime_type]
-        response.headers['Content-Disposition'] = "attachment; filename=\"#{safe_filename}\""
-        response.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        headers['X-Accel-Redirect'] = "/internal-s3-proxy/#{encoded_url}"
+        headers['Content-Type'] = attachment_info[:mime_type]
+        headers['Content-Disposition'] = "attachment; filename=\"#{safe_filename}\""
+        headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+        headers['Pragma'] = 'no-cache'
+        headers['Expires'] = '0'
 
         head :ok
       end
