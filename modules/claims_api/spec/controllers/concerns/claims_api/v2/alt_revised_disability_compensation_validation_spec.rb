@@ -303,6 +303,63 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_alternate_names' do
+    let(:service_information) { test_526_validation_instance.form_attributes['serviceInformation'] }
+
+    context 'when alternate names is an empty array' do
+      it 'stubs the value to nil' do
+        service_information['alternateNames'] = []
+        test_526_validation_instance.send(:alt_rev_validate_alternate_names, service_information)
+
+        expect(current_error_array).to be_nil
+        expect(test_526_validation_instance.form_attributes['serviceInformation']['alternateNames']).to be_nil
+      end
+    end
+
+    context 'when alternate names contains invalid characters' do
+      it 'returns an error for names with invalid characters' do
+        service_information['alternateNames'] = ['valid-name', 'invalid@name']
+        test_526_validation_instance.send(:alt_rev_validate_alternate_names, service_information)
+
+        expect(current_error_array.size).to eq(1)
+        expect(current_error_array[0][:source]).to eq('/serviceInformation/alternateNames/1')
+        expect(current_error_array[0][:detail]).to include('contains invalid characters')
+        expect(current_error_array[0][:detail]).to include('^([-a-zA-Z0-9/\']+( ?))+$')
+      end
+    end
+
+    context 'when alternate names contains double spaces' do
+      it 'returns an error for names with double spaces' do
+        service_information['alternateNames'] = ['name  with  double  spaces']
+        test_526_validation_instance.send(:alt_rev_validate_alternate_names, service_information)
+
+        expect(current_error_array.size).to eq(1)
+        expect(current_error_array[0][:source]).to eq('/serviceInformation/alternateNames/0')
+        expect(current_error_array[0][:detail]).to include('contains invalid characters')
+      end
+    end
+
+    context 'when alternate names are valid' do
+      it 'returns no errors' do
+        service_information['alternateNames'] = ["john o'malley", 'jane-doe', 'bob123']
+        test_526_validation_instance.send(:alt_rev_validate_alternate_names, service_information)
+
+        expect(current_error_array).to be_nil
+      end
+    end
+
+    context 'when alternate names contains duplicates' do
+      it 'returns an error for duplicate names' do
+        service_information['alternateNames'] = ['John Doe', 'jane smith', 'john doe']
+        test_526_validation_instance.send(:alt_rev_validate_alternate_names, service_information)
+
+        expect(current_error_array.size).to eq(1)
+        expect(current_error_array[0][:source]).to eq('/serviceInformation/alternateNames')
+        expect(current_error_array[0][:detail]).to eq('Names entered as an alternate name must be unique.')
+      end
+    end
+  end
+
   describe 'validation of claimant mailing address elements' do
     context 'when the country is valid' do # country is USA in the JSON
       it 'responds with true' do
