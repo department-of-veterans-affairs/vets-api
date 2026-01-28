@@ -82,6 +82,32 @@ RSpec.describe VeteranStatusCard::Service do
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
   end
 
+  describe '#initialize' do
+    context 'when user is not nil' do
+      context 'when user edipi and icn are nil' do
+        before do
+          allow(user).to receive_messages(edipi: nil, icn: nil)
+        end
+
+        it 'raises an argument error' do
+          expect { VeteranStatusCard::Service.new(user) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'when user edipi or icn are not nil' do
+        it 'does not raise an argument error' do
+          expect { VeteranStatusCard::Service.new(user) }.not_to raise_error(ArgumentError)
+        end
+      end
+    end
+
+    context 'when user is nil' do
+      it 'raises an argument error' do
+        expect { VeteranStatusCard::Service.new(nil) }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
   describe '#status_card' do
     context 'when veteran is eligible' do
       context 'via vet_verification_eligible? (confirmed status)' do
@@ -215,21 +241,6 @@ RSpec.describe VeteranStatusCard::Service do
 
         context 'with empty episodes array' do
           let(:service_episodes) { [] }
-
-          it 'returns nil values for service history' do
-            result = subject.status_card
-
-            expect(result[:type]).to eq('veteran_status_card')
-            expect(result[:attributes][:latest_service][:branch]).to be_nil
-            expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-            expect(result[:attributes][:latest_service][:end_date]).to be_nil
-          end
-        end
-
-        context 'when user is missing EDIPI' do
-          before do
-            allow(user).to receive(:edipi).and_return(nil)
-          end
 
           it 'returns nil values for service history' do
             result = subject.status_card
@@ -575,16 +586,6 @@ RSpec.describe VeteranStatusCard::Service do
 
       expect(subject.send(:disability_rating)).to eq(70)
     end
-
-    context 'when user is missing ICN' do
-      before do
-        allow(user).to receive(:icn).and_return(nil)
-      end
-
-      it 'returns nil' do
-        expect(subject.send(:disability_rating)).to be_nil
-      end
-    end
   end
 
   describe '#latest_service_history' do
@@ -888,69 +889,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
           expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
           expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
-        end
-      end
-    end
-
-    describe 'missing user data' do
-      context 'when user is nil' do
-        subject { described_class.new(nil) }
-
-        it 'returns SOMETHING_WENT_WRONG_RESPONSE' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:veteran_status]).to eq('not confirmed')
-          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
-        end
-      end
-
-      context 'when user missing ICN' do
-        before do
-          allow(user).to receive(:icn).and_return(nil)
-        end
-
-        it 'vet_verification_response returns nil' do
-          expect(subject.send(:vet_verification_response)).to be_nil
-        end
-
-        it 'vet_verification_status has ERROR reason' do
-          status = subject.send(:vet_verification_status)
-
-          expect(status[:veteran_status]).to be_nil
-          expect(status[:reason]).to eq('ERROR')
-        end
-
-        it 'disability_rating returns nil' do
-          expect(subject.send(:disability_rating)).to be_nil
-        end
-      end
-
-      context 'when user missing EDIPI' do
-        before do
-          allow(user).to receive(:edipi).and_return(nil)
-        end
-
-        it 'military_personnel_response returns nil' do
-          expect(subject.send(:military_personnel_response)).to be_nil
-        end
-
-        it 'dod_service_summary returns empty strings' do
-          summary = subject.send(:dod_service_summary)
-
-          expect(summary[:dod_service_summary_code]).to eq('')
-          expect(summary[:calculation_model_version]).to eq('')
-          expect(summary[:effective_start_date]).to eq('')
-        end
-
-        it 'latest_service_history returns nil values' do
-          history = subject.send(:latest_service_history)
-
-          expect(history[:branch]).to be_nil
-          expect(history[:begin_date]).to be_nil
-          expect(history[:end_date]).to be_nil
         end
       end
     end

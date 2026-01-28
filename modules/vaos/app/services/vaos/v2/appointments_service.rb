@@ -15,10 +15,7 @@ module VAOS
       AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
-      ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
-      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
       APPOINTMENTS_FETCH_OH_AVS = :va_online_scheduling_add_OH_avs
       APPOINTMENT_TYPES = {
         va: 'VA',
@@ -253,8 +250,7 @@ module VAOS
       end
 
       def create_direct_scheduling_appointment(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           perform(:post, appointments_base_path_vpg, params, headers)
         else
           perform(:post, appointments_base_path_vaos, params, headers)
@@ -262,7 +258,7 @@ module VAOS
       end
 
       def create_appointment_request(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           perform(:post, appointments_base_path_vpg, params, headers)
         else
           perform(:post, appointments_base_path_vaos, params, headers)
@@ -272,8 +268,7 @@ module VAOS
       # rubocop:enable Metrics/MethodLength
       def update_appointment(appt_id, status)
         with_monitoring do
-          if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+          if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
