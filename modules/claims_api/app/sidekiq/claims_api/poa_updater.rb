@@ -21,6 +21,7 @@ module ClaimsApi
 
       response = update_birls_record(file_number, ssn, poa_code, poa_form)
 
+      # handle response failures
       if response_is_successful?(response)
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
@@ -39,6 +40,15 @@ module ClaimsApi
                                            detail: poa_form.vbms_error_message }])
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: response[:return_code])
       end
+
+    # handle exceptions thrown from soap_error_handler.rb with requests to BGS
+    rescue ::Common::Exceptions::ResourceNotFound, ::Common::Exceptions::ServiceError,
+           ::Common::Exceptions::UnprocessableEntity, StandardError => e
+      rescue_generic_errors(poa_form, e)
+      process.update!(step_status: 'FAILED',
+                      error_messages: [{ title: 'BGS Error', detail: poa_form.vbms_error_message }])
+      raise
+      # slack logging here if needed
     end
 
     private
