@@ -376,8 +376,22 @@
                     "user_facility_ready_for_info_alert": {
                       "type": "boolean"
                     },
-                    "user_facility_migrating_to_oh": {
-                      "type": "boolean"
+                    "oh_migration_info": {
+                      "type": "object",
+                      "properties": {
+                        "user_facility_migrating_to_oh": {
+                          "type": "boolean"
+                        },
+                        "migration_schedules": {
+                          "type": "array"
+                        },
+                        "user_at_pretransitioned_oh_facility": {
+                          "type": "boolean"
+                        },
+                        "user_facility_ready_for_info_alert": {
+                          "type": "boolean"
+                        }
+                      }
                     },
                     "scheduling_preferences_pilot_eligible": {
                       "type": "boolean"

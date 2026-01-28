@@ -17,6 +17,8 @@ module IvcChampva
 
       batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
 
+      Rails.logger.info "IVC Forms MissingFormStatusJob - Job started - batch_count: #{batches.count}"
+
       return unless batches.any?
 
       # Send the count of forms to DataDog
@@ -31,6 +33,8 @@ module IvcChampva
 
       current_time = Time.now.utc
       process_batches(batches, current_time, verbose_logging, form_count)
+
+      Rails.logger.info 'IVC Forms MissingFormStatusJob - Job completed successfully'
     rescue => e
       Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
@@ -40,32 +44,52 @@ module IvcChampva
     def process_batches(batches, current_time, verbose_logging, form_count)
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
+        elapsed_days = (current_time - form.created_at).to_i / 1.day
+
+        log_batch_processing(form, batch, elapsed_days)
 
         # Check reporting API to see if this missing status is a false positive
         next if Flipper.enabled?(:champva_enable_pega_report_check, @current_user) && num_docs_match_reports?(batch)
 
-        # Check if we've been missing Pega status for > custom threshold of days:
-        elapsed_days = (current_time - form.created_at).to_i / 1.day
-        threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
-        if elapsed_days >= threshold && !form.email_sent
-          template_id = "#{form[:form_number]}-FAILURE"
-          additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
-
-          send_failure_email(form, template_id, additional_context)
-        end
-
-        # Send each form UUID to DataDog
-        key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
-        StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
-
-        if verbose_logging && form_count <= 10
-          Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} \
-                              - Elapsed days: #{elapsed_days} \
-                              - File name: #{form.file_name} \
-                              - S3 status: #{form.s3_status} \
-                              - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
-        end
+        send_failure_email_if_threshold_exceeded(form, elapsed_days)
+        publish_missing_status_metric(form)
+        log_verbose_missing_status(form, elapsed_days, verbose_logging, form_count)
       end
+    end
+
+    def log_batch_processing(form, batch, elapsed_days)
+      file_names_str = batch.count <= 10 ? batch.map(&:file_name).to_s : 'Too many files to log'
+      Rails.logger.info 'IVC Forms MissingFormStatusJob processing batch - ' \
+                        "form_uuid: #{form.form_uuid}, form_number: #{form.form_number}, " \
+                        "elapsed_days: #{elapsed_days}, local_doc_count: #{batch.count}, " \
+                        "email_sent: #{form.email_sent}, file_names: #{file_names_str}"
+    end
+
+    def send_failure_email_if_threshold_exceeded(form, elapsed_days)
+      threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
+      return unless elapsed_days >= threshold && !form.email_sent
+
+      template_id = "#{form[:form_number]}-FAILURE"
+      additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
+
+      send_failure_email(form, template_id, additional_context)
+
+      Rails.logger.info 'IVC Forms MissingFormStatusJob - Failure ZSF email sent to user - ' \
+                        "form_uuid: #{form.form_uuid}, form_number: #{form.form_number}, " \
+                        "elapsed_days: #{elapsed_days}"
+    end
+
+    def publish_missing_status_metric(form)
+      key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+      StatsD.increment('ivc_champva.form_missing_status', tags: ["key:#{key}"])
+    end
+
+    def log_verbose_missing_status(form, elapsed_days, verbose_logging, form_count)
+      return unless verbose_logging && form_count <= 10
+
+      Rails.logger.info "IVC Forms MissingFormStatusJob - Missing status for Form #{form.form_uuid} " \
+                        "- Elapsed days: #{elapsed_days} - File name: #{form.file_name} " \
+                        "- S3 status: #{form.s3_status} - Created at: #{form.created_at.strftime('%Y%m%d_%H%M%S')}"
     end
 
     def count_forms(batches)
@@ -134,20 +158,37 @@ module IvcChampva
     def num_docs_match_reports?(batch)
       return false if batch.empty?
 
-      matching_reports = pega_api_client.record_has_matching_report(batch.first)
-
-      # Filter out VES JSON files since they're sent to VES, not Pega
+      form = batch.first
+      matching_reports = pega_api_client.record_has_matching_report(form)
       pega_processable_batch = filter_pega_processable_files(batch)
 
-      if pega_processable_batch.count == matching_reports.count
-        missing_status_cleanup.manually_process_batch(batch)
-        true
-      else
-        false
-      end
-    rescue PegaApiError => e
-      Rails.logger.error "IVC Champva Forms - PegaApiError: #{e.message}"
+      local_count = pega_processable_batch.count
+      pega_count = matching_reports.is_a?(Array) ? matching_reports.count : 0
+      counts_match = local_count == pega_count
+
+      log_pega_report_comparison(form, batch, local_count, pega_count, counts_match)
+      reconcile_batch_if_counts_match(form, batch, local_count, pega_count, counts_match)
+    rescue IvcChampva::PegaApi::PegaApiError => e
+      Rails.logger.error 'IVC Forms MissingFormStatusJob - PegaApiError during report check - ' \
+                         "form_uuid: #{batch.first&.form_uuid}, error: #{e.message}"
       false
+    end
+
+    def log_pega_report_comparison(form, batch, local_count, pega_count, counts_match)
+      file_names_str = batch.count <= 10 ? batch.map(&:file_name).to_s : 'Too many files to log'
+      Rails.logger.info 'IVC Forms MissingFormStatusJob - Pega report comparison - ' \
+                        "form_uuid: #{form.form_uuid}, local_pega_processable_count: #{local_count}, " \
+                        "pega_report_count: #{pega_count}, counts_match: #{counts_match}, " \
+                        "file_names: #{file_names_str}"
+    end
+
+    def reconcile_batch_if_counts_match(form, batch, local_count, pega_count, counts_match)
+      return false unless counts_match && pega_count.positive?
+
+      missing_status_cleanup.manually_process_batch(batch)
+      Rails.logger.info 'IVC Forms MissingFormStatusJob - Batch reconciled via Pega API - ' \
+                        "form_uuid: #{form.form_uuid}, doc_count: #{local_count}, new_status: Manually Processed"
+      true
     end
 
     def monitor

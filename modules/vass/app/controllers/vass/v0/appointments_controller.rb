@@ -87,8 +87,8 @@ module Vass
       #   {
       #     "data": {
       #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea",
-      #       "startUTC": "2025-12-02T10:00:00Z",
-      #       "endUTC": "2025-12-02T10:30:00Z",
+      #       "startUtc": "2025-12-02T10:00:00Z",
+      #       "endUtc": "2025-12-02T10:30:00Z",
       #       "agentId": "353dd0fc-335b-ef11-bfe3-001dd80a9f48",
       #       "agentNickname": "Agent Name",
       #       "appointmentStatusCode": 1,
@@ -231,6 +231,8 @@ module Vass
         appointment_id = session_data&.fetch(:appointment_id, nil)
 
         unless appointment_id
+          log_vass_event(action: 'missing_booking_session', vass_uuid: @current_veteran_id, level: :warn,
+                         **audit_metadata)
           render_error(
             'missing_session_data',
             'Appointment session not found. Please check availability first.',
@@ -250,35 +252,12 @@ module Vass
       end
 
       ##
-      # Handles VASS API errors.
-      #
-      # @param exception [Vass::Errors::VassApiError] The exception
-      #
-      def handle_vass_api_error(exception)
-        handle_error(exception, 'vass_api_error', 'External service error', :bad_gateway)
-      end
-
-      ##
-      # Handles service errors (timeouts, network issues).
-      #
-      # @param exception [Vass::Errors::ServiceError] The exception
-      #
-      def handle_service_error(exception)
-        handle_error(
-          exception,
-          'service_error',
-          'Unable to process request with appointment service',
-          :service_unavailable
-        )
-      end
-
-      ##
       # Handles missing parameter errors from Rails params.require().
       #
-      # @param exception [ActionController::ParameterMissing] The exception
+      # @param _exception [ActionController::ParameterMissing] The exception (unused)
       #
-      def handle_parameter_missing(exception)
-        render_error('missing_parameter', exception.message, :bad_request)
+      def handle_parameter_missing(_exception)
+        render_error('missing_parameter', 'Required parameter is missing', :bad_request)
       end
 
       ##
@@ -301,6 +280,7 @@ module Vass
         edipi = veteran_metadata&.fetch(:edipi, nil)
 
         unless edipi
+          log_vass_event(action: 'missing_edipi', vass_uuid: @current_veteran_id, level: :error, **audit_metadata)
           return render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
         end
 
@@ -317,26 +297,6 @@ module Vass
       #
       def permitted_params
         params.permit(:correlation_id, :appointment_id, :dtStartUtc, :dtEndUtc, topics: [])
-      end
-
-      ##
-      # Handles errors by logging and rendering appropriate response.
-      #
-      # @param error [Exception] Error object
-      # @param code [String] Error code
-      # @param detail [String] Error detail message
-      # @param status [Symbol] HTTP status
-      #
-      def handle_error(error, code, detail, status)
-        Rails.logger.error({
-          service: 'vass',
-          controller: 'appointments',
-          action: action_name,
-          error_class: error.class.name,
-          timestamp: Time.current.iso8601
-        }.to_json)
-
-        render_error(code, detail, status)
       end
 
       ##
@@ -375,7 +335,7 @@ module Vass
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
           render_error(error_code, message, :unprocessable_entity)
         else
-          Rails.logger.error("Unexpected availability status: #{status}")
+          log_vass_event(action: 'unexpected_availability_status', level: :error, status: status.to_s, **audit_metadata)
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
         end
       end

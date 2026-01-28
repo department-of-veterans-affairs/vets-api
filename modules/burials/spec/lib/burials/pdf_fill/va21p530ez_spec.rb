@@ -7,6 +7,10 @@ def basic_class
 end
 
 describe Burials::PdfFill::Forms::Va21p530ez do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:burial_pdf_form_alignment).and_return(false)
+  end
+
   let(:form_data) do
     {}
   end
