@@ -25,8 +25,8 @@ module MyHealth
         rescue Common::Exceptions::RecordNotFound, Common::Exceptions::BackendServiceException
           raise
         rescue => e
-          error_msg = "Error streaming attachment #{attachment_id} for message #{message_id}"
-          Rails.logger.error("#{error_msg}: #{e.class} - #{e.message}")
+          # Log only exception class - e.message may contain PII from failed JSON parsing or API responses
+          Rails.logger.error("Error streaming attachment: #{e.class}")
           raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_STREAM_ERROR', {}, 500)
         ensure
           response.stream.close if response.committed?
