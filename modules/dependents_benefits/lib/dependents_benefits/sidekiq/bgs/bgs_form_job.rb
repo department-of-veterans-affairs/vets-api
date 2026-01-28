@@ -50,7 +50,7 @@ module DependentsBenefits
         def submit_686c_form(claim)
           claim_data = ::BGS::Job.new.normalize_names_and_addresses!(claim.parsed_form)
 
-          BGS::Form686c.new(generate_user_struct, claim, { proc_id: @proc_id }).submit(claim_data)
+          ::BGS::Form686c.new(generate_user_struct, claim, { proc_id: @proc_id }).submit(claim_data)
         end
 
         ##
@@ -61,7 +61,7 @@ module DependentsBenefits
         def submit_674_form(claim)
           claim_data = ::BGS::Job.new.normalize_names_and_addresses!(claim.parsed_form)
 
-          BGS::Form674.new(generate_user_struct, claim, { proc_id: @proc_id }).submit(claim_data)
+          ::BGS::Form674.new(generate_user_struct, claim, { proc_id: @proc_id }).submit(claim_data)
         end
 
         private
@@ -72,7 +72,7 @@ module DependentsBenefits
         # @return [String] The generated proc ID
         # @raise [DependentsBenefits::DependentSubmissionError] if proc ID generation fails
         def generate_proc_id
-          bgs_service = BGS::Service.new(generate_user_struct)
+          bgs_service = ::BGS::Service.new(generate_user_struct)
 
           # vnp_proc is BGS's way of grouping related form submissions together
           vnp_response = bgs_service.create_proc(proc_state: 'Started')
