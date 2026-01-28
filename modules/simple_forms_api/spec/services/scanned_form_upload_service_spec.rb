@@ -87,7 +87,11 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         form_submission = double
         expect(FormSubmission).to receive(:create).with(
           form_type: form_number,
-          form_data: params[:form_data].to_json,
+           form_data: params.slice(
+            :confirmation_code,
+            :form_data,
+            :supporting_documents
+          ).to_json,
           user_account: user.user_account
         ).and_return(form_submission)
 
