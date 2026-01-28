@@ -69,8 +69,10 @@ class FlakySpecBisect
     return unless local_commit
     return if local_commit.start_with?(ci_commit) || ci_commit.start_with?(local_commit)
 
+    commits_ahead = count_commits_ahead(ci_commit, local_commit)
+    ahead_text = commits_ahead ? " (#{commits_ahead} commits ahead)" : ''
     puts "\n#{Colors.yellow('Warning:')} CI ran on commit #{Colors.cyan(ci_commit[0, 7])} " \
-         "but you're on #{Colors.cyan(local_commit[0, 7])}"
+         "but you're on #{Colors.cyan(local_commit[0, 7])}#{ahead_text}"
     unless prompt_user("Check out commit #{Colors.cyan(ci_commit[0, 7])} now?", default_yes: true)
       puts Colors.yellow('Skipping commit checkout. Running bisect against current code.')
       return
@@ -89,6 +91,14 @@ class FlakySpecBisect
       return nil
     end
     output.strip
+  end
+
+  def count_commits_ahead(base_commit, head_commit)
+    output, status = Open3.capture2('git', 'rev-list', '--count', "#{base_commit}..#{head_commit}")
+    return nil unless status.success?
+
+    count = output.strip.to_i
+    count.positive? ? count : nil
   end
 
   def checkout_commit(commit)
@@ -111,7 +121,8 @@ class FlakySpecBisect
       puts "\n#{Colors.bold('Done.')}"
       should_restore = if $stdin.tty?
                          print "Check out #{Colors.cyan(original)} now? #{Colors.bold('[Y/n]')} "
-                         $stdin.gets&.strip&.downcase != 'n'
+                         response = $stdin.gets
+                         response.nil? || response.strip.downcase != 'n'
                        else
                          puts "Run #{Colors.cyan("git checkout #{original}")} to restore your original branch."
                          false
@@ -356,7 +367,10 @@ class FlakySpecBisect
     puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
     puts
     success = system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
-    exit 1 unless success
+    unless success
+      puts Colors.red('Error: RSpec bisect failed. See output above for details.')
+      exit 1
+    end
   end
 
   def verify_failure_reproduces(seed, failed_files)
@@ -377,11 +391,18 @@ class FlakySpecBisect
 
   def count_failures(seed, files, attempts)
     failures = 0
+    passed_early = false
     attempts.times do |i|
       print "  Attempt #{i + 1}/#{attempts}: "
+      if passed_early
+        puts Colors.cyan('skipped')
+        next
+      end
       success = system('bundle', 'exec', 'rspec', '--seed', seed, *files, %i[out err] => File::NULL)
       puts success ? Colors.green('passed') : Colors.red('FAILED')
       failures += 1 unless success
+      # If an attempt passes, we know it passes in isolation - no need to continue
+      passed_early = true if success
     end
     failures
   end
@@ -408,7 +429,10 @@ class FlakySpecBisect
 
     suffix = default_yes ? '[Y/n]' : '[y/N]'
     print "#{message} #{Colors.bold(suffix)} "
-    response = $stdin.gets&.strip&.downcase
+    response = $stdin.gets
+    return default_yes if response.nil?
+
+    response = response.strip.downcase
     default_yes ? response != 'n' : response == 'y'
   end
 
@@ -511,6 +535,9 @@ if args.empty?
   exit 1
 end
 
-Signal.trap('INT') { exit 130 }
+Signal.trap('INT') do
+  puts "\n#{Colors.yellow('Interrupted.')}"
+  exit 130
+end
 
 FlakySpecBisect.new(args.first, options).run
