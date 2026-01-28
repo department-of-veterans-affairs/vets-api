@@ -1,40 +1,32 @@
 # frozen_string_literal: true
 
 require 'logging/include/benefits_intake'
-require 'logging/monitor'
+require 'logging/base_monitor'
 
 module BenefitsIntake
   # generic monitor for Lighthouse Benefits Intake
-  class Monitor < ::Logging::Monitor
-    include ::Logging::Include::BenefitsIntake
-
-    # allowed logging params
-    ALLOWLIST = %w[
-      benefits_intake_uuid
-      claim_id
-      confirmation_number
-      error
-      form_id
-      user_account_uuid
-    ].freeze
-
+  class Monitor < ::Logging::BaseMonitor
     # create a benefits intake monitor
     def initialize
-      super('lighthouse-benefits-intake', allowlist: ALLOWLIST)
+      super('lighthouse-benefits-intake')
+      @tage = [] # no form_id so need to override the base value
     end
 
     private
 
-    # message prefix to prepend
-    # @return [String]
+    # @see ::Logging::BaseMonitor#message_prefix
     def message_prefix
       self.class.to_s
     end
 
-    # Stats key for Sidekiq DD logging
-    # @return [String]
+    # @see ::Logging::BaseMonitor#submission_stats_key
     def submission_stats_key
       'worker.lighthouse.benefits_intake'
+    end
+
+    # @see ::Logging::BaseMonitor#message_prefix
+    def form_id
+      false
     end
   end
 end
