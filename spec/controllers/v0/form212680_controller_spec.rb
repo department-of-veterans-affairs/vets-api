@@ -210,18 +210,18 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'POST #create without authentication' do
-    it 'returns 401 when not authenticated' do
+    it 'returns 403 when not authenticated' do
       post(:create, body: form_data, as: :json)
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
   describe 'GET #download_pdf without authentication' do
     let(:claim) { create(:form212680) }
 
-    it 'returns 401 when not authenticated' do
+    it 'returns 403 when not authenticated' do
       get(:download_pdf, params: { guid: claim.guid })
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 end
