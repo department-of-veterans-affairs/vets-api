@@ -48,9 +48,10 @@ private
 
 def should_submit_to_gcio?
   return false unless @form_submission_attempt
+  return false unless @claim.user_account
   
-  FORM_INTAKE_ENABLED_FORMS.include?(@claim.form_id) &&
-    Flipper.enabled?(:form_intake_integration, @claim.user_account)
+  # Use form-specific feature flag for granular control
+  FormIntake.enabled_for_form?(@claim.form_id, @claim.user_account)
 end
 
 def trigger_gcio_submission
@@ -158,20 +159,56 @@ end
 
 ```ruby
 # config/initializers/form_intake_integration.rb
-FORM_INTAKE_ENABLED_FORMS = %w[
-  21-526EZ
-  21-0966
-  # Add other forms as needed
-].freeze
+module FormIntake
+  # Forms eligible for GCIO integration (each requires feature flag)
+  ELIGIBLE_FORMS = %w[
+    21-526EZ
+    21-0966
+    21-4138
+    20-10207
+  ].freeze
+  
+  # Map each form to its own feature flag for independent control
+  FORM_FEATURE_FLAGS = {
+    '21-526EZ' => :form_intake_integration_526,
+    '21-0966' => :form_intake_integration_0966,
+    '21-4138' => :form_intake_integration_4138,
+    '20-10207' => :form_intake_integration_10207
+  }.freeze
+  
+  # Check if form should submit to GCIO
+  def self.enabled_for_form?(form_id, user_account = nil)
+    return false unless ELIGIBLE_FORMS.include?(form_id)
+    
+    flag = FORM_FEATURE_FLAGS[form_id]
+    return false unless flag
+    
+    Flipper.enabled?(flag, user_account)
+  end
+end
 ```
 
-### Feature Flag
+### Feature Flags (Form-Specific)
 
 ```yaml
 # config/features.yml
-form_intake_integration:
+# Individual flags per form for granular rollout control
+
+form_intake_integration_526:
   actor_type: user_account
-  description: Enable GCIO API integration for form submissions
+  description: Enable GCIO integration for form 21-526EZ (Disability Compensation)
+
+form_intake_integration_0966:
+  actor_type: user_account
+  description: Enable GCIO integration for form 21-0966 (Intent to File)
+
+form_intake_integration_4138:
+  actor_type: user_account
+  description: Enable GCIO integration for form 21-4138 (Statement in Support)
+
+form_intake_integration_10207:
+  actor_type: user_account
+  description: Enable GCIO integration for form 20-10207 (Priority Processing)
 ```
 
 ### Monitoring

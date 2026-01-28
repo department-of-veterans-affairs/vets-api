@@ -250,24 +250,32 @@ stateDiagram-v2
 
 ### Configuration & Control
 
-**Feature Flags** (Gradual Rollout):
+**Form-Specific Feature Flags** (Independent Rollout Per Form):
 ```yaml
-form_intake_integration: 
+form_intake_integration_526:     # For 21-526EZ
+form_intake_integration_0966:    # For 21-0966  
+form_intake_integration_4138:    # For 21-4138
+form_intake_integration_10207:   # For 20-10207
+  - Each form has its own flag
   - Enable/disable per user account
-  - Percentage-based rollout
-  - Emergency kill switch
+  - Percentage-based rollout per form
+  - Independent emergency disable
 
 form_intake_failure_notifications:
   - Optional failure email alerts
 ```
 
-**Form Type Control**:
+**Rollout Example**:
 ```ruby
-FORM_INTAKE_ENABLED_FORMS = %w[
-  21-526EZ    # Disability compensation
-  21-0966     # Intent to file
-  21-4138     # Statement in support
-]
+# Week 1: Enable 526 for 1% of users
+Flipper.enable_percentage_of_actors(:form_intake_integration_526, 1)
+
+# Week 2: Increase 526, add 0966
+Flipper.enable_percentage_of_actors(:form_intake_integration_526, 25)
+Flipper.enable_percentage_of_actors(:form_intake_integration_0966, 1)
+
+# Problem with 526? Disable it independently
+Flipper.disable(:form_intake_integration_526)  # 0966 still works
 ```
 
 ### Security & Compliance
@@ -400,6 +408,14 @@ Detailed technical documentation is organized as follows:
   - [ADR-001: Submission Trigger Mechanism](./adrs/001-submission-trigger-mechanism.md)
   - [ADR-002: Retry Strategy](./adrs/002-retry-strategy.md)
   - [ADR-003: Data Storage Approach](./adrs/003-data-storage-approach.md)
+  - [ADR-004: Timing - Trigger Before VBMS](./adrs/004-timing-trigger-before-vbms.md)
+  - [ADR-005: Form-Specific Feature Flags](./adrs/005-form-specific-feature-flags.md)
+  
+- **[Rollout Strategy Guide](./ROLLOUT-STRATEGY.md)** - Production rollout procedures
+  - Form-by-form enablement
+  - Percentage-based rollout
+  - Emergency procedures
+  - Monitoring and metrics
 
 ---
 
