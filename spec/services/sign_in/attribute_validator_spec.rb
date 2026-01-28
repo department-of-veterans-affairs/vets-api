@@ -89,6 +89,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:expected_error_log) { 'attribute validator error' }
         let(:expected_error_log_payload) do
           { errors: expected_error_message,
+            code: expected_error_code,
             credential_uuid: csp_id,
             mhv_icn:,
             type: service_name }.compact
@@ -147,8 +148,10 @@ RSpec.describe SignIn::AttributeValidator do
           let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
           let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
           let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN }
           let(:expected_error_log_payload) do
             { errors: expected_error_message,
+              code: expected_error_code,
               credential_uuid: csp_id,
               mhv_icn:,
               type: service_name }.compact
@@ -246,6 +249,9 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_message) do
             "Attribute mismatch, #{attribute} in credential does not match MPI attribute"
           end
+          let(:expected_error_code) do
+            SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+          end
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_params) do
             {
@@ -266,6 +272,7 @@ RSpec.describe SignIn::AttributeValidator do
             subject
             expect(sign_in_logger).to have_received(:info).with(expected_error_log,
                                                                 { errors: expected_error_message,
+                                                                  code: expected_error_code,
                                                                   credential_uuid: csp_id,
                                                                   type: service_name })
           end
@@ -557,6 +564,7 @@ RSpec.describe SignIn::AttributeValidator do
                 subject
                 expect(sign_in_logger).to have_received(:info).with(expected_error_log,
                                                                     { errors: expected_error_message,
+                                                                      code: SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                                                                       credential_uuid: csp_id,
                                                                       mhv_icn:,
                                                                       type: service_name })
