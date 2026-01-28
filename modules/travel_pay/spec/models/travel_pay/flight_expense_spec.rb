@@ -300,6 +300,15 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
             expect(subject).to be_valid
           end
 
+          it 'is valid when departure and return are on same day but times are reversed' do
+            subject.trip_type = 'RoundTrip'
+            base_date = 2.days.from_now.beginning_of_day
+            subject.departure_date = base_date + 14.hours # 2:00 PM
+            subject.return_date = base_date + 8.hours # 8:00 AM
+            # Should still be valid because we only compare dates, not times
+            expect(subject).to be_valid
+          end
+
           it 'skips validation when either date is missing' do
             subject.trip_type = 'RoundTrip'
             subject.departure_date = nil
