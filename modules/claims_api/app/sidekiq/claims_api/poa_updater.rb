@@ -43,11 +43,10 @@ module ClaimsApi
 
     # handle exceptions thrown from soap_error_handler.rb with requests to BGS
     rescue ::Common::Exceptions::ResourceNotFound, ::Common::Exceptions::ServiceError,
-           ::Common::Exceptions::UnprocessableEntity, StandardError => e
+           ::Common::Exceptions::UnprocessableEntity => e
       rescue_generic_errors(poa_form, e)
       process.update!(step_status: 'FAILED',
                       error_messages: [{ title: 'BGS Error', detail: poa_form.vbms_error_message }])
-      raise
       # slack logging here if needed
     end
 

@@ -5,8 +5,7 @@ require 'rails_helper'
 BGS_ERRORS = [
   Common::Exceptions::ResourceNotFound,
   Common::Exceptions::ServiceError,
-  Common::Exceptions::UnprocessableEntity,
-  StandardError
+  Common::Exceptions::UnprocessableEntity
 ].freeze
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
@@ -124,13 +123,13 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
         it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
           expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-          expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+          subject.new.perform(poa.id)
           poa.reload
           expect(poa.status).to eq('errored')
         end
 
         it 'updates the process status to FAILED' do
-          expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+          subject.new.perform(poa.id)
           process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
           expect(process.step_status).to eq('FAILED')
         end
