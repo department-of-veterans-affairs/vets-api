@@ -24,12 +24,12 @@ module SM
 
       def stream_s3_attachment(data, header_callback, &block)
         uri = URI.parse(data[:url])
+        validate_https_scheme(uri)
 
         # Stream the file from S3 with timeouts to prevent hanging connections:
         # - open_timeout: max seconds to wait for TCP connection to establish
         # - read_timeout: max seconds to wait for any single chunk of data (resets per chunk)
-        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10,
-                                            read_timeout: 60) do |http|
+        Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 60) do |http|
           request = Net::HTTP::Get.new(uri)
           http.request(request) do |file_response|
             validate_http_response(file_response)
@@ -128,6 +128,13 @@ module SM
         Rails.logger.error("Failed to fetch attachment: HTTP #{response.code}")
         raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {},
                                                               response.code)
+      end
+
+      def validate_https_scheme(uri)
+        return if uri.scheme == 'https'
+
+        Rails.logger.error("Invalid S3 URL scheme: #{uri.scheme}")
+        raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_INVALID_RESPONSE', {}, 500)
       end
 
       def handle_network_error(error, source)
