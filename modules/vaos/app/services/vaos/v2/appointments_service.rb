@@ -1633,10 +1633,12 @@ module VAOS
       # @param req_params [Hash] The request parameters to be sent with the GET request.
       # @return [Faraday::Response] The API response.
       def perform_appointment_request(req_params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-          perform_get_appointments_request_vpg(req_params)
-        else
-          perform_get_appointments_request_vaos(req_params)
+        with_monitoring do
+          if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            perform_get_appointments_request_vpg(req_params)
+          else
+            perform_get_appointments_request_vaos(req_params)
+          end
         end
       end
 
