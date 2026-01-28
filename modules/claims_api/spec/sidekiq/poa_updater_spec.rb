@@ -128,11 +128,38 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
           expect(poa.status).to eq('errored')
         end
 
-        it 'updates the process status to FAILED' do
+        it 'updates the process status to FAILED and returns the error message' do
           subject.new.perform(poa.id)
           process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
           expect(process.step_status).to eq('FAILED')
+          expect(process.error_messages.first['title']).to eq('BGS Error')
+          expect(process.error_messages.first['detail']).to eq(bgs_error.new.message)
         end
+      end
+    end
+
+    context 'with a StandardError that is not from the BGS Service' do
+      let(:standard_error) { StandardError }
+
+      before do
+        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_raise(
+          standard_error
+        )
+      end
+
+      it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+        subject.new.perform(poa.id)
+        poa.reload
+        expect(poa.status).to eq('errored')
+      end
+
+      it 'updates the process status to FAILED and returns the error message' do
+        subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+        expect(process.step_status).to eq('FAILED')
+        expect(process.error_messages.first['title']).to eq('Generic Error')
+        expect(process.error_messages.first['detail']).to eq(standard_error.new.message)
       end
     end
   end

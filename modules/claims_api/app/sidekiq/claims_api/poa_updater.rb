@@ -46,8 +46,11 @@ module ClaimsApi
            ::Common::Exceptions::UnprocessableEntity => e
       rescue_generic_errors(poa_form, e)
       process.update!(step_status: 'FAILED',
-                      error_messages: [{ title: 'BGS Error', detail: poa_form.vbms_error_message }])
-      # slack logging here if needed
+                      error_messages: [{ title: 'BGS Error', detail: e.message }])
+    rescue => e
+      rescue_generic_errors(poa_form, e)
+      process.update!(step_status: 'FAILED',
+                      error_messages: [{ title: 'Generic Error', detail: e.message }])
     end
 
     private
