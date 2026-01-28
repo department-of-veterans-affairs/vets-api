@@ -29,6 +29,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
+  inflect.acronym 'POV'
   inflect.acronym 'SAML'
   inflect.acronym 'SFTP'
   inflect.acronym 'SM'

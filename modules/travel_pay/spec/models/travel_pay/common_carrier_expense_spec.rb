@@ -62,14 +62,25 @@ RSpec.describe TravelPay::CommonCarrierExpense, type: :model do
         expect(subject).to be_valid
       end
 
-      it 'rejects invalid casing' do
+      it 'normalizes snake_case values into valid explanations' do
         subject.reason_not_using_pov = 'privately_owned_vehicle_not_available'
-        expect(subject).not_to be_valid
-        expect(subject.errors[:reason_not_using_pov]).to include('is not included in the list')
+        expect(subject).to be_valid
+        expect(subject.reason_not_using_pov)
+          .to eq('Privately Owned Vehicle Not Available')
 
         subject.reason_not_using_pov = 'medically_indicated'
-        expect(subject).not_to be_valid
-        expect(subject.errors[:reason_not_using_pov]).to include('is not included in the list')
+        expect(subject).to be_valid
+        expect(subject.reason_not_using_pov)
+          .to eq('Medically Indicated')
+      end
+
+      it 'normalizes all snake_case keys into proper explanations' do
+        TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.each_key do |key|
+          snake_case = key.to_s
+          subject.reason_not_using_pov = snake_case
+          expect(subject).to be_valid, "Expected #{snake_case} to be valid"
+          expect(subject.reason_not_using_pov).to eq(TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS[key])
+        end
       end
     end
 

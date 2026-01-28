@@ -8,7 +8,7 @@ Rspec.describe BGS::DisabilityCompensationFormFlashes do
 
   let(:form_content) do
     JSON.parse(
-      File.read('spec/support/disability_compensation_form/all_claims_with_0781_fe_submission.json')
+      File.read('spec/support/disability_compensation_form/submit_all_claim/0781.json')
     )
   end
 
