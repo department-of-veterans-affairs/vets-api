@@ -110,7 +110,7 @@ RSpec.describe UniqueUserEvents::Service do
       end
 
       it 'includes site events when facility matches' do
-        site_event = "#{event_name}_site_757"
+        site_event = "#{event_name}_oh_757"
         allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
           .with(user:, event_name:, event_facility_ids:)
           .and_return([site_event])
