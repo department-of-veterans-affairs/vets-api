@@ -331,7 +331,11 @@ module IvcChampva
             "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
           )
 
-          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+          unless attachment.valid?
+            error_msgs = attachment.errors.full_messages.join(', ')
+            Rails.logger.error "submit_supporting_documents attachment is invalid: #{error_msgs}"
+            raise Common::Exceptions::ValidationErrors, attachment
+          end
 
           attachment.save
 
@@ -794,6 +798,10 @@ module IvcChampva
         form.track_user_identity
         form.track_current_user_loa(@current_user)
         form.track_email_usage
+
+        if Flipper.enabled?(:champva_update_datadog_tracking, @current_user) && form.respond_to?(:track_submission)
+          form.track_submission(@current_user)
+        end
 
         attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [base_form_id] if attachment_ids.empty?

@@ -2317,6 +2317,10 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_error) { 'Error retrieving AVS info' }
 
     context 'OH AVS PDF' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(true)
+      end
+
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
@@ -2342,6 +2346,17 @@ describe VAOS::V2::AppointmentsService do
 
         it 'returns an avs error message field in the appointment response' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
+      end
+
+      context 'when processing cerner appointment but flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
+        end
+
+        it 'does not fetch the OH AVS' do
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
