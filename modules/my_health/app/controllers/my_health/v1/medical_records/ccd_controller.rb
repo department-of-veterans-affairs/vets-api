@@ -4,7 +4,12 @@ module MyHealth
   module V1
     module MedicalRecords
       class CcdController < MRController
+        # Enables response streaming to avoid buffering large CCD documents in memory.
+        # ActionController::Live allows writing response chunks incrementally via response.stream
+        include ActionController::Live
         include MyHealth::AALClientConcerns
+
+        CCD_HEADERS = %w[Content-Type Content-Disposition].freeze
 
         ##
         # Generates a CCD
@@ -22,21 +27,20 @@ module MyHealth
         # Downloads the CCD after it has been generated.
         # Uses Rails format negotiation: /ccd/download.xml|.html|.pdf?date=...
         # Defaults to XML when no format is supplied (route should set defaults: { format: 'xml' }).
+        # Streams the document without buffering entire content in memory.
         #
         # @param date [String] date received from get_generate_ccd call property dateGenerated
-        # @return [XML|PDF|HTML] Continuity of Care Document
+        # @return [XML|PDF|HTML] Continuity of Care Document (streamed)
         #
         def download
           fmt = requested_format
+          generated_datetime = params[:date].to_s
+          raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
 
-          body = handle_aal_action('Download My VA Health Summary') do
-            generated_datetime = params[:date].to_s
-            raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
-
-            bb_client.get_download_ccd(date: generated_datetime, format: fmt)
-          end
-
-          deliver_ccd(body, fmt)
+          stream_ccd_response(generated_datetime, fmt)
+        rescue => e
+          log_aal_action('Download My VA Health Summary', 0)
+          raise e
         end
 
         def product
@@ -45,22 +49,31 @@ module MyHealth
 
         private
 
-        def deliver_ccd(body, fmt)
-          case fmt
-          when :xml
-            send_data body,
-                      type: 'application/xml; charset=utf-8',
-                      disposition: 'attachment'
-          when :html
-            send_data body,
-                      type: 'text/html; charset=utf-8',
-                      disposition: 'attachment'
-          when :pdf
-            send_data body,
-                      type: 'application/pdf',
-                      disposition: 'attachment'
-          else
-            head :not_acceptable
+        ##
+        # Streams the CCD response to the client with AAL logging
+        #
+        def stream_ccd_response(generated_datetime, fmt)
+          chunk_stream = Enumerator.new do |stream|
+            bb_client.stream_download_ccd(
+              date: generated_datetime,
+              format: fmt,
+              header_callback:,
+              yielder: stream
+            )
+          end
+
+          chunk_stream.each { |chunk| response.stream.write(chunk) }
+          log_aal_action('Download My VA Health Summary', 1)
+        ensure
+          response.stream.close if response.committed?
+        end
+
+        ##
+        # Callback for handling response headers during streaming
+        #
+        def header_callback
+          lambda do |headers|
+            headers.each { |k, v| response.headers[k] = v if CCD_HEADERS.include?(k) }
           end
         end
 
@@ -79,15 +92,6 @@ module MyHealth
           else
             :xml
           end
-        end
-
-        def handle_aal_action(action_description)
-          response = yield
-          log_aal_action(action_description, 1)
-          response
-        rescue => e
-          log_aal_action(action_description, 0)
-          raise e
         end
 
         def log_aal_action(action, status)
