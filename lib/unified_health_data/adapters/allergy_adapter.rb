@@ -70,16 +70,18 @@ module UnifiedHealthData
 
       private
 
-      # Determines if an allergy should be included based on its status
-      # Excludes allergies with verificationStatus of 'entered-in-error'
+      # Determines if an allergy should be included based on its clinical status
+      # Only includes allergies with clinicalStatus of 'active'
+      # Allergies with no clinicalStatus or non-active status (e.g., resolved) are excluded
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
-      # @return [Boolean] true if the allergy should be included
+      # @return [Boolean] true if the allergy should be included (has active clinicalStatus)
       def should_include_allergy?(resource)
-        verification_status = resource.dig('verificationStatus', 'coding', 0, 'code')
+        clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
 
-        # Exclude 'entered-in-error' allergies
-        verification_status != 'entered-in-error'
+        # Only include allergies with 'active' clinical status
+        # This excludes allergies with nil/missing clinicalStatus or non-active statuses like 'resolved'
+        clinical_status == 'active'
       end
 
       def extract_reactions(resource)
