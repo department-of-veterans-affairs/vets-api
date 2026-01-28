@@ -20,8 +20,11 @@ module SM
         }
         header_callback.call(headers.to_a)
 
-        # Stream the file from S3 with read_timeout to prevent hanging connections
-        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: 60) do |http|
+        # Stream the file from S3 with timeouts to prevent hanging connections:
+        # - open_timeout: max seconds to wait for TCP connection to establish
+        # - read_timeout: max seconds to wait for any single chunk of data (resets per chunk)
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10,
+                                            read_timeout: 60) do |http|
           request = Net::HTTP::Get.new(uri)
           http.request(request) do |file_response|
             validate_http_response(file_response)
@@ -36,7 +39,11 @@ module SM
         uri = build_mhv_uri(path)
         request = build_mhv_request(uri)
 
-        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: 120) do |http|
+        # Timeouts prevent hanging connections:
+        # - open_timeout: max seconds to wait for TCP connection to establish
+        # - read_timeout: max seconds to wait for any single chunk (longer for MHV due to API gateway latency)
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10,
+                                            read_timeout: 120) do |http|
           http.request(request) do |response|
             validate_http_response(response)
 
