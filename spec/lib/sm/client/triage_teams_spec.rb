@@ -47,5 +47,35 @@ describe 'sm client' do
         end
       end
     end
+
+    describe '#find_recipient_facility_ids' do
+      it 'returns the station number for a matching recipient' do
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          # The cassette contains a triage team with ID 4399547 and station_number '979'
+          result = client.find_recipient_facility_ids('1234', 4_399_547, use_cache: false)
+          expect(result).to eq(['979'])
+        end
+      end
+
+      it 'returns nil when recipient_id is blank' do
+        result = client.find_recipient_facility_ids('1234', nil, use_cache: false)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when recipient_id is not found' do
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          result = client.find_recipient_facility_ids('1234', 999_999, use_cache: false)
+          expect(result).to be_nil
+        end
+      end
+
+      it 'returns nil and logs warning when an error occurs' do
+        error_client = SM::Client.new(session: { user_id: '10616687' })
+        allow(error_client).to receive(:get_all_triage_teams).and_raise(StandardError.new('API error'))
+        expect(Rails.logger).to receive(:warn).with(/Failed to look up recipient facility/)
+        result = error_client.find_recipient_facility_ids('1234', 4_399_547, use_cache: false)
+        expect(result).to be_nil
+      end
+    end
   end
 end
