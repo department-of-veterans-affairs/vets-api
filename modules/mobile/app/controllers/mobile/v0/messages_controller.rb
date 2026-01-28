@@ -198,8 +198,13 @@ module Mobile
       end
 
       def recipient_facility_ids
+        return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_sm, @current_user)
+
         client.find_recipient_facility_ids(@current_user.uuid, message_params[:recipient_id]&.to_i,
                                            use_cache: use_cache?)
+      rescue => e
+        Rails.logger.warn("Mobile SM: Failed to look up recipient facility for messaging UUM: #{e.message}")
+        nil
       end
     end
   end

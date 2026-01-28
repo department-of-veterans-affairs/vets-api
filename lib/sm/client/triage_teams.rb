@@ -65,9 +65,6 @@ module SM
         return nil if recipient_team.blank? || recipient_team.station_number.blank?
 
         [recipient_team.station_number]
-      rescue => e
-        Rails.logger.warn("Failed to look up recipient facility for messaging UUM: #{e.message}")
-        nil
       end
     end
   end
