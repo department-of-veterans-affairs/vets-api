@@ -212,7 +212,7 @@ class FlakySpecBisect
 
     ensure_bundle_ready(needs_bundle_install)
 
-    return unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, spec_files)
+    return unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, failed_files)
 
     puts "\nRunning bisect command..."
     puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
@@ -221,9 +221,9 @@ class FlakySpecBisect
     exit 1 unless success
   end
 
-  def verify_failure_reproduces(seed, spec_files)
-    puts "\nVerifying failure reproduces (3 attempts)..."
-    failures = count_failures(seed, spec_files, 3)
+  def verify_failure_reproduces(seed, failed_files)
+    puts "\nVerifying failure reproduces (3 attempts with just the failing spec)..."
+    failures = count_failures(seed, failed_files, 3)
 
     case failures
     when 0
@@ -236,11 +236,11 @@ class FlakySpecBisect
     end
   end
 
-  def count_failures(seed, spec_files, attempts)
+  def count_failures(seed, files, attempts)
     failures = 0
     attempts.times do |i|
       print "  Attempt #{i + 1}/#{attempts}: "
-      success = system('bundle', 'exec', 'rspec', '--seed', seed, *spec_files, %i[out err] => File::NULL)
+      success = system('bundle', 'exec', 'rspec', '--seed', seed, *files, %i[out err] => File::NULL)
       puts success ? 'passed' : 'FAILED'
       failures += 1 unless success
     end
