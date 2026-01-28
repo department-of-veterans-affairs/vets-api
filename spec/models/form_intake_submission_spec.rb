@@ -263,9 +263,9 @@ RSpec.describe FormIntakeSubmission, type: :model do
 
   describe '#form_type' do
     it 'returns form_type from associated form_submission' do
-      form_submission = create(:form_submission, form_type: '21-526EZ')
+      form_submission = create(:form_submission, form_type: '21P-601')
       submission = create(:form_intake_submission, form_submission:)
-      expect(submission.form_type).to eq('21-526EZ')
+      expect(submission.form_type).to eq('21P-601')
     end
 
     it 'returns nil when form_submission is not present' do
