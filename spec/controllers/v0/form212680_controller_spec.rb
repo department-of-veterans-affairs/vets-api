@@ -15,8 +15,11 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'POST #create' do
+    let(:user) { create(:user, :loa3) }
+
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+      sign_in_as(user)
+      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, user).and_return(true)
     end
 
     it 'returns expected response structure' do
@@ -72,11 +75,11 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false)
       end
 
       after do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_call_original
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -115,11 +118,13 @@ RSpec.describe V0::Form212680Controller, type: :controller do
   end
 
   describe 'get #download_pdf' do
+    let(:user) { create(:user, :loa3) }
     let(:claim) { create(:form212680) }
     let(:temp_file_path) { "tmp/pdfs/21-2680_#{claim.id}.pdf" }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+      sign_in_as(user)
+      allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(true)
     end
 
     it 'generates and downloads PDF' do
@@ -168,15 +173,9 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect(parsed_response['errors']).to be_present
     end
 
-    it 'does not require authentication' do
-      get(:download_pdf, params: { guid: claim.guid })
-
-      expect(response).to have_http_status(:ok)
-    end
-
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false)
       end
 
       it 'returns 404 Not Found (routing error)' do
@@ -207,6 +206,22 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         expect(parsed_response['errors']).to be_present
         expect(parsed_response['errors'].first['status']).to eq('500')
       end
+    end
+  end
+
+  describe 'POST #create without authentication' do
+    it 'returns 401 when not authenticated' do
+      post(:create, body: form_data, as: :json)
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET #download_pdf without authentication' do
+    let(:claim) { create(:form212680) }
+
+    it 'returns 401 when not authenticated' do
+      get(:download_pdf, params: { guid: claim.guid })
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end
