@@ -58,10 +58,38 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
     end
 
     context 'when an error status is received' do
-      it 'raises an error' do
+      it 'increments StatsD and raises the appropriate error' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_not_found',
                          { match_requests_on: %i[method uri] }) do
-          expect { subject.get_form_by_icn(icn:, tax_year:) }.to raise_error(Common::Client::Errors::ClientError)
+          expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.fail',
+                                                     { tags: ['error:CommonExceptionsResourceNotFound'] })
+          expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.total')
+          expect { subject.get_form_by_icn(icn:, tax_year:) }.to \
+            raise_error(Common::Exceptions::ResourceNotFound, 'Resource not found') do |error|
+            expect(error.errors.first.detail).to eq(
+              'No enrollments found for the provided ICN [REDACTED] with tax year 2024.'
+            )
+          end
+        end
+      end
+    end
+
+    context 'when the error response body is a string instead of a hash' do
+      it 'raises the appropriate error with the string message' do
+        response = double('response')
+        allow(response).to receive(:env).and_return(
+          OpenStruct.new(status: 500, body: 'Internal Server Error')
+        )
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(response)
+
+        expect(StatsD).to receive(:increment).with(
+          'api.form1095b_enrollment.get_form_by_icn.fail',
+          { tags: ['error:CommonExceptionsExternalServerInternalServerError'] }
+        )
+        expect(StatsD).to receive(:increment).with('api.form1095b_enrollment.get_form_by_icn.total')
+        expect { subject.get_form_by_icn(icn:, tax_year:) }.to \
+          raise_error(Common::Exceptions::ExternalServerInternalServerError) do |error|
+          expect(error.errors.first.detail).to eq('Internal Server Error')
         end
       end
     end

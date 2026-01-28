@@ -19,7 +19,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
   inflect.acronym 'IAM'
-  inflect.acronym 'IHub'
   inflect.acronym 'LCPE' # Licenses, Certifications, Prep Courses & Exams
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
@@ -28,9 +27,9 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'OAuth'
   inflect.acronym 'PagerDuty'
-  inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
+  inflect.acronym 'POV'
   inflect.acronym 'SAML'
   inflect.acronym 'SFTP'
   inflect.acronym 'SM'

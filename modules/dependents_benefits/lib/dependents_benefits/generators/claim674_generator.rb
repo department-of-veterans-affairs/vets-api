@@ -3,6 +3,7 @@
 require 'dependents_benefits/generators/dependent_claim_generator'
 
 module DependentsBenefits
+  # Generator module for creating dependent benefit claims
   module Generators
     ##
     # Generator for creating VA Form 21-674 claims from combined 686c-674 form data
@@ -39,8 +40,9 @@ module DependentsBenefits
           'statement_of_truth_certified'
         )
 
+        # Include only the report674 option from selectable686_options
         selectable686_options = dependent_data['dependents_application']&.dig('view:selectable686_options')
-        form_674_top['view:selectable686_options'] = selectable686_options
+        form_674_top['view:selectable686_options'] = selectable686_options.slice('report674')
 
         form_674_nested = dependent_data['dependents_application'].slice(
           'veteran_contact_information',
@@ -53,9 +55,13 @@ module DependentsBenefits
           'privacy_agreement_accepted'
         ).merge('student_information' => [student_data])
 
+        # Include only the report674 option from selectable686_options
+        form_674_nested['view:selectable686_options'] = form_674_nested['view:selectable686_options'].slice('report674')
+
         form_674_top.merge('dependents_application' => form_674_nested)
       end
 
+      ## Specifies the claim class for VA Form 21-674
       def claim_class
         SchoolAttendanceApproval
       end

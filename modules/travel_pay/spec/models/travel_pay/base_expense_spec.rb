@@ -83,14 +83,14 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
         expect(subject.errors[:description]).to be_empty
       end
 
-      it 'requires description to be 255 characters or less when present' do
-        subject.description = 'a' * 256
+      it 'requires description to be 2000 characters or less when present' do
+        subject.description = 'a' * 2001
         expect(subject).not_to be_valid
-        expect(subject.errors[:description]).to include('is too long (maximum is 255 characters)')
+        expect(subject.errors[:description]).to include('is too long (maximum is 2000 characters)')
       end
 
-      it 'allows description of exactly 255 characters' do
-        subject.description = 'a' * 255
+      it 'allows description of exactly 2000 characters' do
+        subject.description = 'a' * 2000
         expect(subject).to be_valid
       end
     end
@@ -233,16 +233,18 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     it 'includes has_receipt flag when receipt is present' do
-      subject.receipt = double('Receipt')
+      subject.receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
       json = subject.to_h
       expect(json['has_receipt']).to be true
     end
 
     it 'includes receipt when receipt is present' do
-      mock_receipt = double('Receipt')
+      mock_receipt = { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 }
+      expected_receipt_data = { fileName: 'test', fileData: 'data', contentType: 'type',
+                                length: 123 }.with_indifferent_access
       subject.receipt = mock_receipt
       json = subject.to_h
-      expect(json['receipt']).to eq(mock_receipt)
+      expect(json['receipt']).to eq(expected_receipt_data)
     end
   end
 
@@ -366,7 +368,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
     end
 
     context 'creating an expense with receipt' do
-      let(:mock_receipt) { double('Receipt', id: 'receipt-123') }
+      let(:mock_receipt) { { file_name: 'test', file_data: 'data', content_type: 'type', length: 123 } }
       let(:expense) do
         described_class.new(
           description: 'Expense with receipt',
@@ -495,6 +497,35 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
       subject.purchase_date = nil
       params = subject.to_service_params
       expect(params['purchase_date']).to be_nil
+    end
+
+    context 'with receipt' do
+      let(:receipt_data) do
+        { file_name: 'receipt.pdf', content_type: 'application/pdf', file_data: 'contents',
+          length: 120 }.with_indifferent_access
+      end
+      let(:expected_receipt_data) do
+        { fileName: 'receipt.pdf', contentType: 'application/pdf', fileData: 'contents',
+          length: 120 }.with_indifferent_access
+      end
+
+      it 'includes receipt when present' do
+        subject.receipt = receipt_data
+        params = subject.to_service_params
+        expect(params['receipt']).to eq(expected_receipt_data)
+      end
+
+      it 'excludes receipt when nil' do
+        subject.receipt = nil
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
+      end
+
+      it 'excludes receipt when blank' do
+        subject.receipt = ''
+        params = subject.to_service_params
+        expect(params).not_to have_key('receipt')
+      end
     end
   end
 end

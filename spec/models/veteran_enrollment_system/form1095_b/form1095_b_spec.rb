@@ -188,5 +188,42 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
         expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
+
+    context 'when user has a middle name' do
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Michael Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John M Smith'
+        )
+      end
+    end
+
+    context 'when user has no middle name' do
+      let(:form1095b) { build(:enrollment_system_form1095_b, middle_name: nil) }
+
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
+
+    context 'when user has an empty middle name' do
+      let(:form1095b) { build(:enrollment_system_form1095_b, middle_name: '') }
+
+      it 'presents name correctly' do
+        expect(form1095b.txt_file).to include(
+          '1 Name of responsible individual-First name, middle name, last name ---- John Smith'
+        )
+        expect(form1095b.txt_file).to include(
+          '(a) Name of covered individual(s) First name, middle initial, last name ---- John Smith'
+        )
+      end
+    end
   end
 end

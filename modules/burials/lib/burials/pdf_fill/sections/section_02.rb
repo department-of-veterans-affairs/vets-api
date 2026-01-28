@@ -25,13 +25,6 @@ module Burials
             question_num: 7,
             question_label: "Claimant's Last Name",
             question_text: "CLAIMANT'S LAST NAME"
-          },
-          'suffix' => {
-            key: 'form1[0].#subform[82].ClaimantSuffix[0]',
-            question_num: 7,
-            limit: 0,
-            question_label: "Claimant's Suffix",
-            question_text: "CLAIMANT'S SUFFIX"
           }
         },
         'claimantSocialSecurityNumber' => {
@@ -124,7 +117,6 @@ module Burials
           }
         },
         'claimantIntPhone' => {
-          key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
           question_num: 11,
           question_label: "Claimant's International Phone Number",
           question_text: "CLAIMANT'S INTERNATIONAL PHONE NUMBER",

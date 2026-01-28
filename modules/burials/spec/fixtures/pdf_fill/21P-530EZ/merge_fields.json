@@ -18,8 +18,15 @@
     "plotAllowance":true,
     "processOption":false,
     "transportation":true,
-    "previousNames":"previous other name Jr. (navy)",
+    "previousNames": "John Jacob Schmitt Jr. ",
+    "powPeriods": [{"powDateRange": {"from": "1971-02-26", "to": "1973-03-02"}}],
     "militaryServiceNumber":"123123",
+    "serviceBranch": "airForce",
+    "serviceDateRange": {
+        "from": "2020-03-15",
+        "to": "2021-02-15"
+    },
+    "placeOfSeparation": "location",
     "toursOfDuty":[
         {
             "serviceBranch":"Air Force",
@@ -62,12 +69,12 @@
     "burialDate":{"month":"01", "day":"02", "year":"2024"},
     "veteranFullName":{"first":"veteran", "middle":"middle", "last":"lastname", "suffix":"Jr.", "middleInitial":"m"},
     "veteranSocialSecurityNumber":{"first":"987", "second":"65", "third":"4322"},
-    "vaFileNumber":"9876543221",
+    "vaFileNumber":"987654321",
     "veteranDateOfBirth":{"month":"01", "day":"01", "year":"1950"},
     "claimantEmail":"test@test.com",
     "claimantPhone":{"first":"555", "second":"555", "third":"5555"},
     "claimantIntPhone":"5555555556",
-    "claimantAddress":{"country":"US", "street":"123 fake street", "street2":"unit 2", "city":"portland", "state":"ME", "postalCode":{"firstFive":"04102", "lastFour":null}},
+    "claimantAddress":{"country":"US", "street":"123 fake street", "street2":"234", "city":"portland", "state":"ME", "postalCode":{"firstFive":"04102", "lastFour":null}},
     "claimantFullName":{"first":"test", "middle":"middle", "last":"spouse", "suffix":"Jr.", "middleInitial":"m"},
     "claimantSocialSecurityNumber":{"first":"987", "second":"65", "third":"4321"},
     "claimantDateOfBirth":{"month":"01", "day":"01", "year":"1960"},

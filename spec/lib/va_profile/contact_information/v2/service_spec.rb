@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_profile/contact_information/v2/service'
+require 'va_profile/person_settings/service'
 
 describe VAProfile::ContactInformation::V2::Service do
   subject { described_class.new(user) }
@@ -114,16 +115,25 @@ describe VAProfile::ContactInformation::V2::Service do
     end
 
     context 'when successful' do
-      it 'creates an old_email record' do
+      it 'creates an old_email record when email is changing' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.va_profile_email
-            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+          # Stub old email to be different from submitted email to simulate email change
+          allow(user).to receive(:va_profile_email).and_return('old_email@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
-            response = subject.put_email(email)
-            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
-          end
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id).email).to eq('old_email@example.com')
+        end
+      end
+
+      it 'does not create an old_email record when confirming existing email' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          # User's current email matches the email being submitted (confirmation only)
+          allow(user).to receive(:va_profile_email).and_return('person43@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id)).to be_nil
         end
       end
 
@@ -150,15 +160,25 @@ describe VAProfile::ContactInformation::V2::Service do
     before { allow(user).to receive(:vet360_id).and_return(nil) }
 
     context 'when successful' do
-      it 'creates an old_email record' do
+      it 'creates an old_email record when email is changing' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person_icn', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.va_profile_email
-            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
-            response = subject.put_email(email)
-            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
-          end
+          # Stub old email to be different from submitted email to simulate email change
+          allow(user).to receive(:va_profile_email).and_return('old_email@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id).email).to eq('old_email@example.com')
+        end
+      end
+
+      it 'does not create an old_email record when confirming existing email' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_email_success_icn', VCR::MATCH_EVERYTHING) do
+          # User's current email matches the email being submitted (confirmation only)
+          allow(user).to receive(:va_profile_email).and_return('person43@example.com')
+          expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+          response = subject.put_email(email)
+          expect(OldEmail.find(response.transaction.id)).to be_nil
         end
       end
 
@@ -569,6 +589,57 @@ describe VAProfile::ContactInformation::V2::Service do
     end
   end
 
+  describe '#get_person_options_transaction_status' do
+    context 'when successful' do
+      let(:transaction_id) { '95ea4993-ade7-4ce9-a584-9a4f8a34e0e0' }
+      let(:person_settings_service) { instance_double(VAProfile::PersonSettings::Service) }
+      let(:raw_response) { double('raw_response', body: { 'tx_status' => 'COMPLETED_SUCCESS' }, status: 200) }
+      let(:transaction_response) { instance_double(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse) }
+
+      before do
+        allow(VAProfile::PersonSettings::Service).to receive(:new).with(user).and_return(person_settings_service)
+        allow(person_settings_service).to receive(:perform).and_return(raw_response)
+        allow(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse).to receive(:from)
+          .with(raw_response).and_return(transaction_response)
+        allow(VAProfile::Stats).to receive(:increment_transaction_results)
+      end
+
+      it 'delegates to PersonSettings service' do
+        expect(person_settings_service).to receive(:perform)
+          .with(:get, "person-options/v1/status/#{transaction_id}")
+
+        subject.get_person_options_transaction_status(transaction_id)
+      end
+
+      it 'returns a status of 200' do
+        expect(transaction_response).to receive(:ok?).and_return(true)
+        expect(transaction_response).to receive(:transaction).and_return(double(id: transaction_id))
+
+        response = subject.get_person_options_transaction_status(transaction_id)
+        expect(response).to be_ok
+        expect(response.transaction.id).to eq(transaction_id)
+      end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { '2aed546d-d3b4-4ded-8bf9-1577ae6595f3' }
+      let(:person_settings_service) { instance_double(VAProfile::PersonSettings::Service) }
+      let(:error) { Common::Client::Errors::ClientError.new('Bad Request', 400, { 'messages' => [{ 'code' => 'STNG302' }] }) }
+
+      before do
+        allow(VAProfile::PersonSettings::Service).to receive(:new).with(user).and_return(person_settings_service)
+        allow(person_settings_service).to receive(:perform).and_raise(error)
+      end
+
+      it 'returns a status of 400' do
+        expect { subject.get_person_options_transaction_status(transaction_id) }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(400)
+        end
+      end
+    end
+  end
+
   context 'When reporting StatsD statistics' do
     context 'when checking transaction status' do
       context 'for emails' do
@@ -620,6 +691,23 @@ describe VAProfile::ContactInformation::V2::Service do
               "#{VAProfile::Service::STATSD_KEY_PREFIX}.init_va_profile.success"
             )
           end
+        end
+      end
+
+      context 'for person options' do
+        it 'increments the StatsD VAProfile person_options counters' do
+          transaction_id = '95ea4993-ade7-4ce9-a584-9a4f8a34e0e0'
+          person_settings_service = instance_double(VAProfile::PersonSettings::Service)
+          raw_response = double('raw_response', body: { 'tx_status' => 'COMPLETED_SUCCESS' }, status: 200)
+
+          allow(VAProfile::PersonSettings::Service).to receive(:new).and_return(person_settings_service)
+          allow(person_settings_service).to receive(:perform).and_return(raw_response)
+          allow(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse).to receive(:from)
+            .and_return(double('response'))
+
+          expect { subject.get_person_options_transaction_status(transaction_id) }.to trigger_statsd_increment(
+            "#{VAProfile::Service::STATSD_KEY_PREFIX}.person_options.success"
+          )
         end
       end
     end

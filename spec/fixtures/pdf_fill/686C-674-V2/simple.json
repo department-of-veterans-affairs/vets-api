@@ -41,10 +41,9 @@
       "date": "2024-01-04"
     },
     "does_live_with_spouse": {
-      "spouse_income": true,
+      "spouse_income": "Y",
       "spouse_does_live_with_veteran": true
     },
-    "use_v2": true,
     "days_till_expires": 365,
     "privacy_agreement_accepted": true
   }

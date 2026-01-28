@@ -6,9 +6,9 @@ FactoryBot.define do
     tax_year { 2021 }
     form_data {
       {
-        first_name: 'First',
-        middle_name: 'Middle',
-        last_name: 'Last',
+        first_name: 'John',
+        middle_name: 'Michael',
+        last_name: 'Smith',
         last_4_ssn: '1234',
         address: '123 Test st',
         city: 'Hollywood',
@@ -24,9 +24,9 @@ FactoryBot.define do
 
   factory :enrollment_system_form1095_b, class: 'VeteranEnrollmentSystem::Form1095B::Form1095B' do
     tax_year { 2024 }
-    first_name { 'First' }
-    middle_name { 'Middle' }
-    last_name { 'Last' }
+    first_name { 'John' }
+    middle_name { 'Michael' }
+    last_name { 'Smith' }
     last_4_ssn { '1234' }
     birth_date { '1932-02-05'.to_date }
     address { '123 Test st' }

@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require 'ibm/service'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'medical_expense_reports/notification_email'
 require 'medical_expense_reports/monitor'
 require 'pdf_utilities/datestamp_pdf'
+
+require 'bigdecimal'
+require 'date'
 
 module MedicalExpenseReports
   module BenefitsIntake
@@ -41,20 +45,7 @@ module MedicalExpenseReports
         return unless Flipper.enabled?(:medical_expense_reports_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
-
-        # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
-                                                                 omit_esign_stamp: true }))
-        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
-        @metadata = generate_metadata
-
-        # upload must be performed within 15 minutes of this request
-        upload_document
-
-        send_submitted_email
-        monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
-
-        @intake_service.uuid
+        process_submission
       rescue => e
         monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
         @lighthouse_submission_attempt&.fail!
@@ -64,6 +55,45 @@ module MedicalExpenseReports
       end
 
       private
+
+      ##
+      # Handle the document generation, upload flow, and post-submission hooks.
+      #
+      # @return [String] the intake service UUID for the submission
+      def process_submission
+        # generate and validate claim pdf documents
+        @form_path = process_document(
+          @claim.to_pdf(
+            @claim.id,
+            extras_redesign: true,
+            omit_esign_stamp: true
+          )
+        )
+        @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        form = @claim.parsed_form
+        @metadata = generate_metadata(form)
+        @ibm_payload = @claim.to_ibm # build_ibm_payload(form)
+
+        # upload must be performed within 15 minutes of this request
+        upload_document
+
+        send_submitted_email
+        monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+
+        @intake_service.uuid
+      end
+
+      # Number of in-home care rows IBM expects.
+      IN_HOME_ROW_COUNT = 8
+
+      # Number of medical expense rows IBM expects.
+      MED_EXPENSE_ROW_COUNT = 14
+
+      # Number of travel rows IBM expects.
+      TRAVEL_ROW_COUNT = 12
+
+      # Normalize values that represent child/dependent recipients.
+      CHILD_RECIPIENTS = %w[CHILD DEPENDENT].freeze
 
       # Instantiate instance variables for _this_ job
       def init(saved_claim_id, user_account_uuid)
@@ -110,15 +140,19 @@ module MedicalExpenseReports
       # @see BenefitsIntake::Metadata
       #
       # @return [Hash]
-      def generate_metadata
-        form = @claim.parsed_form
+      # Generate metadata for Benefits Intake upload, deriving veteran and claimant details.
+      #
+      # @param form [Hash]
+      # @return [Hash]
+      def generate_metadata(form)
+        address = form['claimantAddress'] || form['veteranAddress']
 
-        # also validates/maniuplates the metadata
+        # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          form['veteranAddress']['postalCode'],
+          address['postalCode'],
           'va_gov_bio_huntridge',
           @claim.form_id,
           @claim.business_line
@@ -137,10 +171,26 @@ module MedicalExpenseReports
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
+        tracked_payload = payload.merge(
+          ibm_payload_present: @ibm_payload.present?,
+          ibm_payload_field_count: @ibm_payload&.keys&.count
+        )
 
-        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
+
         response = @intake_service.perform_upload(**payload)
+
+        govcio_upload if response.success?
+
         raise MedicalExpenseReportsBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Upload to IBM MMS if the govcio flipper is enabled
+      def govcio_upload
+        if Flipper.enabled?(:medical_expense_reports_govcio_mms)
+          ibm_service = Ibm::Service.new
+          ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
+        end
       end
 
       # Insert submission polling entries

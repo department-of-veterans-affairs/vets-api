@@ -121,7 +121,6 @@ module V0
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
       Swagger::Requests::Appeals::Appeals,
-      Swagger::Requests::Appointments,
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::Banners,
@@ -172,7 +171,6 @@ module V0
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
       Swagger::Requests::SearchClickTracking,
-      Swagger::Requests::SearchTypeahead,
       Swagger::Requests::SignIn,
       Swagger::Requests::TravelPay,
       Swagger::Requests::UploadSupportingEvidence,
@@ -180,6 +178,7 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
+      Swagger::Requests::VeteranStatusCards,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -252,6 +251,7 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
+      Swagger::Schemas::Vet360::SchedulingPreferences,
       FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze

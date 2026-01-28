@@ -151,6 +151,9 @@ module TravelPay
         expense_class = expense_class_for_type(params[:expense_type])
         expense_params = permitted_params.to_h
 
+        # Manually extract the 'receipt' object from the raw params, bypassing Strong Params filtering
+        expense_params[:receipt] = params[:receipt] if params[:receipt].present?
+
         # Only add claim_id if it exists in params
         expense_params[:claim_id] = params[:claim_id] if params[:claim_id].present?
 
@@ -163,7 +166,7 @@ module TravelPay
         case expense_type.to_sym
         when :airtravel
           TravelPay::FlightExpense
-        when :common_carrier
+        when :commoncarrier
           TravelPay::CommonCarrierExpense
         when :lodging
           TravelPay::LodgingExpense
@@ -183,7 +186,7 @@ module TravelPay
 
       def permitted_params
         expense_class = expense_class_for_type(params[:expense_type])
-        params.require(:expense).permit(*expense_class.permitted_params)
+        params.permit(*expense_class.permitted_params)
       end
 
       def expense_params_for_service(expense)

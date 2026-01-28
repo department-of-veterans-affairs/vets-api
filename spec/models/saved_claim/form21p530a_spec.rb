@@ -40,17 +40,17 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'rejects first name longer than 12 characters' do
-        form['veteranInformation']['fullName']['first'] = 'A' * 13
+        form['veteranInformation']['fullName']['first'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 12')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects last name longer than 18 characters' do
-        form['veteranInformation']['fullName']['last'] = 'A' * 19
+        form['veteranInformation']['fullName']['last'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 18')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects invalid SSN format' do
@@ -59,8 +59,13 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(claim.errors.full_messages.join).to include('pattern')
       end
 
+      it 'accepts aptOrUnitNumber up to 5 characters' do
+        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 5
+        expect(claim).to be_valid
+      end
+
       it 'rejects aptOrUnitNumber longer than 5 characters' do
-        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'Suite 100'
+        form['burialInformation']['recipientOrganization']['address']['aptOrUnitNumber'] = 'A' * 6
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
         expect(claim.errors.full_messages.join).to include('is greater than: 5')
@@ -76,12 +81,6 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
         expect(claim.errors.full_messages.join).to include('is greater than: 3')
-      end
-
-      it 'rejects invalid postalCodeExtension format' do
-        form['burialInformation']['recipientOrganization']['address']['postalCodeExtension'] = '12345' # Too long
-        expect(claim).not_to be_valid
-        expect(claim.errors.full_messages.join).to include('pattern')
       end
 
       it 'requires veteran full name' do
@@ -151,16 +150,33 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
 
   describe '#to_pdf' do
     let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_pdf_path) { '/tmp/test_form_stamped.pdf' }
+    let(:parsed_form_data) do
+      {
+        'certification' => {
+          'signature' => 'John Doe'
+        }
+      }
+    end
 
     before do
       allow(PdfFill::Filler).to receive(:fill_form).and_return(pdf_path)
+      allow(PdfFill::Forms::Va21p530a).to receive(:stamp_signature).and_return(stamped_pdf_path)
+      allow(claim).to receive(:parsed_form).and_return(parsed_form_data)
     end
 
-    it 'generates PDF' do
+    it 'generates PDF and stamps the signature' do
       result = claim.to_pdf
 
       expect(PdfFill::Filler).to have_received(:fill_form).with(claim, nil, {})
-      expect(result).to eq(pdf_path)
+      expect(PdfFill::Forms::Va21p530a).to have_received(:stamp_signature).with(pdf_path, parsed_form_data)
+      expect(result).to eq(stamped_pdf_path)
+    end
+
+    it 'passes file_name to the filler' do
+      claim.to_pdf('custom-file-name')
+
+      expect(PdfFill::Filler).to have_received(:fill_form).with(claim, 'custom-file-name', {})
     end
 
     it 'passes fill_options to the filler' do
@@ -174,6 +190,87 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
   describe 'FORM constant' do
     it 'is set to 21P-530a' do
       expect(described_class::FORM).to eq('21P-530a')
+    end
+  end
+
+  describe '#metadata_for_benefits_intake' do
+    context 'with all fields present' do
+      it 'returns correct metadata hash' do
+        metadata = claim.metadata_for_benefits_intake
+
+        expect(metadata).to eq(
+          veteranFirstName: 'John',
+          veteranLastName: 'Doe',
+          fileNumber: '123456789',
+          zipCode: '64037',
+          businessLine: 'PMC'
+        )
+      end
+    end
+
+    context 'when vaFileNumber is present' do
+      it 'prefers vaFileNumber over ssn' do
+        form_data = valid_form_data.dup
+        form_data['veteranInformation']['vaFileNumber'] = '12345678'
+        form_data['veteranInformation']['ssn'] = '999999999'
+        claim_with_both = described_class.new(form: form_data.to_json)
+
+        metadata = claim_with_both.metadata_for_benefits_intake
+
+        expect(metadata[:fileNumber]).to eq('12345678')
+      end
+    end
+
+    context 'when vaFileNumber is missing' do
+      it 'falls back to ssn' do
+        form_data = valid_form_data.dup
+        form_data['veteranInformation'].delete('vaFileNumber')
+        form_data['veteranInformation']['ssn'] = '111223333'
+        claim_without_va_file = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_va_file.metadata_for_benefits_intake
+
+        expect(metadata[:fileNumber]).to eq('111223333')
+      end
+    end
+
+    context 'when zipCode is missing' do
+      it 'defaults to 00000 when recipientOrganization address postalCode is missing' do
+        form_data = valid_form_data.dup
+        form_data['burialInformation']['recipientOrganization']['address'].delete('postalCode')
+        claim_without_zip = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_zip.metadata_for_benefits_intake
+
+        expect(metadata[:zipCode]).to eq('00000')
+      end
+
+      it 'defaults to 00000 when recipientOrganization address is missing' do
+        form_data = valid_form_data.dup
+        form_data['burialInformation']['recipientOrganization'].delete('address')
+        claim_without_address = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_address.metadata_for_benefits_intake
+
+        expect(metadata[:zipCode]).to eq('00000')
+      end
+
+      it 'defaults to 00000 when recipientOrganization is missing' do
+        form_data = valid_form_data.dup
+        form_data['burialInformation'].delete('recipientOrganization')
+        claim_without_org = described_class.new(form: form_data.to_json)
+
+        metadata = claim_without_org.metadata_for_benefits_intake
+
+        expect(metadata[:zipCode]).to eq('00000')
+      end
+    end
+
+    it 'always includes businessLine from business_line method' do
+      metadata = claim.metadata_for_benefits_intake
+
+      expect(metadata[:businessLine]).to eq('PMC')
+      expect(metadata[:businessLine]).to eq(claim.business_line)
     end
   end
 

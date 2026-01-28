@@ -1,0 +1,40 @@
+{
+  "resCaseId": 123456,
+  "isTransferredToCWNRS": true,
+  "orientationAppointmentDetails": {
+    "appointmentDateTime": "2025-01-01T12:00:00Z",
+    "appointmentPlace": "Main Office"
+  },
+  "externalStatus": {
+    "isDiscontinued": false,
+    "discontinuedReason": null,
+    "isInterrupted": false,
+    "interruptedReason": null,
+    "stateList": [
+      {
+        "stepCode": "APPL",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "ELGLDET",
+        "status": "COMPLETED"
+      },
+      {
+        "stepCode": "INTAKE",
+        "status": "ACTIVE"
+      },
+      {
+        "stepCode": "ENTLDET",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
+      },
+      {
+        "stepCode": "PLANSELECT",
+        "status": "PENDING"
+      }
+    ]
+  }
+}

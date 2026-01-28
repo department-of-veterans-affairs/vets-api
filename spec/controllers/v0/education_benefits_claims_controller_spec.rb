@@ -81,8 +81,8 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
 
     before do
       allow(EducationBenefitsClaim)
-        .to receive(:find)
-        .with(education_benefits_claim.id.to_i)
+        .to receive(:find_by!)
+        .with({ token: education_benefits_claim.token })
         .and_return(education_benefits_claim)
       allow(SavedClaim)
         .to receive(:find)
@@ -99,9 +99,9 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
     end
 
     it 'successfully downloads a PDF' do
-      get :download_pdf, params: { id: education_benefits_claim.id }
+      get :download_pdf, params: { id: education_benefits_claim.token }
 
-      expect(EducationBenefitsClaim).to have_received(:find).with(education_benefits_claim.id)
+      expect(EducationBenefitsClaim).to have_received(:find_by!).with({ token: education_benefits_claim.token })
       expect(SavedClaim).to have_received(:find).with(education_benefits_claim.saved_claim_id)
       expect(PdfFill::Filler).to have_received(:fill_form).with(
         saved_claim,
@@ -122,13 +122,13 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       let(:education_benefits_claim) { create(:education_benefits_claim_10203) } # rubocop:disable Naming/VariableNumber
 
       it 'increments the StatsD metric with the correct name' do
-        get :download_pdf, params: { id: education_benefits_claim.id }
+        get :download_pdf, params: { id: education_benefits_claim.token }
         expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.2210203.success')
       end
     end
 
     it 'cleans up the temporary file after successful download' do
-      get :download_pdf, params: { id: education_benefits_claim.id }
+      get :download_pdf, params: { id: education_benefits_claim.token }
 
       expect(File).to have_received(:exist?).with(temp_file_path)
       expect(File).to have_received(:delete).with(temp_file_path)
@@ -137,7 +137,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
     it 'does not try to delete file if it does not exist' do
       allow(File).to receive(:exist?).with(temp_file_path).and_return(false)
 
-      get :download_pdf, params: { id: education_benefits_claim.id }
+      get :download_pdf, params: { id: education_benefits_claim.token }
 
       expect(File).to have_received(:exist?).with(temp_file_path)
       expect(File).not_to have_received(:delete)
@@ -146,18 +146,10 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
     it 'does not try to delete file if temp_file_path is nil' do
       allow(PdfFill::Filler).to receive(:fill_form).and_return(nil)
 
-      get :download_pdf, params: { id: education_benefits_claim.id }
+      get :download_pdf, params: { id: education_benefits_claim.token }
 
       expect(File).not_to have_received(:exist?).with(nil)
       expect(File).not_to have_received(:delete)
-    end
-
-    context 'with string id parameter' do
-      it 'converts string id to integer' do
-        get :download_pdf, params: { id: education_benefits_claim.id.to_s }
-
-        expect(EducationBenefitsClaim).to have_received(:find).with(education_benefits_claim.id)
-      end
     end
 
     context 'when pdf generation fails' do
@@ -166,10 +158,37 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       end
 
       it 'increments the failed metric and returns 500' do
-        get :download_pdf, params: { id: education_benefits_claim.id }
+        get :download_pdf, params: { id: education_benefits_claim.token }
         expect(response).to have_http_status(:internal_server_error)
         expect(StatsD).to have_received(:increment).with('api.education_benefits_claim.pdf_download.failure')
       end
+    end
+  end
+
+  describe '#create' do
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+    let(:valid_params) do
+      {
+        form_type: '0803',
+        education_benefits_claim: {
+          form: build(:va0803).form
+        }
+      }
+    end
+
+    it 'creates the correct saved claim record' do
+      Timecop.freeze(DateTime.new(2020, 1, 1, 0, 0, 0)) do
+        sign_in_as(user)
+        expect { post :create, params: valid_params }.to change(SavedClaim::EducationBenefits::VA0803, :count).by(1)
+        saved_claim = SavedClaim::EducationBenefits::VA0803.first
+        expect(saved_claim.user_account).to eq(user.user_account)
+        expect(saved_claim.delete_date).to be_within(1.second).of(DateTime.new(2020, 1, 8, 0, 0, 0)) # 1 week retention
+      end
+    end
+
+    it 'returns an error if no user is signed in but authentication is required' do
+      expect { post :create, params: valid_params }.not_to change(SavedClaim::EducationBenefits::VA0803, :count)
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end

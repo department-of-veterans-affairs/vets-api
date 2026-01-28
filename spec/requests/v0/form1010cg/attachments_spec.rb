@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../support/form1010cg_helpers/test_file_helpers'
 
 RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
   let(:endpoint) { 'http://localhost:3000/v0/form1010cg/attachments' }
@@ -19,12 +20,16 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
     }
   end
 
+  after do
+    Form1010cg::Attachment.delete_all
+  end
+
   def make_upload_request_with(file_fixture_path, content_type)
     request_options = {
       headers:,
       params: {
         attachment: {
-          file_data: fixture_file_upload(file_fixture_path, content_type)
+          file_data: Form1010cgHelpers::TestFileHelpers.create_test_uploaded_file(file_fixture_path, content_type)
         }
       }
     }
@@ -39,14 +44,18 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
 
     context 'with JPG' do
       let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
+      # Cache ID from VCR cassette - must match for S3 URL consistency
+      let(:carrierwave_cache_id) { '1619206365-340201329057824-0002-6154' }
 
       before do
+        # Stub CarrierWave cache_id to match VCR cassette URLs
+        allow(CarrierWave).to receive(:generate_cache_id).and_return(carrierwave_cache_id)
         expect(SecureRandom).to receive(:uuid).and_call_original
         expect(SecureRandom).to receive(:uuid).and_return(form_attachment_guid) # when FormAttachment is initalized
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload', skip: 'temporarily skip flaky spec' do
+      it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options do
           make_upload_request_with('doctors-note.jpg', 'image/jpg')
 
@@ -64,14 +73,18 @@ RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
 
     context 'with PDF' do
       let(:form_attachment_guid) { '834d9f51-d0c7-4dc2-9f2e-9b722db98069' }
+      # Cache ID from VCR cassette - must match for S3 URL consistency
+      let(:carrierwave_cache_id) { '1619206361-354509863784495-0001-7383' }
 
       before do
+        # Stub CarrierWave cache_id to match VCR cassette URLs
+        allow(CarrierWave).to receive(:generate_cache_id).and_return(carrierwave_cache_id)
         expect(SecureRandom).to receive(:uuid).and_call_original
         expect(SecureRandom).to receive(:uuid).and_return(form_attachment_guid) # when FormAttachment is initalized
         allow(SecureRandom).to receive(:uuid).and_call_original # Allow method to be called later in the req stack
       end
 
-      it 'accepts a file upload', skip: 'temporarily skip flaky spec' do
+      it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.pdf", vcr_options do
           make_upload_request_with('doctors-note.pdf', 'application/pdf')
 

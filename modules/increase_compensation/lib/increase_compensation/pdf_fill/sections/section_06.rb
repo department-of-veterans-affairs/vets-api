@@ -9,7 +9,7 @@ module IncreaseCompensation
       # Section configuration hash
       KEY = {
         'signature' => {
-          key: 'form1[0].#subform[4].Signature[0]'
+          key: 'form1[0].#subform[4].SignatureField11[0]'
         },
         'signatureDate' => {
           'month' => {
@@ -25,6 +25,10 @@ module IncreaseCompensation
         'witnessSignature1' => {
           'signature' => {
             limit: 38,
+            question_number: 29,
+            question_suffix: 'A',
+            question_label: 'Signature of Witness 1',
+            question_text: 'Signature of Witness 1',
             key: 'form1[0].#subform[4].Signature[0]'
           },
           'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[0]' },
@@ -33,6 +37,10 @@ module IncreaseCompensation
         'witnessSignature2' => {
           'signature' => {
             limit: 38,
+            question_number: 30,
+            question_suffix: 'A',
+            question_label: 'Signature of Witness 2',
+            question_text: 'Signature of Witness 2',
             key: 'form1[0].#subform[4].Signature[1]'
           },
           'address1' => { key: 'form1[0].#subform[4].ADDRESS_OF_WITNESS[2]' },
@@ -41,6 +49,7 @@ module IncreaseCompensation
       }.freeze
       def expand(form_data = {})
         form_data['signatureDate'] = split_date(form_data['signatureDate'])
+        form_data['statement_of_truth_signature'] = form_data['statement_of_truth_signature'] || form_data['signature']
         if form_data['witnessSignature1'].present? && form_data['witnessSignature1']['address'].length > 1
           form_data['witnessSignature1'].merge!(
             two_line_overflow(form_data['witnessSignature1']['address'], 'address', 17)

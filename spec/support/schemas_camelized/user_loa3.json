@@ -116,6 +116,7 @@
                 "birlsId",
                 "edipi",
                 "secId",
+                "npiId",
                 "logingovUuid",
                 "idmeUuid",
                 "idTheftFlag"
@@ -223,6 +224,12 @@
                   ]
                 },
                 "secId": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "npiId": {
                   "type": [
                     "string",
                     null
@@ -351,6 +358,29 @@
                     "facilities": {
                       "type": "array"
                     },
+                    "userAtPretransitionedOhFacility": {
+                      "type": "boolean"
+                    },
+                    "userFacilityReadyForInfoAlert": {
+                      "type": "boolean"
+                    },
+                    "ohMigrationInfo": {
+                      "type": "object",
+                      "properties": {
+                        "userFacilityMigratingToOh": {
+                          "type": "boolean"
+                        },
+                        "migrationSchedules": {
+                          "type": "array"
+                        },
+                        "userAtPretransitionedOhFacility": {
+                          "type": "boolean"
+                        },
+                        "userFacilityReadyForInfoAlert": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
                     "givenNames": {
                       "type": "array"
                     },
@@ -362,6 +392,9 @@
                     },
                     "activeMHVIds": {
                       "type": "array"
+                    },
+                    "schedulingPreferencesPilotEligible": {
+                      "type": "boolean"
                     }
                   }
                 }

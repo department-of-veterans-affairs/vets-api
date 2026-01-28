@@ -19,6 +19,8 @@ describe Eps::ProviderService do
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
     # Clear eps_trace_id to ensure test isolation
     RequestStore.store['eps_trace_id'] = nil
+    # Mock PersonalInformationLog to avoid database interactions during tests
+    allow(PersonalInformationLog).to receive(:create)
   end
 
   describe '#get_provider_service' do
@@ -712,7 +714,15 @@ describe Eps::ProviderService do
     end
 
     context 'when required parameters are missing or blank' do
-      it 'raises ArgumentError when npi is nil' do
+      it 'raises ArgumentError and logs personal information when npi is nil' do
+        expect(PersonalInformationLog).to receive(:create).with(
+          error_class: 'eps_provider_npi_missing',
+          data: hash_including(
+            search_params: hash_including(specialty:),
+            failure_reason: 'NPI parameter is blank'
+          )
+        )
+
         expect do
           service.search_provider_services(npi: nil, specialty:, address:)
         end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
@@ -730,7 +740,15 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'Provider NPI is required and cannot be blank')
       end
 
-      it 'raises ArgumentError when specialty is nil' do
+      it 'raises ArgumentError and logs personal information when specialty is nil' do
+        expect(PersonalInformationLog).to receive(:create).with(
+          error_class: 'eps_provider_specialty_missing',
+          data: hash_including(
+            npi:,
+            failure_reason: 'Specialty parameter is blank'
+          )
+        )
+
         expect do
           service.search_provider_services(npi:, specialty: nil, address:)
         end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
@@ -748,7 +766,16 @@ describe Eps::ProviderService do
         end.to raise_error(ArgumentError, 'Provider specialty is required and cannot be blank')
       end
 
-      it 'raises ArgumentError when address is nil' do
+      it 'raises ArgumentError and logs personal information when address is nil' do
+        expect(PersonalInformationLog).to receive(:create).with(
+          error_class: 'eps_provider_address_missing',
+          data: hash_including(
+            npi:,
+            search_params: hash_including(specialty:),
+            failure_reason: 'Address parameter is blank'
+          )
+        )
+
         expect do
           service.search_provider_services(npi:, specialty:, address: nil)
         end.to raise_error(ArgumentError, 'Provider address is required and cannot be blank')
@@ -781,7 +808,16 @@ describe Eps::ProviderService do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
         end
 
-        it 'returns nil' do
+        it 'returns nil and logs personal information' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_provider_specialty_mismatch',
+            data: hash_including(
+              npi:,
+              search_params: hash_including(specialty:),
+              failure_reason: "No providers match specialty '#{specialty}'"
+            )
+          )
+
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
         end
@@ -804,7 +840,15 @@ describe Eps::ProviderService do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
         end
 
-        it 'returns nil' do
+        it 'returns nil and logs personal information' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_provider_no_providers_found',
+            data: hash_including(
+              npi:,
+              failure_reason: 'No providers returned from EPS API for NPI'
+            )
+          )
+
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
         end
@@ -843,14 +887,8 @@ describe Eps::ProviderService do
               {
                 id: 'provider1',
                 specialties: [{ name: 'Cardiology' }],
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: false
-                  }
-                ],
                 features: {
-                  is_digital: true,
+                  is_digital: false,
                   direct_booking: {
                     is_enabled: true
                   }
@@ -862,16 +900,10 @@ describe Eps::ProviderService do
               {
                 id: 'provider2',
                 specialties: [{ name: 'Cardiology' }],
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: true
-                  }
-                ],
                 features: {
-                  is_digital: false,
+                  is_digital: true,
                   direct_booking: {
-                    is_enabled: true
+                    is_enabled: false
                   }
                 },
                 location: {
@@ -892,11 +924,19 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'returns nil, logs error, and increments metric' do
+        it 'returns nil, logs error, increments metric, and logs personal information' do
           expect(StatsD).to receive(:increment).with(
             'api.vaos.provider_service.no_self_schedulable',
             tags: ['service:community_care_appointments']
           )
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_provider_no_self_schedulable',
+            data: hash_including(
+              npi:,
+              failure_reason: match(/No self-schedulable providers found/)
+            )
+          )
+
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_nil
           expected_controller_name = 'VAOS::V2::AppointmentsController'
@@ -936,54 +976,6 @@ describe Eps::ProviderService do
           result = service.search_provider_services(npi:, specialty:, address:)
           expect(result).to be_a(OpenStruct)
           expect(result.id).to eq('provider123')
-        end
-      end
-
-      context 'when provider fails office visit appointment type criteria' do
-        let(:response_body) do
-          {
-            count: 1,
-            provider_services: [
-              self_schedulable_provider(
-                appointment_types: [
-                  {
-                    name: 'Office Visit',
-                    is_self_schedulable: false
-                  }
-                ]
-              )
-            ]
-          }
-        end
-
-        let(:response) do
-          double('Response', status: 200, body: response_body,
-                             response_headers: { 'Content-Type' => 'application/json' })
-        end
-
-        before do
-          allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
-          allow(Rails.logger).to receive(:error)
-        end
-
-        it 'returns nil, logs error, and increments metric' do
-          expect(StatsD).to receive(:increment).with(
-            'api.vaos.provider_service.no_self_schedulable',
-            tags: ['service:community_care_appointments']
-          )
-          result = service.search_provider_services(npi:, specialty:, address:)
-          expect(result).to be_nil
-          expected_controller_name = 'VAOS::V2::AppointmentsController'
-          expected_station_number = user.va_treatment_facility_ids&.first
-          expect(Rails.logger).to have_received(:error).with(
-            'Community Care Appointments: No self-schedulable providers found for NPI',
-            {
-              controller: expected_controller_name,
-              station_number: expected_station_number,
-              eps_trace_id: nil,
-              user_uuid: 'user-uuid-123'
-            }
-          )
         end
       end
 
@@ -1208,7 +1200,16 @@ describe Eps::ProviderService do
           allow(Rails.logger).to receive(:warn)
         end
 
-        it 'returns nil and logs warning' do
+        it 'returns nil, logs warning, and logs personal information' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            error_class: 'eps_provider_address_mismatch',
+            data: hash_including(
+              npi:,
+              search_params: hash_including(specialty_matches_count: 2),
+              failure_reason: match(/No address match found among 2 specialty-matched providers/)
+            )
+          )
+
           result = service.search_provider_services(npi:, specialty: 'Cardiology', address: non_matching_address)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:warn).with(
@@ -1851,11 +1852,11 @@ describe Eps::ProviderService do
         expect(result).to eq(response)
       end
 
-      it 'calls perform with correct parameters' do
+      it 'calls perform with correct parameters including isSelfSchedulable' do
         expect_any_instance_of(VAOS::SessionService).to receive(:perform).with(
           :get,
           '/api/v1/provider-services',
-          { npi: },
+          { npi:, isSelfSchedulable: true },
           headers
         ).and_return(response)
 
@@ -1938,6 +1939,9 @@ describe Eps::ProviderService do
   end
 
   # Helper method to create a self-schedulable provider
+  # Note: appointment_types field is included for API response completeness but
+  # is not used for self-schedulable filtering (handled by EPS API via isSelfSchedulable param).
+  # Self-schedulable filtering now only checks is_digital and direct_booking.is_enabled.
   def self_schedulable_provider(overrides = {})
     {
       id: 'provider123',

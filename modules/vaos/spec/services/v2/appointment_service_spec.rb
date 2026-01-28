@@ -470,14 +470,16 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when requesting a list of appointments containing a non-Med non-CnP non-CC appointment' do
-        it 'removes the service type(s) from only the non-med non-cnp non-covid appointment' do
+        it 'removes the service type(s) from only the non-med non-cnp appointment and covid appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_non_med',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:service_type]).to be_nil
             expect(response[:data][0][:service_types]).to be_nil
-            expect(response[:data][1][:service_type]).not_to be_nil
-            expect(response[:data][1][:service_types]).not_to be_nil
+            expect(response[:data][1][:service_type]).to be_nil
+            expect(response[:data][1][:service_types]).to be_nil
+            expect(response[:data][2][:service_type]).not_to be_nil
+            expect(response[:data][2][:service_types]).not_to be_nil
           end
         end
       end
@@ -1278,8 +1280,8 @@ describe VAOS::V2::AppointmentsService do
                              match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1314,8 +1316,8 @@ describe VAOS::V2::AppointmentsService do
             VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
               expect { subject.update_appointment('42081', 'cancelled') }
                 .to raise_error do |error|
-                expect(error).to be_a(Common::Exceptions::BackendServiceException)
-                expect(error.status_code).to eq(400)
+                  expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                  expect(error.status_code).to eq(400)
               end
             end
           end
@@ -1332,8 +1334,8 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }
             .to raise_error do |error|
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(502)
+              expect(error).to be_a(Common::Exceptions::BackendServiceException)
+              expect(error.status_code).to eq(502)
           end
         end
       end
@@ -2155,6 +2157,7 @@ describe VAOS::V2::AppointmentsService do
     after { travel_back }
 
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:fulfilled_appointment) { { status: 'fulfilled', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
     let(:avs_param_included) { true }
@@ -2162,6 +2165,10 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns true if the appointment is booked and is in the past and avs is included' do
       expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
+    end
+
+    it 'returns true if the appointment is fulfilled and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, fulfilled_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
@@ -2307,9 +2314,13 @@ describe VAOS::V2::AppointmentsService do
       { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
         ien: '12345678', station: '983' }
     end
-    let(:avs_error_message) { 'Error retrieving AVS info' }
+    let(:avs_error) { 'Error retrieving AVS info' }
 
     context 'OH AVS PDF' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(true)
+      end
+
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
@@ -2324,7 +2335,7 @@ describe VAOS::V2::AppointmentsService do
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
-          expect(appt_cerner[:avs_error]).to eq(avs_error_message)
+          expect(appt_cerner[:avs_error]).to eq(avs_error)
           expect(appt_cerner[:avs_pdf]).to be_nil
           expect(appt_cerner[:avs_path]).to be_nil
         end
@@ -2335,6 +2346,17 @@ describe VAOS::V2::AppointmentsService do
 
         it 'returns an avs error message field in the appointment response' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
+      end
+
+      context 'when processing cerner appointment but flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
+        end
+
+        it 'does not fetch the OH AVS' do
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
@@ -2356,7 +2378,7 @@ describe VAOS::V2::AppointmentsService do
             .and_raise(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to receive(:error)
           subject.send(:fetch_avs_and_update_appt_body, appt_vista)
-          expect(appt_vista[:avs_error]).to eq(avs_error_message)
+          expect(appt_vista[:avs_error]).to eq(avs_error)
           expect(appt_vista[:avs_path]).to be_nil
         end
       end

@@ -10,11 +10,11 @@ RSpec.describe PdfFill::Forms::Va21p530a do
   end
 
   it_behaves_like 'a form filler', {
-    form_id: '21P-530a',
+    form_id: '21P-530A',
     factory: :fake_saved_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21P-530a',
-    test_data_types: %w[simple],
+    test_data_types: %w[simple maximal],
     fill_options: {
       sign: false
     }
@@ -128,16 +128,136 @@ RSpec.describe PdfFill::Forms::Va21p530a do
     end
   end
 
+  describe '.stamp_signature' do
+    let(:pdf_path) { '/tmp/test_form.pdf' }
+    let(:stamped_path) { '/tmp/test_form_stamped.pdf' }
+    let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(datestamp_instance)
+    end
+
+    context 'when signature is present' do
+      let(:form_data_with_sig) do
+        {
+          'certification' => {
+            'signature' => 'John H. Doe'
+          }
+        }
+      end
+
+      it 'stamps the signature onto the PDF' do
+        expect(datestamp_instance).to receive(:run).with(
+          text: 'John H. Doe',
+          x: described_class::SIGNATURE_X,
+          y: described_class::SIGNATURE_Y,
+          page_number: described_class::SIGNATURE_PAGE,
+          size: described_class::SIGNATURE_SIZE,
+          text_only: true,
+          timestamp: '',
+          template: pdf_path,
+          multistamp: true
+        ).and_return(stamped_path)
+
+        result = described_class.stamp_signature(pdf_path, form_data_with_sig)
+        expect(result).to eq(stamped_path)
+      end
+    end
+
+    context 'when signature is blank' do
+      let(:form_data_no_sig) do
+        {
+          'certification' => {
+            'signature' => ''
+          }
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_no_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when signature is nil' do
+      let(:form_data_nil_sig) do
+        {
+          'certification' => {}
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_nil_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when certification key is missing' do
+      let(:form_data_missing_key) { {} }
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_missing_key)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when signature is whitespace only' do
+      let(:form_data_whitespace_sig) do
+        {
+          'certification' => {
+            'signature' => '   '
+          }
+        }
+      end
+
+      it 'returns original path without stamping' do
+        expect(datestamp_instance).not_to receive(:run)
+
+        result = described_class.stamp_signature(pdf_path, form_data_whitespace_sig)
+        expect(result).to eq(pdf_path)
+      end
+    end
+
+    context 'when stamping fails' do
+      let(:form_data_with_sig) do
+        {
+          'certification' => {
+            'signature' => 'John Doe'
+          }
+        }
+      end
+
+      it 'logs error and returns original path' do
+        allow(datestamp_instance).to receive(:run).and_raise(StandardError, 'PDF stamping failed')
+        allow(Rails.logger).to receive(:error)
+
+        result = described_class.stamp_signature(pdf_path, form_data_with_sig)
+
+        expect(result).to eq(pdf_path)
+        expect(Rails.logger).to have_received(:error).with(
+          'Form21p530a: Error stamping signature',
+          hash_including(error: 'PDF stamping failed')
+        )
+      end
+    end
+  end
+
   describe 'PDF generation' do
     it 'generates a PDF successfully', :skip_mvi do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-123',
-        '21P-530a'
+        '21P-530A'
       )
 
       expect(File.exist?(file_path)).to be true
-      expect(file_path).to include('21P-530a')
+      expect(file_path).to include('21P-530A')
 
       # Verify it's a valid PDF
       pdf_content = File.read(file_path)
@@ -151,7 +271,7 @@ RSpec.describe PdfFill::Forms::Va21p530a do
       file_path = PdfFill::Filler.fill_ancillary_form(
         form_data,
         'test-name',
-        '21P-530a'
+        '21P-530A'
       )
 
       expect(File.exist?(file_path)).to be true

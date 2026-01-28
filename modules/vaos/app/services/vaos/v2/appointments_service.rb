@@ -19,6 +19,7 @@ module VAOS
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
       APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
+      APPOINTMENTS_FETCH_OH_AVS = :va_online_scheduling_add_OH_avs
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -242,6 +243,8 @@ module VAOS
           set_type(new_appointment)
           set_modality(new_appointment)
           set_derived_appointment_date_fields(new_appointment)
+          # Remove covid service type per GH#128004
+          remove_service_type(new_appointment) if covid?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -284,6 +287,8 @@ module VAOS
             set_modality(appointment)
             set_derived_appointment_date_fields(appointment)
             appointment[:show_schedule_link] = schedulable?(appointment)
+            # Remove covid service type per GH#128004
+            remove_service_type(appointment) if covid?(appointment)
             OpenStruct.new(appointment)
           end
         end
@@ -754,6 +759,9 @@ module VAOS
         appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
 
         log_telehealth_issue(appointment) if appointment[:modality] == 'vaVideoCareAtHome'
+
+        # Remove covid service type per GH#128004
+        remove_service_type(appointment) if covid?(appointment)
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -916,8 +924,10 @@ module VAOS
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt)
-          appt[:avs_pdf] = avs_pdf
+          if Flipper.enabled?(APPOINTMENTS_FETCH_OH_AVS, user)
+            avs_pdf = get_avs_pdf(appt)
+            appt[:avs_pdf] = avs_pdf
+          end
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
@@ -946,7 +956,7 @@ module VAOS
       def avs_applicable?(appt, avs)
         return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs
+        %w[booked fulfilled].include?(appt[:status]) && appt[:start].to_datetime.past? && avs
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.

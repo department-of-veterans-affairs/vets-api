@@ -1,15 +1,10 @@
 common:
-  - 'kristen.brown@adhocteam.us'
-  - 'michael.hobson@adhocteam.us'
-  - 'mmcdonald@technatomy.com'
-  - 'pstevens@technatomy.com'
-  - 'alattimore@technatomy.com'
-  - 'dorner_brandon@bah.com'
+  - 'mihobson@deloitte.com'
+  - 'alan.lattimore@pingwind.com'
 dev:
 staging:
 sandbox:
 prod:
-  - 'drew.fisher@adhocteam.us'
   - 'melinda.cuerda@adhocteam.us'
   - 'heather.roy@zerodelta365.com'
   - 'david.mazik@va.gov'

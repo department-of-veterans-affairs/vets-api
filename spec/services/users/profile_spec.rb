@@ -286,6 +286,134 @@ RSpec.describe Users::Profile do
         it 'includes active_mhv_ids' do
           expect(va_profile[:active_mhv_ids]).to eq(user.active_mhv_ids)
         end
+
+        context 'Oracle Health facility checks' do
+          before do
+            allow(Settings.mhv.oh_facility_checks).to receive_messages(
+              pretransitioned_oh_facilities: '612, 357, 555',
+              facilities_ready_for_info_alert: '555, 500',
+              oh_migrations_list: '2026-03-03:[321,Test VA],[654,Another VA],[777,Third VA]'
+            )
+          end
+
+          context 'when user has pre-transitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 999])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+            end
+          end
+
+          context 'when user does not have pretransitioned OH facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_at_pretransitioned_oh_facility to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+            end
+          end
+
+          context 'when user has facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[555 999])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to true' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+            end
+          end
+
+          context 'when user does not have facility ready for info alert' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_ready_for_info_alert to false' do
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+            end
+          end
+
+          context 'when user has facility migrating to OH' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[321 999])
+            end
+
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user does not have facility migrating to OH' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[999 888])
+            end
+
+            it 'sets user_facility_migrating_to_oh to false' do
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has multiple facilities including migrating facility' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[654 999])
+            end
+
+            it 'sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has multiple facilities including OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[612 555 321 999])
+            end
+
+            it 'correctly identifies all three flags' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be true
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be true
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
+            end
+          end
+
+          context 'when user has no facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return([])
+            end
+
+            it 'sets all flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has facilities but none match OH facility lists' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[111 222 333])
+            end
+
+            it 'sets all OH facility flags to false' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be false
+            end
+          end
+
+          context 'when user has migrating facility but not other OH facilities' do
+            before do
+              allow(user).to receive(:va_treatment_facility_ids).and_return(%w[777 111])
+            end
+
+            it 'only sets user_facility_migrating_to_oh to true' do
+              expect(va_profile[:user_at_pretransitioned_oh_facility]).to be false
+              expect(va_profile[:user_facility_ready_for_info_alert]).to be false
+              expect(va_profile[:oh_migration_info][:user_facility_migrating_to_oh]).to be true
+            end
+          end
+        end
       end
 
       context 'when mpi_profile is nil' do
@@ -499,6 +627,18 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
+          expect(vet360_info).to have_key(:contact_email_verified)
+          expect(vet360_info[:contact_email_verified]).to be_in([true, false])
+        end
+
+        context 'when email object is nil' do
+          before do
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:email).and_return(nil)
+          end
+
+          it 'returns nil for contact_email_verified when email is nil' do
+            expect(vet360_info[:contact_email_verified]).to be_nil
+          end
         end
 
         it 'sets the status to 200' do
@@ -637,6 +777,204 @@ RSpec.describe Users::Profile do
           logging_profile.send(:mpi_profile)
         end
       end
+    end
+
+    describe '#scheduling_preferences_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:visn_service) { instance_double(UserVisnService) }
+      let(:result) { users_profile.send(:scheduling_preferences_pilot_eligible) }
+
+      before do
+        allow(UserVisnService).to receive(:new).with(user).and_return(visn_service)
+      end
+
+      context 'when profile_scheduling_preferences feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
+        end
+
+        it 'returns false' do
+          expect(visn_service).not_to receive(:in_pilot_visn?)
+          expect(result).to be false
+        end
+      end
+
+      context 'when profile_scheduling_preferences feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
+        end
+
+        context 'when user is in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(true)
+          end
+
+          it 'returns true' do
+            expect(result).to be true
+          end
+        end
+
+        context 'when user is not in pilot VISN' do
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_return(false)
+          end
+
+          it 'returns false' do
+            expect(result).to be false
+          end
+        end
+
+        context 'when VISN service raises an error' do
+          let(:error_message) { 'VISN service error' }
+
+          before do
+            allow(visn_service).to receive(:in_pilot_visn?).and_raise(StandardError, error_message)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'logs the error and returns false' do
+            expect(Rails.logger)
+              .to receive(:error)
+              .with("Error checking scheduling preferences pilot eligibility: #{error_message}")
+            expect(result).to be false
+          end
+        end
+      end
+    end
+
+    describe 'mpi_profile integration with scheduling_preferences_pilot_eligible' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
+
+      before do
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
+        allow(user).to receive_messages(
+          birth_date_mpi: '1980-01-01',
+          last_name_mpi: 'Doe',
+          gender_mpi: 'M',
+          given_names: ['John'],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          va_treatment_facility_ids: %w[402 515],
+          va_patient?: true,
+          mhv_account_state: 'OK',
+          active_mhv_ids: ['12345']
+        )
+      end
+
+      context 'when user is eligible for scheduling preferences pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(true)
+          allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
+        end
+
+        it 'includes scheduling_preferences_pilot_eligible as true in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be true
+        end
+      end
+
+      context 'when user is not eligible for scheduling preferences pilot' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, user).and_return(false)
+        end
+
+        it 'includes scheduling_preferences_pilot_eligible as false in mpi_profile' do
+          expect(mpi_profile_result[:scheduling_preferences_pilot_eligible]).to be false
+        end
+      end
+    end
+
+    describe 'mpi_profile integration with oh_migration_info' do
+      let(:users_profile) { Users::Profile.new(user) }
+      let(:mpi_profile_result) { users_profile.send(:mpi_profile) }
+
+      before do
+        allow(user).to receive_messages(loa3?: true, mpi_status: :ok)
+        allow(user).to receive_messages(
+          birth_date_mpi: '1980-01-01',
+          last_name_mpi: 'Doe',
+          gender_mpi: 'M',
+          given_names: ['John'],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          va_treatment_facility_ids: %w[516 517],
+          va_patient?: true,
+          mhv_account_state: 'OK',
+          active_mhv_ids: ['12345']
+        )
+      end
+
+      context 'when user has facilities in oh_migrations_list' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list)
+            .and_return('2026-03-03:[516,Columbus VA],[517,Toledo VA]')
+        end
+
+        it 'includes oh_migration_info hash in mpi_profile' do
+          expect(mpi_profile_result).to have_key(:oh_migration_info)
+          expect(mpi_profile_result[:oh_migration_info]).to be_a(Hash)
+        end
+
+        it 'includes user_facility_migrating_to_oh in oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to have_key(:user_facility_migrating_to_oh)
+        end
+
+        it 'includes migration_schedules in oh_migration_info' do
+          expect(mpi_profile_result[:oh_migration_info]).to have_key(:migration_schedules)
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to be_an(Array)
+        end
+
+        it 'returns migration schedules for matching facilities' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.length).to eq(1)
+        end
+
+        it 'includes facilities matching user va_treatment_facility_ids' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          facility_ids = schedules.first[:facilities].map { |f| f[:id] }
+          expect(facility_ids).to contain_exactly('516', '517')
+        end
+
+        it 'includes migration_date in response' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:migration_date]).to eq('March 3, 2026')
+        end
+
+        it 'includes migration_status in response' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:migration_status]).to be_present
+        end
+
+        it 'includes phases in response' do
+          schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
+          expect(schedules.first[:phases]).to be_a(Hash)
+        end
+      end
+
+      context 'when user has no facilities in oh_migrations_list' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list)
+            .and_return('2026-03-03:[999,Other VA]')
+        end
+
+        it 'returns empty array for migration_schedules' do
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to eq([])
+        end
+      end
+
+      context 'when oh_migrations_list is nil' do
+        before do
+          allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(nil)
+        end
+
+        it 'returns empty array for migration_schedules' do
+          expect(mpi_profile_result[:oh_migration_info][:migration_schedules]).to eq([])
+        end
+      end
+
+      # NOTE: Error handling for get_migration_schedules is tested in
+      # spec/lib/mhv/oh_facilities_helper/service_spec.rb
+      # The service method rescues all errors and returns []
     end
   end
 end

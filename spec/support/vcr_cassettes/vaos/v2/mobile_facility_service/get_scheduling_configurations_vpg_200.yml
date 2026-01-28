@@ -1,0 +1,197 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VA_MOBILE_URL>/vpg/v1/scheduling/configurations?locations=653"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 15 Jan 2026 19:04:17 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - TS0114998c=01c16e2d812db935c75873208963d3f5e1dc50f25f6506cfd520f7acaf4436dbdae6748877477aad6f826adca93656a5ee2f59da86;
+        path=/; domain=.va.gov
+      - TS016f4012=01c16e2d812db935c75873208963d3f5e1dc50f25f6506cfd520f7acaf4436dbdae6748877477aad6f826adca93656a5ee2f59da86;
+        Max-Age=900; Path=/
+      - __Host-va-mobile-session-v1=eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjpmYWxzZSwibmJmIjoxNzY4NTAzNjc3LCJzc3QiOjE3Njg1MDM4NTcsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwiZXhwIjoxNzY4NTA0NzU3LCJ2ZXJzaW9uIjoyLjgsImp0aSI6IjM3NWU2NWY4LTEzODUtNGZjYy05M2QyLTE3ZDFmYWJhOTEzOSJ9.BQm35ialudknKx2IuKyZhJCwb4oHMlYjbZ1rkQEjPULCg3IGFQJ1MSptj4nEOyzYHEohagOgJ3ji_6SxypANnBqcsKciy8qikr-n8iSA97vQ3GQPKlyPBZwnf8gOzOaOqP3SnJdiDM20MbmJdghJbXYD9JhzDSC9Lx-QwMa9FHYf_TLmjs5Q9pQsQWBOKFd2T8OillZCNR-IcY3jKmxehCDu2P3hFroDy7Rbdk4hnmKq0rJyf9BXAPKbdFP889lCOHb6pd20SQLLqBgoMQU_Qii3s4gG_8E0eqw9EfmhwLV3PdD0-LIYcAZH6bC15tc6r_-yDgGczWOxasHHWQjOrg;
+        SameSite=Lax; path=/; Secure; HttpOnly
+      - dtCookie=v_4_srv_77_sn_4D2DEB5A97F4B602BC58433064F25E2E_perc_100000_ol_0_mul_1_app-3Aea7c4b59f27d43eb_1;
+        Path=/; Domain=.va.gov; secure
+      - vamftimeoutv1=1768504757; SameSite=Lax; path=/
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Server-Timing:
+      - dtRpid;desc="1215064324", dtSInfo;desc="0"
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '45'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"facilityId":"653","vaClinicalServices":[{"clinicalServiceId":"amputation","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"covid","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"outpatientMentalHealth","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"audiology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"clinicalPharmacyPrimaryCare","bookedAppointments":true,"apptRequests":false},{"clinicalServiceId":"primaryCare","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"cpap","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"moveProgram","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"foodAndNutrition","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"ophthalmology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"optometry","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"homeSleepTesting","bookedAppointments":true,"apptRequests":true}],"communityCare":false,"ccClinicalServices":[]}]}'
+  recorded_at: Thu, 15 Jan 2026 19:04:17 GMT
+- request:
+    method: get
+    uri: "<VA_MOBILE_URL>/vpg/v1/scheduling/configurations?locations=653,687"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 15 Jan 2026 19:04:17 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - TS0114998c=01c16e2d8167f06ac945400666889b9fee748ea8b5526c9de4d5ef8bb6c3db0509e2b2f88222938a8d5ce91a91ed3da4ce0636242c;
+        path=/; domain=.va.gov
+      - TS016f4012=01c16e2d8167f06ac945400666889b9fee748ea8b5526c9de4d5ef8bb6c3db0509e2b2f88222938a8d5ce91a91ed3da4ce0636242c;
+        Max-Age=900; Path=/
+      - __Host-va-mobile-session-v1=eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjpmYWxzZSwibmJmIjoxNzY4NTAzNjc3LCJzc3QiOjE3Njg1MDM4NTcsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwiZXhwIjoxNzY4NTA0NzU3LCJ2ZXJzaW9uIjoyLjgsImp0aSI6ImRlNDAzNTAzLTc3ZDItNDc3Ny05ZGJjLTE1MjAwYTU5N2RjZiJ9.N-7U2m1MoLX10ooAfWRO5XZCSEXqLmV2qBcr93hp4oCp0n4TVtuY2JWeYkCECbp9q1R9Lkl-Uq8Rma6QPjCgawvzQQngpty5XerjjNBRyK-dSonbb8a9-2dpVV-8WyGWTg8ia8SHKb2eCmAChFYYTFjVjhQThGh12TnLCuoXNhX_-_koRlROj-hnOe9cXNeMhj3p0W-wdSzhf_tV3hSv5kMebXk9KPW71qhEYdT2-Xj0bT4yFwogcbYHwcdvUOGxwLHr032ERXkQPqSJVX15o6VuWWMy7oKMzmraXf5uEl-4L4dBav8HN97dG6JwBihSeRiGaSasH6xhvu91nbycgw;
+        SameSite=Lax; path=/; Secure; HttpOnly
+      - dtCookie=v_4_srv_63_sn_CF92A3F82BB4D04F8682568884FD8AF0_perc_100000_ol_0_mul_1_app-3Aea7c4b59f27d43eb_1;
+        Path=/; Domain=.va.gov; secure
+      - vamftimeoutv1=1768504757; SameSite=Lax; path=/
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Server-Timing:
+      - dtRpid;desc="1553631437", dtSInfo;desc="0"
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '62'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"facilityId":"687","vaClinicalServices":[{"clinicalServiceId":"amputation","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"covid","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"outpatientMentalHealth","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"audiology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"clinicalPharmacyPrimaryCare","bookedAppointments":true,"apptRequests":false},{"clinicalServiceId":"primaryCare","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"cpap","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"moveProgram","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"foodAndNutrition","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"ophthalmology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"optometry","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"homeSleepTesting","bookedAppointments":true,"apptRequests":true}],"communityCare":false,"ccClinicalServices":[]},{"facilityId":"653","vaClinicalServices":[{"clinicalServiceId":"amputation","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"covid","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"outpatientMentalHealth","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"audiology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"clinicalPharmacyPrimaryCare","bookedAppointments":true,"apptRequests":false},{"clinicalServiceId":"primaryCare","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"cpap","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"moveProgram","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"foodAndNutrition","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"ophthalmology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"optometry","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"homeSleepTesting","bookedAppointments":true,"apptRequests":true}],"communityCare":false,"ccClinicalServices":[]}]}'
+  recorded_at: Thu, 15 Jan 2026 19:04:17 GMT
+- request:
+    method: get
+    uri: "<VA_MOBILE_URL>/vpg/v1/scheduling/configurations?communityCare=true&locations=523,534"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 16 Jan 2026 15:13:03 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - TS0114998c=01c16e2d81bb53758a287ce4e16e30380125c66cc17907c261e8da8c34678ee22d69052b1e84616f60bcd8911b744a40ec138d424c;
+        path=/; domain=.va.gov
+      - TS016f4012=01c16e2d81bb53758a287ce4e16e30380125c66cc17907c261e8da8c34678ee22d69052b1e84616f60bcd8911b744a40ec138d424c;
+        Max-Age=900; Path=/
+      - __Host-va-mobile-session-v1=eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjpmYWxzZSwibmJmIjoxNzY4NTc2MjAyLCJzc3QiOjE3Njg1NzYzODIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwiZXhwIjoxNzY4NTc3MjgyLCJ2ZXJzaW9uIjoyLjgsImp0aSI6ImNmNTk4MzQ2LTliMjktNDI3My04NWI1LTg0NDQ4YjhiNTQ4YiJ9.HfXfFVFAdsCHq5gVEy1Lta2V5YK07KTE7RCmeGlQCBOG-LUWVuisV2Dqu6feIn4qbdQVQWY3riheGYV2pr0yV0T6WIwrF25byCb5fvQ5nsoBXHUMAVfCRpSWPvqDC4iNEnVahZLhlsOQVUPI6NJlgfnAh3weElQoYc-j3OVoigNdGbja7fp_Dcqe5jo-MACvw03QJKociK-88jWuLip5a8YliolmkWW_z6o8DTwLDKoNB7niZHWbJO6RbhdmXZjvuhWq-jPo1TUWegrUJDK-PkXbmmpVrn7i3yyVHDiHhm0R8K8_ndx4UsMIxXVZSJEOedqEEW4r5PhK_af-BKO-xQ;
+        SameSite=Lax; path=/; Secure; HttpOnly
+      - dtCookie=v_4_srv_45_sn_099FA7D0278C96F2403BB49624D49E60_perc_100000_ol_0_mul_1_app-3Aea7c4b59f27d43eb_1;
+        Path=/; Domain=.va.gov; secure
+      - vamftimeoutv1=1768577283; SameSite=Lax; path=/
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Server-Timing:
+      - dtRpid;desc="980631362", dtSInfo;desc="0"
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '73'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"facilityId":"534","vaClinicalServices":[{"clinicalServiceId":"amputation","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"covid","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"CR1","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"outpatientMentalHealth","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"audiology","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"clinicalPharmacyPrimaryCare","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"primaryCare","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"cpap","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"moveProgram","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"socialWork","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"individualSubstanceUseDisorder","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"foodAndNutrition","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"primaryCareMentalHealth","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"ophthalmology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"optometry","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"homeSleepTesting","bookedAppointments":false,"apptRequests":false}],"communityCare":true,"ccClinicalServices":[{"clinicalServiceId":"primaryCare","apptRequests":true},{"clinicalServiceId":"optometry","apptRequests":true},{"clinicalServiceId":"foodAndNutrition","apptRequests":true},{"clinicalServiceId":"audiology-routine
+        exam","apptRequests":true},{"clinicalServiceId":"audiology-hearing aid support","apptRequests":true},{"clinicalServiceId":"podiatry","apptRequests":true}]},{"facilityId":"523","vaClinicalServices":[{"clinicalServiceId":"amputation","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"covid","bookedAppointments":true,"apptRequests":false},{"clinicalServiceId":"CR1","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"outpatientMentalHealth","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"audiology","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"clinicalPharmacyPrimaryCare","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"primaryCare","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"cpap","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"moveProgram","bookedAppointments":false,"apptRequests":true},{"clinicalServiceId":"socialWork","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"individualSubstanceUseDisorder","bookedAppointments":false,"apptRequests":false},{"clinicalServiceId":"foodAndNutrition","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"primaryCareMentalHealth","bookedAppointments":true,"apptRequests":false},{"clinicalServiceId":"ophthalmology","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"optometry","bookedAppointments":true,"apptRequests":true},{"clinicalServiceId":"homeSleepTesting","bookedAppointments":true,"apptRequests":true}],"communityCare":true,"ccClinicalServices":[{"clinicalServiceId":"primaryCare","apptRequests":true},{"clinicalServiceId":"optometry","apptRequests":true},{"clinicalServiceId":"foodAndNutrition","apptRequests":true},{"clinicalServiceId":"audiology-routine
+        exam","apptRequests":true},{"clinicalServiceId":"audiology-hearing aid support","apptRequests":true},{"clinicalServiceId":"podiatry","apptRequests":true}]}]}'
+  recorded_at: Fri, 16 Jan 2026 15:13:03 GMT
+recorded_with: VCR 6.3.1

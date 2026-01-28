@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+require 'sidekiq/attr_package'
 
 module DebtManagementCenter
   class VANotifyEmailJob
@@ -15,14 +16,15 @@ module DebtManagementCenter
         statsd_tags: {
           service: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_SERVICE,
           function: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_FUNCTION
-        }
-      }
+        }.freeze
+      }.freeze
     }.freeze
 
     class UnrecognizedIdentifier < StandardError; end
 
     sidekiq_retries_exhausted do |job, ex|
       options = (job['args'][3] || {}).transform_keys(&:to_s)
+      cache_key = options['cache_key']
 
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       if options['failure_mailer'] == true
@@ -34,32 +36,56 @@ module DebtManagementCenter
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
+
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
-      id_type = options['id_type'] || 'email'
-      use_failure_mailer = options['failure_mailer']
-      notify_client = va_notify_client(use_failure_mailer)
-      notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+      cache_key = options['cache_key']
+      identifier, personalisation = retrieve_pii_from_cache(cache_key, identifier, personalisation)
 
+      send_email(identifier, template_id, personalisation, options)
+      cleanup_and_record_success(cache_key, options['failure_mailer'])
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
+    rescue Sidekiq::AttrPackageError => e
+      # Log AttrPackage errors as application logic errors (no retries)
+      Rails.logger.error('VANotifyEmailJob AttrPackage error', { error: e.message })
+      raise ArgumentError, e.message
+    rescue => e
+      handle_error(e, template_id)
+    end
+
+    private
+
+    def retrieve_pii_from_cache(cache_key, identifier, personalisation)
+      return [identifier, personalisation] unless cache_key
+
+      attributes = Sidekiq::AttrPackage.find(cache_key)
+      return [identifier, personalisation] unless attributes
+
+      [attributes[:email], attributes[:personalisation]]
+    end
+
+    def send_email(identifier, template_id, personalisation, options)
+      id_type = options['id_type'] || 'email'
+      notify_client = va_notify_client(options['failure_mailer'])
+      notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+    end
+
+    def cleanup_and_record_success(_cache_key, use_failure_mailer)
       if use_failure_mailer == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
       end
 
       StatsD.increment("#{STATS_KEY}.success")
-    rescue => e
+    end
+
+    def handle_error(error, template_id)
       StatsD.increment("#{STATS_KEY}.failure")
-      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{e.message}")
-      log_exception_to_sentry(
-        e,
-        { args: { template_id: } },
-        { error: :dmc_va_notify_email_job }
-      )
-
-      log_exception_to_rails(e)
-
-      raise e
+      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{error.message}")
+      log_exception_to_sentry(error, { args: { template_id: } }, { error: :dmc_va_notify_email_job })
+      raise error
     end
 
     def email_params(identifier, template_id, personalisation, id_type)

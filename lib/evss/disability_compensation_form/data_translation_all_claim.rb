@@ -170,32 +170,15 @@ module EVSS
       ###
       # Banking info
       ###
-
       def translate_banking_info
         monitor = DisabilityCompensation::Loggers::Monitor.new
-
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
-        # If banking data is not included, then it has not changed and will be retrieved from Lighthouse
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
-
-          # NOTE: if the Veteran supplied empty or redacted banking information, we are removing a call to Lighthouse
-          # to retrieve banking info the Veteran has on file with Lighthouse, to respect the fact the Veteran left
-          # this blank on purpose.
-          #
-          # This change will launch behind a Flipper but the Flipper will eventually be removed and we will return an
-          # empty hash here
-          if Flipper.enabled?(:disability_526_block_banking_info_retrieval)
-            monitor.track_526_submission_without_banking_info(@user.uuid)
-            {}
-          else
-            get_banking_info
-          end
+          monitor.track_526_submission_without_banking_info(@user.uuid)
+          {}
         else
-          if Flipper.enabled?(:disability_526_block_banking_info_retrieval)
-            monitor.track_526_submission_with_banking_info(@user.uuid)
-          end
-
+          monitor.track_526_submission_with_banking_info(@user.uuid)
           direct_deposit(
             input_form['bankAccountType'], input_form['bankAccountNumber'],
             input_form['bankRoutingNumber'], input_form['bankName']
@@ -203,8 +186,10 @@ module EVSS
         end
       end
 
-      def get_banking_info
+      def get_banking_info # rubocop:disable Metrics/MethodLength
         return {} unless @user.authorize :lighthouse, :direct_deposit_access?
+
+        monitor = DisabilityCompensation::Loggers::Monitor.new
 
         # Call to Lighthouse Direct Deposit (aka PPIU) data provider
         service = ApiProviderFactory.call(
@@ -215,14 +200,22 @@ module EVSS
           feature_toggle: nil
         )
 
-        response = service.get_payment_information
-
         begin
-          set_account(response)
+          response = service.get_payment_information
+          result = set_account(response)
+
+          if result.present?
+            monitor.track_banking_info_prefilled(@user.uuid)
+          else
+            monitor.track_no_banking_info_on_file(@user.uuid)
+          end
+
+          result
         rescue => e
           method_name = '#get_banking_info'
-          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class}: #{e.message}"
-          raise Common::Exceptions::BadRequest.new(errors: [e.message])
+          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class} (error_class=#{e.class})" # rubocop:disable Layout/LineLength
+          monitor.track_banking_info_api_error(@user.uuid, e)
+          raise Common::Exceptions::BadRequest.new(errors: ['Unable to retrieve direct deposit information'])
         end
       end
 

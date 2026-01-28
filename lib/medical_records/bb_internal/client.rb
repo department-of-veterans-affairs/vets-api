@@ -20,6 +20,10 @@ module BBInternal
     USERMGMT_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/".freeze
     BLUEBUTTON_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/".freeze
 
+    LOCK_RETRY_COUNT = 50
+    LOCK_TTL_SECONDS = 15
+    LOCK_RETRY_DELAY = 0.1
+
     ################################################################################
     # User Management APIs
     ################################################################################
@@ -462,31 +466,51 @@ module BBInternal
     # @return [Array] A modified array in which all the objects have has studyIdUrn mapped to a UUID.
     #
     def map_study_ids(data)
-      study_data_cached = get_study_data_from_cache
-      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
-      id_uuid_map = study_data_hash || {}
+      with_study_map_lock do
+        study_data_cached = get_study_data_from_cache
+        study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+        id_uuid_map = study_data_hash || {}
 
-      modified_data = data.map do |obj|
-        study_id = obj['studyIdUrn']
+        modified_data = data.map do |obj|
+          study_id = obj['studyIdUrn']
 
-        existing_uuid = study_data_hash&.key(study_id.to_s)
+          existing_uuid = study_data_hash&.key(study_id.to_s)
 
-        if existing_uuid
-          obj['studyIdUrn'] = existing_uuid
-        else
-          new_uuid = SecureRandom.uuid
-          id_uuid_map[new_uuid] = study_id
-          # Log UUID here - to track the mapping for debugging
-          Rails.logger.info(message: "[MHV-Images] Assigned studyIdUrn to new UUID #{new_uuid}")
-          obj['studyIdUrn'] = new_uuid
+          if existing_uuid
+            obj['studyIdUrn'] = existing_uuid
+          else
+            new_uuid = SecureRandom.uuid
+            id_uuid_map[new_uuid] = study_id
+            # Log UUID here - to track the mapping for debugging
+            Rails.logger.info(message: "[MHV-Images] Assigned studyIdUrn to new UUID #{new_uuid}")
+            obj['studyIdUrn'] = new_uuid
+          end
+          obj
         end
-        obj
+
+        # Store in redis with a ttl of 3 days
+        bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
+
+        modified_data
+      end
+    end
+
+    def with_study_map_lock
+      lock_key = "study_map_lock:#{session.patient_id}"
+
+      # Attempt to acquire lock. Wait up to 5 seconds.
+      LOCK_RETRY_COUNT.times do
+        if bb_redis.set(lock_key, 1, nx: true, ex: LOCK_TTL_SECONDS)
+          begin
+            return yield
+          ensure
+            bb_redis.del(lock_key)
+          end
+        end
+        sleep(LOCK_RETRY_DELAY)
       end
 
-      # Store in redis with a ttl of 3 days
-      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
-
-      modified_data
+      raise Common::Exceptions::ServiceError.new(detail: 'Failed to acquire study map lock')
     end
 
     ##

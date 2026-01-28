@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/service'
-require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
 require 'vets/model'
 
@@ -74,6 +73,7 @@ module VA526ez
 
     attribute :started_form_version, String
     attribute :sync_modern_0781_flow, Bool
+    attribute :disability_comp_new_conditions_workflow, Bool
   end
 end
 
@@ -122,6 +122,7 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
+    return {} unless user.authorize :lighthouse, :access_vet_status?
 
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
@@ -168,7 +169,8 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
       started_form_version: '2022',
-      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
+      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user),
+      disability_comp_new_conditions_workflow: Flipper.enabled?(:disability_compensation_new_conditions_workflow, user)
     )
   end
 
@@ -276,6 +278,8 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def mask(number)
+    return nil if number.nil?
+
     number.gsub(/.(?=.{4})/, '*')
   end
 end

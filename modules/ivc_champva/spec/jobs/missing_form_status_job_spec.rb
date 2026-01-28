@@ -17,12 +17,14 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_callback, @current_user).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(false)
     allow(StatsD).to receive(:gauge)
     allow(StatsD).to receive(:increment)
 
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: true))
-    allow(job).to receive(:monitor).and_return(double(track_send_zsf_notification_to_pega: nil,
-                                                      track_failed_send_zsf_notification_to_pega: nil))
+
+    allow(job).to receive(:monitor).and_return(double(log_silent_failure: nil))
+
     # Save the original form creation times so we can restore them later
     @original_creation_times = forms.map(&:created_at)
     @original_uuids = forms.map(&:form_uuid)
@@ -31,6 +33,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   after do
     # Restore original dummy form created_at/form_uuid props in case we've adjusted them
     forms.each_with_index do |form, index|
+      next if form.destroyed?
+
       form.update(created_at: @original_creation_times[index])
       form.update(form_uuid: @original_uuids[index])
     end
@@ -59,29 +63,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     # Verify that an email has now been sent for the target form:
     expect(forms[0].reload.email_sent).to be true
-  end
-
-  it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
-    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
-
-    threshold = 8
-    allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
-
-    # verify that the forms are approaching threshold w/ no PEGA status:
-    forms.each do |form|
-      expect(form.pega_status).to be_nil
-      expect(days_since_now(form.created_at) < threshold).to be true
-      expect(days_since_now(form.created_at) > threshold - 2).to be true
-    end
-
-    # `perform` should identify the form as nearing a lapse and send a notice to PEGA:
-    job.perform
-
-    # Verify that we attempted to notify PEGA:
-    expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).exactly(forms.count).times
-
-    # email_sent should not be true for this form since we only attempted to notify PEGA:
-    expect(forms[0].reload.email_sent).to be false
   end
 
   it 'checks PEGA reporting API and declines to send failure email if form has actually been processed' do
@@ -122,7 +103,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
-    allow(job.monitor).to receive(:log_silent_failure).and_return(nil)
 
     # Verify that we SHOULD send an email to user for this form
     expect(forms[0].email_sent).to be false
@@ -180,6 +160,67 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count)
   end
 
+  it 'sends form metrics with key tags to DataDog' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+
+    job.perform
+
+    forms.each do |form|
+      expected_key = "#{form.form_uuid}_#{form.s3_status}_#{form.created_at.strftime('%Y%m%d_%H%M%S')}"
+      expect(StatsD).to have_received(:increment).with('ivc_champva.form_missing_status', tags: ["key:#{expected_key}"])
+    end
+  end
+
+  context 'verbose logging' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
+    end
+
+    it 'logs detailed form information when verbose logging is enabled and batch count is <= 10' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
+
+      # Ensure we have a small batch
+      forms[0].update(form_uuid: 'unique-uuid-1')
+      forms[1].update(form_uuid: 'unique-uuid-2')
+      forms[2].update(form_uuid: 'unique-uuid-3')
+
+      # Allow all other info logs, but expect the verbose status logs
+      allow(Rails.logger).to receive(:info)
+      expect(Rails.logger).to receive(:info)
+        .with(/IVC Forms MissingFormStatusJob - Missing status for Form/).exactly(3).times
+
+      job.perform
+    end
+
+    it 'does not log detailed information when verbose logging is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging,
+                                                @current_user).and_return(false)
+
+      expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
+
+      job.perform
+    end
+
+    it 'does not log detailed information when batch count > 10 even with verbose logging enabled' do
+      allow(Flipper).to receive(:enabled?).with(:champva_missing_status_verbose_logging, @current_user).and_return(true)
+
+      # Remove the original forms so they don't interfere with our test
+      forms.each(&:destroy)
+
+      # Create a large batch with the same UUID (11 forms total)
+      shared_uuid = SecureRandom.uuid
+      large_batch_forms = create_list(:ivc_champva_form, 11, pega_status: nil, created_at: one_week_ago)
+      large_batch_forms.each { |form| form.update!(form_uuid: shared_uuid) }
+
+      expect(Rails.logger).not_to receive(:info).with(/IVC Forms MissingFormStatusJob - Missing status for Form/)
+
+      job.perform
+
+      # Clean up the forms we created for this test
+      large_batch_forms.each(&:destroy)
+    end
+  end
+
   it 'logs an error if an exception occurs' do
     allow(IvcChampvaForm).to receive(:where).and_raise(StandardError.new('Something went wrong'))
 
@@ -188,28 +229,55 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
   end
 
-  context 'when send_zsf_notification_to_pega is successful' do
-    it 'logs a successful notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
+  it 'excludes VES JSON files when comparing document counts with Pega reports' do
+    # Create a batch with mixed file types including VES JSON
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: 'attachment.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_10d_ves.json", pega_status: nil)
+    ]
 
-      # Expect our monitor to track the successful send
-      expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).with(forms[0].form_uuid,
-                                                                                      'fake-template')
-    end
+    # Mock Pega API to return 2 reports (excluding VES JSON)
+    pega_reports = [
+      { 'UUID' => form_uuid, 'Status' => 'Processed' },
+      { 'UUID' => form_uuid, 'Status' => 'Processed' }
+    ]
+
+    allow(job.pega_api_client).to receive(:record_has_matching_report).and_return(pega_reports)
+    allow(job.missing_status_cleanup).to receive(:manually_process_batch)
+
+    # Should return true because 2 Pega-processable files match 2 Pega reports
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be true
+    expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
+
+    # Clean up test data
+    batch.each(&:destroy)
   end
 
-  context 'when send_zsf_notification_to_pega fails' do
-    before do
-      # Sending the email should fail in this case
-      allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
-    end
+  it 'catches PegaApiError and logs error without crashing the job' do
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil)
+    ]
 
-    it 'logs a failed notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
+    # Mock Pega API to raise the namespaced error
+    allow(job.pega_api_client).to receive(:record_has_matching_report)
+      .and_raise(IvcChampva::PegaApi::PegaApiError.new('Connection timeout'))
 
-      # Expect our monitor to track the failed send
-      expect(job.monitor).to have_received(:track_failed_send_zsf_notification_to_pega).with(forms[0].form_uuid,
-                                                                                             'fake-template')
-    end
+    # Expect the error to be logged
+    expect(Rails.logger).to receive(:error).with(
+      /PegaApiError during report check - form_uuid: #{form_uuid}, error: Connection timeout/
+    )
+
+    # Should return false (not reconciled) but not raise an exception
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be false
+
+    # Clean up test data
+    batch.each(&:destroy)
   end
 end
