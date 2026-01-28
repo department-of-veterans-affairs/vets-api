@@ -76,7 +76,7 @@ gem 'config'
 gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1.1', require: 'vbms'
 gem 'console1984'
 gem 'csv'
-gem 'datadog'
+gem 'datadog'  # 2.24.0 Failed Revert PR: https://github.com/department-of-veterans-affairs/vets-api/pull/26223
 gem 'date_validator'
 gem 'dogstatsd-ruby'
 gem 'dry-struct'
