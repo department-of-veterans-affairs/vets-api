@@ -363,12 +363,14 @@ class FlakySpecBisect
       return
     end
 
+    bisect_flag = @verbose ? '--bisect=verbose' : '--bisect'
     puts "\n#{Colors.bold('Running bisect command...')}"
-    puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
+    puts "Command: bundle exec rspec --seed #{seed} #{bisect_flag} <#{spec_files.length} files>" if @verbose
     puts
-    success = system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
+    success = system('bundle', 'exec', 'rspec', '--seed', seed, bisect_flag, *spec_files)
     unless success
       puts Colors.red('Error: RSpec bisect failed. See output above for details.')
+      puts "Command was: bundle exec rspec --seed #{seed} #{bisect_flag} ..." unless @verbose
       exit 1
     end
   end
@@ -445,9 +447,10 @@ class FlakySpecBisect
   end
 
   def print_dry_run(seed, spec_files, needs_bundle_install)
+    bisect_flag = @verbose ? '--bisect=verbose' : '--bisect'
     puts "\n#{Colors.cyan('[DRY RUN]')} Would execute:"
     puts '  bundle install' if needs_bundle_install
-    puts "  bundle exec rspec --seed #{seed} --bisect \\"
+    puts "  bundle exec rspec --seed #{seed} #{bisect_flag} \\"
     spec_files.each_slice(3) { |files| puts "    #{files.join(' ')} \\" }
   end
 
