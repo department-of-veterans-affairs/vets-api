@@ -33,14 +33,24 @@ module UnifiedHealthData
 
           should_include_allergy?(resource)
         end
-        parsed = filtered.map { |record| parse_single_allergy(record) }
+        parsed = filtered.map { |record| parse_single_allergy(record, filter_by_status: false) }
         parsed.compact
       end
 
-      def parse_single_allergy(record)
+      # Parses a single allergy record from a FHIR AllergyIntolerance resource
+      #
+      # @param record [Hash] A single FHIR entry record
+      # @param filter_by_status [Boolean] When true, returns nil for allergies with 'entered-in-error'
+      #   verification status. Defaults to true.
+      # @return [UnifiedHealthData::Allergy, nil] Parsed allergy object or nil if filtered/invalid
+      def parse_single_allergy(record, filter_by_status: true)
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
+
+        # Filter out entered-in-error allergies if filtering is enabled
+        return nil if filter_by_status && !should_include_allergy?(resource)
+
         date_value = resource['onsetDateTime'] || resource['recordedDate'] || nil
 
         UnifiedHealthData::Allergy.new(

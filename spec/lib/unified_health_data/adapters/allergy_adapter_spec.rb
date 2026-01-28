@@ -33,29 +33,47 @@ RSpec.describe 'AllergyAdapter' do
         # Add IDs like the service's remap_vista_identifier method does
         add_vista_ids(vista_records)
 
+        # First verify that the entered-in-error record exists in fixture data
+        # This ensures test will fail if fixture changes rather than silently passing
+        entered_in_error_record = vista_records.find { |r| r['resource']['id'] == '2676' }
+        expect(entered_in_error_record).to be_present, 'Fixture must contain VistA allergy with id 2676'
+        expect(entered_in_error_record.dig('resource', 'verificationStatus', 'coding', 0,
+                                           'code')).to eq('entered-in-error')
+
+        # VistA fixture has 6 entries total, but only 5 are AllergyIntolerance resources
+        # 1 of those has entered-in-error status
+        expect(vista_records.length).to eq(6)
+
         parsed_allergies = adapter.parse(vista_records)
 
-        # VistA sample has ASPIRIN with entered-in-error status (identifier value: 2676)
+        # Should filter out exactly 1 record (ASPIRIN with id 2676), leaving 4
+        expect(parsed_allergies.length).to eq(4)
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).not_to include('2676')
-        # Also verify ASPIRIN is not in the results by name
-        allergy_names = parsed_allergies.map(&:name)
-        expect(allergy_names).not_to include('ASPIRIN')
       end
 
       it 'filters out Oracle Health allergies with entered-in-error verificationStatus' do
         oh_records = allergy_sample_response['oracle-health']['entry']
+
+        # First verify that the entered-in-error record exists in fixture data
+        entered_in_error_record = oh_records.find { |r| r['resource']['id'] == '132316427' }
+        expect(entered_in_error_record).to be_present, 'Fixture must contain OH allergy with id 132316427'
+        expect(entered_in_error_record.dig('resource', 'verificationStatus', 'coding', 0,
+                                           'code')).to eq('entered-in-error')
+
+        # OH fixture has 10 entries total, but only 8 are AllergyIntolerance resources
+        # 1 of those has entered-in-error status
+        expect(oh_records.length).to eq(10)
+
         parsed_allergies = adapter.parse(oh_records)
 
-        # Oracle Health sample has Cashews with entered-in-error status (id: 132316427)
+        # Should filter out exactly 1 record (Cashew nut with id 132316427), leaving 7
+        expect(parsed_allergies.length).to eq(7)
         allergy_ids = parsed_allergies.map(&:id)
         expect(allergy_ids).not_to include('132316427')
-        # Also verify Cashew nut is not in the results by name
-        allergy_names = parsed_allergies.map(&:name)
-        expect(allergy_names).not_to include('Cashew nut (substance)')
       end
 
-      it 'includes allergies with active clinicalStatus' do
+      it 'includes allergies with active verificationStatus' do
         vista_records = allergy_sample_response['vista']['entry']
         add_vista_ids(vista_records)
         parsed_allergies = adapter.parse(vista_records)
@@ -72,6 +90,25 @@ RSpec.describe 'AllergyAdapter' do
         # Should include confirmed allergies like Penicillin
         allergy_names = parsed_allergies.map(&:name)
         expect(allergy_names).to include('Penicillin')
+      end
+
+      it 'includes allergies with no verificationStatus field (nil case)' do
+        # Create a record without verificationStatus to explicitly test nil handling
+        record_without_status = {
+          'resource' => {
+            'resourceType' => 'AllergyIntolerance',
+            'id' => 'test-no-status',
+            'code' => { 'text' => 'Test Allergy No Status' },
+            'category' => [{ 'coding' => [{ 'code' => 'medication' }] }],
+            'clinicalStatus' => { 'coding' => [{ 'code' => 'active' }] }
+            # NOTE: verificationStatus is intentionally omitted
+          }
+        }
+
+        parsed_allergies = adapter.parse([record_without_status])
+
+        expect(parsed_allergies.length).to eq(1)
+        expect(parsed_allergies.first.name).to eq('Test Allergy No Status')
       end
     end
 
@@ -104,6 +141,79 @@ RSpec.describe 'AllergyAdapter' do
   end
 
   describe '#parse_single_allergy' do
+    # Helper to find the VistA entered-in-error record (ASPIRIN with id 2676)
+    def vista_entered_in_error_record
+      allergy_sample_response['vista']['entry'].find do |record|
+        identifiers = record.dig('resource', 'identifier') || []
+        identifiers.any? { |id| id['value'] == '2676' }
+      end
+    end
+
+    # Helper to find the Oracle Health entered-in-error record (Cashew nut with id 132316427)
+    def oh_entered_in_error_record
+      allergy_sample_response['oracle-health']['entry'].find do |record|
+        record.dig('resource', 'id') == '132316427'
+      end
+    end
+
+    context 'when filter_by_status is true (default)' do
+      it 'returns nil for VistA allergy with entered-in-error verificationStatus' do
+        record = vista_entered_in_error_record
+        parsed_allergy = adapter.parse_single_allergy(record)
+
+        expect(parsed_allergy).to be_nil
+      end
+
+      it 'returns nil for Oracle Health allergy with entered-in-error verificationStatus' do
+        record = oh_entered_in_error_record
+        parsed_allergy = adapter.parse_single_allergy(record)
+
+        expect(parsed_allergy).to be_nil
+      end
+
+      it 'returns the allergy for valid VistA record' do
+        vista_single_record = allergy_sample_response['vista']['entry'][0]
+        vista_identifier = vista_single_record['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        vista_single_record['resource']['id'] = vista_identifier['value']
+
+        parsed_allergy = adapter.parse_single_allergy(vista_single_record)
+
+        expect(parsed_allergy).not_to be_nil
+        expect(parsed_allergy.name).to eq('TRAZODONE')
+      end
+
+      it 'returns the allergy for valid Oracle Health record' do
+        parsed_allergy = adapter.parse_single_allergy(allergy_sample_response['oracle-health']['entry'][0])
+
+        expect(parsed_allergy).not_to be_nil
+        expect(parsed_allergy.name).to eq('Penicillin')
+      end
+    end
+
+    context 'when filter_by_status is false' do
+      it 'returns VistA allergy with entered-in-error verificationStatus' do
+        record = vista_entered_in_error_record
+        # Add ID like the service does
+        identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+        record['resource']['id'] = identifier['value'] if identifier
+
+        parsed_allergy = adapter.parse_single_allergy(record, filter_by_status: false)
+
+        expect(parsed_allergy).not_to be_nil
+        expect(parsed_allergy.name).to eq('ASPIRIN')
+        expect(parsed_allergy.id).to eq('2676')
+      end
+
+      it 'returns Oracle Health allergy with entered-in-error verificationStatus' do
+        record = oh_entered_in_error_record
+        parsed_allergy = adapter.parse_single_allergy(record, filter_by_status: false)
+
+        expect(parsed_allergy).not_to be_nil
+        expect(parsed_allergy.name).to eq('Cashew nut (substance)')
+        expect(parsed_allergy.id).to eq('132316427')
+      end
+    end
+
     it 'returns the expected fields for happy path for vista allergy with all fields' do
       vista_single_record = allergy_sample_response['vista']['entry'][0]
       # This normally happens in the service, but we need the id for the test so we're mocking it here
