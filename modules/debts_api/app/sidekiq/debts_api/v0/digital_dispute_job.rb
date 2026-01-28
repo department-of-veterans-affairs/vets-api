@@ -6,6 +6,8 @@ module DebtsApi
   class V0::DigitalDisputeJob
     include Sidekiq::Worker
 
+    class MissingICNError < StandardError; end
+
     sidekiq_retries_exhausted do |job, ex|
       StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
@@ -24,6 +26,8 @@ module DebtsApi
       Rails.logger.info("Starting DigitalDisputeJob for submission_id #{submission_id}")
       submission = DebtsApi::V0::DigitalDisputeSubmission.find(submission_id)
       user_account = submission.user_account
+      raise MissingICNError, 'User account ICN is required' if user_account.icn.blank?
+
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
       user = OpenStruct.new(
         participant_id: mpi_response.profile.participant_id,
