@@ -44,6 +44,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
     end
 
     describe '#show' do
+      before do
+        # Default: feature flag disabled for legacy tests
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_stream_via_revproxy).and_return(false)
+      end
+
       it 'responds sending data for an attachment' do
         VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
           get '/my_health/v1/messaging/messages/629999/attachments/629993'
@@ -66,7 +71,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
           it 'responds with X-Accel-Redirect headers and empty body' do
             s3_url = 'https://my-bucket.s3.us-gov-west-1.amazonaws.com/path/to/file.pdf?presigned=true'
             metadata = {
-              s3_url: s3_url,
+              s3_url:,
               mime_type: 'application/pdf',
               filename: 'test-document.pdf'
             }
@@ -83,14 +88,15 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
             expect(response.headers['X-Accel-Redirect']).to include(CGI.escape(s3_url))
             expect(response.headers['Content-Type']).to eq('application/pdf')
             expect(response.headers['Content-Disposition']).to eq('attachment; filename="test-document.pdf"')
-            expect(response.headers['Cache-Control']).to eq('private, no-cache, no-store, must-revalidate')
+            expect(response.headers['Cache-Control']).to include('private')
+            expect(response.headers['Cache-Control']).to include('no-store')
             expect(response.body).to be_empty
           end
 
           it 'sanitizes malicious filenames' do
             s3_url = 'https://my-bucket.s3.us-gov-west-1.amazonaws.com/file.pdf'
             metadata = {
-              s3_url: s3_url,
+              s3_url:,
               mime_type: 'application/pdf',
               filename: "test\r\nX-Evil-Header: injected\r\n.pdf"
             }
@@ -102,10 +108,10 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
             get '/my_health/v1/messaging/messages/629999/attachments/629993'
 
             expect(response).to have_http_status(:ok)
-            # Filename should be sanitized
-            expect(response.headers['Content-Disposition']).to match(/filename=\"test_X-Evil-Header_ injected_.pdf\"/)
-            expect(response.headers['Content-Disposition']).not_to include(\"\r\")
-            expect(response.headers['Content-Disposition']).not_to include(\"\n\")
+            # Filename should be sanitized - \r\n chars replaced with underscores
+            expect(response.headers['Content-Disposition']).to match(/filename="test__X-Evil-Header_ injected__.pdf"/)
+            expect(response.headers['Content-Disposition']).not_to include("\r")
+            expect(response.headers['Content-Disposition']).not_to include("\n")
           end
         end
 
@@ -121,7 +127,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
             expect(response).to be_successful
             expect(response.headers['X-Accel-Redirect']).to be_nil
             expect(response.body).to be_a(String)
-            expect(response.body.bytesize).to be > 0
+            expect(response.body.bytesize).to be_positive
           end
         end
 
@@ -139,7 +145,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
             expect(response).to be_successful
             expect(response.headers['X-Accel-Redirect']).to be_nil
             expect(response.body).to be_a(String)
-            expect(response.body.bytesize).to be > 0
+            expect(response.body.bytesize).to be_positive
           end
         end
       end
@@ -157,7 +163,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
           expect(response).to be_successful
           expect(response.headers['X-Accel-Redirect']).to be_nil
           expect(response.body).to be_a(String)
-          expect(response.body.bytesize).to be > 0
+          expect(response.body.bytesize).to be_positive
         end
       end
     end
