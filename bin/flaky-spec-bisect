@@ -75,6 +75,9 @@ class FlakySpecBisect
     end
 
     output.lines.map(&:strip).select { |name| name.start_with?('Test (Group') }
+  rescue Errno::ENOENT
+    puts 'Error: GitHub CLI (gh) not found. Install from https://cli.github.com/'
+    exit 1
   end
 
   def process_group(group_name)
@@ -144,6 +147,10 @@ class FlakySpecBisect
     doc = parse_xml_document(xml_content)
     seed = extract_seed(doc)
     spec_files, failures = extract_testcases(doc)
+    if spec_files.empty?
+      puts 'Error: No spec files found in rspec.xml'
+      exit 1
+    end
     [seed, spec_files, failures]
   end
 
@@ -159,8 +166,8 @@ class FlakySpecBisect
     doc.elements.each('testsuite/properties/property') do |prop|
       seed = prop.attributes['value'] if prop.attributes['name'] == 'seed'
     end
-    unless seed
-      puts 'Error: Could not find seed in rspec.xml'
+    if seed.nil? || seed.strip.empty?
+      puts 'Error: Could not find valid seed in rspec.xml'
       exit 1
     end
     seed
