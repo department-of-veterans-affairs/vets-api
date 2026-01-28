@@ -317,8 +317,8 @@ GEM
     carrierwave-aws (1.6.0)
       aws-sdk-s3 (~> 1.0)
       carrierwave (>= 2.0, < 4)
-    cgi (0.5.0)
-    cgi (0.5.0-java)
+    cgi (0.5.1)
+    cgi (0.5.1-java)
     claide (1.1.0)
     claide-plugins (0.9.2)
       cork
@@ -384,9 +384,9 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.24.0)
+    datadog (2.25.0)
       cgi
-      datadog-ruby_core_source (~> 3.4, >= 3.4.2)
+      datadog-ruby_core_source (~> 3.5, >= 3.5.0)
       libdatadog (~> 24.0.1.1.0)
       libddwaf (~> 1.30.0.0.0)
       logger
