@@ -561,6 +561,16 @@ en:
         code: 'SM_ATTACHMENT_INVALID_RESPONSE'
         detail: 'Received invalid response from messaging service'
         status: 502
+      SM_ATTACHMENT_URL_FETCH_ERROR: # Failed to fetch attachment from S3 presigned URL
+        <<: *external_defaults
+        code: 'SM_ATTACHMENT_URL_FETCH_ERROR'
+        detail: 'Failed to download attachment from cloud storage'
+        status: 502
+      SM_UPLOAD_ATTACHMENT_ERROR: # Failed to upload attachment to S3
+        <<: *external_defaults
+        code: 'SM_UPLOAD_ATTACHMENT_ERROR'
+        detail: 'Failed to upload attachment'
+        status: 500
       MEDICALRECORDS_401:
         <<: *external_defaults
         code: "MEDICALRECORDS_401"
