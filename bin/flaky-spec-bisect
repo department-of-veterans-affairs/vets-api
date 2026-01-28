@@ -18,6 +18,7 @@ class FlakySpecBisect
     @group = options[:group]
     @dry_run = options[:dry_run]
     @verbose = options[:verbose]
+    @skip_verify = options[:skip_verify]
     @download_dir = nil
   end
 
@@ -93,7 +94,9 @@ class FlakySpecBisect
     puts "Spec files: #{spec_files.length}"
     puts "Files: #{spec_files.first(3).join(', ')}#{spec_files.length > 3 ? '...' : ''}" if @verbose
     print_failures(failures)
-    run_bisect(seed, spec_files)
+
+    failed_files = failures.map { |f| f[:file] }.compact.uniq
+    run_bisect(seed, spec_files, failed_files)
   end
 
   def artifact_name_for_group(group_name)
@@ -199,7 +202,7 @@ class FlakySpecBisect
     end
   end
 
-  def run_bisect(seed, spec_files)
+  def run_bisect(seed, spec_files, failed_files)
     needs_bundle_install = !bundle_ready?
 
     if @dry_run
@@ -207,12 +210,58 @@ class FlakySpecBisect
       return
     end
 
+    ensure_bundle_ready(needs_bundle_install)
+
+    return unless @skip_verify || failed_files.empty? || verify_failure_reproduces(seed, spec_files)
+
     puts "\nRunning bisect command..."
     puts "Command: bundle exec rspec --seed #{seed} --bisect <#{spec_files.length} files>" if @verbose
-    ensure_bundle_ready(needs_bundle_install)
     puts
     success = system('bundle', 'exec', 'rspec', '--seed', seed, '--bisect', *spec_files)
     exit 1 unless success
+  end
+
+  def verify_failure_reproduces(seed, spec_files)
+    puts "\nVerifying failure reproduces (3 attempts)..."
+    failures = count_failures(seed, spec_files, 3)
+
+    case failures
+    when 0
+      prompt_continue_without_reproduction
+    when 3
+      prompt_continue_with_consistent_failure
+    else
+      puts "\nFailure reproduced #{failures}/3 times. Proceeding with bisect."
+      true
+    end
+  end
+
+  def count_failures(seed, spec_files, attempts)
+    failures = 0
+    attempts.times do |i|
+      print "  Attempt #{i + 1}/#{attempts}: "
+      success = system('bundle', 'exec', 'rspec', '--seed', seed, *spec_files, %i[out err] => File::NULL)
+      puts success ? 'passed' : 'FAILED'
+      failures += 1 unless success
+    end
+    failures
+  end
+
+  def prompt_continue_without_reproduction
+    puts "\nWarning: Failure did not reproduce in 3 attempts."
+    puts 'The test may be flaky in a way that bisect cannot help with.'
+    puts 'Possible causes: time-dependent, external service, or test pollution from another group.'
+    puts "\nSkip this check with --skip-verify, or press Ctrl+C to abort."
+    print 'Continue with bisect anyway? [y/N] '
+    $stdin.gets&.strip&.downcase == 'y'
+  end
+
+  def prompt_continue_with_consistent_failure
+    puts "\nWarning: Failure reproduced 3/3 times - this may not be flaky."
+    puts 'If it fails consistently, bisect may run for a very long time.'
+    puts 'Consider running the failing spec directly to debug.'
+    print 'Continue with bisect anyway? [y/N] '
+    $stdin.gets&.strip&.downcase == 'y'
   end
 
   def bundle_ready?
@@ -257,6 +306,7 @@ HELP_TEXT = <<~HELP
   Options:
     --group, -g NAME  Only process the specified test group (e.g., "Group 3")
     --dry-run, -n     Print the bisect command without executing
+    --skip-verify     Skip the reproduction check before bisecting
     --verbose, -v     Show more detailed output
     --help, -h        Show this help message
 
@@ -284,6 +334,8 @@ ARGV.each do |arg|
     exit 0
   when '--dry-run', '-n'
     options[:dry_run] = true
+  when '--skip-verify'
+    options[:skip_verify] = true
   when '--verbose', '-v'
     options[:verbose] = true
   when /^--group=(.+)$/, /^-g=(.+)$/
