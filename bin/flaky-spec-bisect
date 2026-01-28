@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'fileutils'
-require 'json'
 require 'open3'
 require 'rexml/document'
 require 'tmpdir'
@@ -219,7 +217,9 @@ class FlakySpecBisect
     return unless runtime&.positive? && spec_count > 1
 
     iterations = Math.log2(spec_count).ceil
-    estimated_seconds = iterations * runtime
+    # Each iteration runs half the specs of the previous, so total time is:
+    # runtime × (1 + 0.5 + 0.25 + ...) ≈ runtime × 2
+    estimated_seconds = runtime * 2
     puts "Estimated bisect time: #{Colors.cyan(format_duration(estimated_seconds))} (~#{iterations} iterations)"
   end
 
@@ -439,7 +439,7 @@ class FlakySpecBisect
   end
 
   def bundle_ready?
-    _, status = Open3.capture2('bundle', 'check', err: '/dev/null')
+    _, status = Open3.capture2('bundle', 'check', err: File::NULL)
     status.success?
   rescue Errno::ENOENT
     puts Colors.red('Error: Bundler not found. Install with: gem install bundler')
