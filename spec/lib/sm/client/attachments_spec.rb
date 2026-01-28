@@ -37,6 +37,7 @@ describe SM::Client::Attachments do
       allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
       allow(mock_mhv_response).to receive(:[]).with('content-type').and_return('image/png')
       allow(mock_mhv_response).to receive(:[]).with('content-disposition').and_return('attachment; filename="test.png"')
+      allow(mock_mhv_response).to receive(:[]).with('content-length').and_return('12345')
       allow(mock_mhv_response).to receive(:read_body).and_yield('chunk1').and_yield('chunk2')
 
       mock_http = double
@@ -57,6 +58,7 @@ describe SM::Client::Attachments do
       expect(headers_received).not_to be_nil
       expect(headers_received.to_h['Content-Type']).to eq('image/png')
       expect(headers_received.to_h['Content-Disposition']).to include('test.png')
+      expect(headers_received.to_h['Content-Length']).to eq('12345')
     end
 
     it 'streams an S3 attachment from presigned URL' do
@@ -70,6 +72,7 @@ describe SM::Client::Attachments do
       # Mock the S3 HTTP response
       mock_s3_response = double
       allow(mock_s3_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(mock_s3_response).to receive(:[]).with('content-length').and_return('67890')
       allow(mock_s3_response).to receive(:read_body).and_yield('s3chunk1').and_yield('s3chunk2')
 
       mock_http = double
@@ -94,6 +97,7 @@ describe SM::Client::Attachments do
       expect(chunks).to eq(%w[s3chunk1 s3chunk2])
       expect(headers_received.to_h['Content-Type']).to eq('application/pdf')
       expect(headers_received.to_h['Content-Disposition']).to include('test.pdf')
+      expect(headers_received.to_h['Content-Length']).to eq('67890')
     end
 
     it 'raises error when MHV fetch fails' do

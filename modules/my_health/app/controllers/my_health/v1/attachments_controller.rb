@@ -47,6 +47,9 @@ module MyHealth
         if (content_type = headers_hash['Content-Type']) && response.headers['Content-Type'].blank?
           response.headers['Content-Type'] = content_type
         end
+
+        # Forward Content-Length so clients know the file size for progress indicators
+        response.headers['Content-Length'] = headers_hash['Content-Length'] if headers_hash['Content-Length']
       end
 
       def process_content_disposition(header_value)

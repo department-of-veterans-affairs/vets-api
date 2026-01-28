@@ -25,13 +25,6 @@ module SM
       def stream_s3_attachment(data, header_callback, &block)
         uri = URI.parse(data[:url])
 
-        # Set response headers based on metadata
-        headers = {
-          'Content-Type' => data[:mime_type],
-          'Content-Disposition' => "#{Attachments::CONTENT_DISPOSITION}\"#{data[:name]}\""
-        }
-        header_callback.call(headers.to_a)
-
         # Stream the file from S3 with timeouts to prevent hanging connections:
         # - open_timeout: max seconds to wait for TCP connection to establish
         # - read_timeout: max seconds to wait for any single chunk of data (resets per chunk)
@@ -40,6 +33,16 @@ module SM
           request = Net::HTTP::Get.new(uri)
           http.request(request) do |file_response|
             validate_http_response(file_response)
+
+            # Set response headers based on metadata and S3 response
+            headers = {
+              'Content-Type' => data[:mime_type],
+              'Content-Disposition' => "#{Attachments::CONTENT_DISPOSITION}\"#{data[:name]}\""
+            }
+            # Forward Content-Length from S3 so clients know the file size
+            headers['Content-Length'] = file_response['content-length'] if file_response['content-length']
+            header_callback.call(headers.to_a)
+
             file_response.read_body(&block)
           end
         end
@@ -111,6 +114,8 @@ module SM
           'Content-Type' => content_type,
           'Content-Disposition' => content_disposition
         }
+        # Forward Content-Length so clients know the file size
+        headers['Content-Length'] = response['content-length'] if response['content-length']
         header_callback.call(headers.to_a)
 
         # True streaming - read body in chunks
