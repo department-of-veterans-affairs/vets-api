@@ -16,6 +16,10 @@ module SM
       ##
       # Retrieve a message attachment. Returns either a binary file or fetches from S3 presigned URL.
       #
+      # @deprecated Prefer {#stream_attachment} for memory-efficient downloads, especially for large files.
+      #   This method loads the entire attachment into memory, which can cause memory exhaustion
+      #   for files up to 25MB under concurrent load. See va.gov-team#131335 for migration plan.
+      #
       # @param message_id [Fixnum] the message id
       # @param attachment_id [Fixnum] the attachment id
       # @return [Hash] object with binary file content and filename { body: binary_data, filename: string }
