@@ -185,20 +185,80 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
   describe 'when the claims_api_use_person_web_service flipper is on' do
     let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+    let(:poa) { create_poa }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
-      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
-                                                               external_key: anything)
-                                                         .and_return(person_web_service)
-      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
     end
 
-    it 'calls local bgs person web service instead of bgs-ext' do
-      poa = create_poa
-      subject.new.perform(poa.id)
+    context 'and the PersonWebService retrieves successfullly' do
+      before do
+        allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                                 external_key: anything)
+                                                           .and_return(person_web_service)
+        allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+      end
 
-      expect(person_web_service).to have_received(:find_by_ssn)
+      it 'calls local bgs person web service instead of bgs-ext' do
+        subject.new.perform(poa.id)
+
+        expect(person_web_service).to have_received(:find_by_ssn)
+      end
+    end
+
+    context 'and the PersonWebService raises an exception' do
+      before do
+        allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                                 external_key: anything)
+                                                           .and_return(person_web_service)
+      end
+
+      # iterate through BGS_ERRORS array to create similar tests for each exception
+      BGS_ERRORS.each do |bgs_error|
+        context "with a #{bgs_error} raised from the BGS service" do
+          before do
+            allow(person_web_service).to receive(:find_by_ssn).and_raise(bgs_error)
+          end
+
+          it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+            expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+            subject.new.perform(poa.id)
+            poa.reload
+            expect(poa.status).to eq('errored')
+          end
+
+          it 'updates the process status to FAILED and returns the error message' do
+            subject.new.perform(poa.id)
+            process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+            expect(process.step_status).to eq('FAILED')
+            expect(process.error_messages.first['title']).to eq('BGS Error')
+            expect(process.error_messages.first['detail']).to eq(bgs_error.new.message)
+          end
+        end
+      end
+
+      context 'with a StandardError that is not from the BGS Service' do
+        let(:standard_error) { StandardError }
+
+        before do
+          allow(person_web_service).to receive(:find_by_ssn).and_raise(standard_error)
+        end
+
+        it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+          subject.new.perform(poa.id)
+          poa.reload
+          expect(poa.status).to eq('errored')
+        end
+
+        it 'updates the process status to FAILED and returns the error message' do
+          subject.new.perform(poa.id)
+          process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+          expect(process.step_status).to eq('FAILED')
+          expect(process.error_messages.first['title']).to eq('Generic Error')
+          expect(process.error_messages.first['detail']).to eq(standard_error.new.message)
+        end
+      end
     end
   end
 
