@@ -337,6 +337,11 @@ module IvcChampva
             raise Common::Exceptions::ValidationErrors, attachment
           end
 
+          # Convert to PDF before save to reduce final submission latency
+          if Flipper.enabled?(:champva_convert_to_pdf_on_upload, @current_user)
+            attachment.file = convert_to_pdf(attachment.file)
+          end
+
           attachment.save
 
           launch_background_job(attachment, params[:form_id].to_s, params['attachment_id'])
@@ -479,6 +484,39 @@ module IvcChampva
         else
           'application/octet-stream'
         end
+      end
+
+      ##
+      # Converts an uploaded file to PDF if it's an image. Returns the file unchanged if already a PDF.
+      #
+      # @param uploaded_file [ActionDispatch::Http::UploadedFile] The file to convert
+      # @return [ActionDispatch::Http::UploadedFile] The converted PDF or original file
+      # @raise [StandardError] If PDF conversion fails
+      def convert_to_pdf(uploaded_file)
+        return uploaded_file if uploaded_file.content_type == 'application/pdf'
+
+        original_filename = uploaded_file.original_filename
+        pdf_path = Common::ConvertToPdf.new(uploaded_file).run
+
+        pdf_filename = original_filename.sub(/\.[^.]+\z/, '.pdf')
+
+        tempfile = Tempfile.new([File.basename(pdf_filename, '.pdf'), '.pdf'])
+        tempfile.binmode
+        tempfile.write(File.read(pdf_path))
+        tempfile.rewind
+
+        Rails.logger.info('IVC ChampVA Forms - Converted file to PDF')
+
+        ActionDispatch::Http::UploadedFile.new(
+          tempfile:,
+          filename: pdf_filename,
+          type: 'application/pdf'
+        )
+      rescue => e
+        Rails.logger.error("IVC ChampVA Forms - Failed to convert to PDF.")
+        raise
+      ensure
+        FileUtils.rm_f(pdf_path) if pdf_path && File.exist?(pdf_path)
       end
 
       def applicants_with_ohi(applicants)
