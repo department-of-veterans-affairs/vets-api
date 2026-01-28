@@ -84,14 +84,12 @@ module DecisionReviews
         end
 
         ##
-        # Reads and parses the RSA private key from file
+        # Reads the RSA private key from file
         #
-        # @return [OpenSSL::PKey::RSA] the parsed RSA private key
+        # @return [String] the RSA private key content
         #
         def rsa_key
-          key_path = Settings.decision_review.appealable_issues.auth.rsa_key_path
-          key_file = File.read(key_path)
-          @rsa_key ||= OpenSSL::PKey::RSA.new(key_file)
+          @rsa_key ||= File.read(Settings.decision_review.appealable_issues.auth.rsa_key)
         end
       end
     end
