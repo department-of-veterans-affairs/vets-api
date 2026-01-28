@@ -18,6 +18,12 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
     context 'when logged in' do
       before { sign_in_as(user) }
 
+      it 'uses the base VeteranStatusCard::Service' do
+        expect(VeteranStatusCard::Service).to receive(:new).and_call_original
+
+        get '/v0/veteran_status_card'
+      end
+
       context 'when veteran is eligible' do
         let(:eligible_response) do
           {

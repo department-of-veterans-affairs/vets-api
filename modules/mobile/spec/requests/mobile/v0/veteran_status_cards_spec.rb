@@ -11,6 +11,12 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
   end
 
   describe 'GET /mobile/v0/veteran_status_card' do
+    it 'uses the Mobile::V0::VeteranStatusCard::Service' do
+      expect(Mobile::V0::VeteranStatusCard::Service).to receive(:new).and_call_original
+
+      get '/mobile/v0/veteran_status_card', headers: sis_headers
+    end
+
     context 'when veteran is eligible' do
       let(:eligible_response) do
         {
@@ -114,7 +120,7 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
 
     context 'when service raises an argument error' do
       before do
-        allow(VeteranStatusCard::Service).to receive(:new)
+        allow(Mobile::V0::VeteranStatusCard::Service).to receive(:new)
           .and_raise(ArgumentError.new('this is an argument error'))
       end
 
