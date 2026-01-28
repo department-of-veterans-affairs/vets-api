@@ -23,8 +23,7 @@ module VAOS
         end_dt = options[:end_dt]
 
         with_monitoring do
-          response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user) &&
-                        Flipper.enabled?(:va_online_scheduling_enable_OH_slots_search, user)
+          response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
                        get_slots_vpg(location_id:, clinic_id:, clinical_service:, provider_id:, start_dt:, end_dt:)
                      else
                        get_slots_vaos(location_id:, clinic_id:, start_dt:, end_dt:)
