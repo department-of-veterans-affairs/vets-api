@@ -55,8 +55,6 @@ module VeteranStatusCard
     #
     def status_card
       # Validate required user data
-      return nil_user_error_response if @user.nil?
-
       if eligible?
         eligible_response
       else
@@ -204,8 +202,6 @@ module VeteranStatusCard
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
     def disability_rating
-      return nil if @user.icn.blank?
-
       lighthouse_disabilities_provider.get_combined_disability_rating
     rescue => e
       Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
