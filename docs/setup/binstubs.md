@@ -43,10 +43,11 @@ Reproduces flaky specs locally by downloading CI artifacts and running `rspec --
 
 - Accepts a GitHub Actions URL (paste in the Summary page URL) or run ID from a failed test run
 - Runs `bundle install` automatically if needed
-- Options include:
-    - `--group` (target a specific group)
-    - `--dry-run` (preview commands)
-    - `--verbose` (for extra console output)
+- Run `--help` (or `-h`) to see options. Options include:
+    - `--group`, `-g` (target a specific group)
+    - `--dry-run`, `-n` (preview commands)
+    - `--skip-verify` (skip the reproduction check before bisecting)
+    - `--verbose`, `-v` (for extra console output)
 
 **Prerequisites:** GitHub CLI (`gh`) must be installed and authenticated
 
