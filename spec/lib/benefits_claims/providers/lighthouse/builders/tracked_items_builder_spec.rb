@@ -5,7 +5,7 @@ require 'benefits_claims/providers/lighthouse/builders/tracked_items_builder'
 require 'benefits_claims/responses/claim_response'
 
 RSpec.describe BenefitsClaims::Providers::Lighthouse::Builders::TrackedItemsBuilder do
-  describe '.build' do
+  describe '#build' do
     it 'returns nil when input is nil' do
       expect(described_class.build(nil)).to be_nil
     end
