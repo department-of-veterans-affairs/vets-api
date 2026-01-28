@@ -20,6 +20,7 @@ module ClaimsApi
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
+      ALT_NAMES_REGEX = "^([-a-zA-Z0-9/']+( ?))+$".freeze
 
       def alt_rev_validate_form_526_submission_values(target_veteran)
         return if form_attributes.empty?
@@ -584,6 +585,7 @@ module ClaimsApi
         alt_rev_validate_service_periods(service_information, target_veteran)
         alt_rev_validate_service_branch_names(service_information)
         alt_rev_validate_confinements(service_information)
+        alt_rev_validate_alternate_names(service_information)
         alt_rev_validate_reserves_required_values(service_information)
         alt_rev_validate_form_526_location_codes(service_information)
       end
@@ -733,6 +735,43 @@ module ClaimsApi
 
         conf_begin.between?(service_begin, service_end) &&
           conf_end.between?(service_begin, service_end)
+      end
+
+      def alt_rev_validate_alternate_names(service_information) # rubocop:disable Metrics/MethodLength
+        alternate_names = service_information&.dig('alternateNames')
+
+        # if alternate names is an empty array, stub it to be nil
+        if alternate_names.is_a?(Array) && alternate_names.empty?
+          form_attributes['serviceInformation']['alternateNames'] = nil
+          return
+        end
+
+        return if alternate_names.blank?
+
+        # validate each name against regex
+        alternate_names.each_with_index do |name, idx|
+          unless name.match?(Regexp.new(ALT_NAMES_REGEX))
+            collect_error_messages(
+              source: "/serviceInformation/alternateNames/#{idx}",
+              detail: "Alternate name (#{idx}) contains invalid characters. " \
+                      'Must match the following regex: ' \
+                      "#{ALT_NAMES_REGEX}"
+            )
+          end
+        end
+
+        # clean them up to compare
+        alternate_names = alternate_names.map(&:strip).map(&:downcase)
+
+        # returns nil unless there are duplicate names
+        duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
+
+        unless duplicate_names_check.nil?
+          collect_error_messages(
+            source: '/serviceInformation/alternateNames',
+            detail: 'Names entered as an alternate name must be unique.'
+          )
+        end
       end
 
       def alt_rev_validate_service_branch_names(service_information)
