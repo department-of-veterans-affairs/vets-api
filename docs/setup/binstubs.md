@@ -39,7 +39,7 @@ bin/test
 bin/flaky-spec-bisect <github-actions-url-or-run-id>
 ```
 
-Reproduces flaky specs locally by downloading CI artifacts and running `rspec --bisect`. Manual instructions are here: https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests
+Shows how to reproduce flaky specs locally by downloading CI artifacts and running `rspec --bisect`. Manual instructions are here: https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests. Once the bisect is complete, it will give you a “minimal reproduction command.” You can reproduce the failure locally by running `bundle exec rspec <minimal reproduction command>`.
 
 - Accepts a GitHub Actions URL (paste in the Summary page URL) or run ID from a failed test run
 - Runs `bundle install` automatically if needed
