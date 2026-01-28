@@ -47,6 +47,8 @@
     "rank":"gradeofentry56",
     "unit":"unit"}],
  "locationOfDeath":{"location":"nursingHomePaid"},
+ "homeHospiceCare":true,
+ "homeHospiceCareAfterDischarge":true,
  "nursingHomePaid":{"facilityName":"Best Nursing Home","facilityLocation":"portland, ME"},
  "deathDate":"2024-01-01",
  "burialDate":"2024-01-02",

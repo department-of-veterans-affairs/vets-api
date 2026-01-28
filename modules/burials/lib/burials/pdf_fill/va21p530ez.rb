@@ -17,6 +17,8 @@ require_relative 'sections/section_07'
 require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
+require_relative 'sections/section_05_v2'
+
 module Burials
   module PdfFill
     # Forms module
@@ -59,13 +61,13 @@ module Burials
           { question_number: '17', question_text: 'National or Federal Cemetery' },
           { question_number: '18', question_text: 'State Cemetery or Tribal Trust Land' },
           { question_number: '19', question_text: 'Government or Employer Contribution' },
-          { question_number: '20', question_text: "Where Did the Veteran's Death Occur" },
-          { question_number: '21', question_text: 'Burial Allowance Requested' },
-          { question_number: '22', question_text: 'Previously Received Allowance' },
-          { question_number: '23', question_text: 'Burial Expense Responsibility' },
-          { question_number: '24', question_text: 'Plot/Interment Expense Responsibility' },
-          { question_number: '25', question_text: 'Claimant Signature' },
-          { question_number: '26', question_text: 'Firm, Corporation, or State Agency Information' }
+          { question_number: '26', question_text: "Where Did the Veteran's Death Occur" },
+          { question_number: '27', question_text: 'Burial Allowance Requested' },
+          { question_number: '28', question_text: 'Previously Received Allowance' },
+          { question_number: '29', question_text: 'Burial Expense Responsibility' },
+          { question_number: '30', question_text: 'Plot/Interment Expense Responsibility' },
+          { question_number: '31', question_text: 'Claimant Signature' },
+          { question_number: '32', question_text: 'Firm, Corporation, or State Agency Information' }
         ].freeze
 
         # V2-style sections grouping question numbers for overflow pages
@@ -81,9 +83,9 @@ module Burials
           { label: 'Section IX: Relationship to Veteran', question_nums: ['13'] },
           { label: 'Section X: Military Service Information', question_nums: %w[14 15] },
           { label: 'Section XI: Burial Information', question_nums: %w[16 17 18] },
-          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[19 20] },
-          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[21 22 23 24] },
-          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[25 26] }
+          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[19 26] },
+          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[27 28 29 30] },
+          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[31 32] }
         ].freeze
 
         # A mapping of care facilities to their labels
@@ -100,14 +102,14 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2].freeze
+        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section5V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
         QUESTION_KEY_V2 = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
-          { question_number: '3', question_text: "Veteran's Date of Birth" },
-          { question_number: '4', question_text: 'VA File Number' },
+          { question_number: '3', question_text: 'VA File Number' },
+          { question_number: '4', question_text: "Veteran's Date of Birth" },
           { question_number: '5', question_text: "Veteran's Date of Death" },
           { question_number: '6', question_text: "Veteran's Date of Burial" },
           { question_number: '7', question_text: "Claimant's Name" },
