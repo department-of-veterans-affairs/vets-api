@@ -57,10 +57,12 @@ class FormIntakeSubmission < ApplicationRecord
   end
 
   def increment_retry_count!
-    update!(
-      retry_count: retry_count + 1,
-      last_attempted_at: Time.current
-    )
+    with_lock do
+      update!(
+        retry_count: retry_count + 1,
+        last_attempted_at: Time.current
+      )
+    end
   end
 
   # Helper method to get form type from associated form_submission
