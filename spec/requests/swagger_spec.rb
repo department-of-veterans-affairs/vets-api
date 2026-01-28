@@ -1194,7 +1194,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'submit_all_claim', 'all.json').read
       end
 
       it 'supports getting rated disabilities' do
