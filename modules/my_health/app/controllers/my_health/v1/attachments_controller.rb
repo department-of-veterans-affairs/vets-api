@@ -68,7 +68,7 @@ module MyHealth
       def extract_filename(header_value)
         # Use Mail gem's Content-Disposition parser which handles RFC 5987 encoding
         Mail::ContentDispositionField.new(header_value).filename
-      rescue
+      rescue ArgumentError, Mail::Field::IncompleteParseError
         nil
       end
 

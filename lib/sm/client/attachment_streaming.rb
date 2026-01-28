@@ -131,7 +131,8 @@ module SM
       end
 
       def handle_network_error(error, source)
-        Rails.logger.error("Network error streaming attachment from #{source}: #{error.class} - #{error.message}")
+        # Log only error class - error.message may contain PII from URL paths or API responses
+        Rails.logger.error("Network error streaming attachment from #{source}: #{error.class}")
         raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {}, 503)
       end
     end
