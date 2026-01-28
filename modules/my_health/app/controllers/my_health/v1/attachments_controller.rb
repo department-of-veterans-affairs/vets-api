@@ -7,8 +7,6 @@ module MyHealth
     class AttachmentsController < SMController
       include ActionController::Live
 
-      ATTACHMENT_HEADERS = %w[Content-Type Content-Disposition].freeze
-
       def show
         message_id = params[:message_id]
         attachment_id = params[:id]
@@ -38,27 +36,27 @@ module MyHealth
       private
 
       def process_response_headers(headers)
-        headers.each do |k, v|
-          next unless ATTACHMENT_HEADERS.include?(k)
+        headers_hash = headers.to_h
 
-          if k == 'Content-Disposition' && v.match?(/filename=/)
-            process_content_disposition(k, v)
-          elsif k == 'Content-Type'
-            # Set Content-Type from header if not already set by process_content_disposition
-            response.headers[k] = v unless response.headers['Content-Type']
-          else
-            response.headers[k] = v
-          end
+        # Process Content-Disposition first (may also set Content-Type based on filename)
+        if (disposition = headers_hash['Content-Disposition']) && disposition.match?(/filename=/)
+          process_content_disposition(disposition)
+        end
+
+        # Set Content-Type if not already determined from filename
+        if (content_type = headers_hash['Content-Type']) && response.headers['Content-Type'].blank?
+          response.headers['Content-Type'] = content_type
         end
       end
 
-      def process_content_disposition(header_key, header_value)
+      def process_content_disposition(header_value)
         filename = extract_filename(header_value)
-        return response.headers[header_key] = header_value unless filename
+        return response.headers['Content-Disposition'] = header_value unless filename
 
         # Format as Rails does with send_data: both filename and filename* (RFC 5987)
         encoded_filename = CGI.escape(filename).gsub('+', '%20')
-        response.headers[header_key] = "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{encoded_filename}"
+        response.headers['Content-Disposition'] =
+          "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{encoded_filename}"
 
         # Determine correct Content-Type based on filename extension
         set_content_type_from_filename(filename)

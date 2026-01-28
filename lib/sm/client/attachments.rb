@@ -49,10 +49,22 @@ module SM
       # Stream a message attachment without loading full content into memory.
       # Uses raw Net::HTTP to stream directly from MHV or S3, bypassing Faraday buffering.
       #
+      # This method is preferred over {#get_attachment} for large files (up to 25MB) as it:
+      # - Streams data in chunks rather than buffering the entire file
+      # - Maintains constant memory usage regardless of file size
+      # - Supports both direct MHV binary responses and S3 presigned URL redirects
+      #
+      # @example Streaming to ActionController::Live response
+      #   client.stream_attachment(message_id, attachment_id, header_callback) do |chunk|
+      #     response.stream.write(chunk)
+      #   end
+      #
       # @param message_id [Fixnum] the message id
       # @param attachment_id [Fixnum] the attachment id
-      # @param header_callback [Proc] a callable that will accept response headers
-      # @yield [String] streams chunks of the attachment data to the caller
+      # @param header_callback [Proc] called with response headers as array of [key, value] pairs
+      #   for setting Content-Type and Content-Disposition on the response
+      # @yield [String] streams chunks of the attachment data (typically 8KB) to the caller
+      # @raise [Common::Exceptions::BackendServiceException] if the attachment cannot be fetched
       def stream_attachment(message_id, attachment_id, header_callback, &)
         path = "message/#{message_id}/attachment/#{attachment_id}"
         stream_from_mhv(path, header_callback, &)
