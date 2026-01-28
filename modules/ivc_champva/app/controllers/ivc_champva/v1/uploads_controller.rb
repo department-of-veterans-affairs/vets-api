@@ -512,8 +512,8 @@ module IvcChampva
           filename: pdf_filename,
           type: 'application/pdf'
         )
-      rescue => e
-        Rails.logger.error("IVC ChampVA Forms - Failed to convert to PDF.")
+      rescue
+        Rails.logger.error('IVC ChampVA Forms - Failed to convert to PDF.')
         raise
       ensure
         FileUtils.rm_f(pdf_path) if pdf_path && File.exist?(pdf_path)
