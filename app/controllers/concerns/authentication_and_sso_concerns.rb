@@ -68,6 +68,23 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     end
   end
 
+  def rescued_load_user
+    if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+      super()
+    else
+      begin
+        set_session_object
+        set_current_user(false)
+        @current_user.present?
+      rescue => e
+        Rails.logger.info('[AuthenticationAndSSOConcerns] rescued_load_user failed, continuing without user',
+                          { error: e.class.name, message: e.message })
+        @current_user = nil
+        true
+      end
+    end
+  end
+
   # Destroys the user's session in Redis
   def clear_session
     Rails.logger.debug('SSO: ApplicationController#clear_session', sso_logging_info)
@@ -132,7 +149,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     )
   end
 
-  # Info for logging purposes related to SSO.
+  # Structured info used for SSO-related logging (user identifier, SSO cookie contents, and request host).
   def sso_logging_info
     { user_uuid: @current_user&.uuid,
       sso_cookie_contents: sso_cookie_content,

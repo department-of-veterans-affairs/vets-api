@@ -5,7 +5,7 @@ module V0
     include RetriableConcern
     service_tag 'nursing-home-information'
     skip_before_action :authenticate
-    before_action :load_user
+    before_action :rescued_load_user
     before_action :check_feature_enabled
 
     def create

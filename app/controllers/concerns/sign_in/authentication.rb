@@ -34,6 +34,17 @@ module SignIn
       nil
     end
 
+    def rescued_load_user
+      @current_user = load_user_object
+      validate_request_ip
+      @current_user.present?
+    rescue Errors::AccessTokenExpiredError, Errors::StandardError => e
+      Rails.logger.info('[SignIn][Authentication] rescued_load_user failed, continuing without user',
+                        { error: e.class.name, message: e.message })
+      @current_user = nil
+      true # Return true to allow filter chain to continue
+    end
+
     def access_token_authenticate(skip_render_error: false, re_raise: false)
       access_token.present?
     rescue Errors::AccessTokenExpiredError => e

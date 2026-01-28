@@ -57,6 +57,24 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
+    context 'with expired access token' do
+      let(:access_token_object) { create(:access_token, expiration_time: 1.day.ago) }
+      let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+
+      before do
+        cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+      end
+
+      it 'allows form submission despite expired token' do
+        post(:create, body: valid_payload.to_json, as: :json)
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json['data']['type']).to eq('saved_claims')
+        expect(json['data']['attributes']['confirmation_number']).to be_present
+      end
+    end
+
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:form_4192_enabled, anything).and_return(false)
