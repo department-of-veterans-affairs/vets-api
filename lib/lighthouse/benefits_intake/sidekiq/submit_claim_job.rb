@@ -25,7 +25,8 @@ module BenefitsIntake
         nil
       end
 
-      if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+      config = msg['args'][2] || {}
+      if claim.present? && config[:kafka_submit_event]
         user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
 
         Kafka.submit_event(
@@ -46,7 +47,11 @@ module BenefitsIntake
     # @param saved_claim_id [Integer] the claim id
     # @param user_account_uuid [UUID] the user submitting the form
     # @param config [Mixed] key-value pairs for process steps
-    # => email_type, source, claim_stamp_set, attachment_stamp_set
+    # @option config [Symbol|String] :email_type the email template to be sent on success
+    # @option config [Symbol|Array<Hash>] :claim_stamp_set stamp set name or list to apply to generated pdf
+    # @option config [Symbol|Array<Hash>] :attachment_stamp_set stamp set name or list to apply to evidence pdf
+    # @option config [String] :source the `source` to be recorded in the metadata for the upload; default: class name
+    # @option config [Boolean] :kafka_submit_event flag to send event data to Kafka
     #
     # @return [UUID] benefits intake upload uuid
     def perform(saved_claim_id, user_account_uuid = nil, **config)
@@ -56,7 +61,7 @@ module BenefitsIntake
       generate_attachment_pdfs
       generate_metadata
 
-      upload_document
+      upload_claim_to_lighthouse
 
       send_claim_email
       monitor.track_submission_success(claim, service, user_account_uuid)
@@ -194,7 +199,7 @@ module BenefitsIntake
     end
 
     # Upload generated pdf to Benefits Intake API
-    def upload_document
+    def upload_claim_to_lighthouse
       monitor.track_submission_begun(claim, service, user_account_uuid)
 
       # upload must be performed within 15 minutes of this request
