@@ -16,7 +16,7 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
     token = 'abcdefghijklmnop'
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
@@ -475,7 +475,8 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
 
     describe 'multi-provider authorization edge cases' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('benefits_claims_lighthouse_provider', anything).and_return(true)
       end
 
       context 'when user is only authorized to access appeals, not claims' do
@@ -524,7 +525,10 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
       end
 
       context 'when user is only authorized to access claims, not appeals' do
-        before { allow_any_instance_of(User).to receive(:loa3?).and_return(nil) }
+        before do
+          allow_any_instance_of(User).to receive(:loa3?).and_return(nil)
+          allow(Flipper).to receive(:enabled?).with('benefits_claims_lighthouse_provider', anything).and_return(true)
+        end
 
         it 'returns claims with authorization error for appeals' do
           VCR.use_cassette(good_claims_response_vcr_path) do

@@ -16,7 +16,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
     end
@@ -24,6 +24,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     context 'when the claim is found' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
       end
 
@@ -60,6 +61,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       context 'when cst_override_reserve_records_mobile flipper is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
         end
 
@@ -78,6 +80,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       context 'when cst_override_reserve_records_mobile flipper is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
         end
 
@@ -96,6 +99,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       context 'when :cst_suppress_evidence_requests_mobile is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(true)
         end
 
@@ -113,6 +117,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       context 'when :cst_suppress_evidence_requests_mobile is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
         end
 
@@ -129,6 +134,8 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
       context 'when :schema_contract_claims_and_appeals_get_claim is enabled' do
         before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with('schema_contract_claims_and_appeals_get_claim').and_return(true)
 
           user.user_account_uuid = user_account.id
@@ -146,6 +153,11 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     end
 
     context 'with a non-existent claim' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
+      end
+
       it 'returns a 404 with an error',
          run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('mobile/lighthouse_claims/show/404_response') do
