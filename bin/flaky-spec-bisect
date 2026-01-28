@@ -192,15 +192,36 @@ class FlakySpecBisect
 
     artifact_name = artifact_name_for_group(group_name)
     xml_content = download_artifact(artifact_name)
-    seed, spec_files, failures = parse_xml(xml_content)
+    seed, spec_files, failures, runtime = parse_xml(xml_content)
 
     puts "Seed: #{Colors.cyan(seed)}"
     puts "Spec files: #{Colors.bold(spec_files.length)}"
+    print_bisect_estimate(spec_files.length, runtime)
     puts "Files: #{spec_files.first(3).join(', ')}#{spec_files.length > 3 ? '...' : ''}" if @verbose
     print_failures(failures)
 
     failed_files = failures.map { |f| f[:file] }.compact.uniq
     run_bisect(seed, spec_files, failed_files)
+  end
+
+  def print_bisect_estimate(spec_count, runtime)
+    return unless runtime&.positive? && spec_count > 1
+
+    iterations = Math.log2(spec_count).ceil
+    estimated_seconds = iterations * runtime
+    puts "Estimated bisect time: #{Colors.cyan(format_duration(estimated_seconds))} (~#{iterations} iterations)"
+  end
+
+  def format_duration(seconds)
+    if seconds < 60
+      "#{seconds.round}s"
+    elsif seconds < 3600
+      "#{(seconds / 60).round}m"
+    else
+      hours = seconds / 3600
+      minutes = (seconds % 3600) / 60
+      "#{hours.round}h #{minutes.round}m"
+    end
   end
 
   def artifact_name_for_group(group_name)
@@ -257,12 +278,23 @@ class FlakySpecBisect
   def parse_xml(xml_content)
     doc = parse_xml_document(xml_content)
     seed = extract_seed(doc)
+    runtime = extract_runtime(doc)
     spec_files, failures = extract_testcases(doc)
     if spec_files.empty?
       puts Colors.red('Error: No spec files found in rspec.xml')
       exit 1
     end
-    [seed, spec_files, failures]
+    [seed, spec_files, failures, runtime]
+  end
+
+  def extract_runtime(doc)
+    testsuite = doc.elements['testsuite']
+    return nil unless testsuite
+
+    time_attr = testsuite.attributes['time']
+    return nil unless time_attr
+
+    time_attr.to_f
   end
 
   def parse_xml_document(xml_content)
