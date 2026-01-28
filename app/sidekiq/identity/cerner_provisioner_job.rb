@@ -8,7 +8,7 @@ module Identity
 
     # remove 'source' argument from unique check
     def self.sidekiq_unique_context(job)
-      args = job['args']
+      args = job['args'].dup
       args.pop if args.size == 2
 
       [job['class'], job['queue'], args]
