@@ -493,4 +493,151 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
     end
   end
+
+  describe 'POST /vass/v0/revoke-token' do
+    let(:jti) { SecureRandom.uuid }
+    let(:redis_client) { Vass::RedisClient.build }
+    let(:jwt_token) do
+      JWT.encode(
+        {
+          sub: uuid,
+          exp: 1.hour.from_now.to_i,
+          iat: Time.current.to_i,
+          jti:
+        },
+        Settings.vass.jwt_secret,
+        'HS256'
+      )
+    end
+
+    before do
+      redis_client.save_session(
+        uuid:,
+        jti:,
+        edipi: '1234567890',
+        veteran_id: uuid
+      )
+    end
+
+    context 'with valid token' do
+      it 'returns 200 OK' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns success message' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+
+        json = JSON.parse(response.body)
+        expect(json['data']['message']).to eq('Token successfully revoked')
+      end
+
+      it 'deletes session from Redis' do
+        expect(redis_client.session_exists?(uuid:)).to be(true)
+
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+
+        expect(redis_client.session_exists?(uuid:)).to be(false)
+      end
+
+      it 'logs token revocation' do
+        expect(Rails.logger).to receive(:info)
+          .with(a_string_including('"action":"token_revoked"', "\"vass_uuid\":\"#{uuid}\"", "\"jti\":\"#{jti}\""))
+
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+      end
+    end
+
+    context 'with missing Authorization header' do
+      it 'returns 401 unauthorized' do
+        post '/vass/v0/revoke-token', as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns invalid token error' do
+        post '/vass/v0/revoke-token', as: :json
+
+        json = JSON.parse(response.body)
+        expect(json['errors'][0]['code']).to eq('invalid_token')
+        expect(json['errors'][0]['detail']).to eq('Token is invalid or already revoked')
+      end
+    end
+
+    context 'with invalid token' do
+      it 'returns 401 unauthorized' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => 'Bearer invalid-token' },
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns invalid token error' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => 'Bearer invalid-token' },
+             as: :json
+
+        json = JSON.parse(response.body)
+        expect(json['errors'][0]['code']).to eq('invalid_token')
+      end
+    end
+
+    context 'with already revoked token' do
+      before do
+        redis_client.delete_session(uuid:)
+      end
+
+      it 'returns 401 unauthorized' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns invalid token error' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{jwt_token}" },
+             as: :json
+
+        json = JSON.parse(response.body)
+        expect(json['errors'][0]['code']).to eq('invalid_token')
+        expect(json['errors'][0]['detail']).to eq('Token is invalid or already revoked')
+      end
+    end
+
+    context 'with expired but valid token' do
+      let(:expired_jwt_token) do
+        JWT.encode(
+          {
+            sub: uuid,
+            exp: 1.hour.ago.to_i,
+            iat: 2.hours.ago.to_i,
+            jti:
+          },
+          Settings.vass.jwt_secret,
+          'HS256'
+        )
+      end
+
+      it 'still allows revocation of expired tokens' do
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => "Bearer #{expired_jwt_token}" },
+             as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(redis_client.session_exists?(uuid:)).to be(false)
+      end
+    end
+  end
 end
