@@ -254,7 +254,7 @@ module VeteranStatusCard
     # @return [Boolean] true if service history episodes exist, false otherwise
     #
     def service_history?
-      service_history_response&.episodes.present?
+      service_history_response&.episodes.any?
     end
 
     ##
