@@ -511,6 +511,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           allow_any_instance_of(IvcChampva::V1::UploadsController)
             .to receive(:launch_background_job)
 
+          # Disable PDF conversion on upload for this test (not testing that feature here)
+          allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(false)
+
           # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
           dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
           allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(dummy_pdf_path)
