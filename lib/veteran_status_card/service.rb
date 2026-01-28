@@ -179,7 +179,7 @@ module VeteranStatusCard
     # @return [Hash] error details with keys :title, :message, :status
     #
     def error_results
-      # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR,
+      # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
       if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
         return {
           title: vet_verification_status[:title],
@@ -188,23 +188,23 @@ module VeteranStatusCard
         }
       end
 
-      # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
-      # don't need to explicitly check for those reasons
-
-      return dishonorable_response if DISHONORABLE_SSC_CODES.include?(ssc_code)
-
-      return ineligible_service_response if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
-
-      return unknown_service_response if ssc_code == UNKNOWN_SERVICE_SSC_CODE
-
-      return edipi_no_pnl_response if ssc_code == EDIPI_NO_PNL_CODE
-
-      return currently_serving_response if CURRENTLY_SERVING_CODES.include?(ssc_code)
-
-      return error_response if ERROR_SSC_CODES.include?(ssc_code)
-
-      # Default fallback
-      error_response
+      # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
+      case ssc_code
+      when *DISHONORABLE_SSC_CODES
+        dishonorable_response
+      when *INELIGIBLE_SERVICE_SSC_CODES
+        ineligible_service_response
+      when UNKNOWN_SERVICE_SSC_CODE
+        unknown_service_response
+      when EDIPI_NO_PNL_CODE
+        edipi_no_pnl_response
+      when *CURRENTLY_SERVING_CODES
+        currently_serving_response
+      when *ERROR_SSC_CODES
+        error_response
+      else
+        error_response
+      end
     end
 
     ##
