@@ -12,10 +12,13 @@ module Representatives
   class Update
     include Sidekiq::Job
 
+    RATE_LIMIT_SECONDS = 2
+
     attr_accessor :slack_messages
 
     def initialize
       @slack_messages = []
+      @records_needing_geocoding = []
     end
 
     # Processes each representative's data provided in JSON format.
@@ -24,6 +27,7 @@ module Representatives
     def perform(reps_json)
       reps_data = JSON.parse(reps_json)
       reps_data.each { |rep_data| process_rep_data(rep_data) }
+      enqueue_geocoding_jobs
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
@@ -48,6 +52,7 @@ module Representatives
           # If address validation fails, log and continue to update non-address fields (email/phone)
           if api_response.nil?
             log_error("Address validation failed for Rep: #{rep_data['id']}. Proceeding to update non-address fields.")
+            @records_needing_geocoding << rep_data['id']
           else
             address_validation_api_response = api_response
           end
@@ -221,6 +226,22 @@ module Representatives
       return nil if longitude.blank? || latitude.blank?
 
       "POINT(#{longitude} #{latitude})"
+    end
+
+    # Enqueues geocoding jobs for records that failed address validation.
+    # Jobs are spaced 2 seconds apart to respect rate limiting.
+    # @return [void]
+    def enqueue_geocoding_jobs
+      return if @records_needing_geocoding.empty?
+
+      @records_needing_geocoding.each_with_index do |representative_id, index|
+        delay_seconds = index * RATE_LIMIT_SECONDS
+        model = 'Veteran::Service::Representative'
+        RepresentationManagement::GeocodeRepresentativeJob.perform_in(delay_seconds.seconds,
+                                                                      model, representative_id)
+      end
+    rescue => e
+      log_error("Error enqueueing geocoding jobs: #{e.message}", send_to_slack: true)
     end
 
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.

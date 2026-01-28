@@ -6,6 +6,8 @@ module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Representative < ApplicationRecord
+      include RepresentationManagement::Geocodable
+
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
@@ -102,21 +104,31 @@ module Veteran
 
       #
       # Compares rep's current info with new data to detect changes in address, email, or phone number.
-      # @param rep_data [Hash] New data with :email, :phone_number, and :address keys for comparison.
+      # @param rep_data [Hash] New data with :email, :phone_number, and :raw_address keys for comparison.
       #
       # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
       def diff(rep_data)
-        %i[address email phone_number].each_with_object({}) do |field, diff|
-          diff["#{field}_changed"] = field == :address ? address_changed?(rep_data) : send(field) != rep_data[field]
-        end
+        {
+          'email_changed' => email != rep_data[:email],
+          'phone_number_changed' => phone_number != rep_data[:phone_number],
+          'address_changed' => raw_address != rep_data[:raw_address]
+        }
       end
 
       def user_type
         user_types.first
       end
 
+      #
+      # Override for Geocodable concern - uses representative_id as primary key
+      # @return [String] The representative_id
+      def geocoding_record_id
+        representative_id
+      end
+
       private
 
+      # Legacy address comparison method - kept for reference but no longer used in diff
       #
       # Checks if the rep's address has changed compared to a new address hash.
       # @param other_address [Hash] New address data with keys for address components and state code.
