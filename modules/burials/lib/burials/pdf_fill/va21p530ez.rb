@@ -130,13 +130,15 @@ module Burials
           { question_number: '22', question_text: 'National or Federal Cemetery' },
           { question_number: '23', question_text: 'State Cemetery or Tribal Trust Land' },
           { question_number: '24', question_text: 'Government or Employer Contribution' },
-          { question_number: '25', question_text: "Where Did the Veteran's Death Occur" },
+          { question_number: '25', question_text: 'Resposible for the Veteran\'s Plot' },
           { question_number: '26', question_text: 'Burial Allowance Requested' },
-          { question_number: '27', question_text: 'Previously Received Allowance' },
-          { question_number: '28', question_text: 'Burial Expense Responsibility' },
-          { question_number: '29', question_text: 'Plot/Interment Expense Responsibility' },
-          { question_number: '30', question_text: 'Claimant Signature' },
-          { question_number: '31', question_text: 'Firm, Corporation, or State Agency Information' }
+          { question_number: '27', question_text: 'Did Veteran Pass Away Under VA Coverage' },
+          { question_number: '28', question_text: 'Received VA Burial Allowance' },
+          { question_number: '29', question_text: 'Burial Expense Responsibility' },
+          { question_number: '30', question_text: 'Plot/Interment Expense Responsibility' },
+          { question_number: '31', question_text: 'Direct Deposit Information' },
+          { question_number: '32', question_text: 'Claimant Signature' },
+          { question_number: '33', question_text: 'Firm, Corporation, or State Agency Information' }
         ].freeze
 
         # V2 sections grouping question numbers for overflow pages
@@ -148,9 +150,7 @@ module Burials
           { label: 'Section V: Burial Allowance and Expenses', question_nums: %w[26 27 28 29] },
           { label: 'Section VI: Claim For Transportation Allowance', question_nums: %w[30] },
           { label: 'Section VII: Direct Deposit Information', question_nums: %w[31] },
-          { label: 'Section VIII: Certification and Signature', question_nums: %w[32 33] },
-          { label: 'Section IX: Witnesses To Signature', question_nums: %w[34 35] },
-          { label: 'Section X: Alternate Signer Certification', question_nums: %w[36] }
+          { label: 'Section VIII: Certification and Signature', question_nums: %w[32 33] }
         ].freeze
 
         # form configuration hash
