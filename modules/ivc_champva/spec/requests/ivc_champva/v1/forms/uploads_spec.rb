@@ -386,6 +386,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(false)
     end
 
     context 'successful transaction' do
@@ -510,6 +511,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           # Mock background job launching to prevent OCR job from hanging
           allow_any_instance_of(IvcChampva::V1::UploadsController)
             .to receive(:launch_background_job)
+
+          # Disable PDF conversion on upload for this test (not testing that feature here)
+          allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(false)
 
           # Mock Common::ConvertToPdf to avoid ImageMagick issues in test environment
           dummy_pdf_path = Rails.root.join('tmp', 'test_converted.pdf').to_s
@@ -661,6 +665,118 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     it 'handles PDFs with no password' do
       expect(controller.send(:unlock_file, file, nil)).to eq(file)
+    end
+  end
+
+  describe '#convert_to_pdf' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:clamscan) { double(safe?: true) }
+    let(:source_pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'attachment.pdf').to_s }
+
+    before do
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      # Allow all Flipper calls through by default, then override specific ones in contexts
+      allow(Flipper).to receive(:enabled?).and_return(false)
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(true)
+      end
+
+      it 'converts image files to PDF at upload time' do
+        image_file = fixture_file_upload('doctors-note.png', 'image/png')
+
+        # Create a temp file that mimics what ConvertToPdf would return
+        temp_pdf = Tempfile.new(['converted', '.pdf'])
+        FileUtils.cp(source_pdf_path, temp_pdf.path)
+
+        allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(temp_pdf.path)
+
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: image_file }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = PersistentAttachment.last
+        expect(attachment.file.content_type).to eq('application/pdf')
+        expect(attachment.original_filename).to end_with('.pdf')
+      ensure
+        temp_pdf&.close
+        temp_pdf&.unlink
+      end
+
+      it 'preserves the original filename with pdf extension' do
+        image_file = fixture_file_upload('doctors-note.png', 'image/png')
+
+        # Create a temp file that mimics what ConvertToPdf would return
+        temp_pdf = Tempfile.new(['converted', '.pdf'])
+        FileUtils.cp(source_pdf_path, temp_pdf.path)
+
+        allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_return(temp_pdf.path)
+
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: image_file }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = PersistentAttachment.last
+        expect(attachment.original_filename).to eq('doctors-note.pdf')
+      ensure
+        temp_pdf&.close
+        temp_pdf&.unlink
+      end
+
+      it 'skips conversion for files that are already PDFs' do
+        pdf_file = fixture_file_upload('attachment.pdf', 'application/pdf')
+
+        # pre_convert_to_pdf! should return early when content_type is application/pdf
+        # so ConvertToPdf should never be instantiated
+        expect(Common::ConvertToPdf).not_to receive(:new)
+
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: pdf_file }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = PersistentAttachment.last
+        expect(attachment.file.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(false)
+      end
+
+      it 'does not convert image files to PDF at upload time' do
+        image_file = fixture_file_upload('doctors-note.png', 'image/png')
+
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: image_file }
+
+        expect(response).to have_http_status(:ok)
+
+        attachment = PersistentAttachment.last
+        expect(attachment.file.content_type).to eq('image/png')
+        expect(attachment.original_filename).to eq('doctors-note.png')
+      end
+    end
+
+    context 'when conversion fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(true)
+        allow_any_instance_of(Common::ConvertToPdf).to receive(:run).and_raise(StandardError, 'Conversion failed')
+      end
+
+      it 'raises an error and returns internal server error' do
+        image_file = fixture_file_upload('doctors-note.png', 'image/png')
+
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: image_file }
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 
