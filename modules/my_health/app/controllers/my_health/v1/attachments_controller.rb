@@ -27,7 +27,7 @@ module MyHealth
       STATSD_KEY_PREFIX = 'api.my_health.attachments'
 
       def show
-        if Flipper.enabled?(:mhv_secure_messaging_stream_via_revproxy)
+        if Flipper.enabled?(:mhv_secure_messaging_stream_via_revproxy, current_user)
           show_with_streaming
         else
           show_legacy
