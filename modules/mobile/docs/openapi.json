@@ -25406,6 +25406,7 @@
                   "allergiesOracleHealthEnabled": false,
                   "appeals": true,
                   "appointments": true,
+                  "benefitsPushNotification": false,
                   "claims": true,
                   "decisionLetters": true,
                   "directDepositBenefits": true,
