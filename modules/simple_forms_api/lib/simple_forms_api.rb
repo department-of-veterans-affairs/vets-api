@@ -45,6 +45,8 @@ module SimpleFormsApi
           words_to_remove += SimpleFormsApi::VBA2010206.new(params).words_to_remove
         when '40-10007'
           words_to_remove += SimpleFormsApi::VBA4010007.new(params).words_to_remove
+        when '40-1330M'
+          words_to_remove += SimpleFormsApi::VBA401330m.new(params).words_to_remove
         when '21P-601'
           words_to_remove += SimpleFormsApi::VBA21p601.new(params).words_to_remove
         when '21P-0537'

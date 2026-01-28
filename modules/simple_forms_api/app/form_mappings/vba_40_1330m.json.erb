@@ -1,0 +1,83 @@
+<%
+  # Normalize branch name for Reserve/Guard components to base branch
+  raw_branch = form.data.dig('veteran_service_periods', 0, 'branch')
+  known_branches = ['Army', 'Marine Corps', 'Coast Guard', 'Merchant Marine', 'Navy', 'Air Force', 'Army Air Forces', 'Space Force', 'Public Health Service', 'NOAA']
+  
+  # Map Reserve/Guard components to their base branches
+  branch = case raw_branch
+    when 'Army Reserve', 'Army National Guard' then 'Army'
+    when 'Navy Reserve' then 'Navy'
+    when 'Marine Corps Reserve' then 'Marine Corps'
+    when 'Air Force Reserve', 'Air National Guard' then 'Air Force'
+    when 'Coast Guard Reserve' then 'Coast Guard'
+    when 'Space Force Reserve' then 'Space Force'
+    else raw_branch
+  end
+  
+  # Check if normalized branch is in known branches list
+  is_known_branch = known_branches.include?(branch)
+  is_other = !is_known_branch && branch.present?
+%>
+{
+  "form1[0].#subform[7].RadioButtonList[0]": "<%= form.data['request_type'] %>",
+  "form1[0].#subform[7].RadioButtonList[1]": "<%= form.data['replacement_reason'].present? ? form.data['replacement_reason'] : 'Off' %>",
+  "form1[0].#subform[7].First[0]": "<%= form.data.dig('veteran_full_name', 'first') %>",
+  "form1[0].#subform[7].Middle[0]": "<%= form.data.dig('veteran_full_name', 'middle') %>",
+  "form1[0].#subform[7].Last[0]": "<%= form.data.dig('veteran_full_name', 'last') %>",
+  "form1[0].#subform[7].Suffix[0]": "<%= form.data.dig('veteran_full_name', 'suffix') %>",
+  "form1[0].#subform[7].RadioButtonList[2]": "<%= form.data['military_service_completed'] %>",
+  "form1[0].#subform[7].RadioButtonList[3]": "<%= form.data['grave_marked'] %>",
+  "form1[0].#subform[7].RACEORETHNICITY[0]": "<%= form.data.dig('veteran_race', 'is_asian') ? '1' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[1]": "<%= form.data.dig('veteran_race', 'is_american_indian_or_alaskan_native') ? '2' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[2]": "<%= form.data.dig('veteran_race', 'is_black_or_african_american') ? '3' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[3]": "<%= form.data.dig('veteran_race', 'is_hispanic_or_latino') ? '4' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[4]": "<%= form.data.dig('veteran_race', 'not_hispanic_or_latino') ? '5' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[5]": "<%= form.data.dig('veteran_race', 'is_native_hawaiian_or_other_pacific_islander') ? '6' : 'Off' %>",
+  "form1[0].#subform[7].RACEORETHNICITY[6]": "<%= form.data.dig('veteran_race', 'is_white') ? '7' : 'Off' %>",
+  "form1[0].#subform[7].RadioButtonList[4]": "<%= form.data['veteran_sex'] %>",
+  "form1[0].#subform[7].SSN[0]": "<%= form.data.dig('veteran_id', 'ssn') %>",
+  "form1[0].#subform[7].SERVICENUMBER[0]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+  "form1[0].#subform[7].PlaceOfBirth[0]": "<%= form.data['veteran_place_of_birth'] %>",
+  "form1[0].#subform[7].DOB[0]": "<%= form.data['veteran_date_of_birth'] %>",
+  "form1[0].#subform[7].DateDeath[0]": "<%= form.data['veteran_date_of_death'] %>",
+  "form1[0].#subform[7].DateEntered1[0]": "<%= form.data.dig('veteran_service_periods', 0, 'date_entered') %>",
+  "form1[0].#subform[7].DateEntered2[0]": "<%= form.data.dig('veteran_service_periods', 1, 'date_entered') %>",
+  "form1[0].#subform[7].DateSeparated1[0]": "<%= form.data.dig('veteran_service_periods', 0, 'date_separated') %>",
+  "form1[0].#subform[7].DateSeparated2[0]": "<%= form.data.dig('veteran_service_periods', 1, 'date_separated') %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[0]": "<%= branch == 'Army' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[1]": "<%= branch == 'Marine Corps' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[2]": "<%= branch == 'Coast Guard' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[3]": "<%= branch == 'Merchant Marine' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[4]": "<%= branch == 'Navy' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[5]": "<%= branch == 'Air Force' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[6]": "<%= branch == 'Army Air Forces' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[7]": "<%= branch == 'Space Force' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[8]": "<%= branch == 'Public Health Service' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[9]": "<%= branch == 'NOAA' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].BRANCHOFSERVICE[10]": "<%= is_other ? '1' : 'Off' %>",
+  "form1[0].#subform[7].Other1[0]": "<%= is_other ? raw_branch : '' %>",
+  "form1[0].#subform[7].ApplicantIs[0]": "<%= form.data['applicant_type'] == 'Family Member' ? '1' : 'Off' %>",
+  "form1[0].#subform[7].Relationship[0]": "<%= form.data['applicant_relationship_to_veteran'] %>",
+  "form1[0].#subform[7].ApplicantIs[1]": "<%= form.data['applicant_type'] == 'Veterans Service Officer' ? '2' : 'Off' %>",
+  "form1[0].#subform[7].ApplicantIs[2]": "<%= form.data['applicant_type'] == 'Personal Representative' ? '3' : 'Off' %>",
+  "form1[0].#subform[7].ApplicantIs[3]": "<%= form.data['applicant_type'] == 'Other' ? '4' : 'Off' %>",
+  "form1[0].#subform[7].Other2[0]": "",
+  "form1[0].#subform[7].RadioButtonList[5]": "<%= form.data['medallion_size'] %>",
+  "form1[0].#subform[7].RadioButtonList[6]": "<%= form.data['remains_location'] %>",
+  "form1[0].#subform[7].NameAndMailingAddress[0]": "<%= [form.data.dig('applicant_full_name', 'first'), form.data.dig('applicant_full_name', 'middle'), form.data.dig('applicant_full_name', 'last')].compact.join(' ') + '\n' + [form.data.dig('applicant_address', 'street'), form.data.dig('applicant_address', 'street2')].compact.join(', ') + '\n' + [form.data.dig('applicant_address', 'city'), form.data.dig('applicant_address', 'state'), form.data.dig('applicant_address', 'postal_code')].compact.join(', ') %>",
+  "form1[0].#subform[7].DaytimePhone[0]": "<%= form.data['applicant_phone'] %>",
+  "form1[0].#subform[7].Email[0]": "<%= form.data['applicant_email'] %>",
+  "form1[0].#subform[7].NumberRequested[0]": "<%= form.data['medallion_count'] %>",
+  "form1[0].#subform[7].None[0]": "<%= form.data['medal_of_honor'] ? 'Off' : '1' %>",
+  "form1[0].#subform[7].VALORORPURPLEHEARTAWARDS[0]": "<%= form.data['medal_of_honor'] ? '1' : 'Off' %>",
+  "form1[0].#subform[8].NameOfVeteran[0]": "<%= [form.data.dig('veteran_full_name', 'first'), form.data.dig('veteran_full_name', 'middle'), form.data.dig('veteran_full_name', 'last')].compact.join(' ') %>",
+  "form1[0].#subform[8].SSN[1]": "<%= form.data.dig('veteran_id', 'ssn') %>",
+  "form1[0].#subform[8].SERVICENUMBER[1]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+  "form1[0].#subform[8].SignatureField11[0]": "<%= form.data['statement_of_truth_signature'] %>",
+  "form1[0].#subform[8].DateSigned1[0]": "",
+  "form1[0].#subform[8].NameAndDeliveryAddress[0]": "",
+  "form1[0].#subform[8].DaytimePhone2[0]": "<%= form.data['applicant_phone'] %>",
+  "form1[0].#subform[8].NameAndAddressOfCemetery[0]": "<%= form.data['cemetery_location'] %>",
+  "form1[0].#subform[8].SignatureField11[1]": "",
+  "form1[0].#subform[8].DateSigned2[0]": ""
+}
