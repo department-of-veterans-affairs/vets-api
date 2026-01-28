@@ -120,27 +120,32 @@ class FlakySpecBisect
     Dir.mktmpdir('flaky-spec-bisect') do |dir|
       @download_dir = dir
       puts "Downloading artifact: #{artifact_name}"
-
-      _, status = Open3.capture2(
-        'gh', 'run', 'download', @run_id,
-        '--repo', REPO,
-        '--name', artifact_name,
-        '--dir', dir
-      )
-
-      unless status.success?
-        puts "Error: Failed to download artifact '#{artifact_name}'"
-        exit 1
-      end
-
-      xml_file = File.join(dir, 'rspec.xml')
-      unless File.exist?(xml_file)
-        puts 'Error: rspec.xml not found in artifact'
-        exit 1
-      end
-
-      File.read(xml_file)
+      fetch_artifact(artifact_name, dir)
+      read_xml_file(dir)
     end
+  end
+
+  def fetch_artifact(artifact_name, dir)
+    _, stderr, status = Open3.capture3(
+      'gh', 'run', 'download', @run_id,
+      '--repo', REPO,
+      '--name', artifact_name,
+      '--dir', dir
+    )
+    return if status.success?
+
+    puts "Error: Failed to download artifact '#{artifact_name}'"
+    puts "  #{stderr.strip}" unless stderr.strip.empty?
+    exit 1
+  end
+
+  def read_xml_file(dir)
+    xml_file = File.join(dir, 'rspec.xml')
+    unless File.exist?(xml_file)
+      puts 'Error: rspec.xml not found in artifact'
+      exit 1
+    end
+    File.read(xml_file)
   end
 
   def parse_xml(xml_content)
@@ -213,6 +218,9 @@ class FlakySpecBisect
   def bundle_ready?
     _, status = Open3.capture2('bundle', 'check', err: '/dev/null')
     status.success?
+  rescue Errno::ENOENT
+    puts 'Error: Bundler not found. Install with: gem install bundler'
+    exit 1
   end
 
   def print_dry_run(seed, spec_files, needs_bundle_install)
@@ -228,7 +236,7 @@ class FlakySpecBisect
     puts "\nBundle is not ready. Running 'bundle install'..."
     return if system('bundle', 'install')
 
-    puts 'Error: bundle install failed'
+    puts 'Error: bundle install failed. Run "bundle install" manually to see details.'
     exit 1
   end
 end
