@@ -6,8 +6,6 @@ module SM
     # Module containing streaming-related methods for attachment downloads
     #
     module AttachmentStreaming
-      CHUNK_SIZE = 8192
-
       # Network errors that can occur during streaming - wrapped to provide consistent error handling
       NETWORK_ERRORS = [
         Timeout::Error,
