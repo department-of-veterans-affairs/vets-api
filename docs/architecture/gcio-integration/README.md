@@ -416,6 +416,12 @@ Detailed technical documentation is organized as follows:
   - Percentage-based rollout
   - Emergency procedures
   - Monitoring and metrics
+  
+- **[Simple Forms Integration Guide](./SIMPLE-FORMS-INTEGRATION.md)** - How to integrate simple forms
+  - Observer/callback pattern (zero controller changes)
+  - Mapper registry pattern
+  - Form-specific mapper examples (21P-601)
+  - Component-level flow diagrams
 
 ---
 
