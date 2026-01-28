@@ -41,17 +41,17 @@ RSpec.describe SavedClaim::Form214192, type: :model do
       end
 
       it 'rejects first name longer than 12 characters' do
-        form['veteranInformation']['fullName']['first'] = 'A' * 13
+        form['veteranInformation']['fullName']['first'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 12')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects last name longer than 18 characters' do
-        form['veteranInformation']['fullName']['last'] = 'A' * 19
+        form['veteranInformation']['fullName']['last'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 18')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects invalid SSN format' do

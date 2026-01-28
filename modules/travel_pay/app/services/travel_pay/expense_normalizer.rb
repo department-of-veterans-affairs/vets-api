@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/travel_pay/constants'
 module TravelPay
   module ExpenseNormalizer
     # Normalizes expense data by overwriting expenseType with name for Parking expenses
@@ -11,6 +12,11 @@ module TravelPay
       return expense unless expense.is_a?(Hash)
 
       expense['expenseType'] = expense['name'] if expense['name']&.downcase == 'parking'
+
+      if expense['expenseType'] == 'CommonCarrier'
+        expense['reasonNotUsingPOV'] =
+          normalize_reason_not_using_pov(expense['reasonNotUsingPOV'])
+      end
       expense
     end
 
@@ -24,6 +30,13 @@ module TravelPay
       expenses.each do |expense|
         normalize_expense(expense)
       end
+    end
+
+    def normalize_reason_not_using_pov(value)
+      return value if TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS.value?(value)
+
+      key = value.to_s.underscore.to_sym
+      TravelPay::Constants::COMMON_CARRIER_EXPLANATIONS[key] || value
     end
   end
 end

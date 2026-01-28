@@ -358,7 +358,7 @@ module SurvivorsBenefits
       def expand(form_data = {})
         form_data['p16HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
         form_data['anythingToReport'] =
-          form_data['careExpenses']&.empty? && form_data['medicalExpenses']&.empty? ? 2 : 1
+          form_data['careExpenses'].blank? && form_data['medicalExpenses'].blank? ? 2 : 1
 
         map_care_expenses(form_data)
         map_medical_expenses(form_data)
