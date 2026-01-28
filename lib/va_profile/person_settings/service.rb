@@ -46,12 +46,12 @@ module VAProfile
 
       # POSTs updated person options to the VAProfile API
       # @param person_options_data [Hash] the person options data to be sent to VAProfile in JSON format
-      # @return [VAProfile::PersonSettings::PersonOptionsResponse] response wrapper around person options object
+      # @return [VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse] response wrapper around tx object
       def update_person_options(person_options_data)
         with_monitoring do
           verify_user!
           raw_response = perform(:post, person_options_request_path, person_options_data.to_json)
-          PersonOptionsResponse.from(raw_response)
+          VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse.from(raw_response)
         end
       rescue => e
         handle_error(e)

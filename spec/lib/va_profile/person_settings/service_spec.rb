@@ -29,8 +29,9 @@ RSpec.describe VAProfile::PersonSettings::Service do
         expect(response).to be_ok
       end
 
-      it 'contains an array of person options' do
+      it 'returns a PersonOptionsResponse with an array of person options' do
         response = subject.get_person_options
+        expect(response).to be_a(VAProfile::PersonSettings::PersonOptionsResponse)
         expect(response.person_options).to be_an(Array)
       end
     end
@@ -88,6 +89,11 @@ RSpec.describe VAProfile::PersonSettings::Service do
       it 'returns a status of 200' do
         response = subject.update_person_options(person_options_data)
         expect(response).to be_ok
+      end
+
+      it 'returns a PersonOptionsTransactionResponse' do
+        response = subject.update_person_options(person_options_data)
+        expect(response).to be_a(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse)
       end
     end
 
