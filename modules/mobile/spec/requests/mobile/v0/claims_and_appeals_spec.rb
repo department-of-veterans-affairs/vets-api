@@ -15,15 +15,10 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
   let(:error_claims_response_vcr_path) { 'mobile/lighthouse_claims/index/404_response' }
 
   before do
-    Flipper.enable(:mobile_claims_log_decision_letter_sent)
-    Flipper.disable(:cst_multi_claim_provider_mobile)
+    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile).and_return(false)
     token = 'abcdefghijklmnop'
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-  end
-
-  after do
-    Flipper.disable(:mobile_claims_log_decision_letter_sent)
-    Flipper.enable(:cst_multi_claim_provider_mobile)
   end
 
   describe '#index is polled an unauthorized user' do
@@ -479,8 +474,9 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
     end
 
     describe 'multi-provider authorization edge cases' do
-      before { Flipper.enable(:cst_multi_claim_provider_mobile, user) }
-      after { Flipper.disable(:cst_multi_claim_provider_mobile, user) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, user).and_return(true)
+      end
 
       context 'when user is only authorized to access appeals, not claims' do
         let!(:user) do

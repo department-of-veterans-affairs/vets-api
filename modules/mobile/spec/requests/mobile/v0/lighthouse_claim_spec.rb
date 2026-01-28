@@ -16,13 +16,9 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do
-      Flipper.disable(:cst_multi_claim_provider_mobile)
+      allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile).and_return(false)
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-    end
-
-    after do
-      Flipper.enable(:cst_multi_claim_provider_mobile)
     end
 
     context 'when the claim is found' do
