@@ -386,6 +386,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:champva_enable_ocr_on_submit, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_convert_to_pdf_on_upload, anything).and_return(false)
     end
 
     context 'successful transaction' do
@@ -674,7 +675,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     before do
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      allow(Flipper).to receive(:enabled?).and_call_original
+      # Allow all Flipper calls through by default, then override specific ones in contexts
+      allow(Flipper).to receive(:enabled?).and_return(false)
     end
 
     context 'when feature flag is enabled' do

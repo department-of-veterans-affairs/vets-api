@@ -495,28 +495,14 @@ module IvcChampva
       def convert_to_pdf(uploaded_file)
         return uploaded_file if uploaded_file.content_type == 'application/pdf'
 
-        original_filename = uploaded_file.original_filename
-        pdf_path = Common::ConvertToPdf.new(uploaded_file).run
-
-        pdf_filename = original_filename.sub(/\.[^.]+\z/, '.pdf')
-
-        tempfile = Tempfile.new([File.basename(pdf_filename, '.pdf'), '.pdf'])
-        tempfile.binmode
-        tempfile.write(File.read(pdf_path))
-        tempfile.rewind
-
-        Rails.logger.info('IVC ChampVA Forms - Converted file to PDF')
+        tempfile = IvcChampva::PdfConverter.new(uploaded_file).convert_to_tempfile
+        pdf_filename = uploaded_file.original_filename.sub(/\.[^.]+\z/, '.pdf')
 
         ActionDispatch::Http::UploadedFile.new(
           tempfile:,
           filename: pdf_filename,
           type: 'application/pdf'
         )
-      rescue
-        Rails.logger.error('IVC ChampVA Forms - Failed to convert to PDF.')
-        raise
-      ensure
-        FileUtils.rm_f(pdf_path) if pdf_path && File.exist?(pdf_path)
       end
 
       def applicants_with_ohi(applicants)
