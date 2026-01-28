@@ -62,7 +62,7 @@ module SM
         Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10,
                                             read_timeout: 120) do |http|
           http.request(request) do |response|
-            validate_http_response(response)
+            validate_http_response(response, raise_not_found: true)
 
             # Check if response is JSON (S3 presigned URL) or binary attachment
             if json_response?(response)
@@ -77,8 +77,7 @@ module SM
       end
 
       def build_mhv_uri(path)
-        base_path = config.base_path.chomp('/')
-        URI.parse("#{base_path}/#{path}")
+        URI.parse("#{config.base_path.chomp('/')}/#{path}")
       end
 
       def build_mhv_request(uri)
@@ -88,8 +87,7 @@ module SM
       end
 
       def json_response?(response)
-        content_type = response['content-type'] || ''
-        content_type.include?('application/json')
+        (response['content-type'] || '').include?('application/json')
       end
 
       def handle_json_response(response, header_callback, &)
@@ -122,12 +120,17 @@ module SM
         response.read_body(&)
       end
 
-      def validate_http_response(response)
+      def validate_http_response(response, raise_not_found: false)
         return if response.is_a?(Net::HTTPSuccess)
 
         Rails.logger.error("Failed to fetch attachment: HTTP #{response.code}")
+
+        # Raise RecordNotFound for MHV 404s so the controller returns proper 404 status
+        # S3 404s are backend errors (expired/invalid presigned URL), not "record not found"
+        raise Common::Exceptions::RecordNotFound, 'attachment' if raise_not_found && response.code == '404'
+
         raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {},
-                                                              response.code)
+                                                              response.code.to_i)
       end
 
       def validate_https_scheme(uri)

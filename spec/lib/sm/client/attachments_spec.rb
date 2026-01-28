@@ -115,6 +115,21 @@ describe SM::Client::Attachments do
       end.to raise_error(Common::Exceptions::BackendServiceException)
     end
 
+    it 'raises RecordNotFound when attachment does not exist (MHV 404)' do
+      mock_mhv_response = double(code: '404')
+      allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(false)
+
+      mock_http = double
+      allow(mock_http).to receive(:request).and_yield(mock_mhv_response)
+      allow(Net::HTTP).to receive(:start).and_yield(mock_http)
+
+      header_callback = ->(_headers) {}
+
+      expect do
+        client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
+      end.to raise_error(Common::Exceptions::RecordNotFound)
+    end
+
     it 'raises error when S3 fetch fails' do
       # Mock the MHV API response as JSON with S3 presigned URL
       s3_json = { data: { url: 'https://s3.amazonaws.com/test-bucket/test.pdf', mime_type: 'application/pdf', name: 'test.pdf' } }
