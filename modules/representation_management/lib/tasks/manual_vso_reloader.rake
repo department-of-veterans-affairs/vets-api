@@ -1,6 +1,7 @@
-# lib/tasks/representation_management/vso_reloader.rake
 # frozen_string_literal: true
 
+# In production terminal console run:
+# bundle exec rake representation_management:reload_representation_management_vso
 namespace :representation_management do
   desc 'Manually run the VSO reloader job (synchronously)'
   task reload_representation_management_vso: :environment do

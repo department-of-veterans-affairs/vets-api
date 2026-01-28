@@ -134,7 +134,7 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
       end
     end
 
-    describe "storing a VSO's middle initial" do
+    describe "storing a VSO Rep's middle initial" do
       it 'stores the middle initial if it exists' do
         VCR.use_cassette('representation_management/representation_management_ogc_vso_rep_data') do
           RepresentationManagement::AccreditationTotal.destroy_all
