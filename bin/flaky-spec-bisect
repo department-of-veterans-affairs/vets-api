@@ -227,12 +227,13 @@ class FlakySpecBisect
 
     case failures
     when 0
-      prompt_continue_without_reproduction
+      puts "\nTest passes in isolation - this is ideal for bisect."
+      puts 'The failure is likely caused by test pollution from another spec.'
+      true
     when 3
       prompt_continue_with_consistent_failure
     else
-      puts "\nFailure reproduced #{failures}/3 times. Proceeding with bisect."
-      true
+      prompt_continue_with_intermittent_failure(failures)
     end
   end
 
@@ -247,13 +248,12 @@ class FlakySpecBisect
     failures
   end
 
-  def prompt_continue_without_reproduction
-    puts "\nWarning: Failure did not reproduce in 3 attempts."
-    puts 'The test may be flaky in a way that bisect cannot help with.'
-    puts 'Possible causes: time-dependent, external service, or test pollution from another group.'
-    puts "\nSkip this check with --skip-verify, or press Ctrl+C to abort."
-    print 'Continue with bisect anyway? [y/N] '
-    $stdin.gets&.strip&.downcase == 'y'
+  def prompt_continue_with_intermittent_failure(failures)
+    puts "\nWarning: Failure only reproduced #{failures}/3 times."
+    puts 'The test may have timing issues or external dependencies.'
+    puts 'Bisect may take longer due to inconsistent reproduction.'
+    print 'Continue with bisect? [Y/n] '
+    $stdin.gets&.strip&.downcase != 'n'
   end
 
   def prompt_continue_with_consistent_failure
