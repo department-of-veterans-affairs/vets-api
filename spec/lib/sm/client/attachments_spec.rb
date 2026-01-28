@@ -25,54 +25,22 @@ describe SM::Client::Attachments do
   end
 
   describe '#stream_attachment' do
-    it 'streams an attachment in chunks' do
-      # Mock the response from MHV API
-      mock_response = double(
-        body: 'fake binary data',
-        response_headers: {
-          'content-type' => 'image/png',
-          'content-disposition' => 'attachment; filename="test.png"'
-        }
-      )
-      allow(client).to receive(:perform).and_return(mock_response)
+    let(:mock_config) { double(base_path: 'https://mhv-api.example.com/v1') }
 
-      chunks = []
-      headers_received = nil
-      header_callback = lambda do |headers|
-        headers_received = headers
-      end
-
-      client.stream_attachment(message_id, attachment_id, header_callback) do |chunk|
-        chunks << chunk
-      end
-
-      expect(chunks).not_to be_empty
-      expect(chunks.join).to eq('fake binary data')
-      expect(headers_received).not_to be_nil
-      expect(headers_received.to_h['Content-Type']).to eq('image/png')
+    before do
+      allow(client).to receive_messages(config: mock_config, token_headers: { 'Token' => 'fake_token' })
     end
 
-    it 'streams an S3 attachment from presigned URL' do
-      # Mock the response with S3 presigned URL format
-      mock_mhv_response = double(
-        body: {
-          data: {
-            url: 'https://s3.amazonaws.com/test-bucket/test.pdf',
-            mime_type: 'application/pdf',
-            name: 'test.pdf'
-          }
-        },
-        response_headers: {}
-      )
-      allow(client).to receive(:perform).and_return(mock_mhv_response)
-
-      # Mock the S3 HTTP response
-      mock_http_response = double
-      allow(mock_http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
-      allow(mock_http_response).to receive(:read_body).and_yield('chunk1').and_yield('chunk2')
+    it 'streams a binary attachment directly from MHV' do
+      # Mock the MHV API response as a binary attachment
+      mock_mhv_response = double
+      allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(mock_mhv_response).to receive(:[]).with('content-type').and_return('image/png')
+      allow(mock_mhv_response).to receive(:[]).with('content-disposition').and_return('attachment; filename="test.png"')
+      allow(mock_mhv_response).to receive(:read_body).and_yield('chunk1').and_yield('chunk2')
 
       mock_http = double
-      allow(mock_http).to receive(:request).and_yield(mock_http_response)
+      allow(mock_http).to receive(:request).and_yield(mock_mhv_response)
       allow(Net::HTTP).to receive(:start).and_yield(mock_http)
 
       chunks = []
@@ -86,30 +54,81 @@ describe SM::Client::Attachments do
       end
 
       expect(chunks).to eq(%w[chunk1 chunk2])
+      expect(headers_received).not_to be_nil
+      expect(headers_received.to_h['Content-Type']).to eq('image/png')
+      expect(headers_received.to_h['Content-Disposition']).to include('test.png')
+    end
+
+    it 'streams an S3 attachment from presigned URL' do
+      # Mock the MHV API response as JSON with S3 presigned URL
+      s3_json = { data: { url: 'https://s3.amazonaws.com/test-bucket/test.pdf', mime_type: 'application/pdf', name: 'test.pdf' } }
+      mock_mhv_response = double
+      allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(mock_mhv_response).to receive(:[]).with('content-type').and_return('application/json')
+      allow(mock_mhv_response).to receive(:read_body).and_return(s3_json.to_json)
+
+      # Mock the S3 HTTP response
+      mock_s3_response = double
+      allow(mock_s3_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(mock_s3_response).to receive(:read_body).and_yield('s3chunk1').and_yield('s3chunk2')
+
+      mock_http = double
+      # First call is to MHV, second is to S3
+      call_count = 0
+      allow(mock_http).to receive(:request) do |&block|
+        call_count += 1
+        block.call(call_count == 1 ? mock_mhv_response : mock_s3_response)
+      end
+      allow(Net::HTTP).to receive(:start).and_yield(mock_http)
+
+      chunks = []
+      headers_received = nil
+      header_callback = lambda do |headers|
+        headers_received = headers
+      end
+
+      client.stream_attachment(message_id, attachment_id, header_callback) do |chunk|
+        chunks << chunk
+      end
+
+      expect(chunks).to eq(%w[s3chunk1 s3chunk2])
       expect(headers_received.to_h['Content-Type']).to eq('application/pdf')
       expect(headers_received.to_h['Content-Disposition']).to include('test.pdf')
     end
 
-    it 'raises error when S3 fetch fails' do
-      # Mock the response with S3 presigned URL format
-      mock_mhv_response = double(
-        body: {
-          data: {
-            url: 'https://s3.amazonaws.com/test-bucket/test.pdf',
-            mime_type: 'application/pdf',
-            name: 'test.pdf'
-          }
-        },
-        response_headers: {}
-      )
-      allow(client).to receive(:perform).and_return(mock_mhv_response)
-
-      # Mock the S3 HTTP response as failure
-      mock_http_response = double(code: '404')
-      allow(mock_http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(false)
+    it 'raises error when MHV fetch fails' do
+      mock_mhv_response = double(code: '500')
+      allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(false)
 
       mock_http = double
-      allow(mock_http).to receive(:request).and_yield(mock_http_response)
+      allow(mock_http).to receive(:request).and_yield(mock_mhv_response)
+      allow(Net::HTTP).to receive(:start).and_yield(mock_http)
+
+      header_callback = ->(_headers) {}
+
+      expect do
+        client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'raises error when S3 fetch fails' do
+      # Mock the MHV API response as JSON with S3 presigned URL
+      s3_json = { data: { url: 'https://s3.amazonaws.com/test-bucket/test.pdf', mime_type: 'application/pdf', name: 'test.pdf' } }
+      mock_mhv_response = double
+      allow(mock_mhv_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+      allow(mock_mhv_response).to receive(:[]).with('content-type').and_return('application/json')
+      allow(mock_mhv_response).to receive(:read_body).and_return(s3_json.to_json)
+
+      # Mock the S3 HTTP response as failure
+      mock_s3_response = double(code: '404')
+      allow(mock_s3_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(false)
+
+      mock_http = double
+      call_count = 0
+      allow(mock_http).to receive(:request) do |&block|
+        call_count += 1
+        block.call(call_count == 1 ? mock_mhv_response : mock_s3_response)
+      end
       allow(Net::HTTP).to receive(:start).and_yield(mock_http)
 
       header_callback = ->(_headers) {}

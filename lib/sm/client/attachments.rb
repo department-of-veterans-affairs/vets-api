@@ -43,7 +43,7 @@ module SM
 
       ##
       # Stream a message attachment without loading full content into memory.
-      # Endpoint returns either a binary file response, or object with AWS S3 URL details.
+      # Uses raw Net::HTTP to stream directly from MHV or S3, bypassing Faraday buffering.
       #
       # @param message_id [Fixnum] the message id
       # @param attachment_id [Fixnum] the attachment id
@@ -51,14 +51,7 @@ module SM
       # @yield [String] streams chunks of the attachment data to the caller
       def stream_attachment(message_id, attachment_id, header_callback, &)
         path = "message/#{message_id}/attachment/#{attachment_id}"
-        response = perform(:get, path, nil, token_headers)
-        data = response.body[:data] if response.body.is_a?(Hash)
-
-        if s3_attachment?(data)
-          stream_s3_attachment(data, header_callback, &)
-        else
-          stream_direct_attachment(response, header_callback, &)
-        end
+        stream_from_mhv(path, header_callback, &)
       end
 
       ##

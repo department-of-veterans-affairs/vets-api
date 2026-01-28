@@ -30,9 +30,58 @@ module SM
         end
       end
 
-      def stream_direct_attachment(response, header_callback, &)
-        content_type = response.response_headers['content-type'] || 'application/octet-stream'
-        content_disposition = response.response_headers['content-disposition'] ||
+      # Stream directly from MHV API using raw Net::HTTP to avoid Faraday buffering.
+      # If MHV returns a JSON response with S3 URL, streams from S3 instead.
+      def stream_from_mhv(path, header_callback, &block)
+        uri = build_mhv_uri(path)
+        request = build_mhv_request(uri)
+
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: 120) do |http|
+          http.request(request) do |response|
+            validate_http_response(response)
+
+            # Check if response is JSON (S3 presigned URL) or binary attachment
+            if json_response?(response)
+              handle_json_response(response, header_callback, &block)
+            else
+              stream_binary_response(response, header_callback, &block)
+            end
+          end
+        end
+      end
+
+      def build_mhv_uri(path)
+        base_path = config.base_path.chomp('/')
+        URI.parse("#{base_path}/#{path}")
+      end
+
+      def build_mhv_request(uri)
+        request = Net::HTTP::Get.new(uri)
+        token_headers.each { |key, value| request[key] = value }
+        request
+      end
+
+      def json_response?(response)
+        content_type = response['content-type'] || ''
+        content_type.include?('application/json')
+      end
+
+      def handle_json_response(response, header_callback, &)
+        # Read the small JSON body to get S3 URL
+        body = response.read_body
+        data = JSON.parse(body, symbolize_names: true)
+        s3_data = data[:data]
+
+        if s3_data.is_a?(Hash) && s3_data[:url] && s3_data[:mime_type] && s3_data[:name]
+          stream_s3_attachment(s3_data, header_callback, &)
+        else
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_INVALID_RESPONSE', {}, 500)
+        end
+      end
+
+      def stream_binary_response(response, header_callback, &)
+        content_type = response['content-type'] || 'application/octet-stream'
+        content_disposition = response['content-disposition'] ||
                               "#{Attachments::CONTENT_DISPOSITION}\"attachment\""
 
         headers = {
@@ -41,25 +90,16 @@ module SM
         }
         header_callback.call(headers.to_a)
 
-        # For direct MHV responses, yield body in chunks for consistent interface
-        chunk_body(response.body, &)
+        # True streaming - read body in chunks
+        response.read_body(&)
       end
 
       def validate_http_response(response)
         return if response.is_a?(Net::HTTPSuccess)
 
-        Rails.logger.error('Failed to fetch attachment from presigned URL')
-        raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+        Rails.logger.error("Failed to fetch attachment: HTTP #{response.code}")
+        raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {},
                                                               response.code)
-      end
-
-      def chunk_body(body)
-        offset = 0
-        while offset < body.bytesize
-          chunk = body.byteslice(offset, CHUNK_SIZE)
-          yield chunk if chunk
-          offset += CHUNK_SIZE
-        end
       end
     end
   end
