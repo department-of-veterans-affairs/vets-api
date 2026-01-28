@@ -8,7 +8,7 @@ module V0
       render json: service.status_card
     rescue ArgumentError => e
       Rails.logger.error("VeteranStatusCardsController argument error: #{e.message}", backtrace: e.backtrace)
-      render json: { error: 'An arguemnt error occurred' }, status: :unprocessable_entity
+      render json: { error: 'An argument error occurred' }, status: :unprocessable_entity
     rescue => e
       Rails.logger.error("VeteranStatusCardsController unexpected error: #{e.message}", backtrace: e.backtrace)
       render json: { error: 'An unexpected error occurred' }, status: :internal_server_error
