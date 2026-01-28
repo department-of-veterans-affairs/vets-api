@@ -254,16 +254,8 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
 
     context 'error scenarios' do
       context 'when user is nil' do
-        subject { described_class.new(nil) }
-
-        it 'returns Mobile SOMETHING_WENT_WRONG_RESPONSE' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:veteran_status]).to eq('not confirmed')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
+        it 'raises ArgumentError (inherited from base class)' do
+          expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
         end
       end
 
