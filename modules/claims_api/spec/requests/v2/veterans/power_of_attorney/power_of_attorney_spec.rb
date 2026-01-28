@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/org_web_service'
 
 RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorney', type: :request do
@@ -156,7 +156,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorney', type: :request
           }
 
           # Simulate BGS returning a different (old) code
-          allow_any_instance_of(BGSV2::PowerOfAttorneyVerifier).to receive(:current_poa_code).and_return('OLDCODE')
+          allow_any_instance_of(BGS::PowerOfAttorneyVerifier).to receive(:current_poa_code).and_return('OLDCODE')
 
           poa = ClaimsApi::PowerOfAttorney.create!(
             status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -174,10 +174,10 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorney', type: :request
   end
 
   def mock_poa_verifier_call(method:, return_value:, method_args: anything)
-    dbl = instance_double(BGSV2::PowerOfAttorneyVerifier)
+    dbl = instance_double(BGS::PowerOfAttorneyVerifier)
     # Intercepting `new` here since we don't have a cascade of VCR cassettes recorded for all the HTTP
-    # calls invoked when initializing & using BGSV2::PowerOfAttorneyVerifier
-    allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
+    # calls invoked when initializing & using BGS::PowerOfAttorneyVerifier
+    allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
     allow(dbl).to receive(method).with(method_args).and_return(return_value)
   end
 end

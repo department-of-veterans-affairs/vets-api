@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'dependents_benefits/sidekiq/bgs/bgs_form_job'
-require 'bgsv2/service'
+require 'bgs/service'
 
 RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   before do
@@ -67,13 +67,13 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
       job.instance_variable_set(:@proc_id, proc_id)
     end
 
-    it 'normalizes claim data and submits via BGSV2::Form686c' do
+    it 'normalizes claim data and submits via BGS::Form686c' do
       bgs_job = instance_double(BGS::Job)
       allow(BGS::Job).to receive(:new).and_return(bgs_job)
       expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
 
-      form_instance = instance_double(BGSV2::Form686c, submit: nil)
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      form_instance = instance_double(BGS::Form686c, submit: nil)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
       expect(form_instance).to receive(:submit).with(normalized_data)
 
       job.submit_686c_form(saved_claim)
@@ -92,13 +92,13 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
       job.instance_variable_set(:@proc_id, proc_id)
     end
 
-    it 'normalizes claim data and submits via BGSV2::Form674' do
+    it 'normalizes claim data and submits via BGS::Form674' do
       bgs_job = instance_double(BGS::Job)
       allow(BGS::Job).to receive(:new).and_return(bgs_job)
       expect(bgs_job).to receive(:normalize_names_and_addresses!).with(claim_data).and_return(normalized_data)
 
-      form_instance = instance_double(BGSV2::Form674, submit: nil)
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
+      form_instance = instance_double(BGS::Form674, submit: nil)
+      expect(BGS::Form674).to receive(:new).with(user_struct, saved_claim, { proc_id: }).and_return(form_instance)
       expect(form_instance).to receive(:submit).with(normalized_data)
 
       job.submit_674_form(saved_claim)
@@ -249,11 +249,11 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   end
 
   describe '#generate_proc_id' do
-    let(:bgs_service) { instance_double(BGSV2::Service) }
+    let(:bgs_service) { instance_double(BGS::Service) }
     let(:monitor) { instance_double(DependentsBenefits::Monitor) }
 
     before do
-      allow(BGSV2::Service).to receive(:new).and_return(bgs_service)
+      allow(BGS::Service).to receive(:new).and_return(bgs_service)
       allow(job).to receive_messages(monitor:, generate_user_struct: {}, saved_claim:)
     end
 

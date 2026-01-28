@@ -18,13 +18,13 @@ graph TD
     
     Return --> BGSProc[BGSProcJob]
     BGSProc --> DB3[(DB: BGS::Submission<br/>BGS::SubmissionAttempt)]
-    DB3 --> BGSService[Service: BGSV2<br/>create_proc, create_proc_form]
+    DB3 --> BGSService[Service: BGS<br/>create_proc, create_proc_form]
     BGSService -->|Failure| BGSFail[Mark Failed]
     BGSService --> EnqueueSubs[Enqueue Submission Jobs<br/>0-1 BGS686c, 0-1 Claims686c<br/>0-n BGS674, 0-n Claims674<br/>per child claim]
     
     EnqueueSubs --> SubmitAll[Submit to Services<br/>Parallel execution]
     SubmitAll --> DB4[(DB: BGSFormSubmission<br/>LighthouseFormSubmission<br/>FormSubmissionAttempts)]
-    DB4 --> Services[Services: BGSV2 Form686c/Form674<br/>Claims Evidence API]
+    DB4 --> Services[Services: BGS Form686c/Form674<br/>Claims Evidence API]
     Services -->|Any Permanent Failure| SubFail[Mark Failed]
     Services --> Coordinate[Coordinate Success<br/>Check all siblings completed]
     
@@ -67,7 +67,7 @@ Each step in the simplified diagram above has a detailed flow diagram:
 
 3. **[BGS Proc Job](./bgs_proc_job_flow.md)** - BGSProcJob creates vnp_proc in BGS
    - Database: BGS::Submission, BGS::SubmissionAttempt
-   - Services: BGSV2 create_proc, create_proc_form
+   - Services: BGS create_proc, create_proc_form
    - Retry logic (up to 16 retries)
    - Success: Triggers submission jobs
    - Failure: Triggers backup job
@@ -76,7 +76,7 @@ Each step in the simplified diagram above has a detailed flow diagram:
    - 0-1 BGS686cJob + 0-1 Claims686cJob (if 686c child claim exists)
    - 0-n BGS674Job + 0-n Claims674Job (one pair per 674 child claim)
    - Database: BGSFormSubmission, LighthouseFormSubmission, FormSubmissionAttempts
-   - Services: BGSV2 Form686c/Form674, Claims Evidence
+   - Services: BGS Form686c/Form674, Claims Evidence
    - Coordination patterns for success and failure
    - Pessimistic locking for sibling coordination
 
