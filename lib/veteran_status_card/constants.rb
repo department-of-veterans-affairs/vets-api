@@ -1,25 +1,43 @@
 # frozen_string_literal: true
 
 module VeteranStatusCard
-  module Constants
+  module Constants # rubocop:disable Metrics/ModuleLength
     SUPPORT_PHONE = '866-279-3677'
-    SUPPORT_HOURS = 'Monday through Friday, 8:00 a.m. to 8:00 p.m. ET'
-    TTY_INFO = 'TTY: 711'
+    SUPPORT_HOURS = 'Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
 
-    STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card."
+    STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card"
     STANDARD_ERROR_MESSAGE = [
-      'Your record is missing information about your service history or discharge status.',
-      "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: 'Your record is missing information about your service history or discharge status.'
+      },
+      {
+        type: 'text',
+        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
 
     DISHONORABLE_TITLE = STANDARD_ERROR_TITLE
     DISHONORABLE_MESSAGE = [
-      'To get a Veteran Status Card, you must have received an honorable discharge for at least one period of service.',
-      "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least ' \
+               'one period of service.'
+      },
+      {
+        type: 'text',
+        value: "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
     DISHONORABLE_STATUS = 'warning'
     DISHONORABLE_RESPONSE = {
@@ -30,10 +48,19 @@ module VeteranStatusCard
 
     INELIGIBLE_SERVICE_TITLE = STANDARD_ERROR_TITLE
     INELIGIBLE_SERVICE_MESSAGE = [
-      'Your service history does not indicate an eligible period of service.',
-      "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: 'Your service history does not indicate an eligible period of service.'
+      },
+      {
+        type: 'text',
+        value: "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
     INELIGIBLE_SERVICE_STATUS = 'warning'
     INELIGIBLE_SERVICE_RESPONSE = {
@@ -44,10 +71,19 @@ module VeteranStatusCard
 
     UNKNOWN_SERVICE_TITLE = STANDARD_ERROR_TITLE
     UNKNOWN_SERVICE_MESSAGE = [
-      'Your record is missing information about your service history or discharge status.',
-      "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: 'Your record is missing information about your service history or discharge status.'
+      },
+      {
+        type: 'text',
+        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
     UNKNOWN_SERVICE_STATUS = 'warning'
     UNKNOWN_SERVICE_RESPONSE = {
@@ -58,10 +94,19 @@ module VeteranStatusCard
 
     EDIPI_NO_PNL_TITLE = STANDARD_ERROR_TITLE
     EDIPI_NO_PNL_MESSAGE = [
-      "There's a problem with your records.",
-      "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: "There's a problem with your records."
+      },
+      {
+        type: 'text',
+        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
     EDIPI_NO_PNL_STATUS = 'warning'
     EDIPI_NO_PNL_RESPONSE = {
@@ -88,12 +133,21 @@ module VeteranStatusCard
       status: ERROR_STATUS
     }.freeze
 
-    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong."
+    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong"
     SOMETHING_WENT_WRONG_MESSAGE = [
-      'Something went wrong on our end. Please try again later.',
-      "If this problem persists, contact VA.gov technical support. We're open #{SUPPORT_HOURS}",
-      SUPPORT_PHONE,
-      TTY_INFO
+      {
+        type: 'text',
+        value: 'Something went wrong on our end. Please try again later.'
+      },
+      {
+        type: 'text',
+        value: "If this problem persists, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
     ].freeze
     SOMETHING_WENT_WRONG_STATUS = 'error'
     SOMETHING_WENT_WRONG_RESPONSE = {

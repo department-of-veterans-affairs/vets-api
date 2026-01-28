@@ -88,14 +88,14 @@ describe ClaimsApi::FesService::Base do
       end
     end
 
-    context 'invalid data format' do
-      it 'raises backend service exception' do
-        VCR.use_cassette('/claims_api/fes/validate/bad_request') do
-          expect do
-            service.validate(claim, invalid_form_data, not_async)
-          end.to raise_error(
-            ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException
-          )
+    context 'invalid data values' do
+      it 'returns a 400' do
+        invalid_data = min_fes_mapped_data
+        invalid_data[:data][:form526][:serviceInformation][:servicePeriods][0][:serviceBranch] = 'AIR\n Force'
+
+        VCR.use_cassette('/claims_api/fes/validate/invalid_request') do
+          expect { service.validate(claim, invalid_data, not_async) }
+            .to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException)
         end
       end
     end
@@ -107,7 +107,7 @@ describe ClaimsApi::FesService::Base do
         VCR.use_cassette('/claims_api/fes/submit/success') do
           response = service.submit(fes_claim, min_fes_mapped_data, not_async)
 
-          expect(response[:claimId]).to eq(600781884) # rubocop:disable Style/NumericLiterals
+          expect(response[:claimId]).to eq(600883061) # rubocop:disable Style/NumericLiterals
           expect(response[:requestId]).not_to be_nil
         end
       end
