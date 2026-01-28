@@ -1,0 +1,1103 @@
+{
+  "21-4142": {
+    "friendlyName": "Authorization to disclose information",
+    "shortDescription": "We need your permission to request your personal information from a non-VA source, like a private doctor or hospital.",
+    "supportAliases": [
+      "21-4142"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need your permission to request your personal information from a non-VA source, like a private doctor or hospital."
+        },
+        {
+          "type": "paragraph",
+          "content": "Personal information may include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Medical treatments",
+            "Hospitalizations",
+            "Psychotherapy",
+            "Outpatient care"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Even if you already submitted VA Form 21-4142a, we may still need the separate VA Form 21-4142 in order to request your personal information."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-4142 to give us permission to request your personal information."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can complete and sign this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4142",
+              "href": "/find-forms/about-form-21-4142/",
+              "testId": "VA Form 21-4142"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "21-4142 incomplete - need provider address": {
+    "friendlyName": "Address of non-VA medical provider",
+    "shortDescription": "We need your private physician’s address to request information for your claim.",
+    "supportAliases": [
+      "21-4142 incomplete - need provider address"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "We need your non-VA medical provider’s address to request information for your claim. Your Authorization and Consent to Release Information to the VA did not include an address or it included a wrong address."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your claim letter includes the provider address that we need."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-4142a to provide the address of your non-VA medical provider."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can complete this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4142a",
+              "href": "/find-forms/about-form-21-4142a/",
+              "testId": "VA Form 21-4142a"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "21-4142/21-4142a": {
+    "friendlyName": "Authorization to disclose information",
+    "activityDescription": "We need your permission to request your personal information from a non-VA source, like a private doctor or hospital.",
+    "supportAliases": [
+      "21-4142/21-4142a"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need your permission to request your personal information from a non-VA source, like a private doctor or hospital."
+        },
+        {
+          "type": "paragraph",
+          "content": "Personal information may include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Medical treatments",
+            "Hospitalizations",
+            "Psychotherapy",
+            "Outpatient care"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-4142 to give us permission to request your personal information."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can complete and sign this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4142",
+              "href": "/find-forms/about-form-21-4142/",
+              "testId": "VA Form 21-4142"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "21-4142a": {
+    "friendlyName": "Non-VA medical provider information",
+    "shortDescription": "We need information about where you received treatment so we can request your medical records from non-VA medical providers.",
+    "supportAliases": [
+      "21-4142a"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need information about where you received treatment so we can request your medical records from non-VA medical providers."
+        },
+        {
+          "type": "paragraph",
+          "content": "This helps us collect:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Facility names and addresses",
+            "Dates of medical treatments"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-4142a to give us permission to request your medical treatment records from non-VA medical providers."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can complete and sign this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4142a",
+              "href": "/find-forms/about-form-21-4142a/",
+              "testId": "VA Form 21-4142a"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ASB - tell us where, when, how exposed": {
+    "friendlyName": "Asbestos exposure information",
+    "shortDescription": "To process your disability claim for asbestos exposure, we need a bit more information from you.",
+    "supportAliases": [
+      "ASB - tell us where, when, how exposed"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To process your disability claim for asbestos exposure, we need a bit more information from you."
+        },
+        {
+          "type": "paragraph",
+          "content": "Please answer the following questions:"
+        },
+        {
+          "type": "list",
+          "style": "numbered",
+          "items": [
+            "Where were you exposed to asbestos? (Include your unit, rank, and location if you remember.)",
+            "When did the exposure happen?",
+            "How did the exposure happen?",
+            "Were any other service members with you? (Please share their names if you can.)",
+            "Were you exposed to anything else that may cause cancer (like cigarettes or chemicals) during or after your service?",
+            "What jobs did you have before and after your military service? How long did you work at each one?"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "After completing and signing the form, you can upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4138",
+              "href": "/find-forms/about-form-21-4138/",
+              "testId": "VA Form 21-4138"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ASB-medical evid of disease (biopsy) needed": {
+    "friendlyName": "Asbestos exposure medical documentation",
+    "shortDescription": "We need medical documentation that supports your claim.",
+    "supportAliases": [
+      "ASB-medical evid of disease (biopsy) needed"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To review your claim for asbestos exposure, we need medical documentation that supports your claim."
+        },
+        {
+          "type": "paragraph",
+          "content": "This could include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Diagnosis",
+            "Biopsy",
+            "Other related medical records"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "If the biopsy or other exam was done at a VA facility, upload a document that includes the location and the month and year of the exam. We’ll request your medical records for you."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "If that exam was done by a non-VA provider, use VA Form 21-4142 to authorize VA to request your medical records.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4142",
+              "href": "/find-forms/about-form-21-4142/",
+              "testId": "VA Form 21-4142"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ASB-tell us specific disability fm asbestos exposure": {
+    "friendlyName": "Disease or disability related to the asbestos exposure",
+    "supportAliases": [
+      "ASB-tell us specific disability fm asbestos exposure"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To process your disability claim for asbestos exposure, we need information about your asbestos-related disease or disability:"
+        },
+        {
+          "type": "list",
+          "style": "numbered",
+          "items": [
+            "The specific disease or disability caused by asbestos exposure",
+            "Why you believe asbestos caused your disease or disability",
+            "Evidence of this connection, like a medical opinion from your doctor"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "After completing and signing the form, you can upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4138",
+              "href": "/find-forms/about-form-21-4138/",
+              "testId": "VA Form 21-4138"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Clarification of Claimed Issue": {
+    "friendlyName": "Clarify claimed condition",
+    "shortDescription": "We need more information or a medical diagnosis for the condition in your benefits claim.",
+    "supportAliases": [
+      "Clarification of Claimed Issue"
+    ],
+    "canUploadFile": true,
+    "noProvidePrefix": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "We need more information or a medical diagnosis for the condition in your benefits claim."
+        },
+        {
+          "type": "paragraph",
+          "content": "For example, if you listed a leg condition, we’d need to know if it affects your hip, knee, ankle, or foot—or if it’s related to nerves or your skin."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "You can upload a document that gives more detail about your condition, or use VA Form 21-4138, Statement in Support of Claim.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4138",
+              "href": "/find-forms/about-form-21-4138/",
+              "testId": "VA Form 21-4138"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on every page of any document you upload."
+        }
+      ]
+    }
+  },
+  "DBQ AUDIO Hearing Loss and Tinnitus": {
+    "friendlyName": "Disability exam for hearing",
+    "supportAliases": [
+      "DBQ AUDIO Hearing Loss and Tinnitus"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested a disability exam for your hearing. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ GU Male Reproductive Organ": {
+    "friendlyName": "Reproductive health exam",
+    "shortDescription": "We’ve requested an exam to understand the condition affecting your reproductive health. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ GU Male Reproductive Organ"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam to understand the condition affecting your reproductive health. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ MUSC Back (thoracolumbar spine)": {
+    "friendlyName": "Back pain exam",
+    "shortDescription": "We’ve requested an exam to understand your back condition. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ MUSC Back (thoracolumbar spine)"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam to understand your back condition. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ MUSC Knee and Lower Leg": {
+    "friendlyName": "Knee and leg exam",
+    "shortDescription": "We’ve requested an exam for your knee and lower leg. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ MUSC Knee and Lower Leg"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam for your knee and lower leg. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ NEURO Headaches (including migraines)": {
+    "friendlyName": "Headache and migraine exam",
+    "shortDescription": "We’ve requested an exam for your headaches. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ NEURO Headaches (including migraines)"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam for your headaches (including migraines). The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ PSYCH Mental Disorders": {
+    "friendlyName": "Mental health exam",
+    "supportAliases": [
+      "DBQ PSYCH Mental Disorders"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested a mental health exam. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ PSYCH PTSD Review": {
+    "friendlyName": "PTSD claim follow-up exam",
+    "shortDescription": "We’ve requested a follow-up exam related to your PTSD. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ PSYCH PTSD Review"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "isProperNoun": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested a follow-up exam related to your PTSD. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ PSYCH PTSD initial": {
+    "friendlyName": "PTSD claim exam",
+    "shortDescription": "We’ve requested an exam related to your PTSD. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ PSYCH PTSD initial"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "isProperNoun": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam related to your PTSD. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "DBQ RESP Sleep Apnea": {
+    "friendlyName": "Sleep apnea exam",
+    "shortDescription": "We’ve requested an exam to learn more about your sleep apnea. The examiner’s office will contact you to schedule this appointment.",
+    "supportAliases": [
+      "DBQ RESP Sleep Apnea"
+    ],
+    "noActionNeeded": true,
+    "isDBQ": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested an exam to learn more about your sleep apnea. The examiner’s office will contact you to schedule this appointment."
+        }
+      ]
+    }
+  },
+  "EFT - Treasury Mandate Notification": {
+    "friendlyName": "Direct deposit information",
+    "activityDescription": "We need your direct deposit information in order to pay benefits, if awarded.",
+    "supportAliases": [
+      "EFT - Treasure Mandate Notification"
+    ],
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need your direct deposit information in order to pay benefits, if awarded."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "You can update your direct deposit information in your VA.gov profile, by phone, or by mail.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Add or change direct deposit information",
+              "href": "/profile/direct-deposit",
+              "testId": "Add or change direct deposit information"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "If you don’t already have a bank account, the Veterans Benefits Banking Program (VBBP) can connect you with a bank that will help you set up an account.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Set up a bank account through VBBP",
+              "href": "https://veteransbenefitsbanking.org/",
+              "style": "external",
+              "testId": "Set up a bank account through VBBP"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Employer (21-4192)": {
+    "friendlyName": "Employment information",
+    "shortDescription": "We sent a letter to your last employer to ask about your job and why you left.",
+    "supportAliases": [
+      "Employer (21-4192)"
+    ],
+    "noActionNeeded": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we sent a letter to your last employer to ask about your job and why you left. This information will help us understand if you left your job because of a service-connected disability."
+        }
+      ]
+    }
+  },
+  "Employment info needed": {
+    "friendlyName": "Employment information",
+    "activityDescription": "We need employment information from your most recent employer.",
+    "supportAliases": [
+      "VA Form 21-4192"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need employment information from your most recent employer."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Give VA Form 21-4192 to your most recent employer and ask them to mail us your employment information.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4192",
+              "href": "/find-forms/about-form-21-4192/",
+              "testId": "VA Form 21-4192"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "General Records Request (Medical)": {
+    "friendlyName": "Non-VA medical records",
+    "shortDescription": "We’ve requested your non-VA medical records from your medical provider.",
+    "supportAliases": [
+      "General Records Request (Medical)",
+      "PMR Request"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested your non-VA medical records from your medical provider."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your health records may include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Treatment records",
+            "Hospital summaries",
+            "Findings or diagnoses"
+          ]
+        }
+      ]
+    }
+  },
+  "HAIMS STR Request": {
+    "friendlyName": "Service treatment records",
+    "shortDescription": "We’ve requested your service treatment records from the Department of Defense.",
+    "supportAliases": [
+      "HAIMS STR Request"
+    ],
+    "noActionNeeded": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested your service treatment records from the Department of Defense."
+        }
+      ]
+    }
+  },
+  "NG1 - National Guard Records Request": {
+    "friendlyName": "National Guard service treatment records",
+    "shortDescription": "We’ve asked your National Guard unit for your service treatment records.",
+    "supportAliases": [
+      "NG1 - National Guard Records Request"
+    ],
+    "noActionNeeded": true,
+    "isProperNoun": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve asked your National Guard unit for your service treatment records. These records help us understand when your medical condition may have started during your military service."
+        }
+      ]
+    }
+  },
+  "Name of disability needed": {
+    "friendlyName": "Name of disability",
+    "shortDescription": "We need to know what your disability is and how it’s connected to your military service.",
+    "supportAliases": [
+      "Name of disability needed"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To review your claim, we need to know what your disability is and how it’s connected to your military service."
+        },
+        {
+          "type": "paragraph",
+          "content": "Examples include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Hearing loss from operating heavy equipment",
+            "Knee injury from a service-related accident",
+            "Post-traumatic stress disorder (PTSD) from exposure to traumatic events during service"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "If you have more than one disability, list each one in your claim."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-526EZ to provide the name of your disability and how it’s connected to your military service."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can complete and sign this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-526EZ",
+              "href": "/find-forms/about-form-21-526ez/",
+              "testId": "VA Form 21-526EZ"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "Or, you can call the VA benefits hotline at ",
+            {
+              "type": "telephone",
+              "contact": "8008271000"
+            },
+            " (",
+            {
+              "type": "telephone",
+              "contact": "711",
+              "tty": true
+            },
+            ") to give us the name of your disability."
+          ]
+        }
+      ]
+    }
+  },
+  "PMR Pending": {
+    "friendlyName": "Non-VA medical records",
+    "shortDescription": "We’ve requested your non-VA medical records from your medical provider.",
+    "supportAliases": [
+      "PMR Pending",
+      "General Records Request (Medical)"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested your non-VA medical records from your medical provider."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your health records may include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Treatment records",
+            "Hospital summaries",
+            "Findings or diagnoses"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "We limited our request based on any restrictions you listed on your Authorization to Disclose Information (VA Form 21-4142)."
+        }
+      ]
+    }
+  },
+  "PMR Request": {
+    "friendlyName": "Non-VA medical records",
+    "activityDescription": "We’ve requested your non-VA medical records on your behalf. No action is needed.",
+    "supportAliases": [
+      "PMR Request",
+      "General Records Request (Medical)"
+    ],
+    "canUploadFile": true
+  },
+  "PTSD - Need stressor details/med evid of stressful incdnt": {
+    "friendlyName": "Details about cause of PTSD",
+    "activityDescription": "We need information about the cause of your posttraumatic stress disorder (PTSD).",
+    "supportAliases": [
+      "VA Form 21-0781",
+      "PTSD - Need stressor details"
+    ],
+    "canUploadFile": true
+  },
+  "Proof of service (DD214, etc.)": {
+    "friendlyName": "Proof of service",
+    "activityDescription": "We’ve requested your proof of service on your behalf. No action is needed.",
+    "shortDescription": "We’ve requested all your DD Form 214’s or other separation papers for all your periods of military service.",
+    "supportAliases": [
+      "Proof of Service (DD214, etc.)"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested all your DD Form 214’s or other separation papers for all your periods of military service."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can also ",
+            {
+              "type": "link",
+              "text": "request your military service records",
+              "href": "/records/get-military-service-records/"
+            },
+            " yourself from the National Archives."
+          ]
+        }
+      ]
+    }
+  },
+  "RV1 - Reserve Records Request": {
+    "friendlyName": "Reserve records",
+    "activityDescription": "We’ve requested your reserve records on your behalf. No action is needed.",
+    "shortDescription": "We’ve requested your service records or treatment records from your reserve unit.",
+    "supportAliases": [
+      "RV1 - Reserve Records Request"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested your service records or treatment records from your reserve unit."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your records may be used to verify:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Your service",
+            "An event in your service",
+            "Treatment received during your service"
+          ]
+        }
+      ]
+    }
+  },
+  "Request Service Treatment Records from Veteran": {
+    "friendlyName": "Official service treatment records",
+    "shortDescription": "We need certified copies of your service treatment records if you have them.",
+    "supportAliases": [
+      "Request Service Treatment Records from Veteran"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need certified copies of your service treatment records if you have them. Uploading your copies may speed up the claim review process."
+        },
+        {
+          "type": "paragraph",
+          "content": "In case you don’t have them, we also requested your service treatment records from the Department of Defense, reserve unit, or national guard unit. You don’t need to request your service treatment records yourself."
+        },
+        {
+          "type": "paragraph",
+          "content": "Once we have your service treatment records we can schedule an exam."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Upload certified copies of your service treatment records, if you have them. This can help speed up the claim review process."
+        },
+        {
+          "type": "paragraph",
+          "content": "If you don’t have certified copies of your service treatment records, no action is needed. We are requesting them for you."
+        }
+      ]
+    }
+  },
+  "SSA medical evidence requested": {
+    "friendlyName": "Medical records from the Social Security Administration",
+    "shortDescription": "We’ve asked the Social Security Administration (SSA) for your medical records.",
+    "supportAliases": [
+      "SSA medical evidence requested"
+    ],
+    "noActionNeeded": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve asked the Social Security Administration (SSA) for your medical records. This helps us understand your condition and how it might relate to your claim."
+        },
+        {
+          "type": "paragraph",
+          "content": "It may take several months to receive a response from the SSA."
+        }
+      ]
+    }
+  },
+  "Submit buddy statement(s)": {
+    "friendlyName": "Witness or corroboration statements",
+    "shortDescription": "We need statements from people who know about your condition.",
+    "supportAliases": [
+      "Submit buddy statement(s)"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your disability benefits claim, we need statements from people who know about your condition. These are often called \"buddy statements.\""
+        },
+        {
+          "type": "paragraph",
+          "content": "These people should:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Describe what they saw or know about your condition",
+            "Include when and where they observed it, and what was happening at the time",
+            "Say clearly if they witnessed the event that caused your condition",
+            "If they served with you, include their name, rank, and unit at the time"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Each person must include the following sentence at the end of their statement:"
+        },
+        {
+          "type": "paragraph",
+          "content": "\"I hereby certify that this information is true and correct to the best of my knowledge and belief.\""
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use VA Form 21-10210 to submit a Lay/Witness Statement (also known as \"buddy statements\") from someone who knows about your condition and can support your claim."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "You can submit the completed form online, or you can upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-10210",
+              "href": "/find-forms/about-form-21-10210/",
+              "testId": "VA Form 21-10210"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Unemployability - 21-8940 needed and 4192(s) requested": {
+    "friendlyName": "Work status information",
+    "shortDescription": "We need more information about how your service-connected disabilities prevent you from working.",
+    "supportAliases": [
+      "Unemployability - 21-8940 needed and 4192(s) requested"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we need more information about how your service-connected disabilities prevent you from working."
+        },
+        {
+          "type": "paragraph",
+          "content": "We also need information from your most recent employer to tell us what your role was and the reasons why your employment ended."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use ",
+            {
+              "type": "bold",
+              "content": "VA Form 21-8940"
+            },
+            " to let us know what service-connected disabilities prevent you from working. You can complete and sign this form online, or use a PDF version and upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-8940",
+              "href": "/find-forms/about-form-21-8940/",
+              "testId": "VA Form 21-8940"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "Give ",
+            {
+              "type": "bold",
+              "content": "VA Form 21-4192"
+            },
+            " to your most recent employer and ask them to mail us your employment information.",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "VA Form 21-4192",
+              "href": "/find-forms/about-form-21-4192/",
+              "testId": "VA Form 21-4192"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
