@@ -11,7 +11,7 @@ module SubmitAllClaimSpec
       def define_example(description, &)
         definition = ExampleDefinition.build!(&)
 
-        it description do
+        it description, caller: caller(1, 1) do
           definition.before and instance_exec(&definition.before)
           user = build(:user, :loa3, icn: definition.user_icn)
           sign_in_as(user)
