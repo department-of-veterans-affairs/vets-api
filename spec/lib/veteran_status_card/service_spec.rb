@@ -330,9 +330,9 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:service_summary_code]).to eq(code)
               expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::DISHONORABLE_TITLE)
-              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::DISHONORABLE_MESSAGE)
-              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::DISHONORABLE_STATUS)
+              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:title])
+              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:message])
+              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:status])
             end
           end
         end
@@ -353,9 +353,9 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:service_summary_code]).to eq(code)
               expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_TITLE)
-              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_MESSAGE)
-              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_STATUS)
+              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE[:title])
+              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE[:message])
+              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE[:status])
             end
           end
         end
@@ -373,9 +373,9 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:service_summary_code]).to eq('U')
           expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_TITLE)
-          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_MESSAGE)
-          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_STATUS)
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
         end
       end
 
@@ -391,9 +391,9 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:service_summary_code]).to eq('X')
           expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_TITLE)
-          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_MESSAGE)
-          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_STATUS)
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:status])
         end
       end
 
@@ -412,9 +412,9 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:service_summary_code]).to eq(code)
               expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_TITLE)
-              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_MESSAGE)
-              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_STATUS)
+              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE[:title])
+              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE[:message])
+              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE[:status])
             end
           end
         end
@@ -435,9 +435,9 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:service_summary_code]).to eq(code)
               expect(result[:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
 
-              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::ERROR_TITLE)
-              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::ERROR_MESSAGE)
-              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::ERROR_STATUS)
+              expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
+              expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
+              expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
             end
           end
         end
@@ -811,9 +811,9 @@ RSpec.describe VeteranStatusCard::Service do
 
           expect(result[:type]).to eq('veteran_status_alert')
           expect(result[:veteran_status]).to eq('not confirmed')
-          expect(result[:attributes][:header]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-          expect(result[:attributes][:body]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-          expect(result[:attributes][:alert_type]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
         end
       end
 
@@ -966,9 +966,9 @@ RSpec.describe VeteranStatusCard::Service do
 
           expect(status[:veteran_status]).to be_nil
           expect(status[:reason]).to eq('ERROR')
-          expect(status[:message]).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
-          expect(status[:title]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
-          expect(status[:status]).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
+          expect(status[:message]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
+          expect(status[:title]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
+          expect(status[:status]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
         end
       end
 
