@@ -154,6 +154,7 @@ module IncreaseCompensation
       def govcio_upload
         if Flipper.enabled?(:increase_compensation_govcio_mms)
           ibm_service = Ibm::Service.new
+          Rails.logger.info('Start send to IBM service', form: @claim.form_id, guid: @intake_service.uuid)
           ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
         end
       end
