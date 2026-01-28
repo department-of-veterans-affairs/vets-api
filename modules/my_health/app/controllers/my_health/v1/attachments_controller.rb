@@ -66,7 +66,7 @@ module MyHealth
 
       def extract_filename(header_value)
         header_value.match(/filename=["']?([^"';]+)["']?/)[1]
-      rescue
+      rescue NoMethodError
         nil
       end
 

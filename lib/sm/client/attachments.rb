@@ -102,8 +102,8 @@ module SM
         }
         header_callback.call(headers.to_a)
 
-        # Stream the file from S3
-        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+        # Stream the file from S3 with read_timeout to prevent hanging connections
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: 60) do |http|
           request = Net::HTTP::Get.new(uri)
           http.request(request) do |file_response|
             validate_http_response(file_response)
