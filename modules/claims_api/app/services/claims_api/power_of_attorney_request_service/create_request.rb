@@ -91,7 +91,14 @@ module ClaimsApi
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
               res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
-              @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
+              if res
+                @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id]
+
+                @vnp_res_object['meta'][type.to_s]['phone_data'] = {}
+                @vnp_res_object['meta'][type.to_s]['phone_data']['countryCode'] = person[:phone][:countryCode]
+                @vnp_res_object['meta'][type.to_s]['phone_data']['areaCode'] = person[:phone][:areaCode]
+                @vnp_res_object['meta'][type.to_s]['phone_data']['phoneNumber'] = person[:phone][:phoneNumber]
+              end
             end
           end
         end
