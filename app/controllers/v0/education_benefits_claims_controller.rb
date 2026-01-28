@@ -9,6 +9,11 @@ module V0
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
+      raise Common::Exceptions::Unauthorized if claim.requires_authenticated_user? && !@current_user
+
+      claim.user_account = @current_user&.user_account
+      claim.delete_date = Time.zone.now + claim.retention_period if claim.retention_period
+
       unless claim.save
         StatsD.increment("#{stats_key('create')}.failure")
         StatsD.increment("#{stats_key("create.22#{form_type}")}.failure")

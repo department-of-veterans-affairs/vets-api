@@ -45,6 +45,22 @@ module VetsAPI
 
     # RAILS 7 CONFIG END
 
+    # Active Record Encryption
+    # see: https://guides.rubyonrails.org/active_record_encryption.html
+    # ONLY USED FOR CONSOLE1984
+    config.active_record.encryption.primary_key = Settings.active_record_encryption.primary_key
+    config.active_record.encryption.deterministic_key = Settings.active_record_encryption.deterministic_key
+    config.active_record.encryption.key_derivation_salt = Settings.active_record_encryption.key_derivation_salt
+
+    # Console1984
+    # see: https://github.com/basecamp/console1984/tree/master?tab=readme-ov-file#configuration
+    config.console1984.ask_for_username_if_empty = true
+    config.console1984.production_data_warning = <<~TXT
+      You have access to production data here. As part of our promise to keep customer data safe and private, we audit the commands you type here.
+
+      Please enter your VA email and the VA email of the person you're pairing with.
+    TXT
+
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.

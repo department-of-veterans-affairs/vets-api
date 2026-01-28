@@ -166,6 +166,41 @@ RSpec.describe Rack::Attack do
     end
   end
 
+  describe 'ask_va_api/zip_state_validation' do
+    let(:endpoint) { '/ask_va_api/v0/zip_state_validation' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:params) { { zip_code: '12345', state_code: 'VA' } }
+    let(:limit) { 60 }
+
+    before do
+      allow(Settings).to receive(:vsp_environment).and_return('production')
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:ask_va_api_maintenance_mode).and_return(false)
+      allow(AskVAApi::ZipStateValidation::ZipStateValidator).to receive(:call).and_return(
+        Struct.new(:valid, :error_code, :error_message).new(true, nil, nil)
+      )
+
+      limit.times do
+        post endpoint, params, headers
+        expect(last_response).to have_http_status(:ok)
+      end
+    end
+
+    it 'throttles with status 429' do
+      post endpoint, params, headers
+
+      expect(last_response).to have_http_status(:too_many_requests)
+    end
+
+    it 'does not throttle a different IP' do
+      other_headers = { 'X-Real-Ip' => '4.3.2.1' }
+
+      post endpoint, params, other_headers
+
+      expect(last_response).to have_http_status(:ok)
+    end
+  end
+
   describe 'education_benefits_claims/v0/ip' do
     let(:endpoint) { '/v0/education_benefits_claims/1995' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
