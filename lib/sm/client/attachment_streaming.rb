@@ -8,6 +8,20 @@ module SM
     module AttachmentStreaming
       CHUNK_SIZE = 8192
 
+      # Network errors that can occur during streaming - wrapped to provide consistent error handling
+      NETWORK_ERRORS = [
+        Timeout::Error,
+        Errno::ECONNRESET,
+        Errno::ECONNREFUSED,
+        Errno::ETIMEDOUT,
+        Errno::EHOSTUNREACH,
+        Net::ReadTimeout,
+        Net::OpenTimeout,
+        OpenSSL::SSL::SSLError,
+        SocketError,
+        EOFError
+      ].freeze
+
       private
 
       def stream_s3_attachment(data, header_callback, &block)
@@ -31,6 +45,8 @@ module SM
             file_response.read_body(&block)
           end
         end
+      rescue *NETWORK_ERRORS => e
+        handle_network_error(e, 'S3')
       end
 
       # Stream directly from MHV API using raw Net::HTTP to avoid Faraday buffering.
@@ -55,6 +71,8 @@ module SM
             end
           end
         end
+      rescue *NETWORK_ERRORS => e
+        handle_network_error(e, 'MHV')
       end
 
       def build_mhv_uri(path)
@@ -107,6 +125,11 @@ module SM
         Rails.logger.error("Failed to fetch attachment: HTTP #{response.code}")
         raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {},
                                                               response.code)
+      end
+
+      def handle_network_error(error, source)
+        Rails.logger.error("Network error streaming attachment from #{source}: #{error.class} - #{error.message}")
+        raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {}, 503)
       end
     end
   end

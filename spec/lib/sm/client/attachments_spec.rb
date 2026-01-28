@@ -137,5 +137,35 @@ describe SM::Client::Attachments do
         client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
       end.to raise_error(Common::Exceptions::BackendServiceException)
     end
+
+    it 'handles network timeout errors gracefully' do
+      allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout.new('Connection timed out'))
+
+      header_callback = ->(_headers) {}
+
+      expect do
+        client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'handles connection reset errors gracefully' do
+      allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET.new('Connection reset by peer'))
+
+      header_callback = ->(_headers) {}
+
+      expect do
+        client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'handles SSL errors gracefully' do
+      allow(Net::HTTP).to receive(:start).and_raise(OpenSSL::SSL::SSLError.new('SSL handshake failed'))
+
+      header_callback = ->(_headers) {}
+
+      expect do
+        client.stream_attachment(message_id, attachment_id, header_callback) { |_chunk| }
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
   end
 end
