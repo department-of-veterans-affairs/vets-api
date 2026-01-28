@@ -255,8 +255,7 @@ module VAOS
       end
 
       def create_direct_scheduling_appointment(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           perform_post_appointment_request_vpg(params)
         else
           perform_post_appointment_request_vaos(params)
@@ -264,7 +263,7 @@ module VAOS
       end
 
       def create_appointment_request(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           perform_post_appointment_request_vpg(params)
         else
           perform_post_appointment_request_vaos(params)
