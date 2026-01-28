@@ -208,14 +208,14 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
         client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 10))
       end
 
-      it 'maxResults cannot be greater then 50' do
-        test_params.merge!(maxResults: 50, pageNumber: 1, pageSize: 60)
+      it 'maxResults cannot be greater then 2499' do
+        test_params.merge!(maxResults: 2499, pageNumber: 1, pageSize: 2499)
         expect(client).to receive(:perform).with(:get, path, test_params).and_return(fake_response)
-        client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 60))
+        client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 2499))
 
-        test_params.merge!(pageNumber: 60, pageSize: 1)
+        test_params.merge!(maxResults: 2499, pageNumber: 2, pageSize: 1250)
         expect(client).to receive(:perform).with(:get, path, test_params).and_return(fake_response)
-        client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 1))
+        client.provider_locator(params.merge(specialties: %w[Code1], page: 2, per_page: 1250))
       end
 
       it 'maxResults cannot be less than 2' do
