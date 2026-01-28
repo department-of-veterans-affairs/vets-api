@@ -189,6 +189,16 @@ module VeteranStatusCard
       end
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
+      response_for_ssc_code
+    end
+
+    ##
+    # Returns the appropriate error response based on the SSC (Service Summary Code)
+    # Maps specific SSC codes to their corresponding error responses
+    #
+    # @return [Hash] error response with keys :title, :message, :status
+    #
+    def response_for_ssc_code
       case ssc_code
       when *DISHONORABLE_SSC_CODES
         dishonorable_response
@@ -200,9 +210,8 @@ module VeteranStatusCard
         edipi_no_pnl_response
       when *CURRENTLY_SERVING_CODES
         currently_serving_response
-      when *ERROR_SSC_CODES
-        error_response
       else
+        # Also handles ERROR_SSC_CODES
         error_response
       end
     end
@@ -254,7 +263,7 @@ module VeteranStatusCard
     # @return [Boolean] true if service history episodes exist, false otherwise
     #
     def service_history?
-      service_history_response&.episodes.any?
+      service_history_response&.episodes&.any?
     end
 
     ##
