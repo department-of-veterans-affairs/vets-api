@@ -104,6 +104,15 @@ RSpec.describe 'VO::TsaLetter', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
+
+    context 'when user is loa3 but does not have an ICN' do
+      let(:user) { build(:user, :loa3, icn: nil) }
+
+      it 'renders 403' do
+        get '/v0/tsa_letter'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 
   describe 'GET /v0/tsa_letter/:id/version/:version_id/download' do
@@ -135,6 +144,15 @@ RSpec.describe 'VO::TsaLetter', type: :request do
 
     context 'when user is not loa3' do
       let(:user) { build(:user, :loa1) }
+
+      it 'renders 403' do
+        get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is loa3 but does not have an ICN' do
+      let(:user) { build(:user, :loa3, icn: nil) }
 
       it 'renders 403' do
         get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
