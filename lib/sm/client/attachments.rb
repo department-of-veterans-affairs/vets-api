@@ -65,9 +65,11 @@ module SM
       #   for setting Content-Type and Content-Disposition on the response
       # @yield [String] streams chunks of the attachment data (typically 8KB) to the caller
       # @raise [Common::Exceptions::BackendServiceException] if the attachment cannot be fetched
-      def stream_attachment(message_id, attachment_id, header_callback, &)
+      def stream_attachment(message_id, attachment_id, header_callback, &block)
         path = "message/#{message_id}/attachment/#{attachment_id}"
-        stream_from_mhv(path, header_callback, &)
+        track_with_status('attachment.stream') do
+          stream_from_mhv(path, header_callback, &block)
+        end
       end
 
       ##
