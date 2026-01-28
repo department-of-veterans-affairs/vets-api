@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1185,7 +1185,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_23_162837) do
     t.datetime "last_attempted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["aasm_state", "created_at"], name: "idx_form_intake_sub_on_state_and_created"
+    t.index ["aasm_state"], name: "index_form_intake_submissions_on_aasm_state"
+    t.index ["benefits_intake_uuid"], name: "index_form_intake_submissions_on_benefits_intake_uuid"
+    t.index ["form_intake_submission_id"], name: "idx_form_intake_sub_on_intake_id", unique: true, where: "(form_intake_submission_id IS NOT NULL)"
+    t.index ["form_submission_id", "aasm_state"], name: "idx_form_intake_sub_on_form_sub_id_and_state"
     t.index ["form_submission_id"], name: "index_form_intake_submissions_on_form_submission_id"
+    t.index ["last_attempted_at"], name: "idx_form_intake_sub_on_last_attempted", where: "((aasm_state)::text = 'pending'::text)"
   end
 
   create_table "form_submission_attempts", force: :cascade do |t|

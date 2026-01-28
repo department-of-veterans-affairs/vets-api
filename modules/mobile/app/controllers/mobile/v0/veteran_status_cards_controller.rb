@@ -5,6 +5,10 @@ module Mobile
     class VeteranStatusCardsController < ApplicationController
       def show
         render json: service.status_card
+      rescue ArgumentError => e
+        Rails.logger.error("Mobile::VeteranStatusCardsController argument error: #{e.message}",
+                           backtrace: e.backtrace)
+        render json: { error: 'An argument error occurred' }, status: :unprocessable_entity
       rescue => e
         Rails.logger.error("Mobile::VeteranStatusCardsController unexpected error: #{e.message}",
                            backtrace: e.backtrace)

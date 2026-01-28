@@ -122,8 +122,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
     context 'when both facility id and clinic id is found' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                  instance_of(User)).and_return(true)
       end
 
       let(:facility_id) { '983' }
@@ -176,8 +174,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       before do
         Timecop.freeze(Time.zone.parse(current_time))
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                  instance_of(User)).and_return(false)
       end
 
       after do
@@ -212,8 +208,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VAOS' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 error' do
@@ -229,8 +223,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VPG' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns a 502 error' do
@@ -254,8 +246,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VAOS' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns 200' do
@@ -278,8 +268,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VPG' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns 200' do
@@ -308,8 +296,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       before do
         Timecop.freeze(Time.zone.parse(current_time))
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                  instance_of(User)).and_return(false)
       end
 
       after do
@@ -341,8 +327,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VAOS' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 error' do
@@ -358,8 +342,6 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
       context 'using VPG' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns a 502 error' do
