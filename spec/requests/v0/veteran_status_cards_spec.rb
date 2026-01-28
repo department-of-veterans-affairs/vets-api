@@ -119,7 +119,7 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
 
       context 'when service raises an argument error' do
         before do
-          allow_any_instance_of(VeteranStatusCard::Service).to receive(:new)
+          allow(VeteranStatusCard::Service).to receive(:new)
             .and_raise(ArgumentError.new('this is an argument error'))
         end
 
@@ -142,7 +142,7 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
           get '/v0/veteran_status_card'
 
           expect(Rails.logger).to have_received(:error).with(
-            'VeteranStatusCardsController argument error: this is a argument error',
+            'VeteranStatusCardsController argument error: this is an argument error',
             hash_including(:backtrace)
           )
         end

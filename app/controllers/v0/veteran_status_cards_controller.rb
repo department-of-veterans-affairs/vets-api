@@ -6,6 +6,9 @@ module V0
 
     def show
       render json: service.status_card
+    rescue ArgumentError => e
+      Rails.logger.error("VeteranStatusCardsController argument error: #{e.message}", backtrace: e.backtrace)
+      render json: { error: 'An arguemnt error occured' }, status: :unprocessable_entity
     rescue => e
       Rails.logger.error("VeteranStatusCardsController unexpected error: #{e.message}", backtrace: e.backtrace)
       render json: { error: 'An unexpected error occurred' }, status: :internal_server_error
@@ -15,9 +18,6 @@ module V0
 
     def service
       @service ||= VeteranStatusCard::Service.new(@current_user)
-    rescue ArgumentError => e
-      Rails.logger.error("VeteranStatusCardsController argument error: #{e.message}", backtrace: e.backtrace)
-      render json: { error: 'An arguemnt error occured' }, status: :unprocessable_entity
     end
   end
 end
