@@ -37,7 +37,7 @@ module VeteranStatusCard
       @user = user
 
       raise ArgumentError, 'User cannot be nil' if @user.nil?
-      raise ArgumentError, 'User missing required fields' if @user && (@user.edipi.blank? || @user.icn.blank?)
+      raise ArgumentError, 'User missing required fields' if @user.edipi.blank? || @user.icn.blank?
     end
 
     ##

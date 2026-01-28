@@ -85,21 +85,25 @@ RSpec.describe VeteranStatusCard::Service do
   describe '#initialize' do
     context 'when user is not nil' do
       context 'when user edipi and icn are nil' do
+        before do
+          allow(user).to receive_messages(:edipi, :icn).and_return(nil)
+        end
+
         it 'raises an argument error' do
-          expect(VeteranStatusCard::Service.new(user)).to raise(ArgumentError)
+          expect { VeteranStatusCard::Service.new(user) }.to raise(ArgumentError)
         end
       end
 
       context 'when user edipi or icn are not nil' do
         it 'does not raise an argument error' do
-          expect(VeteranStatusCard::Service.new(user)).not_to raise(ArgumentError)
+          expect { VeteranStatusCard::Service.new(user) }.not_to raise_error(ArgumentError)
         end
       end
     end
 
     context 'when user is nil' do
       it 'raises an argument error' do
-        expect(VeteranStatusCard::Service.new(nil)).to raise(ArgumentError)
+        expect { VeteranStatusCard::Service.new(nil) }.to raise(ArgumentError)
       end
     end
   end

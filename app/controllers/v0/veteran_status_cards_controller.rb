@@ -15,9 +15,9 @@ module V0
 
     def service
       @service ||= VeteranStatusCard::Service.new(@current_user)
-    rescue Common::Exceptions::ValidationErrors => e
-      Rails.logger.error("VeteranStatusCardsController validation error: #{e.message}", backtrace: e.backtrace)
-      render json: { error: 'A validation error occured' }, status: :unprocessable_entity
+    rescue ArgumentError => e
+      Rails.logger.error("VeteranStatusCardsController argument error: #{e.message}", backtrace: e.backtrace)
+      render json: { error: 'An arguemnt error occured' }, status: :unprocessable_entity
     end
   end
 end
