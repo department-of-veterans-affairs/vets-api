@@ -295,10 +295,7 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'and attribute mismatch is ssn' do
-          let(:ssn) { '123-45-6789' }
           let(:mpi_ssn) { '098-76-5432' }
-          let(:type) { 'ssn' }
-          let(:prevent_auth) { true }
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
           let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH }
