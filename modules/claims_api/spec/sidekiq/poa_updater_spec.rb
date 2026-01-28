@@ -2,6 +2,13 @@
 
 require 'rails_helper'
 
+BGS_ERRORS = [
+  Common::Exceptions::ResourceNotFound,
+  Common::Exceptions::ServiceError,
+  Common::Exceptions::UnprocessableEntity,
+  StandardError
+].freeze
+
 RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
@@ -106,24 +113,27 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
       end
     end
 
-    context 'with an exception raised from the BGS service' do
-      before do
-        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_raise(
-          Common::Exceptions::ServiceError
-        )
-      end
+    # iterate through BGS_ERRORS array to create similar tests for each exception
+    BGS_ERRORS.each do |bgs_error|
+      context "with a #{bgs_error} raised from the BGS service" do
+        before do
+          allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_raise(
+            bgs_error
+          )
+        end
 
-      it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-        expect { subject.new.perform(poa.id) }.to raise_error(Common::Exceptions::ServiceError)
-        poa.reload
-        expect(poa.status).to eq('errored')
-      end
+        it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+          expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+          poa.reload
+          expect(poa.status).to eq('errored')
+        end
 
-      it 'updates the process status to FAILED' do
-        expect { subject.new.perform(poa.id) }.to raise_error(Common::Exceptions::ServiceError)
-        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
-        expect(process.step_status).to eq('FAILED')
+        it 'updates the process status to FAILED' do
+          expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+          process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+          expect(process.step_status).to eq('FAILED')
+        end
       end
     end
   end
