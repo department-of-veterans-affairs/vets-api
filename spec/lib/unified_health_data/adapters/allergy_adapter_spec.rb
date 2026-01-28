@@ -20,10 +20,11 @@ RSpec.describe 'AllergyAdapter' do
     # Helper method to simulate what the service's remap_vista_identifier does
     def add_vista_ids(vista_records)
       vista_records.each do |record|
-        next unless record['resource'] && record['resource']['identifier']
+        resource = record['resource']
+        next unless resource && resource['identifier']
 
-        identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
-        record['resource']['id'] = identifier['value'] if identifier
+        identifier = resource['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+        resource['id'] = identifier['value'] if identifier
       end
     end
 
