@@ -338,7 +338,7 @@ GEM
       json_schema (~> 0.14, >= 0.14.3)
       openapi_parser (~> 2.0)
       rack (>= 1.5)
-    committee-rails (0.9.0)
+    committee-rails (0.10.0)
       actionpack (>= 6.0)
       activesupport (>= 6.0)
       committee (>= 5.1.0)
@@ -347,7 +347,7 @@ GEM
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.4)
+    connection_pool (3.0.2)
     console1984 (0.2.2)
       irb (~> 1.13)
       parser
@@ -650,7 +650,7 @@ GEM
       mutex_m
       nkf
       rack (>= 2.0, < 4)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.14.0)
@@ -734,7 +734,7 @@ GEM
       rake (~> 13.0)
     lockbox (2.1.0)
     logger (1.7.0)
-    loofah (2.24.1)
+    loofah (2.25.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.10)
@@ -759,7 +759,8 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.2)
+    minitest (6.0.1)
+      prism (~> 1.5)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -969,7 +970,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.9.0)
-    rdoc (7.0.3)
+    rdoc (7.1.0)
       erb
       psych (>= 4.0.0)
       tsort
@@ -1186,7 +1187,7 @@ GEM
     swagger-blocks (3.0.0)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
-    thor (1.4.0)
+    thor (1.5.0)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.3.0)
