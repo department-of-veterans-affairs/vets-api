@@ -26,7 +26,7 @@ module BenefitsIntake
       end
 
       config = msg['args'][2] || {}
-      if claim.present? && config[:kafka_submit_event]
+      if claim.present? && config[:submit_kafka_event]
         user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
 
         Kafka.submit_event(
@@ -51,7 +51,7 @@ module BenefitsIntake
     # @option config [Symbol|Array<Hash>] :claim_stamp_set stamp set name or list to apply to generated pdf
     # @option config [Symbol|Array<Hash>] :attachment_stamp_set stamp set name or list to apply to evidence pdf
     # @option config [String] :source the `source` to be recorded in the metadata for the upload; default: class name
-    # @option config [Boolean] :kafka_submit_event flag to send event data to Kafka
+    # @option config [Boolean] :submit_kafka_event flag to send event data to Kafka
     #
     # @return [UUID] benefits intake upload uuid
     def perform(saved_claim_id, user_account_uuid = nil, **config)
@@ -63,6 +63,7 @@ module BenefitsIntake
 
       upload_claim_to_lighthouse
 
+      submit_kafka_event
       send_claim_email
       monitor.track_submission_success(claim, service, user_account_uuid)
 
@@ -234,8 +235,20 @@ module BenefitsIntake
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', benefits_intake_uuid)
     end
 
-    # send submission in progress email to veteran
-    #
+    # build payload and submit SENT event to Kafka
+    def submit_kafka_event
+      return unless config[:submit_kafka_event]
+
+      Kafka.submit_event(
+        icn: @user_account&.icn.to_s,
+        current_id: claim&.confirmation_number.to_s,
+        submission_name: claim&.form_id,
+        state: Kafka::State::SENT,
+        next_id: service&.uuid.to_s
+      )
+    end
+
+    # send submission success email
     def send_claim_email
       claim.try(:send_email, email_type) if email_type
     rescue => e
