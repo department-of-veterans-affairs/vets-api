@@ -57,7 +57,7 @@ module VeteranStatusCard
       # Validate required user data
       if eligible?
         # Check if service history exists before returning eligible response
-        return error_response_hash(unknown_service_response) unless has_service_history?
+        return error_response_hash(unknown_service_response) unless service_history?
 
         eligible_response
       else
@@ -253,7 +253,7 @@ module VeteranStatusCard
     #
     # @return [Boolean] true if service history episodes exist, false otherwise
     #
-    def has_service_history?
+    def service_history?
       service_history_response&.episodes.present?
     end
 
