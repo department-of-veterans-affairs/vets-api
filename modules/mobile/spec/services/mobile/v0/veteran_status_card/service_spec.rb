@@ -84,7 +84,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
 
   describe 'inheritance' do
     it 'inherits from VeteranStatusCard::Service' do
-      expect(described_class.superclass).to eq(::VeteranStatusCard::Service)
+      expect(described_class.superclass).to eq(VeteranStatusCard::Service)
     end
   end
 

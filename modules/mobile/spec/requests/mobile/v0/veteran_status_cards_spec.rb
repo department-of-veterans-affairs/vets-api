@@ -28,7 +28,8 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       before do
-        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card).and_return(eligible_response)
+        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card)
+          .and_return(eligible_response)
       end
 
       it 'returns a successful response' do
@@ -59,7 +60,8 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
       end
 
       before do
-        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card).and_return(ineligible_response)
+        allow_any_instance_of(Mobile::V0::VeteranStatusCard::Service).to receive(:status_card)
+          .and_return(ineligible_response)
       end
 
       it 'returns a successful response with error details' do
