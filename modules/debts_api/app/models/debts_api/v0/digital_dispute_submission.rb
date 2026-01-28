@@ -18,6 +18,7 @@ module DebtsApi
       validates :user_uuid, presence: true
       validates :guid, uniqueness: true
       before_create :set_new_id
+      # validate :selected_debts_composite_id
       validate :files_present
       validate :files_are_pdfs
       validate :files_size_within_limit

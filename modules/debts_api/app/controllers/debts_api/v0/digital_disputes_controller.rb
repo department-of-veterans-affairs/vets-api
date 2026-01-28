@@ -81,8 +81,16 @@ module DebtsApi
       end
 
       def submission_params
-        params.permit(
-          :metadata,
+        params.require(:metadata).permit(
+          disputes: [
+            :composite_debt_id,
+            :deduction_code,
+            :original_ar,
+            :current_ar,
+            :benefit_type,
+            :dispute_reason,
+            :rcvbl_id
+          ],
           files: []
         )
       end
