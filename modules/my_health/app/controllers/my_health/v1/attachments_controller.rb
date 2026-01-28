@@ -59,10 +59,15 @@ module MyHealth
         filename = extract_filename(header_value)
         return response.headers['Content-Disposition'] = header_value unless filename
 
-        # Format as Rails does with send_data: both filename and filename* (RFC 5987)
+        # Build Content-Disposition with both filename (ASCII fallback) and filename* (RFC 5987)
+        # 1. ASCII filename: escape backslashes and quotes per RFC 2616
+        escaped_filename = filename.gsub('\\', '\\\\').gsub('"', '\\"')
+        # 2. RFC 5987 filename*: percent-encode non-ASCII and special characters
+        #    CGI.escape handles most cases but uses + for spaces; RFC 5987 requires %20
         encoded_filename = CGI.escape(filename).gsub('+', '%20')
+
         response.headers['Content-Disposition'] =
-          "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{encoded_filename}"
+          "attachment; filename=\"#{escaped_filename}\"; filename*=UTF-8''#{encoded_filename}"
 
         # Determine correct Content-Type based on filename extension
         set_content_type_from_filename(filename)

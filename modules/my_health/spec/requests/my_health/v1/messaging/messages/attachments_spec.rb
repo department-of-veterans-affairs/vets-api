@@ -142,6 +142,36 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
         expect(response.body).to eq('docx_content_part1docx_content_part2')
       end
 
+      it 'properly encodes special characters in filenames (RFC 5987)' do
+        # Test filename with special characters that require encoding
+        # Note: Semicolons, parentheses, and spaces are common in medical document filenames
+        filename_with_special_chars = 'Lab Results; Patient (2024).pdf'
+
+        allow_any_instance_of(SM::Client).to receive(:stream_attachment) do |_client, _msg_id, _att_id, header_cb, &blk|
+          header_cb.call(
+            [
+              ['Content-Type', 'application/pdf'],
+              ['Content-Disposition', "attachment; filename=\"#{filename_with_special_chars}\""]
+            ]
+          )
+          blk.call('pdf_content')
+        end
+
+        get '/my_health/v1/messaging/messages/123/attachments/456'
+
+        expect(response).to be_successful
+        disposition = response.headers['Content-Disposition']
+
+        # Verify both filename and filename* (RFC 5987 encoded) are present
+        expect(disposition).to include('attachment;')
+        expect(disposition).to include('filename="Lab Results; Patient (2024).pdf"')
+        # The RFC 5987 encoded filename* should use percent-encoding
+        expect(disposition).to include("filename*=UTF-8''")
+        expect(disposition).to include('%28') # ( encoded
+        expect(disposition).to include('%29') # ) encoded
+        expect(disposition).to include('%3B') # ; encoded
+      end
+
       it 'handles streaming errors gracefully' do
         allow_any_instance_of(SM::Client).to receive(:stream_attachment)
           .and_raise(Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_FETCH_ERROR', {}, 502))
