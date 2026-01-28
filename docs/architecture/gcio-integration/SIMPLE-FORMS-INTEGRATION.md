@@ -44,24 +44,6 @@ Simple Form Submitted → FormSubmissionAttempt created
 
 **What you need to add**: Just your form's mapper!
 
-## Example: Current Flow (Form 21P-601)
-
-```
-User submits → SimpleFormsApi::V1::UploadsController#submit
-                ↓
-            submit_form_to_benefits_intake
-                ↓
-            upload_pdf (generates PDF, uploads to Lighthouse)
-                ↓
-            FormSubmission.create (stores form data)
-                ↓
-            FormSubmissionAttempt.create (tracks Lighthouse submission)
-                ↓
-            Returns confirmation_number to user
-```
-
-**Key Difference from SavedClaim forms**: Simple forms handle Lighthouse upload **in the controller**, not via `Lighthouse::SubmitBenefitsIntakeClaim` Sidekiq job.
-
 ## Adding Your Form to GCIO (4 Simple Steps)
 
 ### Prerequisites
