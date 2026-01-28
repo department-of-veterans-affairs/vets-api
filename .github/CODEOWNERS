@@ -1337,6 +1337,7 @@ spec/factories/excel_file_events.rb @department-of-veterans-affairs/govcio-vfep-
 spec/factories/extract_statuses.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/factories/folders.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/factories/form_attachments.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/factories/form_intake_submissions.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 spec/factories/form_submission_attempts.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/factories/form_submissions.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/factories/form1010_ezr_attachment.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1732,6 +1733,7 @@ spec/models/excel_file_event_spec.rb @department-of-veterans-affairs/govcio-vfep
 spec/models/external_services_redis @department-of-veterans-affairs/backend-review-group
 spec/models/folder_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
 spec/models/form_attachment_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+spec/models/form_intake_submission_spec.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 spec/models/form_profile_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/models/form_profiles/mdot_spec.rb @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/models/form_profiles/va0803_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
