@@ -64,7 +64,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
 
       context 'with X-Accel-Redirect feature flag enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_stream_via_revproxy, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_stream_via_revproxy,
+                                                    anything).and_return(true)
         end
 
         context 'when attachment is S3-backed' do
@@ -164,7 +165,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages::Attachments', type: :request 
 
       context 'with X-Accel-Redirect feature flag disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_stream_via_revproxy, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_stream_via_revproxy,
+                                                    anything).and_return(false)
         end
 
         it 'uses legacy send_data approach' do
