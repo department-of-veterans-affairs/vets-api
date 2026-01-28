@@ -347,6 +347,9 @@ features:
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
+  champva_bypass_persisting_ves_json_to_database:
+    actor_type: user
+    description: Enables logic to bypass persisting VES JSON to the database for form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
