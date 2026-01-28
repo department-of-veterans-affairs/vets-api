@@ -77,7 +77,18 @@ RSpec.describe VAProfile::PersonSettings::Service do
       let(:mock_response) do
         double('response',
                status: 200,
-               body: { bio: { personOptions: [] } })
+               body: {
+                 'tx_audit_id' => 'test-transaction-123',
+                 'status' => 'COMPLETED_SUCCESS',
+                 'tx_status' => 'COMPLETED_SUCCESS',
+                 'tx_type' => 'PUSH',
+                 'tx_interaction_type' => 'ATTENDED',
+                 'tx_push_input' => {
+                   'person_options' => []
+                 },
+                 'tx_output' =>
+                 [{ 'person_options' => [] }]
+               })
       end
 
       before do
@@ -94,6 +105,8 @@ RSpec.describe VAProfile::PersonSettings::Service do
       it 'returns a PersonOptionsTransactionResponse' do
         response = subject.update_person_options(person_options_data)
         expect(response).to be_a(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse)
+        expect(response.transaction).to be_a(VAProfile::Models::Transaction)
+        expect(response.transaction.id).to be_present
       end
     end
 
