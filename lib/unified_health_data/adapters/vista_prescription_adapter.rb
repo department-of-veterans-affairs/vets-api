@@ -29,8 +29,10 @@ module UnifiedHealthData
       end
 
       def build_core_attributes(medication)
+        prescription_id_value = medication['prescriptionId'].to_s
         {
-          id: medication['prescriptionId'].to_s,
+          id: prescription_id_value,
+          prescription_id: prescription_id_value,
           type: 'Prescription',
           refill_status: medication['refillStatus'],
           refill_submit_date: convert_to_iso8601(medication['refillSubmitDate'], field_name: 'refill_submit_date'),

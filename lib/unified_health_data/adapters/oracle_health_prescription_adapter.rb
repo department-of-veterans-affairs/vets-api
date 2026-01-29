@@ -54,8 +54,10 @@ module UnifiedHealthData
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
         refill_status = extract_refill_status(resource, dispenses_data)
+        prescription_id_value = resource['id']
         {
-          id: resource['id'],
+          id: prescription_id_value,
+          prescription_id: prescription_id_value,
           type: 'Prescription',
           refill_status:,
           refill_submit_date: nil,
