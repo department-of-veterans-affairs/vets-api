@@ -109,6 +109,68 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    context 'when supporting documents feature is enabled' do
+      let(:upload_service) { instance_double(SimpleFormsApi::ScannedFormUploadService) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        allow(SimpleFormsApi::ScannedFormUploadService).to receive(:new).and_return(upload_service)
+        allow(upload_service).to receive(:upload_with_supporting_documents).and_return([200, 'uuid-123'])
+      end
+
+      it 'returns success response' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['status']).to eq(200)
+        expect(resp['confirmation_number']).to eq('uuid-123')
+      end
+
+      it 'passes normalized params with symbol keys to the service' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(SimpleFormsApi::ScannedFormUploadService).to have_received(:new) do |args|
+          expect(args[:params][:form_number]).to eq(form_number)
+          expect(args[:params][:confirmation_code]).to eq(confirmation_code)
+          expect(args[:params][:form_data]).to be_a(Hash)
+          expect(args[:params][:form_data][:full_name]).to eq({ first: 'John', last: 'Veteran' })
+          expect(args[:params][:form_data][:email]).to be_present
+          expect(args[:params][:supporting_documents]).to eq(supporting_documents: [
+                                                               {
+                                                                 confirmation_code: '23456'
+                                                               },
+                                                               {
+                                                                 confirmation_code: '34567'
+                                                               }
+                                                             ])
+        end
+      end
+
+      context 'with supporting documents' do
+        let(:params_with_supporting_docs) do
+          parsed = JSON.parse(fixture_path.read)
+          parsed['supporting_documents'] = [
+            { 'confirmation_code' => 'support-1' },
+            { 'confirmation_code' => 'support-2' }
+          ]
+          parsed
+        end
+
+        it 'passes supporting documents with symbol keys to the service' do
+          post('/simple_forms_api/v1/submit_scanned_form', params: params_with_supporting_docs)
+
+          expect(SimpleFormsApi::ScannedFormUploadService).to have_received(:new) do |args|
+            expect(args[:params][:supporting_documents]).to eq([
+                                                                 { confirmation_code: 'support-1' },
+                                                                 { confirmation_code: 'support-2' }
+                                                               ])
+          end
+        end
+      end
+    end
+
     context 'when supporting document submission fails at Lighthouse' do
       let(:upload_error) do
         SimpleFormsApi::ScannedFormUploadService::UploadError.new(

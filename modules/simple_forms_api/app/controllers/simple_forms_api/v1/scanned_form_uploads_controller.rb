@@ -68,8 +68,10 @@ module SimpleFormsApi
         {
           form_number: params[:form_number],
           confirmation_code: params[:confirmation_code],
-          form_data: params.require(:form_data).permit!.to_h,
-          supporting_documents: Array(params[:supporting_documents]).map { |doc| doc.permit(:confirmation_code).to_h }
+          form_data: params.require(:form_data).to_unsafe_h.deep_symbolize_keys,
+          supporting_documents: Array(params[:supporting_documents]).map do |doc|
+            doc.permit(:confirmation_code).to_h.symbolize_keys
+          end
         }
       end
 
