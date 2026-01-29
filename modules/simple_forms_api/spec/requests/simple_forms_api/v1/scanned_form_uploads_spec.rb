@@ -137,7 +137,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
           expect(args[:params][:form_data]).to be_a(Hash)
           expect(args[:params][:form_data][:full_name]).to eq({ first: 'John', last: 'Veteran' })
           expect(args[:params][:form_data][:email]).to be_present
-          expect(args[:params][:supporting_documents]).to eq(supporting_documents: [
+          expect(args[:params][:supporting_documents]).to eq([
                                                                {
                                                                  confirmation_code: '23456'
                                                                },
