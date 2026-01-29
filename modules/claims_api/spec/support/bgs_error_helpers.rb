@@ -3,7 +3,8 @@
 BGS_ERRORS = [
   Common::Exceptions::ResourceNotFound,
   Common::Exceptions::ServiceError,
-  Common::Exceptions::UnprocessableEntity
+  Common::Exceptions::UnprocessableEntity,
+  ActiveRecord::RecordNotFound
 ].freeze
 
 # helper to validate error handling for BGS service exceptions
@@ -26,17 +27,23 @@ def validate_bgs_service_error_handling(service_class, method_name, use_instance
 
       it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
         expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-        subject.new.perform(poa.id)
-        poa.reload
-        expect(poa.status).to eq('errored')
+        expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+        # For ActiveRecord::RecordNotFound, the POA won't be found to check status
+        unless bgs_error == ActiveRecord::RecordNotFound
+          poa.reload
+          expect(poa.status).to eq('errored')
+        end
       end
 
       it 'updates the process status to FAILED and returns the error message' do
-        subject.new.perform(poa.id)
-        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
-        expect(process.step_status).to eq('FAILED')
-        expect(process.error_messages.first['title']).to eq('BGS Error')
-        expect(process.error_messages.first['detail']).to eq(bgs_error.new.message)
+        expect { subject.new.perform(poa.id) }.to raise_error(bgs_error)
+        # For ActiveRecord::RecordNotFound, process won't be created if POA not found
+        unless bgs_error == ActiveRecord::RecordNotFound
+          process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+          expect(process.step_status).to eq('FAILED')
+          expect(process.error_messages.first['title']).to eq('BGS Error')
+          expect(process.error_messages.first['detail']).to eq(bgs_error.new.message)
+        end
       end
     end
   end
@@ -62,13 +69,13 @@ def validate_standard_error_handling(service_class, method_name, use_instance_do
 
     it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
       expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-      subject.new.perform(poa.id)
+      expect { subject.new.perform(poa.id) }.to raise_error(standard_error)
       poa.reload
       expect(poa.status).to eq('errored')
     end
 
     it 'updates the process status to FAILED and returns the error message' do
-      subject.new.perform(poa.id)
+      expect { subject.new.perform(poa.id) }.to raise_error(standard_error)
       process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
       expect(process.step_status).to eq('FAILED')
       expect(process.error_messages.first['title']).to eq('Generic Error')

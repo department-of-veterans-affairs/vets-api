@@ -24,6 +24,32 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
   end
 
+  context 'when POA record is not found' do
+    let(:non_existent_poa_id) { 999_999 }
+
+    it 'raises ActiveRecord::RecordNotFound with descriptive message' do
+      expect do
+        subject.new.perform(non_existent_poa_id)
+      end.to raise_error(ActiveRecord::RecordNotFound, 'PowerOfAttorney with ID 999999 not found')
+    end
+
+    it 'logs the POA not found event' do
+      expect(ClaimsApi::Logger).to receive(:log).with('poa', poa_id: non_existent_poa_id, detail: 'POA form not found')
+
+      expect do
+        subject.new.perform(non_existent_poa_id)
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'does not create a ClaimsApi::PoaVBMSUpdater job' do
+      expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+
+      expect do
+        subject.new.perform(non_existent_poa_id)
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
       let(:poa) { create_poa }
@@ -143,7 +169,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
                                                          .and_return(person_web_service)
     end
 
-    context 'and the PersonWebService retrieves successfullly' do
+    context 'and the PersonWebService retrieves successfully' do
       before do
         allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
       end
@@ -184,7 +210,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
                                                                     .and_return(manage_rep_poa_update_service)
     end
 
-    context 'and the ManageRepresentativeService retrieves successfullly' do
+    context 'and the ManageRepresentativeService retrieves successfully' do
       before do
         allow(manage_rep_poa_update_service).to receive(:update_poa_relationship).and_return(successful_response)
       end
