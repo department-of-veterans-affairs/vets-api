@@ -169,7 +169,8 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(sample_client_response)
 
           allergies = service.get_allergies
-          expect(allergies.size).to eq(13)
+          # 13 total AllergyIntolerance resources, only 10 have active clinicalStatus
+          expect(allergies.size).to eq(10)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
@@ -178,11 +179,8 @@ describe UnifiedHealthData::Service, type: :service do
             ['medication'],
             ['medication'],
             ['medication'],
-            ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           # Verify specific allergy exists (not checking position due to sorting)
@@ -244,9 +242,9 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(5)
+          # 5 AllergyIntolerance resources, only 4 have active clinicalStatus
+          expect(allergies.size).to eq(4)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
             ['medication'],
             ['medication'],
             ['medication'],
@@ -276,15 +274,14 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(8)
+          # 8 AllergyIntolerance resources, only 6 have active clinicalStatus
+          expect(allergies.size).to eq(6)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
             ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           expect(allergies).to all(have_attributes(
