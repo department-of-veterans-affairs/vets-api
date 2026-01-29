@@ -384,9 +384,9 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.25.0)
+    datadog (2.23.0)
       cgi
-      datadog-ruby_core_source (~> 3.5, >= 3.5.0)
+      datadog-ruby_core_source (~> 3.4, >= 3.4.2)
       libdatadog (~> 24.0.1.1.0)
       libddwaf (~> 1.30.0.0.0)
       logger
@@ -1315,7 +1315,7 @@ DEPENDENCIES
   csv
   danger
   database_cleaner
-  datadog
+  datadog (~> 2.23.0)
   date_validator
   debts_api!
   debug
