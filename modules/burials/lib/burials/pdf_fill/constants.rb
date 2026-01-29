@@ -14,6 +14,21 @@ module Burials
         'otherFamily' => 5
       }.freeze
 
+      # The final resting place options
+      RESTING_PLACES = {
+        'cemetery' => 0,
+        'mausoleum' => 1,
+        'privateResidence' => 2,
+        'other' => 3
+      }.freeze
+
+      # The cemetery location options
+      CEMETERY_LOCATION = {
+        'cemetery' => 0,
+        'tribalLand' => 1,
+        'none' => 2
+      }.freeze
+
       # Location of Death Types
       LOCATION_OF_DEATH = {
         'nursingHomeUnpaid' => 0,
