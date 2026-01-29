@@ -38,7 +38,7 @@ class Console1984LogUploadJob
     transfer_manager.upload_file(
       file_path,
       bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: "console1984/#{filename}",
+      key: "#{Settings.vsp_environment}/#{filename}",
       content_type: 'application/json',
       server_side_encryption: 'AES256'
     )
