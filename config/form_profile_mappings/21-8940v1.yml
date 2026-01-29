@@ -1,14 +1,8 @@
-veteran_full_name: [identity_information, full_name]
-veteran_social_security_number: [identity_information, ssn]
-veteran_address: [contact_information, address]
-veteran_phone: [contact_information, us_phone]
-mobile_phone: [contact_information, mobile_phone]
-email: [contact_information, email]
-
 veteranFullName: [identity_information, full_name]
 veteranSocialSecurityNumber: [identity_information, ssn]
 veteranAddress: [contact_information, address]
 veteranPhone: [contact_information, us_phone]
-mobilePhone: [contact_information, mobile_phone]
 email: [contact_information, email]
+emailAddress: [contact_information, email]
+veteranDateOfBirth: [identity_information, date_of_birth]
 
