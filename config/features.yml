@@ -331,6 +331,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_convert_to_pdf_on_upload:
+    actor_type: user
+    description: Converts supporting documents to PDF at upload time instead of final submission to improve submit latency
   champva_stamper_logging:
     actor_type: user
     description: Enables logging of the desired stamp text
