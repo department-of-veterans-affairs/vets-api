@@ -1396,6 +1396,10 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_oh_migration_schedules:
+    actor_type: user
+    description: Enables fetching Oracle Health migration schedules for VAHB mobile users
+    enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
     description: Enables improvements to medication management functionality
