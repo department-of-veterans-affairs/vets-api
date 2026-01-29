@@ -25,6 +25,9 @@ module Mobile
                                                                   :allergies_oracle_health),
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
+          benefitsPushNotification: @user.icn.present? && Flipper.enabled?(
+            :event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(@user.icn)
+          ),
           claims: access?(lighthouse: :access?),
           decisionLetters: access?(bgs: :access?),
           directDepositBenefits: access?(lighthouse: :mobile_access?),
