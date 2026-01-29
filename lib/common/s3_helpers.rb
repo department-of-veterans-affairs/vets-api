@@ -25,14 +25,15 @@ module Common
     end
 
     def upload_with_transfer_manager(params)
+      options = params[:options]
       upload_options = {
-        content_type: params[:options][:content_type],
+        content_type: options[:content_type],
         multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
       }
-      upload_options[:acl] = params[:options][:acl] if params[:options][:acl]
-      if params[:options][:server_side_encryption]
+      upload_options[:acl] = options[:acl] if options[:acl]
+      if options[:server_side_encryption]
         upload_options[:server_side_encryption] =
-          params[:options][:server_side_encryption]
+          options[:server_side_encryption]
       end
 
       Aws::S3::TransferManager.new(client: params[:s3_resource].client).upload_file(
@@ -45,11 +46,12 @@ module Common
 
     def upload_with_basic_method(params)
       obj = params[:s3_resource].bucket(params[:bucket]).object(params[:key])
-      upload_options = { content_type: params[:options][:content_type] }
-      upload_options[:acl] = params[:options][:acl] if params[:options][:acl]
-      if params[:options][:server_side_encryption]
+      options = params[:options]
+      upload_options = { content_type: options[:content_type] }
+      upload_options[:acl] = options[:acl] if options[:acl]
+      if options[:server_side_encryption]
         upload_options[:server_side_encryption] =
-          params[:options][:server_side_encryption]
+          options[:server_side_encryption]
       end
       obj.upload_file(params[:file_path], **upload_options)
     end
