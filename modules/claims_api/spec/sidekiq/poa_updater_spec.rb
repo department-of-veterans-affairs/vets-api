@@ -187,10 +187,9 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     context 'and the PersonWebService raises an exception' do
       # iterate through BGS_ERRORS array to create similar tests for each exception
-      include_examples 'BGS service error handling',
-                       ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true
+      include_examples 'BGS service error handling with instance double', :person_web_service, :find_by_ssn
 
-      include_examples 'standard error handling', ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true
+      include_examples 'standard error handling with instance double', :person_web_service, :find_by_ssn
     end
   end
 
@@ -229,15 +228,9 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     context 'and the ManageRepresentativeService raises an exception' do
       # iterate through BGS_ERRORS array to create similar tests for each exception
-      include_examples 'BGS service error handling',
-                       ClaimsApi::ManageRepresentativeService,
-                       :update_poa_relationship,
-                       use_instance_double: true
+      include_examples 'BGS service error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
 
-      include_examples 'standard error handling',
-                       ClaimsApi::ManageRepresentativeService,
-                       :update_poa_relationship,
-                       use_instance_double: true
+      include_examples 'standard error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
     end
   end
 
