@@ -228,9 +228,13 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     context 'and the ManageRepresentativeService raises an exception' do
       # run error handling shared examples for BGS service errors and standard errors
-      include_examples 'BGS service error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
+      include_examples 'BGS service error handling with instance double',
+                       :manage_rep_poa_update_service,
+                       :update_poa_relationship
 
-      include_examples 'standard error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
+      include_examples 'standard error handling with instance double',
+                       :manage_rep_poa_update_service,
+                       :update_poa_relationship
     end
   end
 
