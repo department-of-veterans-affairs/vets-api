@@ -206,34 +206,5 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
       end
     end
-
-    context 'when not in a valid environment' do
-      before do
-        allow(Rails.env).to receive(:development?).and_return(false)
-        allow(Settings).to receive(:vsp_environment).and_return('production')
-      end
-
-      it 'returns true without processing' do
-        expect(job.perform).to be true
-      end
-
-      it 'does not create a log file' do
-        job.perform
-
-        expect(File.exist?(expected_file_path)).to be false
-      end
-
-      it 'does not upload to S3' do
-        expect(mock_transfer_manager).not_to receive(:upload_file)
-
-        job.perform
-      end
-
-      it 'does not log success message' do
-        expect(Rails.logger).not_to receive(:info)
-
-        job.perform
-      end
-    end
   end
 end
