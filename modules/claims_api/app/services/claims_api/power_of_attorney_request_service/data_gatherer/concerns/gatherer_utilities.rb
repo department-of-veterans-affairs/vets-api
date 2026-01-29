@@ -27,7 +27,7 @@ module ClaimsApi
           end
 
           def number_is_parsable?(number)
-            number.is_a?(String) && number.length < 12 && number.present?
+            number.present? && number.is_a?(String) && number.length < 12
           end
         end
       end
