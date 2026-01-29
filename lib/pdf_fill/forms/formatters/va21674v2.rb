@@ -91,10 +91,10 @@ module PdfFill
 
               split_value = value.split('.')
               cents = split_value[1] || '00'
-              dollars = split_value[0]
+              dollars = split_value[0].rjust(5, '0')
               parent_object[key] = {
-                'first' => dollars.rjust(5, '0').last(6).first(2),
-                'second' => dollars.last(3).rjust(3, '0'),
+                'first' => dollars[0..1],
+                'second' => dollars[2..4],
                 'third' => cents
               }
             end
@@ -102,6 +102,7 @@ module PdfFill
           end
 
           def split_networth_information(parent_object)
+            # 99,999
             return if parent_object.blank?
 
             keys_to_process = %w[savings securities real_estate other_assets total_value]
@@ -111,11 +112,12 @@ module PdfFill
 
               split_value = value.split('.')
               cents = split_value[1] || '00'
-              dollars = split_value[0]
+              dollars = split_value[0].rjust(7, '0')
+
               parent_object[key] = {
-                'first' => dollars.rjust(8, '0').last(8).first(2).last,
-                'second' => dollars.rjust(6, '0').last(6).first(3),
-                'third' => dollars.rjust(3, '0').last(3),
+                'first' => dollars[0],
+                'second' => dollars[1..3],
+                'third' => dollars[4..6],
                 'last' => cents
               }
             end
