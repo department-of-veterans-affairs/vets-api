@@ -23,7 +23,7 @@ module Burials
       }.freeze
 
       # The cemetery location options
-      CEMETARY_LOCATION = {
+      CEMETERY_LOCATION = {
         'cemetery' => 0,
         'tribalLand' => 1,
         'none' => 2

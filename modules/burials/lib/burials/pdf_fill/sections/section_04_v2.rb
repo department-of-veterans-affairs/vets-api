@@ -132,7 +132,7 @@ module Burials
         cemetery_location = form_data['cemetaryLocationQuestion']
         if cemetery_location.present?
           form_data['cemetaryLocationRadio'] =
-            Constants::CEMETARY_LOCATION[cemetery_location]
+            Constants::CEMETERY_LOCATION[cemetery_location]
         end
       end
 
