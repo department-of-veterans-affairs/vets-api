@@ -8,6 +8,9 @@ module VeteranStatusCard
   # Determines veteran eligibility and returns appropriate card data or error messaging
   #
   class Service
+    STATSD_TOTAL = 'total'
+    STATSD_FAILURE = 'failure'
+
     VET_STATUS_SERVICE_CONFIRMED_TEXT = 'confirmed'
     VET_STATUS_PERSON_NOT_FOUND_TEXT = 'PERSON_NOT_FOUND'
     VET_STATUS_ERROR_TEXT = 'ERROR'
@@ -34,10 +37,18 @@ module VeteranStatusCard
     # @param user [User] the authenticated user object
     #
     def initialize(user)
+      log_statsd(STATSD_TOTAL)
       @user = user
 
-      raise ArgumentError, 'User cannot be nil' if @user.nil?
-      raise ArgumentError, 'User missing required fields' if @user.edipi.blank? || @user.icn.blank?
+      if @user.nil?
+        log_statsd(STATSD_FAILURE)
+        raise ArgumentError, 'User cannot be nil'
+      end
+      
+      if @user.edipi.blank? || @user.icn.blank?
+        log_statsd(STATSD_FAILURE)
+        raise ArgumentError, 'User missing required fields'
+      end
     end
 
     ##
@@ -59,17 +70,30 @@ module VeteranStatusCard
         # Check if service history exists before returning eligible response
         return error_response_hash(unknown_service_response) unless service_history?
 
+        log_vsc_result(true)
+
         eligible_response
       else
+        log_vsc_result
+
         error_details = error_results
         ineligible_response(error_details)
       end
     rescue => e
-      Rails.logger.error("VeteranStatusCard::Service error: #{e.message}", backtrace: e.backtrace)
+      log_statsd(STATSD_FAILURE)
+      Rails.logger.error("#{service_name} error: #{e.message}", backtrace: e.backtrace)
       error_response_hash(something_went_wrong_response)
     end
 
     protected
+
+    def statsd_key_prefix
+      'veteran_status_card'
+    end
+
+    def service_name
+      '[VeteranStatusCard::Service]'
+    end
 
     def something_went_wrong_response
       VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
@@ -100,6 +124,18 @@ module VeteranStatusCard
     end
 
     private
+
+    def log_statsd(key)
+      StatsD.increment("#{statsd_key_prefix}.#{key}")
+    end
+
+    def log_vsc_result(confirmed = false)
+      Rails.logger.info("#{service_name} VSC Card Result", {
+        confirmation_status: confirmed ? 'CONFIRMED' : vet_verification_status[:reason],
+        service_summary_code: ssc_code,
+        has_service_history: service_history?
+      })
+    end
 
     ##
     # Builds the response for an eligible veteran

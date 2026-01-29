@@ -9,6 +9,14 @@ module Mobile
       class Service < ::VeteranStatusCard::Service
         protected
 
+        def statsd_key_prefix
+          'veteran_status_card.mobile'
+        end
+
+        def service_name
+          '[Mobile::V0::VeteranStatusCard::Service]'
+        end
+
         def something_went_wrong_response
           Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
         end
