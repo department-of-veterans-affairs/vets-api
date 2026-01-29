@@ -150,7 +150,8 @@ module Vass
     #
     def decode_jwt_for_revocation(token)
       JWT.decode(token, jwt_secret, true, { algorithm: 'HS256', verify_expiration: false })[0]
-    rescue JWT::DecodeError
+    rescue JWT::DecodeError => e
+      log_auth_failure('revocation_decode_error', error_class: e.class.name)
       nil
     end
 

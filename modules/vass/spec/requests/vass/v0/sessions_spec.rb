@@ -590,6 +590,15 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         json = JSON.parse(response.body)
         expect(json['errors'][0]['code']).to eq('invalid_token')
       end
+
+      it 'logs decode error' do
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"action":"auth_failure"', '"reason":"revocation_decode_error"'))
+
+        post '/vass/v0/revoke-token',
+             headers: { 'Authorization' => 'Bearer invalid-token' },
+             as: :json
+      end
     end
 
     context 'with already revoked token' do

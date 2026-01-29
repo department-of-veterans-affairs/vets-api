@@ -400,6 +400,21 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
       decoded = controller.send(:decode_jwt_for_revocation, wrong_secret_token)
       expect(decoded).to be_nil
     end
+
+    it 'logs decode error for invalid token' do
+      expect(Rails.logger).to receive(:warn)
+        .with(a_string_including('"action":"auth_failure"', '"reason":"revocation_decode_error"',
+                                 '"error_class":"JWT::DecodeError"'))
+      controller.send(:decode_jwt_for_revocation, 'invalid-token')
+    end
+
+    it 'logs decode error for wrong signature' do
+      wrong_secret_token = JWT.encode(payload, 'wrong-secret', 'HS256')
+      expect(Rails.logger).to receive(:warn)
+        .with(a_string_including('"action":"auth_failure"', '"reason":"revocation_decode_error"',
+                                 '"error_class":"JWT::VerificationError"'))
+      controller.send(:decode_jwt_for_revocation, wrong_secret_token)
+    end
   end
 
   describe '#audit_metadata' do
