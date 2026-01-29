@@ -268,7 +268,16 @@ module ClaimsApi
 
     def rescue_generic_errors(power_of_attorney, e)
       power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
-      power_of_attorney.vbms_error_message = e&.message || e&.original_body
+      # For Common::Exceptions::*, e.message only returns the i18n title (e.g., "Unknown Service Error")
+      # Extract the actual detail from e.errors.first.detail to preserve the actionable SOAP failure reason
+      error_detail = if e.respond_to?(:errors) && e.errors.present? && e.errors.first.respond_to?(:detail)
+                       e.errors.first.detail || e.message
+                     elsif e.respond_to?(:original_body)
+                       e.original_body
+                     else
+                       e.message
+                     end
+      power_of_attorney.vbms_error_message = error_detail
       power_of_attorney.save
       ClaimsApi::Logger.log('ServiceBase', message: "In generic rescue, the error is: #{e}")
     end

@@ -50,20 +50,33 @@ module ClaimsApi
     # handle exceptions thrown from soap_error_handler.rb with requests to BGS
     rescue ::Common::Exceptions::ResourceNotFound, ::Common::Exceptions::ServiceError,
            ::Common::Exceptions::UnprocessableEntity => e
+      error_detail = extract_error_detail(e)
       rescue_generic_errors(poa_form, e) if poa_form
       process&.update!(step_status: 'FAILED',
-                       error_messages: [{ title: 'BGS Error', detail: e.message }])
+                       error_messages: [{ title: 'BGS Error', detail: error_detail }])
       # raise error to trigger sidekiq retry mechanism
       raise
     rescue => e
+      error_detail = extract_error_detail(e)
       rescue_generic_errors(poa_form, e) if poa_form
       process&.update!(step_status: 'FAILED',
-                       error_messages: [{ title: 'Generic Error', detail: e.message }])
+                       error_messages: [{ title: 'Generic Error', detail: error_detail }])
       # raise error to trigger sidekiq retry mechanism
       raise
     end
 
     private
+
+    # Extract error detail from Common::Exceptions or fallback to message
+    # For Common::Exceptions::*, e.message only returns the i18n title (e.g., "Unknown Service Error")
+    # but e.errors.first.detail contains the actual SOAP failure reason passed via detail: parameter
+    def extract_error_detail(error)
+      if error.respond_to?(:errors) && error.errors.present? && error.errors.first.respond_to?(:detail)
+        error.errors.first.detail || error.message
+      else
+        error.message
+      end
+    end
 
     def response_is_successful?(response)
       if Flipper.enabled?(:claims_api_use_update_poa_relationship)
