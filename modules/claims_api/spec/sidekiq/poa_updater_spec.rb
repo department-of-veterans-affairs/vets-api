@@ -138,9 +138,9 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     end
 
     # iterate through BGS_ERRORS array to create similar tests for each exception
-    validate_bgs_service_error_handling(BGS::VetRecordWebService, :update_birls_record)
+    include_examples 'BGS service error handling', BGS::VetRecordWebService, :update_birls_record
 
-    validate_standard_error_handling(BGS::VetRecordWebService, :update_birls_record)
+    include_examples 'standard error handling', BGS::VetRecordWebService, :update_birls_record
   end
 
   context 'when an errored job has exhausted its retries' do
@@ -187,9 +187,10 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     context 'and the PersonWebService raises an exception' do
       # iterate through BGS_ERRORS array to create similar tests for each exception
-      validate_bgs_service_error_handling(ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true)
+      include_examples 'BGS service error handling',
+                       ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true
 
-      validate_standard_error_handling(ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true)
+      include_examples 'standard error handling', ClaimsApi::PersonWebService, :find_by_ssn, use_instance_double: true
     end
   end
 
@@ -228,9 +229,15 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     context 'and the ManageRepresentativeService raises an exception' do
       # iterate through BGS_ERRORS array to create similar tests for each exception
-      validate_bgs_service_error_handling(ClaimsApi::ManageRepresentativeService, :update_poa_relationship, use_instance_double: true)
+      include_examples 'BGS service error handling',
+                       ClaimsApi::ManageRepresentativeService,
+                       :update_poa_relationship,
+                       use_instance_double: true
 
-      validate_standard_error_handling(ClaimsApi::ManageRepresentativeService, :update_poa_relationship, use_instance_double: true)
+      include_examples 'standard error handling',
+                       ClaimsApi::ManageRepresentativeService,
+                       :update_poa_relationship,
+                       use_instance_double: true
     end
   end
 

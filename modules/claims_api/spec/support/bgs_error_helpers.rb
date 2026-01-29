@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-BGS_ERRORS = [
-  Common::Exceptions::ResourceNotFound,
-  Common::Exceptions::ServiceError,
-  Common::Exceptions::UnprocessableEntity
-].freeze
+# Shared examples for BGS service error handling
+RSpec.shared_examples 'BGS service error handling' do |service_class, method_name, use_instance_double: false|
+  bgs_errors = [
+    Common::Exceptions::ResourceNotFound,
+    Common::Exceptions::ServiceError,
+    Common::Exceptions::UnprocessableEntity
+  ].freeze
 
-# helper to validate error handling for BGS service exceptions
-# rubocop:disable Metrics/MethodLength
-def validate_bgs_service_error_handling(service_class, method_name, use_instance_double: false)
-  BGS_ERRORS.each do |bgs_error|
+  bgs_errors.each do |bgs_error|
     context "with a #{bgs_error} raised from the BGS service" do
       let(:error_detail) { "Test #{bgs_error.name} detail message" }
 
@@ -44,8 +43,8 @@ def validate_bgs_service_error_handling(service_class, method_name, use_instance
   end
 end
 
-# helper to validate error handling for StandardError exceptions
-def validate_standard_error_handling(service_class, method_name, use_instance_double: false)
+# Shared examples for standard error handling
+RSpec.shared_examples 'standard error handling' do |service_class, method_name, use_instance_double: false|
   context 'with a StandardError that is not from the BGS Service' do
     let(:standard_error) { StandardError }
 
@@ -78,4 +77,3 @@ def validate_standard_error_handling(service_class, method_name, use_instance_do
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
