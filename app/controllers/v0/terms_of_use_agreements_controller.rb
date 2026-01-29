@@ -30,7 +30,7 @@ module V0
     def accept_and_provision
       terms_of_use_agreement = acceptor(sync: true).perform!
       if terms_of_use_agreement.accepted?
-        provisioner.perform
+        call_cerner_provisioner
         create_cerner_cookie
 
         unless terms_code_temporary_auth?
@@ -57,7 +57,7 @@ module V0
     end
 
     def update_provisioning
-      provisioner.perform
+      call_cerner_provisioner
       create_cerner_cookie
       render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
     rescue Identity::Errors::CernerProvisionerError => e
@@ -74,8 +74,8 @@ module V0
       TermsOfUse::Decliner.new(user_account: @user_account, version: params[:version])
     end
 
-    def provisioner
-      Identity::CernerProvisioner.new(icn: @user_account.icn, source: :tou)
+    def call_cerner_provisioner
+      Identity::CernerProvisionerJob.perform_inline(@user_account.icn, :tou)
     end
 
     def recache_user
