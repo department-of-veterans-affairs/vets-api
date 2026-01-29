@@ -6,6 +6,14 @@
       "ssn": "234232345",
       "va_file_number": "456454567"
     },
+    "supporting_documents": [
+      {
+        "confirmation_code": "23456"
+      },
+      {
+        "confirmation_code": "34567"
+      }
+    ],
     "postal_code": "12345",
     "full_name": {
       "first": "John",
