@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0/appealable-issues/notice-of-disagreements?benefitType=compensation&icn=1012832025V743496&receiptDate=2026-01-23
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      # Fake Bearer token for testing purposes only
+      Authorization:
+      - Bearer fake-token-12345
+      Accept:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "data": [
+            {
+              "id": null,
+              "type": "appealableIssue",
+              "attributes": {
+                "ratingIssueSubjectText": "Tinnitus",
+                "description": "Service connection for Tinnitus is granted with an evaluation of 10 percent effective January 1, 2020.",
+                "approxDecisionDate": "2020-01-01",
+                "decisionIssueId": 1,
+                "ratingIssuePercentNumber": "10",
+                "ratingDecisionReferenceId": "reference-id-1",
+                "latestIssuesInChain": [
+                  {
+                    "id": null,
+                    "approxDecisionDate": "2020-01-01"
+                  }
+                ]
+              }
+            },
+            {
+              "id": null,
+              "type": "appealableIssue",
+              "attributes": {
+                "ratingIssueSubjectText": "Hypertension",
+                "description": "Service connection for Hypertension is granted with an evaluation of 10 percent effective March 1, 2020.",
+                "approxDecisionDate": "2020-03-01",
+                "decisionIssueId": 2,
+                "ratingIssuePercentNumber": "10",
+                "ratingDecisionReferenceId": "reference-id-2",
+                "latestIssuesInChain": [
+                  {
+                    "id": null,
+                    "approxDecisionDate": "2020-03-01"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+    http_version: null
+  recorded_at: Wed, 22 Jan 2026 00:00:00 GMT
+recorded_with: VCR 6.4.0

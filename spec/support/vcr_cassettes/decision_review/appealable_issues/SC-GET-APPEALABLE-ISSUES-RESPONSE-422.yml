@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0/appealable-issues/supplemental-claims?benefitType=apricot&icn=2331123616V514303&receiptDate=2026-01-23
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      # Fake Bearer token for testing purposes only
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake-token-12345
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 422
+      message: Unprocessable Entity
+    headers:
+      Date:
+      - Thu, 23 Jan 2026 21:00:38 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '150'
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "errors": [
+            {
+              "status": "422",
+              "title": "Invalid benefit type",
+              "detail": "benefitType must be one of: compensation, pensionSurvivorsBenefits, fiduciary, lifeInsurance, veteransHealthAdministration, veteransHealthCare, nca, loan_guaranty, education, vre"
+            }
+          ]
+        }
+    http_version: null
+  recorded_at: Thu, 23 Jan 2026 21:00:38 GMT
+recorded_with: VCR 6.4.0
