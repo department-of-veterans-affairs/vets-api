@@ -38,13 +38,14 @@ module BenefitsClaims
     VETERANS_PENSION_CODES = %w[180AILP 180ORGPENPMC 180ORGPEN].freeze
     SURVIVORS_PENSION_CODES = %w[190ORGDPN 190ORGDPNPMC 190AID 140ISD 687NRPMC].freeze
     DIC_CODES = %w[290DICEDPMC 020SMDICPMC 020IRDICPMC].freeze
-    SUBSTITUTION_CODES = %w[290SCNR 290SCPMC 290SCR].freeze
 
     GENERIC_PENSION_CODES = %w[
       150ELECPMC 150INCNWPMC 150INCPMC 120INCPMC 150NWTHPMC
       120SUPHCDPMC 120ILCP7PMC 120SMPPMC 150MERPMC 120ASMP
       120ARP 150AIA 600APCDP 600PCDPPM 696MROCPMC
     ].freeze
+
+    CLAIMANT_SUBSTITUTION_CODES = %w[290SCNR 290SCPMC 290SCR].freeze
 
     DISABILITY_COMPENSATION_CODES = %w[
       010INITMORE8 010LCOMP 010LCOMPBDD 020CLMINC 020NEW 020NI 020SUPP 110INITLESS8 110LCOMP7
@@ -79,19 +80,19 @@ module BenefitsClaims
         )
       end
 
-      # Add substitution codes
-      SUBSTITUTION_CODES.each do |code|
-        mapping[code] = Title.new(
-          display_title: 'Request for substitution of claimant on record',
-          claim_type_base: 'request for substitution of claimant on record'
-        )
-      end
-
       # Add generic pension codes (remaining from pensionClaimTypeCodes)
       GENERIC_PENSION_CODES.each do |code|
         mapping[code] = Title.new(
           display_title: 'Claim for pension',
           claim_type_base: 'pension claim'
+        )
+      end
+
+      # Add claimant substitution codes
+      CLAIMANT_SUBSTITUTION_CODES.each do |code|
+        mapping[code] = Title.new(
+          display_title: 'Request for substitution of claimant on record',
+          claim_type_base: 'request for substitution of claimant on record'
         )
       end
 

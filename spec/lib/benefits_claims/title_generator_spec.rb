@@ -59,19 +59,6 @@ RSpec.describe BenefitsClaims::TitleGenerator do
         end
       end
 
-      context 'with substitution codes' do
-        BenefitsClaims::TitleGenerator::SUBSTITUTION_CODES.each do |code|
-          it "returns substitution title for code #{code}" do
-            result = described_class.generate_titles('Some Type', code)
-
-            expect(result).to eq({
-                                   display_title: 'Request for substitution of claimant on record',
-                                   claim_type_base: 'request for substitution of claimant on record'
-                                 })
-          end
-        end
-      end
-
       context 'with generic pension codes' do
         BenefitsClaims::TitleGenerator::GENERIC_PENSION_CODES.each do |code|
           it "returns generic pension title for code #{code}" do
@@ -80,6 +67,19 @@ RSpec.describe BenefitsClaims::TitleGenerator do
             expect(result).to eq({
                                    display_title: 'Claim for pension',
                                    claim_type_base: 'pension claim'
+                                 })
+          end
+        end
+      end
+
+      context 'with claimant substitution codes' do
+        BenefitsClaims::TitleGenerator::CLAIMANT_SUBSTITUTION_CODES.each do |code|
+          it "returns substitution title for code #{code}" do
+            result = described_class.generate_titles('Some Type', code)
+
+            expect(result).to eq({
+                                   display_title: 'Request for substitution of claimant on record',
+                                   claim_type_base: 'request for substitution of claimant on record'
                                  })
           end
         end
@@ -357,10 +357,20 @@ RSpec.describe BenefitsClaims::TitleGenerator do
       end
     end
 
-    describe 'SUBSTITUTION_CODES' do
+    describe 'CLAIMANT_SUBSTITUTION_CODES' do
       it 'contains the expected codes' do
         expected = %w[290SCNR 290SCPMC 290SCR]
-        expect(BenefitsClaims::TitleGenerator::SUBSTITUTION_CODES).to eq(expected)
+        expect(BenefitsClaims::TitleGenerator::CLAIMANT_SUBSTITUTION_CODES).to eq(expected)
+      end
+
+      it 'contains unique codes' do
+        codes = BenefitsClaims::TitleGenerator::CLAIMANT_SUBSTITUTION_CODES
+        expect(codes.uniq.length).to eq(codes.length)
+      end
+
+      it 'contains only string values' do
+        codes = BenefitsClaims::TitleGenerator::CLAIMANT_SUBSTITUTION_CODES
+        expect(codes.all? { |code| code.is_a?(String) }).to be true
       end
     end
 
@@ -410,6 +420,15 @@ RSpec.describe BenefitsClaims::TitleGenerator do
 
         all_pension_codes.each do |code|
           expect(mapping).to have_key(code)
+        end
+      end
+
+      it 'includes all claimant substitution codes' do
+        mapping = BenefitsClaims::TitleGenerator::CLAIM_TYPE_CODE_MAPPING
+        BenefitsClaims::TitleGenerator::CLAIMANT_SUBSTITUTION_CODES.each do |code|
+          expect(mapping).to have_key(code)
+          expect(mapping[code].display_title).to eq('Request for substitution of claimant on record')
+          expect(mapping[code].claim_type_base).to eq('request for substitution of claimant on record')
         end
       end
 
