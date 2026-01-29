@@ -175,7 +175,7 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   event_bus_gateway_letter_ready_push_notifications:
     description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
-    event_bus_gateway_letter_ready_sms_notifications:
+  event_bus_gateway_letter_ready_sms_notifications:
     description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
