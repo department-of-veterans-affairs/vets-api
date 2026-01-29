@@ -117,7 +117,7 @@ module SimpleFormsApi
     end
 
     def create_form_submission
-      form_data_with_attachments = params[:form_data].to_h.merge(
+      form_data_with_attachments = params[:form_data].merge(
         confirmation_code: params[:confirmation_code],
         supporting_documents: params[:supporting_documents] || []
       )
