@@ -5,90 +5,94 @@ require 'debt_management_center/constants'
 
 module DebtsApi
   module Concerns
-    module JsonValidatable
+    module DisputeDebtSubmissionValidation
       extend ActiveSupport::Concern
 
       class BaseValidator
-        MAX_JSON_SIZE = 500.kilobytes # Prevent DoS from large payloads
+        MAX_JSON_SIZE = 100.kilobytes # Prevent DoS from large payloads
         MAX_STRING_FIELD_LENGTH = 1000 # Prevent DoS from extremely long strings
         MAX_JSON_NESTING = 100 # Prevent deeply nested JSON DoS
 
-        # @param max_size [Integer] Maximum size in bytes (default: MAX_JSON_SIZE)
-        def self.parse_json_safely(json_string, max_size: MAX_JSON_SIZE)
-          raise ArgumentError, 'JSON string cannot be nil' if json_string.nil?
+        INVALID_REQUEST_PAYLOAD = 'Invalid request payload'
 
-          # Validate size before parsing (prevents DoS)
+        def self.parse_json_safely(json_string, max_size: MAX_JSON_SIZE)
+          if json_string.nil?
+            log_and_raise_error('JSON string was nil')
+          end
+
           if json_string.bytesize > max_size
-            raise ArgumentError, "JSON exceeds maximum size of #{max_size / 1024}KB"
+            log_and_raise_error("JSON exceeds maximum size of #{max_size / 1024}KB")
           end
 
           # Parse with explicit nesting limit (default is 100, but being explicit documents security intent)
           JSON.parse(json_string, symbolize_names: true, max_nesting: MAX_JSON_NESTING)
         rescue JSON::ParserError => e
-          raise ArgumentError, "Invalid JSON: #{e.message}"
+          log_and_raise_error(e.message)
         end
 
-        def self.validate_string_field(value, field_name:, max_length: MAX_STRING_FIELD_LENGTH)
-          errors = []
+        def self.validate_string_fields
+          string_fields.each do |field|
+            value = item[field] || item[field.to_s]
+            next if value.nil?
 
-          return errors if value.nil?
-
-          unless value.is_a?(String)
-            errors << "#{field_name} must be a string"
-            return errors
+            field_errors = validate_string_format(value, field_name: "#{prefix}.#{field}")
+            errors.concat(field_errors)
           end
+        end
 
-          if value.bytesize > max_length
-            errors << "#{field_name} exceeds maximum length of #{max_length} characters"
+        # length limits prevent DoS, control character checks prevent XSS
+        def self.validate_string_format(value, field_name:, max_length: MAX_STRING_FIELD_LENGTH)
+          raise_error if (value.nil? || !value.is_a?(String))
+
+          exceeds_maximum_length = value.bytesize > max_length
+          invalid_characters = value.match?(/[\x00-\x1F]/)
+          
+          if exceeds_maximum_length || invalid_characters
+            message = exceeds_maximum_length ? 
+              "#{field_name} exceeds maximum length of #{max_length} characters" : 
+              "#{field_name} contains invalid characters"
+            log_and_raise_error(message)
           end
-
-          # Sanitize: remove null bytes and control characters (basic XSS prevention)
-          if value.include?("\0") || value.match?(/[\x00-\x08\x0B-\x0C\x0E-\x1F]/)
-            errors << "#{field_name} contains invalid characters"
-          end
-
-          errors
         end
 
         def self.validate_required_fields(hash, required_fields:, prefix: '')
-          errors = []
-          return errors unless hash.is_a?(Hash)
+          log_and_raise_error('hash must be an object') unless hash.is_a?(Hash)
 
+          missing_fields = []
           required_fields.each do |field|
             unless hash.key?(field)
               field_name = prefix.present? ? "#{prefix}.#{field}" : field.to_s
-              errors << "#{field_name} is missing"
+              missing_fields << "#{field_name} is missing"
             end
           end
 
-          errors
+          log_and_raise_error("Missing fields: #{missing_fields.join(', ')}")
         end
 
-        def self.validate_against_schema(records, field_name:, required_fields: [], string_fields: [])
-          errors = []
-
+        def self.validate_field_schema(records, field_name:, required_fields: [], string_fields: [])
+          invalid_prefixes = []
+          
           records.each_with_index do |item, index|
             prefix = "#{field_name}[#{index}]"
 
             unless item.is_a?(Hash)
-              errors << "#{prefix} must be an object"
+              invalid_prefixes << "#{prefix} must be an object"
               next
             end
+            
+            log_and_raise_error("Invalid prefixes: #{invalid_prefixes.join(', ')}") if invalid_prefixes.any?
 
-            errors.concat(validate_required_fields(item, required_fields:, prefix:))
-
-            # Validate string fields for security (length limits prevent DoS, control character checks prevent XSS)
-            string_fields.each do |field|
-              value = item[field] || item[field.to_s]
-              next if value.nil?
-
-              field_errors = validate_string_field(value, field_name: "#{prefix}.#{field}")
-              errors.concat(field_errors)
-            end
+            validate_required_fields(item, required_fields:, prefix:)
           end
 
-          raise ArgumentError, errors.join(', ') if errors.any?
-          errors
+          validate_string_fields(string_fields)
+        end
+
+        private
+
+        def self.log_and_raise_error(message)
+          Rails.logger.warn(message)
+          raise ArgumentError, INVALID_REQUEST_PAYLOAD
         end
       end
 
@@ -98,17 +102,13 @@ module DebtsApi
 
       class DisputeDebtValidator < BaseValidator
         def self.extract_composite_debt_ids_from_field(debts)
-          composite_debt_ids = debts.filter_map do |debt|
-            next unless debt.is_a?(Hash)
+          composite_debt_ids = debts.map.with_index do |debt, index|
+            raise ArgumentError, "disputes[#{index}] must be an object" unless debt.is_a?(Hash)
 
-            composite_id = debt['composite_debt_id'] || debt[:composite_debt_id] || debt['compositeDebtId'] || debt[:compositeDebtId]
-            composite_id if composite_id.present?
+            debt[:composite_debt_id]
           end
 
-          if composite_debt_ids.empty?
-            raise ArgumentError, 'At least one composite_debt_id is required in disputes'
-          end
-
+          raise ArgumentError, 'At least one composite_debt_id is required in disputes' if composite_debt_ids.empty?
           composite_debt_ids
         end
 
@@ -121,7 +121,7 @@ module DebtsApi
           disputes = parsed[:disputes]
           required_fields = %i[composite_debt_id deduction_code original_ar current_ar benefit_type dispute_reason]
           string_fields = %i[composite_debt_id deduction_code benefit_type dispute_reason rcvbl_id]
-          BaseValidator.validate_against_schema(
+          BaseValidator.validate_field_schema(
             disputes,
             field_name: 'disputes',
             required_fields:,
@@ -129,17 +129,17 @@ module DebtsApi
         )
 
           composite_debt_ids = extract_composite_debt_ids_from_field(disputes)
-          debts_service = DebtManagementCenter::DebtsService.new(user)
-          validate_debt_exist_for_user(composite_debt_ids, debts_service:)
+          validate_debt_exist_for_user(composite_debt_ids, user:)
 
           parsed
         end
-        
-        def self.validate_debt_exist_for_user(composite_debt_ids, debts_service:)
+
+        def self.validate_debt_exist_for_user(composite_debt_ids, user:)
           if composite_debt_ids.nil? || composite_debt_ids.empty?
             raise ArgumentError, 'At least one composite debt ID is required'
           end
 
+          debts_service = DebtManagementCenter::DebtsService.new(user)
           found_debts = debts_service.get_debts_by_ids(composite_debt_ids)
 
           if found_debts.length < composite_debt_ids.length
@@ -148,7 +148,6 @@ module DebtsApi
           end
         end
       end
-
     end
   end
 end

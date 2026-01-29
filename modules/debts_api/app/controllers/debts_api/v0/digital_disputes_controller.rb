@@ -10,7 +10,7 @@ require 'sidekiq/attr_package'
 module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
-      include DebtsApi::Concerns::JsonValidatable
+      include DebtsApi::Concerns::DisputeDebtSubmissionValidation
 
       service_tag 'debt-resolution'
       before_action :authorize_icn
