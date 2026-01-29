@@ -139,7 +139,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'still uploads the empty file to S3' do
-          allow(Common::S3Helpers).to receive(:upload_file).with(
+          expect(Common::S3Helpers).to receive(:upload_file).with(
             s3_resource: mock_s3_resource,
             bucket: 'vets-api-console-access-logs',
             file_path: expected_file_path.to_s,
