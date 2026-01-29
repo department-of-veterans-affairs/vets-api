@@ -13,6 +13,8 @@ class Console1984LogUploadJob
   sidekiq_options queue: :default, retry: 1
 
   def perform
+    return true unless valid_environment?
+
     create_log_file
     upload_to_s3
 
@@ -22,6 +24,10 @@ class Console1984LogUploadJob
   end
 
   private
+
+  def valid_environment?
+    Rails.env.production?
+  end
 
   def create_log_file
     FileUtils.mkdir_p(folder_path)
