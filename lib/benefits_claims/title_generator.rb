@@ -45,6 +45,8 @@ module BenefitsClaims
       120ARP 150AIA 600APCDP 600PCDPPM 696MROCPMC
     ].freeze
 
+    CLAIMANT_SUBSTITUTION_CODES = %w[290SCNR 290SCPMC 290SCR].freeze
+
     DISABILITY_COMPENSATION_CODES = %w[
       010INITMORE8 010LCOMP 010LCOMPBDD 020CLMINC 020NEW 020NI 020SUPP 110INITLESS8 110LCOMP7
     ].freeze
@@ -83,6 +85,14 @@ module BenefitsClaims
         mapping[code] = Title.new(
           display_title: 'Claim for pension',
           claim_type_base: 'pension claim'
+        )
+      end
+
+      # Add claimant substitution codes
+      CLAIMANT_SUBSTITUTION_CODES.each do |code|
+        mapping[code] = Title.new(
+          display_title: 'Request for substitution of claimant on record',
+          claim_type_base: 'request for substitution of claimant on record'
         )
       end
 
