@@ -20,8 +20,6 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
     describe 'GET available appointment slots' do
       context 'using VAOS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
@@ -62,11 +60,7 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
 
     context 'using VPG' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
-                                                  instance_of(User)).and_return(true)
       end
 
       context 'on a successful request' do
