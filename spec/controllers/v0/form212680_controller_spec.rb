@@ -68,6 +68,12 @@ RSpec.describe V0::Form212680Controller, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
+    it 'saves user_account_id on the saved claim' do
+      post(:create, body: form_data, as: :json)
+      expect(SavedClaim::Form212680.last.user_account_id).not_to be_nil
+      expect(SavedClaim::Form212680.last.user_account_id).to eq(user.user_account_uuid)
+    end
+
     it 'returns bad_request when json is invalid' do
       post(:create, body: { no_form: 'missing form attribute' }.to_json, as: :json)
       expect(response).to have_http_status(:bad_request)
