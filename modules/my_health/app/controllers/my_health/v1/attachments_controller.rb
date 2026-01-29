@@ -26,6 +26,10 @@ module MyHealth
     class AttachmentsController < SMController
       STATSD_KEY_PREFIX = 'api.my_health.attachments'
 
+      ##
+      # Downloads a message attachment.
+      # Routes to X-Accel-Redirect streaming or legacy send_data based on feature flag.
+      #
       def show
         if Flipper.enabled?(:mhv_secure_messaging_stream_via_revproxy, current_user)
           show_with_streaming
@@ -36,7 +40,10 @@ module MyHealth
 
       private
 
-      # New approach: single request, use X-Accel-Redirect for S3 or send_data for non-S3
+      ##
+      # Streams attachment using X-Accel-Redirect for S3-backed files, or send_data for non-S3.
+      # Falls back to legacy approach on error.
+      #
       def show_with_streaming
         attachment_info = client.get_attachment_info(params[:message_id], params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] if attachment_info.blank?
@@ -59,7 +66,10 @@ module MyHealth
         show_legacy
       end
 
-      # Legacy approach: uses get_attachment which fetches S3 content if needed
+      ##
+      # Legacy attachment download - fetches full binary content into Rails memory.
+      # Used when feature flag is disabled or as fallback on error.
+      #
       def show_legacy
         StatsD.increment("#{STATSD_KEY_PREFIX}.legacy")
         response = client.get_attachment(params[:message_id], params[:id])
@@ -68,13 +78,20 @@ module MyHealth
         send_data(response[:body], filename: response[:filename])
       end
 
+      ##
+      # Logs an info message with attachment context.
+      # @param message [String] the log message
+      #
       def log_info(message)
         Rails.logger.info(message, message_id: params[:message_id], attachment_id: params[:id])
       end
 
+      ##
       # Sets response headers for nginx X-Accel-Redirect streaming.
       # nginx will intercept and proxy the request to S3 directly.
+      #
       # @param attachment_info [Hash] with :s3_url, :mime_type, :filename
+      #
       def stream_via_revproxy(attachment_info)
         safe_filename = sanitize_filename(attachment_info[:filename])
         encoded_url = CGI.escape(attachment_info[:s3_url])
@@ -90,9 +107,12 @@ module MyHealth
         head :ok
       end
 
+      ##
       # Sanitizes filename to prevent HTTP header injection attacks.
+      #
       # @param filename [String] the original filename
       # @return [String] sanitized filename safe for Content-Disposition header
+      #
       def sanitize_filename(filename)
         # Allow: letters, numbers, spaces (literal only, not \s which includes \r\n), dots, hyphens, underscores
         filename.to_s.gsub(/[^\w .-]/, '_').strip[0..255]
