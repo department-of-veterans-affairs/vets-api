@@ -51,7 +51,7 @@ jobs:
         run: bundle exec rubocop --parallel --format github
 
       - name: Run Brakeman
-        run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+        run: bundle exec brakeman --confidence-level=2 --format github
 
       - name: Run Reek
         uses: reviewdog/action-reek@v1.20.0
