@@ -1047,6 +1047,14 @@ module DependentsBenefits
           'step_children' => {
             limit: 2,
             first_key: 'full_name',
+            'biological_adopted_stepchild' => {
+              'biological_adopted_stepchild_yes' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[77]'
+              },
+              'biological_adopted_stepchild_no' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[76]'
+              }
+            },
             'supporting_stepchild' => {
               'supporting_stepchild_yes' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
@@ -1881,6 +1889,12 @@ module DependentsBenefits
             'more_than_half' => select_radio_button(living_expenses_paid == 'More than half'),
             'half' => select_radio_button(living_expenses_paid == 'Half'),
             'less_than_half' => select_radio_button(living_expenses_paid == 'Less than half')
+          }
+
+          # if any stepchild is present then this should be checked as yes
+          stepchild['biological_adopted_stepchild'] = {
+            'biological_adopted_stepchild_yes' => select_radio_button(true),
+            'biological_adopted_stepchild_no' => 'Off'
           }
         end
 
