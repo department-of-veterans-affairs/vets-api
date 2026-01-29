@@ -10,6 +10,8 @@ module VeteranStatusCard
   class Service
     STATSD_TOTAL = 'total'
     STATSD_FAILURE = 'failure'
+    STATSD_ELIGIBLE = 'eligible'
+    STATSD_INELIGIBLE = 'ineligible'
 
     VET_STATUS_SERVICE_CONFIRMED_TEXT = 'confirmed'
     VET_STATUS_PERSON_NOT_FOUND_TEXT = 'PERSON_NOT_FOUND'
@@ -130,6 +132,8 @@ module VeteranStatusCard
     end
 
     def log_vsc_result(confirmed = false)
+      key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
+      log_statsd(key)
       Rails.logger.info("#{service_name} VSC Card Result", {
         confirmation_status: confirmed ? 'CONFIRMED' : vet_verification_status[:reason],
         service_summary_code: ssc_code,
