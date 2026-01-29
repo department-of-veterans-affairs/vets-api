@@ -200,6 +200,11 @@ module Mobile
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
 
+      # Retrieves the facility IDs associated with the message recipient's triage group.
+      # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      #
+      # @return [Array<String>, nil] Array of facility IDs if the recipient has associated facilities,
+      #   or nil if the feature flag is disabled, the recipient has no facilities, or an error occurs.
       def recipient_facility_ids
         return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_sm, @current_user)
 
