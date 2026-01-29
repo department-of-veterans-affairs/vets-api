@@ -102,6 +102,8 @@ RSpec.shared_examples 'a form filler' do |options|
           before do
             allow(Flipper).to receive(:enabled?).with(anything).and_call_original
             allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+            # this is a temporary disabling of the pension flipper while pension work is still in progress
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
           end
 
           it 'fills the form correctly' do
