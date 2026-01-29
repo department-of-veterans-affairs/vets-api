@@ -61,7 +61,7 @@ module AccreditedRepresentativePortal
       )
 
       monitor.track_count(
-        'ar_poa_request_expired',
+        'ar.poa.request.expired',
         tags:
       )
 
