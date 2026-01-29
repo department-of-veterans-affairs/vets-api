@@ -97,10 +97,6 @@ module DebtsApi
       end
 
       class DisputeDebtValidator < BaseValidator
-        # Extracts composite debt IDs from debt objects that have composite_debt_id field
-        # @param debts [Array<Hash>] Array of debt objects with composite_debt_id field (already validated as array)
-        # @return [Array<String>] Array of composite debt IDs
-        # @raise [ArgumentError] If no composite_debt_ids are found
         def self.extract_composite_debt_ids_from_field(debts)
           composite_debt_ids = debts.filter_map do |debt|
             next unless debt.is_a?(Hash)
@@ -116,12 +112,6 @@ module DebtsApi
           composite_debt_ids
         end
 
-        # Parses and validates dispute metadata JSON
-        # @param metadata_string [String] JSON string containing dispute metadata
-        # @param user [User] Current user for debt validation
-        # @param max_size [Integer] Maximum size in bytes (default: 100KB for disputes)
-        # @return [Hash] Parsed and validated metadata
-        # @raise [ArgumentError] If validation fails
         def self.parse_and_validate_metadata(metadata_string, user:, max_size: 100.kilobytes)
           parsed = BaseValidator.parse_json_safely(metadata_string, max_size:)
 
@@ -144,14 +134,7 @@ module DebtsApi
 
           parsed
         end
-
-        # Validates that composite debt IDs exist and belong to the given user
-        # Uses DebtsService#get_debts_by_ids which ensures debts belong to the user via:
-        # - User-specific cache key (debts_data_#{user.uuid})
-        # - Filtering to only the user's own debts (payeeNumber == '00')
-        # @param composite_debt_ids [Array<String>] Array of composite debt IDs to validate
-        # @param debts_service [DebtManagementCenter::DebtsService] DebtsService instance for debt validation
-        # @raise [ArgumentError] If validation fails (debts not found, don't belong to user, or required debts missing)
+        
         def self.validate_debt_exist_for_user(composite_debt_ids, debts_service:)
           if composite_debt_ids.nil? || composite_debt_ids.empty?
             raise ArgumentError, 'At least one composite debt ID is required'
