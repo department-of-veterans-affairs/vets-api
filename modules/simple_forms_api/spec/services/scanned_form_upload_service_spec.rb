@@ -94,7 +94,6 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           ).to_json,
           user_account: user.user_account
         ).and_return(form_submission)
-
         expect(FormSubmissionAttempt).to receive(:create).with(
           form_submission:,
           benefits_intake_uuid: upload_uuid
@@ -231,6 +230,71 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           expect(e.http_status).to eq(502)
           raise
         end.to raise_error(SimpleFormsApi::ScannedFormUploadService::UploadError)
+      end
+    end
+
+    context 'explicit test for supporting docs' do
+      let(:supporting_attachment1) { instance_double(PersistentAttachment, guid: 'support-1') }
+      let(:supporting_attachment2) { instance_double(PersistentAttachment, guid: 'support-2') }
+      let(:support_path1) { '/path/to/support1.pdf' }
+      let(:support_path2) { '/path/to/support2.pdf' }
+
+      let(:params) do
+        {
+          form_number:,
+          confirmation_code:,
+          form_data: {
+            full_name: { first: 'John', last: 'Doe' },
+            id_number: { ssn: '123-45-6789' },
+            postal_code: '12345'
+          },
+          supporting_documents: [
+            { confirmation_code: 'support-1' },
+            { confirmation_code: 'support-2' }
+          ]
+        }
+      end
+
+      before do
+        allow(PersistentAttachment).to receive(:where)
+          .with(guid: %w[support-1 support-2])
+          .and_return([supporting_attachment1, supporting_attachment2])
+        allow(supporting_attachment1).to receive(:to_pdf).and_return(double(to_s: support_path1))
+        allow(supporting_attachment2).to receive(:to_pdf).and_return(double(to_s: support_path2))
+      end
+
+      it 'uploads main document with supporting attachments' do
+        status, confirmation_number = service.upload_with_supporting_documents
+
+        expect(status).to eq(200)
+        expect(confirmation_number).to eq(upload_uuid)
+        expect(lighthouse_service).to have_received(:perform_upload).with(
+          metadata: metadata.to_json,
+          document: pdf_path,
+          upload_url: upload_location,
+          attachments: [support_path1, support_path2]
+        )
+      end
+
+      it 'saves supporting document confirmation codes to form submission' do
+        form_submission = double
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: form_number,
+          form_data: params.slice(
+            :confirmation_code,
+            :form_data,
+            :supporting_documents
+          ).to_json,
+          user_account: user.user_account
+        ).and_return(form_submission)
+
+        expect(FormSubmissionAttempt).to receive(:create).with(
+          form_submission:,
+          benefits_intake_uuid: upload_uuid
+        )
+
+        service.upload_with_supporting_documents
       end
     end
   end
