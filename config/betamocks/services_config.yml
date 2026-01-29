@@ -86,15 +86,17 @@
         :uid_location: url
         :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
       :response_delay: 0.3
-    ## Expenses
+    ## Mileage Expenses
     - :method: :post
       :path: "/eis/api/btsss/travelclaim/api/v2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
+    ## Other Expenses
     - :method: :post
       :path: "/eis/api/btsss/travelclaim/api/v1/expenses/other"
       :file_path: "/travel_pay/expenses/other/create"
       :response_delay: 0.3
+    ## Common Carrier Expenses
     - :method: :post
       :path: "/eis/api/btsss/travelclaim/api/v1/expenses/commoncarrier"
       :file_path: "/travel_pay/expenses/commoncarrier/create"
@@ -112,6 +114,25 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/commoncarrier\/(.+)'
+      :response_delay: 0.3
+    ## Airtravel Expenses
+    - :method: :post
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel"
+      :file_path: "/travel_pay/expenses/airtravel/create"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel/*"
+      :file_path: "/travel_pay/expenses/airtravel/get"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/airtravel\/(.+)'
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel/*"
+      :file_path: "/travel_pay/expenses/airtravel/patch"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/airtravel\/(.+)'
       :response_delay: 0.3
 
 #CRM Token post
@@ -644,14 +665,14 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+        :uid_locator: '\/vaos\/v1\/patients\/([a-zA-Z0-9]+)\/appointments'
     - :method: :get
       :path: "/vaos/v1/patients/*/appointments/*"
       :file_path: "vaos/appointments/get"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
+        :uid_locator: '\/vaos\/v1\/patients\/([a-zA-Z0-9]+)\/appointments\/([a-zA-Z0-9]+)'
     - :method: :get
       :path: "/vpg/v1/patients/*/appointments"
       :file_path: "vaos/vpg/appointments"
