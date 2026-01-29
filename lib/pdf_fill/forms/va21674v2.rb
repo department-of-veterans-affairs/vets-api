@@ -827,7 +827,8 @@ module PdfFill
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
-        veteran_contact_information['phone_number'] = FORMATTER.expand_phone_number(veteran_contact_information['phone_number'])
+        veteran_contact_information['phone_number'] =
+          FORMATTER.expand_phone_number(veteran_contact_information['phone_number'])
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
@@ -875,7 +876,6 @@ module PdfFill
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
@@ -890,7 +890,9 @@ module PdfFill
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            program_information = FORMATTER.get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            if type_of_program_or_benefit.present?
+              program_information = FORMATTER.get_program(type_of_program_or_benefit)
+            end
             student_information['type_of_program_or_benefit'] = program_information if program_information.present?
             FORMATTER.split_earnings(student_expected_earnings) if student_expected_earnings.present?
             FORMATTER.split_earnings(student_earnings) if student_earnings.present?
@@ -899,6 +901,7 @@ module PdfFill
         end
         FORMATTER.format_checkboxes(dependents_application)
       end
+      # rubocop:enable Metrics/MethodLength
 
       # override from form_helper
       def select_checkbox(value)

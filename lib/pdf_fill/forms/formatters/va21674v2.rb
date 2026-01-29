@@ -89,11 +89,13 @@ module PdfFill
               value = parent_object[key]
               next if value.blank?
 
-              cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
+              split_value = value.split('.')
+              cents = split_value[1] || '00'
+              dollars = split_value[0]
               parent_object[key] = {
-                'first' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
-                'second' => (cleaned_value % 1000).to_s.rjust(3, '0') || '000',
-                'third' => '00'
+                'first' => dollars.rjust(5, '0').last(6).first(2),
+                'second' => dollars.last(3).rjust(3, '0'),
+                'third' => cents
               }
             end
             parent_object
@@ -107,13 +109,14 @@ module PdfFill
               value = parent_object[key]
               next if value.blank?
 
-              cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-
+              split_value = value.split('.')
+              cents = split_value[1] || '00'
+              dollars = split_value[0]
               parent_object[key] = {
-                'first' => (cleaned_value / 1_000_000).to_s[-2..],
-                'second' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..],
-                'third' => (cleaned_value % 1000).to_s.rjust(3, '0'),
-                'last' => '00'
+                'first' => dollars.rjust(8, '0').last(8).first(2).last,
+                'second' => dollars.rjust(6, '0').last(6).first(3),
+                'third' => dollars.rjust(3, '0').last(3),
+                'last' => cents
               }
             end
             parent_object
