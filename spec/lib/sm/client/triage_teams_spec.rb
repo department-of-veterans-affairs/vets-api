@@ -69,12 +69,11 @@ describe 'sm client' do
         end
       end
 
-      it 'returns nil and logs warning when an error occurs' do
+      it 'raises error when get_all_triage_teams fails' do
         error_client = SM::Client.new(session: { user_id: '10616687' })
         allow(error_client).to receive(:get_all_triage_teams).and_raise(StandardError.new('API error'))
-        expect(Rails.logger).to receive(:warn).with(/Failed to look up recipient facility/)
-        result = error_client.find_recipient_facility_ids('1234', 4_399_547, use_cache: false)
-        expect(result).to be_nil
+        expect { error_client.find_recipient_facility_ids('1234', 4_399_547, use_cache: false) }
+          .to raise_error(StandardError, 'API error')
       end
     end
   end
