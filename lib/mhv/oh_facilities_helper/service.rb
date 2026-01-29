@@ -136,8 +136,8 @@ module MHV
           next if parts.length < 2 || parts[0].blank?
 
           {
-            id: parts[0].strip,
-            name: parts[1]&.strip || ''
+            facility_id: parts[0].strip,
+            facility_name: parts[1]&.strip || ''
           }
         end
       end
@@ -149,7 +149,7 @@ module MHV
         # Group by migration date and collect matching facilities
         grouped = migrations.each_with_object({}) do |migration, acc|
           matching_facilities = migration[:facilities].select do |facility|
-            user_facility_ids.include?(facility[:id].to_s)
+            user_facility_ids.include?(facility[:facility_id].to_s)
           end
 
           next if matching_facilities.empty?

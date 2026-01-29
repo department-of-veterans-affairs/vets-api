@@ -17,77 +17,160 @@ RSpec.describe UniqueUserEvents::Service do
       allow(UniqueUserEvents::Buffer).to receive(:push_batch)
     end
 
-    it 'validates, expands, and buffers events' do
-      result = described_class.buffer_events(user:, event_names: [event_name])
+    context 'without event_facility_ids (user-based OH detection)' do
+      it 'validates, expands, and buffers events using user facilities' do
+        result = described_class.buffer_events(user:, event_names: [event_name])
 
-      expect(result).to eq([event_name])
-      expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
-        [{ user_id:, event_name: }]
-      )
+        expect(result).to eq([event_name])
+        expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+          .with(user:, event_name:, event_facility_ids: nil)
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [{ user_id:, event_name: }]
+        )
+      end
+
+      it 'handles multiple events' do
+        result = described_class.buffer_events(user:, event_names: [event_name, event_name2])
+
+        expect(result).to eq([event_name, event_name2])
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [
+            { user_id:, event_name: },
+            { user_id:, event_name: event_name2 }
+          ]
+        )
+      end
+
+      it 'includes Oracle Health events when applicable' do
+        oh_events = ['mhv_sm_message_sent_oh_site_757']
+        allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
+          .with(user:, event_name: oh_event_name, event_facility_ids: nil)
+          .and_return(oh_events)
+
+        result = described_class.buffer_events(user:, event_names: [oh_event_name])
+
+        expect(result).to eq([oh_event_name, 'mhv_sm_message_sent_oh_site_757'])
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [
+            { user_id:, event_name: oh_event_name },
+            { user_id:, event_name: 'mhv_sm_message_sent_oh_site_757' }
+          ]
+        )
+      end
+
+      it 'handles empty event_names array' do
+        result = described_class.buffer_events(user:, event_names: [])
+
+        expect(result).to eq([])
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with([])
+      end
+
+      it 'raises ArgumentError for invalid events' do
+        allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
+          .and_raise(ArgumentError, 'Invalid event')
+
+        expect do
+          described_class.buffer_events(user:, event_names: ['invalid_event'])
+        end.to raise_error(ArgumentError, 'Invalid event')
+      end
+
+      it 'uses user_account_uuid for user_id' do
+        described_class.buffer_events(user:, event_names: [event_name])
+
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [{ user_id: user.user_account_uuid, event_name: }]
+        )
+      end
+
+      it 'falls back to uuid when user_account_uuid is nil' do
+        user_without_account_uuid = double('User', user_account_uuid: nil, uuid: 'fallback-uuid', vha_facility_ids: [])
+
+        described_class.buffer_events(user: user_without_account_uuid, event_names: [event_name])
+
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [{ user_id: 'fallback-uuid', event_name: }]
+        )
+      end
     end
 
-    it 'handles multiple events' do
-      result = described_class.buffer_events(user:, event_names: [event_name, event_name2])
+    context 'with event_facility_ids (explicit facility IDs)' do
+      let(:event_facility_ids) { %w[757 688] }
 
-      expect(result).to eq([event_name, event_name2])
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
-        [
-          { user_id:, event_name: },
-          { user_id:, event_name: event_name2 }
-        ]
-      )
-    end
+      it 'validates, expands with facility IDs, and buffers events' do
+        result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 
-    it 'includes Oracle Health events when applicable' do
-      oh_events = ['mhv_sm_message_sent_oh_site_757']
-      allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
-        .with(user:, event_name: oh_event_name)
-        .and_return(oh_events)
+        expect(result).to eq([event_name])
+        expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+          .with(user:, event_name:, event_facility_ids:)
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [{ user_id:, event_name: }]
+        )
+      end
 
-      result = described_class.buffer_events(user:, event_names: [oh_event_name])
+      it 'includes site events when facility matches' do
+        site_event = "#{event_name}_oh_757"
+        allow(UniqueUserEvents::OracleHealth).to receive(:generate_events)
+          .with(user:, event_name:, event_facility_ids:)
+          .and_return([site_event])
 
-      expect(result).to eq([oh_event_name, 'mhv_sm_message_sent_oh_site_757'])
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
-        [
-          { user_id:, event_name: oh_event_name },
-          { user_id:, event_name: 'mhv_sm_message_sent_oh_site_757' }
-        ]
-      )
-    end
+        result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 
-    it 'handles empty event_names array' do
-      result = described_class.buffer_events(user:, event_names: [])
+        expect(result).to eq([event_name, site_event])
+        expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+          [
+            { user_id:, event_name: },
+            { user_id:, event_name: site_event }
+          ]
+        )
+      end
 
-      expect(result).to eq([])
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with([])
-    end
+      it 'handles multiple events' do
+        result = described_class.buffer_events(user:, event_names: [event_name, event_name2], event_facility_ids:)
 
-    it 'raises ArgumentError for invalid events' do
-      allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
-        .and_raise(ArgumentError, 'Invalid event')
+        expect(result).to eq([event_name, event_name2])
+        expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events).twice
+      end
 
-      expect do
-        described_class.buffer_events(user:, event_names: ['invalid_event'])
-      end.to raise_error(ArgumentError, 'Invalid event')
-    end
+      context 'with empty facility IDs' do
+        let(:event_facility_ids) { [] }
 
-    it 'uses user_account_uuid for user_id' do
-      described_class.buffer_events(user:, event_names: [event_name])
+        it 'still buffers the base event' do
+          result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
 
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
-        [{ user_id: user.user_account_uuid, event_name: }]
-      )
-    end
+          expect(result).to eq([event_name])
+          expect(UniqueUserEvents::OracleHealth).to have_received(:generate_events)
+            .with(user:, event_name:, event_facility_ids: [])
+          expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+            [{ user_id:, event_name: }]
+          )
+        end
+      end
 
-    it 'falls back to uuid when user_account_uuid is nil' do
-      user_without_account_uuid = double('User', user_account_uuid: nil, uuid: 'fallback-uuid', vha_facility_ids: [])
+      context 'with no matching facilities' do
+        let(:event_facility_ids) { %w[999 888] }
 
-      described_class.buffer_events(user: user_without_account_uuid, event_names: [event_name])
+        it 'only buffers the base event without OH events' do
+          allow(UniqueUserEvents::OracleHealth).to receive(:generate_events).and_return([])
 
-      expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
-        [{ user_id: 'fallback-uuid', event_name: }]
-      )
+          result = described_class.buffer_events(user:, event_names: [event_name], event_facility_ids:)
+
+          expect(result).to eq([event_name])
+          expect(UniqueUserEvents::Buffer).to have_received(:push_batch).with(
+            [{ user_id:, event_name: }]
+          )
+        end
+      end
+
+      it 'raises ArgumentError for invalid events' do
+        allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
+          .and_raise(ArgumentError, 'Invalid event')
+
+        expect do
+          described_class.buffer_events(user:, event_names: ['invalid_event'], event_facility_ids:)
+        end.to raise_error(ArgumentError, 'Invalid event')
+      end
     end
   end
 

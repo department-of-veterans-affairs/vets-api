@@ -17,7 +17,9 @@ require_relative 'sections/section_07'
 require_relative 'sections/section_01_v2'
 require_relative 'sections/section_02_v2'
 require_relative 'sections/section_03_v2'
+require_relative 'sections/section_04_v2'
 require_relative 'sections/section_05_v2'
+require_relative 'sections/section_06_v2'
 require_relative 'sections/section_07_v2'
 
 module Burials
@@ -45,8 +47,8 @@ module Burials
         QUESTION_KEY = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
-          { question_number: '3', question_text: 'VA File Number' },
-          { question_number: '4', question_text: "Veteran's Date of Birth" },
+          { question_number: '3', question_text: "Veteran's Date of Birth" },
+          { question_number: '4', question_text: 'VA File Number' },
           { question_number: '5', question_text: "Veteran's Date of Death" },
           { question_number: '6', question_text: "Veteran's Date of Burial" },
           { question_number: '7', question_text: "Claimant's Name" },
@@ -103,14 +105,15 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section5V2, Section7V2].freeze
+        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section4V2, Section5V2, Section6V2, Section7V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
+        # These are placeholders and will be updated as V2 sections are implemented
         QUESTION_KEY_V2 = [
           { question_number: '1', question_text: "Deceased Veteran's Name" },
           { question_number: '2', question_text: "Deceased Veteran's Social Security Number" },
-          { question_number: '3', question_text: "Veteran's Date of Birth" },
-          { question_number: '4', question_text: 'VA File Number' },
+          { question_number: '3', question_text: 'VA File Number' },
+          { question_number: '4', question_text: "Veteran's Date of Birth" },
           { question_number: '5', question_text: "Veteran's Date of Death" },
           { question_number: '6', question_text: "Veteran's Date of Burial" },
           { question_number: '7', question_text: "Claimant's Name" },
@@ -141,24 +144,22 @@ module Burials
         ].freeze
 
         # V2 sections grouping question numbers for overflow pages
+        # These are placeholders and will be updated as V2 sections are implemented
         SECTIONS_V2 = [
-          { label: 'Section I: Deceased Veteran\'s Name', question_nums: ['1'] },
-          { label: 'Section II: Deceased Veteran\'s Social Security Number', question_nums: ['2'] },
-          { label: 'Section III: VA File Number', question_nums: ['3'] },
-          { label: 'Section IV: Veteran\'s Date of Birth', question_nums: ['4'] },
-          { label: 'Section V: Veteran\'s Date of Death', question_nums: ['5'] },
-          { label: 'Section VI: Veteran\'s Date of Burial', question_nums: ['6'] },
-          { label: 'Section VII: Claimant\'s Identification Information', question_nums: %w[7 8 9] },
-          { label: 'Section VIII: Claimant\'s Contact Information', question_nums: %w[10 11 12] },
-          { label: 'Section IX: Relationship to Veteran', question_nums: ['13'] },
-          { label: 'Section X: Military Service Information', question_nums: %w[14 15 16 17 18 19 20] },
-          { label: 'Section XI: Burial Information', question_nums: %w[21 22 23] },
-          { label: 'Section XII: Government Contributions and Death Location', question_nums: %w[24 25] },
-          { label: 'Section XIII: Burial Allowance and Expenses', question_nums: %w[26 27 28 29] },
-          { label: 'Section XIV: Signatures and Certifications', question_nums: %w[30 31] }
+          { label: 'Section I: Personal Identification Of Veteran', question_nums: %w[1 2 3 4 5 6] },
+          { label: 'Section II: Claimant\'s Information', question_nums: %w[7 8 9 10 11 12 13] },
+          { label: 'Section III: Veteran\'s Service Information', question_nums: %w[14 15 16 17 18 19 20] },
+          { label: 'Section IV: Final Resting Place Information', question_nums: %w[21 22 23 24 25] },
+          { label: 'Section V: Burial Allowance and Expenses', question_nums: %w[26 27 28 29] },
+          { label: 'Section VI: Claim For Transportation Allowance', question_nums: %w[30] },
+          { label: 'Section VII: Direct Deposit Information', question_nums: %w[31] },
+          { label: 'Section VIII: Certification and Signature', question_nums: %w[32 33] },
+          { label: 'Section IX: Witnesses To Signature', question_nums: %w[34 35] },
+          { label: 'Section X: Alternate Signer Certification', question_nums: %w[36] }
         ].freeze
 
         # form configuration hash
+
         KEY = key.freeze
 
         ##

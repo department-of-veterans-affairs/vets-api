@@ -14,7 +14,6 @@ require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
-require 'debts_api/v0/digital_dispute_submission_service'
 require 'debts_api/v0/digital_dispute_dmc_service'
 require 'veteran_status_card/service'
 
@@ -631,37 +630,16 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }.to_json
         end
 
-        context 'when the :digital_dmc_dispute_service feature is on' do
-          it 'validates the route' do
-            allow_any_instance_of(DebtsApi::V0::DigitalDisputeDmcService).to receive(:call!)
-            expect(subject).to validate(
-              :post,
-              '/debts_api/v0/digital_disputes',
-              200,
-              headers.merge(
-                '_data' => { metadata: metadata_json, files: [pdf_file] }
-              )
+        it 'validates the route' do
+          allow_any_instance_of(DebtsApi::V0::DigitalDisputeDmcService).to receive(:call!)
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            200,
+            headers.merge(
+              '_data' => { metadata: metadata_json, files: [pdf_file] }
             )
-          end
-        end
-
-        context 'when the :digital_dmc_dispute_service feature is off' do
-          it 'validates the route' do
-            allow(Flipper).to receive(:enabled?).with(:digital_dmc_dispute_service).and_return(false)
-            allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
-              success: true,
-              message: 'Dispute successfully submitted',
-              submission_id: '12345'
-            )
-            expect(subject).to validate(
-              :post,
-              '/debts_api/v0/digital_disputes',
-              200,
-              headers.merge(
-                '_data' => { metadata: metadata_json, files: [pdf_file] }
-              )
-            )
-          end
+          )
         end
       end
     end
@@ -1194,7 +1172,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'submit_all_claim', 'all.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -2704,10 +2682,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'form 21-2680 house bound status' do
+      let(:user) { create(:user) }
       let(:saved_claim) { create(:form212680) }
+      let(:auth_headers) do
+        {
+          '_headers' => {
+            'Cookie' => sign_in(user, nil, true),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+          }
+        }
+      end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(true)
       end
 
       it 'supports submitting a form 21-2680' do
@@ -2715,7 +2703,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           200,
-          json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
+          auth_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
         )
       end
 
@@ -2724,7 +2712,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           400,
-          json_headers.merge('_data' => { foo: :bar }.to_json)
+          auth_headers.merge('_data' => { foo: :bar }.to_json)
         )
       end
 
@@ -2733,7 +2721,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           422,
-          json_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
+          auth_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
         )
       end
 
@@ -2742,7 +2730,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :get,
           '/v0/form212680/download_pdf/{guid}',
           200,
-          'guid' => saved_claim.guid
+          { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => saved_claim.guid }
         )
       end
 
@@ -2751,19 +2739,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :get,
           '/v0/form212680/download_pdf/{guid}',
           404,
-          'guid' => 'bad-guid'
+          { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => 'bad-guid' }
         )
       end
 
       context 'when feature toggle is disabled' do
-        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
+        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false) }
 
         it 'handles 404 for create' do
           expect(subject).to validate(
             :post,
             '/v0/form212680',
             404,
-            json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
+            auth_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
           )
         end
 
@@ -2772,7 +2760,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             :get,
             '/v0/form212680/download_pdf/{guid}',
             404,
-            'guid' => saved_claim.guid
+            { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => saved_claim.guid }
           )
         end
       end
