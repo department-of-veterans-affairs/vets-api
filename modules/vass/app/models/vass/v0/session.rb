@@ -293,16 +293,13 @@ module Vass
       # Creates an authenticated session after OTC validation.
       #
       # Retrieves veteran metadata from Redis (stored during create flow) and saves it
-      # to a session keyed by the token.
+      # to a session keyed by UUID (one session per veteran). The jti is stored to
+      # ensure only the most recently issued token is valid.
       #
-      # @param token [String] Generated JWT token
-      # @param session_token [String] Deprecated: use token instead
+      # @param jti [String] JWT ID of the token being issued
       # @return [Boolean] true if session created successfully, false if metadata not found
       #
-      def create_authenticated_session(token: nil, session_token: nil)
-        # Support both token and session_token for backwards compatibility
-        auth_token = token || session_token
-
+      def create_authenticated_session(jti:)
         # Retrieve veteran metadata from Redis (stored during create flow)
         metadata = redis_client.veteran_metadata(uuid:)
 
@@ -312,10 +309,10 @@ module Vass
         end
 
         redis_client.save_session(
-          session_token: auth_token,
+          uuid:,
+          jti:,
           edipi: metadata[:edipi],
-          veteran_id: metadata[:veteran_id],
-          uuid:
+          veteran_id: metadata[:veteran_id]
         )
       end
 

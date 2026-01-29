@@ -272,12 +272,12 @@ module Vass
       ##
       # Sets up the appointments service with veteran EDIPI.
       #
-      # For appointments endpoints, we need the EDIPI which should be
-      # stored in Redis during OTC authentication flow.
+      # Retrieves EDIPI from session data which is stored when JWT is issued.
+      # Session is keyed by UUID (one session per veteran).
       #
       def set_appointments_service
-        veteran_metadata = redis_client.veteran_metadata(uuid: @current_veteran_id)
-        edipi = veteran_metadata&.fetch(:edipi, nil)
+        session_data = redis_client.session(uuid: @current_veteran_id)
+        edipi = session_data&.fetch(:edipi, nil)
 
         unless edipi
           log_vass_event(action: 'missing_edipi', vass_uuid: @current_veteran_id, level: :error, **audit_metadata)

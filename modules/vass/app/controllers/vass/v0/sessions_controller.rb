@@ -77,7 +77,7 @@ module Vass
         jwt_result = session.validate_and_generate_jwt
         jwt_token = jwt_result[:token]
         jti = jwt_result[:jti]
-        session.create_authenticated_session(token: jwt_token)
+        session.create_authenticated_session(jti:)
         handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
@@ -240,7 +240,8 @@ module Vass
       def handle_successful_authentication(session, jwt_token, jti)
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
-        response_data = camelize_keys({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
+        expires_in = redis_client.redis_session_expiry.to_i
+        response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
         track_success(SESSIONS_AUTHENTICATE_OTC)
         render json: response_data, status: :ok
       end
