@@ -12,6 +12,8 @@ module BenefitsIntake
 
     # generic job processing error
     class BenefitsIntakeError < StandardError; end
+    # error to abort job
+    class NoRetryError < StandardError; end
 
     # retry for 2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -19,6 +21,15 @@ module BenefitsIntake
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
+      BenefitsIntake::SubmitClaimJob.exhaustion(msg)
+    end
+
+    # perform actions on submission exhaustion/no-retry
+    #
+    # @see ::Logging::Include::BenefitsIntake#track_submission_exhaustion
+    #
+    # @param msg [Hash] sidekiq exhaustion response; 'args', 'error_message' are required
+    def self.exhaustion(msg)
       claim = begin
         ::SavedClaim.find(msg['args'][0])
       rescue
@@ -68,9 +79,13 @@ module BenefitsIntake
       monitor.track_submission_success(claim, service, user_account_uuid)
 
       benefits_intake_uuid
-    rescue => e
-      monitor.track_submission_retry(claim, service, user_account_uuid, e)
+    rescue NoRetryError => e
       submission_attempt&.fail!
+      msg = {'args' => [saved_claim_id, user_account_uuid, config], 'error_message' => e.message}
+      BenefitsIntake::SubmitClaimJob.exhaustion(msg)
+    rescue => e
+      submission_attempt&.fail!
+      monitor.track_submission_retry(claim, service, user_account_uuid, e)
       raise e
     ensure
       cleanup_file_paths
@@ -131,28 +146,16 @@ module BenefitsIntake
     # @param (see #perform)
     def init(saved_claim_id, user_account_uuid, config)
       if user_account_uuid.present?
-        # UserAccount.find should raise an error if unable to find the user_account record
-        @user_account = begin
-          ::UserAccount.find(user_account_uuid)
-        rescue
-          nil
-        end
-        raise BenefitsIntakeError, "Unable to find ::UserAccount #{user_account_uuid}" unless @user_account
+        @user_account = ::UserAccount.find_by(id: user_account_uuid)
+        raise NoRetryError, "Unable to find ::UserAccount #{user_account_uuid}" unless @user_account
       end
 
-      @claim = begin
-        ::SavedClaim.find(saved_claim_id)
-      rescue
-        nil
-      end
-      raise BenefitsIntakeError, "Unable to find ::SavedClaim #{saved_claim_id}" unless @claim
+      @claim = ::SavedClaim.find_by(id: saved_claim_id)
+      raise NoRetryError, "Unable to find ::SavedClaim #{saved_claim_id}" unless @claim
 
       @config = config || {}
 
       @service = ::BenefitsIntake::Service.new
-    rescue BenefitsIntakeError => e
-      sidekiq_options retry: false
-      raise e
     end
 
     # Generate form PDF
