@@ -66,12 +66,11 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'saves the FormSubmission and FormSubmissionAttempt' do
+    it 'saves the FormSubmission and FormSubmissionAttempt with flat data structure' do
       form_submission = double
-      expected_form_data = params.slice(
-        'confirmation_code',
-        'form_data',
-        'supporting_documents'
+      expected_form_data = params['form_data'].merge(
+        'confirmation_code' => params['confirmation_code'],
+        'supporting_documents' => params['supporting_documents'] || []
       ).to_json
 
       expect(FormSubmission).to receive(:create).with(

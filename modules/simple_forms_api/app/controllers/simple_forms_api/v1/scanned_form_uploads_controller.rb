@@ -150,13 +150,14 @@ module SimpleFormsApi
       end
 
       def create_form_submission
+        form_data_with_attachments = params[:form_data].to_unsafe_h.merge(
+          confirmation_code: params[:confirmation_code],
+          supporting_documents: params[:supporting_documents]&.map(&:to_unsafe_h) || []
+        )
+
         FormSubmission.create(
           form_type: params[:form_number],
-          form_data: params.slice(
-            :confirmation_code,
-            :form_data,
-            :supporting_documents
-          ).to_json,
+          form_data: form_data_with_attachments.to_json,
           user_account: @current_user&.user_account
         )
       end

@@ -29,7 +29,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
       form_data: {
         full_name: { first: 'John', last: 'Doe' },
         id_number: { ssn: '123-45-6789' },
-        postal_code: '12345'
+        postal_code: '12345',
+        email: 'john.doe@example.com'
       },
       supporting_documents: []
     }
@@ -83,17 +84,19 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         expect(pdf_stamper).to have_received(:stamp_pdf)
       end
 
-      it 'creates form submission and attempt' do
+      it 'creates form submission with flat data structure preserving form_data fields at top level' do
         form_submission = double
+        expected_form_data = params[:form_data].to_h.merge(
+          confirmation_code: params[:confirmation_code],
+          supporting_documents: []
+        ).to_json
+
         expect(FormSubmission).to receive(:create).with(
           form_type: form_number,
-          form_data: params.slice(
-            :confirmation_code,
-            :form_data,
-            :supporting_documents
-          ).to_json,
+          form_data: expected_form_data,
           user_account: user.user_account
         ).and_return(form_submission)
+
         expect(FormSubmissionAttempt).to receive(:create).with(
           form_submission:,
           benefits_intake_uuid: upload_uuid
@@ -130,7 +133,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           form_data: {
             full_name: { first: 'John', last: 'Doe' },
             id_number: { ssn: '123-45-6789' },
-            postal_code: '12345'
+            postal_code: '12345',
+            email: 'john.doe@example.com'
           },
           supporting_documents: [
             { confirmation_code: 'support-1' },
@@ -158,6 +162,27 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           upload_url: upload_location,
           attachments: [support_path1, support_path2]
         )
+      end
+
+      it 'creates form submission with flat data structure including supporting document confirmation codes' do
+        form_submission = double
+        expected_form_data = params[:form_data].to_h.merge(
+          confirmation_code: params[:confirmation_code],
+          supporting_documents: params[:supporting_documents]
+        ).to_json
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: form_number,
+          form_data: expected_form_data,
+          user_account: user.user_account
+        ).and_return(form_submission)
+
+        expect(FormSubmissionAttempt).to receive(:create).with(
+          form_submission:,
+          benefits_intake_uuid: upload_uuid
+        )
+
+        service.upload_with_supporting_documents
       end
     end
 
@@ -201,7 +226,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           form_data: {
             full_name: { first: 'John', last: 'Doe' },
             id_number: { va_file_number: 'VA123456' },
-            postal_code: '12345'
+            postal_code: '12345',
+            email: 'john.doe@example.com'
           },
           supporting_documents: []
         }
@@ -230,71 +256,6 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           expect(e.http_status).to eq(502)
           raise
         end.to raise_error(SimpleFormsApi::ScannedFormUploadService::UploadError)
-      end
-    end
-
-    context 'explicit test for supporting docs' do
-      let(:supporting_attachment1) { instance_double(PersistentAttachment, guid: 'support-1') }
-      let(:supporting_attachment2) { instance_double(PersistentAttachment, guid: 'support-2') }
-      let(:support_path1) { '/path/to/support1.pdf' }
-      let(:support_path2) { '/path/to/support2.pdf' }
-
-      let(:params) do
-        {
-          form_number:,
-          confirmation_code:,
-          form_data: {
-            full_name: { first: 'John', last: 'Doe' },
-            id_number: { ssn: '123-45-6789' },
-            postal_code: '12345'
-          },
-          supporting_documents: [
-            { confirmation_code: 'support-1' },
-            { confirmation_code: 'support-2' }
-          ]
-        }
-      end
-
-      before do
-        allow(PersistentAttachment).to receive(:where)
-          .with(guid: %w[support-1 support-2])
-          .and_return([supporting_attachment1, supporting_attachment2])
-        allow(supporting_attachment1).to receive(:to_pdf).and_return(double(to_s: support_path1))
-        allow(supporting_attachment2).to receive(:to_pdf).and_return(double(to_s: support_path2))
-      end
-
-      it 'uploads main document with supporting attachments' do
-        status, confirmation_number = service.upload_with_supporting_documents
-
-        expect(status).to eq(200)
-        expect(confirmation_number).to eq(upload_uuid)
-        expect(lighthouse_service).to have_received(:perform_upload).with(
-          metadata: metadata.to_json,
-          document: pdf_path,
-          upload_url: upload_location,
-          attachments: [support_path1, support_path2]
-        )
-      end
-
-      it 'saves supporting document confirmation codes to form submission' do
-        form_submission = double
-
-        expect(FormSubmission).to receive(:create).with(
-          form_type: form_number,
-          form_data: params.slice(
-            :confirmation_code,
-            :form_data,
-            :supporting_documents
-          ).to_json,
-          user_account: user.user_account
-        ).and_return(form_submission)
-
-        expect(FormSubmissionAttempt).to receive(:create).with(
-          form_submission:,
-          benefits_intake_uuid: upload_uuid
-        )
-
-        service.upload_with_supporting_documents
       end
     end
   end
