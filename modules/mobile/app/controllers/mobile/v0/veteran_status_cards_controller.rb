@@ -18,7 +18,7 @@ module Mobile
       private
 
       def service
-        @service ||= VeteranStatusCard::Service.new(@current_user)
+        @service ||= ::Mobile::V0::VeteranStatusCard::Service.new(@current_user)
       end
     end
   end
