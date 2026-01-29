@@ -13,7 +13,12 @@ module ClaimsApi
       poa_form = ClaimsApi::PowerOfAttorney.find_by(id: power_of_attorney_id)
 
       unless poa_form
-        ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'POA form not found')
+        ClaimsApi::Logger.log(
+          'poa',
+          poa_id: power_of_attorney_id,
+          detail: 'POA form not found in PoaUpdater job',
+          level: :warn
+        )
         raise ActiveRecord::RecordNotFound, "PowerOfAttorney with ID #{power_of_attorney_id} not found"
       end
 
@@ -52,7 +57,7 @@ module ClaimsApi
            ::Common::Exceptions::UnprocessableEntity => e
       rescue_generic_errors(poa_form, e) if poa_form
       process&.update!(step_status: 'FAILED',
-                       error_messages: [{ title: 'BGS Error', detail: e.message }])
+                       error_messages: [{ title: 'BGS Error', detail: e.errors&.first&.detail || e.message }])
       # raise error to trigger sidekiq retry mechanism
       raise
     rescue => e

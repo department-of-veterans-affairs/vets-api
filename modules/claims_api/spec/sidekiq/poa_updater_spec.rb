@@ -34,8 +34,12 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     end
 
     it 'logs the POA not found event' do
-      expect(ClaimsApi::Logger).to receive(:log).with('poa', poa_id: non_existent_poa_id, detail: 'POA form not found')
-
+      expect(ClaimsApi::Logger).to receive(:log).with(
+        'poa',
+        poa_id: non_existent_poa_id,
+        detail: 'POA form not found in PoaUpdater job',
+        level: :warn
+      )
       expect do
         subject.new.perform(non_existent_poa_id)
       end.to raise_error(ActiveRecord::RecordNotFound)
