@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 # rubocop:disable Metrics/BlockLength
 namespace :ivc_champva do
   desc 'Send failure emails for 10-7959A forms with only a single record per form_uuid (Jan 20-21, 2026)'
   task send_cva_remediation_emails: :environment do
     dry_run = ENV['DRY_RUN'] == 'true'
-    max_records = ENV['MAX_RECORDS']&.to_i
+    page_size = (ENV['PAGE_SIZE'] || 50).to_i
+    page = (ENV['PAGE'] || 0).to_i
 
     puts '=' * 80
     puts 'IVC CHAMPVA CVA REMEDIATION EMAIL SENDER'
     puts '[DRY RUN MODE - No emails will be sent, no DB updates will be made]' if dry_run
-    puts "[MAX_RECORDS: #{max_records}]" if max_records
+    puts "[PAGE: #{page}, PAGE_SIZE: #{page_size}] (records #{page * page_size} to #{((page + 1) * page_size) - 1})"
     puts '=' * 80
     puts 'Finding affected 10-7959A forms from Jan 20-21, 2026...'
     puts '-' * 80
@@ -19,23 +22,32 @@ namespace :ivc_champva do
     end_date = Date.new(2026, 1, 21).end_of_day
 
     # Find form_uuids that have exactly 1 record (claim form only, no supporting docs/VES JSON)
-    # and where email has not already been sent
     single_record_uuids = IvcChampvaForm
-                          .where(form_number: '10-7959A', email_sent: false)
+                          .where(form_number: '10-7959A')
                           .where(created_at: start_date..end_date)
                           .group(:form_uuid)
                           .having('COUNT(*) = 1')
+                          .order(:form_uuid)
                           .pluck(:form_uuid)
+
+    total_count = single_record_uuids.count
+    total_pages = (total_count.to_f / page_size).ceil
 
     if single_record_uuids.empty?
       puts 'No affected forms found.'
       next
     end
 
-    # Apply MAX_RECORDS limit if specified
-    # Reducing the set here instead of in the query due to how few records we expect to process
-    # If this class is used as a template for future similar work, consider reducing the set in the query instead.
-    single_record_uuids = single_record_uuids.first(max_records) if max_records
+    puts "Total matching form_uuids: #{total_count} (#{total_pages} pages of #{page_size})"
+
+    # Apply pagination
+    offset = page * page_size
+    single_record_uuids = single_record_uuids.slice(offset, page_size) || []
+
+    if single_record_uuids.empty?
+      puts "No records on page #{page}. Valid pages: 0 to #{total_pages - 1}"
+      next
+    end
 
     all_forms = IvcChampvaForm.where(form_uuid: single_record_uuids).to_a
 
@@ -55,12 +67,6 @@ namespace :ivc_champva do
     skipped_count = 0
 
     forms.each_with_index do |form, index|
-      if form.email_sent
-        puts "Skipping #{form.form_uuid} - email already sent"
-        skipped_count += 1
-        next
-      end
-
       # Rate limiting: sleep every 15 emails to avoid overwhelming VANotify
       # From gist: https://gist.github.com/michaelclement/9d775dea28be443d62f9267b53999abe
       if !dry_run && index.positive? && (index % 15).zero?
@@ -113,10 +119,12 @@ namespace :ivc_champva do
     puts '=' * 80
     puts dry_run ? 'DRY RUN COMPLETE - No emails sent, no DB updates made' : 'SUMMARY'
     puts '=' * 80
+    puts "Page #{page} of #{total_pages - 1} (0-indexed)"
     puts "Emails #{dry_run ? 'that would be sent' : 'sent successfully'}: #{success_count}"
     puts "Emails failed: #{failure_count}"
     puts "Skipped (already sent): #{skipped_count}"
-    puts "Total unique recipients: #{forms.size}"
+    puts "Total unique recipients this page: #{forms.size}"
+    puts "Next page: PAGE=#{page + 1} PAGE_SIZE=#{page_size}" if page + 1 < total_pages
   end
 end
 # rubocop:enable Metrics/BlockLength

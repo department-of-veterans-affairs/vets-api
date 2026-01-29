@@ -637,6 +637,12 @@ iam_ssoe:
   client_key_path: <%= ENV['iam_ssoe__client_key_path'] %>
   oauth_url: <%= ENV['iam_ssoe__oauth_url'] %>
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: <%= ENV['bio__ibm_mms__host'] %>
+  path: <%= ENV['bio__ibm_mms__path'] %>
+  use_mocks: <%= ENV['bio__ibm_mms__use_mocks'] %>
+  version: <%= ENV['bio__ibm_mms__version'] %>
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -1459,7 +1465,7 @@ vanotify:
           flipper_id: dependents_benefits_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21_686c_674__email__submitted686c_only__template_id'] %>
     21_8940v1: &vanotify_services_increase_compensation
-      api_key: ~
+      api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       email:
         confirmation:
           flipper_id: false
