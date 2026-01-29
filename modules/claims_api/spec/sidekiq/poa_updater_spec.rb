@@ -137,7 +137,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
       end
     end
 
-    # iterate through BGS_ERRORS array to create similar tests for each exception
+    # run error handling shared examples for BGS service errors and standard errors
     include_examples 'BGS service error handling', BGS::VetRecordWebService, :update_birls_record
 
     include_examples 'standard error handling', BGS::VetRecordWebService, :update_birls_record
@@ -186,7 +186,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     end
 
     context 'and the PersonWebService raises an exception' do
-      # iterate through BGS_ERRORS array to create similar tests for each exception
+      # run error handling shared examples for BGS service errors and standard errors
       include_examples 'BGS service error handling with instance double', :person_web_service, :find_by_ssn
 
       include_examples 'standard error handling with instance double', :person_web_service, :find_by_ssn
@@ -227,7 +227,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     end
 
     context 'and the ManageRepresentativeService raises an exception' do
-      # iterate through BGS_ERRORS array to create similar tests for each exception
+      # run error handling shared examples for BGS service errors and standard errors
       include_examples 'BGS service error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
 
       include_examples 'standard error handling with instance double', :manage_rep_poa_update_service, :update_poa_relationship
