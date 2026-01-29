@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents/error_classes'
+require 'pdf_fill/forms/formatters/va21674v2'
 
 # rubocop:disable Metrics/ClassLength
 module PdfFill
@@ -9,6 +10,7 @@ module PdfFill
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      FORMATTER = PdfFill::Forms::Formatters::Va21674v2
 
       KEY = {
         'veteran_information' => {
@@ -825,7 +827,7 @@ module PdfFill
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
-        veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
+        veteran_contact_information['phone_number'] = FORMATTER.expand_phone_number(veteran_contact_information['phone_number'])
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
@@ -875,15 +877,6 @@ module PdfFill
       end
       # rubocop:enable Metrics/MethodLength
 
-      def expand_phone_number(phone_number)
-        phone_number = phone_number.delete('^0-9')
-        {
-          'phone_area_code' => phone_number[0..2],
-          'phone_first_three_numbers' => phone_number[3..5],
-          'phone_last_four_numbers' => phone_number[6..9]
-        }
-      end
-
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
         students_information = @form_data['dependents_application']['student_information']
@@ -897,28 +890,14 @@ module PdfFill
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            program_information = get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            program_information = FORMATTER.get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
             student_information['type_of_program_or_benefit'] = program_information if program_information.present?
-            split_earnings(student_expected_earnings) if student_expected_earnings.present?
-            split_earnings(student_earnings) if student_earnings.present?
-            split_networth_information(student_networth) if student_networth.present?
+            FORMATTER.split_earnings(student_expected_earnings) if student_expected_earnings.present?
+            FORMATTER.split_earnings(student_earnings) if student_earnings.present?
+            FORMATTER.split_networth_information(student_networth) if student_networth.present?
           end
         end
-        format_checkboxes(dependents_application)
-      end
-
-      def get_program(parent_object)
-        type_mapping = {
-          'ch35' => 'Chapter 35',
-          'fry' => 'Fry Scholarship',
-          'feca' => 'FECA',
-          'other' => 'Other Benefit'
-        }
-        # sanitize object of false values
-        parent_object.compact_blank!
-        return nil if parent_object.blank?
-
-        parent_object.map { |key, _value| type_mapping[key] }.join(', ')
+        FORMATTER.format_checkboxes(dependents_application)
       end
 
       # override from form_helper
@@ -929,86 +908,6 @@ module PdfFill
       def select_radio_button(value)
         value ? 0 : nil
       end
-
-      def split_earnings(parent_object)
-        return if parent_object.blank?
-
-        keys_to_process = %w[
-          earnings_from_all_employment annual_social_security_payments
-          other_annuities_income all_other_income
-        ]
-        keys_to_process.each do |key|
-          value = parent_object[key]
-          next if value.blank?
-
-          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-          parent_object[key] = {
-            'first' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
-            'second' => (cleaned_value % 1000).to_s.rjust(3, '0') || '000',
-            'third' => '00'
-          }
-        end
-        parent_object
-      end
-
-      def split_networth_information(parent_object)
-        return if parent_object.blank?
-
-        keys_to_process = %w[savings securities real_estate other_assets total_value]
-        keys_to_process.each do |key|
-          value = parent_object[key]
-          next if value.blank?
-
-          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-
-          parent_object[key] = {
-            'first' => (cleaned_value / 1_000_000).to_s[-2..],
-            'second' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..],
-            'third' => (cleaned_value % 1000).to_s.rjust(3, '0'),
-            'last' => '00'
-          }
-        end
-        parent_object
-      end
-
-      # rubocop:disable Metrics/MethodLength
-      def format_checkboxes(dependents_application)
-        students_information = dependents_application['student_information']
-        if students_information.present?
-          students_information.each do |student_information|
-            was_married = student_information['was_married']
-            student_information['was_married'] = {
-              'was_married_yes' => select_checkbox(was_married),
-              'was_married_no' => select_checkbox(!was_married)
-            }
-
-            is_paid = student_information['tuition_is_paid_by_gov_agency']
-            student_information['tuition_is_paid_by_gov_agency'] = {
-              'is_paid_yes' => select_checkbox(is_paid),
-              'is_paid_no' => select_checkbox(!is_paid)
-            }
-
-            is_full_time = student_information['school_information']['student_is_enrolled_full_time']
-            student_information['school_information']['student_is_enrolled_full_time'] = {
-              'full_time_yes' => select_checkbox(is_full_time),
-              'full_time_no' => select_checkbox(!is_full_time)
-            }
-
-            did_attend = student_information['school_information']['student_did_attend_school_last_term']
-            student_information['school_information']['student_did_attend_school_last_term'] = {
-              'did_attend_yes' => select_checkbox(did_attend),
-              'did_attend_no' => select_checkbox(!did_attend)
-            }
-
-            is_school_accredited = student_information['school_information']['is_school_accredited']
-            student_information['school_information']['is_school_accredited'] = {
-              'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-              'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-            }
-          end
-        end
-      end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end
