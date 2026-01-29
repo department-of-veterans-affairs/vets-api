@@ -12,9 +12,13 @@ RSpec.describe 'Mobile::V0::VeteranStatusCards', type: :request do
 
   describe 'GET /mobile/v0/veteran_status_card' do
     it 'uses the Mobile::V0::VeteranStatusCard::Service' do
-      expect(Mobile::V0::VeteranStatusCard::Service).to receive(:new).and_call_original
+      mock_service = instance_double(Mobile::V0::VeteranStatusCard::Service)
+      allow(mock_service).to receive(:status_card).and_return({ type: 'veteran_status_card' })
+      expect(Mobile::V0::VeteranStatusCard::Service).to receive(:new).and_return(mock_service)
 
       get '/mobile/v0/veteran_status_card', headers: sis_headers
+
+      expect(response).to have_http_status(:ok)
     end
 
     context 'when veteran is eligible' do

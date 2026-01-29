@@ -210,8 +210,11 @@ module VeteranStatusCard
         edipi_no_pnl_response
       when *CURRENTLY_SERVING_CODES
         currently_serving_response
-      else
-        # Also handles ERROR_SSC_CODES
+      when *ERROR_SSC_CODES
+        error_response
+      else # rubocop:disable Lint/DuplicateBranch
+        # Rubocop would catch this as a duplicate branch, but we want to explicitly
+        # keep the ERROR_SSC_CODES branch for documentation and in case the response changes
         error_response
       end
     end
