@@ -17,20 +17,40 @@ module UnifiedHealthData
         PRACTITIONER: 'Practitioner'
       }.freeze
 
-      def parse(records)
+      # Parses allergy records from FHIR AllergyIntolerance resources
+      #
+      # @param records [Array] Array of FHIR entry records
+      # @param filter_by_status [Boolean] When true, only includes allergies with 'active'
+      #   clinical status. Defaults to true.
+      # @return [Array<UnifiedHealthData::Allergy>] Array of parsed allergy objects
+      def parse(records, filter_by_status: true)
         return [] if records.blank?
 
         filtered = records.select do |record|
-          record['resource'] && record['resource']['resourceType'] == 'AllergyIntolerance'
+          resource = record['resource']
+          next false unless resource && resource['resourceType'] == 'AllergyIntolerance'
+          next true unless filter_by_status
+
+          should_include_allergy?(resource)
         end
-        parsed = filtered.map { |record| parse_single_allergy(record) }
+        parsed = filtered.map { |record| parse_single_allergy(record, filter_by_status: false) }
         parsed.compact
       end
 
-      def parse_single_allergy(record)
+      # Parses a single allergy record from a FHIR AllergyIntolerance resource
+      #
+      # @param record [Hash] A single FHIR entry record
+      # @param filter_by_status [Boolean] When true, returns nil for allergies without 'active'
+      #   clinical status. Defaults to true.
+      # @return [UnifiedHealthData::Allergy, nil] Parsed allergy object or nil if filtered/invalid
+      def parse_single_allergy(record, filter_by_status: true)
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
+
+        # Filter out allergies without active clinical status if filtering is enabled
+        return nil if filter_by_status && !should_include_allergy?(resource)
+
         date_value = resource['onsetDateTime'] || resource['recordedDate'] || nil
 
         UnifiedHealthData::Allergy.new(
@@ -49,6 +69,20 @@ module UnifiedHealthData
       end
 
       private
+
+      # Determines if an allergy should be included based on its clinical status
+      # Only includes allergies with clinicalStatus of 'active'
+      # Allergies with no clinicalStatus or non-active status (e.g., resolved) are excluded
+      #
+      # @param resource [Hash] FHIR AllergyIntolerance resource
+      # @return [Boolean] true if the allergy should be included (has active clinicalStatus)
+      def should_include_allergy?(resource)
+        clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
+
+        # Only include allergies with 'active' clinical status
+        # This excludes allergies with nil/missing clinicalStatus or non-active statuses like 'resolved'
+        clinical_status == 'active'
+      end
 
       def extract_reactions(resource)
         return [] if resource['reaction'].blank?
