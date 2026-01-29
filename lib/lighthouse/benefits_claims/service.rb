@@ -370,7 +370,7 @@ module BenefitsClaims
         if description.blank?
           StatsD.increment(
             "#{STATSD_KEY_PREFIX}.tracked_item.missing_api_description",
-            tags: ["display_name:#{display_name}", "description:#{description}"]
+            tags: ["display_name:#{display_name}"]
           )
         end
 

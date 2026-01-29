@@ -263,6 +263,7 @@ RSpec.describe BenefitsClaims::Service do
               'attributes' => {
                 'trackedItems' => [
                   { 'displayName' => 'Test Item', 'description' => '' },
+                  { 'displayName' => 'Test Item 2', 'description' => nil },
                   { 'displayName' => 'Another Item', 'description' => 'Some description' }
                 ]
               }
@@ -274,7 +275,11 @@ RSpec.describe BenefitsClaims::Service do
 
             expect(StatsD).to have_received(:increment).with(
               'api.benefits_claims.tracked_item.missing_api_description',
-              tags: ['display_name:Test Item', 'description:']
+              tags: ['display_name:Test Item']
+            ).once
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item 2']
             ).once
           end
         end
