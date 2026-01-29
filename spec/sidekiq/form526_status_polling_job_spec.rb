@@ -32,28 +32,32 @@ RSpec.describe Form526StatusPollingJob, type: :job do
               'id' => backup_submission_a.backup_submitted_claim_id,
               'attributes' => {
                 'guid' => backup_submission_a.backup_submitted_claim_id,
-                'status' => 'vbms'
+                'status' => 'vbms',
+                'final_status' => true
               }
             },
             {
               'id' => backup_submission_b.backup_submitted_claim_id,
               'attributes' => {
                 'guid' => backup_submission_b.backup_submitted_claim_id,
-                'status' => 'success'
+                'status' => 'success',
+                'final_status' => true
               }
             },
             {
               'id' => backup_submission_c.backup_submitted_claim_id,
               'attributes' => {
                 'guid' => backup_submission_c.backup_submitted_claim_id,
-                'status' => 'error'
+                'status' => 'error',
+                'final_status' => true
               }
             },
             {
               'id' => backup_submission_d.backup_submitted_claim_id,
               'attributes' => {
                 'guid' => backup_submission_d.backup_submitted_claim_id,
-                'status' => 'expired'
+                'status' => 'expired',
+                'final_status' => true
               }
             }
           ]
