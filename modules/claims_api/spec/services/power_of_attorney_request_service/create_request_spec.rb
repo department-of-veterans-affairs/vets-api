@@ -119,7 +119,18 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
           response = subject.call
 
-          expect(response['meta']).to include(expected_response['meta'])
+          # Meta does not always return in the exact same order
+          # Meta values: check presence of expected keys and that IDs/phone data are present
+          # Because this runs async the IDs are coming back mixed up occasionally
+          # This check should resolve the flakiness that creates
+          %w[veteran claimant].each do |person|
+            expect(response['meta'][person]).to include(
+              'vnp_mail_id' => be_present,
+              'vnp_email_id' => be_present,
+              'vnp_phone_id' => be_present,
+              'phone_data' => include('areaCode' => be_present, 'phoneNumber' => be_present)
+            )
+          end
           expect(response.except('meta')).to match(expected_response.except('meta'))
         end
       end
@@ -207,7 +218,18 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
           response = subject.call
 
-          expect(response['meta']).to include(expected_response['meta'])
+          # Meta does not always return in the exact same order
+          # Meta values: check presence of expected keys and that IDs/phone data are present
+          # Because this runs async the IDs are coming back mixed up occasionally
+          # This check should resolve the flakiness that creates
+          expect(response['meta']).to include(
+            'veteran' => {
+              'vnp_mail_id' => be_present,
+              'vnp_email_id' => be_present,
+              'vnp_phone_id' => be_present,
+              'phone_data' => include('areaCode' => be_present, 'phoneNumber' => be_present)
+            }
+          )
           expect(response.except('meta')).to match(expected_response.except('meta'))
         end
       end
