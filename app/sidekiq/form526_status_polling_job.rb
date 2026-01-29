@@ -45,13 +45,13 @@ class Form526StatusPollingJob
       status = submission.dig('attributes', 'status')
       form_submission = Form526Submission.find_by(backup_submitted_claim_id: submission['id'])
 
-      if final_status
+      if final_status == true
         handle_submission(status, form_submission)
         @total_handled += 1
       else
         Rails.logger.info(
           'Final status not yet available from Benefits Intake API for 526 submission',
-          status:, submission_id:
+          status:, form_submission&.id:
         )
       end
     end
