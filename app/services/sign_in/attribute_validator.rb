@@ -23,6 +23,7 @@ module SignIn
         validate_existing_mpi_attributes
       end
 
+      SignIn::GetTraitsCaller.new(user_attributes).perform_async
       verified_icn
     end
 
