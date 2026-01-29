@@ -89,6 +89,9 @@ module PdfFill
               value = parent_object[key]
               next if value.blank?
 
+              # Values over 8 characters (pdf field limit) are added to overflow
+              next if value.length > 8
+
               split_value = value.split('.')
               cents = split_value[1] || '00'
               dollars = split_value[0].rjust(5, '0')
@@ -102,13 +105,14 @@ module PdfFill
           end
 
           def split_networth_information(parent_object)
-            # 99,999
             return if parent_object.blank?
 
             keys_to_process = %w[savings securities real_estate other_assets total_value]
             keys_to_process.each do |key|
               value = parent_object[key]
               next if value.blank?
+              # Values over 10 characters (pdf field limit) are added to overflow
+              next if value.length > 10
 
               split_value = value.split('.')
               cents = split_value[1] || '00'

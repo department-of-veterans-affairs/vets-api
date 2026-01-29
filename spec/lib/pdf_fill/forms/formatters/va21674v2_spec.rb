@@ -237,16 +237,17 @@ describe PdfFill::Forms::Formatters::Va21674v2 do
       end
     end
 
-    context 'with blank values' do
+    context 'with blank and large values' do
       let(:parent_object) do
         {
           'earnings_from_all_employment' => '12345.00',
           'annual_social_security_payments' => '',
+          'other_annuities_income' => '123456.78',
           'all_other_income' => '78901'
         }
       end
 
-      it 'skips blank values and processes valid ones' do
+      it 'skips blank values, values over 8 characters, and processes valid ones' do
         result = split_earnings
 
         expect(result['earnings_from_all_employment']).to eq({
@@ -256,7 +257,7 @@ describe PdfFill::Forms::Formatters::Va21674v2 do
                                                              })
 
         expect(result['annual_social_security_payments']).to eq('')
-        expect(result['other_annuities_income']).to be_nil
+        expect(result['other_annuities_income']).to eq('123456.78')
 
         expect(result['all_other_income']).to eq({
                                                    'first' => '78',
@@ -334,11 +335,12 @@ describe PdfFill::Forms::Formatters::Va21674v2 do
         {
           'savings' => '99999.00',
           'securities' => '',
+          'real_estate' => '11234567.89',
           'other_assets' => '909909.00'
         }
       end
 
-      it 'skips blank values and processes valid ones' do
+      it 'skips blank values, values over 10 characters, and processes valid ones' do
         result = split_networth_information
 
         expect(result['savings']).to eq({
@@ -349,6 +351,7 @@ describe PdfFill::Forms::Formatters::Va21674v2 do
                                         })
 
         expect(result['securities']).not_to be_present
+        expect(result['real_estate']).to eq('11234567.89')
 
         expect(result['other_assets']).to eq({
                                                'first' => '0',
