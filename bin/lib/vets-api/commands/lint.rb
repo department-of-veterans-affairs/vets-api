@@ -41,7 +41,7 @@ module VetsApi
       end
 
       def brakeman_command
-        'bundle exec brakeman --ensure-latest --confidence-level=2 --no-pager --format=plain'
+        'bundle exec brakeman --confidence-level=2 --no-pager --format=plain'
       end
 
       def bundle_audit_command
