@@ -41,6 +41,16 @@ Rails.application.routes.draw do
     get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
+  get '/debug/headers', to: proc { |env|
+    headers_info = {
+      'X-Forwarded-Proto': env['HTTP_X_FORWARDED_PROTO'],
+      'X-Forwarded-Scheme': env['HTTP_X_FORWARDED_SCHEME'],
+      'request.ssl?': ActionDispatch::Request.new(env).ssl?,
+      'request.protocol': ActionDispatch::Request.new(env).protocol
+    }
+    [200, { 'Content-Type' => 'application/json' }, [headers_info.to_json]]
+  }
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
     resources :in_progress_forms, only: %i[index show update destroy]
