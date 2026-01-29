@@ -105,7 +105,8 @@ module VetsAPI
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use Warden::Manager do |config|
       config.failure_app = proc do |_env|
-        ['401', { 'Content-Type' => 'application/json' }, { error: 'Unauthorized', code: 401 }]
+        body = { error: 'Unauthorized', code: 401 }.to_json
+        ['401', { 'Content-Type' => 'application/json' }, [body]]
       end
       config.intercept_401 = false
       config.default_strategies :github
@@ -139,7 +140,7 @@ module VetsAPI
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',
                                    secure: IdentitySettings.session_cookie.secure,
-                                   http_only: true
+                                   httponly: true
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
