@@ -1329,6 +1329,10 @@ features:
   medical_expense_reports_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  medical_expense_reports_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21p-8416"
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -2196,6 +2200,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables custom email delivery callback for VAOS appointment status notifications
+  va_online_scheduling_ccra_error_logging:
+    actor_type: user
+    enable_in_development: false
+    description: Enables detailed error message logging in CCRA referral service with PII scrubbing
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions

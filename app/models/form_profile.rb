@@ -126,13 +126,14 @@ class FormProfile
       21P-0519S-1-UPLOAD
       21P-530a-UPLOAD
       21P-8049-UPLOAD
+      21P-535-UPLOAD
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    memorials: %w[1330M],
+    memorials: %w[40-1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900]
@@ -144,7 +145,7 @@ class FormProfile
     '10-7959C' => ::FormProfiles::VHA107959c,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
-    '1330M' => ::FormProfiles::VA1330m,
+    '40-1330M' => ::FormProfiles::VA1330m,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
     '21-0538' => DependentsVerification::FormProfiles::VA210538,
@@ -204,6 +205,7 @@ class FormProfile
     '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21-8960-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-535-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
@@ -251,7 +253,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if %w[1010EZ 1330M].include?(form_id) # handle case sensitivity for specific forms
+    form_id = form_id.downcase if %w[1010EZ 40-1330M].include?(form_id) # handle case sensitivity for specific forms
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
