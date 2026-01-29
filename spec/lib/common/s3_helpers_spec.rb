@@ -24,8 +24,6 @@ RSpec.describe Common::S3Helpers do
       let(:transfer_manager) { instance_double(Aws::S3::TransferManager) }
 
       before do
-        stub_const('Aws::S3::TransferManager', Class.new)
-        allow(Aws::S3).to receive(:const_defined?).with(:TransferManager).and_return(true)
         allow(Aws::S3::TransferManager).to receive(:new).with(client: s3_client).and_return(transfer_manager)
       end
 
@@ -64,6 +62,26 @@ RSpec.describe Common::S3Helpers do
           file_path:,
           content_type:,
           acl: 'public-read'
+        )
+      end
+
+      it 'includes server_side_encryption when provided' do
+        expect(transfer_manager).to receive(:upload_file).with(
+          file_path,
+          bucket: bucket_name,
+          key:,
+          content_type:,
+          server_side_encryption: 'AES256',
+          multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
+        )
+
+        described_class.upload_file(
+          s3_resource:,
+          bucket: bucket_name,
+          key:,
+          file_path:,
+          content_type:,
+          server_side_encryption: 'AES256'
         )
       end
 
@@ -128,6 +146,23 @@ RSpec.describe Common::S3Helpers do
           file_path:,
           content_type:,
           acl: 'public-read'
+        )
+      end
+
+      it 'includes server_side_encryption in fallback when provided' do
+        expect(s3_object).to receive(:upload_file).with(
+          file_path,
+          content_type:,
+          server_side_encryption: 'AES256'
+        )
+
+        described_class.upload_file(
+          s3_resource:,
+          bucket: bucket_name,
+          key:,
+          file_path:,
+          content_type:,
+          server_side_encryption: 'AES256'
         )
       end
 

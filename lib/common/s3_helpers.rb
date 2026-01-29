@@ -10,34 +10,48 @@ module Common
     # @param bucket [String] The S3 bucket name
     # @param key [String] The S3 object key (path/filename in the bucket)
     # @param file_path [String] The local file path to upload
-    # @param content_type [String] The MIME type for the uploaded file
-    # @param acl [String, nil] The ACL for the uploaded file (e.g., 'public-read'), nil for default
-    # @param return_object [Boolean] If true, returns the S3 object; if false, returns true on success
+    # @param options [Hash] Upload options (content_type required, acl/server_side_encryption/return_object optional)
     # @return [Aws::S3::Object, Boolean] The S3 object if return_object is true, otherwise true
-    def upload_file(s3_resource:, bucket:, key:, file_path:, content_type:, acl: nil, return_object: false)
-      if Aws::S3.const_defined?(:TransferManager)
-        # Use TransferManager for efficient multipart uploads
-        options = {
-          content_type:,
-          multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
-        }
-        options[:acl] = acl if acl
+    def upload_file(s3_resource:, bucket:, key:, file_path:, **options)
+      upload_params = { s3_resource:, bucket:, key:, file_path:, options: }
 
-        Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
-          file_path,
-          bucket:,
-          key:,
-          **options
-        )
+      if Aws::S3.const_defined?(:TransferManager)
+        upload_with_transfer_manager(upload_params)
       else
-        # Fall back to basic upload
-        obj = s3_resource.bucket(bucket).object(key)
-        upload_options = { content_type: }
-        upload_options[:acl] = acl if acl
-        obj.upload_file(file_path, **upload_options)
+        upload_with_basic_method(upload_params)
       end
 
-      return_object ? s3_resource.bucket(bucket).object(key) : true
+      options[:return_object] ? s3_resource.bucket(bucket).object(key) : true
+    end
+
+    def upload_with_transfer_manager(params)
+      upload_options = {
+        content_type: params[:options][:content_type],
+        multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
+      }
+      upload_options[:acl] = params[:options][:acl] if params[:options][:acl]
+      if params[:options][:server_side_encryption]
+        upload_options[:server_side_encryption] =
+          params[:options][:server_side_encryption]
+      end
+
+      Aws::S3::TransferManager.new(client: params[:s3_resource].client).upload_file(
+        params[:file_path],
+        bucket: params[:bucket],
+        key: params[:key],
+        **upload_options
+      )
+    end
+
+    def upload_with_basic_method(params)
+      obj = params[:s3_resource].bucket(params[:bucket]).object(params[:key])
+      upload_options = { content_type: params[:options][:content_type] }
+      upload_options[:acl] = params[:options][:acl] if params[:options][:acl]
+      if params[:options][:server_side_encryption]
+        upload_options[:server_side_encryption] =
+          params[:options][:server_side_encryption]
+      end
+      obj.upload_file(params[:file_path], **upload_options)
     end
   end
 end
