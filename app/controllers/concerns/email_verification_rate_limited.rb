@@ -15,12 +15,9 @@ module EmailVerificationRateLimited
     log_email_verification_rate_limit_denial(rate_limit_info)
 
     retry_after = time_until_next_verification_allowed
-    exception = Common::Exceptions::TooManyRequests.new(
-      detail: build_verification_rate_limit_message
-    )
     response.headers['Retry-After'] = retry_after.to_s if response
 
-    raise exception
+    raise Common::Exceptions::TooManyRequests.new
   rescue Redis::BaseConnectionError => e
     Rails.logger.warn('Redis connection error in email verification rate limit enforcement', { error: e.message })
     nil
@@ -81,13 +78,20 @@ module EmailVerificationRateLimited
     ttl_daily = verification_redis.ttl(verification_daily_key)
 
     [ttl_period, ttl_daily, 0].max
+  rescue Redis::BaseConnectionError => e
+    Rails.logger.warn('Redis connection error in email verification rate limit ttl lookup', { error: e.message })
+    nil
   end
 
   def build_verification_rate_limit_message
     seconds = time_until_next_verification_allowed
-    duration = format_verification_time_duration(seconds)
 
-    "Verification email limit reached. Wait #{duration} to try again."
+    if seconds.nil? || seconds <= 0
+      'Too many requests. Please wait before trying again.'
+    else
+      duration = format_verification_time_duration(seconds)
+      "Verification email limit reached. Wait #{duration} to try again."
+    end
   end
 
   def format_verification_time_duration(seconds)
