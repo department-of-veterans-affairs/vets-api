@@ -365,6 +365,15 @@ module BenefitsClaims
 
       tracked_items.each do |i|
         display_name = i['displayName']
+        description = i['description']
+        # Track tracked items with a blank description
+        if description.blank?
+          StatsD.increment(
+            "#{STATSD_KEY_PREFIX}.tracked_item.missing_api_description",
+            tags: ["display_name:#{display_name}", "description:#{description}"]
+          )
+        end
+
         i['canUploadFile'] =
           BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
           BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
