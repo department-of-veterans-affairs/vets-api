@@ -73,6 +73,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:mpi_service) { instance_double(MPI::Service) }
       let(:sign_in_logger) { instance_double(SignIn::Logger) }
       let(:digest) { 'some-digest-value' }
+      let(:new_record) { nil }
 
       before do
         allow(MPI::Service).to receive(:new).and_return(mpi_service)
@@ -92,6 +93,7 @@ RSpec.describe SignIn::AttributeValidator do
             code: expected_error_code,
             credential_uuid: csp_id,
             mhv_icn:,
+            new_record:,
             type: service_name }.compact
         end
 
@@ -274,10 +276,9 @@ RSpec.describe SignIn::AttributeValidator do
                                                                 { errors: expected_error_message,
                                                                   code: expected_error_code,
                                                                   credential_uuid: csp_id,
+                                                                  new_record:,
                                                                   type: service_name })
           end
-
-          it_behaves_like 'mpi call to update correlation record'
         end
 
         context 'and attribute mismatch is first_name' do
@@ -403,6 +404,7 @@ RSpec.describe SignIn::AttributeValidator do
               create(:add_person_response, status: update_status, parsed_codes: { logingov_uuid: })
             end
             let(:update_status) { :ok }
+            let(:new_record) { false }
 
             it_behaves_like 'mpi versus credential mismatch'
             it_behaves_like 'mpi call to update correlation record'
@@ -453,6 +455,12 @@ RSpec.describe SignIn::AttributeValidator do
 
           context 'and mpi add person call is successful' do
             let(:status) { :ok }
+
+            context 'and mpi vs credential mismatch checks run' do
+              let(:new_record) { true }
+
+              it_behaves_like 'mpi versus credential mismatch'
+            end
 
             it_behaves_like 'mpi attribute validations'
           end
@@ -567,6 +575,7 @@ RSpec.describe SignIn::AttributeValidator do
                                                                       code: SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                                                                       credential_uuid: csp_id,
                                                                       mhv_icn:,
+                                                                      new_record: false,
                                                                       type: service_name })
               end
             end
