@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
+require 'bgsv2/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
@@ -19,8 +19,18 @@ module ClaimsApi
         FORM_NUMBER_INDIVIDUAL = '2122A'
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
+        ##
+        # Retrieves the current Power of Attorney (POA) information for a veteran.
+        #
+        # Queries BGS to determine if the veteran has an active POA, respecting any expiration dates.
+        # If a POA exists, fetches the representative's details (name, phone, type) from the database.
+        #
+        # @return [JSON] When no POA exists, returns an empty data object: { data: {} }
+        # @return [JSON] When POA exists, returns formatted POA details including representative
+        #   information and POA code, serialized via PowerOfAttorneyBlueprint
+        #
         def show
-          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
+          poa_code = BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
 
           if poa_code.blank?
@@ -162,7 +172,7 @@ module ClaimsApi
         end
 
         def current_poa
-          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+          @current_poa ||= BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def representative(poa_code)

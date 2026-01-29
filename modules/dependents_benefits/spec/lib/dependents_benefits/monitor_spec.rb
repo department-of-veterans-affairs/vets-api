@@ -178,16 +178,33 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_submission_exhaustion' do
     context 'without a claim parameter' do
       it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+        msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
         log = "#{message_prefix} submission to LH exhausted!"
 
-        payload = base_payload({ confirmation_number: nil, form_id: nil, error: msg })
-
-        expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
         expect(monitor).to receive(:track_request).with(
-          :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload, error: { 'args' => [
-            anything, current_user.uuid
-          ] }
+          :error,
+          'Silent failure!',
+          'silent_failure',
+          hash_including(
+            call_location: anything,
+            claim_id: claim.id,
+            user_account_uuid: current_user.user_account_uuid,
+            error: msg,
+            tags: monitor.tags
+          )
+        )
+
+        expect(monitor).to receive(:track_request).with(
+          :error, log, "#{submission_stats_key}.exhausted",
+          hash_including(
+            call_location: anything,
+            claim_id: claim.id,
+            user_account_uuid: current_user.user_account_uuid,
+            confirmation_number: nil,
+            form_id: nil,
+            error: msg['error_message'],
+            tags: monitor.tags
+          )
         )
         monitor.track_submission_exhaustion(msg, nil)
       end
