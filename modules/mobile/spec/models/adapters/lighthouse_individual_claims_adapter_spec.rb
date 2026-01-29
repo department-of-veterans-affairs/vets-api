@@ -19,6 +19,18 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
     subject.parse(claim_data[2])
   end
 
+  let(:claim_without_download_eligible_documents) do
+    subject.parse(claim_data[0])
+  end
+
+  let(:claim_with_tracked_documents) do
+    subject.parse(claim_data[2])
+  end
+
+  let(:claim_with_untracked_documents) do
+    subject.parse(claim_data[1])
+  end
+
   it 'returns nil when provided nil' do
     expect(subject.parse(nil)).to be_nil
   end
@@ -80,23 +92,26 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
   end
 
   describe 'download_eligible_documents' do
-    it 'includes download_eligible_documents as nil or a list of document objects' do
-      download_eligible_documents = gathering_of_evidence_claim[:download_eligible_documents]
+      it 'does not have download_eligible_documents' do
+      download_eligible_documents = claim_without_download_eligible_documents[:download_eligible_documents]
       expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents).to be_empty
+    end
 
-      next unless download_eligible_documents
+    it 'has download_eligible_documents with tracked documents' do
+      download_eligible_documents = claim_with_tracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
+      expect(download_eligible_documents[0][:filename]).to eq('7B434B58-477C-4379-816F-05E6D3A10487.pdf')
+    end
 
-      download_eligible_documents.each do |doc|
-        expect(doc).to have_key(:document_id)
-        expect(doc).to have_key(:filename)
-
-        document_id = doc[:document_id]
-        filename = doc[:filename]
-        expect(document_id).to be_a(String)
-        expect(filename).to be_a(String)
-        expect(document_id).not_to be_empty
-        expect(filename).not_to be_empty
-      end
+    it 'has download_eligible_documents with untracked documents' do
+      download_eligible_documents = claim_with_untracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{0C994A8F-F2FE-4963-B013-870E420EFFD1}')
+      expect(download_eligible_documents[0][:filename]).to eq('ClaimDecisionRequest.pdf')
     end
   end
 

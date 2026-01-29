@@ -56,16 +56,11 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
         expect(response.parsed_body.dig('data', 'attributes')).to have_key('downloadEligibleDocuments')
         download_eligible_documents = response.parsed_body.dig('data', 'attributes', 'downloadEligibleDocuments')
+        
         expect(download_eligible_documents).to be_a(Array)
-
-        expect(download_eligible_documents).to be_a(Array)
-        download_eligible_documents&.each do |document|
-          expect(document['documentId']).to be_a(String)
-          expect(document['documentId'].strip).not_to be_empty
-
-          expect(document['filename']).to be_a(String)
-          expect(document['filename']).not_to be_empty
-        end
+        expect(download_eligible_documents.size).to eq(5)
+        expect(download_eligible_documents[0]['documentId']).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
+        expect(download_eligible_documents[0]['filename'].strip).to eq('7B434B58-477C-4379-816F-05E6D3A10487.pdf')
       end
 
       context 'when cst_override_reserve_records_mobile flipper is enabled' do

@@ -199,28 +199,34 @@ module Mobile
 
         def collect_download_eligible_documents(events_timeline)
           document_data = []
-
           events_timeline.each do |event|
             has_tracked_documents = event.documents.present?
+            has_untracked_document = event.type == :other_documents_list
 
-            document_data += event.documents.map { |doc| valid_doc_obj(doc) } if has_tracked_documents
-            document_data << valid_doc_obj(event)
+            if has_tracked_documents
+              valid_docs = event.documents.select { |doc| valid_doc?(doc) }
+
+              valid_docs.each do |doc|
+                document_data << build_doc_obj(doc)
+              end
+            elsif has_untracked_document
+              next unless valid_doc?(event)
+
+              document_data << build_doc_obj(event)
+            end
           end
-
-          document_data.compact
+          document_data
         end
 
         def valid_doc?(obj)
-          obj.filename.present? && obj.document_id.present?
+         obj.filename.present? && obj.document_id.present?
         end
 
-        def valid_doc_obj(obj)
-          if valid_doc?(obj)
-            {
-              document_id: obj.document_id,
-              filename: obj.filename
-            }
-          end
+        def build_doc_obj(obj)
+          {
+            document_id: obj.document_id,
+            filename: obj.filename
+          }
         end
       end
     end
