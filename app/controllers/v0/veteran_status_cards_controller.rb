@@ -17,7 +17,7 @@ module V0
     private
 
     def service
-      @service ||= VeteranStatusCard::Service.new(@current_user)
+      @service ||= ::VeteranStatusCard::Service.new(@current_user)
     end
   end
 end
