@@ -28,6 +28,15 @@ module Burials
         'tribalLand' => 1,
         'none' => 2
       }.freeze
+
+      # Location of Death Types
+      LOCATION_OF_DEATH = {
+        'nursingHomeUnpaid' => 0,
+        'nursingHomePaid' => 1,
+        'vaMedicalCenter' => 2,
+        'stateVeteransHome' => 3,
+        'other' => 4
+      }.freeze
     end
   end
 end
