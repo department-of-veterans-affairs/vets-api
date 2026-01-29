@@ -1,26 +1,10 @@
 # frozen_string_literal: true
 
-# EmailVerificationController
+# API for LOA3 users to verify email addresses. Includes status checks,
+# sending verification emails, and token verification.
 #
-# This controller implements the email verification API for LOA3 authenticated users.
-# It handles the complete email verification workflow including status checks,
-# sending verification emails, and verifying tokens.
-#
-# ## Endpoints:
-# - GET  /v0/profile/email_verification/status  - Check if verification is needed
-# - POST /v0/profile/email_verification         - Send verification email
-# - GET  /v0/profile/email_verification/verify  - Verify token from email link
-#
-# ## Rate Limiting:
-# Email sending (POST /v0/profile/email_verification) is rate limited:
-# - 1 email per 5-minute period per user
-# - Maximum 5 emails per 24-hour period per user
-# - Rate limits are stored in Redis with automatic expiration
-# - Rate limit violations return HTTP 429 with retry-after information
-# - Successful verification resets rate limits
-#
-# ## Authentication:
-# All endpoints require LOA3 authentication
+# Rate limited: 1 email per 5 minutes, max 5 per day per user.
+# Requires Flipper flag: auth_exp_email_verification_enabled
 #
 module V0
   module Profile
@@ -30,23 +14,21 @@ module V0
 
       service_tag 'profile-email-verification'
 
+      before_action :check_feature_enabled!
       before_action :authenticate_loa3_user!
 
-      # GET /v0/profile/email_verification/status
-      # Check if email verification is needed
       def status
+        verification_needed = needs_verification?
         response_data = OpenStruct.new(
           id: SecureRandom.uuid,
-          needs_verification: needs_verification?
+          needs_verification: verification_needed
         )
         render json: EmailVerificationSerializer.new(
           response_data,
-          status: true
-        )
+          status: verification_needed ? 'unverified' : 'verified'
+        ).serializable_hash
       end
 
-      # POST /v0/profile/email_verification
-      # Initiate email verification process (send verification email)
       def create
         return render_verification_not_needed_error unless needs_verification?
 
@@ -56,8 +38,6 @@ module V0
         end
       end
 
-      # GET /v0/profile/email_verification/verify
-      # Verify email using token from verification email link
       def verify
         token = params[:token]
         return render_missing_token_error unless token.present?
@@ -69,15 +49,6 @@ module V0
 
       private
 
-      # Check if email verification is needed
-      # User's identity email differs from their VA Profile email
-      def needs_verification?
-        return false unless current_user.email.present? && current_user.va_profile_email.present?
-
-        current_user.email.downcase != current_user.va_profile_email.downcase
-      end
-
-      # Enforce LOA3 authentication
       def authenticate_loa3_user!
         unless current_user&.loa3?
           raise Common::Exceptions::Forbidden,
@@ -85,7 +56,19 @@ module V0
         end
       end
 
-      # Send verification email and handle rate limiting
+      def check_feature_enabled!
+        unless Flipper.enabled?(:auth_exp_email_verification_enabled)
+          raise Common::Exceptions::Forbidden,
+                detail: 'This feature is not currently available'
+        end
+      end
+
+      def needs_verification?
+        return false unless current_user.email.present? && current_user.va_profile_email.present?
+
+        current_user.email.downcase != current_user.va_profile_email.downcase
+      end
+
       def send_verification_email
         enforce_email_verification_rate_limit!
 
@@ -167,7 +150,6 @@ module V0
         }, status: :unprocessable_entity
       end
 
-      # Render success response for verification email sent
       def render_create_success
         template_type = params[:template_type]&.to_s || 'initial_verification'
         response_data = OpenStruct.new(
@@ -178,10 +160,9 @@ module V0
         render json: EmailVerificationSerializer.new(
           response_data,
           sent: true
-        ), status: :created
+        ).serializable_hash, status: :created
       end
 
-      # Render success response for email verification
       def render_verify_success
         response_data = OpenStruct.new(
           id: SecureRandom.uuid,
@@ -191,7 +172,7 @@ module V0
         render json: EmailVerificationSerializer.new(
           response_data,
           verified: true
-        )
+        ).serializable_hash
       end
     end
   end

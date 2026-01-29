@@ -7,25 +7,47 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   let(:service) { instance_double(EmailVerificationService) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(true)
     allow(EmailVerificationService).to receive(:new).and_return(service)
-    allow(controller).to receive(:enforce_email_verification_rate_limit!)
     allow(controller).to receive(:increment_email_verification_rate_limit!)
     allow(controller).to receive(:reset_email_verification_rate_limit!)
   end
 
   describe 'GET #status' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(false)
+        sign_in_as(user)
+      end
+
+      it 'returns forbidden with feature not available message' do
+        get :status
+
+        expect(response).to have_http_status(:forbidden)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('This feature is not currently available')
+      end
+    end
+
     context 'when verification is not needed' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(true)
         sign_in_as(user)
         allow(controller).to receive(:needs_verification?).and_return(false)
       end
 
-      it 'returns needs_verification: false' do
+      it 'returns needs_verification: false and status verified' do
         get :status
 
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
+        expect(body['data']['id']).to be_present
+        expect(body['data']['type']).to eq('email_verification')
+        expect(body['data']['attributes']).to be_a(Hash)
+        expect(body['data']['attributes']).to include('needs_verification', 'status')
         expect(body['data']['attributes']['needs_verification']).to be(false)
+        expect(body['data']['attributes']['status']).to eq('verified')
       end
     end
 
@@ -38,27 +60,67 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
 
       it 'returns forbidden' do
         get :status
+
         expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['errors']).to be_present
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('You must be logged in to access this feature')
       end
     end
   end
 
   describe 'POST #create' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(false)
+        sign_in_as(user)
+      end
+
+      it 'returns forbidden with feature not available message' do
+        post :create
+
+        expect(response).to have_http_status(:forbidden)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('This feature is not currently available')
+      end
+    end
+
     before do
       sign_in_as(user)
+    end
+
+    context 'when user lacks LOA3' do
+      let(:user) { create(:user, :loa1) }
+
+      it 'returns forbidden with correct error detail' do
+        post :create
+
+        expect(response).to have_http_status(:forbidden)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('You must be logged in to access this feature')
+      end
     end
 
     context 'when verification is needed and rate limit not exceeded' do
       before do
         allow(controller).to receive(:needs_verification?).and_return(true)
         allow(service).to receive(:initiate_verification)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!)
       end
 
       it 'sends verification email and returns success' do
         post :create
 
         expect(response).to have_http_status(:created)
+        body = JSON.parse(response.body)
+        expect(body['data']['id']).to be_present
+        expect(body['data']['type']).to eq('email_verification')
+        expect(body['data']['attributes']).to be_a(Hash)
+        expect(body['data']['attributes']).to include('email_sent', 'template_type')
+        expect(body['data']['attributes']['email_sent']).to be(true)
+        expect(body['data']['attributes']['template_type']).to eq('initial_verification')
       end
 
       it 'increments rate limit after successful send' do
@@ -85,29 +147,71 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
         post :create
 
         expect(response).to have_http_status(:unprocessable_entity)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['title']).to eq('Email Already Verified')
+        expect(body['errors'][0]['detail']).to eq('Your email address is already verified.')
+        expect(body['errors'][0]['code']).to eq('EMAIL_ALREADY_VERIFIED')
+        expect(body['errors'][0]['status']).to eq('422')
       end
     end
 
-    context 'when rate limit is exceeded' do
+    context 'when rate limit is exceeded without exception detail' do
       before do
         allow(controller).to receive(:needs_verification?).and_return(true)
-        allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(Common::Exceptions::TooManyRequests)
+        allow(controller).to receive(:time_until_next_verification_allowed).and_return(nil)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(
+          Common::Exceptions::TooManyRequests.new
+        )
       end
 
-      it 'returns email verification rate limit error' do
+      it 'returns rate limit error using build_verification_rate_limit_message' do
         post :create
+
         expect(response).to have_http_status(:too_many_requests)
 
         body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
         expect(body['errors'][0]['code']).to eq('EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED')
         expect(body['errors'][0]['title']).to eq('Email Verification Rate Limit Exceeded')
+        expect(body['errors'][0]['detail']).to eq('Too many requests. Please wait before trying again.')
+        expect(body['errors'][0]['status']).to eq('429')
         expect(response.headers['Retry-After']).to be_present
+      end
+    end
+
+    context 'when rate limit is exceeded with detailed timing message' do
+      before do
+        allow(controller).to receive(:needs_verification?).and_return(true)
+        allow(controller).to receive(:time_until_next_verification_allowed).and_return(272)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(
+          Common::Exceptions::TooManyRequests.new
+        )
+      end
+
+      it 'returns a detailed timing error message' do
+        post :create
+
+        expect(response).to have_http_status(:too_many_requests)
+
+        body = JSON.parse(response.body)
+        error = body['errors'].first
+
+        expect(error['code']).to eq('EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED')
+        expect(error['title']).to eq('Email Verification Rate Limit Exceeded')
+        expect(error['detail']).to eq(
+          'Verification email limit reached. Wait 5 minutes to try again.'
+        )
+        expect(error['status']).to eq('429')
+        expect(error['meta']['retry_after_seconds']).to eq(272)
+        expect(response.headers['Retry-After']).to eq('272')
       end
     end
 
     context 'when service raises BackendServiceException' do
       before do
         allow(controller).to receive(:needs_verification?).and_return(true)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!)
         allow(service).to receive(:initiate_verification).and_raise(
           Common::Exceptions::BackendServiceException.new(nil, detail: 'Service error')
         )
@@ -126,6 +230,7 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
     context 'when service raises unexpected error' do
       before do
         allow(controller).to receive(:needs_verification?).and_return(true)
+        allow(controller).to receive(:enforce_email_verification_rate_limit!)
         allow(service).to receive(:initiate_verification).and_raise(StandardError.new('Unexpected error'))
       end
 
@@ -141,8 +246,37 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   end
 
   describe 'GET #verify' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(false)
+        sign_in_as(user)
+      end
+
+      it 'returns forbidden with feature not available message' do
+        get :verify, params: { token: 'some-token' }
+
+        expect(response).to have_http_status(:forbidden)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('This feature is not currently available')
+      end
+    end
+
     before do
       sign_in_as(user)
+    end
+
+    context 'when user lacks LOA3' do
+      let(:user) { create(:user, :loa1) }
+
+      it 'returns forbidden with correct error detail' do
+        get :verify, params: { token: 'some-token' }
+
+        expect(response).to have_http_status(:forbidden)
+        body = JSON.parse(response.body)
+        expect(body['errors']).to be_present
+        expect(body['errors'][0]['detail']).to eq('You must be logged in to access this feature')
+      end
     end
 
     context 'with valid token' do
@@ -156,6 +290,18 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
         get :verify, params: { token: }
 
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns correct response shape' do
+        get :verify, params: { token: }
+
+        body = JSON.parse(response.body)
+        expect(body.dig('data', 'attributes')).to be_a(Hash)
+        expect(body.dig('data', 'attributes')).to include('verified', 'verified_at')
+        expect(body.dig('data', 'type')).to eq('email_verification')
+        expect(body.dig('data', 'id')).to be_present
+        expect(body.dig('data', 'attributes', 'verified')).to be(true)
+        expect(body.dig('data', 'attributes', 'verified_at')).to be_present
       end
 
       it 'resets rate limit on successful verification' do

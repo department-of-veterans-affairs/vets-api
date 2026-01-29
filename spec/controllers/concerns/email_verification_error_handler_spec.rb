@@ -213,9 +213,6 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
         expect(log_data).to eq({})
       end
     end
-
-    # EmailVerificationErrorHandler is only intended to be included in the
-    # EmailVerificationController, which always implements needs_verification?.
   end
 
   describe 'error response methods' do

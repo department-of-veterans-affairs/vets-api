@@ -71,10 +71,8 @@ module EmailVerificationErrorHandler
   end
 
   def render_verification_rate_limit_error(exception = nil)
-    # Prefer an existing Retry-After (typically set by enforce_email_verification_rate_limit!).
     retry_after = response.headers['Retry-After'].to_i
 
-    # If not set or invalid, fall back to current TTL (or default).
     if retry_after <= 0
       retry_after = begin
         time_until_next_verification_allowed.to_i
