@@ -280,6 +280,34 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
 
+          context 'missing API description metric tracking' do
+            before do
+              allow(StatsD).to receive(:increment)
+              allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                        anything).and_return(false)
+            end
+
+            let(:claim_with_blank_description) do
+              {
+                'attributes' => {
+                  'trackedItems' => [
+                    { 'displayName' => 'Test Item', 'description' => '' },
+                    { 'displayName' => 'Another Item', 'description' => 'Some description' }
+                  ]
+                }
+              }
+            end
+
+            it 'increments StatsD metric when a tracked item has a blank description' do
+              service.send(:apply_friendlier_language, claim_with_blank_description)
+
+              expect(StatsD).to have_received(:increment).with(
+                'api.benefits_claims.tracked_item.missing_api_description',
+                tags: ['display_name:Test Item', 'description:']
+              ).once
+            end
+          end
+
           context 'when cst_evidence_requests_content_override is enabled' do
             before do
               allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
