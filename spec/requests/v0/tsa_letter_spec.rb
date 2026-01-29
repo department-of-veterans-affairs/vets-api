@@ -96,8 +96,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    context 'when user does not have an ICN' do
-      let(:user) { build(:user, icn: nil) }
+    context 'when user is not loa3 or does not have an icn' do
+      let(:user) { build(:user, :loa1, icn: nil) }
 
       it 'renders 403' do
         get '/v0/tsa_letter'
@@ -133,8 +133,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    context 'when user does not have an ICN' do
-      let(:user) { build(:user, icn: nil) }
+    context 'when user is not loa3 or does not have an icn' do
+      let(:user) { build(:user, :loa1, icn: nil) }
 
       it 'renders 403' do
         get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"
