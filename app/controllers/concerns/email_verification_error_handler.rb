@@ -12,7 +12,7 @@ module EmailVerificationErrorHandler
     render_email_service_unavailable_error
   rescue Common::Exceptions::TooManyRequests => e
     log_verification_rate_limit_error(verification_operation, e)
-    render_verification_rate_limit_error(e)
+    render_verification_rate_limit_error
   rescue => e
     log_unexpected_verification_error(verification_operation, e)
     render_verification_internal_error
@@ -70,7 +70,7 @@ module EmailVerificationErrorHandler
     }, status: :service_unavailable
   end
 
-  def render_verification_rate_limit_error(exception = nil)
+  def render_verification_rate_limit_error
     retry_after = response.headers['Retry-After'].to_i
 
     if retry_after <= 0

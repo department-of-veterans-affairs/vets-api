@@ -91,7 +91,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
     context 'when TooManyRequests error occurs' do
       before do
         controller.handle_verification_errors('send verification email') do
-          raise Common::Exceptions::TooManyRequests.new
+          raise Common::Exceptions::TooManyRequests
         end
       end
 
@@ -304,7 +304,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
                                                                                       'Redis connection error')
 
       controller.handle_verification_errors('send verification email') do
-        raise Common::Exceptions::TooManyRequests.new
+        raise Common::Exceptions::TooManyRequests
       end
 
       expect(Rails.logger).to have_received(:warn).with(

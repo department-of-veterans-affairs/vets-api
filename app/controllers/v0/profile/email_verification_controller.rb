@@ -40,7 +40,7 @@ module V0
 
       def verify
         token = params[:token]
-        return render_missing_token_error unless token.present?
+        return render_missing_token_error if token.blank?
 
         handle_verification_errors('verify email token') do
           process_email_verification(token)

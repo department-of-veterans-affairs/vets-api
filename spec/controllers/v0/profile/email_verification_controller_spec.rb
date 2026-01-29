@@ -9,8 +9,10 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   before do
     allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(true)
     allow(EmailVerificationService).to receive(:new).and_return(service)
-    allow(controller).to receive(:increment_email_verification_rate_limit!)
-    allow(controller).to receive(:reset_email_verification_rate_limit!)
+    allow(controller).to receive_messages(
+      increment_email_verification_rate_limit!: nil,
+      reset_email_verification_rate_limit!: nil
+    )
   end
 
   describe 'GET #status' do
@@ -70,10 +72,13 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   end
 
   describe 'POST #create' do
+    before do
+      sign_in_as(user)
+    end
+
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(false)
-        sign_in_as(user)
       end
 
       it 'returns forbidden with feature not available message' do
@@ -84,10 +89,6 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
         expect(body['errors']).to be_present
         expect(body['errors'][0]['detail']).to eq('This feature is not currently available')
       end
-    end
-
-    before do
-      sign_in_as(user)
     end
 
     context 'when user lacks LOA3' do
@@ -105,9 +106,11 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
 
     context 'when verification is needed and rate limit not exceeded' do
       before do
-        allow(controller).to receive(:needs_verification?).and_return(true)
+        allow(controller).to receive_messages(
+          needs_verification?: true,
+          enforce_email_verification_rate_limit!: nil
+        )
         allow(service).to receive(:initiate_verification)
-        allow(controller).to receive(:enforce_email_verification_rate_limit!)
       end
 
       it 'sends verification email and returns success' do
@@ -158,8 +161,10 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
 
     context 'when rate limit is exceeded without exception detail' do
       before do
-        allow(controller).to receive(:needs_verification?).and_return(true)
-        allow(controller).to receive(:time_until_next_verification_allowed).and_return(nil)
+        allow(controller).to receive_messages(
+          needs_verification?: true,
+          time_until_next_verification_allowed: nil
+        )
         allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(
           Common::Exceptions::TooManyRequests.new
         )
@@ -182,8 +187,10 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
 
     context 'when rate limit is exceeded with detailed timing message' do
       before do
-        allow(controller).to receive(:needs_verification?).and_return(true)
-        allow(controller).to receive(:time_until_next_verification_allowed).and_return(272)
+        allow(controller).to receive_messages(
+          needs_verification?: true,
+          time_until_next_verification_allowed: 272
+        )
         allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(
           Common::Exceptions::TooManyRequests.new
         )
@@ -246,10 +253,13 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
   end
 
   describe 'GET #verify' do
+    before do
+      sign_in_as(user)
+    end
+
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:auth_exp_email_verification_enabled).and_return(false)
-        sign_in_as(user)
       end
 
       it 'returns forbidden with feature not available message' do
@@ -260,10 +270,6 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
         expect(body['errors']).to be_present
         expect(body['errors'][0]['detail']).to eq('This feature is not currently available')
       end
-    end
-
-    before do
-      sign_in_as(user)
     end
 
     context 'when user lacks LOA3' do

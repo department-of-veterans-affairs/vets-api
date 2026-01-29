@@ -3,21 +3,18 @@
 module EmailVerificationRateLimited
   extend ActiveSupport::Concern
 
-  VERIFICATION_EMAIL_LIMITS = {
-    per_period: 1, period: 5.minutes, daily_limit: 5,
-    daily_period: 24.hours, redis_namespace: 'email_verification_rate_limit'
-  }.freeze
+  VERIFICATION_EMAIL_LIMITS = { per_period: 1, period: 5.minutes, daily_limit: 5, daily_period: 24.hours,
+                                redis_namespace: 'email_verification_rate_limit' }.freeze
 
   def enforce_email_verification_rate_limit!
     return unless email_verification_rate_limit_exceeded?
 
     rate_limit_info = get_email_verification_rate_limit_info
     log_email_verification_rate_limit_denial(rate_limit_info)
-
     retry_after = time_until_next_verification_allowed
     response.headers['Retry-After'] = retry_after.to_s if response
 
-    raise Common::Exceptions::TooManyRequests.new
+    raise Common::Exceptions::TooManyRequests
   rescue Redis::BaseConnectionError => e
     Rails.logger.warn('Redis connection error in email verification rate limit enforcement', { error: e.message })
     nil
@@ -76,7 +73,6 @@ module EmailVerificationRateLimited
   def time_until_next_verification_allowed
     ttl_period = verification_redis.ttl(verification_period_key)
     ttl_daily = verification_redis.ttl(verification_daily_key)
-
     [ttl_period, ttl_daily, 0].max
   rescue Redis::BaseConnectionError => e
     Rails.logger.warn('Redis connection error in email verification rate limit ttl lookup', { error: e.message })
