@@ -1,12 +1,21 @@
 # frozen_string_literal: true
 
+<<<<<<< HEAD
+=======
+require 'debts_api/v0/digital_dispute_submission_service'
+require 'debt_management_center/debts_service'
+>>>>>>> ad156e78a3 (Add json validator)
 require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
+      include DebtsApi::Concerns::JsonValidatable
+
       service_tag 'debt-resolution'
       before_action :authorize_icn
+
+      before_action :parse_metadata, only: [:create]
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
@@ -50,23 +59,15 @@ module DebtsApi
           user_uuid: current_user.uuid,
           user_account: current_user.user_account,
           state: :pending,
-          metadata: submission_params[:metadata]
+          metadata: @parsed_metadata.to_json
         ).tap { |s| s.files.attach(submission_params[:files]) }
       end
 
       def submission_params
-        params.require(:metadata).permit(
-          disputes: [
-            :composite_debt_id,
-            :deduction_code,
-            :original_ar,
-            :current_ar,
-            :benefit_type,
-            :dispute_reason,
-            :rcvbl_id
-          ],
-          files: []
-        )
+        {
+          metadata: params.require(:metadata),
+          files: params[:files] || []
+        }
       end
 
       def email_notifications_enabled?

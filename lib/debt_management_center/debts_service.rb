@@ -105,6 +105,10 @@ module DebtManagementCenter
       @debts.any? { |debt| debt['payeeNumber'] != '00' }
     end
 
+    def load_debts
+      @debts ||= init_cached_debts || []
+    end
+
     private
 
     def sorted_debts_with_cdids
@@ -131,10 +135,6 @@ module DebtManagementCenter
 
     def build_composite_debt_id(debt)
       "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
-    end
-
-    def load_debts
-      @debts ||= init_cached_debts || []
     end
 
     def init_cached_debts
