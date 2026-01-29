@@ -198,6 +198,17 @@ RSpec.describe V0::Form210779Controller, type: :controller do
         expect(parsed_response['errors']).to be_present
         expect(parsed_response['errors'].first['status']).to eq('500')
       end
+
+      it 'returns 500 when to_pdf returns nil' do
+        allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_return(nil)
+
+        get(:download_pdf, params: { guid: claim.guid })
+
+        expect(response).to have_http_status(:internal_server_error)
+
+        expect(parsed_response['errors']).to be_present
+        expect(parsed_response['errors'].first['status']).to eq('500')
+      end
     end
   end
 end

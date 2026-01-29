@@ -116,9 +116,19 @@ module SignIn
 
       if scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
         error = prevent_auth ? Errors::AttributeMismatchError : nil
-        handle_error("Attribute mismatch, #{type} in credential does not match MPI attribute",
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     error:)
+
+        error_code =
+          if type.to_sym == :ssn
+            Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH
+          else
+            Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+          end
+
+        handle_error(
+          "Attribute mismatch, #{type} in credential does not match MPI attribute",
+          error_code,
+          error:
+        )
       end
     end
 
@@ -153,6 +163,7 @@ module SignIn
 
     def handle_error(error_message, error_code, error: nil, raise_error: true)
       sign_in_logger.info('attribute validator error', { errors: error_message,
+                                                         code: error_code,
                                                          credential_uuid:,
                                                          mhv_icn:,
                                                          type: service_name }.compact)
