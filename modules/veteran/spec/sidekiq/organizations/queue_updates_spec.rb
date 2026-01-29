@@ -18,11 +18,16 @@ RSpec.describe Organizations::QueueUpdates, type: :job do
         'VSOs' => [{ id: '123', address: {} }]
       }
     end
+    let(:batch) { instance_double(Sidekiq::Batch) }
 
     before do
+      stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
       Veteran::Service::Organization.create!(poa: '123', address_line1: '123 Main St')
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
       allow_any_instance_of(Organizations::XlsxFileProcessor).to receive(:process).and_return(processed_data)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch)
+      allow(batch).to receive(:description=)
+      allow(batch).to receive(:jobs).and_yield
     end
 
     context 'when file processing is successful' do
