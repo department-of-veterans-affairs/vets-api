@@ -2859,3 +2859,6 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  event_bus_gateway_letter_ready_sms_notifications:
+    actor_type: user
+    description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
