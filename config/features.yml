@@ -175,6 +175,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   event_bus_gateway_letter_ready_push_notifications:
     description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
+  event_bus_gateway_letter_ready_sms_notifications:
+    description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
@@ -1396,6 +1398,10 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_oh_migration_schedules:
+    actor_type: user
+    description: Enables fetching Oracle Health migration schedules for VAHB mobile users
+    enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
     description: Enables improvements to medication management functionality
