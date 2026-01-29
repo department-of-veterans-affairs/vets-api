@@ -26,11 +26,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
     context 'using VAOS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
       end
 
@@ -46,11 +42,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
       context 'using VPG' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
         end
 
@@ -73,12 +65,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
   context 'using vaos-service' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
     end
 
@@ -125,11 +112,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
   context 'using vpg' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
     end
 

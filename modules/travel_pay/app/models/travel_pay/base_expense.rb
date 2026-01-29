@@ -15,7 +15,7 @@ module TravelPay
     attr_accessor :receipt
 
     validates :purchase_date, presence: true, unless: -> { is_a?(MileageExpense) }
-    validates :description, length: { maximum: 255 }, allow_nil: true, unless: -> { is_a?(MileageExpense) }
+    validates :description, length: { maximum: 2000 }, allow_nil: true, unless: -> { is_a?(MileageExpense) }
     validates :cost_requested, presence: true, numericality: { greater_than: 0 }, unless: -> { is_a?(MileageExpense) }
 
     # Returns the list of permitted parameters for this expense type

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_16_194743) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1168,6 +1168,32 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_16_194743) do
     t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
   end
 
+  create_table "form_intake_submissions", force: :cascade do |t|
+    t.bigint "form_submission_id", null: false
+    t.string "aasm_state", default: "pending", null: false
+    t.integer "retry_count", default: 0, null: false
+    t.string "benefits_intake_uuid", null: false
+    t.string "form_intake_submission_id"
+    t.string "gcio_tracking_number"
+    t.text "request_payload_ciphertext"
+    t.text "response_ciphertext"
+    t.text "error_message_ciphertext"
+    t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "submitted_at"
+    t.datetime "completed_at"
+    t.datetime "last_attempted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state", "created_at"], name: "idx_form_intake_sub_on_state_and_created"
+    t.index ["aasm_state"], name: "index_form_intake_submissions_on_aasm_state"
+    t.index ["benefits_intake_uuid"], name: "index_form_intake_submissions_on_benefits_intake_uuid"
+    t.index ["form_intake_submission_id"], name: "idx_form_intake_sub_on_intake_id", unique: true, where: "(form_intake_submission_id IS NOT NULL)"
+    t.index ["form_submission_id", "aasm_state"], name: "idx_form_intake_sub_on_form_sub_id_and_state"
+    t.index ["form_submission_id"], name: "index_form_intake_submissions_on_form_submission_id"
+    t.index ["last_attempted_at"], name: "idx_form_intake_sub_on_last_attempted", where: "((aasm_state)::text = 'pending'::text)"
+  end
+
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
@@ -1528,6 +1554,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_16_194743) do
     t.integer "vso_organizations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "idx_on_created_at_5b6fb39541"
   end
 
   create_table "saved_claim_groups", force: :cascade do |t|
@@ -2222,6 +2249,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_16_194743) do
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_email_matches_profile_logs", "user_accounts"
+  add_foreign_key "form_intake_submissions", "form_submissions"
   add_foreign_key "form_submission_attempts", "form_submissions"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"
