@@ -810,6 +810,117 @@ module PdfFill
             question_suffix: 'B',
             question_text: 'DATE SIGNED (MM-DD-YYYY)'
           }
+        },
+        # start overflow
+        'student_expected_earnings_next_year_overflow' => {
+          'earnings_from_all_employment' => {
+            key: 'form1[0].#subform[0].ExpectedEarningsOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'EARNINGS FROM ALL EMPLOYMENT',
+            overflow_only: true
+          },
+          'annual_social_security_payments' => {
+            key: 'form1[0].#subform[0].ExpectedSocialSecurityOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'ANNUAL SOCIAL SECURITY',
+            overflow_only: true
+          },
+          'other_annuities_income' => {
+            key: 'form1[0].#subform[0].ExpectedOtherAnnuitiesOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'OTHER ANNUITIES',
+            overflow_only: true
+          },
+          'all_other_income' => {
+            key: 'form1[0].#subform[0].ExpectedAllOtherIncomeOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'ALL OTHER INCOME',
+            overflow_only: true
+          }
+        },
+        'student_earnings_from_school_year_overflow' => {
+          'earnings_from_all_employment' => {
+            key: 'form1[0].#subform[0].ReceivedEarningsOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'EARNINGS FROM ALL EMPLOYMENT',
+            overflow_only: true
+          },
+          'annual_social_security_payments' => {
+            key: 'form1[0].#subform[0].ReceivedSocialSecurityOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'ANNUAL SOCIAL SECURITY',
+            overflow_only: true
+          },
+          'other_annuities_income' => {
+            key: 'form1[0].#subform[0].ReceivedOtherAnnuitiesOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'OTHER ANNUITIES',
+            overflow_only: true
+          },
+          'all_other_income' => {
+            key: 'form1[0].#subform[0].ReceivedAllOtherIncomeOverflow[0]',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'ALL OTHER INCOME',
+            overflow_only: true
+          },
+          'student_networth_information_overflow' => {
+            'savings' => {
+              key: 'form1[0].#subform[0].StudentSavingsOverflow[0]',
+              limit: 0,
+              question_num: 14,
+              question_suffix: 'A',
+              question_text: 'SAVINGS',
+              overflow_only: true
+            },
+            'securities' => {
+              key: 'form1[0].#subform[0].StudentSecuritiesOverflow[0]',
+              limit: 0,
+              question_num: 14,
+              question_suffix: 'B',
+              question_text: 'SECURITIES',
+              overflow_only: true
+            },
+            'real_estate' => {
+              key: 'form1[0].#subform[0].StudentRealEstateOverflow[0]',
+              limit: 0,
+              question_num: 14,
+              question_suffix: 'C',
+              question_text: 'REAL ESTATE',
+              overflow_only: true
+            },
+            'other_assets' => {
+              key: 'form1[0].#subform[0].StudentOtherAssetsOverflow[0]',
+              limit: 0,
+              question_num: 14,
+              question_suffix: 'D',
+              question_text: 'OTHER ASSETS',
+              overflow_only: true
+            },
+            'total_value' => {
+              key: 'form1[0].#subform[0].StudentTotalValuesOverflow[0]',
+              limit: 0,
+              question_num: 14,
+              question_suffix: 'E',
+              question_text: 'TOTAL VALUE',
+              overflow_only: true
+            }
+          }
         }
       }.freeze
 
@@ -832,6 +943,7 @@ module PdfFill
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
+        handle_overflows(@form_data)
 
         @form_data
       end
@@ -903,14 +1015,29 @@ module PdfFill
       end
       # rubocop:enable Metrics/MethodLength
 
-      # override from form_helper
-      def select_checkbox(value)
-        value ? 'On' : nil
-      end
+      def handle_overflows(form_data)
+        student_information = form_data.dig('dependents_application', 'student_information', 0)
+        student_expected_earnings = student_information['student_expected_earnings_next_year']
+        student_earnings = student_information['student_earnings_from_school_year']
+        student_networth = student_information['student_networth_information']
 
-      def select_radio_button(value)
-        value ? 0 : nil
+        expected_earnings_overflow = FORMATTER.check_expected_earnings_overflow(student_expected_earnings)
+        earnings_overflow = FORMATTER.check_earnings_overflow(student_earnings)
+        networth_overflow = FORMATTER.check_networth_overflow(student_networth)
+
+        FORMATTER.clear_section(expected_earnings_overflow, 'student_expected_earnings_next_year', form_data)
+        FORMATTER.clear_section(earnings_overflow, 'student_earnings_from_school_year', form_data)
+        FORMATTER.clear_section(networth_overflow, 'student_networth_information', form_data)
       end
+    end
+
+    # override from form_helper
+    def select_checkbox(value)
+      value ? 'On' : nil
+    end
+
+    def select_radio_button(value)
+      value ? 0 : nil
     end
   end
 end

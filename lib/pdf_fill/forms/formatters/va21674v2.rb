@@ -7,6 +7,9 @@ module PdfFill
     module Formatters
       class Va21674v2 < Base
         class << self
+          INCOME_CHAR_LIMIT = 8
+          NETWORTH_CHAR_LIMIT = 10
+
           def expand_phone_number(phone_number)
             phone_number = phone_number.to_s.delete('^0-9')
             {
@@ -70,14 +73,6 @@ module PdfFill
           end
           # rubocop:enable Metrics/MethodLength
 
-          def select_checkbox(value)
-            value ? 'On' : nil
-          end
-
-          def select_radio_button(value)
-            value ? 0 : nil
-          end
-
           def split_earnings(parent_object)
             return if parent_object.blank?
 
@@ -126,6 +121,67 @@ module PdfFill
               }
             end
             parent_object
+          end
+
+          def check_expected_earnings_overflow(student_expected_earnings)
+            expected_all_employment, expected_annual_ss, expected_other_annuities, expected_all_other_income = student_expected_earnings.values_at(
+              'earnings_from_all_employment',
+              'annual_social_security_payments',
+              'other_annuities_income',
+              'all_other_income'
+            )
+            {
+              earnings_from_all_employment: check_for_single_overflow(expected_all_employment, INCOME_CHAR_LIMIT),
+              annual_social_security_payments: check_for_single_overflow(expected_annual_ss, INCOME_CHAR_LIMIT),
+              other_annuities_income: check_for_single_overflow(expected_other_annuities, INCOME_CHAR_LIMIT),
+              all_other_income: check_for_single_overflow(expected_all_other_income, INCOME_CHAR_LIMIT)
+            }
+          end
+
+          def check_earnings_overflow(student_earnings)
+            all_employment, annual_ss, other_annuities, all_other_income = student_earnings.values_at(
+              'earnings_from_all_employment',
+              'annual_social_security_payments',
+              'other_annuities_income',
+              'all_other_income'
+            )
+            {
+              earnings_from_all_employment: check_for_single_overflow(all_employment, INCOME_CHAR_LIMIT),
+              annual_social_security_payments: check_for_single_overflow(annual_ss, INCOME_CHAR_LIMIT),
+              other_annuities_income: check_for_single_overflow(other_annuities, INCOME_CHAR_LIMIT),
+              all_other_income: check_for_single_overflow(all_other_income, INCOME_CHAR_LIMIT)
+            }
+          end
+
+          def check_networth_overflow(student_networth)
+            savings, securities, real_estate, other_assets, total_value = student_networth.values_at(
+              'savings',
+              'securities',
+              'real_estate',
+              'other_assets',
+              'total_value'
+            )
+            {
+              savings: check_for_single_overflow(savings, NETWORTH_CHAR_LIMIT),
+              securities: check_for_single_overflow(securities, NETWORTH_CHAR_LIMIT),
+              real_estate: check_for_single_overflow(real_estate, NETWORTH_CHAR_LIMIT),
+              other_assets: check_for_single_overflow(other_assets, NETWORTH_CHAR_LIMIT),
+              total_value: check_for_single_overflow(total_value, NETWORTH_CHAR_LIMIT)
+            }
+          end
+
+          # checks the passed in attribute against the limit for the fields passed in.
+          def check_for_single_overflow(data, size)
+            return false if data.is_a?(Hash) || data.blank?
+
+            data.size > size
+          end
+
+          def clear_section(overflow_hash, parent_key, form_data)
+            overflow_hash.each_key do |child_key|
+              form_data[parent_key][child_key] = nil if overflow_hash[child_key]
+              form_data["#{parent_key}_overflow"][child_key] = form_data[parent_key][child_key]
+            end
           end
         end
       end
