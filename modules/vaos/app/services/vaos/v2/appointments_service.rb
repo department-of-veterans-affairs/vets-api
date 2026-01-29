@@ -901,7 +901,7 @@ module VAOS
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id)
 
         return nil if avs_resp.empty? || avs_resp.nil?
 

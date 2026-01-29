@@ -362,8 +362,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'name' => 'Ambulatory Visit Summary',
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
-              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+              'contentType' => 'application/pdf'
             }
           ]
         end
@@ -797,8 +796,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'name' => 'Ambulatory Visit Summary',
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
-              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+              'contentType' => 'application/pdf'
             }
           ]
         end

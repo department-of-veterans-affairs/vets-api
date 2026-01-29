@@ -2293,8 +2293,7 @@ describe VAOS::V2::AppointmentsService do
           'name' => 'Ambulatory Visit Summary',
           'loinc_codes' => %w[4189669 96345-4],
           'note_type' => 'ambulatory_patient_summary',
-          'content_type' => 'application/pdf',
-          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+          'content_type' => 'application/pdf'
         }
       ]
     end
