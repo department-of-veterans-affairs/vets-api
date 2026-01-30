@@ -83,32 +83,218 @@ RSpec.describe VeteranStatusCard::Service do
   end
 
   describe '#initialize' do
-    context 'when user is not nil' do
-      context 'when user edipi and icn are nil' do
-        before do
-          allow(user).to receive_messages(edipi: nil, icn: nil)
-        end
+    before do
+      allow(StatsD).to receive(:increment)
+    end
 
-        it 'raises an argument error' do
-          expect { VeteranStatusCard::Service.new(user) }.to raise_error(ArgumentError)
-        end
+    context 'when user is valid' do
+      it 'logs STATSD_TOTAL' do
+        described_class.new(user)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
       end
 
-      context 'when user edipi or icn are not nil' do
-        it 'does not raise an argument error' do
-          expect { VeteranStatusCard::Service.new(user) }.not_to raise_error(ArgumentError)
-        end
+      it 'does not log STATSD_FAILURE' do
+        described_class.new(user)
+
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.failure')
       end
     end
 
     context 'when user is nil' do
+      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
+        expect { described_class.new(nil) }.to raise_error(ArgumentError)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      end
+
       it 'raises an argument error' do
-        expect { VeteranStatusCard::Service.new(nil) }.to raise_error(ArgumentError)
+        expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+      end
+    end
+
+    context 'when user edipi and icn are nil' do
+      before do
+        allow(user).to receive_messages(edipi: nil, icn: nil)
+      end
+
+      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
+        expect { described_class.new(user) }.to raise_error(ArgumentError)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      end
+
+      it 'raises an argument error' do
+        expect { described_class.new(user) }.to raise_error(ArgumentError, 'User missing required fields')
+      end
+    end
+  end
+
+  describe 'protected methods' do
+    describe '#statsd_key_prefix' do
+      it 'returns the base prefix' do
+        expect(subject.send(:statsd_key_prefix)).to eq('veteran_status_card')
+      end
+    end
+
+    describe '#service_name' do
+      it 'returns the base service name' do
+        expect(subject.send(:service_name)).to eq('[VeteranStatusCard::Service]')
+      end
+    end
+  end
+
+  describe 'private logging methods' do
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    describe '#log_statsd' do
+      it 'increments StatsD with the full key using statsd_key_prefix' do
+        subject.send(:log_statsd, 'test_key')
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.test_key')
+      end
+    end
+
+    describe '#log_vsc_result' do
+      context 'when confirmed is true' do
+        it 'logs STATSD_ELIGIBLE' do
+          subject.send(:log_vsc_result, confirmed: true)
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.eligible')
+        end
+
+        it 'logs info with CONFIRMED status' do
+          subject.send(:log_vsc_result, confirmed: true)
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[VeteranStatusCard::Service] VSC Card Result',
+            hash_including(confirmation_status: 'CONFIRMED')
+          )
+        end
+      end
+
+      context 'when confirmed is false (default)' do
+        let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+        it 'logs STATSD_INELIGIBLE' do
+          subject.send(:log_vsc_result)
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+        end
+
+        it 'logs info with the reason from vet_verification_status' do
+          subject.send(:log_vsc_result)
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[VeteranStatusCard::Service] VSC Card Result',
+            hash_including(confirmation_status: 'MORE_RESEARCH_REQUIRED')
+          )
+        end
+      end
+
+      it 'includes service_summary_code in log' do
+        subject.send(:log_vsc_result, confirmed: true)
+
+        expect(Rails.logger).to have_received(:info).with(
+          '[VeteranStatusCard::Service] VSC Card Result',
+          hash_including(service_summary_code: ssc_code)
+        )
+      end
+
+      it 'includes has_service_history in log' do
+        subject.send(:log_vsc_result, confirmed: true)
+
+        expect(Rails.logger).to have_received(:info).with(
+          '[VeteranStatusCard::Service] VSC Card Result',
+          hash_including(has_service_history: true)
+        )
       end
     end
   end
 
   describe '#status_card' do
+    describe 'StatsD logging' do
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      context 'when veteran is eligible' do
+        let(:veteran_status) { 'confirmed' }
+
+        it 'logs STATSD_ELIGIBLE via log_vsc_result' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.eligible')
+        end
+
+        it 'logs VSC Card Result info' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[VeteranStatusCard::Service] VSC Card Result',
+            hash_including(
+              confirmation_status: 'CONFIRMED',
+              service_summary_code: ssc_code,
+              has_service_history: true
+            )
+          )
+        end
+      end
+
+      context 'when veteran is not eligible' do
+        let(:veteran_status) { 'not confirmed' }
+        let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+        it 'logs STATSD_INELIGIBLE via log_vsc_result' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+        end
+
+        it 'logs VSC Card Result info with reason' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[VeteranStatusCard::Service] VSC Card Result',
+            hash_including(
+              confirmation_status: 'PERSON_NOT_FOUND',
+              service_summary_code: ssc_code
+            )
+          )
+        end
+      end
+
+      context 'when an exception occurs' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(user).to receive(:full_name_normalized).and_raise(StandardError.new('Test error'))
+        end
+
+        it 'logs STATSD_FAILURE' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+        end
+
+        it 'logs error with service name' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:error).with(
+            '[VeteranStatusCard::Service] error: Test error',
+            hash_including(:backtrace)
+          )
+        end
+      end
+    end
+
     context 'when veteran is eligible' do
       context 'via vet_verification_eligible? (confirmed status)' do
         let(:veteran_status) { 'confirmed' }

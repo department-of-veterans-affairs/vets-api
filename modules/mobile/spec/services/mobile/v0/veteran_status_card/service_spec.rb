@@ -89,6 +89,18 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
   end
 
   describe 'protected method overrides' do
+    describe '#statsd_key_prefix' do
+      it 'returns Mobile-specific prefix' do
+        expect(subject.send(:statsd_key_prefix)).to eq('veteran_status_card.mobile')
+      end
+    end
+
+    describe '#service_name' do
+      it 'returns Mobile-specific service name' do
+        expect(subject.send(:service_name)).to eq('[Mobile::V0::VeteranStatusCard::Service]')
+      end
+    end
+
     describe '#something_went_wrong_response' do
       it 'returns Mobile constants' do
         expect(subject.send(:something_went_wrong_response)).to eq(
@@ -146,7 +158,126 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     end
   end
 
+  describe '#initialize' do
+    before do
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when user is valid' do
+      it 'logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(user)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
+      end
+
+      it 'does not log STATSD_FAILURE' do
+        described_class.new(user)
+
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
+      end
+    end
+
+    context 'when user is nil' do
+      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
+        expect { described_class.new(nil) }.to raise_error(ArgumentError)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+      end
+    end
+
+    context 'when user edipi and icn are nil' do
+      before do
+        allow(user).to receive_messages(edipi: nil, icn: nil)
+      end
+
+      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
+        expect { described_class.new(user) }.to raise_error(ArgumentError)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+      end
+    end
+  end
+
   describe '#status_card' do
+    describe 'StatsD logging with mobile prefix' do
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      context 'when veteran is eligible' do
+        let(:veteran_status) { 'confirmed' }
+
+        it 'logs STATSD_ELIGIBLE with mobile prefix' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.eligible')
+        end
+
+        it 'logs VSC Card Result info with mobile service name' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+            hash_including(
+              confirmation_status: 'CONFIRMED',
+              service_summary_code: ssc_code,
+              has_service_history: true
+            )
+          )
+        end
+      end
+
+      context 'when veteran is not eligible' do
+        let(:veteran_status) { 'not confirmed' }
+        let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+        it 'logs STATSD_INELIGIBLE with mobile prefix' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible')
+        end
+
+        it 'logs VSC Card Result info with mobile service name' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:info).with(
+            '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+            hash_including(
+              confirmation_status: 'PERSON_NOT_FOUND',
+              service_summary_code: ssc_code
+            )
+          )
+        end
+      end
+
+      context 'when an exception occurs' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(user).to receive(:full_name_normalized).and_raise(StandardError.new('Test error'))
+        end
+
+        it 'logs STATSD_FAILURE with mobile prefix' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        end
+
+        it 'logs error with mobile service name' do
+          subject.status_card
+
+          expect(Rails.logger).to have_received(:error).with(
+            '[Mobile::V0::VeteranStatusCard::Service] error: Test error',
+            hash_including(:backtrace)
+          )
+        end
+      end
+    end
+
     context 'when veteran is eligible' do
       let(:veteran_status) { 'confirmed' }
 
