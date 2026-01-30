@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class DeleteOldBenefitsIntakeRecordsJob < DeleteOldSavedClaimsJob
-    STATSD_KEY_PREFIX = 'worker.accredited_representative_portal.delete_old_benefits_intake_records'
+  class DeleteOldIntentToFileRecordsJob < DeleteOldSavedClaimsJob
+    STATSD_KEY_PREFIX = 'worker.accredited_representative_portal.delete_old_intent_to_file_records'
 
     def statsd_key_prefix
       STATSD_KEY_PREFIX
@@ -15,11 +15,11 @@ module AccreditedRepresentativePortal
     end
 
     def scope
-      AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+      AccreditedRepresentativePortal::SavedClaim::BenefitsClaims::IntentToFile
     end
 
     def log_label
-      'BenefitsIntake'
+      'IntentToFile'
     end
 
     # ----- Rerun helper -----
