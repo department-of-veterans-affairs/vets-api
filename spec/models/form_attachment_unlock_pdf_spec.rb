@@ -12,7 +12,7 @@ RSpec.describe FormAttachment do
 
     Class.new(FormAttachment) do
       self.table_name = 'form_attachments'
-      ATTACHMENT_UPLOADER_CLASS = uploader_class
+      const_set(:ATTACHMENT_UPLOADER_CLASS, uploader_class)
     end
   end
 
