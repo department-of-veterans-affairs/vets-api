@@ -25,14 +25,14 @@ module BenefitsClaims
     # rubocop:enable Naming/VariableNumber
 
     # Accepts either a user object or an ICN string for backwards compatibility
-    # @param user [User, String] A user object (with .icn method) or an ICN string
-    def initialize(user)
-      if user.respond_to?(:icn)
-        @user = user
-        @icn = user.icn
+    # @param user_or_icn [User, String] A user object (with .icn method) or an ICN string
+    def initialize(user_or_icn)
+      if user_or_icn.respond_to?(:icn)
+        @user = user_or_icn
+        @icn = user_or_icn.icn
       else
         @user = nil
-        @icn = user
+        @icn = user_or_icn
       end
 
       raise ArgumentError, 'no ICN passed in for LH API request.' if @icn.blank?
