@@ -40,7 +40,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
     # Stub the template_id method to return our test template ID
     template_id_stub = double('template_id', vass_otp_email: 'vass-otp-email-template-id')
-    vanotify_api_key = '11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
+    vanotify_api_key = 'name-11111111-1111-1111-1111-111111111111-22222222-2222-2222-2222-222222222222'
     allow(Settings.vanotify.services.va_gov).to receive_messages(
       api_key: vanotify_api_key,
       template_id: template_id_stub
@@ -91,6 +91,23 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         end
       end
 
+      it 'tracks success metrics' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.request_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+        ).and_call_original
+
+        VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
+              post '/vass/v0/request-otc', params:, as: :json
+            end
+          end
+        end
+      end
+
       it 'stores OTP in Redis' do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
@@ -100,7 +117,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               expect(response).to have_http_status(:ok)
               # OTP should be stored in Redis
               redis_client = Vass::RedisClient.build
-              stored_otp = redis_client.otc(uuid:)
+              stored_otp = redis_client.otc_data(uuid:)&.dig(:code)
               expect(stored_otp).to be_present
               expect(stored_otp.length).to eq(6)
             end
@@ -215,7 +232,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         # Store OTC and veteran metadata from create flow
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 
@@ -233,7 +250,18 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['data']['token']).to be_present
         expect(json_response['data']['tokenType']).to eq('Bearer')
-        expect(json_response['data']['expiresIn']).to eq(3600)
+        expect(json_response['data']['expiresIn']).to eq(7200)
+      end
+
+      it 'tracks success metrics' do
+        allow(StatsD).to receive(:increment).and_call_original
+
+        expect(StatsD).to receive(:increment).with(
+          'api.vass.controller.sessions.authenticate_otc.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+        ).and_call_original
+
+        post '/vass/v0/authenticate-otc', params:, as: :json
       end
 
       it 'deletes OTC after validation' do
@@ -241,23 +269,27 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:ok)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to be_nil
       end
 
-      it 'creates authenticated session' do
+      it 'creates authenticated session keyed by uuid with jti' do
         post '/vass/v0/authenticate-otc', params:, as: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
         jwt_token = json_response['data']['token']
 
+        # Decode JWT to extract jti
+        decoded_payload = JWT.decode(jwt_token, Settings.vass.jwt_secret, true, algorithm: 'HS256')[0]
+        token_jti = decoded_payload['jti']
+
         redis_client = Vass::RedisClient.build
-        session_data = redis_client.session(session_token: jwt_token)
+        session_data = redis_client.session(uuid:)
         expect(session_data).to be_present
+        expect(session_data[:jti]).to eq(token_jti)
         expect(session_data[:edipi]).to eq(edipi)
         expect(session_data[:veteran_id]).to eq(uuid)
-        expect(session_data[:uuid]).to eq(uuid)
       end
 
       it 'logs jwt_issued event with jti for audit trail' do
@@ -275,7 +307,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'with invalid OTC' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: '000000')
+        redis_client.save_otc(uuid:, code: '000000', last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 
@@ -301,7 +333,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
 
         expect(response).to have_http_status(:unauthorized)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc(uuid:)
+        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
         expect(stored_otc).to eq('000000')
       end
     end
@@ -337,7 +369,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'when validation rate limit is exceeded' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
         # Exceed validation rate limit
         5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
@@ -363,7 +395,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'when an exception occurs during successful authentication flow' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code)
+        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
       end
 

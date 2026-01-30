@@ -8,6 +8,8 @@ RSpec.describe Vass::V0::Session, type: :model do
   let(:valid_phone) { '5555551234' }
   let(:uuid) { SecureRandom.uuid }
   let(:otp_code) { '123456' }
+  let(:last_name) { 'Smith' }
+  let(:date_of_birth) { '1990-01-15' }
   let(:jwt_secret) { 'test-jwt-secret' }
 
   before do
@@ -168,33 +170,52 @@ RSpec.describe Vass::V0::Session, type: :model do
   end
 
   describe '#save_otc' do
-    it 'saves the OTC to Redis' do
-      session = described_class.new(uuid:, redis_client:)
-      expect(redis_client).to receive(:save_otc).with(uuid:, code: otp_code)
+    it 'saves the OTC to Redis with identity data' do
+      session = described_class.new(uuid:, last_name:, date_of_birth:, redis_client:)
+      expect(redis_client).to receive(:save_otc).with(uuid:, code: otp_code, last_name:, dob: date_of_birth)
       session.save_otc(otp_code)
     end
   end
 
   describe '#valid_otc?' do
-    let(:session) { described_class.new(uuid:, otp_code:, redis_client:) }
+    let(:stored_data) { { code: otp_code, last_name:, dob: date_of_birth } }
+    let(:session) { described_class.new(uuid:, otp_code:, last_name:, date_of_birth:, redis_client:) }
 
-    context 'when OTC matches' do
+    context 'when OTC and identity match' do
       it 'returns true' do
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
         expect(session.valid_otc?).to be true
       end
     end
 
     context 'when OTC does not match' do
       it 'returns false' do
-        allow(redis_client).to receive(:otc).with(uuid:).and_return('999999')
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: '999999'))
         expect(session.valid_otc?).to be false
+      end
+    end
+
+    context 'when last_name does not match' do
+      it 'returns false' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        session_wrong_name = described_class.new(uuid:, otp_code:, last_name: 'Jones', date_of_birth:, redis_client:)
+        expect(session_wrong_name.valid_otc?).to be false
+      end
+    end
+
+    context 'when dob does not match' do
+      it 'returns false' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        session_wrong_dob = described_class.new(
+          uuid:, otp_code:, last_name:, date_of_birth: '2000-12-25', redis_client:
+        )
+        expect(session_wrong_dob.valid_otc?).to be false
       end
     end
 
     context 'when OTC is not found in Redis' do
       it 'returns false' do
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(nil)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(nil)
         expect(session.valid_otc?).to be false
       end
     end
@@ -207,9 +228,50 @@ RSpec.describe Vass::V0::Session, type: :model do
     end
 
     it 'uses constant-time comparison to prevent timing attacks' do
-      allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
-      expect(ActiveSupport::SecurityUtils).to receive(:secure_compare).with(otp_code, otp_code)
+      allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+      expect(ActiveSupport::SecurityUtils).to receive(:secure_compare).with(otp_code, otp_code).and_call_original
       session.valid_otc?
+    end
+
+    it 'validates identity case-insensitively for last name' do
+      allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(last_name: 'SMITH'))
+      expect(session.valid_otc?).to be true
+    end
+
+    context 'with corrupted or invalid stored data' do
+      it 'returns false when stored code is nil' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: nil))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code is empty string' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: ''))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code is not a string' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data.merge(code: 123_456))
+        expect(session.valid_otc?).to be false
+      end
+
+      it 'returns false when stored code key is missing' do
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return({ last_name:, dob: date_of_birth })
+        expect(session.valid_otc?).to be false
+      end
+    end
+
+    context 'with invalid provided OTC' do
+      it 'returns false when provided OTC is nil' do
+        session_nil_otp = described_class.new(uuid:, otp_code: nil, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        expect(session_nil_otp.valid_otc?).to be false
+      end
+
+      it 'returns false when provided OTC is empty string' do
+        session_empty_otp = described_class.new(uuid:, otp_code: '', last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
+        expect(session_empty_otp.valid_otc?).to be false
+      end
     end
   end
 
@@ -223,11 +285,12 @@ RSpec.describe Vass::V0::Session, type: :model do
 
   describe '#validate_and_generate_jwt' do
     let(:otp_code) { '123456' }
+    let(:stored_data) { { code: otp_code, last_name:, dob: date_of_birth } }
 
     context 'with valid OTC' do
       it 'validates OTC, deletes it, and returns hash with token and jti' do
-        session = described_class.new(uuid:, otp_code:, redis_client:)
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        session = described_class.new(uuid:, otp_code:, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
         result = session.validate_and_generate_jwt
@@ -241,8 +304,8 @@ RSpec.describe Vass::V0::Session, type: :model do
       end
 
       it 'generates a valid JWT token with correct payload' do
-        session = described_class.new(uuid:, otp_code:, redis_client:)
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        session = described_class.new(uuid:, otp_code:, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
         result = session.validate_and_generate_jwt
@@ -256,8 +319,8 @@ RSpec.describe Vass::V0::Session, type: :model do
       end
 
       it 'returns jti that matches the token payload' do
-        session = described_class.new(uuid:, otp_code:, redis_client:)
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        session = described_class.new(uuid:, otp_code:, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
         allow(redis_client).to receive(:delete_otc).with(uuid:)
 
         result = session.validate_and_generate_jwt
@@ -270,8 +333,8 @@ RSpec.describe Vass::V0::Session, type: :model do
 
     context 'with invalid OTC' do
       it 'raises AuthenticationError and does not delete OTC' do
-        session = described_class.new(uuid:, otp_code: 'wrong', redis_client:)
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(otp_code)
+        session = described_class.new(uuid:, otp_code: 'wrong', last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(stored_data)
         allow(redis_client).to receive(:delete_otc)
 
         expect { session.validate_and_generate_jwt }
@@ -282,8 +345,8 @@ RSpec.describe Vass::V0::Session, type: :model do
 
     context 'with missing OTC' do
       it 'raises AuthenticationError when OTC not found in Redis' do
-        session = described_class.new(uuid:, otp_code:, redis_client:)
-        allow(redis_client).to receive(:otc).with(uuid:).and_return(nil)
+        session = described_class.new(uuid:, otp_code:, last_name:, date_of_birth:, redis_client:)
+        allow(redis_client).to receive(:otc_data).with(uuid:).and_return(nil)
 
         expect { session.validate_and_generate_jwt }
           .to raise_error(Vass::Errors::AuthenticationError, 'Invalid OTC')
@@ -455,19 +518,19 @@ RSpec.describe Vass::V0::Session, type: :model do
   end
 
   describe '#create_authenticated_session' do
-    let(:session_token) { SecureRandom.uuid }
+    let(:jti) { SecureRandom.uuid }
     let(:metadata) { { edipi: '1234567890', veteran_id: uuid } }
 
-    it 'creates session with veteran metadata from Redis' do
+    it 'creates session with veteran metadata and jti from Redis' do
       session = described_class.new(uuid:, redis_client:)
       allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return(metadata)
       expect(redis_client).to receive(:save_session).with(
-        session_token:,
+        uuid:,
+        jti:,
         edipi: '1234567890',
-        veteran_id: uuid,
-        uuid:
+        veteran_id: uuid
       )
-      session.create_authenticated_session(session_token:)
+      session.create_authenticated_session(jti:)
     end
 
     it 'returns false when metadata is not found' do
@@ -480,7 +543,7 @@ RSpec.describe Vass::V0::Session, type: :model do
         .and_call_original
 
       expect(redis_client).not_to receive(:save_session)
-      expect(session.create_authenticated_session(session_token:)).to be false
+      expect(session.create_authenticated_session(jti:)).to be false
     end
   end
 end
