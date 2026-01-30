@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sidekiq/attr_package'
 
-RSpec.describe VANotify::V2::UserAccountJob, type: :job do
+RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
   let(:user_account) { create(:user_account, icn:) }
   let(:icn) { '1013062086V794840' }
   let(:personalisation) { { first_name: 'Jane', date_submitted: 'May 1, 2024' } }
@@ -60,7 +60,7 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
       )
 
       expect(Rails.logger).to receive(:error).with(
-        'VANotify::V2::UserAccountJob AttrPackage error',
+        'VANotify::V2::QueueUserAccountJob AttrPackage error',
         hash_including(error: /redis down/)
       )
 
@@ -73,7 +73,7 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
       allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(nil)
 
       expect(Rails.logger).to receive(:error).with(
-        'VANotify::V2::UserAccountJob failed: Missing personalisation data in Redis',
+        'VANotify::V2::QueueUserAccountJob failed: Missing personalisation data in Redis',
         hash_including(template_id:, attr_package_key_present: true)
       )
 
@@ -91,7 +91,7 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
       allow(va_notify_service).to receive(:send_email).and_raise(error)
 
       expect_any_instance_of(described_class).to receive(:handle_backend_exception).with(error)
-      expect(StatsD).to receive(:increment).with('api.vanotify.v2.user_account_job.failure')
+      expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
       described_class.new.perform(user_account.id, template_id, key, callback_options)
     end
@@ -104,7 +104,7 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
       allow(va_notify_service).to receive(:send_email).and_raise(error)
 
-      expect(StatsD).to receive(:increment).with('api.vanotify.v2.user_account_job.failure')
+      expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
       expect do
         described_class.new.perform(user_account.id, template_id, key, callback_options)
@@ -118,7 +118,7 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
       allow(va_notify_service).to receive(:send_email).and_raise(StandardError.new('unexpected'))
 
-      expect(StatsD).to receive(:increment).with('api.vanotify.v2.user_account_job.failure')
+      expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
       expect do
         described_class.new.perform(user_account.id, template_id, key, callback_options)
@@ -139,11 +139,11 @@ RSpec.describe VANotify::V2::UserAccountJob, type: :job do
 
     it 'logs error and increments StatsD counter' do
       expect(Rails.logger).to receive(:error).with(
-        'VANotify::V2::UserAccountJob retries exhausted',
+        'VANotify::V2::QueueUserAccountJob retries exhausted',
         { job_id: 123, error_class: 'RuntimeError', error_message: 'an error occurred!' }
       )
       expect(StatsD).to receive(:increment).with(
-        'sidekiq.jobs.va_notify/v2/user_account_job.retries_exhausted'
+        'sidekiq.jobs.va_notify/v2/queue_user_account_job.retries_exhausted'
       )
 
       described_class.sidekiq_retries_exhausted_block.call(msg, error)
