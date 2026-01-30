@@ -117,11 +117,6 @@ module BenefitsDocuments
               ArgumentError.new('Claim id is required')
       end
 
-      Rails.logger.info('file_name present?', file&.original_filename.present?)
-      Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
-      Rails.logger.info('file content type', file&.content_type)
-      Rails.logger.info('participant_id present?', @user.participant_id.present?)
-
       if presumed_duplicate?(claim_id, file)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'DOC_UPLOAD_DUPLICATE',
@@ -192,6 +187,12 @@ module BenefitsDocuments
       tracked_item_ids = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
       document_type = file_params[:documentType] || file_params[:document_type]
       password = file_params[:password]
+
+      unless document_type
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new('document_type is required')
+      end
+
       LighthouseDocument.new(
         first_name: @user.first_name,
         participant_id: @user.participant_id,
