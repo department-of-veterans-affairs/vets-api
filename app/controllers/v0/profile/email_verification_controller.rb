@@ -18,7 +18,9 @@ module V0
       before_action :authenticate_loa3_user!
 
       def status
-        verification_needed = needs_verification?
+        verification_needed = verification_needed_or_render_va_profile_error
+        return if performed?
+
         response_data = OpenStruct.new(
           id: SecureRandom.uuid,
           needs_verification: verification_needed
@@ -30,7 +32,10 @@ module V0
       end
 
       def create
-        return render_verification_not_needed_error unless needs_verification?
+        verification_needed = verification_needed_or_render_va_profile_error
+        return if performed?
+
+        return render_verification_not_needed_error unless verification_needed
 
         handle_verification_errors('send verification email') do
           send_verification_email
@@ -64,9 +69,36 @@ module V0
       end
 
       def needs_verification?
-        return false unless current_user.email.present? && current_user.va_profile_email.present?
+        return false if current_user.email.blank?
 
-        current_user.email.downcase != current_user.va_profile_email.downcase
+        va_profile_email = current_user.va_profile_email
+        return false if va_profile_email.blank?
+
+        current_user.email.downcase != va_profile_email.downcase
+      end
+
+      def verification_needed_or_render_va_profile_error
+        needs_verification?
+      rescue => e
+        log_va_profile_email_error(e)
+        render_va_profile_unavailable_error
+        nil
+      end
+
+      def log_va_profile_email_error(error)
+        log_data = email_verification_log_data.merge(error: error.message, error_class: error.class.name)
+        Rails.logger.warn('Email verification: VA Profile email lookup failed', log_data)
+      end
+
+      def render_va_profile_unavailable_error
+        render json: {
+          errors: [{
+            title: 'VA Profile Unavailable',
+            detail: 'VA Profile is temporarily unavailable. Please try again later.',
+            code: 'EMAIL_VERIFICATION_VA_PROFILE_UNAVAILABLE',
+            status: '503'
+          }]
+        }, status: :service_unavailable
       end
 
       def send_verification_email

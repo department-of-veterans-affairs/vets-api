@@ -76,7 +76,7 @@ module EmailVerificationRateLimited
     [ttl_period, ttl_daily, 0].max
   rescue Redis::BaseConnectionError => e
     Rails.logger.warn('Redis connection error in email verification rate limit ttl lookup', { error: e.message })
-    nil
+    0
   end
 
   def build_verification_rate_limit_message

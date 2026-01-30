@@ -69,6 +69,31 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
         expect(body['errors'][0]['detail']).to eq('You must be logged in to access this feature')
       end
     end
+
+    context 'when VA Profile email lookup fails' do
+      before do
+        allow(user).to receive(:email).and_return('user@example.com')
+        allow(user).to receive(:va_profile_email).and_raise(StandardError.new('VA Profile down'))
+        sign_in_as(user)
+      end
+
+      it 'returns service unavailable with a controlled error' do
+        allow(controller).to receive(:verification_needed_or_render_va_profile_error) do
+          controller.send(:render_va_profile_unavailable_error)
+          nil
+        end
+
+        get :status
+
+        expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        error = body['errors'].first
+
+        expect(error['code']).to eq('EMAIL_VERIFICATION_VA_PROFILE_UNAVAILABLE')
+        expect(error['title']).to eq('VA Profile Unavailable')
+        expect(error['status']).to eq('503')
+      end
+    end
   end
 
   describe 'POST #create' do
@@ -159,11 +184,47 @@ RSpec.describe V0::Profile::EmailVerificationController, type: :controller do
       end
     end
 
+    context 'when VA Profile email lookup fails' do
+      before do
+        allow(user).to receive(:email).and_return('user@example.com')
+        allow(user).to receive(:va_profile_email).and_raise(StandardError.new('VA Profile down'))
+        allow(service).to receive(:initiate_verification)
+      end
+
+      it 'returns service unavailable with a controlled error' do
+        allow(controller).to receive(:verification_needed_or_render_va_profile_error) do
+          controller.send(:render_va_profile_unavailable_error)
+          nil
+        end
+
+        post :create
+
+        expect(response).to have_http_status(:service_unavailable)
+        body = JSON.parse(response.body)
+        error = body['errors'].first
+
+        expect(error['code']).to eq('EMAIL_VERIFICATION_VA_PROFILE_UNAVAILABLE')
+        expect(error['title']).to eq('VA Profile Unavailable')
+        expect(error['status']).to eq('503')
+      end
+
+      it 'does not call the verification service' do
+        allow(controller).to receive(:verification_needed_or_render_va_profile_error) do
+          controller.send(:render_va_profile_unavailable_error)
+          nil
+        end
+
+        post :create
+
+        expect(service).not_to have_received(:initiate_verification)
+      end
+    end
+
     context 'when rate limit is exceeded without exception detail' do
       before do
         allow(controller).to receive_messages(
           needs_verification?: true,
-          time_until_next_verification_allowed: nil
+          time_until_next_verification_allowed: 0
         )
         allow(controller).to receive(:enforce_email_verification_rate_limit!).and_raise(
           Common::Exceptions::TooManyRequests.new
