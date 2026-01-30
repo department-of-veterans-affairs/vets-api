@@ -13,7 +13,7 @@
 
 namespace :vre do
   desc 'Backfill VBMS document IDs for VRE claims and correct signature dates'
-  task backfill_vbms_document_ids: :environment do
+  task backfill_vre_vbms_document_ids: :environment do
     # Parse date parameters or use defaults
     start_date = ENV['START_DATE'] ? Date.parse(ENV['START_DATE']) : Date.new(2026, 1, 14)
     end_date = ENV['END_DATE'] ? Date.parse(ENV['END_DATE']) : Date.new(2026, 1, 24)
@@ -40,35 +40,13 @@ namespace :vre do
       exit
     end
 
-    unless Object.const_defined?('VreVbmsDocumentIdBackfillWorker')
-      class VreVbmsDocumentIdBackfillWorker
-        include Sidekiq::Worker
-        sidekiq_options queue: 'default', retry: 5
-
-        def perform(claim_id)
-          claim = SavedClaim::VeteranReadinessEmploymentClaim.find(claim_id)
-          updated_form = claim.parsed_form
-          updated_form['signatureDate'] = claim.created_at.to_date
-          claim.update!(form: updated_form.to_json)
-
-          uuid = claim.user_account.present? ? claim.user_account.id : 'manual-run-missing-user-account'
-          claim.upload_to_vbms(user: OpenStruct.new(uuid:))
-
-          Rails.logger.info "VRE_VBMS_BACKFILL_SUCCESS: Claim ID #{claim_id} processed successfully"
-        rescue => e
-          Rails.logger.error "VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim_id} - #{e.class}: #{e.message}"
-          raise # Re-raise to trigger Sidekiq retry
-        end
-      end
-    end
-
     # Enqueue jobs in batches
     puts "Enqueuing #{claim_ids.count} jobs..."
     total_enqueued = 0
 
     claim_ids.each_slice(100) do |batch|
       batch.each do |id|
-        VreVbmsDocumentIdBackfillWorker.perform_async(id)
+        VREVBMSDocumentUploadJob.perform_async(id)
         total_enqueued += 1
       end
       puts "Enqueued #{total_enqueued}/#{claim_ids.count} claims..."
