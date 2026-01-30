@@ -2,7 +2,7 @@
 
 class VREVBMSDocumentUploadJob
   include Sidekiq::Job
-  sidekiq_options retry: 5
+  sidekiq_options retry: 16
 
   def perform(claim_id)
     claim = SavedClaim::VeteranReadinessEmploymentClaim.find(claim_id)

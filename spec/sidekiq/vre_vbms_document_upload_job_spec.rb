@@ -63,7 +63,7 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
 
   describe 'sidekiq configuration' do
     it 'retries failures' do
-      expect(described_class.sidekiq_options_hash['retry']).to eq(5)
+      expect(described_class.sidekiq_options_hash['retry']).to eq(16)
     end
   end
 end
