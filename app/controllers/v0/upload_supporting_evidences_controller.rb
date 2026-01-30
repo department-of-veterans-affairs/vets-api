@@ -25,6 +25,19 @@ module V0
 
     private
 
+    def extract_params_from_namespace
+      if Flipper.enabled?(:disability_526_supporting_evidence_enhancement, current_user) && params[:file].present?
+        namespace = form_attachment_model.to_s.underscore.split('/').last
+        password = params[:password].presence || params.dig(namespace, :password)
+
+        ActionController::Parameters
+          .new(file_data: params[:file], password:)
+          .permit(:file_data, :password)
+      else
+        super
+      end
+    end
+
     def serializer_klass
       SupportingEvidenceAttachmentSerializer
     end
