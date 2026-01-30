@@ -31,6 +31,7 @@
         "quantity",
         "expirationDate",
         "dispensedDate",
+        "sortedDispensedDate",
         "stationNumber",
         "isRefillable",
         "isTrackable"
@@ -77,6 +78,13 @@
           "format": "date"
         },
         "dispensedDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "sortedDispensedDate": {
           "type": [
             "string",
             "null"

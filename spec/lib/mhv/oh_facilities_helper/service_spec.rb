@@ -232,7 +232,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'only includes facilities matching user va_treatment_facility_ids' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          facility_ids = result.first[:facilities].map { |f| f[:id] }
+          facility_ids = result.first[:facilities].map { |f| f[:facility_id] }
           expect(facility_ids).to contain_exactly('516', '517')
         end
       end
@@ -574,7 +574,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'handles whitespace correctly' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          expect(result.first[:facilities].first[:id]).to eq('516')
+          expect(result.first[:facilities].first[:facility_id]).to eq('516')
         end
       end
     end

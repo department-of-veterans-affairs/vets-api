@@ -598,6 +598,73 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
     end
 
+    context 'sign in service cookies deletion' do
+      let(:params) { { type: 'idme' } }
+
+      let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+      let(:anti_csrf_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+      let(:info_cookie_name) { SignIn::Constants::Auth::INFO_COOKIE_NAME }
+      let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+
+      let(:expected_expiration_time) { Time.at(0).utc.httpdate }
+      let(:expected_value) { '' }
+      let(:expected_info_cookie_domain) { IdentitySettings.sign_in.info_cookie_domain }
+      let(:expected_path) { '/' }
+
+      let(:expected_access_token_cookie) do
+        a_string_including(
+          "#{access_token_cookie_name}=#{expected_value}",
+          "path=#{expected_path}",
+          "expires=#{expected_expiration_time}"
+        )
+      end
+
+      let(:expected_anti_csrf_cookie) do
+        a_string_including(
+          "#{anti_csrf_cookie_name}=#{expected_value}",
+          "path=#{expected_path}",
+          "expires=#{expected_expiration_time}"
+        )
+      end
+
+      let(:expected_info_cookie) do
+        a_string_including(
+          "#{info_cookie_name}=#{expected_value}",
+          "domain=#{expected_info_cookie_domain}",
+          "path=#{expected_path}",
+          "expires=#{expected_expiration_time}"
+        )
+      end
+
+      let(:expected_refresh_token_cookie) do
+        a_string_including(
+          "#{refresh_token_cookie_name}=#{expected_value}",
+          "path=#{expected_path}",
+          "expires=#{expected_expiration_time}"
+        )
+      end
+
+      before do
+        cookies[access_token_cookie_name] = 'some_access_token_value'
+        cookies[anti_csrf_cookie_name] = 'some_anti_csrf_token_value'
+        cookies[info_cookie_name] = { value: 'some_info_value', domain: expected_info_cookie_domain }
+        cookies[refresh_token_cookie_name] = { value: 'some_access_token_value', path: 'some/path' }
+      end
+
+      it 'sets the cookies with a blank value and expiration in the past' do
+        call_endpoint
+
+        set_cookies = response.headers['Set-Cookie'].to_s.split("\n")
+
+        expect(set_cookies).to include(
+          expected_access_token_cookie,
+          expected_anti_csrf_cookie,
+          expected_info_cookie,
+          expected_refresh_token_cookie
+        )
+      end
+    end
+
     context 'when logged in' do
       let(:loa1_user) { build(:user, :loa1) }
 
