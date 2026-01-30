@@ -25,10 +25,18 @@ RSpec.describe 'vre:reupload_vre_claims_with_corrected_signature_dates', type: :
   end
 
   describe 'claim filtering' do
-    let!(:in_range_claim) { create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-15'), form_id: '28-1900') }
-    let!(:out_of_range_before) { create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-13'), form_id: '28-1900') }
-    let!(:out_of_range_after) { create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-25'), form_id: '28-1900') }
-    let!(:wrong_form_id) { create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-15'), form_id: '28-1901') }
+    let!(:in_range_claim) do
+      create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-15'), form_id: '28-1900')
+    end
+    let!(:out_of_range_before) do
+      create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-13'), form_id: '28-1900')
+    end
+    let!(:out_of_range_after) do
+      create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-25'), form_id: '28-1900')
+    end
+    let!(:wrong_form_id) do
+      create(:veteran_readiness_employment_claim, created_at: Time.zone.parse('2026-01-15'), form_id: '28-1901')
+    end
 
     it 'enqueues jobs only for claims within date range and correct form_id' do
       expect(VREVBMSDocumentUploadJob).to receive(:perform_async).with(in_range_claim.id).once
