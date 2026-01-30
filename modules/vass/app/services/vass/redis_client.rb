@@ -255,24 +255,26 @@ module Vass
 
     ##
     # Saves session data after successful OTC verification.
-    # Stores EDIPI and veteran_id for use in subsequent VASS API calls.
+    # Stores EDIPI, veteran_id, and active jti for use in subsequent VASS API calls.
+    # Session is keyed by UUID (one session per veteran). Storing the jti ensures
+    # only the most recently issued token is valid - previous tokens are invalidated.
     #
-    # @param session_token [String] Session token (generated after OTC verification)
+    # @param uuid [String] Veteran UUID from email link
+    # @param jti [String] JWT ID of the currently valid token
     # @param edipi [String] Veteran EDIPI (required for VASS API headers)
     # @param veteran_id [String] Veteran ID in VASS system
-    # @param uuid [String] Original UUID from email link
     # @return [Boolean] true if write succeeds
     #
-    def save_session(session_token:, edipi:, veteran_id:, uuid:)
+    def save_session(uuid:, jti:, edipi:, veteran_id:)
       session_data = {
+        jti:,
         edipi:,
-        veteran_id:,
-        uuid:
+        veteran_id:
       }
 
       with_redis_error_handling do
         Rails.cache.write(
-          session_key(session_token),
+          session_key(uuid),
           Oj.dump(session_data),
           namespace: 'vass-session-cache',
           expires_in: redis_session_expiry
@@ -281,15 +283,15 @@ module Vass
     end
 
     ##
-    # Retrieves session data by session token.
+    # Retrieves session data by UUID.
     #
-    # @param session_token [String] Session token
-    # @return [Hash, nil] Session data hash or nil if not found/expired
+    # @param uuid [String] Veteran UUID
+    # @return [Hash, nil] Session data hash or nil if not found/expired/revoked
     #
-    def session(session_token:)
+    def session(uuid:)
       cached = with_redis_error_handling do
         Rails.cache.read(
-          session_key(session_token),
+          session_key(uuid),
           namespace: 'vass-session-cache'
         )
       end
@@ -305,37 +307,64 @@ module Vass
     end
 
     ##
+    # Checks if a session exists for the given UUID.
+    # Used to verify token has not been revoked.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [Boolean] true if session exists
+    #
+    def session_exists?(uuid:)
+      session(uuid:).present?
+    end
+
+    ##
+    # Checks if the given jti is the active token for this session.
+    # Returns false if session doesn't exist or jti doesn't match.
+    # This ensures only the most recently issued token is valid.
+    #
+    # @param uuid [String] Veteran UUID
+    # @param jti [String] JWT ID to validate
+    # @return [Boolean] true if jti matches the active session token
+    #
+    def session_valid_for_jti?(uuid:, jti:)
+      session_data = session(uuid:)
+      return false unless session_data
+
+      session_data[:jti] == jti
+    end
+
+    ##
     # Retrieves EDIPI from session for use in VASS API headers.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String, nil] EDIPI or nil if session not found
     #
-    def edipi(session_token:)
-      session_data = session(session_token:)
+    def edipi(uuid:)
+      session_data = session(uuid:)
       session_data&.dig(:edipi)
     end
 
     ##
     # Retrieves veteran_id from session for use in VASS API calls.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String, nil] Veteran ID or nil if session not found
     #
-    def veteran_id(session_token:)
-      session_data = session(session_token:)
+    def veteran_id(uuid:)
+      session_data = session(uuid:)
       session_data&.dig(:veteran_id)
     end
 
     ##
-    # Deletes session data (logout/cleanup).
+    # Deletes session data (token revocation/logout).
     #
-    # @param session_token [String] Session token
-    # @return [void]
+    # @param uuid [String] Veteran UUID
+    # @return [Boolean] true if deletion succeeds
     #
-    def delete_session(session_token:)
+    def delete_session(uuid:)
       with_redis_error_handling do
         Rails.cache.delete(
-          session_key(session_token),
+          session_key(uuid),
           namespace: 'vass-session-cache'
         )
       end
@@ -516,11 +545,11 @@ module Vass
     ##
     # Generates a cache key for session storage.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String] Cache key
     #
-    def session_key(session_token)
-      "session_#{session_token}"
+    def session_key(uuid)
+      "session_#{uuid}"
     end
 
     ##

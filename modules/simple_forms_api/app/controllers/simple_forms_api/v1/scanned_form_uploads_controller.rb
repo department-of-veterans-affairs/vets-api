@@ -64,6 +64,17 @@ module SimpleFormsApi
 
       private
 
+      def normalized_params
+        {
+          form_number: params[:form_number],
+          confirmation_code: params[:confirmation_code],
+          form_data: params.require(:form_data).to_unsafe_h.deep_symbolize_keys,
+          supporting_documents: Array(params[:supporting_documents]).map do |doc|
+            doc.permit(:confirmation_code).to_h.symbolize_keys
+          end
+        }
+      end
+
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
       end
@@ -103,7 +114,7 @@ module SimpleFormsApi
 
       def upload_response_with_supporting_documents
         service = SimpleFormsApi::ScannedFormUploadService.new(
-          params:,
+          params: normalized_params,
           current_user: @current_user,
           lighthouse_service:
         )
@@ -150,9 +161,14 @@ module SimpleFormsApi
       end
 
       def create_form_submission
+        form_data_with_attachments = normalized_params[:form_data].merge(
+          confirmation_code: normalized_params[:confirmation_code],
+          supporting_documents: normalized_params[:supporting_documents]
+        )
+
         FormSubmission.create(
-          form_type: params[:form_number],
-          form_data: params[:form_data].to_json,
+          form_type: normalized_params[:form_number],
+          form_data: form_data_with_attachments.to_json,
           user_account: @current_user&.user_account
         )
       end
