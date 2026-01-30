@@ -364,6 +364,11 @@ module IvcChampva
             source: 'IvcChampva::V1::UploadsController'
           )
         end
+      rescue FastImage::UnknownImageType => e
+        Rails.logger.error("Failed to process uploaded file: #{e.message}")
+        render json: {
+          errors: [{ detail: "Unable to process the uploaded file. Please ensure it's a valid image or PDF." }]
+        }, status: :unprocessable_entity
       end
 
       ##

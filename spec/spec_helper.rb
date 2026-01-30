@@ -93,6 +93,7 @@ RSpec.configure do |config|
     # loaded, so we may as well take the hit and load them right away.
     # Verified working on --seed 11101, commit e378e8
     I18n.locale_available?(:en)
+    Shrine.plugin :store_dimensions, on_error: :ignore
   end
 
   config.include SpecBuilders
