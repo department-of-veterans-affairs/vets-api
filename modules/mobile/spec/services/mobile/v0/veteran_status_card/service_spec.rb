@@ -267,7 +267,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         end
 
         it 'logs the error and returns Mobile SOMETHING_WENT_WRONG_RESPONSE' do
-          expect(Rails.logger).to receive(:error).with(/VeteranStatusCard::Service error/, anything)
+          expect(Rails.logger).to receive(:error).with(/Mobile::V0::VeteranStatusCard::Service.*error/, anything)
 
           result = subject.status_card
 

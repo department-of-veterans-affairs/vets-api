@@ -882,7 +882,7 @@ RSpec.describe VeteranStatusCard::Service do
         end
 
         it 'logs the error and returns SOMETHING_WENT_WRONG_RESPONSE' do
-          expect(Rails.logger).to receive(:error).with(/VeteranStatusCard::Service error/, anything)
+          expect(Rails.logger).to receive(:error).with(/VeteranStatusCard::Service.*error/, anything)
 
           result = subject.status_card
 

@@ -8,21 +8,27 @@ module VeteranStatusCard
   # Determines veteran eligibility and returns appropriate card data or error messaging
   #
   class Service
+    # StatsD suffix constants
     STATSD_TOTAL = 'total'
     STATSD_FAILURE = 'failure'
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
 
+    # Response type constnats
     VETERAN_STATUS_CARD = 'veteran_status_card'
     VETERAN_STATUS_ALERT = 'veteran_status_alert'
 
+    # Confirmed status consants
     CONFIRMED_TEXT = 'confirmed'
     NOT_CONFIRMED_TEXT = 'not confirmed'
+
+    # Response constants for vet_verification_status reasons
     VET_STATUS_PERSON_NOT_FOUND_TEXT = 'PERSON_NOT_FOUND'
     VET_STATUS_ERROR_TEXT = 'ERROR'
     VET_STATUS_MORE_RESEARCH_REQUIRED_TEXT = 'MORE_RESEARCH_REQUIRED'
     VET_STATUS_NOT_TITLE_38_TEXT = 'NOT_TITLE_38'
 
+    # Confirmed (eligible) SSC codes
     CONFIRMED_SSC_CODES = %w[A1 A2 A3 A4 A5- A1+ A3+ A4+ A3* A4* B1 B2 B3 B4 B5- B1+ B3+ B4+ B5+ B3* B4* B5* G1 G1+ G3+
                              G4+ G5+ R1 R2 R3 R4 R1+ R3+ R4+ R3* R4* D+].freeze
 
@@ -35,6 +41,8 @@ module VeteranStatusCard
     UNKNOWN_SERVICE_SSC_CODE = 'U'
     EDIPI_NO_PNL_CODE = 'X'
     CURRENTLY_SERVING_CODES = %w[D D*].freeze
+
+    # Codes where a real status could not be determined
     ERROR_SSC_CODES = %w[VNA DVN DVU CVI].freeze
 
     ##
@@ -93,48 +101,114 @@ module VeteranStatusCard
 
     protected
 
+    ##
+    # Returns the StatsD key prefix for metrics
+    # Override in subclasses to use a different prefix (e.g., 'veteran_status_card.mobile')
+    #
+    # @return [String] the StatsD key prefix
+    #
     def statsd_key_prefix
       'veteran_status_card'
     end
 
+    ##
+    # Returns the service name for logging
+    # Override in subclasses to use a different name for log identification
+    #
+    # @return [String] the service name
+    #
     def service_name
       '[VeteranStatusCard::Service]'
     end
 
+    ##
+    # Returns the response for unexpected errors
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def something_went_wrong_response
       VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
     end
 
+    ##
+    # Returns the response for dishonorable discharge
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def dishonorable_response
       VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
     end
 
+    ##
+    # Returns the response for ineligible service (no active duty + discharge other than dishonorable)
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def ineligible_service_response
       VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
     end
 
+    ##
+    # Returns the response for unknown service history
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def unknown_service_response
       VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
     end
 
+    ##
+    # Returns the response when EDIPI has no PNL (Personnel Number List) record
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def edipi_no_pnl_response
       VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
     end
 
+    ##
+    # Returns the response for currently serving members
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def currently_serving_response
       VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
     end
 
+    ##
+    # Returns the generic error response
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
     def error_response
       VeteranStatusCard::Constants::ERROR_RESPONSE
     end
 
     private
 
+    ##
+    # Logs a StatsD metric with the given key
+    #
+    # @param key [String] the metric key suffix (e.g., 'total', 'failure', 'eligible', 'ineligible')
+    # @return [void]
+    #
     def log_statsd(key)
       StatsD.increment("#{statsd_key_prefix}.#{key}")
     end
 
+    ##
+    # Logs the veteran status card result for metrics and debugging
+    #
+    # @param confirmed [Boolean] whether the status is 'confirmed' or 'not confirmed'
+    # @return [void]
+    #
     def log_vsc_result(confirmed = false)
       key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
       log_statsd(key)
