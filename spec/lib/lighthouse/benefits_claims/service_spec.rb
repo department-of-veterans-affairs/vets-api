@@ -254,8 +254,6 @@ RSpec.describe BenefitsClaims::Service do
         context 'missing API description metric tracking' do
           before do
             allow(StatsD).to receive(:increment)
-            allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
-                                                      anything).and_return(false)
           end
 
           let(:claim_with_blank_description) do
