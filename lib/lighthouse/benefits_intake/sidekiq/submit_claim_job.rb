@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'kafka/sidekiq/event_bus_submission_job'
 require 'lighthouse/benefits_intake/metadata'
 require 'lighthouse/benefits_intake/monitor'
 require 'lighthouse/benefits_intake/service'
@@ -30,11 +31,7 @@ module BenefitsIntake
     #
     # @param msg [Hash] sidekiq exhaustion response; 'args', 'error_message' are required
     def self.exhaustion(msg)
-      claim = begin
-        ::SavedClaim.find(msg['args'][0])
-      rescue
-        nil
-      end
+      claim = ::SavedClaim.find_by(id: msg['args'][0])
 
       config = msg['args'][2] || {}
       if claim.present? && config[:submit_kafka_event]
@@ -81,7 +78,7 @@ module BenefitsIntake
       benefits_intake_uuid
     rescue NoRetryError => e
       submission_attempt&.fail!
-      msg = {'args' => [saved_claim_id, user_account_uuid, config], 'error_message' => e.message}
+      msg = { 'args' => [saved_claim_id, user_account_uuid, config], 'error_message' => e.message }
       BenefitsIntake::SubmitClaimJob.exhaustion(msg)
     rescue => e
       submission_attempt&.fail!
@@ -129,7 +126,8 @@ module BenefitsIntake
         y: 5
       }]
 
-      ::PDFUtilities::PDFStamper.get_stamp_set(:vagov_received_at) || default
+      stamp_set = ::PDFUtilities::PDFStamper.get_stamp_set(:vagov_received_at)
+      stamp_set.presence || default
     end
 
     # Create a monitor to be used for _this_ job
@@ -175,7 +173,7 @@ module BenefitsIntake
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
     # @param file_path [String] pdf file path
-    # @param stamp_set [String|Array<Hash>] the identifier for a stamp set or an array of stamps
+    # @param stamp_set [String|Symbol|Array<Hash>] the identifier for a stamp set or an array of stamps
     #
     # @return [String] path to stamped PDF
     def process_document(file_path, stamp_set)
@@ -252,6 +250,7 @@ module BenefitsIntake
     end
 
     # send submission success email
+    # catches any error, logs but does NOT re-raise - prevent job retry
     def send_claim_email
       claim.try(:send_email, email_type) if email_type
     rescue => e

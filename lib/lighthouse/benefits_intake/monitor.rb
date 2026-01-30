@@ -9,7 +9,7 @@ module BenefitsIntake
     # create a benefits intake monitor
     def initialize
       super('lighthouse-benefits-intake')
-      @tage = [] # no form_id so need to override the base value
+      @tags = [] # no form_id so need to override the base value
     end
 
     private
