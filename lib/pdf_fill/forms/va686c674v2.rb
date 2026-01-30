@@ -1033,6 +1033,14 @@ module PdfFill
           'step_children' => {
             limit: 2,
             first_key: 'full_name',
+            'biological_adopted_stepchild' => {
+              'biological_adopted_stepchild_yes' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[77]'
+              },
+              'biological_adopted_stepchild_no' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[76]'
+              }
+            },
             'supporting_stepchild' => {
               'supporting_stepchild_yes' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
@@ -1041,6 +1049,27 @@ module PdfFill
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
               }
             }, # end of supporting_stepchild
+            'biological_stepchild' => {
+              'first' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_first[%iterator%]',
+                limit: 12,
+                question_num: 21,
+                question_suffix: 'A',
+                question_text: 'NAMES OF STEPCHILD(REN) > FIRST NAME'
+              },
+              'middleInitial' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_middle[%iterator%]',
+                question_num: 21,
+                question_suffix: 'A',
+                question_text: 'NAMES OF STEPCHILDREN > MIDDLE INITIAL'
+              },
+              'last' => {
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_last[%iterator%]',
+                question_num: 21,
+                question_suffix: 'A',
+                question_text: 'NAMES OF STEPCHILDREN > LAST NAME'
+              }
+            },
             'full_name' => {
               'first' => {
                 key: 'step_children.full_name.first[%iterator%]',
@@ -1789,6 +1818,7 @@ module PdfFill
         step_children.each do |stepchild|
           # extract middle initial
           stepchild['full_name'] = extract_middle_i(stepchild, 'full_name')
+          stepchild['biological_stepchild'] = stepchild['full_name']
           stepchild['who_does_the_stepchild_live_with'] =
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
@@ -1804,6 +1834,12 @@ module PdfFill
             'more_than_half' => select_radio_button(living_expenses_paid == 'More than half'),
             'half' => select_radio_button(living_expenses_paid == 'Half'),
             'less_than_half' => select_radio_button(living_expenses_paid == 'Less than half')
+          }
+
+          # if any stepchild is present then this should be checked as yes
+          stepchild['biological_adopted_stepchild'] = {
+            'biological_adopted_stepchild_yes' => select_radio_button(true),
+            'biological_adopted_stepchild_no' => 'Off'
           }
         end
 
