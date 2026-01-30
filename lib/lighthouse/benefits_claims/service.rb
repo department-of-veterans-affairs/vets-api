@@ -25,7 +25,7 @@ module BenefitsClaims
     # rubocop:enable Naming/VariableNumber
 
     # Accepts either a user object or an ICN string for backwards compatibility
-    # @param user_or_icn [User, String] A user object (with .icn method) or an ICN string
+    # @param user_or_icn [User, String] A user object with an ICN or an ICN string
     def initialize(user_or_icn)
       if user_or_icn.respond_to?(:icn)
         @user = user_or_icn
