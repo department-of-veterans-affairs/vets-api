@@ -240,6 +240,13 @@
     :path: '/v1/usermgmt/account-service/account'
     :file_path: 'mhv/account_creation/create_account/default'
 
+- :name: 'SSOe Get Traits'
+  :base_uri: <%= "#{URI(IdentitySettings.ssoe_get_traits.url).host}:#{URI(IdentitySettings.ssoe_get_traits.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: '/psim_webservice/dev/IdMSSOeWebService'
+      :file_path: 'ssoe/get_traits/default'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
