@@ -9,20 +9,27 @@ RSpec.describe Eps::RedisClient do
   let(:appointment_id) { '987654321' }
   let(:email) { 'test@example.com' }
   let(:appointment_data_key) { "#{described_class::CACHE_KEY}:#{uuid}:#{appointment_id.last(4)}" }
+  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
-    allow(Rails.cache).to receive(:write)
-    allow(Rails.cache).to receive(:read)
+    allow(Rails).to receive(:cache).and_return(memory_store)
+    Rails.cache.clear
   end
 
   describe '#store_appointment_data' do
-    it 'stores appointment data in Redis with TTL' do
-      expect(Rails.cache).to receive(:write).with(
-        appointment_data_key,
-        { appointment_id:, email: },
-        namespace: described_class::CACHE_NAMESPACE,
-        expires_in: described_class::CACHE_TTL
-      )
+    it 'stores encrypted appointment data in Redis with TTL' do
+      client.store_appointment_data(uuid:, appointment_id:, email:)
+
+      # Verify data was written to cache
+      cached_data = Rails.cache.read(appointment_data_key, namespace: described_class::CACHE_NAMESPACE)
+      expect(cached_data).to be_present
+      expect(cached_data).to be_a(String) # Encrypted ciphertext
+      expect(cached_data).not_to include(email) # Email should not be visible in plaintext
+    end
+
+    it 'encrypts data before storing' do
+      lockbox_instance = client.send(:lockbox)
+      expect(lockbox_instance).to receive(:encrypt).and_call_original
 
       client.store_appointment_data(uuid:, appointment_id:, email:)
     end
@@ -52,13 +59,49 @@ RSpec.describe Eps::RedisClient do
   end
 
   describe '#fetch_appointment_data' do
-    it 'retrieves appointment data from Redis' do
-      expect(Rails.cache).to receive(:read).with(
-        appointment_data_key,
-        namespace: described_class::CACHE_NAMESPACE
-      )
+    context 'with encrypted data in cache' do
+      before do
+        client.store_appointment_data(uuid:, appointment_id:, email:)
+      end
 
-      client.fetch_appointment_data(uuid:, appointment_id:)
+      it 'retrieves and decrypts appointment data from Redis' do
+        result = client.fetch_appointment_data(uuid:, appointment_id:)
+
+        expect(result).to be_a(Hash)
+        expect(result[:appointment_id]).to eq(appointment_id)
+        expect(result[:email]).to eq(email)
+      end
+
+      it 'decrypts data after retrieval' do
+        lockbox_instance = client.send(:lockbox)
+        expect(lockbox_instance).to receive(:decrypt).and_call_original
+
+        client.fetch_appointment_data(uuid:, appointment_id:)
+      end
+    end
+
+    context 'with no data in cache' do
+      it 'returns nil when no data exists' do
+        expect(client.fetch_appointment_data(uuid:, appointment_id:)).to be_nil
+      end
+    end
+
+    context 'with invalid encrypted data' do
+      before do
+        # Store invalid encrypted data
+        Rails.cache.write(
+          appointment_data_key,
+          'invalid-encrypted-data',
+          namespace: described_class::CACHE_NAMESPACE
+        )
+      end
+
+      it 'returns nil and logs warning when decryption fails' do
+        expect(Rails.logger).to receive(:warn).with(/Failed to decrypt cached data/)
+
+        result = client.fetch_appointment_data(uuid:, appointment_id:)
+        expect(result).to be_nil
+      end
     end
 
     it 'returns nil when uuid is blank' do
@@ -67,6 +110,23 @@ RSpec.describe Eps::RedisClient do
 
     it 'returns nil when appointment_id is blank' do
       expect(client.fetch_appointment_data(uuid:, appointment_id: nil)).to be_nil
+    end
+  end
+
+  describe 'encryption round-trip' do
+    it 'successfully encrypts and decrypts data' do
+      client.store_appointment_data(uuid:, appointment_id:, email:)
+      result = client.fetch_appointment_data(uuid:, appointment_id:)
+
+      expect(result).to eq({ appointment_id:, email: })
+    end
+
+    it 'handles special characters in email' do
+      special_email = 'test+special@example.com'
+      client.store_appointment_data(uuid:, appointment_id:, email: special_email)
+      result = client.fetch_appointment_data(uuid:, appointment_id:)
+
+      expect(result[:email]).to eq(special_email)
     end
   end
 
