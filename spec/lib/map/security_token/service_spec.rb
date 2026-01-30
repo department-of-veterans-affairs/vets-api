@@ -17,7 +17,7 @@ describe MAP::SecurityToken::Service do
     let(:jwks_cache_key) { 'map_public_jwks' }
     let(:jwk_payload) { JSON.parse(File.read('spec/fixtures/map/jwks.json'))['keys'].first }
     let(:map_jwks) { JWT::JWK::Set.new([jwk_payload]) }
-    let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
+    let(:redis_store) { ActiveSupport::Cache::MemoryStore.new }
 
     shared_examples 'STS token request' do
       before do

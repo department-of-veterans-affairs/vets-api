@@ -344,7 +344,7 @@ describe SignIn::Logingov::Service do
     context 'when the public JWKs response is cached' do
       let(:cache_key) { 'logingov_public_jwks' }
       let(:cache_expiration) { 30.minutes }
-      let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
+      let(:redis_store) { ActiveSupport::Cache::MemoryStore.new }
 
       before do
         allow(Rails).to receive(:cache).and_return(redis_store)

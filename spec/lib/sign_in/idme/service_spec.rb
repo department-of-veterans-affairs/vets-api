@@ -325,7 +325,7 @@ describe SignIn::Idme::Service do
       let(:cache_key) { 'idme_public_jwks' }
       let(:cache_expiration) { 30.minutes }
       let(:response) { double(body: 'some-body') }
-      let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
+      let(:redis_store) { ActiveSupport::Cache::MemoryStore.new }
 
       before do
         allow(Rails).to receive(:cache).and_return(redis_store)
