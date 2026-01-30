@@ -51,7 +51,7 @@ class Form526StatusPollingJob
       else
         Rails.logger.info(
           'Final status not yet available from Benefits Intake API for 526 submission',
-          status:, form_submission&.id:
+          status:, form_submission_id: form_submission&.id
         )
       end
     end
@@ -86,7 +86,10 @@ class Form526StatusPollingJob
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
 
-    Rails.logger.warn('Form526StatusPollingJob submission failure', { result:, submission_id: }) if result == 'failure'
+    if result == 'failure'
+      Rails.logger.warn('Form526StatusPollingJob submission failure',
+                        { result:, submission_id: })
+    end
   end
 
   def notify_veteran(submission_id)
