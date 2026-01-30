@@ -178,7 +178,7 @@ gem 'ttfunk', '~> 1.7.0'
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: '534-schema-update'
 gem 'virtus'
 gem 'warden-github'
 gem 'waterdrop'
