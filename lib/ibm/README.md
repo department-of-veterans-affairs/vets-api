@@ -2,10 +2,7 @@
 
 Allows a programmatic submission of a form via JSON to the IBM MMS API.
 
-## Table of Contents
-
 - [IBM MMS Intake](#ibm-mms-intake)
-  - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
   - [Usage Examples](#usage-examples)
