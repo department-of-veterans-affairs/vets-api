@@ -80,15 +80,15 @@ module DebtManagementCenter
 
       if missing_ids.any?
         Rails.logger.warn(
-          "DebtsService#get_debts_by_ids: Missing composite_debt_ids",
+          'DebtsService#get_debts_by_ids: Missing composite_debt_ids',
           {
             requested_count: composite_debt_ids.length,
             found_count: requested_debts.length
           }
         )
         StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", tags: [
-          "missing_count:#{missing_ids.length}"
-        ])
+                           "missing_count:#{missing_ids.length}"
+                         ])
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.get_debt.success")

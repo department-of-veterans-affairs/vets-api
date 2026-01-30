@@ -18,10 +18,17 @@ module Swagger
           parameter do
             key :name, :metadata
             key :in, :formData
-            key :description, 'JSON string containing dispute information. Must include a "disputes" array with objects containing: composite_debt_id (string, required), deduction_code (string, required), original_ar (number, required), current_ar (number, required), benefit_type (string, required), dispute_reason (string, required), rcvbl_id (string, optional)'
+            key :description,
+                'JSON string containing dispute information. Must include a "disputes" array with ' \
+                'objects containing: composite_debt_id (string, required), deduction_code (string, required), ' \
+                'original_ar (number, required), current_ar (number, required), benefit_type (string, required), ' \
+                'dispute_reason (string, required), rcvbl_id (string, optional)'
             key :required, true
             key :type, :string
-            key :example, '{"disputes":[{"composite_debt_id":"71166","deduction_code":"71","original_ar":166.67,"current_ar":120.4,"benefit_type":"CH33 Books, Supplies/MISC EDU","dispute_reason":"I don\'t think I owe this debt to VA"}]}'
+            key :example,
+                '{"disputes":[{"composite_debt_id":"71166","deduction_code":"71",' \
+                '"original_ar":166.67,"current_ar":120.4,"benefit_type":"CH33 Books, Supplies/MISC EDU",' \
+                '"dispute_reason":"I don\'t think I owe this debt to VA"}]}'
           end
 
           parameter do
@@ -56,11 +63,11 @@ module Swagger
           items do
             key :required, %i[composite_debt_id deduction_code original_ar current_ar benefit_type dispute_reason]
             property :composite_debt_id, type: :string,
-                                          description: 'Composite debt identifier'
+                                         description: 'Composite debt identifier'
             property :deduction_code, type: :string,
                                       description: 'Deduction code'
             property :original_ar, type: :number,
-                                    description: 'Original accounts receivable amount'
+                                   description: 'Original accounts receivable amount'
             property :current_ar, type: :number,
                                   description: 'Current accounts receivable amount'
             property :benefit_type, type: :string,
