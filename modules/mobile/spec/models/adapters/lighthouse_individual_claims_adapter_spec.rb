@@ -128,7 +128,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
       events_timeline = claim_with_untracked_documents[:events_timeline]
       expect(events_timeline).to include(an_object_having_attributes(
                                            document_id: '{0C994A8F-F2FE-4963-B013-870E420EFFD1}',
-                                           document: nil,
+                                           documents: nil,
                                            type: :other_documents_list
                                          ))
     end
