@@ -22,7 +22,7 @@ describe SM::Client, '#status' do
                                                                  hash_including(timeout_seconds: 60))
 
             expect do
-              client.post_create_message(message_params, poll_for_status: true)
+              client.post_create_message(message_params, is_oh: true)
             end.not_to raise_error
           end
         end
@@ -31,7 +31,7 @@ describe SM::Client, '#status' do
       it 'raises BackendServiceException on FAILED' do
         VCR.use_cassette('sm_client/messages/creates/status_failed') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            expect { client.post_create_message(message_params, poll_for_status: true) }
+            expect { client.post_create_message(message_params, is_oh: true) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
                 expect(error.status_code).to eq(400)
                 expect(error.errors.first[:code]).to eq('SM98')
@@ -44,7 +44,7 @@ describe SM::Client, '#status' do
       it 'raises BackendServiceException on INVALID' do
         VCR.use_cassette('sm_client/messages/creates/status_invalid') do
           VCR.use_cassette('sm_client/messages/creates/a_new_oh_message_without_attachments') do
-            expect { client.post_create_message(message_params, poll_for_status: true) }
+            expect { client.post_create_message(message_params, is_oh: true) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
                 expect(error.status_code).to eq(400)
                 expect(error.errors.first[:code]).to eq('SM98')
@@ -61,7 +61,7 @@ describe SM::Client, '#status' do
               expect(client).to receive(:poll_message_status).with(674_838,
                                                                    hash_including(timeout_seconds: 60))
 
-              client.post_create_message(message_params, poll_for_status: true)
+              client.post_create_message(message_params, is_oh: true)
             end
           end
         end
@@ -89,7 +89,7 @@ describe SM::Client, '#status' do
 
           msg = client.post_create_message_reply(674_838, { subject: 's', category: 'OTHER',
                                                             recipient_id: 1, body: 'b' },
-                                                 poll_for_status: false)
+                                                 is_oh: false)
 
           expect(msg).to be_a(Message)
           expect(msg.id).to eq(674_874)

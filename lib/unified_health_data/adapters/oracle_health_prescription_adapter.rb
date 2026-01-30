@@ -409,13 +409,15 @@ module UnifiedHealthData
         # Rule: Expired more than 120 days ago → discontinued
         return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
 
-        # Rule: No refills remaining → expired (UNLESS it's a Non-VA medication)
+        # Rule: Most recent dispense is in-progress → refillinprocess
+        # This takes priority over expired status since an active refill is being processed
+        return 'refillinprocess' if has_in_progress_dispense
+
+        # Rule: No refills remaining AND past expiration date → expired (UNLESS it's a Non-VA medication)
         # Non-VA meds are always reported with 0 refills but should still be 'active' if status is 'active'
         is_non_va = resource && non_va_med?(resource)
-        return 'expired' if refills_remaining.zero? && !is_non_va
-
-        # Rule: Most recent dispense is in-progress → refillinprocess
-        return 'refillinprocess' if has_in_progress_dispense
+        is_past_expiration = expiration_date && expiration_date < Time.current.utc
+        return 'expired' if refills_remaining.zero? && is_past_expiration && !is_non_va
 
         # Default: active
         'active'

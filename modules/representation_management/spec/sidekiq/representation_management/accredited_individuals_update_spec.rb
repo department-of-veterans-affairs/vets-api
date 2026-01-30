@@ -85,6 +85,18 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         expect(Rails.logger).to receive(:error).with(
           /RepresentationManagement::AccreditedIndividualsUpdate: Address validation failed for record #{individual.id}/
         )
+        allow(Rails.logger).to receive(:info)
+        subject.perform(record_ids)
+      end
+
+      it 'enqueues a geocoding job for the failed record' do
+        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:info)
+
+        expect(RepresentationManagement::GeocodeRepresentativeJob)
+          .to receive(:perform_in)
+          .with(0.seconds, 'AccreditedIndividual', individual.id)
+
         subject.perform(record_ids)
       end
     end
@@ -218,6 +230,132 @@ RSpec.describe RepresentationManagement::AccreditedIndividualsUpdate do
         expect(SlackNotify::Client).not_to receive(:new)
 
         subject.perform(record_ids)
+      end
+    end
+
+    context 'geocoding job enqueueing' do
+      context 'with multiple failed validations' do
+        let!(:individual1) { create(:accredited_individual, raw_address: raw_address_data) }
+        let!(:individual2) { create(:accredited_individual, raw_address: raw_address_data) }
+        let!(:individual3) { create(:accredited_individual, raw_address: raw_address_data) }
+        let(:record_ids) { [individual1.id, individual2.id, individual3.id] }
+
+        before do
+          allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(false)
+          allow(Rails.logger).to receive(:error)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'enqueues jobs with 2-second spacing' do
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(0.seconds, 'AccreditedIndividual', individual1.id)
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(2.seconds, 'AccreditedIndividual', individual2.id)
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(4.seconds, 'AccreditedIndividual', individual3.id)
+
+          subject.perform(record_ids)
+        end
+      end
+
+      context 'with mixed success and failure validations' do
+        let!(:individual1) { create(:accredited_individual, raw_address: raw_address_data) }
+        let!(:individual2) { create(:accredited_individual, raw_address: raw_address_data) }
+        let!(:individual3) { create(:accredited_individual, raw_address: raw_address_data) }
+        let(:record_ids) { [individual1.id, individual2.id, individual3.id] }
+
+        before do
+          allow(Rails.logger).to receive(:error)
+          allow(Rails.logger).to receive(:info)
+
+          # Only individual2 fails validation
+          allow(individual1).to receive(:validate_address).and_return(true)
+          allow(individual2).to receive(:validate_address).and_return(false)
+          allow(individual3).to receive(:validate_address).and_return(true)
+
+          allow(AccreditedIndividual).to receive(:find_by).with(id: individual1.id).and_return(individual1)
+          allow(AccreditedIndividual).to receive(:find_by).with(id: individual2.id).and_return(individual2)
+          allow(AccreditedIndividual).to receive(:find_by).with(id: individual3.id).and_return(individual3)
+        end
+
+        it 'only enqueues geocoding jobs for failed validations' do
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).once
+            .with(0.seconds, 'AccreditedIndividual', individual2.id)
+
+          subject.perform(record_ids)
+        end
+      end
+
+      context 'when all validations succeed' do
+        let!(:individual1) { create(:accredited_individual, raw_address: raw_address_data) }
+        let!(:individual2) { create(:accredited_individual, raw_address: raw_address_data) }
+        let(:record_ids) { [individual1.id, individual2.id] }
+
+        before do
+          allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(true)
+        end
+
+        it 'does not enqueue any geocoding jobs' do
+          expect(RepresentationManagement::GeocodeRepresentativeJob).not_to receive(:perform_in)
+
+          subject.perform(record_ids)
+        end
+
+        it 'does not log geocoding job count' do
+          expect(Rails.logger).not_to receive(:info).with(/Enqueued.*geocoding jobs/)
+
+          subject.perform(record_ids)
+        end
+      end
+
+      context 'with different individual types needing geocoding' do
+        let!(:attorney) { create(:accredited_individual, :attorney, raw_address: raw_address_data) }
+        let!(:agent) { create(:accredited_individual, :claims_agent, raw_address: raw_address_data) }
+        let!(:representative) { create(:accredited_individual, :representative, raw_address: raw_address_data) }
+        let(:record_ids) { [attorney.id, agent.id, representative.id] }
+
+        before do
+          allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(false)
+          allow(Rails.logger).to receive(:error)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'enqueues geocoding jobs for all individual types' do
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(0.seconds, 'AccreditedIndividual', attorney.id)
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(2.seconds, 'AccreditedIndividual', agent.id)
+          expect(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).with(4.seconds, 'AccreditedIndividual', representative.id)
+
+          subject.perform(record_ids)
+        end
+      end
+
+      context 'when geocoding job enqueueing fails' do
+        let!(:individual) { create(:accredited_individual, raw_address: raw_address_data) }
+        let(:record_ids) { [individual.id] }
+
+        before do
+          allow_any_instance_of(AccreditedIndividual).to receive(:validate_address).and_return(false)
+          allow(Rails.logger).to receive(:error)
+          allow(RepresentationManagement::GeocodeRepresentativeJob)
+            .to receive(:perform_in).and_raise(StandardError.new('Sidekiq error'))
+        end
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with(
+            /RepresentationManagement::AccreditedIndividualsUpdate: Error enqueueing geocoding jobs: Sidekiq error/
+          )
+
+          subject.perform(record_ids)
+        end
+
+        it 'adds the error to slack messages' do
+          subject.perform(record_ids)
+          expect(subject.slack_messages).to include(/Error enqueueing geocoding jobs/)
+        end
       end
     end
 

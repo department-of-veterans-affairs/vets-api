@@ -52,6 +52,7 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
+    resource :veteran_status_card, only: :show
 
     resources :form210779, only: [:create] do
       collection do
@@ -182,7 +183,8 @@ Rails.application.routes.draw do
 
     resources :efolder, only: %i[index show]
 
-    resources :tsa_letter, only: %i[index show]
+    get :tsa_letter, to: 'tsa_letter#show'
+    get 'tsa_letter/:id/version/:version_id/download', to: 'tsa_letter#download'
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -311,7 +313,6 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
-    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
