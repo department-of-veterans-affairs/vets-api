@@ -17,13 +17,9 @@ module DebtsApi
           INVALID_REQUEST_PAYLOAD = 'Invalid request payload'
 
           def parse_json_safely(json_string, max_size: MAX_JSON_SIZE)
-            if json_string.nil?
-              log_and_raise_error('JSON string was nil')
-            end
+            log_and_raise_error('JSON string was nil') if json_string.nil?
 
-            if json_string.bytesize > max_size
-              log_and_raise_error("JSON exceeds maximum size of #{max_size / 1024}KB")
-            end
+            log_and_raise_error("JSON exceeds maximum size of #{max_size / 1024}KB") if json_string.bytesize > max_size
 
             # Parse with explicit nesting limit (default is 100, but being explicit documents security intent)
             JSON.parse(json_string, symbolize_names: true, max_nesting: MAX_JSON_NESTING)
@@ -32,16 +28,12 @@ module DebtsApi
           end
 
           def validate_field_schema(records, field_name:, required_fields: [], string_fields: [])
-            unless records.is_a?(Array)
-              log_and_raise_error("#{field_name} must be an array")
-            end
+            log_and_raise_error("#{field_name} must be an array") unless records.is_a?(Array)
 
             records.each_with_index do |item, index|
               prefix = "#{field_name}[#{index}]"
 
-              unless item.is_a?(Hash)
-                log_and_raise_error("#{prefix} must be an object")
-              end
+              log_and_raise_error("#{prefix} must be an object") unless item.is_a?(Hash)
 
               validate_required_fields(item, required_fields:, prefix:)
               validate_string_fields(item, string_fields:, prefix:)
@@ -56,17 +48,17 @@ module DebtsApi
           private
 
           def validate_string_format(value, field_name:, max_length: MAX_STRING_FIELD_LENGTH)
-            unless value.is_a?(String)
-              log_and_raise_error("#{field_name} must be a string")
-            end
+            log_and_raise_error("#{field_name} must be a string") unless value.is_a?(String)
 
             exceeds_maximum_length = value.bytesize > max_length
             invalid_characters = value.match?(/[\x00-\x1F]/)
-            
+
             if exceeds_maximum_length || invalid_characters
-              message = exceeds_maximum_length ? 
-                "#{field_name} exceeds maximum length of #{max_length} characters" : 
-                "#{field_name} contains invalid characters"
+              message = if exceeds_maximum_length
+                          "#{field_name} exceeds maximum length of #{max_length} characters"
+                        else
+                          "#{field_name} contains invalid characters"
+                        end
               log_and_raise_error(message)
             end
           end
@@ -93,11 +85,6 @@ module DebtsApi
 
               validate_string_format(value, field_name: "#{prefix}.#{field}")
             end
-          end
-
-          def log_and_raise_error(message)
-            Rails.logger.warn(message)
-            raise ArgumentError, INVALID_REQUEST_PAYLOAD
           end
         end
       end
@@ -139,15 +126,14 @@ module DebtsApi
             disputes.each_with_index do |debt, index|
               rcvbl_id = debt[:rcvbl_id] || debt['rcvbl_id']
               next if rcvbl_id.nil?
-              unless rcvbl_id.is_a?(Numeric)
-                log_and_raise_error("disputes[#{index}].rcvbl_id must be a number")
-              end
+
+              log_and_raise_error("disputes[#{index}].rcvbl_id must be a number") unless rcvbl_id.is_a?(Numeric)
             end
           end
 
           def extract_composite_debt_ids_from_field(debts)
             composite_debt_ids = debts.map.with_index do |debt, index|
-              raise ArgumentError, "disputes[#{index}] must be an object" unless debt.is_a?(Hash)
+              log_and_raise_error("disputes[#{index}] must be an object") unless debt.is_a?(Hash)
 
               debt[:composite_debt_id]
             end
@@ -157,16 +143,16 @@ module DebtsApi
           end
 
           def validate_debt_exist_for_user(composite_debt_ids, user:)
-            if composite_debt_ids.nil? || composite_debt_ids.empty?
-              raise ArgumentError, 'At least one composite debt ID is required'
-            end
+            log_and_raise_error('At least one composite debt ID is required') if composite_debt_ids.blank?
 
             debts_service = DebtManagementCenter::DebtsService.new(user)
             found_debts = debts_service.get_debts_by_ids(composite_debt_ids)
 
             if found_debts.length < composite_debt_ids.length
               missing_count = composite_debt_ids.length - found_debts.length
-              raise ArgumentError, "Invalid debt identifiers: #{missing_count} of #{composite_debt_ids.length} debt identifiers not found"
+              log_and_raise_error(
+                "Invalid debt identifiers: #{missing_count} of #{composite_debt_ids.length} not found"
+              )
             end
           end
         end

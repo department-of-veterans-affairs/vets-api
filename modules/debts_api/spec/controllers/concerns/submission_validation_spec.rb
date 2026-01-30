@@ -15,7 +15,7 @@ RSpec.shared_examples 'raises invalid payload error' do |invalid_inputs, validat
           .to raise_error(ArgumentError, 'Invalid request payload')
       else
         # Handle case with keyword args (method_args_key is a symbol indicating which let variable to use)
-        args = method_args_key == :user ? { user: user } : {}
+        args = method_args_key == :user ? { user: } : {}
         expect { validator.send(method_name, invalid_input, **args) }
           .to raise_error(ArgumentError, 'Invalid request payload')
       end
@@ -36,12 +36,12 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
       end
 
       it_behaves_like 'raises invalid payload error',
-                      [nil, '{invalid}', '{"key": "' + ('x' * 101.kilobytes) + '"}'],
+                      [nil, '{invalid}', "{\"key\": \"#{'x' * 101.kilobytes}\"}"],
                       described_class::BaseValidator,
                       :parse_json_safely
 
       it 'respects custom max_size parameter' do
-        expect { base_validator.parse_json_safely('{"key": "' + ('x' * 50.kilobytes) + '"}', max_size: 10.kilobytes) }
+        expect { base_validator.parse_json_safely("{\"key\": \"#{'x' * 50.kilobytes}\"}", max_size: 10.kilobytes) }
           .to raise_error(ArgumentError)
       end
     end
@@ -57,8 +57,8 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
       it 'validates valid records successfully' do
         expect do
           base_validator.validate_field_schema(valid_records, field_name: 'disputes',
-                                                             required_fields: [:composite_debt_id],
-                                                             string_fields: [:composite_debt_id, :dispute_reason])
+                                                              required_fields: [:composite_debt_id],
+                                                              string_fields: %i[composite_debt_id dispute_reason])
         end.not_to raise_error
       end
 
@@ -67,8 +67,11 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
                         [{ not: 'array' }, { field_name: 'disputes', required_fields: [] }],
                         [['not hash'], { field_name: 'disputes', required_fields: [] }],
                         [[{ id: '123' }], { field_name: 'disputes', required_fields: [:composite_debt_id] }],
-                        [[{ composite_debt_id: 'x' * 1001 }], { field_name: 'disputes', required_fields: [:composite_debt_id], string_fields: [:composite_debt_id] }],
-                        [[{ composite_debt_id: '123', reason: "test\x00null" }], { field_name: 'disputes', required_fields: [:composite_debt_id], string_fields: [:reason] }]
+                        [[{ composite_debt_id: 'x' * 1001 }],
+                         { field_name: 'disputes', required_fields: [:composite_debt_id],
+                           string_fields: [:composite_debt_id] }],
+                        [[{ composite_debt_id: '123', reason: "test\x00null" }],
+                         { field_name: 'disputes', required_fields: [:composite_debt_id], string_fields: [:reason] }]
                       ],
                       described_class::BaseValidator,
                       :validate_field_schema
@@ -78,7 +81,8 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
   describe 'DisputeDebtValidator' do
     let(:user) { build(:user, :loa3) }
     let(:valid_metadata) do
-      { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 166.67, current_ar: 120.4, benefit_type: 'CH33', dispute_reason: 'Test' }] }.to_json
+      { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 166.67, current_ar: 120.4,
+                     benefit_type: 'CH33', dispute_reason: 'Test' }] }.to_json
     end
     let(:mock_service) { instance_double(DebtManagementCenter::DebtsService) }
     let(:mock_debt) { { 'compositeDebtId' => '71166' } }
@@ -91,7 +95,7 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
     describe '.parse_and_validate_metadata' do
       it 'validates and returns parsed metadata without raising errors' do
         expect do
-          result = dispute_validator.parse_and_validate_metadata(valid_metadata, user: user)
+          result = dispute_validator.parse_and_validate_metadata(valid_metadata, user:)
           expect(result[:disputes].first[:composite_debt_id]).to eq('71166')
         end.not_to raise_error
         expect(mock_service).to have_received(:get_debts_by_ids).with(['71166'])
@@ -107,7 +111,8 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
       it_behaves_like 'raises invalid payload error',
                       [
                         { disputes: [{ composite_debt_id: '123' }] }.to_json,
-                        { disputes: [{ deduction_code: '71', original_ar: 1, current_ar: 1, benefit_type: 'CH33', dispute_reason: 'Test' }] }.to_json
+                        { disputes: [{ deduction_code: '71', original_ar: 1, current_ar: 1, benefit_type: 'CH33',
+                                       dispute_reason: 'Test' }] }.to_json
                       ],
                       described_class::DisputeDebtValidator,
                       :parse_and_validate_metadata,
@@ -115,23 +120,25 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
 
       it 'raises ArgumentError when debts do not exist for user' do
         allow(mock_service).to receive(:get_debts_by_ids).and_return([])
-        expect { dispute_validator.parse_and_validate_metadata(valid_metadata, user: user) }
+        expect { dispute_validator.parse_and_validate_metadata(valid_metadata, user:) }
           .to raise_error(ArgumentError, /Invalid debt identifiers/)
       end
 
       it 'handles optional numeric rcvbl_id and custom max_size' do
-        metadata = { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 1, current_ar: 1, benefit_type: 'CH33', dispute_reason: 'Test', rcvbl_id: 908776456 }] }.to_json
-        result = dispute_validator.parse_and_validate_metadata(metadata, user: user)
-        expect(result[:disputes].first[:rcvbl_id]).to eq(908776456)
+        metadata = { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 1, current_ar: 1,
+                                  benefit_type: 'CH33', dispute_reason: 'Test', rcvbl_id: 908_776_456 }] }.to_json
+        result = dispute_validator.parse_and_validate_metadata(metadata, user:)
+        expect(result[:disputes].first[:rcvbl_id]).to eq(908_776_456)
 
         large = { disputes: [{ composite_debt_id: 'x' * 50.kilobytes }] }.to_json
-        expect { dispute_validator.parse_and_validate_metadata(large, user: user, max_size: 10.kilobytes) }
+        expect { dispute_validator.parse_and_validate_metadata(large, user:, max_size: 10.kilobytes) }
           .to raise_error(ArgumentError, invalid_payload_message)
       end
 
       it 'raises ArgumentError when rcvbl_id is a string' do
-        metadata = { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 1, current_ar: 1, benefit_type: 'CH33', dispute_reason: 'Test', rcvbl_id: '908776456' }] }.to_json
-        expect { dispute_validator.parse_and_validate_metadata(metadata, user: user) }
+        metadata = { disputes: [{ composite_debt_id: '71166', deduction_code: '71', original_ar: 1, current_ar: 1,
+                                  benefit_type: 'CH33', dispute_reason: 'Test', rcvbl_id: '908776456' }] }.to_json
+        expect { dispute_validator.parse_and_validate_metadata(metadata, user:) }
           .to raise_error(ArgumentError, invalid_payload_message)
       end
     end

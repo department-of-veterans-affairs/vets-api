@@ -61,10 +61,10 @@ module DebtsApi
 
       def parse_metadata
         @parsed_metadata = DebtsApi::Concerns::SubmissionValidation::DisputeDebtValidator
-          .parse_and_validate_metadata(
-            submission_params[:metadata],
-            user: current_user
-          )
+                           .parse_and_validate_metadata(
+                             submission_params[:metadata],
+                             user: current_user
+                           )
       rescue ArgumentError => e
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
         Rails.logger.error("DigitalDisputeController#parse_metadata validation error: #{e.message}")

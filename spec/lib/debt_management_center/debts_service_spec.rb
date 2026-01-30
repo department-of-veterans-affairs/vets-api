@@ -135,7 +135,9 @@ RSpec.describe DebtManagementCenter::DebtsService do
           cdid = service.get_debts[:debts].first['compositeDebtId']
           expect(Rails.logger).to receive(:warn).with('DebtsService#get_debts_by_ids: Missing composite_debt_ids',
                                                       hash_including(requested_count: 2, found_count: 1))
-          expect(StatsD).to receive(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", tags: ['missing_count:1'])
+          expect(StatsD).to receive(:increment).with(
+            "#{described_class::STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", tags: ['missing_count:1']
+          )
           expect(StatsD).to receive(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debt.success")
           service.get_debts_by_ids([cdid, '999999'])
         end
@@ -148,7 +150,9 @@ RSpec.describe DebtManagementCenter::DebtsService do
           cdid = service.get_debts[:debts].first['compositeDebtId']
           expect(Rails.logger).not_to receive(:warn)
           service.get_debts_by_ids([cdid])
-          expect(StatsD).not_to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", anything)
+          expect(StatsD).not_to have_received(:increment).with(
+            "#{described_class::STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", anything
+          )
           expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debt.success")
         end
       end
