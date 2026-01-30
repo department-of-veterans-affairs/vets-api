@@ -14,11 +14,23 @@ module VeteranStatusCard
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
 
-    # Response type constnats
+    # Ineligibility reasons based on logic
+    # Used in logging, responses to the frontend, and StatsD suffixes
+    DISHONORABLE_SSC_MESSAGE = 'dishonorable_ssc_code'
+    INELIGIBLE_SSC_MESSAGE = 'ineligible_ssc_code'
+    UNKNOWN_SSC_MESSAGE = 'unknown_ssc_code'
+    EDIPI_NO_PNL_SSC_MESSAGE = 'edipi_no_pnl_ssc_code'
+    CURRENTLY_SERVING_SSC_MESSAGE = 'currently_serving_ssc_code'
+    ERROR_SSC_MESSAGE = 'error_ssc_code'
+    UNCAUGHT_SSC_MESSAGE = 'uncaught_ssc_code'
+    UNKNOWN_REASON_MESSAGE = 'unknown_reason'
+    NO_SERVICE_HISTORY_MESSAGE = 'no_service_history'
+
+    # Response type constants
     VETERAN_STATUS_CARD = 'veteran_status_card'
     VETERAN_STATUS_ALERT = 'veteran_status_alert'
 
-    # Confirmed status consants
+    # Confirmed status constants
     CONFIRMED_TEXT = 'confirmed'
     NOT_CONFIRMED_TEXT = 'not confirmed'
 
@@ -53,6 +65,7 @@ module VeteranStatusCard
     def initialize(user)
       log_statsd(STATSD_TOTAL)
       @user = user
+      @ineligible_message = nil
 
       if @user.nil?
         log_statsd(STATSD_FAILURE)
@@ -79,18 +92,15 @@ module VeteranStatusCard
     #     - When not eligible: { header:, body:, alert_type: }
     #
     def status_card
-      # Validate required user data
       if eligible?
-        # Check if service history exists before returning eligible response
-        return error_response_hash(unknown_service_response) unless service_history?
-
         log_vsc_result(confirmed: true)
 
         eligible_response
       else
+        error_details = error_results
+
         log_vsc_result(confirmed: false)
 
-        error_details = error_results
         ineligible_response(error_details)
       end
     rescue => e
@@ -200,7 +210,8 @@ module VeteranStatusCard
     # @return [void]
     #
     def log_statsd(key)
-      StatsD.increment("#{statsd_key_prefix}.#{key}")
+      # Ensure statsd is logged with downcase suffixes
+      StatsD.increment("#{statsd_key_prefix}.#{key.downcase}")
     end
 
     ##
@@ -212,11 +223,35 @@ module VeteranStatusCard
     def log_vsc_result(confirmed: false)
       key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
       log_statsd(key)
+      log_statsd(ineligible_message_or_vet_verification_reason) unless confirmed
       Rails.logger.info("#{service_name} VSC Card Result", {
-                          confirmation_status: (confirmed ? CONFIRMED_TEXT : vet_verification_status[:reason]).upcase,
+                          confirmation_status: confirmation_status(confirmed),
                           service_summary_code: ssc_code,
                           has_service_history: service_history?
                         })
+    end
+
+    ##
+    # Retrieves a single string to determine confirmation, or non-confirmation reason
+    #
+    # @param confirmed [Boolean] whether the status is 'confirmed' (true) or 'not confirmed' (false)
+    # @return [String] a single string confirmed status or not confirmed reason
+    #
+    def confirmation_status(confirmed)
+      # If the status is confirmed, use CONFIRMED_TEXT
+      # Otherwise, use the message from ineligible_message_or_vet_verification_reason
+      (confirmed ? CONFIRMED_TEXT : ineligible_message_or_vet_verification_reason).upcase
+    end
+
+    ##
+    # Determines a single reason that status is 'not confirmed'
+    #
+    # @return [String] a single string with the not confirmed reason
+    #
+    def ineligible_message_or_vet_verification_reason
+      # Check for presence on existing reasons to ensure no nil or empty values are passed
+      # If both are empty, default to the UNKNOWN_REASON_MESSAGE
+      @ineligible_message.presence || vet_verification_status[:reason].presence || UNKNOWN_REASON_MESSAGE
     end
 
     ##
@@ -260,34 +295,13 @@ module VeteranStatusCard
     end
 
     ##
-    # Builds the error response when user is nil
-    # Does not attempt to access user data
-    #
-    # @return [Hash] the error response
-    #
-    def nil_user_error_response
-      alert_response = something_went_wrong_response
-      {
-        type: VETERAN_STATUS_ALERT,
-        veteran_status: NOT_CONFIRMED_TEXT,
-        service_summary_code: nil,
-        not_confirmed_reason: nil,
-        attributes: {
-          header: alert_response[:title],
-          body: alert_response[:message],
-          alert_type: alert_response[:status]
-        }
-      }
-    end
-
-    ##
     # Determines if the veteran is eligible for a status card
     # Checks vet verification status first, then falls back to SSC code eligibility
     #
     # @return [Boolean] true if eligible, false otherwise
     #
     def eligible?
-      vet_verification_eligible? || ssc_eligible?
+      service_history? && (vet_verification_eligible? || ssc_eligible?)
     end
 
     ##
@@ -297,6 +311,11 @@ module VeteranStatusCard
     # @return [Hash] error details with keys :title, :message, :status
     #
     def error_results
+      unless service_history?
+        @ineligible_message = NO_SERVICE_HISTORY_MESSAGE
+        return unknown_service_response
+      end
+
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
       if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
         return {
@@ -316,23 +335,28 @@ module VeteranStatusCard
     #
     # @return [Hash] error response with keys :title, :message, :status
     #
-    def response_for_ssc_code
+    def response_for_ssc_code # rubocop:disable Metrics/MethodLength
       case ssc_code
       when *DISHONORABLE_SSC_CODES
+        @ineligible_message = DISHONORABLE_SSC_MESSAGE
         dishonorable_response
       when *INELIGIBLE_SERVICE_SSC_CODES
+        @ineligible_message = INELIGIBLE_SSC_MESSAGE
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
+        @ineligible_message = UNKNOWN_SSC_MESSAGE
         unknown_service_response
       when EDIPI_NO_PNL_CODE
+        @ineligible_message = EDIPI_NO_PNL_SSC_MESSAGE
         edipi_no_pnl_response
       when *CURRENTLY_SERVING_CODES
+        @ineligible_message = CURRENTLY_SERVING_SSC_MESSAGE
         currently_serving_response
       when *ERROR_SSC_CODES
+        @ineligible_message = ERROR_SSC_MESSAGE
         error_response
-      else # rubocop:disable Lint/DuplicateBranch
-        # Rubocop would catch this as a duplicate branch, but we want to explicitly
-        # keep the ERROR_SSC_CODES branch for documentation and in case the response changes
+      else
+        @ineligible_message = UNCAUGHT_SSC_MESSAGE
         error_response
       end
     end
@@ -397,13 +421,18 @@ module VeteranStatusCard
     #   - :end_date [String, nil] the end of service date
     #
     def latest_service_history
+      return @latest_service_history if defined?(@latest_service_history)
+
       # Get the most recent service episode (episodes are sorted by begin_date, oldest first)
       last_service = service_history_response&.episodes&.last
-      return { branch: nil, begin_date: nil, end_date: nil } if last_service.nil?
+      if last_service.nil?
+        @latest_service_history = { branch: nil, begin_date: nil, end_date: nil }
+        return @latest_service_history
+      end
 
       last_service_dates = format_service_date_range(last_service)
 
-      {
+      @latest_service_history = {
         branch: last_service.branch_of_service,
         begin_date: last_service_dates&.dig(:begin_date),
         end_date: last_service_dates&.dig(:end_date)
@@ -590,7 +619,8 @@ module VeteranStatusCard
     # Converts a Constants response to the expected hash format
     #
     # @param response [Hash] the Constants response
-    # @return [Hash] formatted error response with :confirmed, :title, :message, :status
+    # @return [Hash] formatted error response with :type, :veteran_status, :service_summary_code,
+    #    :not_confirmed_reason, :attributes
     #
     def error_response_hash(response)
       {
