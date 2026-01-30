@@ -78,14 +78,32 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
-    context 'default' do
+    context 'form_id 40-1330M' do
+      before { instance.form_id = '40-1330M' }
+
       it 'returns 10' do
+        expect(instance.max_pages).to eq 10
+      end
+    end
+
+    context 'unknown form_id' do
+      before { instance.form_id = 'unknown-form' }
+
+      it 'returns default 10' do
         expect(instance.max_pages).to eq 10
       end
     end
   end
 
   describe '#min_pages' do
+    context 'form_id 40-1330M' do
+      before { instance.form_id = '40-1330M' }
+
+      it 'returns 1' do
+        expect(instance.min_pages).to eq 1
+      end
+    end
+
     context 'form_id 21-0779' do
       before { instance.form_id = '21-0779' }
 
@@ -94,40 +112,10 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
-    context 'form_id 21-509' do
-      before { instance.form_id = '21-509' }
+    context 'unknown form_id' do
+      before { instance.form_id = 'unknown-form' }
 
-      it 'returns 2' do
-        expect(instance.min_pages).to eq 2
-      end
-    end
-
-    context 'form_id 21P-0518-1' do
-      before { instance.form_id = '21P-0518-1' }
-
-      it 'returns 2' do
-        expect(instance.min_pages).to eq 2
-      end
-    end
-
-    context 'form_id 21P-0516-1' do
-      before { instance.form_id = '21P-0516-1' }
-
-      it 'returns 2' do
-        expect(instance.min_pages).to eq 2
-      end
-    end
-
-    context 'form_id 21-686c' do
-      before { instance.form_id = '21-686c' }
-
-      it 'returns 2' do
-        expect(instance.min_pages).to eq 2
-      end
-    end
-
-    context 'default' do
-      it 'returns 1' do
+      it 'returns default 1' do
         expect(instance.min_pages).to eq 1
       end
     end
