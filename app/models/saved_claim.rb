@@ -146,8 +146,42 @@ class SavedClaim < ApplicationRecord
     document_type
   end
 
+  # Utility function to retrieve claim email
+  #
+  # @return [String]
   def email
     nil
+  end
+
+  # Utility function to retrieve veteran filenumber/ssn
+  #
+  # @return [String]
+  def postal_code
+    address = parsed_form['claimantAddress'] || parsed_form['veteranAddress'] || {}
+    address['postalCode']
+  end
+
+  # Utility function to retrieve veteran filenumber/ssn
+  #
+  # @return [String]
+  def veteran_filenumber
+    parsed_form['vaFileNumber'] || parsed_form['veteranSocialSecurityNumber']
+  end
+
+  ##
+  # Utility function to retrieve veteran first name from form
+  #
+  # @return [String]
+  def veteran_first_name
+    parsed_form.dig('veteranFullName', 'first')
+  end
+
+  ##
+  # Utility function to retrieve veteran last name from form
+  #
+  # @return [String]
+  def veteran_last_name
+    parsed_form.dig('veteranFullName', 'last')
   end
 
   # insert notification after VANotify email send
