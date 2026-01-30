@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DebtsApi::Concerns::DisputeDebtSubmissionValidation do
+RSpec.describe DebtsApi::Concerns::SubmissionValidation do
   let(:base_validator) { described_class::BaseValidator }
   let(:dispute_validator) { described_class::DisputeDebtValidator }
 
