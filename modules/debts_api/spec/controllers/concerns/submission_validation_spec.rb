@@ -121,7 +121,7 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
       it 'raises ArgumentError when debts do not exist for user' do
         allow(mock_service).to receive(:get_debts_by_ids).and_return([])
         expect { dispute_validator.parse_and_validate_metadata(valid_metadata, user:) }
-          .to raise_error(ArgumentError, /Invalid debt identifiers/)
+          .to raise_error(ArgumentError, invalid_payload_message)
       end
 
       it 'handles optional numeric rcvbl_id and custom max_size' do
