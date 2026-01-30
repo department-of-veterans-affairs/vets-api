@@ -57,6 +57,10 @@ RSpec.describe Vass::ApplicationController, type: :controller do
     it 'defines log_safe_error method' do
       expect(controller.private_methods).to include(:log_safe_error)
     end
+
+    it 'defines handle_unexpected_error method' do
+      expect(controller.private_methods).to include(:handle_unexpected_error)
+    end
   end
 
   describe 'rescue_from handlers' do
@@ -94,6 +98,12 @@ RSpec.describe Vass::ApplicationController, type: :controller do
       handlers = Vass::ApplicationController.rescue_handlers
       serialization_handler = handlers.find { |h| h.first == 'Vass::Errors::SerializationError' }
       expect(serialization_handler).not_to be_nil
+    end
+
+    it 'rescues from StandardError as catch-all' do
+      handlers = Vass::ApplicationController.rescue_handlers
+      standard_error_handler = handlers.find { |h| h.first == 'StandardError' }
+      expect(standard_error_handler).not_to be_nil
     end
   end
 
@@ -392,6 +402,40 @@ RSpec.describe Vass::ApplicationController, type: :controller do
                         title: 'Not Found',
                         detail: 'Resource not found',
                         status: :not_found)
+      end
+    end
+
+    describe '#handle_unexpected_error' do
+      let(:exception) { StandardError.new('Unexpected test error') }
+
+      it 'logs error to Rails.logger' do
+        expect(Rails.logger).to receive(:error) do |log_message|
+          log_data = JSON.parse(log_message)
+          expect(log_data['service']).to eq('vass')
+          expect(log_data['action']).to eq('test_action')
+          expect(log_data['error_type']).to eq('unexpected_error')
+          expect(log_data['error_class']).to eq('StandardError')
+          expect(log_data['controller']).to eq('test_controller')
+        end
+
+        expect { controller.send(:handle_unexpected_error, exception) }.to raise_error(StandardError)
+      end
+
+      it 're-raises the exception for global handler' do
+        allow(Rails.logger).to receive(:error)
+
+        expect { controller.send(:handle_unexpected_error, exception) }.to raise_error(StandardError)
+      end
+
+      it 'logs the specific error class name' do
+        custom_error = NoMethodError.new('undefined method')
+
+        expect(Rails.logger).to receive(:error) do |log_message|
+          log_data = JSON.parse(log_message)
+          expect(log_data['error_class']).to eq('NoMethodError')
+        end
+
+        expect { controller.send(:handle_unexpected_error, custom_error) }.to raise_error(NoMethodError)
       end
     end
   end

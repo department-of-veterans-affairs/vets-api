@@ -19,6 +19,12 @@ module Vass
       head :ok
     end
 
+    # Catch-all for unexpected errors to ensure they're logged to Rails.logger
+    # (and therefore Datadog Logs) before the global handler processes them.
+    # This addresses a gap where errors may only go to Sentry if configured.
+    # NOTE: Must be declared FIRST so it runs LAST (rescue_from uses reverse order)
+    rescue_from StandardError, with: :handle_unexpected_error
+
     # Custom rescue_from handlers for VASS-specific errors
     # Note: RateLimitError and VANotify::Error are handled locally in SessionsController
     rescue_from Vass::Errors::AuthenticationError, with: :handle_authentication_error
@@ -99,6 +105,16 @@ module Vass
         code: 'serialization_error',
         status: :internal_server_error
       )
+    end
+
+    def handle_unexpected_error(exception)
+      log_vass_event(
+        action: action_name,
+        level: :error,
+        error_type: 'unexpected_error',
+        error_class: exception.class.name
+      )
+      raise exception # Re-raise so global handler still processes the error
     end
 
     # Logs error information without PHI
