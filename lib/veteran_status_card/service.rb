@@ -24,7 +24,6 @@ module VeteranStatusCard
     ERROR_SSC_MESSAGE = 'error_ssc_code'
     UNCAUGHT_SSC_MESSAGE = 'uncaught_ssc_code'
     UNKNOWN_REASON_MESSAGE = 'unknown_reason'
-    NO_SERVICE_HISTORY_MESSAGE = 'no_service_history'
 
     # Response type constants
     VETERAN_STATUS_CARD = 'veteran_status_card'
@@ -84,12 +83,11 @@ module VeteranStatusCard
     #
     # @return [Hash] the status card data with keys:
     #   - :type [String] 'veteran_status_card' or 'veteran_status_alert'
-    #   - :veteran_status [String] 'confirmed' or 'not confirmed'
-    #   - :service_summary_code [String, nil] the DoD service summary code
-    #   - :not_confirmed_reason [String, nil] reason for ineligibility
     #   - :attributes [Hash] containing either:
-    #     - When eligible: { full_name:, disability_rating:, latest_service:, edipi: }
-    #     - When not eligible: { header:, body:, alert_type: }
+    #     - When eligible: { full_name:, disability_rating:, latest_service:, edipi:,
+    #         confirmation_status:, service_summary_code: }
+    #     - When not eligible: { header:, body:, alert_type:, confirmation_status:,
+    #         service_summary_code: }
     #
     def status_card
       if eligible?
@@ -226,8 +224,7 @@ module VeteranStatusCard
       log_statsd(ineligible_message_or_vet_verification_reason) unless confirmed
       Rails.logger.info("#{service_name} VSC Card Result", {
                           confirmation_status: confirmation_status(confirmed),
-                          service_summary_code: ssc_code,
-                          has_service_history: service_history?
+                          service_summary_code: ssc_code
                         })
     end
 
@@ -262,14 +259,13 @@ module VeteranStatusCard
     def eligible_response
       {
         type: VETERAN_STATUS_CARD,
-        veteran_status: CONFIRMED_TEXT,
-        service_summary_code: ssc_code,
-        not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
           full_name:,
           disability_rating:,
           latest_service: latest_service_history,
-          edipi: @user&.edipi
+          edipi: @user&.edipi,
+          confirmation_status: confirmation_status(true),
+          service_summary_code: ssc_code
         }
       }
     end
@@ -283,13 +279,12 @@ module VeteranStatusCard
     def ineligible_response(error_details)
       {
         type: VETERAN_STATUS_ALERT,
-        veteran_status: NOT_CONFIRMED_TEXT,
-        service_summary_code: ssc_code,
-        not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
           header: error_details[:title],
           body: error_details[:message],
-          alert_type: error_details[:status]
+          alert_type: error_details[:status],
+          confirmation_status: confirmation_status(false),
+          service_summary_code: ssc_code
         }
       }
     end
@@ -301,7 +296,7 @@ module VeteranStatusCard
     # @return [Boolean] true if eligible, false otherwise
     #
     def eligible?
-      service_history? && (vet_verification_eligible? || ssc_eligible?)
+      vet_verification_eligible? || ssc_eligible?
     end
 
     ##
@@ -311,11 +306,6 @@ module VeteranStatusCard
     # @return [Hash] error details with keys :title, :message, :status
     #
     def error_results
-      unless service_history?
-        @ineligible_message = NO_SERVICE_HISTORY_MESSAGE
-        return unknown_service_response
-      end
-
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
       if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
         return {
@@ -400,15 +390,6 @@ module VeteranStatusCard
     #
     def lighthouse_disabilities_provider
       @lighthouse_disabilities_provider ||= LighthouseRatedDisabilitiesProvider.new(@user.icn)
-    end
-
-    ##
-    # Checks if the user has any service history episodes
-    #
-    # @return [Boolean] true if service history episodes exist, false otherwise
-    #
-    def service_history?
-      service_history_response&.episodes&.any?
     end
 
     ##
@@ -625,13 +606,12 @@ module VeteranStatusCard
     def error_response_hash(response)
       {
         type: VETERAN_STATUS_ALERT,
-        veteran_status: NOT_CONFIRMED_TEXT,
-        service_summary_code: ssc_code,
-        not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
           header: response[:title],
           body: response[:message],
-          alert_type: response[:status]
+          alert_type: response[:status],
+          confirmation_status: confirmation_status(false),
+          service_summary_code: ssc_code
         }
       }
     end

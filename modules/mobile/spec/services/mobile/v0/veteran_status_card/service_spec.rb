@@ -224,8 +224,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
             '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
             hash_including(
               confirmation_status: 'CONFIRMED',
-              service_summary_code: ssc_code,
-              has_service_history: true
+              service_summary_code: ssc_code
             )
           )
         end
@@ -278,17 +277,6 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
       end
 
       describe 'ineligibility reason StatsD logging with mobile prefix' do
-        context 'when no service history' do
-          let(:veteran_status) { 'confirmed' }
-          let(:service_episodes) { [] }
-
-          it 'logs NO_SERVICE_HISTORY_MESSAGE with mobile prefix' do
-            subject.status_card
-
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.no_service_history')
-          end
-        end
-
         context 'with DISHONORABLE SSC code' do
           let(:veteran_status) { 'not confirmed' }
           let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
@@ -407,12 +395,12 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         result = subject.status_card
 
         expect(result[:type]).to eq('veteran_status_card')
-        expect(result[:veteran_status]).to eq('confirmed')
-        expect(result[:service_summary_code]).to eq(ssc_code)
         expect(result[:attributes][:full_name]).to be_a(String)
         expect(result[:attributes][:disability_rating]).to eq(50)
         expect(result[:attributes][:latest_service]).to be_present
         expect(result[:attributes][:edipi]).to eq(user.edipi)
+        expect(result[:attributes][:confirmation_status]).to eq('CONFIRMED')
+        expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
       end
     end
 
@@ -427,10 +415,11 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:title])
           expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:message])
           expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:status])
+          expect(result[:attributes][:confirmation_status]).to eq('DISHONORABLE_SSC_CODE')
+          expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
         end
       end
 
@@ -525,7 +514,6 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
           expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
           expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
