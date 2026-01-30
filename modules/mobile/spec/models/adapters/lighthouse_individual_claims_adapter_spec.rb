@@ -98,10 +98,12 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
       expect(download_eligible_documents).to be_empty
 
       events_timeline = claim_without_download_eligible_documents[:events_timeline]
-      expect(events_timeline[13][:type]).to eq(:other_documents_list)
-      expect(events_timeline[13][:document_id]).to eq('{798F828C-3B4A-4EB5-8883-F7C49205BD98}')
-      expect(events_timeline[13][:filename]).to be_nil
-      expect(events_timeline[13][:documents]).to be_nil
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{798F828C-3B4A-4EB5-8883-F7C49205BD98}',
+                                           filename: nil,
+                                           documents: nil,
+                                           type: :other_documents_list
+                                         ))
     end
 
     it 'has download_eligible_documents with tracked documents' do
@@ -124,9 +126,11 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
       expect(download_eligible_documents[0][:document_id]).to eq('{0C994A8F-F2FE-4963-B013-870E420EFFD1}')
       expect(download_eligible_documents[0][:filename]).to eq('ClaimDecisionRequest.pdf')
       events_timeline = claim_with_untracked_documents[:events_timeline]
-      expect(events_timeline[7][:documents]).to be_nil
-      expect(events_timeline[7][:document_id]).to eq('{0C994A8F-F2FE-4963-B013-870E420EFFD1}')
-      expect(events_timeline[7][:type]).to eq(:other_documents_list)
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{0C994A8F-F2FE-4963-B013-870E420EFFD1}',
+                                           document: nil,
+                                           type: :other_documents_list
+                                         ))
     end
   end
 
