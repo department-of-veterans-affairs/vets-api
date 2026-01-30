@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-# Rake task to backfill VRE VBMS document IDs for claims with incorrect signature dates
+# Rake task to reupload VRE claims with corrected signature dates
 # This fixes claims submitted between 1/14/2026 and 1/24/2026 by:
 # 1. Updating the signature date to match the claim creation date
 # 2. Re-uploading the claim to VBMS to generate a new document ID
 #
 # Usage:
-#   bundle exec rake vre:backfill_vbms_document_ids
+#   bundle exec rake vre:reupload_vre_claims_with_corrected_signature_dates
 #
 #   With custom date range:
-#   bundle exec rake vre:backfill_vbms_document_ids START_DATE=2026-01-14 END_DATE=2026-01-24
+#   bundle exec rake vre:reupload_vre_claims_with_corrected_signature_dates START_DATE=2026-01-14 END_DATE=2026-01-24
 
 namespace :vre do
-  desc 'Backfill VBMS document IDs for VRE claims and correct signature dates'
-  task backfill_vre_vbms_document_ids: :environment do
+  desc 'Reupload VRE claims with corrected signature dates'
+  task reupload_vre_claims_with_corrected_signature_dates: :environment do
     # Parse date parameters or use defaults
     start_date = ENV['START_DATE'] ? Date.parse(ENV['START_DATE']) : Date.new(2026, 1, 14)
     end_date = ENV['END_DATE'] ? Date.parse(ENV['END_DATE']) : Date.new(2026, 1, 24)

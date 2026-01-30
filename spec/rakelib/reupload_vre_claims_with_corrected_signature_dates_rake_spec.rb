@@ -3,13 +3,13 @@
 require 'rails_helper'
 require 'rake'
 
-RSpec.describe 'vre:backfill_vre_vbms_document_ids', type: :task do
+RSpec.describe 'vre:reupload_vre_claims_with_corrected_signature_dates', type: :task do
   before(:all) do
-    Rake.application.rake_require '../rakelib/prod/backfill_vre_vbms_document_ids'
+    Rake.application.rake_require '../rakelib/prod/reupload_vre_claims_with_corrected_signature_dates'
     Rake::Task.define_task(:environment)
   end
 
-  let(:task) { Rake::Task['vre:backfill_vre_vbms_document_ids'] }
+  let(:task) { Rake::Task['vre:reupload_vre_claims_with_corrected_signature_dates'] }
 
   around do |example|
     original_env = ENV.to_hash
