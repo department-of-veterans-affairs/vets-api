@@ -13,7 +13,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
   let(:claim) { create(:increase_compensation_claim) }
   let(:service) { double(BenefitsIntake::Service) }
   let(:monitor) { IncreaseCompensation::Monitor.new }
-  let(:user_account) { UserAccount }
+  let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -40,13 +40,15 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     end
 
     context 'with increase_compensation_form_enabled flipper' do
-      before do
-        allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
-      end
+      # before do
+      #   allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
+      # end
 
       it 'processes claim when flipper is enabled' do
         allow(Flipper).to receive(:enabled?).with(:increase_compensation_form_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
         allow(job).to receive(:process_document).and_return(pdf_path)
+        allow(UserAccount).to receive(:find).and_return(user_account)
 
         expect(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
         expect(claim).to receive(:to_pdf)
@@ -71,6 +73,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
 
       expect(claim).to receive(:to_pdf).with(claim.guid, { omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
@@ -124,8 +127,10 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     let(:response) { double('response') }
 
     before do
+      claim.guid = 'test_guid'
       job.instance_variable_set(:@intake_service, service)
-      allow(service).to receive(:guid).and_return('test_guid')
+      job.instance_variable_set(:@claim, claim)
+      allow(service).to receive(:uuid).and_return('test_guid')
 
       job.instance_variable_set(:@ibm_payload, { test: 'data' })
 
@@ -160,6 +165,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
