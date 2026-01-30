@@ -11,14 +11,12 @@ module PdfS3Operations
   def upload_to_s3(claim, config:)
     form_submission_attempt = create_submission_attempt(claim)
     pdf_path = claim.to_pdf(claim.guid)
-
     begin
       File.open(pdf_path) do |file|
         directory = dated_directory_name(claim.form_id, form_submission_attempt.created_at.to_date)
-        sanitized_file = CarrierWave::SanitizedFile.new(file)
-        s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
-        s3_uploader.store!(sanitized_file)
-        s3_uploader.get_s3_link("#{directory}/#{sanitized_file.filename}")
+        s3_uploader = PdfUpload::S3Uploader.new(directory:, config:)
+        s3_uploader.store!(file)
+        s3_uploader.get_s3_link("#{directory}/#{File.basename(pdf_path)}")
       end
     ensure
       FileUtils.rm_f(pdf_path)
@@ -38,12 +36,12 @@ module PdfS3Operations
   #
   #  @param claim [SavedClaim] the claim to upload
   #  @param created_at [Date] Date used in S3 bucket
-  #  @param config [Config] SimpleFormsApi::FormRemediation::Configuration::Base needed for s3 settings
+  #  @param config [Config] Hash needed for s3 settings
   #  @param form_class [PdfFormBase] the pdf filler class needed for overflow? ex: IncreaseCompensation::PdfFill::Va218940v1
   def s3_signed_url(claim, created_at, config:, form_class: nil)
     form_id = claim.form_id
     directory = dated_directory_name(form_id, created_at)
-    s3_uploader = SimpleFormsApi::FormRemediation::Uploader.new(directory:, config:)
+    s3_uploader = PdfUpload::S3Uploader.new(directory:, config:)
     final = overflow?(claim, created_at, form_class:)
     s3_uploader.get_s3_link("#{directory}/#{form_id}_#{claim.guid}#{final}.pdf") || nil
   rescue => e
@@ -83,5 +81,10 @@ module PdfS3Operations
     )
     hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
     hash_converter.extras_generator.text? ? '_final' : ''
+  end
+
+  def render_not_found(id)
+    monitor.track_show404(id, current_user, nil)
+    raise Common::Exceptions::RecordNotFound, id
   end
 end
