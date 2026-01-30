@@ -2,22 +2,21 @@
 
 require 'rails_helper'
 
-# Minimal stub uploader for testing FormAttachment without coupling to real uploaders
-class TestFormAttachmentUploader < CarrierWave::Uploader::Base
-  def store_dir
-    'test_uploads'
-  end
-end
-
-# Minimal test subclass to test FormAttachment behavior directly
-# without coupling to any specific form type (e.g., Preneeds, HCA, etc.)
-class TestFormAttachment < FormAttachment
-  self.table_name = 'form_attachments'
-  ATTACHMENT_UPLOADER_CLASS = TestFormAttachmentUploader
-end
-
 RSpec.describe FormAttachment do
-  let(:form_attachment) { TestFormAttachment.new(guid: SecureRandom.uuid) }
+  let(:test_form_attachment_class) do
+    uploader_class = Class.new(CarrierWave::Uploader::Base) do
+      def store_dir
+        'test_uploads'
+      end
+    end
+
+    Class.new(FormAttachment) do
+      self.table_name = 'form_attachments'
+      ATTACHMENT_UPLOADER_CLASS = uploader_class
+    end
+  end
+
+  let(:form_attachment) { test_form_attachment_class.new(guid: SecureRandom.uuid) }
 
   describe '#unlock_pdf' do
     let(:file_name) { 'encrypted_document.pdf' }
