@@ -214,6 +214,105 @@ RSpec.describe VeteranStatusCard::Service do
           hash_including(has_service_history: true)
         )
       end
+
+      context 'when not confirmed' do
+        it 'logs the ineligibility reason as a StatsD metric' do
+          subject.instance_variable_set(:@ineligible_message, 'test_ineligibility_reason')
+
+          subject.send(:log_vsc_result, confirmed: false)
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.test_ineligibility_reason')
+        end
+
+        it 'does not log ineligibility reason when confirmed' do
+          subject.instance_variable_set(:@ineligible_message, 'test_ineligibility_reason')
+
+          subject.send(:log_vsc_result, confirmed: true)
+
+          expect(StatsD).not_to have_received(:increment).with('veteran_status_card.test_ineligibility_reason')
+        end
+      end
+    end
+
+    describe '#confirmation_status' do
+      context 'when confirmed is true' do
+        it 'returns CONFIRMED in uppercase' do
+          result = subject.send(:confirmation_status, true)
+
+          expect(result).to eq('CONFIRMED')
+        end
+      end
+
+      context 'when confirmed is false' do
+        it 'returns the ineligible_message in uppercase when set' do
+          subject.instance_variable_set(:@ineligible_message, 'dishonorable_ssc_code')
+
+          result = subject.send(:confirmation_status, false)
+
+          expect(result).to eq('DISHONORABLE_SSC_CODE')
+        end
+
+        it 'returns the vet_verification_status reason in uppercase when @ineligible_message is nil' do
+          result = subject.send(:confirmation_status, false)
+
+          # Default not_confirmed_reason is nil, so falls back to UNKNOWN_REASON_MESSAGE
+          expect(result).to eq('UNKNOWN_REASON')
+        end
+
+        context 'with vet_verification_status reason' do
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+          it 'returns the reason in uppercase' do
+            result = subject.send(:confirmation_status, false)
+
+            expect(result).to eq('MORE_RESEARCH_REQUIRED')
+          end
+        end
+      end
+    end
+
+    describe '#ineligible_message_or_vet_verification_reason' do
+      context 'when @ineligible_message is set' do
+        it 'returns the @ineligible_message' do
+          subject.instance_variable_set(:@ineligible_message, 'dishonorable_ssc_code')
+
+          result = subject.send(:ineligible_message_or_vet_verification_reason)
+
+          expect(result).to eq('dishonorable_ssc_code')
+        end
+      end
+
+      context 'when @ineligible_message is nil but vet_verification_status[:reason] is present' do
+        let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+        it 'returns the vet_verification_status reason' do
+          result = subject.send(:ineligible_message_or_vet_verification_reason)
+
+          expect(result).to eq('PERSON_NOT_FOUND')
+        end
+      end
+
+      context 'when both @ineligible_message and vet_verification_status[:reason] are nil' do
+        let(:not_confirmed_reason) { nil }
+
+        it 'returns UNKNOWN_REASON_MESSAGE' do
+          result = subject.send(:ineligible_message_or_vet_verification_reason)
+
+          expect(result).to eq('unknown_reason')
+        end
+      end
+
+      context 'when @ineligible_message is empty string' do
+        let(:not_confirmed_reason) { 'ERROR' }
+
+        it 'falls back to vet_verification_status reason' do
+          subject.instance_variable_set(:@ineligible_message, '')
+
+          result = subject.send(:ineligible_message_or_vet_verification_reason)
+
+          expect(result).to eq('ERROR')
+        end
+      end
     end
   end
 
@@ -268,6 +367,128 @@ RSpec.describe VeteranStatusCard::Service do
               service_summary_code: ssc_code
             )
           )
+        end
+      end
+
+      describe 'ineligibility reason StatsD logging' do
+        context 'when no service history' do
+          let(:veteran_status) { 'confirmed' }
+          let(:service_episodes) { [] }
+
+          it 'logs NO_SERVICE_HISTORY_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.no_service_history')
+          end
+        end
+
+        context 'with DISHONORABLE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A5' }
+
+          it 'logs DISHONORABLE_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.dishonorable_ssc_code')
+          end
+        end
+
+        context 'with INELIGIBLE_SERVICE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'G2' }
+
+          it 'logs INELIGIBLE_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_ssc_code')
+          end
+        end
+
+        context 'with UNKNOWN_SERVICE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'U' }
+
+          it 'logs UNKNOWN_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.unknown_ssc_code')
+          end
+        end
+
+        context 'with EDIPI_NO_PNL SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'X' }
+
+          it 'logs EDIPI_NO_PNL_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.edipi_no_pnl_ssc_code')
+          end
+        end
+
+        context 'with CURRENTLY_SERVING SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'D' }
+
+          it 'logs CURRENTLY_SERVING_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.currently_serving_ssc_code')
+          end
+        end
+
+        context 'with ERROR SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'VNA' }
+
+          it 'logs ERROR_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.error_ssc_code')
+          end
+        end
+
+        context 'with uncaught SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'UNKNOWN_CODE' }
+
+          it 'logs UNCAUGHT_SSC_MESSAGE to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.uncaught_ssc_code')
+          end
+        end
+
+        context 'with PERSON_NOT_FOUND reason (no @ineligible_message set)' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+          it 'logs the vet_verification_status reason to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.person_not_found')
+          end
+        end
+
+        context 'with ERROR reason (no @ineligible_message set)' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'ERROR' }
+          let(:error_title) { 'Error' }
+          let(:error_message) { 'An error occurred' }
+          let(:error_status) { 'error' }
+
+          it 'logs the vet_verification_status reason to StatsD' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.error')
+          end
         end
       end
 

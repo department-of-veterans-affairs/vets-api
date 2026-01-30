@@ -276,6 +276,128 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           )
         end
       end
+
+      describe 'ineligibility reason StatsD logging with mobile prefix' do
+        context 'when no service history' do
+          let(:veteran_status) { 'confirmed' }
+          let(:service_episodes) { [] }
+
+          it 'logs NO_SERVICE_HISTORY_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.no_service_history')
+          end
+        end
+
+        context 'with DISHONORABLE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A5' }
+
+          it 'logs DISHONORABLE_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.dishonorable_ssc_code')
+          end
+        end
+
+        context 'with INELIGIBLE_SERVICE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'G2' }
+
+          it 'logs INELIGIBLE_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_ssc_code')
+          end
+        end
+
+        context 'with UNKNOWN_SERVICE SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'U' }
+
+          it 'logs UNKNOWN_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.unknown_ssc_code')
+          end
+        end
+
+        context 'with EDIPI_NO_PNL SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'X' }
+
+          it 'logs EDIPI_NO_PNL_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.edipi_no_pnl_ssc_code')
+          end
+        end
+
+        context 'with CURRENTLY_SERVING SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'D' }
+
+          it 'logs CURRENTLY_SERVING_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.currently_serving_ssc_code')
+          end
+        end
+
+        context 'with ERROR SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'VNA' }
+
+          it 'logs ERROR_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.error_ssc_code')
+          end
+        end
+
+        context 'with uncaught SSC code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'UNKNOWN_CODE' }
+
+          it 'logs UNCAUGHT_SSC_MESSAGE with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.uncaught_ssc_code')
+          end
+        end
+
+        context 'with PERSON_NOT_FOUND reason' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+          it 'logs the vet_verification_status reason with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.person_not_found')
+          end
+        end
+
+        context 'with ERROR reason' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'ERROR' }
+          let(:error_title) { 'Error' }
+          let(:error_message) { 'An error occurred' }
+          let(:error_status) { 'error' }
+
+          it 'logs the vet_verification_status reason with mobile prefix' do
+            subject.status_card
+
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.error')
+          end
+        end
+      end
     end
 
     context 'when veteran is eligible' do
