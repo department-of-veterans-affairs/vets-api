@@ -28,7 +28,7 @@ module Ibm
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     def connection
-      @conn ||= Faraday.new(service_path, request: request_options) do |faraday|
+      @conn ||= Faraday.new(service_path, request: request_options, ssl: ssl_options) do |faraday|
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 
@@ -48,6 +48,27 @@ module Ibm
     # breakers will be tripped if error rate reaches 80% over a two minute period.
     def breakers_error_threshold
       intake_settings.breakers_error_threshold || 80
+    end
+
+    def ssl_options
+      if ssl_cert && ssl_key
+        {
+          client_cert: ssl_cert,
+          client_key: ssl_key
+        }
+      end
+    end
+
+    def ssl_cert
+      return unless intake_settings.client_cert_path
+
+      OpenSSL::X509::Certificate.new(File.read(intake_settings.client_cert_path))
+    end
+
+    def ssl_key
+      return unless intake_settings.client_key_path
+
+      OpenSSL::PKey::RSA.new(File.read(intake_settings.client_key_path))
     end
   end
 end

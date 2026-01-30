@@ -1,0 +1,47 @@
+---
+http_interactions:
+# This cassette is hand-modified to reflect a 500 error response from the IBM service
+- request:
+    method: put
+    uri: https://<IBM_CLIENT_HOST>/api/validated-forms/v1/123e4567-e89b-12d3-a456-426614174000
+    body:
+      encoding: UTF-8
+      string: '{"field1":"value1","field2":"value2"}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      X-Amzn-Requestid:
+      - ae84a2be-53d7-4b15-9322-6ae4990d628c
+      X-Amz-Apigw-Id:
+      - X-2o7F1ZOlQF_kw=
+      X-Amzn-Trace-Id:
+      - Root=1-697c37d2-9fa97275ea9305b685d03675
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '60'
+      Connection:
+      - keep-alive
+      Date:
+      - Fri, 30 Jan 2026 04:47:19 GMT
+    body:
+      encoding: UTF-8
+      string: '{
+              "type": "/errors/internal-server-error",
+              "title": "Internal Server Error",
+              "status": 500,
+              "detail": "An unexpected condition was encountered on the server."
+            }'
+  recorded_at: Fri, 30 Jan 2026 04:47:19 GMT
+recorded_with: VCR 6.4.0
