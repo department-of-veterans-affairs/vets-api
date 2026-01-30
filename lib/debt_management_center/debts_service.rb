@@ -35,7 +35,7 @@ module DebtManagementCenter
       load_debts unless @debts
 
       has_dependent_debts = veteran_has_dependent_debts?
-      debts = debts_with_sorted_histories
+      debts = sorted_debts_with_cdids
       StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success")
       {
         has_dependent_debts:,
@@ -61,25 +61,68 @@ module DebtManagementCenter
       raise e
     end
 
+    def find_cdids_in_debts(composite_debt_ids)
+      debts_lookup = sorted_debts_with_cdids.index_by { |debt| debt['compositeDebtId'] }
+      missing_ids = []
+      requested_debts = composite_debt_ids.filter_map do |cdid|
+        debt = debts_lookup[cdid]
+        missing_ids << cdid unless debt
+        debt
+      end
+
+      [requested_debts, missing_ids]
+    end
+
+    def get_debts_by_ids(composite_debt_ids)
+      load_debts unless @debts
+
+      requested_debts, missing_ids = find_cdids_in_debts(composite_debt_ids)
+
+      if missing_ids.any?
+        Rails.logger.warn(
+          'DebtsService#get_debts_by_ids: Missing composite_debt_ids',
+          {
+            requested_count: composite_debt_ids.length,
+            found_count: requested_debts.length
+          }
+        )
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", tags: [
+                           "missing_count:#{missing_ids.length}"
+                         ])
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debt.success")
+      requested_debts
+    rescue => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debt.failure")
+      raise e
+    end
+
     def veteran_has_dependent_debts?
       load_debts unless @debts
       @debts.any? { |debt| debt['payeeNumber'] != '00' }
     end
 
+    def load_debts
+      @debts ||= init_cached_debts || []
+    end
+
     private
 
-    def debts_with_sorted_histories
-      filtered_debts = filter_debts(@debts)
+    def sorted_debts_with_cdids
+      return @sorted_debts_with_cdids if @sorted_debts_with_cdids.present?
+
+      filtered_debts = get_own_approved_active_debts(@debts)
 
       filtered_debts.each do |debt|
         debt['debtHistory'] = sort_by_date(debt['debtHistory'])
         debt['compositeDebtId'] = build_composite_debt_id(debt)
       end
 
-      filtered_debts
+      @sorted_debts_with_cdids = filtered_debts
     end
 
-    def filter_debts(debts)
+    def get_own_approved_active_debts(debts)
       debts.select do |debt|
         # Filter by payee number, approved deduction code, and current AR
         debt['payeeNumber'] == '00' &&
@@ -90,10 +133,6 @@ module DebtManagementCenter
 
     def build_composite_debt_id(debt)
       "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
-    end
-
-    def load_debts
-      @debts ||= init_cached_debts || []
     end
 
     def init_cached_debts
