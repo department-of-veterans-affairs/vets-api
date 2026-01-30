@@ -56,7 +56,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
         expect(response.parsed_body.dig('data', 'attributes')).to have_key('downloadEligibleDocuments')
         download_eligible_documents = response.parsed_body.dig('data', 'attributes', 'downloadEligibleDocuments')
-        
+
         expect(download_eligible_documents).to be_a(Array)
         expect(download_eligible_documents.size).to eq(5)
         expect(download_eligible_documents[0]['documentId']).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')

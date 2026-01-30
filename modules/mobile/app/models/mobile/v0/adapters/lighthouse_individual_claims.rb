@@ -199,6 +199,7 @@ module Mobile
 
         def collect_download_eligible_documents(events_timeline)
           document_data = []
+
           events_timeline.each do |event|
             has_tracked_documents = event.documents.present?
             has_untracked_document = event.type == :other_documents_list
@@ -209,9 +210,7 @@ module Mobile
               valid_docs.each do |doc|
                 document_data << build_doc_obj(doc)
               end
-            elsif has_untracked_document
-              next unless valid_doc?(event)
-
+            elsif has_untracked_document && valid_doc?(event)
               document_data << build_doc_obj(event)
             end
           end
@@ -219,7 +218,7 @@ module Mobile
         end
 
         def valid_doc?(obj)
-         obj.filename.present? && obj.document_id.present?
+          obj.filename.present? && obj.document_id.present?
         end
 
         def build_doc_obj(obj)
