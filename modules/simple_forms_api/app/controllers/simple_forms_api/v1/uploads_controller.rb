@@ -53,6 +53,10 @@ module SimpleFormsApi
         render response
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
+      rescue Common::Exceptions::BaseError
+        # Re-raise BaseError exceptions to let the framework's ExceptionHandling concern
+        # convert them to appropriate HTTP status codes (e.g., ParameterMissing -> 400)
+        raise
       rescue => e
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
@@ -294,7 +298,7 @@ module SimpleFormsApi
 
       def form_id
         form_number = params[:form_number]
-        raise 'missing form_number in params' unless form_number
+        raise Common::Exceptions::ParameterMissing, :form_number unless form_number
 
         FORM_NUMBER_MAP[form_number]
       end
