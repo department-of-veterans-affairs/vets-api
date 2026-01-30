@@ -1603,17 +1603,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'claim title generator' do
         it 'returns claimType language modifications' do
-          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
-            get(:show, params: { id: '600229972' })
-          end
-          parsed_body = JSON.parse(response.body)
-
-          expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
-          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
-        end
-
-        it 'returns claimType language modifications' do
           allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
           VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
             get(:show, params: { id: '600229972' })
@@ -1621,6 +1610,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           parsed_body = JSON.parse(response.body)
 
           expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
+          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
         end
       end
     end
