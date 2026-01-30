@@ -14,7 +14,7 @@ graph TD
     %% BGSFormJob Flow
     JobBGS --> CheckBGS{Parent Group<br/>Failed?}
     CheckBGS -->|Yes| SkipBGS[Early Exit]
-    CheckBGS -->|No| GenerateProcID[Generate BGS proc_id<br/>BGSV2::Service.create_proc]
+    CheckBGS -->|No| GenerateProcID[Generate BGS proc_id<br/>BGS::Service.create_proc]
     GenerateProcID --> CollectBGS[Collect Child Claims<br/>from SavedClaimGroup]
     CollectBGS --> LoopBGS[For EACH child claim]
     
@@ -22,8 +22,8 @@ graph TD
     DBBGS1 --> DBBGS2[(DB: BGS::SubmissionAttempt<br/>create)]
     DBBGS2 --> CheckFormType{claim.form_id?}
     
-    CheckFormType -->|21-686C| Submit686BGS[BGSV2::Form686c.submit<br/>Creates vnp_veteran, relationships,<br/>vnp_benefit_claim, BenefitClaim]
-    CheckFormType -->|21-674| Submit674BGS[BGSV2::Form674.submit<br/>Creates school attendance records]
+    CheckFormType -->|21-686C| Submit686BGS[BGS::Form686c.submit<br/>Creates vnp_veteran, relationships,<br/>vnp_benefit_claim, BenefitClaim]
+    CheckFormType -->|21-674| Submit674BGS[BGS::Form674.submit<br/>Creates school attendance records]
     
     Submit686BGS --> SuccessClaims{Success?}
     Submit674BGS --> SuccessClaims
