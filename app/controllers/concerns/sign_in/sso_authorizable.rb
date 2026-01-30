@@ -43,7 +43,8 @@ module SignIn
 
       state_payload_jwt = StatePayloadJwtEncoder.new(code_challenge:, code_challenge_method:, client_state:,
                                                      acr: user_attributes[:acr], type: user_attributes[:type],
-                                                     client_config: client_config(client_id)).perform
+                                                     client_config: client_config(client_id),
+                                                     operation: Constants::Auth::AUTHORIZE_SSO).perform
 
       state_payload = StatePayloadJwtDecoder.new(state_payload_jwt:).perform
 

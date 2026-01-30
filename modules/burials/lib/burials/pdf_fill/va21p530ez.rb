@@ -20,6 +20,8 @@ require_relative 'sections/section_03_v2'
 require_relative 'sections/section_04_v2'
 require_relative 'sections/section_05_v2'
 require_relative 'sections/section_06_v2'
+require_relative 'sections/section_07_v2'
+require_relative 'sections/section_08_v2'
 
 module Burials
   module PdfFill
@@ -104,7 +106,8 @@ module Burials
         SECTION_CLASSES = [Section1, Section2, Section3, Section4, Section5, Section6, Section7].freeze
 
         # V2 configuration (update as you go)
-        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section4V2, Section5V2, Section6V2].freeze
+        SECTION_CLASSES_V2 = [Section1V2, Section2V2, Section3V2, Section4V2, Section5V2,
+                              Section6V2, Section7V2, Section8V2].freeze
 
         # V2 question key mapping question numbers to descriptive titles for overflow attachment
         # These are placeholders and will be updated as V2 sections are implemented
@@ -133,7 +136,15 @@ module Burials
           { question_number: '22', question_text: 'National or Federal Cemetery' },
           { question_number: '23', question_text: 'State Cemetery or Tribal Trust Land' },
           { question_number: '24', question_text: 'Government or Employer Contribution' },
-          { question_number: '25', question_text: 'Plot/Interment Expense Responsibility' }
+          { question_number: '25', question_text: 'Resposible for the Veteran\'s Plot' },
+          { question_number: '26', question_text: 'Burial Allowance Requested' },
+          { question_number: '27', question_text: 'Did Veteran Pass Away Under VA Coverage' },
+          { question_number: '28', question_text: 'Received VA Burial Allowance' },
+          { question_number: '29', question_text: 'Burial Expense Responsibility' },
+          { question_number: '30', question_text: 'Plot/Interment Expense Responsibility' },
+          { question_number: '31', question_text: 'Direct Deposit Information' },
+          { question_number: '32', question_text: 'Claimant Signature' },
+          { question_number: '33', question_text: 'Firm, Corporation, or State Agency Information' }
         ].freeze
 
         # V2 sections grouping question numbers for overflow pages
@@ -152,7 +163,6 @@ module Burials
         ].freeze
 
         # form configuration hash
-
         KEY = key.freeze
 
         ##

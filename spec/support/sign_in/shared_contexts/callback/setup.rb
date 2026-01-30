@@ -8,7 +8,7 @@ RSpec.shared_context 'callback_setup' do
   let(:error_params) { {} }
   let(:state_value) { 'some-state' }
   let(:code_value) { 'some-code' }
-  let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
+  let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}", "operation:#{operation}"] }
   let(:type) {}
   let(:acr) { nil }
   let(:ial) { nil }
@@ -29,6 +29,7 @@ RSpec.shared_context 'callback_setup' do
   end
   let(:enforced_terms) { nil }
   let(:terms_of_use_url) { 'some-terms-of-use-url' }
+  let(:operation) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
 
   before do
     allow(Rails.logger).to receive(:info)

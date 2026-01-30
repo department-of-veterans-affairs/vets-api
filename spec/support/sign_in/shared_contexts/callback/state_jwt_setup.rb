@@ -6,6 +6,7 @@ RSpec.shared_context 'callback_state_jwt_setup' do
   let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
   let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
+  let(:operation) { SignIn::Constants::Auth::AUTHORIZE }
 
   let(:state_value) do
     SignIn::StatePayloadJwtEncoder.new(code_challenge:,
@@ -13,7 +14,8 @@ RSpec.shared_context 'callback_state_jwt_setup' do
                                        acr:,
                                        client_config:,
                                        type:,
-                                       client_state:).perform
+                                       client_state:,
+                                       operation:).perform
   end
 
   let(:uplevel_state_value) do
@@ -22,6 +24,7 @@ RSpec.shared_context 'callback_state_jwt_setup' do
                                        acr:,
                                        client_config:,
                                        type:,
-                                       client_state:).perform
+                                       client_state:,
+                                       operation:).perform
   end
 end

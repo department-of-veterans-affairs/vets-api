@@ -76,7 +76,7 @@ gem 'config'
 gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1.1', require: 'vbms'
 gem 'console1984'
 gem 'csv'
-gem 'datadog'
+gem 'datadog', '~> 2.22.0' # Incompatible versions: 2.24 and 2.25
 gem 'date_validator'
 gem 'dogstatsd-ruby'
 gem 'dry-struct'

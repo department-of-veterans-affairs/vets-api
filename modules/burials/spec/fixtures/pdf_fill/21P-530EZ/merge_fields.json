@@ -28,6 +28,7 @@
         "from": "2020-03-15",
         "to": "2021-02-15"
     },
+    "bankAccount": {"accountType": "checking", "routingNumber": "123123123","accountNumber": "001122334455"},
     "placeOfSeparation": "location",
     "toursOfDuty":[
         {

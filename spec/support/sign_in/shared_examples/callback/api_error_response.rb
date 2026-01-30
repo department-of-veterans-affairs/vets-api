@@ -6,10 +6,10 @@ RSpec.shared_examples 'callback_api_error_response' do
   let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
   let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
   let(:expected_error_message) do
-    { errors: expected_error, client_id:, type:, acr: }
+    { errors: expected_error, client_id:, type:, acr:, operation: }
   end
   let(:expected_statsd_tags) do
-    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}"]
+    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}", "operation:#{operation || ''}"]
   end
 
   it 'renders expected error' do

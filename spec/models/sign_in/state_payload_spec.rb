@@ -12,7 +12,8 @@ RSpec.describe SignIn::StatePayload, type: :model do
            code:,
            client_state:,
            created_at:,
-           scope:)
+           scope:,
+           operation:)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
@@ -24,6 +25,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:client_state) { SecureRandom.hex }
   let(:created_at) { Time.zone.now.to_i }
   let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
+  let(:operation) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
 
   describe 'validations' do
     describe '#code' do
@@ -140,6 +142,20 @@ RSpec.describe SignIn::StatePayload, type: :model do
 
       it 'sets created_at to current time' do
         expect(subject).to eq(expected_time)
+      end
+    end
+  end
+
+  describe '#operation' do
+    subject { state_payload.operation }
+
+    context 'when operation is not in the allowed list' do
+      let(:operation) { 'invalid-operation' }
+      let(:expected_error) { ActiveModel::ValidationError }
+      let(:expected_error_message) { 'Validation failed: Operation is not included in the list' }
+
+      it 'raises validation error' do
+        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
   end
