@@ -70,27 +70,27 @@ module Vass
 
     def handle_missing_token
       log_auth_failure('missing_token')
-      render_unauthorized('Missing authentication token')
+      raise Vass::Errors::AuthenticationError, 'Missing authentication token'
     end
 
     def handle_missing_veteran_id
       log_auth_failure('missing_veteran_id')
-      render_unauthorized('Invalid or malformed token')
+      raise Vass::Errors::AuthenticationError, 'Invalid or malformed token'
     end
 
     def handle_revoked_token
       log_auth_failure('revoked_token')
-      render_unauthorized('Token is invalid or already revoked')
+      raise Vass::Errors::AuthenticationError, 'Token is invalid or already revoked'
     end
 
     def handle_expired_token
       log_auth_failure('expired_token')
-      render_unauthorized('Token has expired')
+      raise Vass::Errors::AuthenticationError, 'Token has expired'
     end
 
     def handle_invalid_token(exception)
       log_auth_failure('invalid_token', error_class: exception.class.name)
-      render_unauthorized('Invalid or malformed token')
+      raise Vass::Errors::AuthenticationError, 'Invalid or malformed token'
     end
 
     ##
@@ -175,22 +175,6 @@ module Vass
       metadata[:error_class] = error_class if error_class
 
       log_vass_event(action: 'auth_failure', level: :warn, **metadata)
-    end
-
-    ##
-    # Renders unauthorized error response.
-    #
-    # @param detail [String] Error detail message
-    #
-    def render_unauthorized(detail)
-      render json: {
-        errors: [
-          {
-            code: 'unauthorized',
-            detail:
-          }
-        ]
-      }, status: :unauthorized
     end
   end
 end

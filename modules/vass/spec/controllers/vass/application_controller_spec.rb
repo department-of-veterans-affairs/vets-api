@@ -127,15 +127,15 @@ RSpec.describe Vass::ApplicationController, type: :controller do
         controller.send(:handle_authentication_error, exception)
       end
 
-      it 'renders JSON:API error format' do
+      it 'renders JSON:API error format with exception message' do
         expect(controller).to receive(:render).with(
           hash_including(
             json: hash_including(
               errors: array_including(
                 hash_including(
                   title: 'Authentication Error',
-                  detail: 'Unable to authenticate request',
-                  code: 'authentication_error'
+                  detail: 'Test error',
+                  code: 'unauthorized'
                 )
               )
             )

@@ -7,6 +7,17 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
     include Vass::Logging
     include Vass::JwtAuthentication
 
+    # Mirror the rescue_from handler in Vass::ApplicationController
+    rescue_from Vass::Errors::AuthenticationError do |exception|
+      render json: {
+        errors: [{
+          title: 'Authentication Error',
+          detail: exception.message,
+          code: 'unauthorized'
+        }]
+      }, status: :unauthorized
+    end
+
     before_action :authenticate_jwt
 
     def index

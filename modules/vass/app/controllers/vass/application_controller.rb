@@ -39,10 +39,11 @@ module Vass
 
     def handle_authentication_error(exception)
       log_safe_error('authentication_error', exception.class.name)
+
       render_error_response(
         title: 'Authentication Error',
-        detail: 'Unable to authenticate request',
-        code: 'authentication_error',
+        detail: exception.message,
+        code: 'unauthorized',
         status: :unauthorized
       )
     end
