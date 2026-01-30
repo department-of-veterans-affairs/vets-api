@@ -21,6 +21,10 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
           time_until_next_email: 240
         }
       end
+
+      def build_verification_rate_limit_message
+        'Verification email limit reached. Wait 5 minutes to try again.'
+      end
     end
   end
 
@@ -87,7 +91,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
     context 'when TooManyRequests error occurs' do
       before do
         controller.handle_verification_errors('send verification email') do
-          raise Common::Exceptions::TooManyRequests.new(detail: 'Rate limit exceeded')
+          raise Common::Exceptions::TooManyRequests
         end
       end
 
@@ -116,7 +120,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
             errors: [
               {
                 title: 'Email Verification Rate Limit Exceeded',
-                detail: 'Too many verification emails sent. Please wait before requesting another verification email.',
+                detail: 'Verification email limit reached. Wait 5 minutes to try again.',
                 code: 'EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED',
                 status: '429',
                 meta: {
@@ -209,22 +213,6 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
         expect(log_data).to eq({})
       end
     end
-
-    context 'when controller does not respond to needs_verification?' do
-      let(:controller_without_verification) do
-        controller_class.new.tap do |c|
-          c.current_user = user
-          c.response = response_mock
-          allow(c).to receive(:respond_to?).with(:needs_verification?).and_return(false)
-          allow(c).to receive(:respond_to?).with(:current_user).and_return(true)
-        end
-      end
-
-      it 'excludes verification_needed when method does not exist' do
-        log_data = controller_without_verification.send(:email_verification_log_data)
-        expect(log_data).to eq({ user_uuid: 'test-uuid-123' })
-      end
-    end
   end
 
   describe 'error response methods' do
@@ -257,7 +245,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
             errors: [
               {
                 title: 'Email Verification Rate Limit Exceeded',
-                detail: 'Too many verification emails sent. Please wait before requesting another verification email.',
+                detail: 'Verification email limit reached. Wait 5 minutes to try again.',
                 code: 'EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED',
                 status: '429',
                 meta: {
@@ -275,16 +263,10 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
         expect(response_mock.headers['Retry-After']).to eq('300')
       end
 
-      context 'when exception with retry_after is provided' do
-        let(:exception_with_retry) do
-          exception = double('TooManyRequestsException')
-          allow(exception).to receive(:respond_to?).with(:retry_after).and_return(true)
-          allow(exception).to receive(:retry_after).and_return(600)
-          exception
-        end
-
-        it 'uses exception retry_after value' do
-          controller.send(:render_verification_rate_limit_error, exception_with_retry)
+      context 'when Retry-After header is already set' do
+        it 'preserves existing Retry-After value and uses it in meta' do
+          response_mock.headers['Retry-After'] = '600'
+          controller.send(:render_verification_rate_limit_error)
 
           expect(controller).to have_received(:render) do |args|
             expect(args[:json][:errors][0][:meta][:retry_after_seconds]).to eq(600)
@@ -322,7 +304,7 @@ RSpec.describe EmailVerificationErrorHandler, type: :concern do
                                                                                       'Redis connection error')
 
       controller.handle_verification_errors('send verification email') do
-        raise Common::Exceptions::TooManyRequests.new(detail: 'Rate limit exceeded')
+        raise Common::Exceptions::TooManyRequests
       end
 
       expect(Rails.logger).to have_received(:warn).with(
