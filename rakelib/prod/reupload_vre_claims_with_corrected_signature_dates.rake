@@ -40,20 +40,25 @@ namespace :vre do
       exit
     end
 
-    # Enqueue jobs in batches
+    # Enqueue jobs in batches with rate limiting
     puts "Enqueuing #{claim_ids.count} jobs..."
-    total_enqueued = 0
+    batch_size = 100
+    delay_between_batches = 2 # seconds
 
-    claim_ids.each_slice(100) do |batch|
+    claim_ids.each_slice(batch_size).with_index do |batch, batch_index|
       batch.each do |id|
         VREVBMSDocumentUploadJob.perform_async(id)
-        total_enqueued += 1
       end
-      puts "Enqueued #{total_enqueued}/#{claim_ids.count} claims..."
+
+      enqueued_so_far = [(batch_index + 1) * batch_size, claim_ids.count].min
+      puts "Enqueued #{enqueued_so_far}/#{claim_ids.count} claims..."
+
+      # Rate limit to avoid overwhelming Sidekiq queue and VBMS service
+      sleep(delay_between_batches) unless batch_index == (claim_ids.count.to_f / batch_size).ceil - 1
     end
 
     puts '=' * 80
-    puts "✓ Successfully enqueued #{total_enqueued} claims for processing"
+    puts "✓ Successfully enqueued #{claim_ids.count} claims for processing"
     puts 'Monitor progress in Sidekiq dashboard or Rails logs'
     puts '=' * 80
   end
