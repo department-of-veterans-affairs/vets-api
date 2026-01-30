@@ -32,21 +32,25 @@ module DebtsApi
           end
 
           def validate_field_schema(records, field_name:, required_fields: [], string_fields: [])
-            invalid_prefixes = []
-            
+            unless records.is_a?(Array)
+              log_and_raise_error("#{field_name} must be an array")
+            end
+
             records.each_with_index do |item, index|
               prefix = "#{field_name}[#{index}]"
 
               unless item.is_a?(Hash)
-                invalid_prefixes << "#{prefix} must be an object"
-                next
+                log_and_raise_error("#{prefix} must be an object")
               end
-              
-              log_and_raise_error("Invalid prefixes: #{invalid_prefixes.join(', ')}") if invalid_prefixes.any?
 
               validate_required_fields(item, required_fields:, prefix:)
               validate_string_fields(item, string_fields:, prefix:)
             end
+          end
+
+          def log_and_raise_error(message)
+            Rails.logger.warn(message)
+            raise ArgumentError, INVALID_REQUEST_PAYLOAD
           end
 
           private
@@ -107,8 +111,8 @@ module DebtsApi
           def parse_and_validate_metadata(metadata_string, user:, max_size: 100.kilobytes)
             parsed = BaseValidator.parse_json_safely(metadata_string, max_size:)
 
-            raise ArgumentError, 'metadata must be a JSON object' unless parsed.is_a?(Hash)
-            raise ArgumentError, 'metadata must include a "disputes" key' unless parsed.key?(:disputes)
+            log_and_raise_error('metadata must be a JSON object') unless parsed.is_a?(Hash)
+            log_and_raise_error('metadata must include a "disputes" key') unless parsed.key?(:disputes)
 
             disputes = parsed[:disputes]
             required_fields = %i[composite_debt_id deduction_code original_ar current_ar benefit_type dispute_reason]
@@ -130,6 +134,8 @@ module DebtsApi
           private
 
           def validate_rcvbl_id_if_present(disputes)
+            return unless disputes.is_a?(Array)
+
             disputes.each_with_index do |debt, index|
               rcvbl_id = debt[:rcvbl_id] || debt['rcvbl_id']
               next if rcvbl_id.nil?

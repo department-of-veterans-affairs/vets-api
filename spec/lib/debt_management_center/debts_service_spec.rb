@@ -116,13 +116,15 @@ RSpec.describe DebtManagementCenter::DebtsService do
 
     context 'when debts are not yet loaded' do
       it 'loads debts automatically before lookup' do
-        with_vcr_cassettes do
-          cdid = service.get_debts[:debts].first['compositeDebtId']
-          new_service = described_class.new(user)
-          expect(new_service.instance_variable_get(:@debts)).to be_nil
-          result = new_service.get_debts_by_ids([cdid])
-          expect(result.length).to eq(1)
-          expect(new_service.instance_variable_get(:@debts)).not_to be_nil
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters', allow_playback_repeats: true) do
+            cdid = service.get_debts[:debts].first['compositeDebtId']
+            new_service = described_class.new(user)
+            expect(new_service.instance_variable_get(:@debts)).to be_nil
+            result = new_service.get_debts_by_ids([cdid])
+            expect(result.length).to eq(1)
+            expect(new_service.instance_variable_get(:@debts)).not_to be_nil
+          end
         end
       end
     end
