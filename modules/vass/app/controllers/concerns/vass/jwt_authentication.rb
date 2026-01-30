@@ -35,29 +35,23 @@ module Vass
     #
     # Sets @current_veteran_id and @current_jti on success.
     # Renders error response on failure.
+    # Checks session exists to support token revocation.
     #
     def authenticate_jwt
       token = extract_token_from_header
-      unless token
-        log_auth_failure('missing_token')
-        render_unauthorized('Missing authentication token')
-        return
-      end
+      return handle_missing_token unless token
 
       payload = decode_jwt(token)
       @current_veteran_id = payload['sub']
       @current_jti = payload['jti']
 
-      unless @current_veteran_id
-        log_auth_failure('missing_veteran_id')
-        render_unauthorized('Invalid or malformed token')
-      end
+      return handle_missing_veteran_id unless @current_veteran_id
+
+      handle_revoked_token unless session_valid?
     rescue JWT::ExpiredSignature
-      log_auth_failure('expired_token')
-      render_unauthorized('Token has expired')
+      handle_expired_token
     rescue JWT::DecodeError => e
-      log_auth_failure('invalid_token', error_class: e.class.name)
-      render_unauthorized('Invalid or malformed token')
+      handle_invalid_token(e)
     end
 
     ##
@@ -73,6 +67,52 @@ module Vass
     end
 
     private
+
+    def handle_missing_token
+      log_auth_failure('missing_token')
+      render_unauthorized('Missing authentication token')
+    end
+
+    def handle_missing_veteran_id
+      log_auth_failure('missing_veteran_id')
+      render_unauthorized('Invalid or malformed token')
+    end
+
+    def handle_revoked_token
+      log_auth_failure('revoked_token')
+      render_unauthorized('Token is invalid or already revoked')
+    end
+
+    def handle_expired_token
+      log_auth_failure('expired_token')
+      render_unauthorized('Token has expired')
+    end
+
+    def handle_invalid_token(exception)
+      log_auth_failure('invalid_token', error_class: exception.class.name)
+      render_unauthorized('Invalid or malformed token')
+    end
+
+    ##
+    # Checks if the current token is still the active session token.
+    # Returns false if session doesn't exist or a newer token has been issued.
+    #
+    # @return [Boolean] true if token is the active session token
+    #
+    def session_valid?
+      return false unless @current_veteran_id && @current_jti
+
+      redis_client.session_valid_for_jti?(uuid: @current_veteran_id, jti: @current_jti)
+    end
+
+    ##
+    # Returns Redis client instance.
+    #
+    # @return [Vass::RedisClient] Redis client
+    #
+    def redis_client
+      @redis_client ||= Vass::RedisClient.build
+    end
 
     ##
     # Extracts JWT token from Authorization header.

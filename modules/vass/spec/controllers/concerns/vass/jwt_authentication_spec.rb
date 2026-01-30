@@ -16,11 +16,14 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
 
   let(:veteran_id) { 'test-veteran-uuid-123' }
   let(:secret) { 'test-jwt-secret' }
+  let(:redis_client) { instance_double(Vass::RedisClient) }
 
   before do
     allow(Settings).to receive(:vass).and_return(
       OpenStruct.new(jwt_secret: secret)
     )
+    allow(Vass::RedisClient).to receive(:build).and_return(redis_client)
+    allow(redis_client).to receive(:session_valid_for_jti?).and_return(true)
     routes.draw { get 'index' => 'anonymous#index' }
   end
 
@@ -267,6 +270,42 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
         request.headers['Authorization'] = "BeArEr #{token}"
         get :index
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with revoked token (session deleted)' do
+      let(:jti) { SecureRandom.uuid }
+      let(:payload) do
+        {
+          sub: veteran_id,
+          exp: 1.hour.from_now.to_i,
+          iat: Time.current.to_i,
+          jti:
+        }
+      end
+      let(:token) { JWT.encode(payload, secret, 'HS256') }
+
+      before do
+        allow(redis_client).to receive(:session_valid_for_jti?).with(uuid: veteran_id, jti:).and_return(false)
+        request.headers['Authorization'] = "Bearer #{token}"
+      end
+
+      it 'returns 401 unauthorized' do
+        get :index
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'renders revoked token error' do
+        get :index
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'][0]['detail']).to eq('Token is invalid or already revoked')
+      end
+
+      it 'logs authentication failure' do
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
+                                   '"action":"auth_failure"', '"reason":"revoked_token"'))
+        get :index
       end
     end
   end
