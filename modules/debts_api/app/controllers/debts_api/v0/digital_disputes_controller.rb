@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-<<<<<<< HEAD
-=======
 require 'debts_api/v0/digital_dispute_submission_service'
 require 'debts_api/concerns/dispute_debt_submission_validation'
 require 'debt_management_center/debts_service'
->>>>>>> ad156e78a3 (Add json validator)
 require 'sidekiq/attr_package'
 
 module DebtsApi
@@ -62,6 +59,17 @@ module DebtsApi
           state: :pending,
           metadata: @parsed_metadata.to_json
         ).tap { |s| s.files.attach(submission_params[:files]) }
+      end
+
+      def parse_metadata
+        @parsed_metadata = DebtsApi::Concerns::DisputeDebtSubmissionValidation::DisputeDebtValidator.parse_and_validate_metadata(
+          submission_params[:metadata],
+          user: current_user
+        )
+      rescue ArgumentError => e
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        Rails.logger.error("DigitalDisputeController#parse_metadata validation error: #{e.message}")
+        render json: { errors: { metadata: [e.message] } }, status: :unprocessable_entity
       end
 
       def submission_params
