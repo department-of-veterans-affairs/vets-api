@@ -6,13 +6,13 @@ require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers,
-               skip: 'TODO after schema built' do
+RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:increase_compensation_claim) }
   let(:service) { double('service') }
   let(:monitor) { IncreaseCompensation::Monitor.new }
+  let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -39,13 +39,15 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     end
 
     context 'with increase_compensation_form_enabled flipper' do
-      before do
-        allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
-      end
+      # before do
+      #   allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
+      # end
 
       it 'processes claim when flipper is enabled' do
         allow(Flipper).to receive(:enabled?).with(:increase_compensation_form_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
         allow(job).to receive(:process_document).and_return(pdf_path)
+        allow(UserAccount).to receive(:find).and_return(user_account)
 
         expect(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
         expect(claim).to receive(:to_pdf)
@@ -70,6 +72,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
 
       expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
@@ -123,8 +126,10 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     let(:response) { double('response') }
 
     before do
+      claim.guid = 'test_guid'
       job.instance_variable_set(:@intake_service, service)
-      allow(service).to receive(:guid).and_return('test_guid')
+      job.instance_variable_set(:@claim, claim)
+      allow(service).to receive(:uuid).and_return('test_guid')
 
       job.instance_variable_set(:@ibm_payload, { test: 'data' })
 
@@ -153,12 +158,12 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
   end
 
   describe '#process_document' do
-    let(:service) { instance_double(service) }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
@@ -195,7 +200,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
   describe '#send_submitted_email' do
     let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { instance_double(notification) }
+    let(:notification) { double('notification') }
 
     before do
       job.instance_variable_set(:@claim, claim)

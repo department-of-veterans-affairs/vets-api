@@ -24,7 +24,7 @@ module IncreaseCompensation
         ia_monitor = IncreaseCompensation::Monitor.new
         begin
           claim = IncreaseCompensation::SavedClaim.find(msg['args'].first)
-        rescue Errors::StandardError
+        rescue
           claim = nil
         end
         ia_monitor.track_submission_exhaustion(msg, claim)
