@@ -124,6 +124,93 @@ module DecisionReviews
         phone_hash.delete('areaCode') if phone_hash.is_a?(Hash)
         req_body_obj
       end
+
+      def validate_and_format_va_treatment_date(date_string)
+        return nil unless date_string.match?(/^\d{4}-\d{2}$/)
+
+        "#{date_string}-01"
+      end
+
+      def format_va_evidence_entries(va_evidence)
+        return if va_evidence.blank?
+
+        va_evidence.map do |entry|
+          formatted_entry = {
+            'type' => 'retrievalEvidence',
+            'attributes' => {}
+          }
+
+          evidence_entry = entry.dup
+          formatted_entry['attributes']['locationAndName'] = evidence_entry['vaTreatmentLocation']
+
+          has_treatment_before_2005 = evidence_entry['treatmentBefore2005'] == 'Y'
+
+          if has_treatment_before_2005
+            treatment_date = validate_and_format_va_treatment_date(evidence_entry['treatmentMonthYear'].to_s)
+
+            if treatment_date
+              formatted_entry['attributes']['evidenceDates'] = [{
+                'startDate' => treatment_date,
+                'endDate' => treatment_date
+              }]
+            end
+          end
+
+          formatted_entry['attributes']['noTreatmentDates'] =
+            !has_treatment_before_2005 || treatment_date.nil?
+
+          formatted_entry
+        end
+      end
+
+      def make_issues_list(issues_hash)
+        issues_hash.select { |_key, value| value == true }.keys
+      end
+
+      def format_private_evidence_entries(private_evidence)
+        return if private_evidence.blank?
+
+        authorization = private_evidence['auth4142']
+        limited_consent_prompt = private_evidence['lcPrompt']
+        limited_consent_details = private_evidence['lcDetails']
+        evidence_entries = private_evidence['evidenceEntries']
+
+        private_evidence_data = {
+          'providerFacility' => []
+        }
+
+        evidence_entries.each_with_index.map do |entry|
+          evidence_entry = entry.dup
+
+          private_evidence_data['privacyAgreementAccepted'] = true if authorization
+
+          if limited_consent_prompt == 'Y' && limited_consent_details.present?
+            private_evidence_data['limitedConsent'] =
+              limited_consent_details
+          end
+
+          facility_data = {
+            'providerFacilityName' => evidence_entry['privateTreatmentLocation'] || '',
+            'providerFacilityAddress' => {
+              'country' => evidence_entry.dig('address', 'country') || '',
+              'street' => evidence_entry.dig('address', 'street') || '',
+              'street2' => evidence_entry.dig('address', 'street2') || '',
+              'city' => evidence_entry.dig('address', 'city') || '',
+              'state' => evidence_entry.dig('address', 'state') || '',
+              'postalCode' => evidence_entry.dig('address', 'postalCode') || ''
+            },
+            'issues' => make_issues_list(evidence_entry['issues']),
+            'treatmentDateRange' => [{
+              'from' => evidence_entry['treatmentStart'] || '',
+              'to' => evidence_entry['treatmentEnd'] || ''
+            }]
+          }
+
+          private_evidence_data['providerFacility'] << facility_data
+        end
+
+        private_evidence_data
+      end
     end
   end
 end
