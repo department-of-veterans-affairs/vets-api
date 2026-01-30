@@ -172,7 +172,7 @@ module ClaimsApi
         end
 
         def current_poa
-          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+          @current_poa ||= BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def representative(poa_code)

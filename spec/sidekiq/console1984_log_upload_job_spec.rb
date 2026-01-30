@@ -119,7 +119,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
           expect(mock_transfer_manager).to receive(:upload_file).with(
             expected_file_path.to_s,
             bucket: 'vets-api-console-access-logs',
-            key: "console1984/#{expected_filename}",
+            key: "test/#{expected_filename}",
             content_type: 'application/json',
             server_side_encryption: 'AES256'
           )
@@ -140,7 +140,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
           expect(mock_transfer_manager).to receive(:upload_file).with(
             expected_file_path.to_s,
             bucket: 'vets-api-console-access-logs',
-            key: "console1984/#{expected_filename}",
+            key: "test/#{expected_filename}",
             content_type: 'application/json',
             server_side_encryption: 'AES256'
           )

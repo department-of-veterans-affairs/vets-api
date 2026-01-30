@@ -13,6 +13,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:code) { {} }
         let(:expected_error) { 'Code is not defined' }
         let(:client_id) { nil }
+        let(:operation) { nil }
 
         it_behaves_like 'callback_api_error_response'
       end
@@ -21,6 +22,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:state) { {} }
         let(:expected_error) { 'State is not defined' }
         let(:client_id) { nil }
+        let(:operation) { nil }
 
         it_behaves_like 'callback_api_error_response'
       end
@@ -29,6 +31,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:state_value) { 'some-state' }
         let(:expected_error) { 'State JWT is malformed' }
         let(:client_id) { nil }
+        let(:operation) { nil }
 
         it_behaves_like 'callback_api_error_response'
       end
@@ -39,6 +42,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:encode_algorithm) { SignIn::Constants::Auth::JWT_ENCODE_ALGORITHM }
         let(:expected_error) { 'State JWT body does not match signature' }
         let(:client_id) { nil }
+        let(:operation) { nil }
 
         it_behaves_like 'callback_api_error_response'
       end
