@@ -16,18 +16,17 @@ module SubmitAllClaimSpec
           user = build(:user, :loa3, icn: definition.user_icn)
           sign_in_as(user)
 
-          cassette_path = CASSETTE_PATH_PREFIX / description
-          payload_fixture_path = PAYLOAD_FIXTURE_PATH_PREFIX / "#{definition.payload_fixture}.json"
-
-          VCR.use_cassette(cassette_path, VCR_OPTIONS) do
+          VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do
             Sidekiq::Testing.inline! do
-              body = File.read(payload_fixture_path)
-              post(:submit_all_claim, body:, as: :json)
-
-              self.class.resurface_exceptions!(parsed_response)
-              expect(response).to have_http_status(:ok)
+              self.class.with_lighthouse_token_signing_key do
+                body = File.read(PAYLOAD_FIXTURE_PATH_PREFIX / "#{definition.payload_fixture}.json")
+                post(:submit_all_claim, body:, as: :json)
+              end
             end
           end
+
+          self.class.resurface_exceptions!(parsed_response)
+          expect(response).to have_http_status(:ok)
 
           if definition.assert
             submission = self.class.get_submission(parsed_response)
@@ -72,7 +71,18 @@ module SubmitAllClaimSpec
 
         raise io.string
       end
+
+      ##
+      # TODO: Explain this.
+      #
+      def with_lighthouse_token_signing_key(&)
+        settings = Settings.lighthouse.benefits_claims.access_token
+        VCR.current_cassette&.recording? or rsa_key = FAKE_RSA_KEY_PATH
+        with_settings(settings, { rsa_key: }.compact, &)
+      end
     end
+
+    FAKE_RSA_KEY_PATH = 'spec/support/certificates/lhdd-fake-private.pem'
 
     def parsed_response
       @parsed_response ||= JSON.parse(response.body)
@@ -97,7 +107,8 @@ module SubmitAllClaimSpec
       disability_compensation_production_tester: false,
       disability_compensation_upload_0781_to_lighthouse: true,
       disability_compensation_upload_bdd_instructions_to_lighthouse: true,
-      disability_compensation_use_api_provider_for_bdd_instructions: true
+      disability_compensation_use_api_provider_for_bdd_instructions: true,
+      form526_backup_submission_temp_killswitch: true
     }.freeze
 
     included do
