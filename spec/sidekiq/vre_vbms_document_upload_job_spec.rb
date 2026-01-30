@@ -65,5 +65,16 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
     it 'retries failures' do
       expect(described_class.sidekiq_options_hash['retry']).to eq(16)
     end
+
+    it 'has retries_exhausted handler' do
+      # Test by triggering the actual callback mechanism
+      expect(Rails.logger).to receive(:error)
+        .with("VRE_VBMS_BACKFILL_RETRIES_EXHAUSTED: Claim ID #{claim.id} failed after all retries")
+      expect(StatsD).to receive(:increment)
+        .with('worker.vre.vbms_document_upload_job.retries_exhausted')
+
+      msg = { 'args' => [claim.id] }
+      described_class.sidekiq_retries_exhausted_block.call(msg, StandardError.new)
+    end
   end
 end

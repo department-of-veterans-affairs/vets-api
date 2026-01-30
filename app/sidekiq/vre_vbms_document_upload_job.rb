@@ -2,7 +2,16 @@
 
 class VREVBMSDocumentUploadJob
   include Sidekiq::Job
+
+  STATSD_KEY_PREFIX = 'worker.vre.vbms_document_upload_job'
+
   sidekiq_options retry: 16
+
+  sidekiq_retries_exhausted do |msg, _ex|
+    claim_id = msg['args'][0]
+    Rails.logger.error("VRE_VBMS_BACKFILL_RETRIES_EXHAUSTED: Claim ID #{claim_id} failed after all retries")
+    StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted")
+  end
 
   def perform(claim_id)
     claim = SavedClaim::VeteranReadinessEmploymentClaim.find(claim_id)
