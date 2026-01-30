@@ -9,6 +9,7 @@ describe VAOS::V2::AvsBinarySerializer do
       binary: 'binaryString'
     }
   end
+
   let(:avs_error) do
     {
       document_id: '123',
@@ -19,30 +20,58 @@ describe VAOS::V2::AvsBinarySerializer do
   describe 'json serialization' do
     context 'with an avs binary' do
       it 'serializes correctly' do
-        serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize([avs_binary], 'avs_binary')
-        expect(serialized.to_json).to eq(
-          '[{"document_id":"123","binary":"binaryString"}]'
+        serialized_hash = described_class.new([avs_binary]).serializable_hash
+        expect(serialized_hash).to include(
+          data: [{
+            id: '123',
+            type: :avs_binary,
+            attributes: {
+              document_id: '123',
+              binary: 'binaryString'
+            }
+          }]
         )
       end
     end
 
     context 'with an avs error' do
       it 'serializes correctly' do
-        serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize([avs_error], 'avs_binary')
-        expect(serialized.to_json).to eq(
-          '[{"document_id":"123","error":"errorString"}]'
+        serialized_hash = described_class.new([avs_error]).serializable_hash
+        expect(serialized_hash).to include(
+          data: [{
+            id: '123',
+            type: :avs_binary,
+            attributes: {
+              document_id: '123',
+              error: 'errorString'
+            }
+          }]
         )
       end
     end
 
     context 'with an avs binary and error' do
       it 'serializes correctly' do
-        serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize([avs_binary, avs_error], 'avs_binary')
-        expect(serialized.to_json).to eq(
-          '[{"document_id":"123","binary":"binaryString"},{"document_id":"123","error":"errorString"}]'
+        serialized_hash = described_class.new([avs_binary, avs_error]).serializable_hash
+        expect(serialized_hash).to include(
+          data: [
+            {
+              id: '123',
+              type: :avs_binary,
+              attributes: {
+                document_id: '123',
+                binary: 'binaryString'
+              }
+            },
+            {
+              id: '123',
+              type: :avs_binary,
+              attributes: {
+                document_id: '123',
+                error: 'errorString'
+              }
+            }
+          ]
         )
       end
     end
