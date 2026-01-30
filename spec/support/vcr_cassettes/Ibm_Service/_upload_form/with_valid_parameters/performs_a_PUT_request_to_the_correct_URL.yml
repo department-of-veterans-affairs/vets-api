@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://<IBM_CLIENT_HOST>/api/validated-forms/v1/123e4567-e89b-12d3-a456-426614174000
+    body:
+      encoding: UTF-8
+      string: '{"field1":"value1","field2":"value2"}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amzn-Requestid:
+      - dea91490-54eb-44b2-83f1-af90452b3c07
+      X-Amz-Apigw-Id:
+      - X-2VUEbXulQF6rw=
+      X-Amzn-Trace-Id:
+      - Root=1-697c3754-1173fa0e5de83ae48d4f2665
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '60'
+      Connection:
+      - keep-alive
+      Date:
+      - Fri, 30 Jan 2026 04:45:16 GMT
+    body:
+      encoding: UTF-8
+      string: '{"message":"Successfully stored or replaced the form data."}'
+  recorded_at: Fri, 30 Jan 2026 04:45:17 GMT
+recorded_with: VCR 6.4.0
