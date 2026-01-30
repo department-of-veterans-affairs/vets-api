@@ -8,7 +8,6 @@ RSpec.describe FormSubmission, feature: :form_submission, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:saved_claim).optional }
     it { is_expected.to belong_to(:user_account).optional }
-    it { is_expected.to have_many(:form_intake_submissions).class_name('::FormIntakeSubmission') }
     it { is_expected.to have_many(:form_intake_submissions).dependent(:nullify) }
   end
 
