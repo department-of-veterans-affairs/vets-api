@@ -54,7 +54,7 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
         allow(claim).to receive(:upload_to_vbms).and_raise(StandardError, 'boom')
 
         expect(Rails.logger).to receive(:error)
-          .with("VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim.id} - StandardError: boom")
+          .with("VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim.id} - StandardError: An error occurred during VBMS upload")
 
         expect { job.perform(claim.id) }.to raise_error(StandardError, 'boom')
       end

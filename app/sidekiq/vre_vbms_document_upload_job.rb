@@ -24,7 +24,7 @@ class VREVBMSDocumentUploadJob
 
     Rails.logger.info "VRE_VBMS_BACKFILL_SUCCESS: Claim ID #{claim_id} processed successfully"
   rescue => e
-    Rails.logger.error "VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim_id} - #{e.class}: #{e.message}"
+    Rails.logger.error "VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim_id} - #{e.class}: An error occurred during VBMS upload"
     raise # Re-raise to trigger Sidekiq retry
   end
 end
