@@ -134,7 +134,7 @@ RSpec.describe DebtManagementCenter::DebtsService do
         with_vcr_cassettes do
           cdid = service.get_debts[:debts].first['compositeDebtId']
           expect(Rails.logger).to receive(:warn).with('DebtsService#get_debts_by_ids: Missing composite_debt_ids',
-                                                      hash_including(missing_composite_debt_ids: ['999999'], requested_count: 2, found_count: 1))
+                                                      hash_including(requested_count: 2, found_count: 1))
           expect(StatsD).to receive(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debts_by_ids.missing_ids", tags: ['missing_count:1'])
           expect(StatsD).to receive(:increment).with("#{described_class::STATSD_KEY_PREFIX}.get_debt.success")
           service.get_debts_by_ids([cdid, '999999'])

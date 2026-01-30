@@ -82,8 +82,6 @@ module DebtManagementCenter
         Rails.logger.warn(
           "DebtsService#get_debts_by_ids: Missing composite_debt_ids",
           {
-            user_uuid: @user.uuid,
-            missing_composite_debt_ids: missing_ids,
             requested_count: composite_debt_ids.length,
             found_count: requested_debts.length
           }
