@@ -39,7 +39,7 @@ module Eps
     # @param response_data [Object] The response data (OpenStruct, Hash, etc.)
     # @param response [Object] The original HTTP response object
     # @param method_name [String] The calling method name for logging context
-    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
+    # @raise [Eps::ServiceException] If response contains error field
     # @return [void]
     #
     def check_for_eps_error!(response_data, response, method_name = nil)
@@ -163,18 +163,19 @@ module Eps
     end
 
     ##
-    # Raises a VAOS::Exceptions::BackendServiceException for EPS error responses
+    # Raises an Eps::ServiceException for EPS error responses
     #
     # @param error_message [String] The error message from the EPS response
-    # @param response [Object] The HTTP response object
-    # @raise [VAOS::Exceptions::BackendServiceException]
+    # @param response [Object] The HTTP response object (unused, kept for interface compatibility)
+    # @raise [Eps::ServiceException]
     #
     def raise_eps_error(error_message, _response)
       status_code = map_error_to_status_code(error_message)
+      key = map_status_to_error_key(status_code)
       sanitized_body = build_sanitized_error_body(error_message)
-      mock_env = build_mock_env(status_code, sanitized_body)
+      response_values = build_response_values(error_message, sanitized_body, status_code)
 
-      raise VAOS::Exceptions::BackendServiceException, mock_env
+      raise Eps::ServiceException.new(key, response_values, status_code, sanitized_body)
     end
 
     ##
@@ -185,15 +186,27 @@ module Eps
     #
     def map_error_to_status_code(error_message)
       case error_message
-      when 'conflict'
-        409  # HTTP 409 Conflict
-      when 'bad-request'
-        400  # HTTP 400 Bad Request
-      when 'internal-error'
-        500  # HTTP 500 Internal Server Error
-      else
-        422  # HTTP 422 Unprocessable Entity (default for other business logic errors)
+      when 'conflict' then 409
+      when 'bad-request' then 400
+      when 'not-found' then 404
+      when 'internal-error' then 500
+      else 422
       end
+    end
+
+    ##
+    # Maps HTTP status code to i18n error key
+    #
+    # @param status_code [Integer] The HTTP status code
+    # @return [String] The i18n error key
+    #
+    def map_status_to_error_key(status_code)
+      {
+        409 => 'VAOS_409A',
+        400 => 'VAOS_400',
+        404 => 'VAOS_404',
+        500 => 'VAOS_502'
+      }[status_code] || 'VA900'
     end
 
     ##
@@ -203,27 +216,29 @@ module Eps
     # @return [String] JSON string of sanitized error body
     #
     def build_sanitized_error_body(error_message)
-      {
-        error: error_message,
-        source: 'EPS service',
-        timestamp: Time.current.iso8601
-      }.to_json
+      { error: error_message, source: 'EPS service', timestamp: Time.current.iso8601 }.to_json
     end
 
     ##
-    # Builds a mock environment object for VAOS exception
+    # Builds response values hash for exception construction
     #
-    # @param status_code [Integer] The HTTP status code
+    # @param error_message [String] The error message from EPS
     # @param sanitized_body [String] The sanitized error body JSON
-    # @return [OpenStruct] Mock environment object
+    # @param status_code [Integer] The HTTP status code
+    # @return [Hash] Response values for exception
     #
-    def build_mock_env(status_code, sanitized_body)
-      OpenStruct.new(
-        status: status_code,
-        body: sanitized_body,
-        url: "#{config.api_url}/#{config.base_path}",
-        response_body: sanitized_body
-      )
+    def build_response_values(error_message, sanitized_body, status_code)
+      {
+        detail: error_message,
+        source: {
+          vamf_url: "#{config.api_url}/#{config.base_path}",
+          vamf_body: sanitized_body,
+          vamf_status: status_code
+        }
+      }
     end
   end
+
+  # EPS-specific exception class for consistent error handling across the service.
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Eps::ServiceException)
 end
