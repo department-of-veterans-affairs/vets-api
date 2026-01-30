@@ -58,7 +58,7 @@ module VeteranStatusCard
         log_statsd(STATSD_FAILURE)
         raise ArgumentError, 'User cannot be nil'
       end
-      
+
       if @user.edipi.blank? || @user.icn.blank?
         log_statsd(STATSD_FAILURE)
         raise ArgumentError, 'User missing required fields'
@@ -84,11 +84,11 @@ module VeteranStatusCard
         # Check if service history exists before returning eligible response
         return error_response_hash(unknown_service_response) unless service_history?
 
-        log_vsc_result(true)
+        log_vsc_result(confirmed: true)
 
         eligible_response
       else
-        log_vsc_result
+        log_vsc_result(confirmed: false)
 
         error_details = error_results
         ineligible_response(error_details)
@@ -209,14 +209,14 @@ module VeteranStatusCard
     # @param confirmed [Boolean] whether the status is 'confirmed' or 'not confirmed'
     # @return [void]
     #
-    def log_vsc_result(confirmed = false)
+    def log_vsc_result(confirmed: false)
       key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
       log_statsd(key)
       Rails.logger.info("#{service_name} VSC Card Result", {
-        confirmation_status: (confirmed ? CONFIRMED_TEXT : vet_verification_status[:reason]).upcase,
-        service_summary_code: ssc_code,
-        has_service_history: service_history?
-      })
+                          confirmation_status: (confirmed ? CONFIRMED_TEXT : vet_verification_status[:reason]).upcase,
+                          service_summary_code: ssc_code,
+                          has_service_history: service_history?
+                        })
     end
 
     ##
