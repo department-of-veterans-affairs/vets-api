@@ -132,6 +132,7 @@ class FormProfile
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
+    increase_compensation: %w[21-8940v1 21-8940],
     mdot: ['MDOT'],
     memorials: %w[40-1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
@@ -153,6 +154,8 @@ class FormProfile
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-8940v1' => IncreaseCompensation::FormProfiles::VA218940v1,
+    '21-8940' => IncreaseCompensation::FormProfiles::VA218940v1,
     '21P-0537' => ::FormProfiles::VA21p0537,
     '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
     '21P-8416' => MedicalExpenseReports::FormProfiles::VA21p8416,
@@ -277,7 +280,6 @@ class FormProfile
       mappings = self.class.mappings_for_form(form_id)
 
       form_data = generate_prefill(mappings)
-
       { form_data:, metadata: }
     else
       { metadata: }
