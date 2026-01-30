@@ -29,7 +29,7 @@ RSpec.describe FormAttachment do
         ActionDispatch::Http::UploadedFile.new(
           original_filename: file_name,
           type: 'application/pdf',
-          tempfile: tempfile
+          tempfile:
         )
       end
 
@@ -61,13 +61,17 @@ RSpec.describe FormAttachment do
       end
 
       it 'raises an exception without a cause to prevent leaking sensitive data' do
-        expect do
+        raised_error = nil
+        begin
           form_attachment.set_file_data!(file, user_password)
-        end.to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
-          # The cause should be nil to prevent the original PdftkError
-          # (which contains the password) from being logged by error reporters
-          expect(error.cause).to be_nil
+        rescue Common::Exceptions::UnprocessableEntity => e
+          raised_error = e
         end
+
+        # The cause should be nil to prevent the original PdftkError
+        # (which contains the password) from being logged by error reporters
+        expect(raised_error).to be_present
+        expect(raised_error.cause).to be_nil
       end
 
       it 'does not expose the password anywhere in the exception chain' do

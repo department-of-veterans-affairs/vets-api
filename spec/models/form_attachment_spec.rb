@@ -38,11 +38,15 @@ RSpec.describe FormAttachment do
         end
 
         it 'raises an exception without a cause to prevent leaking sensitive data' do
-          expect do
+          raised_error = nil
+          begin
             preneed_attachment.set_file_data!(file, bad_password)
-          end.to raise_error(Common::Exceptions::UnprocessableEntity) do |error|
-            expect(error.cause).to be_nil
+          rescue Common::Exceptions::UnprocessableEntity => e
+            raised_error = e
           end
+
+          expect(raised_error).to be_present
+          expect(raised_error.cause).to be_nil
         end
 
         it 'does not expose the original PdftkError with password in the exception chain' do
