@@ -36,9 +36,6 @@ module SimpleFormsApi
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 40-1330M 21P-0537 21P-601].freeze
 
       def submit
-        # Temporarily gate submissions to 21P-0537 while in development
-        return if (params[:form_number] == '21P-0537') && !Flipper.enabled?(:form21p0537, @current_user)
-
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
