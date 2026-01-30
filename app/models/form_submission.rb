@@ -6,7 +6,7 @@ class FormSubmission < ApplicationRecord
 
   # form_intake_submissions used when retrying to send structured data to MMS
   # see https://github.com/department-of-veterans-affairs/vets-api/pull/25889
-  has_many :form_intake_submissions, dependent: :nullify
+  has_many :form_intake_submissions, dependent: :destroy
 
   has_many :form_submission_attempts, dependent: :destroy
   belongs_to :saved_claim, optional: true
