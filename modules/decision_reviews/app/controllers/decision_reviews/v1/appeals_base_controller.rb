@@ -2,6 +2,7 @@
 
 require 'caseflow/service'
 require 'decision_reviews/v1/service'
+require 'decision_reviews/v1/appealable_issues/service'
 
 module DecisionReviews
   module V1
@@ -13,6 +14,10 @@ module DecisionReviews
 
       def decision_review_service
         DecisionReviews::V1::Service.new
+      end
+
+      def appealable_issues_service
+        DecisionReviews::V1::AppealableIssues::Service.new
       end
 
       def request_body_hash
@@ -42,6 +47,10 @@ module DecisionReviews
           request_body_class_name: request.try(:body).class.name,
           request_body_string: request.try(:body).try(:string)
         }
+      end
+
+      def use_new_appealable_issues_service?
+        Flipper.enabled?(:decision_review_use_new_appealable_issues_service)
       end
     end
   end

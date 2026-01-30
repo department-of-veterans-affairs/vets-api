@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0/appealable-issues/notice-of-disagreements?benefitType=compensation&icn=0000000000V000000&receiptDate=2026-01-23
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      # Fake Bearer token for testing purposes only
+      Authorization:
+      - Bearer fake-token-12345
+      Accept:
+      - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "errors": [
+            {
+              "status": "404",
+              "title": "Veteran not found",
+              "detail": "A veteran with that ICN was not found in our systems."
+            }
+          ]
+        }
+    http_version: null
+  recorded_at: Wed, 22 Jan 2026 00:00:00 GMT
+recorded_with: VCR 6.4.0
