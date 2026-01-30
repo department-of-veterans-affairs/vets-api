@@ -3,6 +3,7 @@
 module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
+    before_action :authorize_icn
 
     def index
       invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
@@ -33,6 +34,29 @@ module V1
 
     def medical_copay_service
       MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
+    end
+
+    def validate_pagination_params
+      if params[:count] && params[:count].to_i <= 0
+        render json: { error: 'Invalid count parameter' }, status: :bad_request
+      end
+    end
+
+    def record_not_found(exception)
+      render json: { error: exception.message }, status: :not_found
+    end
+
+    def service_error(exception)
+      render json: { error: 'External service error' }, status: :bad_gateway
+    end
+
+    def internal_server_error(exception)
+      Rails.logger.error("Unexpected error: #{exception.message}")
+      render json: { error: 'Internal server error' }, status: :internal_server_error
+    end
+
+    def authorize_icn
+      raise Common::Exceptions::Forbidden, detail: 'User ICN is required' if current_user.icn.blank?
     end
   end
 end
