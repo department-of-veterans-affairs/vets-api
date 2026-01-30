@@ -131,6 +131,55 @@ if Settings.api.url.present?
 - **Method complexity**: Methods with many conditional paths or multiple responsibilities
 - **Database migrations**: Mixing index changes with other schema modifications; index operations missing `algorithm: :concurrently` and `disable_ddl_transaction!`
 
+### SRE Error Handling Audit
+
+Flag these error handling anti-patterns. See `.github/instructions/sre-plays/` for detailed guidance.
+
+**Exception Handling (Always Flag):**
+- `rescue => e` or bare `rescue` without exception class - rescues all `StandardError` (including bugs like `NoMethodError`) and hides intent; prefer `rescue SomeSpecificError`
+- `rescue Exception` (or rescuing `Exception` directly) - catches `StandardError` **and** `SystemExit` / `Interrupt` (Ctrl+C) and should almost never be used
+- `rescue => e; nil` or `rescue; false` - swallows failures, returns misleading values
+- `raise "error: #{e}"` - destroys exception type, backtrace, and cause chain
+- Not using `Lighthouse::ServiceException.send_error` for Faraday errors - loses proper status mapping and logging
+
+**Status Code Misclassification:**
+- All Faraday errors mapped to 500 - should be: timeout→504, connection→503, upstream 500→502
+- Broad rescue returning 422 - may be hiding our bugs (500) or upstream failures (502-504)
+- Ask: "Who fixes this?" Client→4xx, Us→500, Upstream→502/503/504
+
+**Telemetry Duplication:**
+- `Rails.logger.error e.backtrace.join("\n")` - APM captures backtraces automatically
+- Catch, log, re-raise without adding context - generates duplicate signals
+- Manual `span.set_error` for 4xx responses - floods APM dashboards with expected errors
+
+**Code Examples to Flag:**
+```ruby
+# Bad: Bare rescue catches all StandardError (including NoMethodError from typos)
+rescue => e
+  Rails.logger.warn("Failed"); nil
+
+# Bad: All network errors become 500
+rescue Faraday::Error => e
+  raise Common::Exceptions::InternalServerError.new(e)
+
+# Bad: Not separating timeout from other errors
+rescue Faraday::ClientError, Faraday::ServerError => e
+  raise Common::Exceptions::ServiceUnavailable.new
+
+# Good: Handle TimeoutError explicitly (no response to extract status from)
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout  # 504, no arguments
+# Good: Use Lighthouse::ServiceException for errors with responses
+rescue Faraday::ClientError, Faraday::ServerError => e
+  Lighthouse::ServiceException.send_error(e, self.class.to_s.underscore, client_id, url)
+
+# Good: Or use BenefitsClaims::ServiceException pattern
+rescue Faraday::TimeoutError
+  raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+rescue Faraday::ClientError, Faraday::ServerError => e
+  raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+```
+
 ## Consolidation Examples
 
 **Good PR Comment:**
