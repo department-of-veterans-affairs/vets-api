@@ -53,8 +53,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
     end
     let(:metadata) do
       {
-        'veteran' => { 'vnp_mail_id' => '157252', 'vnp_email_id' => '157251', 'vnp_phone_id' => '111641' },
-        'claimant' => { 'vnp_mail_id' => '157253', 'vnp_email_id' => '157254', 'vnp_phone_id' => '111642' }
+        'veteran' => { 'vnp_mail_id' => '157252', 'vnp_email_id' => '157251', 'vnp_phone_id' => '111641',
+                       'phone_data' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234' } },
+        'claimant' => { 'vnp_mail_id' => '157253', 'vnp_email_id' => '157254', 'vnp_phone_id' => '111642',
+                        'phone_data' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' } }
       }
     end
     let(:returned_data) do
@@ -64,7 +66,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
               'address' => { 'addressLine1' => '2719 Hyperion Ave', 'addressLine2' => 'Apt 2',
                              'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'US',
                              'zipCode' => '92264', 'zipCodeSuffix' => '0200' },
-              'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
+              'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234' },
               'serviceNumber' => '123456783'
             },
             'representative' => { 'poaCode' => '067', 'type' => 'ATTORNEY', 'registrationNumber' => '123456783' },
@@ -74,7 +76,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
                             'address' => { 'addressLine1' => '123 Main St', 'addressLine2' => 'Apt 3',
                                            'city' => 'Boston', 'stateCode' => 'MA', 'countryCode' => 'US',
                                            'zipCode' => '02110', 'zipCodeSuffix' => '1000' },
-                            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5559876' },
+                            'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' },
                             'relationship' => 'Spouse' } } } }
     end
 
