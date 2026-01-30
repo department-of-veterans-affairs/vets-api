@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 =======
 require 'debts_api/v0/digital_dispute_submission_service'
+require 'debts_api/concerns/dispute_debt_submission_validation'
 require 'debt_management_center/debts_service'
 >>>>>>> ad156e78a3 (Add json validator)
 require 'sidekiq/attr_package'
