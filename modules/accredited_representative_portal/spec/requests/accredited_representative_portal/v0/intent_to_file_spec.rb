@@ -27,7 +27,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   end
 
   before do
-    Flipper.enable :accredited_representative_portal_intent_to_file
     Flipper.disable :accredited_representative_portal_skip_itf_check
     VCR.configure do |c|
       c.debug_logger = File.open('record.log', 'w')
@@ -53,14 +52,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
     context 'veteran claimant' do
-      context 'feature flag is off' do
-        it 'returns forbidden' do
-          Flipper.disable :accredited_representative_portal_intent_to_file
-          get('/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation')
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
       context 'bad or missing filing type' do
         it 'returns the appropriate error message' do
           get('/accredited_representative_portal/v0/intent_to_file/?benefitType=none')
@@ -172,14 +163,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         veteranSsn: '666468765',
         veteranDateOfBirth: '1976-01-16'
       }
-    end
-
-    context 'feature flag is off' do
-      it 'returns forbidden' do
-        Flipper.disable(:accredited_representative_portal_intent_to_file)
-        post('/accredited_representative_portal/v0/intent_to_file', params:)
-        expect(response).to have_http_status(:forbidden)
-      end
     end
 
     context 'valid params - veteran compensation' do

@@ -20,7 +20,6 @@ module AccreditedRepresentativePortal
       SUCCESS_METRIC = 'ar.itf.submit.success'
       ERROR_METRIC   = 'ar.itf.submit.error'
 
-      before_action :check_feature_toggle
       before_action :validate_file_type, only: %i[show create]
       before_action { authorize icn, policy_class: IntentToFilePolicy }
 
@@ -121,14 +120,6 @@ module AccreditedRepresentativePortal
           veteran_form.merge(claimant_form)
         else
           veteran_form.merge(dependent: nil)
-        end
-      end
-
-      def check_feature_toggle
-        unless Flipper.enabled?(:accredited_representative_portal_intent_to_file, @current_user)
-          message = 'The accredited_representative_portal_intent_to_file feature flag is disabled ' \
-                    "for the user with uuid: #{@current_user.uuid}"
-          raise Common::Exceptions::Forbidden, detail: message
         end
       end
 
