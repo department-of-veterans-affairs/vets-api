@@ -132,7 +132,7 @@ module DebtsApi
           end
 
           def extract_composite_debt_ids_from_field(debts)
-            composite_debt_ids = debts.map.with_index do |debt, index|
+            composite_debt_ids = debts.filter_map.with_index do |debt, index|
               log_and_raise_error("disputes[#{index}] must be an object") unless debt.is_a?(Hash)
 
               debt[:composite_debt_id]
