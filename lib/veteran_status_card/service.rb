@@ -13,7 +13,11 @@ module VeteranStatusCard
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
 
-    VET_STATUS_SERVICE_CONFIRMED_TEXT = 'confirmed'
+    VETERAN_STATUS_CARD = 'veteran_status_card'
+    VETERAN_STATUS_ALERT = 'veteran_status_alert'
+
+    CONFIRMED_TEXT = 'confirmed'
+    NOT_CONFIRMED_TEXT = 'not confirmed'
     VET_STATUS_PERSON_NOT_FOUND_TEXT = 'PERSON_NOT_FOUND'
     VET_STATUS_ERROR_TEXT = 'ERROR'
     VET_STATUS_MORE_RESEARCH_REQUIRED_TEXT = 'MORE_RESEARCH_REQUIRED'
@@ -135,7 +139,7 @@ module VeteranStatusCard
       key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
       log_statsd(key)
       Rails.logger.info("#{service_name} VSC Card Result", {
-        confirmation_status: confirmed ? 'CONFIRMED' : vet_verification_status[:reason],
+        confirmation_status: (confirmed ? CONFIRMED_TEXT : vet_verification_status[:reason]).upcase,
         service_summary_code: ssc_code,
         has_service_history: service_history?
       })
@@ -148,8 +152,8 @@ module VeteranStatusCard
     #
     def eligible_response
       {
-        type: 'veteran_status_card',
-        veteran_status: 'confirmed',
+        type: VETERAN_STATUS_CARD,
+        veteran_status: CONFIRMED_TEXT,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
@@ -169,8 +173,8 @@ module VeteranStatusCard
     #
     def ineligible_response(error_details)
       {
-        type: 'veteran_status_alert',
-        veteran_status: 'not confirmed',
+        type: VETERAN_STATUS_ALERT,
+        veteran_status: NOT_CONFIRMED_TEXT,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
@@ -190,8 +194,8 @@ module VeteranStatusCard
     def nil_user_error_response
       alert_response = something_went_wrong_response
       {
-        type: 'veteran_status_alert',
-        veteran_status: 'not confirmed',
+        type: VETERAN_STATUS_ALERT,
+        veteran_status: NOT_CONFIRMED_TEXT,
         service_summary_code: nil,
         not_confirmed_reason: nil,
         attributes: {
@@ -449,7 +453,7 @@ module VeteranStatusCard
     # @return [Boolean] true if veteran status is confirmed, false otherwise
     #
     def vet_verification_eligible?
-      vet_verification_status[:veteran_status] == VET_STATUS_SERVICE_CONFIRMED_TEXT
+      vet_verification_status[:veteran_status] == CONFIRMED_TEXT
     end
 
     ##
@@ -516,8 +520,8 @@ module VeteranStatusCard
     #
     def error_response_hash(response)
       {
-        type: 'veteran_status_alert',
-        veteran_status: 'not confirmed',
+        type: VETERAN_STATUS_ALERT,
+        veteran_status: NOT_CONFIRMED_TEXT,
         service_summary_code: ssc_code,
         not_confirmed_reason: vet_verification_status[:reason],
         attributes: {
