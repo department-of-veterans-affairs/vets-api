@@ -9,7 +9,7 @@ module VAOS
 
       set_type :avs_binary
 
-      attributes :doc_id,
+      attributes :document_id,
                  :binary,
                  :error
     end

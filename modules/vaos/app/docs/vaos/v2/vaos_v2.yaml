@@ -1990,6 +1990,21 @@ components:
           type: string
           description: The timezone ID abbreviation.
           example: EDT
+    AvsBinary:
+      type: object
+      required:
+        - document_id
+      properties:
+        document_id:
+          description: The document ID of the After Visit Summary PDF.
+          type: string
+          example: 20875041789
+        binary:
+          type: string
+          description: The base64 encoded PDF binary data.
+        error:
+          type: string
+          description: Error message if the AVS could not be retrieved.
   responses:
     "BadGateway":
       description: "The server was acting as a gateway or proxy and received an invalid response from the upstream server."

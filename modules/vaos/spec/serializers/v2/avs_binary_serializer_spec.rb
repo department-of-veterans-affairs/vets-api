@@ -5,13 +5,13 @@ require 'rails_helper'
 describe VAOS::V2::AvsBinarySerializer do
   let(:avs_binary) do
     {
-      doc_id: '123',
+      document_id: '123',
       binary: 'binaryString'
     }
   end
   let(:avs_error) do
     {
-      doc_id: '123',
+      document_id: '123',
       error: 'errorString'
     }
   end
@@ -22,7 +22,7 @@ describe VAOS::V2::AvsBinarySerializer do
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize([avs_binary], 'avs_binary')
         expect(serialized.to_json).to eq(
-          '[{"doc_id":"123","binary":"binaryString"}]'
+          '[{"document_id":"123","binary":"binaryString"}]'
         )
       end
     end
@@ -32,7 +32,7 @@ describe VAOS::V2::AvsBinarySerializer do
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize([avs_error], 'avs_binary')
         expect(serialized.to_json).to eq(
-          '[{"doc_id":"123","error":"errorString"}]'
+          '[{"document_id":"123","error":"errorString"}]'
         )
       end
     end
@@ -42,7 +42,7 @@ describe VAOS::V2::AvsBinarySerializer do
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize([avs_binary, avs_error], 'avs_binary')
         expect(serialized.to_json).to eq(
-          '[{"doc_id":"123","binary":"binaryString"},{"doc_id":"123","error":"errorString"}]'
+          '[{"document_id":"123","binary":"binaryString"},{"document_id":"123","error":"errorString"}]'
         )
       end
     end
