@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://www.va.gov/ogc/apps/accreditation/attorneyexcellist.asp
+    uri: <OGC_ATTORNEY_EXCEL_LIST_URI>
     body:
       encoding: UTF-8
       string: id=frmExcelList&name=frmExcelList
@@ -657,7 +657,7 @@ http_interactions:
   recorded_at: Fri, 06 Sep 2019 22:36:16 GMT
 - request:
     method: post
-    uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+    uri: <OGC_CLAIMS_AGENT_EXCEL_LIST_URI>
     body:
       encoding: UTF-8
       string: id=frmExcelList&name=frmExcelList
@@ -807,7 +807,7 @@ http_interactions:
   recorded_at: Fri, 06 Sep 2019 22:37:41 GMT
 - request:
     method: post
-    uri: https://www.va.gov/ogc/apps/accreditation/orgsexcellist.asp
+    uri: <OGC_ORGANIZATIONS_EXCEL_LIST_URI>
     body:
       encoding: UTF-8
       string: id=frmExcelList&name=frmExcelList

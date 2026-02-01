@@ -7,6 +7,7 @@ class AccreditedIndividual < ApplicationRecord
   INDIVIDUAL_TYPE_CLAIM_AGENT = 'claims_agent'
   INDIVIDUAL_TYPE_VSO_REPRESENTATIVE = 'representative'
   DUMMY_OGC_ID = '00000000-0000-0000-0000-000000000000'
+  include RepresentationManagement::Geocodable
   # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.

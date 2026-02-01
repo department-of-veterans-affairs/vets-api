@@ -8,13 +8,14 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
   let(:veteran_id) { 'vet-uuid-123' }
   let(:edipi) { '1234567890' }
   let(:jwt_secret) { 'test-jwt-secret' }
+  let(:jti) { SecureRandom.uuid }
   let(:jwt_token) do
     # Generate a valid JWT token for testing
     payload = {
       sub: veteran_id,
       exp: 1.hour.from_now.to_i,
       iat: Time.current.to_i,
-      jti: SecureRandom.uuid
+      jti:
     }
     JWT.encode(payload, jwt_secret, 'HS256')
   end
@@ -43,10 +44,9 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
       )
     )
 
-    # Set up veteran metadata in Redis using veteran_id as the identifier
-    # (this is what the JWT sub claim will contain)
+    # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
-    redis_client.save_veteran_metadata(uuid: veteran_id, edipi:, veteran_id:)
+    redis_client.save_session(uuid: veteran_id, jti:, edipi:, veteran_id:)
   end
 
   describe 'GET /vass/v0/appointment-availability' do
@@ -306,21 +306,24 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
         end
       end
 
-      context 'when veteran metadata is missing from Redis' do
+      context 'when session is missing from Redis (token revoked)' do
         before do
-          Rails.cache.delete(
-            "veteran_metadata_#{veteran_id}",
-            namespace: 'vass-otc-cache'
-          )
+          redis_client = Vass::RedisClient.build
+          redis_client.delete_session(uuid: veteran_id)
         end
 
-        it 'returns unauthorized status' do
+        it 'returns unauthorized status with revoked token error' do
+          allow(Rails.logger).to receive(:warn).and_call_original
+          expect(Rails.logger).to receive(:warn)
+            .with(a_string_including('"service":"vass"', '"action":"auth_failure"', '"reason":"revoked_token"'))
+            .and_call_original
+
           get('/vass/v0/appointment-availability', headers:)
 
           expect(response).to have_http_status(:unauthorized)
           json_response = JSON.parse(response.body)
           expect(json_response['errors']).to be_present
-          expect(json_response['errors'].first['detail']).to include('EDIPI not found')
+          expect(json_response['errors'].first['detail']).to eq('Token is invalid or already revoked')
         end
       end
 
@@ -360,7 +363,14 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
           expect(json_response['errors'].first['code']).to eq('internal_error')
           expect(json_response['errors'].first['detail']).to eq('An unexpected error occurred')
 
-          expect(Rails.logger).to have_received(:error).with('Unexpected availability status: unexpected_status')
+          expect(Rails.logger).to have_received(:error).with(
+            a_string_including(
+              '"service":"vass"',
+              '"controller":"appointments"',
+              '"action":"unexpected_availability_status"',
+              '"status":"unexpected_status"'
+            )
+          )
         end
       end
     end
