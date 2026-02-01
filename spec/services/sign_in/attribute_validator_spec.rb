@@ -73,6 +73,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:mpi_service) { instance_double(MPI::Service) }
       let(:sign_in_logger) { instance_double(SignIn::Logger) }
       let(:digest) { 'some-digest-value' }
+      let(:new_record) { nil }
 
       before do
         allow(MPI::Service).to receive(:new).and_return(mpi_service)
@@ -89,8 +90,10 @@ RSpec.describe SignIn::AttributeValidator do
         let(:expected_error_log) { 'attribute validator error' }
         let(:expected_error_log_payload) do
           { errors: expected_error_message,
+            code: expected_error_code,
             credential_uuid: csp_id,
             mhv_icn:,
+            new_record:,
             type: service_name }.compact
         end
 
@@ -147,8 +150,10 @@ RSpec.describe SignIn::AttributeValidator do
           let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
           let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
           let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN }
           let(:expected_error_log_payload) do
             { errors: expected_error_message,
+              code: expected_error_code,
               credential_uuid: csp_id,
               mhv_icn:,
               type: service_name }.compact
@@ -246,6 +251,9 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_message) do
             "Attribute mismatch, #{attribute} in credential does not match MPI attribute"
           end
+          let(:expected_error_code) do
+            SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+          end
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_params) do
             {
@@ -266,11 +274,11 @@ RSpec.describe SignIn::AttributeValidator do
             subject
             expect(sign_in_logger).to have_received(:info).with(expected_error_log,
                                                                 { errors: expected_error_message,
+                                                                  code: expected_error_code,
                                                                   credential_uuid: csp_id,
+                                                                  new_record:,
                                                                   type: service_name })
           end
-
-          it_behaves_like 'mpi call to update correlation record'
         end
 
         context 'and attribute mismatch is first_name' do
@@ -295,15 +303,10 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'and attribute mismatch is ssn' do
-          let(:mpi_ssn) { '098765432' }
+          let(:mpi_ssn) { '098-76-5432' }
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
           let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
-          let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
-          let(:expected_error_context) do
-            { credential_uuid: csp_id,
-              icn:,
-              type: user_attributes[:sign_in][:service_name] }
-          end
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH }
 
           it_behaves_like 'error response'
         end
@@ -401,6 +404,7 @@ RSpec.describe SignIn::AttributeValidator do
               create(:add_person_response, status: update_status, parsed_codes: { logingov_uuid: })
             end
             let(:update_status) { :ok }
+            let(:new_record) { false }
 
             it_behaves_like 'mpi versus credential mismatch'
             it_behaves_like 'mpi call to update correlation record'
@@ -451,6 +455,12 @@ RSpec.describe SignIn::AttributeValidator do
 
           context 'and mpi add person call is successful' do
             let(:status) { :ok }
+
+            context 'and mpi vs credential mismatch checks run' do
+              let(:new_record) { true }
+
+              it_behaves_like 'mpi versus credential mismatch'
+            end
 
             it_behaves_like 'mpi attribute validations'
           end
@@ -562,8 +572,10 @@ RSpec.describe SignIn::AttributeValidator do
                 subject
                 expect(sign_in_logger).to have_received(:info).with(expected_error_log,
                                                                     { errors: expected_error_message,
+                                                                      code: SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                                                                       credential_uuid: csp_id,
                                                                       mhv_icn:,
+                                                                      new_record: false,
                                                                       type: service_name })
               end
             end

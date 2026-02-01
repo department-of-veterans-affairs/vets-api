@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+    uri: <OGC_CLAIMS_AGENT_EXCEL_LIST_URI>
     body:
       encoding: UTF-8
       string: id=frmExcelList&name=frmExcelList

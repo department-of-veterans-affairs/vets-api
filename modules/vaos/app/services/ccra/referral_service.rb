@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'logging/helper/data_scrubber'
+
 module Ccra
   # Ccra::ReferralService provides methods for interacting with the CCRA referral endpoints.
   # It inherits from Ccra::BaseService for common REST functionality and configuration.
   # This service handles both API interactions and caching of referral data.
   class ReferralService < BaseService
+    include Logging::Helper::DataScrubber
     # Fetches the VAOS Referral List.
     #
     # @param icn [String] The Internal Control Number (ICN) of the patient
@@ -14,15 +17,12 @@ module Ccra
     def get_vaos_referral_list(icn, referral_status)
       params = { status: referral_status }
       with_monitoring do
-        response = perform(
-          :get,
-          "/#{config.base_path}/#{icn}/referrals",
-          params,
-          request_headers
-        )
-
+        response = perform(:get, "/#{config.base_path}/#{icn}/referrals", params, request_headers)
         ReferralListEntry.build_collection(response.body)
       end
+    rescue => e
+      log_referral_list_error(referral_status, e)
+      raise e
     end
 
     # Retrieves detailed Referral information.
@@ -99,6 +99,25 @@ module Ccra
     end
 
     private
+
+    # Logs an error when fetching the VAOS referral list fails.
+    #
+    # @param referral_status [String] The status filter that was used in the failed request
+    # @param error [Exception] The exception that was raised
+    #
+    # @return [void]
+    def log_referral_list_error(referral_status, error)
+      return unless Flipper.enabled?(:va_online_scheduling_ccra_error_logging, user)
+
+      Rails.logger.error('Community Care Appointments: Failed to fetch VAOS referral list', {
+                           referral_status:,
+                           service: 'ccra',
+                           method: 'get_vaos_referral_list',
+                           error_class: error.class.name,
+                           error_message: scrub(error.message),
+                           error_backtrace: error.backtrace&.first(5)
+                         })
+    end
 
     # Stores the provided referral data in the cache for future retrieval.
     #
