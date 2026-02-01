@@ -135,7 +135,11 @@ module SurvivorsBenefits
       def expand_marriage(form_data)
         form_data['validMarriage'] = to_radio_yes_no(form_data['validMarriage'])
         form_data['marriedToVeteranAtTimeOfDeath'] = to_radio_yes_no(form_data['marriedToVeteranAtTimeOfDeath'])
-        form_data['howMarriageEnded'] = radio_marriage_ended(form_data['howMarriageEnded'])
+        if form_data['marriedToVeteranAtTimeOfDeath'] == 'YES'
+          form_data['howMarriageEnded'] = 'DEATH'
+        else
+          form_data['howMarriageEnded'] = radio_marriage_ended(form_data['howMarriageEnded'])
+        end
         form_data['marriageDates'] = {
           'from' => split_date(form_data.dig('marriageDates', 'from')),
           'to' => split_date(form_data.dig('marriageDates', 'to'))
