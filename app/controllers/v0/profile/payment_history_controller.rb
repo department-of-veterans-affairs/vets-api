@@ -16,36 +16,42 @@ module V0
       private
 
       def log_access_attempt
+        StatsD.increment('api.payment_history.access_attempt')
         Rails.logger.info('User attempting to access BGS payment history', {
                             user_uuid: current_user&.uuid
                           })
       end
 
       def log_authorized_access
+        StatsD.increment('api.payment_history.authorized')
         Rails.logger.info('User authorized for BGS payment history access', {
                             user_uuid: current_user&.uuid
                           })
       end
 
       def log_before_bgs_people_request
+        StatsD.increment('api.payment_history.bgs_people_request.started')
         Rails.logger.info('Requesting person from BGS', {
                             user_uuid: current_user&.uuid
                           })
       end
 
       def log_after_bgs_people_request
+        StatsD.increment('api.payment_history.bgs_people_request.completed')
         Rails.logger.info('Received person from BGS', {
                             user_uuid: current_user&.uuid
                           })
       end
 
       def log_before_bgs_payment_service_request
+        StatsD.increment('api.payment_history.bgs_payment_service.started')
         Rails.logger.info('Requesting payment history from BGS', {
                             user_uuid: current_user&.uuid
                           })
       end
 
       def log_after_bgs_payment_service_request
+        StatsD.increment('api.payment_history.bgs_payment_service.completed')
         Rails.logger.info('Received payment history from BGS', {
                             user_uuid: current_user&.uuid
                           })
