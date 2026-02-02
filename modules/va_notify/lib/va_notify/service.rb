@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-require 'notifications/client'
-require 'common/client/base'
-require 'common/client/concerns/monitoring'
-require_relative 'configuration'
-require_relative 'error'
-require_relative 'client'
-require 'vets/shared_logging'
-require 'datadog'
+require "notifications/client"
+require "common/client/base"
+require "common/client/concerns/monitoring"
+require_relative "configuration"
+require_relative "error"
+require_relative "client"
+require "vets/shared_logging"
+require "datadog"
 
 module VaNotify
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include Vets::SharedLogging
 
-    STATSD_KEY_PREFIX = 'api.vanotify'
+    STATSD_KEY_PREFIX = "api.vanotify"
     UUID_LENGTH = 36
 
     configuration VaNotify::Configuration
@@ -35,8 +35,8 @@ module VaNotify
 
     # rubocop:disable Metrics/MethodLength
     def send_email(args)
-      Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
-        span.set_tag('template_id', args[:template_id])
+      Datadog::Tracing.trace("api.vanotify.service.send_email", service: "va-notify") do |span|
+        span.set_tag("template_id", args[:template_id])
 
         @template_id = args[:template_id]
         if Flipper.enabled?(:va_notify_notification_creation)
@@ -85,7 +85,7 @@ module VaNotify
       @template_id = args[:template_id]
       # Push notifications currently do not support notification creation or callbacks
       unless Flipper.enabled?(:va_notify_push_notifications)
-        Rails.logger.warn('Push notifications are disabled via feature flag va_notify_push_notifications')
+        Rails.logger.warn("Push notifications are disabled via feature flag va_notify_push_notifications")
         return nil
       end
 
@@ -124,16 +124,14 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         log_error_details(error)
-        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
+        if error.status >= 400
           context = {
-            template_id: callback_options[:template_id] || callback_options['template_id'],
+            template_id: callback_options[:template_id] || callback_options["template_id"],
             callback_metadata: sanitize_metadata(
-              callback_options[:callback_metadata] || callback_options['callback_metadata']
+              callback_options[:callback_metadata] || callback_options["callback_metadata"]
             )
           }
           raise VANotify::Error.from_generic_error(error, context)
-        elsif error.status >= 400
-          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
         end
       else
         raise error
@@ -148,7 +146,7 @@ module VaNotify
     end
 
     def log_error_details(error)
-      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
+      log_message_to_rails(error.message, "error", {url: config.base_path, body: error.try(:body)})
     end
 
     def append_callback_url(args)
@@ -159,13 +157,13 @@ module VaNotify
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Lint/NonLocalExitFromIterator
     def create_notification(response)
-      Datadog::Tracing.trace('api.vanotify.service.create_notification', service: 'va-notify') do |span|
+      Datadog::Tracing.trace("api.vanotify.service.create_notification", service: "va-notify") do |span|
         if response.nil?
-          Rails.logger.error('VANotify - no response')
+          Rails.logger.error("VANotify - no response")
           return
         end
 
-        span.set_tag('notification_id', response.id)
+        span.set_tag("notification_id", response.id)
 
         service_id = set_service_id(response)
         # when the class is used directly we can pass symbols as keys
@@ -173,8 +171,8 @@ module VaNotify
         notification = VANotify::Notification.new(
           notification_id: response.id,
           source_location: find_caller_locations,
-          callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
-          callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
+          callback_klass: callback_options[:callback_klass] || callback_options["callback_klass"],
+          callback_metadata: callback_options[:callback_metadata] || callback_options["callback_metadata"],
           template_id:,
           service_id:
         )
@@ -194,7 +192,7 @@ module VaNotify
 
     def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
-        'VANotify notification record failed to save',
+        "VANotify notification record failed to save",
         {
           error_messages: notification.errors,
           template_id:
@@ -216,12 +214,12 @@ module VaNotify
 
     def find_caller_locations
       ignored_files = [
-        'modules/va_notify/lib/va_notify/service.rb',
-        'va_notify/app/sidekiq/va_notify/email_job.rb',
-        'va_notify/app/sidekiq/va_notify/user_account_job.rb',
-        'lib/sidekiq/processor.rb',
-        'lib/sidekiq/middleware/chain.rb',
-        'datadog'
+        "modules/va_notify/lib/va_notify/service.rb",
+        "va_notify/app/sidekiq/va_notify/email_job.rb",
+        "va_notify/app/sidekiq/va_notify/user_account_job.rb",
+        "lib/sidekiq/processor.rb",
+        "lib/sidekiq/middleware/chain.rb",
+        "datadog"
       ]
 
       caller_locations.each do |location|
@@ -234,18 +232,18 @@ module VaNotify
     def set_service_id(response)
       return nil unless Flipper.enabled?(:va_notify_request_level_callbacks)
 
-      template_uri = response&.template&.[]('uri')
+      template_uri = response&.template&.[]("uri")
       return nil if template_uri.blank?
 
-      uri_segments = template_uri.split('/')
+      uri_segments = template_uri.split("/")
       if uri_segments.length < 5
-        Rails.logger.info('VANotify template URI has unexpected format', template_uri:)
+        Rails.logger.info("VANotify template URI has unexpected format", template_uri:)
         return nil
       end
 
       uri_segments[4]
     rescue NoMethodError, TypeError => e
-      Rails.logger.info('Unable to derive VANotify service_id', error: e.class.name)
+      Rails.logger.info("Unable to derive VANotify service_id", error: e.class.name)
       nil
     end
   end

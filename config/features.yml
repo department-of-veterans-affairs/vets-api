@@ -2057,9 +2057,6 @@ features:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
     enable_in_development: true
-  va_notify_custom_errors:
-    actor_type: user
-    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_notify_enhanced_uuid_validation:
     actor_type: user
     description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
