@@ -19,10 +19,14 @@ module Burials
     else
       "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
     end
+  rescue ActiveRecord::StatementInvalid, ActiveRecord::NoDatabaseError
+    "#{MODULE_PATH}/lib/burials/pdf_fill/pdfs/#{FORM_ID}.pdf"
   end
 
   def self.use_v2?
     Flipper.enabled?(:burial_pdf_form_alignment)
+  rescue ActiveRecord::StatementInvalid, ActiveRecord::NoDatabaseError
+    false
   end
 
   # Path to the PDF

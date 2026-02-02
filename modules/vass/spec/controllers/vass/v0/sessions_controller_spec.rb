@@ -411,7 +411,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           uuid:
         )
         allow(session_model).to receive(:create_authenticated_session).and_return(true)
-        allow(redis_client).to receive(:validation_rate_limit_exceeded?).and_return(false)
+        allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
+                                                redis_session_expiry: 2.hours)
         allow(redis_client).to receive(:reset_validation_rate_limit)
       end
 
@@ -422,11 +423,11 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         json_response = JSON.parse(response.body)
         expect(json_response['data']['token']).to eq(jwt_token)
         expect(json_response['data']['tokenType']).to eq('Bearer')
-        expect(json_response['data']['expiresIn']).to eq(3600)
+        expect(json_response['data']['expiresIn']).to eq(2.hours.to_i)
       end
 
-      it 'creates authenticated session with veteran data' do
-        expect(session_model).to receive(:create_authenticated_session).with(token: jwt_token)
+      it 'creates authenticated session with jti' do
+        expect(session_model).to receive(:create_authenticated_session).with(jti:)
         post :authenticate_otc, params:, format: :json
       end
 

@@ -531,18 +531,66 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response.body).to be_a(String)
         attrs = JSON.parse(response.body)['data']['attributes']
         expect(attrs['html']).to include('<h1>Somatropin</h1>')
       end
 
-      it 'responds with error when the API unable to find documentation for NDC' do
-        VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-          get '/my_health/v1/prescriptions/13650541/documentation'
-        end
+      it 'returns error when prescription is not found' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(nil)
+
+        get '/my_health/v1/prescriptions/99999999/documentation'
+
+        expect(response).to have_http_status(:not_found)
+        error = JSON.parse(response.body)
+        expect(error).to include('errors')
+      end
+
+      it 'returns error when NDC number is missing' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
+          double('Rx', cmop_ndc_value: nil)
+        )
+
+        get '/my_health/v1/prescriptions/13650541/documentation'
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        error = JSON.parse(response.body)
+        expect(error).to include('errors')
+      end
+
+      it 'returns 503 when upstream service fails' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
+          double('Rx', cmop_ndc_value: '00378-6155-10')
+        )
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
+          .and_raise(Common::Client::Errors::ClientError.new('Service unavailable', 503))
+
+        get '/my_health/v1/prescriptions/21296515/documentation'
+
         expect(response).to have_http_status(:service_unavailable)
-        error = JSON.parse(response.body)['error']
-        expect(error).to include('Unable to fetch documentation')
+      end
+
+      it 'returns 503 when connection fails' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
+          double('Rx', cmop_ndc_value: '00378-6155-10')
+        )
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
+          .and_raise(Common::Client::Errors::ClientError.new('Connection failed', 503))
+
+        get '/my_health/v1/prescriptions/21296515/documentation'
+
+        expect(response).to have_http_status(:service_unavailable)
+      end
+
+      it 'returns 503 when client error occurs' do
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_details).and_return(
+          double('Rx', cmop_ndc_value: '00378-6155-10')
+        )
+        allow_any_instance_of(Rx::Client).to receive(:get_rx_documentation)
+          .and_raise(Common::Client::Errors::ClientError.new('Bad request', 400))
+
+        get '/my_health/v1/prescriptions/21296515/documentation'
+
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
 
