@@ -178,9 +178,18 @@ module PdfFill
           end
 
           def clear_section(overflow_hash, parent_key, form_data)
+            # Initialize the overflow section if it doesn't exist
+            form_data["#{parent_key}_overflow"] ||= {}
+
             overflow_hash.each_key do |child_key|
-              form_data[parent_key][child_key] = nil if overflow_hash[child_key]
-              form_data["#{parent_key}_overflow"][child_key] = form_data[parent_key][child_key]
+              next unless overflow_hash[child_key]
+
+              # Copy original data to overflow section first
+              original_value = form_data.dig('dependents_application', 'student_information', 0, parent_key, child_key)
+              form_data["#{parent_key}_overflow"][child_key] = original_value
+
+              # Then clear the original section by setting to nil
+              form_data['dependents_application']['student_information'][0][parent_key][child_key] = nil
             end
           end
 
