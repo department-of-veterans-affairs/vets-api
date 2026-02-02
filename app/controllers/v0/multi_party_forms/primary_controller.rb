@@ -36,16 +36,19 @@ module V0
       # POST /v0/multi_party_forms/primary
       # Creates a new multi-party form submission and the Primary Party's InProgressForm
       def create
+        form_params = params[:multi_party_form]
+        form_type = form_params[:form_type]
+
         # TODO: Replace with actual MultiPartyFormSubmission.new once model is available
         # Expected attributes:
-        # - form_type: params[:multi_party_form][:form_type]
+        # - form_type: form_type
         # - primary_user_uuid: current_user.uuid
         # - secondary_email: 'placeholder@pending.com' (updated when Primary Party completes)
 
         # TODO: Create the coordination record and Primary Party's InProgressForm in a transaction
         # ActiveRecord::Base.transaction do
         #   @submission = MultiPartyFormSubmission.new(
-        #     form_type: params[:multi_party_form][:form_type],
+        #     form_type: form_type,
         #     primary_user_uuid: current_user.uuid,
         #     secondary_email: 'placeholder@pending.com'
         #   )
@@ -62,7 +65,7 @@ module V0
         #   @submission.save!
         # end
 
-        StatsD.increment('multi_party_form.created', tags: ["form_type:#{params[:multi_party_form][:form_type]}"])
+        StatsD.increment('multi_party_form.created', tags: ["form_type:#{form_type}"])
 
         # TODO: Replace with actual serializer once available
         # render json: MultiPartyFormSerializer.new(@submission), status: :created
@@ -73,10 +76,10 @@ module V0
             id: SecureRandom.uuid,
             type: 'multi_party_form_submission',
             attributes: {
-              form_type: params[:multi_party_form][:form_type],
+              form_type: form_type,
               status: 'primary_in_progress',
-              primary_form_id: "#{params[:multi_party_form][:form_type]}-PRIMARY",
-              secondary_form_id: "#{params[:multi_party_form][:form_type]}-SECONDARY",
+              primary_form_id: "#{form_type}-PRIMARY",
+              secondary_form_id: "#{form_type}-SECONDARY",
               created_at: Time.current.iso8601
             }
           }
@@ -105,18 +108,19 @@ module V0
       end
 
       def handle_create_error(error)
+        form_type = params.dig(:multi_party_form, :form_type)
+
         Rails.logger.error(
           'MultiPartyForms::PrimaryController: Error creating submission',
           {
-            form_type: params.dig(:multi_party_form, :form_type),
+            form_type: form_type,
             user_id: current_user&.uuid,
             error: error.message,
             backtrace: error.backtrace&.first(5)
           }
         )
 
-        StatsD.increment('multi_party_form.create.failure',
-                         tags: ["form_type:#{params.dig(:multi_party_form, :form_type)}"])
+        StatsD.increment('multi_party_form.create.failure', tags: ["form_type:#{form_type}"])
         raise
       end
 
