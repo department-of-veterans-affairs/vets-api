@@ -6,6 +6,33 @@ module V0
       service_tag 'multi-party-forms'
       before_action :check_feature_enabled
 
+      # GET /v0/multi_party_forms/primary/:id
+      # Retrieves submission details for the current user
+      def show
+        # TODO: Replace with actual model query once available
+        # @submission = find_submission_for_current_user
+        # render json: MultiPartyFormSerializer.new(@submission)
+
+        # Stubbed response for now
+        render json: {
+          data: {
+            id: params[:id],
+            type: 'multi_party_form_submission',
+            attributes: {
+              form_type: '21-2680',
+              status: 'primary_in_progress',
+              primary_form_id: '21-2680-PRIMARY',
+              secondary_form_id: '21-2680-SECONDARY',
+              created_at: Time.current.iso8601
+            }
+          }
+        }
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue => e
+        handle_show_error(e)
+      end
+
       # POST /v0/multi_party_forms/primary
       # Creates a new multi-party form submission and the Primary Party's InProgressForm
       def create
@@ -56,33 +83,6 @@ module V0
         }, status: :created
       rescue => e
         handle_create_error(e)
-      end
-
-      # GET /v0/multi_party_forms/primary/:id
-      # Retrieves submission details for the current user
-      def show
-        # TODO: Replace with actual model query once available
-        # @submission = find_submission_for_current_user
-        # render json: MultiPartyFormSerializer.new(@submission)
-
-        # Stubbed response for now
-        render json: {
-          data: {
-            id: params[:id],
-            type: 'multi_party_form_submission',
-            attributes: {
-              form_type: '21-2680',
-              status: 'primary_in_progress',
-              primary_form_id: '21-2680-PRIMARY',
-              secondary_form_id: '21-2680-SECONDARY',
-              created_at: Time.current.iso8601
-            }
-          }
-        }
-      rescue ActiveRecord::RecordNotFound
-        raise Common::Exceptions::RecordNotFound, params[:id]
-      rescue => e
-        handle_show_error(e)
       end
 
       private
