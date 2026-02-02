@@ -34,7 +34,7 @@ jobs:
 
       - name: Upload linter report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: parameter-validation-report
           path: parameter_validation_report.json
