@@ -86,10 +86,8 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
-    context 'unknown form_id' do
-      before { instance.form_id = 'unknown-form' }
-
-      it 'returns default 10' do
+    context 'default' do
+      it 'returns 10' do
         expect(instance.max_pages).to eq 10
       end
     end
@@ -144,10 +142,8 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
-    context 'unknown form_id' do
-      before { instance.form_id = 'unknown-form' }
-
-      it 'returns default 1' do
+    context 'default' do
+      it 'returns 1' do
         expect(instance.min_pages).to eq 1
       end
     end
