@@ -22,8 +22,6 @@ class CreateMultiPartyFormSubmissions < ActiveRecord::Migration[7.1]
       t.bigint :saved_claim_id
       t.datetime :submitted_at
 
-      t.jsonb :metadata, default: {}, null: false
-
       t.timestamps
     end
   end
