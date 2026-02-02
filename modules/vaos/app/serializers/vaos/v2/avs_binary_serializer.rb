@@ -5,14 +5,14 @@ module VAOS
     class AvsBinarySerializer
       include JSONAPI::Serializer
 
-      set_id :document_id do |hash|
-        hash[:document_id]
+      set_id :doc_id do |hash|
+        hash[:doc_id]
       end
 
       set_type :avs_binary
 
-      attribute :document_id do |hash|
-        hash[:document_id]
+      attribute :doc_id do |hash|
+        hash[:doc_id]
       end
       attribute :binary, if: proc { |hash| !hash[:binary].nil? } do |hash|
         hash[:binary]

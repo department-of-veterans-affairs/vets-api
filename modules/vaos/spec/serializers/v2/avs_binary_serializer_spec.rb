@@ -5,14 +5,14 @@ require 'rails_helper'
 describe VAOS::V2::AvsBinarySerializer do
   let(:avs_binary) do
     {
-      document_id: '123',
+      doc_id: '123',
       binary: 'binaryString'
     }
   end
 
   let(:avs_error) do
     {
-      document_id: '123',
+      doc_id: '123',
       error: 'errorString'
     }
   end
@@ -26,7 +26,7 @@ describe VAOS::V2::AvsBinarySerializer do
             id: '123',
             type: :avs_binary,
             attributes: {
-              document_id: '123',
+              doc_id: '123',
               binary: 'binaryString'
             }
           }]
@@ -42,7 +42,7 @@ describe VAOS::V2::AvsBinarySerializer do
             id: '123',
             type: :avs_binary,
             attributes: {
-              document_id: '123',
+              doc_id: '123',
               error: 'errorString'
             }
           }]
@@ -59,7 +59,7 @@ describe VAOS::V2::AvsBinarySerializer do
               id: '123',
               type: :avs_binary,
               attributes: {
-                document_id: '123',
+                doc_id: '123',
                 binary: 'binaryString'
               }
             },
@@ -67,7 +67,7 @@ describe VAOS::V2::AvsBinarySerializer do
               id: '123',
               type: :avs_binary,
               attributes: {
-                document_id: '123',
+                doc_id: '123',
                 error: 'errorString'
               }
             }

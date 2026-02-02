@@ -398,7 +398,7 @@ module VAOS
         end
       end
 
-      def fetch_avs_binary(appt_id, doc_ids)
+      def fetch_avs_binaries(appt_id, doc_ids)
         return nil if appt_id.nil? || doc_ids.nil? || doc_ids.empty?
 
         responses = []
@@ -406,25 +406,16 @@ module VAOS
         doc_ids.each do |doc_id|
           response = get_avs_pdf_binary(doc_id, appt_id)
           if response.nil?
-            responses.push({
-                             doc_id:,
-                             error: AVS_BINARY_EMPTY_MESSAGE
-                           })
+            responses.push({ doc_id:, error: AVS_BINARY_EMPTY_MESSAGE })
           else
-            responses.push({
-                             doc_id:,
-                             binary: response.binary
-                           })
+            responses.push({ doc_id:, binary: response.binary })
           end
         rescue => e
           err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
           error_log = "VAOS: Error retrieving AVS binary for appt #{appt_id} doc #{doc_id}:" \
                       "#{e.class}, #{e.message} \n   #{err_stack}"
           Rails.logger.error(error_log)
-          responses.push({
-                           doc_id:,
-                           error: AVS_BINARY_ERROR_MESSAGE
-                         })
+          responses.push({ doc_id:, error: AVS_BINARY_ERROR_MESSAGE })
         end
         responses
       end

@@ -141,6 +141,10 @@ module VAOS
         handle_appointment_creation_error(e)
       end
 
+      def get_avs_binaries
+        render json: VAOS::V2::AvsBinarySerializer.new(avs_binaries), status: :ok
+      end
+
       private
 
       def set_facility_error_msg(appointment)
@@ -189,6 +193,12 @@ module VAOS
       def updated_appointment
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
+      end
+
+      def avs_binaries
+        @avs_binaries ||=
+          appointments_service.fetch_avs_binaries(avs_binaries_params[:appointment_id],
+                                                  avs_binaries_params[:doc_ids].split(','))
       end
 
       # Makes a call to the VAOS service to create a new appointment.
@@ -257,6 +267,12 @@ module VAOS
         params.require(:referral_number)
         params.require(:referral_consult_id)
         params.permit(:referral_number, :referral_consult_id)
+      end
+
+      def avs_binaries_params
+        params.require(:appointment_id)
+        params.require(:doc_ids)
+        params.permit(:appointment_id, :doc_ids)
       end
 
       # rubocop:disable Metrics/MethodLength

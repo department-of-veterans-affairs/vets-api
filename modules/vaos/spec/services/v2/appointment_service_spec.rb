@@ -2386,7 +2386,7 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#fetch_avs_binary' do
+  describe '#fetch_avs_binaries' do
     let(:avs_pdf) do
       UnifiedHealthData::BinaryData.new(
         content_type: 'application/pdf',
@@ -2396,7 +2396,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'invalid arguments' do
       it 'sets the error field when doc_id is nil' do
-        result = subject.send(:fetch_avs_binary, 'appt', [nil])
+        result = subject.send(:fetch_avs_binaries, 'appt', [nil])
         expect(result).to eq([{
                                doc_id: nil,
                                error: 'Retrieved empty AVS binary'
@@ -2404,17 +2404,17 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'returns nil when appt_id is nil' do
-        result = subject.send(:fetch_avs_binary, nil, ['doc1'])
+        result = subject.send(:fetch_avs_binaries, nil, ['doc1'])
         expect(result).to eq(nil)
       end
 
       it 'returns nil when doc_ids is nil' do
-        result = subject.send(:fetch_avs_binary, 'appt', nil)
+        result = subject.send(:fetch_avs_binaries, 'appt', nil)
         expect(result).to eq(nil)
       end
 
       it 'returns nil when doc_ids is empty' do
-        result = subject.send(:fetch_avs_binary, 'appt', [])
+        result = subject.send(:fetch_avs_binaries, 'appt', [])
         expect(result).to eq(nil)
       end
     end
@@ -2423,7 +2423,7 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the fetched PDF binaries' do
         allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
           .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
-        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
         expect(result).to eq([{
                                doc_id: 'doc1',
                                binary: 'binaryString'
@@ -2437,7 +2437,7 @@ describe VAOS::V2::AppointmentsService do
           .with(doc_id: 'doc1', appt_id: 'appt')
           .and_raise(Common::Exceptions::BackendServiceException)
         expect(Rails.logger).to receive(:error)
-        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
         expect(result).to eq([{
                                doc_id: 'doc1',
                                error: 'Error retrieving AVS binary'
@@ -2449,7 +2449,7 @@ describe VAOS::V2::AppointmentsService do
       it 'sets the error field' do
         allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
           .with(doc_id: 'doc1', appt_id: 'appt').and_return(nil)
-        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
         expect(result).to eq([{
                                doc_id: 'doc1',
                                error: 'Retrieved empty AVS binary'
@@ -2468,7 +2468,7 @@ describe VAOS::V2::AppointmentsService do
           .with(doc_id: 'doc3', appt_id: 'appt').and_return(nil)
 
         expect(Rails.logger).to receive(:error)
-        result = subject.send(:fetch_avs_binary, 'appt', %w[doc1 doc2 doc3])
+        result = subject.send(:fetch_avs_binaries, 'appt', %w[doc1 doc2 doc3])
         expect(result).to eq([
                                {
                                  doc_id: 'doc1',
