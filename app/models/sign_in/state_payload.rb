@@ -4,20 +4,12 @@ module SignIn
   class StatePayload
     include ActiveModel::Validations
 
-    attr_reader(
-      :acr,
-      :client_id,
-      :type,
-      :code_challenge,
-      :client_state,
-      :code,
-      :scope,
-      :created_at
-    )
+    attr_reader :acr, :client_id, :type, :code_challenge, :client_state, :code, :scope, :created_at, :operation
 
     validates :code, :created_at, presence: true
     validates :acr, inclusion: Constants::Auth::ACR_VALUES
     validates :type, inclusion: Constants::Auth::CSP_TYPES
+    validates :operation, inclusion: Constants::Auth::OPERATION_TYPES, allow_blank: true
     validates :client_state, length: { minimum: Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }, allow_blank: true
 
     validate :confirm_client_id
@@ -27,6 +19,7 @@ module SignIn
                    client_id:,
                    type:,
                    code:,
+                   operation:,
                    scope: nil,
                    code_challenge: nil,
                    client_state: nil,
@@ -39,6 +32,7 @@ module SignIn
       @code = code
       @scope = scope
       @created_at = created_at || Time.zone.now.to_i
+      @operation = operation
 
       validate!
     end

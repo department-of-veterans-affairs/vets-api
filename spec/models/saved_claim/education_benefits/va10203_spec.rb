@@ -195,8 +195,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
             context 'unauthorized' do
               before do
                 allow(FeatureFlipper).to receive(:send_email?).and_return(true)
-                expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
-                expect(user.authorize(:evss, :access?)).to be(false)
+                expect(user).to receive(:authorize).with(:dgi, :access?).and_return(false).at_least(:once)
+                expect(user.authorize(:dgi, :access?)).to be(false)
                 mail = double('mail')
                 allow(mail).to receive(:deliver_now)
                 allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
@@ -211,8 +211,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
             context 'authorized' do
               before do
                 expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
-                expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-                expect(user.authorize(:evss, :access?)).to be(true)
+                expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
+                expect(user.authorize(:dgi, :access?)).to be(true)
                 mail = double('mail')
                 allow(mail).to receive(:deliver_now)
                 allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
@@ -546,8 +546,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
             context 'unauthorized' do
               before do
                 allow(FeatureFlipper).to receive(:send_email?).and_return(true)
-                expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
-                expect(user.authorize(:evss, :access?)).to be(false)
+                expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(false).at_least(:once)
+                expect(user.authorize(:lighthouse, :access?)).to be(false)
                 mail = double('mail')
                 allow(mail).to receive(:deliver_now)
                 allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
@@ -562,8 +562,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
             context 'authorized' do
               before do
                 expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
-                expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-                expect(user.authorize(:evss, :access?)).to be(true)
+                expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
+                expect(user.authorize(:lighthouse, :access?)).to be(true)
                 mail = double('mail')
                 allow(mail).to receive(:deliver_now)
                 allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)

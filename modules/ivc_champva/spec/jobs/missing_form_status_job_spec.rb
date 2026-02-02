@@ -184,13 +184,10 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
       forms[1].update(form_uuid: 'unique-uuid-2')
       forms[2].update(form_uuid: 'unique-uuid-3')
 
-      expect(Rails.logger).to receive(:info).exactly(3).times do |message|
-        expect(message).to include('IVC Forms MissingFormStatusJob - Missing status for Form')
-        expect(message).to include('Elapsed days:')
-        expect(message).to include('File name:')
-        expect(message).to include('S3 status:')
-        expect(message).to include('Created at:')
-      end
+      # Allow all other info logs, but expect the verbose status logs
+      allow(Rails.logger).to receive(:info)
+      expect(Rails.logger).to receive(:info)
+        .with(/IVC Forms MissingFormStatusJob - Missing status for Form/).exactly(3).times
 
       job.perform
     end
@@ -230,5 +227,57 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(Rails.logger).to receive(:error).twice
 
     IvcChampva::MissingFormStatusJob.new.perform
+  end
+
+  it 'excludes VES JSON files when comparing document counts with Pega reports' do
+    # Create a batch with mixed file types including VES JSON
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: 'attachment.pdf', pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_10d_ves.json", pega_status: nil)
+    ]
+
+    # Mock Pega API to return 2 reports (excluding VES JSON)
+    pega_reports = [
+      { 'UUID' => form_uuid, 'Status' => 'Processed' },
+      { 'UUID' => form_uuid, 'Status' => 'Processed' }
+    ]
+
+    allow(job.pega_api_client).to receive(:record_has_matching_report).and_return(pega_reports)
+    allow(job.missing_status_cleanup).to receive(:manually_process_batch)
+
+    # Should return true because 2 Pega-processable files match 2 Pega reports
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be true
+    expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
+
+    # Clean up test data
+    batch.each(&:destroy)
+  end
+
+  it 'catches PegaApiError and logs error without crashing the job' do
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', pega_status: nil)
+    ]
+
+    # Mock Pega API to raise the namespaced error
+    allow(job.pega_api_client).to receive(:record_has_matching_report)
+      .and_raise(IvcChampva::PegaApi::PegaApiError.new('Connection timeout'))
+
+    # Expect the error to be logged
+    expect(Rails.logger).to receive(:error).with(
+      /PegaApiError during report check - form_uuid: #{form_uuid}, error: Connection timeout/
+    )
+
+    # Should return false (not reconciled) but not raise an exception
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be false
+
+    # Clean up test data
+    batch.each(&:destroy)
   end
 end

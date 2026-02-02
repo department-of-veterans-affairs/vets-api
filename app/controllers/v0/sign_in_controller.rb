@@ -31,6 +31,7 @@ module V0
                                                  acr:,
                                                  client_config: client_config(client_id),
                                                  type:,
+                                                 operation:,
                                                  client_state:,
                                                  scope:).perform
       context = { type:, client_id:, acr:, operation: }
@@ -77,13 +78,15 @@ module V0
       error_details = {
         type: state_payload&.type,
         client_id: state_payload&.client_id,
-        acr: state_payload&.acr
+        acr: state_payload&.acr,
+        operation: state_payload&.operation
       }
       sign_in_logger.info('callback error', error_details.merge(errors: e.message))
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE,
                        tags: ["type:#{error_details[:type]}",
                               "client_id:#{error_details[:client_id]}",
-                              "acr:#{error_details[:acr]}"])
+                              "acr:#{error_details[:acr]}",
+                              "operation:#{error_details[:operation]}"])
       handle_pre_login_error(e, state_payload&.client_id)
     end
 
@@ -287,7 +290,8 @@ module V0
                                                  acr: state_payload.acr,
                                                  client_config: client_config(state_payload.client_id),
                                                  type: state_payload.type,
-                                                 client_state: state_payload.client_state).perform
+                                                 client_state: state_payload.client_state,
+                                                 operation: state_payload.operation).perform
       render body: auth_service(state_payload.type, state_payload.client_id).render_auth(state:, acr: acr_for_type),
              content_type: 'text/html'
     end
@@ -307,14 +311,16 @@ module V0
         acr: state_payload.acr,
         icn: verified_icn,
         credential_uuid: user_info.sub,
-        authentication_time: Time.zone.now.to_i - state_payload.created_at
+        authentication_time: Time.zone.now.to_i - state_payload.created_at,
+        operation: state_payload.operation
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
                        tags: ["type:#{state_payload.type}",
                               "client_id:#{state_payload.client_id}",
                               "ial:#{credential_level.current_ial}",
-                              "acr:#{state_payload.acr}"])
+                              "acr:#{state_payload.acr}",
+                              "operation:#{state_payload.operation}"])
       params_hash = { code: user_code_map.login_code, type: user_code_map.type }
       params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
