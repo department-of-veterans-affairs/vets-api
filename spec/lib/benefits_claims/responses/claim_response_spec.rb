@@ -115,6 +115,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
     {
       id: '555555555',
       type: 'claim',
+      provider: 'lighthouse',
       base_end_product_code: '400',
       claim_date: '2017-05-02',
       claim_phase_dates:,
@@ -146,6 +147,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
 
       expect(claim.id).to eq('555555555')
       expect(claim.type).to eq('claim')
+      expect(claim.provider).to eq('lighthouse')
       expect(claim.base_end_product_code).to eq('400')
       expect(claim.claim_date).to eq('2017-05-02')
       expect(claim.claim_phase_dates).to be_a(BenefitsClaims::Responses::ClaimPhaseDates)
@@ -250,6 +252,13 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       claim = described_class.new(params)
 
       expect(claim.type).to eq('claim')
+    end
+
+    it 'allows provider to be nil when not provided' do
+      params = valid_params.except(:provider)
+      claim = described_class.new(params)
+
+      expect(claim.provider).to be_nil
     end
 
     it 'accepts empty evidence_submissions array' do

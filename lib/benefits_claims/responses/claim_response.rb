@@ -113,6 +113,7 @@ module BenefitsClaims
 
       attribute :id, String
       attribute :type, String, default: 'claim'
+      attribute :provider, String
       attribute :base_end_product_code, String
       attribute :claim_date, String
       attribute :claim_phase_dates, ClaimPhaseDates
