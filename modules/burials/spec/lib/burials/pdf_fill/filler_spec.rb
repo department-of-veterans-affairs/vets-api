@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'pdf_fill/filler'
+require 'pdf-reader'
 
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
@@ -68,12 +69,19 @@ describe PdfFill::Filler, type: :model do
                                                               fill_options)
 
               if type == 'overflow'
+                expect(the_extras_generator).not_to be_nil, 'combine_extras should have been called'
                 extras_path = the_extras_generator.generate
+
                 expected_path = "modules/burials/spec/fixtures/pdf_fill/#{form_id}/overflow_redesign_extras_v2.pdf"
 
-                expect(
-                  FileUtils.compare_file(extras_path, expected_path)
-                ).to be(true)
+                # This gives more detailed output on where the PDFs differ
+                file_texts = [extras_path, expected_path].map do |path|
+                  reader1 = PDF::Reader.new(path)
+                  reader1.pages.map(&:text).join('\n').squeeze
+                end
+                expect(file_texts[0]).to eq(file_texts[1])
+
+                expect(extras_path).to match_file_exactly(expected_path)
 
                 File.delete(extras_path)
               end
