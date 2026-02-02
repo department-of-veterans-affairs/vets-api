@@ -112,6 +112,38 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 21-509' do
+      before { instance.form_id = '21-509' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-0518-1' do
+      before { instance.form_id = '21P-0518-1' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-0516-1' do
+      before { instance.form_id = '21P-0516-1' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21-686c' do
+      before { instance.form_id = '21-686c' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
     context 'unknown form_id' do
       before { instance.form_id = 'unknown-form' }
 
