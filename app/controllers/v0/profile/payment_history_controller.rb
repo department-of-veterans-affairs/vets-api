@@ -4,22 +4,65 @@ module V0
   module Profile
     class PaymentHistoryController < ApplicationController
       service_tag 'payment-history'
+      before_action :log_access_attempt
       before_action { authorize :bgs, :access? }
 
       def index
+        log_authorized_access
         payment_history = PaymentHistory.new(payments: adapter.payments, return_payments: adapter.return_payments)
         render json: PaymentHistorySerializer.new(payment_history)
       end
 
       private
 
+      def log_access_attempt
+        Rails.logger.info('User attempting to access BGS payment history', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
+      def log_authorized_access
+        Rails.logger.info('User authorized for BGS payment history access', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
+      def log_before_bgs_people_request
+        Rails.logger.info('Requesting person from BGS', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
+      def log_after_bgs_people_request
+        Rails.logger.info('Received person from BGS', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
+      def log_before_bgs_payment_service_request
+        Rails.logger.info('Requesting payment history from BGS', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
+      def log_after_bgs_payment_service_request
+        Rails.logger.info('Received payment history from BGS', {
+                            user_uuid: current_user&.uuid
+                          })
+      end
+
       def adapter
         @adapter ||= Adapters::PaymentHistoryAdapter.new(bgs_service_response)
       end
 
       def bgs_service_response
+        log_before_bgs_people_request
         person = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
+        log_after_bgs_people_request
+
+        log_before_bgs_payment_service_request
         payment_history = BGS::PaymentService.new(current_user).payment_history(person)
+        log_after_bgs_payment_service_request
 
         if payment_history.nil?
           Rails.logger.error('BGS::PaymentService returned nil', {
