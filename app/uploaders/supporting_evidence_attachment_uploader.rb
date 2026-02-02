@@ -3,8 +3,11 @@
 # Files uploaded as part of a form526 submission that will be sent to EVSS upon form submission.
 class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
   # Maximum filename length to avoid filesystem errors (ENAMETOOLONG)
-  # Linux/macOS typically allow 255 chars, but temp files add suffixes.
-  # 100 chars provides a safe buffer for temp file patterns like: /tmp/{filename}{timestamp}-{rand}
+  # Linux/macOS typically allow 255 chars, but CarrierWave temp files append suffixes.
+  # CarrierWave's temp filenames (e.g., during retrieve_from_store!) add a timestamp and random
+  # component to the original filename (roughly 25–35 extra characters such as
+  # "_20240101-1234-1a2b3c4d5e"). Limiting the base filename to 100 characters keeps the final
+  # temp path well under common 255-character filesystem limits, even if the pattern changes slightly.
   MAX_FILENAME_LENGTH = 100
 
   before :store, :log_transaction_start

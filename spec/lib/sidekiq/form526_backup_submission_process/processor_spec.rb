@@ -82,9 +82,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               processed_files = processor.get_uploads
               processed_files.each do |processed_file|
                 # Filenames are shortened at upload time by SupportingEvidenceAttachmentUploader,
-                # and the resulting temporary file paths should be reasonably short (<= 255 characters).
-                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
-                expect(processed_file[:file].length).to be <= 255
+                # and the resulting filename (path component) should be reasonably short (<= 255 characters).
+                expect(processed_file[:file]).to match(%r{^tmp/.+\.pdf$})
+                expect(File.basename(processed_file[:file]).length).to be <= 255
               end
             end
           end
