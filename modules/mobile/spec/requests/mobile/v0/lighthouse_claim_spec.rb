@@ -38,7 +38,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         tracked_item_with_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
           event['trackedItemId'] == 360_052
         end.first
-
         assert_schema_conform(200)
 
         expect(tracked_item_with_docs['documents'].count).to eq(1)
@@ -54,6 +53,14 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
                                       '2022-12-12', '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30',
                                       '2022-09-30', '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
         expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+
+        expect(response.parsed_body.dig('data', 'attributes')).to have_key('downloadEligibleDocuments')
+        download_eligible_documents = response.parsed_body.dig('data', 'attributes', 'downloadEligibleDocuments')
+
+        expect(download_eligible_documents).to be_a(Array)
+        expect(download_eligible_documents.size).to eq(5)
+        expect(download_eligible_documents[0]['documentId']).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
+        expect(download_eligible_documents[0]['filename'].strip).to eq('7B434B58-477C-4379-816F-05E6D3A10487.pdf')
       end
 
       context 'when cst_override_reserve_records_mobile flipper is enabled' do

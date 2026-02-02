@@ -219,6 +219,7 @@ module BGS
       service.share_data.find_regional_offices[:return]
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)
+      []
     end
 
     def create_note(claim_id, note_text)
