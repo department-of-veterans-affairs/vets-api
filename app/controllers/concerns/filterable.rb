@@ -9,7 +9,7 @@ module Filterable
   end
 
   def normalize_filter_params!
-    return unless params[:filter].present?
+    return if params[:filter].blank?
 
     if params[:filter].keys.any? { |k| k.include?('[') || k.include?(']') }
       normalized_filter = {}
@@ -24,9 +24,7 @@ module Filterable
 
           # Get the actual value (may be nested under "]" key)
           actual_value = value[value.keys.first]
-          if actual_value.is_a?(ActionController::Parameters) && actual_value.key?(']')
-            actual_value = actual_value[']']
-          end
+          actual_value = actual_value[']'] if actual_value.is_a?(ActionController::Parameters) && actual_value.key?(']')
 
           normalized_filter[clean_key] = { operator => actual_value }
         else
@@ -60,8 +58,8 @@ module Filterable
     # Double brackets: filter[[key][subkey]]=value (from external service)
     # Single brackets: filter[key][subkey]=value (normalized)
     filter_query.map { |a| a.gsub('filter', '') }.all? do |s|
-      s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ ||  # Double bracket format
-      s =~ /\A\[[^\]]+\]\[[^\]]+\]=.+\z/  # Single bracket format (Eric's regex)
+      s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ || # Double bracket format
+        s =~ /\A\[[^\]]+\]\[[^\]]+\]=.+\z/ # Single bracket format (Eric's regex)
     end
   end
 
