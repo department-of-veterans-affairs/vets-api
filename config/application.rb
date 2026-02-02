@@ -59,7 +59,11 @@ module VetsAPI
     config.console1984.production_data_warning = <<~TXT
       All commands are recorded, logged, and audited. Results from commands are NOT recorded.
 
-      Please enter your VA email and the VA email of the person you're pairing with.
+      Please enter your VA email
+
+      Enter the Fed Engineer's username/email/id in the purpose prompt if pairing.
+
+      NOTE: Pairing is not required in dev and staging
     TXT
 
     # Only loads a smaller set of middleware suitable for API only apps.
