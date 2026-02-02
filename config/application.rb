@@ -140,7 +140,7 @@ module VetsAPI
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',
                                    secure: IdentitySettings.session_cookie.secure,
-                                   httponly: true
+                                   http_only: true
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
