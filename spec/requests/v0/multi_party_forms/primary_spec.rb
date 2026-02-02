@@ -29,7 +29,7 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
     context 'when feature flag is disabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).with(:multi_party_forms_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).and_return(false)
       end
 
       it 'returns not found' do
@@ -44,7 +44,7 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
     context 'when authenticated and feature flag enabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).with(:multi_party_forms_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).and_return(true)
       end
 
       it 'creates a new multi-party form submission' do
@@ -106,7 +106,7 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
     context 'when feature flag is disabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).with(:multi_party_forms_enabled, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).and_return(false)
       end
 
       it 'returns not found' do
@@ -118,7 +118,7 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
     context 'when authenticated and feature flag enabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).with(:multi_party_forms_enabled, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).and_return(true)
       end
 
       # TODO: Update these tests once MultiPartyFormSubmission model is available

@@ -76,7 +76,7 @@ module V0
             id: SecureRandom.uuid,
             type: 'multi_party_form_submission',
             attributes: {
-              form_type: form_type,
+              form_type:,
               status: 'primary_in_progress',
               primary_form_id: "#{form_type}-PRIMARY",
               secondary_form_id: "#{form_type}-SECONDARY",
@@ -113,7 +113,7 @@ module V0
         Rails.logger.error(
           'MultiPartyForms::PrimaryController: Error creating submission',
           {
-            form_type: form_type,
+            form_type:,
             user_id: current_user&.uuid,
             error: error.message,
             backtrace: error.backtrace&.first(5)
