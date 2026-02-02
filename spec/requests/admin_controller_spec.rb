@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Admin', type: :request do
   describe 'GET /v0/header_status' do
     context 'when not in production' do
       before do
-        allow(Settings).to receive(:vsp_environment).and_return("staging")
+        allow(Settings).to receive(:vsp_environment).and_return('staging')
       end
 
       it 'returns http success' do
@@ -40,7 +42,7 @@ RSpec.describe 'Admin', type: :request do
         get '/v0/header_status'
         json_response = JSON.parse(response.body)
 
-        expect(json_response['request.protocol']).to match(/https?:\/\//)
+        expect(json_response['request.protocol']).to match(%r{https?://})
       end
 
       context 'with X-Forwarded-Proto header' do
@@ -87,7 +89,7 @@ RSpec.describe 'Admin', type: :request do
 
     context 'when in production' do
       before do
-        allow(Settings).to receive(:vsp_environment).and_return("production")
+        allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
       it 'does not route to the endpoint' do
