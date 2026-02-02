@@ -224,7 +224,7 @@ module SurvivorsBenefits
           'line_one' => parts[0],
           'line_two' => parts[1],
           # to ensure overflow gets triggered, line_three should be the rest of
-          # the string even if longer than 20 chars. do it by grabbing chars from index 40 onward
+          # the string even if longer than 20 chars.
           'line_three' => unit_name_and_address[40..-1] || ''
         }
       end
