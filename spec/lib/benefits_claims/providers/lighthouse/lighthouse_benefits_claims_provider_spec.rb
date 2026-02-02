@@ -199,6 +199,14 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
       provider.get_claims
     end
 
+    it 'sets provider metadata to "lighthouse" for all claims' do
+      result = provider.get_claims
+
+      result['data'].each do |claim|
+        expect(claim['attributes']['provider']).to eq('lighthouse')
+      end
+    end
+
     context 'when service raises a Faraday error' do
       let(:faraday_error) do
         Faraday::ServerError.new('error', { status: 500, body: { 'errors' => [{ 'detail' => 'Server error' }] } })
@@ -244,6 +252,12 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
     it 'validates the claim using the DTO' do
       expect(BenefitsClaims::Responses::ClaimResponse).to receive(:new).once.and_call_original
       provider.get_claim(claim_id)
+    end
+
+    it 'sets provider metadata to "lighthouse"' do
+      result = provider.get_claim(claim_id)
+
+      expect(result['data']['attributes']['provider']).to eq('lighthouse')
     end
 
     context 'when service raises a Faraday error' do
