@@ -4,13 +4,41 @@ require 'rails_helper'
 require 'debt_management_center/sidekiq/va_notify_email_job'
 
 RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
-  let(:form_submission) { create(:debts_api_digital_dispute_submission) }
-
+  
   describe 'validations' do
-    subject { form_submission }
+    context 'when file is a valid PDF' do
+      let(:form_submission) { create(:debts_api_digital_dispute_submission) }
+      subject { form_submission }
 
-    it { is_expected.to validate_presence_of(:user_uuid) }
-    it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
+      before do
+        allow_any_instance_of(ActiveStorage::Blob).to receive(:download).and_return("%PDF-1.4\nrest of pdf...")
+      end
+
+      it { is_expected.to validate_presence_of(:user_uuid) }
+      it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
+      it { is_expected.to be_valid }
+    end
+
+    context 'when file is not a valid PDF' do
+      before do
+        form_submission.files.attach(
+          io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'buddy_statement.txt')),
+          filename: 'sample.exe',
+          content_type: 'application/pdf'
+        )
+        
+        allow_any_instance_of(ActiveStorage::Blob).to receive(:download).and_return("NOT A PDF")
+      end
+      
+      subject(:form_submission) { build(:debts_api_digital_dispute_submission) }
+
+      it { is_expected.not_to be_valid }
+      
+      it 'adds appropriate error message' do
+        form_submission.valid?
+        expect(form_submission.errors[:files]).to include(/must be a valid PDF/)
+      end
+    end
   end
 
   describe 'associations' do

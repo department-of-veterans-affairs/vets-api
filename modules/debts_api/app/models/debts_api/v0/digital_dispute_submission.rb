@@ -17,9 +17,7 @@ module DebtsApi
       has_encrypted :form_data, :metadata, key: :kms_key
       validates :user_uuid, presence: true
       validates :guid, uniqueness: true
-      validate :files_present
-      validate :files_are_pdfs
-      validate :files_size_within_limit
+      validate :validate_files
       enum :state, { pending: 0, submitted: 1, failed: 2 }
 
       MAX_FILE_SIZE = 1.megabyte
@@ -86,25 +84,38 @@ module DebtsApi
       end
 
       private
-
-      def files_present
+      
+      def validate_files
+        validate_files_present
+        
+        files.each_with_index do |file, index|
+          file_size_allowed?(file, index)
+          next unless content_type_pdf?(file, index)
+          valid_pdf_signature?(file, index)
+        end
+      end
+      
+      def validate_files_present
         errors.add(:files, 'at least one file is required') unless files.attached?
       end
 
-      def files_are_pdfs
-        return unless files.attached?
-
-        files.each_with_index do |file, index|
-          errors.add(:files, "File #{index + 1} must be a PDF") unless file.content_type == ACCEPTED_CONTENT_TYPE
-        end
+      def file_size_allowed?(file, index)
+        errors.add(:files, "File #{index + 1} is too large (maximum is 1MB)") if file.byte_size > MAX_FILE_SIZE
+      end
+      
+      def content_type_pdf?(file, index)
+        pdf_content_type = file.content_type == ACCEPTED_CONTENT_TYPE
+        errors.add(:files, "File #{index + 1} must be a PDF") unless pdf_content_type
+        pdf_content_type
       end
 
-      def files_size_within_limit
-        return unless files.attached?
-
-        files.each_with_index do |file, index|
-          errors.add(:files, "File #{index + 1} is too large (maximum is 1MB)") if file.byte_size > MAX_FILE_SIZE
-        end
+      def valid_pdf_signature?(file, index)
+        # PDF spec (ISO 32000) requires header "%PDF-" (5 bytes).
+        signature = file.download.byteslice(0, 4)
+        errors.add(:files, "File #{index + 1} must be a valid PDF") unless signature == "%PDF"
+      rescue => e
+        Rails.logger.error("PDF validation error: #{e.message}")
+        errors.add(:files, "File #{index + 1} could not be validated")
       end
 
       def extract_debt_types(disputes)
