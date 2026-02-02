@@ -629,7 +629,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       it 'accepts disp_status filter parameter' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Test with Active filter - use query string format
-          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active', headers:)
+          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -650,7 +650,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'filters and paginates prescriptions' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active&page=1&per_page=2', headers:)
+          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active&page=1&per_page=2', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -664,7 +664,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       it 'filters prescriptions with multiple disp_status values' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-          get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+          get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active,Expired', headers:)
 
           json_response = JSON.parse(response.body)
           expect(response).to have_http_status(:success)
@@ -687,7 +687,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # This test verifies that the renewable() helper correctly handles "Inactive"
           # When V2StatusMapping is enabled, "Expired" is mapped to "Inactive"
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active,Expired', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -711,7 +711,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'filters prescriptions by disp_status=Inactive (mapped statuses)' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Inactive', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Inactive', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -732,7 +732,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # This test verifies that the renewable() helper correctly handles "Expired"
           # When V2StatusMapping is disabled, "Expired" status is NOT mapped
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active,Expired', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -756,7 +756,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'filters prescriptions by disp_status=Expired (unmapped status)' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Expired', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Expired', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -771,7 +771,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       context 'V2 filter parameters' do
         it 'filters prescriptions by is_trackable=true (shipped)' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true', headers:)
+            get('/my_health/v2/prescriptions?filter[is_trackable][eq]=true', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -787,7 +787,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'filters prescriptions by is_renewable=true' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[is_renewable][eq]]=true', headers:)
+            get('/my_health/v2/prescriptions?filter[is_renewable][eq]=true', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -802,7 +802,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'filters prescriptions by disp_status=Inactive (mapped statuses)' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Inactive', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Inactive', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -818,7 +818,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           # This test verifies that the renewable() helper correctly handles both "Expired" and "Inactive"
           # When V2StatusMapping is enabled, "Expired" is mapped to "Inactive", so renewable logic must check both
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Active,Expired', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Active,Expired', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -845,7 +845,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
         it 'filters prescriptions by disp_status=Transferred' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
-            get('/my_health/v2/prescriptions?filter[[disp_status][eq]]=Transferred', headers:)
+            get('/my_health/v2/prescriptions?filter[disp_status][eq]=Transferred', headers:)
 
             json_response = JSON.parse(response.body)
             expect(response).to have_http_status(:success)
@@ -859,7 +859,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         it 'combines is_trackable and disp_status filters' do
           VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
             get(
-              '/my_health/v2/prescriptions?filter[[is_trackable][eq]]=true&filter[[disp_status][eq]]=Active',
+              '/my_health/v2/prescriptions?filter[is_trackable][eq]=true&filter[disp_status][eq]=Active',
               headers:
             )
 

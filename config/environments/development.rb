@@ -50,7 +50,7 @@ Rails.application.configure do
   config.action_mailer.logger = Logger.new('./log/mailer.log') if File.exist?('./log/mailer.log')
 
   # Print deprecation notices to the Rails logger.
-  config.active_support.deprecation = :stderr
+  config.active_support.deprecation = :log
 
   # Raise exceptions for disallowed deprecations.
   config.active_support.disallowed_deprecation = :raise

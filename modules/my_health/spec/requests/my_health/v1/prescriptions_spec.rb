@@ -283,7 +283,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
     it 'responds to GET #index with filter metadata for specific disp_status' do
       VCR.use_cassette('rx_client/prescriptions/index_with_disp_status_filter') do
-        get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired',
+        get '/my_health/v1/prescriptions?filter[disp_status][eq]=Active,Expired',
             headers: { 'Content-Type' => 'application/json' }, as: :json
       end
       expect(response).to be_successful
@@ -453,7 +453,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
     it 'responds to GET #index with filter' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
-        get '/my_health/v1/prescriptions?filter[[refill_status][eq]]=refillinprocess'
+        get '/my_health/v1/prescriptions?filter[refill_status][eq]=refillinprocess'
       end
 
       expect(response).to be_successful
@@ -463,7 +463,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
     it 'responds to GET #index with filter when camel-inflected' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
-        get '/my_health/v1/prescriptions?filter[[refill_status][eq]]=refillinprocess', headers: inflection_header
+        get '/my_health/v1/prescriptions?filter[refill_status][eq]=refillinprocess', headers: inflection_header
       end
 
       expect(response).to be_successful
@@ -473,7 +473,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
     it 'responds to GET #index with filter and pagination' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_vagov') do
-        get '/my_health/v1/prescriptions?page=1&per_page=100&filter[[disp_status][eq]]=Active: Refill in Process',
+        get '/my_health/v1/prescriptions?page=1&per_page=100&filter[disp_status][eq]=Active: Refill in Process',
             headers: { 'Content-Type' => 'application/json' }, as: :json
       end
 
