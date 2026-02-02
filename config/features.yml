@@ -2780,10 +2780,6 @@ features:
     actor_type: user
     description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
     enable_in_development: true
-  mhv_oh_unique_user_metrics_logging_sm:
-    actor_type: user
-    description: Enables Oracle Health (OH) site-specific unique user metrics logging for secure messaging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
-    enable_in_development: true
   form_8794_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page

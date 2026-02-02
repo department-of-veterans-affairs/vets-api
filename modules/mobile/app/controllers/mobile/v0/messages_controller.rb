@@ -205,11 +205,8 @@ module Mobile
       # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
       # The station_number is optional - if not provided, facility tracking is skipped.
       #
-      # @return [String, nil] The station number if provided and feature flag enabled,
-      #   or nil if the feature flag is disabled or station_number is not provided.
+      # @return [String, nil] The station number if provided, or nil if not provided.
       def recipient_facility_id
-        return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_sm, @current_user)
-
         station_number = message_params[:station_number]
         return nil if station_number.blank?
 
