@@ -15,14 +15,10 @@ module Filterable
       normalized_filter = {}
 
       params[:filter].each do |key, value|
-        # Remove brackets from key name
         clean_key = key.gsub(/[\[\]]/, '')
 
-        # Handle nested ActionController::Parameters
         if value.is_a?(ActionController::Parameters)
           operator = value.keys.first.gsub(/[\[\]]/, '')
-
-          # Get the actual value (may be nested under "]" key)
           actual_value = value[value.keys.first]
           actual_value = actual_value[']'] if actual_value.is_a?(ActionController::Parameters) && actual_value.key?(']')
 
@@ -32,7 +28,6 @@ module Filterable
         end
       end
 
-      # Replace the malformed filter params
       params[:filter] = ActionController::Parameters.new(normalized_filter)
     end
   end
@@ -55,8 +50,8 @@ module Filterable
   end
 
   def valid_filters?
-    # Double brackets: filter[[key][subkey]]=value (from external service)
-    # Single brackets: filter[key][subkey]=value (normalized)
+    # Double brackets: filter[[key][subkey]]=value (returned from external service)
+    # Single brackets: filter[key][subkey]=value
     filter_query.map { |a| a.gsub('filter', '') }.all? do |s|
       s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ || # Double bracket format
         s =~ /\A\[[^\]]+\]\[[^\]]+\]=.+\z/ # Single bracket format (Eric's regex)
