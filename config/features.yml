@@ -175,6 +175,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   event_bus_gateway_letter_ready_push_notifications:
     description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
+  event_bus_gateway_letter_ready_sms_notifications:
+    description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
@@ -329,6 +331,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_convert_to_pdf_on_upload:
+    actor_type: user
+    description: Converts supporting documents to PDF at upload time instead of final submission to improve submit latency
   champva_stamper_logging:
     actor_type: user
     description: Enables logging of the desired stamp text
@@ -347,6 +352,9 @@ features:
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
+  champva_bypass_persisting_ves_json_to_database:
+    actor_type: user
+    description: Enables logic to bypass persisting VES JSON to the database for form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1483,6 +1491,10 @@ features:
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
+    enable_in_development: true
+  mhv_medical_records_images_domain:
+    actor_type: user
+    description: Pulls images out of Labs & Tests into its own top-level domain
     enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
@@ -2770,6 +2782,10 @@ features:
   unique_user_metrics_logging:
     actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
+    enable_in_development: true
+  mhv_oh_unique_user_metrics_logging:
+    actor_type: user
+    description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
     enable_in_development: true
   form_8794_release:
     actor_type: user
