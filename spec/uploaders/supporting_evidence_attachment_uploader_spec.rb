@@ -101,6 +101,25 @@ RSpec.describe SupportingEvidenceAttachmentUploader do
         expect(result).to end_with('.pdf')
       end
     end
+
+    context 'when filename has no extension' do
+      let(:long_filename_no_ext) { 'a' * 150 }
+
+      it 'shortens to MAX_FILENAME_LENGTH' do
+        result = subject.send(:shorten_filename, long_filename_no_ext)
+        expect(result.length).to eq(described_class::MAX_FILENAME_LENGTH)
+      end
+    end
+
+    context 'when filename has multiple dots' do
+      let(:multi_dot_filename) { "#{'a' * 150}.document.v2.pdf" }
+
+      it 'preserves only the last extension' do
+        result = subject.send(:shorten_filename, multi_dot_filename)
+        expect(result).to end_with('.pdf')
+        expect(result.length).to be <= described_class::MAX_FILENAME_LENGTH
+      end
+    end
   end
 
   describe 'logging methods' do
