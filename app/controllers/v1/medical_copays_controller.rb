@@ -5,7 +5,7 @@ module V1
     service_tag 'debt-resolution'
     before_action :authorize_icn
     before_action :validate_pagination_params, only: :index
-    rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
+    rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error, only: :summary
 
     def index
       invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
