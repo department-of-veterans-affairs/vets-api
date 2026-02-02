@@ -814,7 +814,7 @@ module PdfFill
         # start overflow
         'student_expected_earnings_next_year_overflow' => {
           'earnings_from_all_employment' => {
-            key: 'form1[0].#subform[0].ExpectedEarningsOverflow[0]',
+            key: 'form1[0].#subform[0].ExpectedEarnings',
             limit: 0,
             question_num: 13,
             question_suffix: 'C',
@@ -822,7 +822,7 @@ module PdfFill
             overflow_only: true
           },
           'annual_social_security_payments' => {
-            key: 'form1[0].#subform[0].ExpectedSocialSecurityOverflow[0]',
+            key: 'form1[0].#subform[0].ExpectedSocialSecurity',
             limit: 0,
             question_num: 13,
             question_suffix: 'C',
@@ -830,7 +830,7 @@ module PdfFill
             overflow_only: true
           },
           'other_annuities_income' => {
-            key: 'form1[0].#subform[0].ExpectedOtherAnnuitiesOverflow[0]',
+            key: 'form1[0].#subform[0].ExpectedOtherAnnuities',
             limit: 0,
             question_num: 13,
             question_suffix: 'C',
@@ -838,7 +838,7 @@ module PdfFill
             overflow_only: true
           },
           'all_other_income' => {
-            key: 'form1[0].#subform[0].ExpectedAllOtherIncomeOverflow[0]',
+            key: 'form1[0].#subform[0].ExpectedAllOtherIncome',
             limit: 0,
             question_num: 13,
             question_suffix: 'C',
@@ -848,7 +848,7 @@ module PdfFill
         },
         'student_earnings_from_school_year_overflow' => {
           'earnings_from_all_employment' => {
-            key: 'form1[0].#subform[0].ReceivedEarningsOverflow[0]',
+            key: 'form1[0].#subform[0].ReceivedEarnings',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
@@ -856,7 +856,7 @@ module PdfFill
             overflow_only: true
           },
           'annual_social_security_payments' => {
-            key: 'form1[0].#subform[0].ReceivedSocialSecurityOverflow[0]',
+            key: 'form1[0].#subform[0].ReceivedSocialSecurity',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
@@ -864,7 +864,7 @@ module PdfFill
             overflow_only: true
           },
           'other_annuities_income' => {
-            key: 'form1[0].#subform[0].ReceivedOtherAnnuitiesOverflow[0]',
+            key: 'form1[0].#subform[0].ReceivedOtherAnnuities',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
@@ -872,7 +872,7 @@ module PdfFill
             overflow_only: true
           },
           'all_other_income' => {
-            key: 'form1[0].#subform[0].ReceivedAllOtherIncomeOverflow[0]',
+            key: 'form1[0].#subform[0].ReceivedAllOtherIncome',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
@@ -881,7 +881,7 @@ module PdfFill
           },
           'student_networth_information_overflow' => {
             'savings' => {
-              key: 'form1[0].#subform[0].StudentSavingsOverflow[0]',
+              key: 'form1[0].#subform[0].StudentSavings',
               limit: 0,
               question_num: 14,
               question_suffix: 'A',
@@ -889,7 +889,7 @@ module PdfFill
               overflow_only: true
             },
             'securities' => {
-              key: 'form1[0].#subform[0].StudentSecuritiesOverflow[0]',
+              key: 'form1[0].#subform[0].StudentSecurities',
               limit: 0,
               question_num: 14,
               question_suffix: 'B',
@@ -897,7 +897,7 @@ module PdfFill
               overflow_only: true
             },
             'real_estate' => {
-              key: 'form1[0].#subform[0].StudentRealEstateOverflow[0]',
+              key: 'form1[0].#subform[0].StudentRealEstate',
               limit: 0,
               question_num: 14,
               question_suffix: 'C',
@@ -905,7 +905,7 @@ module PdfFill
               overflow_only: true
             },
             'other_assets' => {
-              key: 'form1[0].#subform[0].StudentOtherAssetsOverflow[0]',
+              key: 'form1[0].#subform[0].StudentOtherAssets',
               limit: 0,
               question_num: 14,
               question_suffix: 'D',
@@ -913,7 +913,7 @@ module PdfFill
               overflow_only: true
             },
             'total_value' => {
-              key: 'form1[0].#subform[0].StudentTotalValuesOverflow[0]',
+              key: 'form1[0].#subform[0].StudentTotalValues',
               limit: 0,
               question_num: 14,
               question_suffix: 'E',
@@ -921,7 +921,7 @@ module PdfFill
               overflow_only: true
             }
           }
-        }
+        } # end overflow
       }.freeze
 
       def merge_fields(options = {})
@@ -1029,15 +1029,6 @@ module PdfFill
         FORMATTER.clear_section(earnings_overflow, 'student_earnings_from_school_year', form_data)
         FORMATTER.clear_section(networth_overflow, 'student_networth_information', form_data)
       end
-    end
-
-    # override from form_helper
-    def select_checkbox(value)
-      value ? 'On' : nil
-    end
-
-    def select_radio_button(value)
-      value ? 0 : nil
     end
   end
 end

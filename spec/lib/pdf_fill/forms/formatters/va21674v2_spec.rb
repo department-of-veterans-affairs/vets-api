@@ -189,21 +189,17 @@ describe PdfFill::Forms::Formatters::Va21674v2 do
       end
     end
 
-    xcontext 'with large numbers' do
+    context 'with large numbers' do
       let(:parent_object) do
         {
           'earnings_from_all_employment' => '12345678.90'
         }
       end
 
-      it 'handles large numbers correctly' do
+      it 'leaves the value as is' do
         result = split_earnings
 
-        expect(result['earnings_from_all_employment']).to eq({
-                                                               'first' => '12345',
-                                                               'second' => '678',
-                                                               'third' => '90'
-                                                             })
+        expect(result['earnings_from_all_employment']).to eq('12345678.90')
       end
     end
 

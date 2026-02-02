@@ -183,6 +183,15 @@ module PdfFill
               form_data["#{parent_key}_overflow"][child_key] = form_data[parent_key][child_key]
             end
           end
+
+          # override from form_helper
+          def select_checkbox(value)
+            value ? 'On' : nil
+          end
+
+          def select_radio_button(value)
+            value ? 0 : nil
+          end
         end
       end
     end
