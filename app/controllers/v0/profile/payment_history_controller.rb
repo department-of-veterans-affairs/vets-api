@@ -11,6 +11,7 @@ module V0
       def index
         log_authorized_access
         payment_history = PaymentHistory.new(payments: adapter.payments, return_payments: adapter.return_payments)
+        validate_final_response(payment_history)
         render json: PaymentHistorySerializer.new(payment_history)
       end
 
@@ -153,6 +154,23 @@ module V0
                               user_uuid: current_user&.uuid
                             })
           StatsD.increment('api.payment_history.payments.empty')
+        end
+      end
+
+      def validate_final_response(payment_history)
+        payments_empty = payment_history&.payments.blank?
+        return_payments_empty = payment_history&.return_payments.blank?
+
+        if payments_empty && return_payments_empty
+          Rails.logger.warn('Returning empty payment history response to customer', {
+                              user_uuid: current_user&.uuid
+                            })
+          StatsD.increment('api.payment_history.response.empty')
+        else
+          Rails.logger.info('Returning payment history response to customer', {
+                              user_uuid: current_user&.uuid
+                            })
+          StatsD.increment('api.payment_history.response.success')
         end
       end
     end
