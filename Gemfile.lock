@@ -1422,7 +1422,7 @@ DEPENDENCIES
   rack (~> 3.2.4)
   rack-attack
   rack-cors
-  rack-test (= 2.2.0)
+  rack-test
   rack-timeout
   rack-vcr
   rails (~> 7.2.3)

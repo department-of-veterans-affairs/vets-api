@@ -233,7 +233,7 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'parallel_tests'
   gem 'pry-byebug'
-  gem 'rack-test', '2.2.0', require: 'rack/test'
+  gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'reek'
