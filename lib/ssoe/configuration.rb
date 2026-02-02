@@ -9,12 +9,7 @@ module SSOe
     end
 
     def connection
-      @connection ||= Faraday.new(
-        base_path,
-        headers: base_request_headers,
-        request: request_options,
-        ssl: ssl_options
-      ) do |conn|
+      @connection ||= Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl:) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :soap_headers
         conn.response :soap_parser

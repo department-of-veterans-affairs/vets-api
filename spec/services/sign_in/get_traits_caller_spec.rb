@@ -4,13 +4,17 @@ require 'rails_helper'
 require 'sidekiq/attr_package'
 
 RSpec.describe SignIn::GetTraitsCaller do
-  subject(:perform_async) { described_class.new(user_attributes).perform_async }
+  subject(:get_traits_caller) { described_class.new(user_attributes) }
+
+  let(:idme_uuid) { 'idme-uuid' }
+  let(:logingov_uuid) { nil }
+  let(:csp_email) { 'test@example.com' }
 
   let(:user_attributes) do
     {
-      idme_uuid: 'idme-uuid',
-      logingov_uuid: nil,
-      csp_email: 'test@example.com',
+      idme_uuid:,
+      logingov_uuid:,
+      csp_email:,
       first_name: 'Jane',
       last_name: 'Doe',
       birth_date: '1990-01-01',
@@ -29,13 +33,13 @@ RSpec.describe SignIn::GetTraitsCaller do
   before do
     allow(Sidekiq::AttrPackage).to receive(:create).and_return(cache_key)
     allow(Identity::GetSSOeTraitsByCspidJob).to receive(:perform_async)
-    allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:info)
   end
 
   describe '#perform_async' do
-    context 'when user_attributes are valid and cache_key exists' do
+    context 'when get traits call is successful' do
       it 'creates a cache key and enqueues the SSOe traits job' do
-        perform_async
+        get_traits_caller.perform_async
 
         expect(Sidekiq::AttrPackage).to have_received(:create)
         expect(Identity::GetSSOeTraitsByCspidJob)
@@ -44,30 +48,69 @@ RSpec.describe SignIn::GetTraitsCaller do
       end
     end
 
-    context 'when there are missing or invalid params' do
-      context 'and user attributes are missing' do
-        let(:user_attributes) do
-          super().merge(csp_email: nil)
+    context 'get traits call is unseccessful' do
+      context 'when credential attribute is missing' do
+        context 'when csp_email is missing' do
+          let(:csp_email) { nil }
+
+          it 'logs and does not enqueue the job' do
+            get_traits_caller.perform_async
+
+            expect(Rails.logger).to have_received(:info)
+              .with(
+                '[SignInService] SSOe get traits skipped due to missing credential data',
+                hash_including(missing_credential_type: 'credential_email')
+              )
+
+            expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
+          end
         end
 
-        it 'does not create a cache key or enqueue the job' do
-          perform_async
+        context 'when crendeital_method is missing' do
+          before do
+            allow_any_instance_of(SignIn::GetTraitsCaller)
+              .to receive(:credential_method)
+              .and_return(nil)
+          end
 
-          expect(Sidekiq::AttrPackage).not_to have_received(:create)
-          expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
+          it 'logs and does not enqueue the job' do
+            get_traits_caller.perform_async
+
+            expect(Rails.logger).to have_received(:info)
+              .with(
+                '[SignInService] SSOe get traits skipped due to missing credential data',
+                hash_including(missing_credential_type: 'credential_method')
+              )
+
+            expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
+          end
+        end
+
+        context 'when credential_uuid is missing' do
+          let(:idme_uuid) { nil }
+
+          it 'logs and does not enqueue the job' do
+            get_traits_caller.perform_async
+
+            expect(Rails.logger).to have_received(:info)
+              .with(
+                '[SignInService] SSOe get traits skipped due to missing credential data',
+                hash_including(missing_credential_type: 'credential_uuid')
+              )
+
+            expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
+          end
         end
       end
 
       context 'and cache_key is nil' do
         let(:cache_key) { nil }
 
-        it 'still enqueues the job with a nil cache_key' do
-          perform_async
+        it 'does not enqueue the job' do
+          get_traits_caller.perform_async
 
           expect(Sidekiq::AttrPackage).to have_received(:create)
-          expect(Identity::GetSSOeTraitsByCspidJob)
-            .to have_received(:perform_async)
-            .with(nil, 'idme', 'idme-uuid')
+          expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
         end
       end
 
@@ -77,11 +120,15 @@ RSpec.describe SignIn::GetTraitsCaller do
             .and_raise(StandardError, 'cache failure')
         end
 
-        it 'rescues, logs, increments stats, and does not enqueue the job' do
-          expect { perform_async }.not_to raise_error
+        it 'rescues, logs, and does not enqueue the job' do
+          expect { get_traits_caller.perform_async }.not_to raise_error
 
-          expect(StatsD).to have_received(:increment)
-            .with('api.ssoe.traits.failure')
+          expect(Rails.logger).to have_received(:info)
+            .with(
+              '[SignIn][GetTraitsCaller] get_traits error',
+              hash_including(:error)
+            )
+
           expect(Identity::GetSSOeTraitsByCspidJob).not_to have_received(:perform_async)
         end
       end
@@ -92,11 +139,14 @@ RSpec.describe SignIn::GetTraitsCaller do
             .and_raise(StandardError, 'boom')
         end
 
-        it 'rescues and increments stats without raising' do
-          expect { perform_async }.not_to raise_error
+        it 'rescues and logs without raising' do
+          expect { get_traits_caller.perform_async }.not_to raise_error
 
-          expect(StatsD).to have_received(:increment)
-            .with('api.ssoe.traits.failure')
+          expect(Rails.logger).to have_received(:info)
+            .with(
+              '[SignIn][GetTraitsCaller] get_traits error',
+              hash_including(:error)
+            )
         end
       end
     end

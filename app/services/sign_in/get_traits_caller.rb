@@ -7,10 +7,10 @@ module SignIn
     end
 
     def perform_async
-      return unless credential_uuid && credential_email
-      return unless credential_method
+      return unless valid_credentials?
 
       cache_key = create_cache_key
+      return unless cache_key
 
       Identity::GetSSOeTraitsByCspidJob.perform_async(
         cache_key,
@@ -18,14 +18,9 @@ module SignIn
         credential_uuid
       )
     rescue => e
-      Rails.logger.warn(
-        '[SignInService] SSOe get traits lookup failed',
-        error: e.class.name,
-        message: e.message,
-        credential_uuid:
-      )
+      Rails.logger.info('[SignIn][GetTraitsCaller] get_traits error', error: e.message, error_class: e.class.name,
+                                                                      credential_uuid:, credential_method:)
 
-      StatsD.increment('api.ssoe.traits.failure')
       nil
     end
 
@@ -47,12 +42,39 @@ module SignIn
         birth_date:,
         ssn:,
         email: credential_email,
-        phone: nil,
         street1: address[:street1],
         city: address[:city],
         state: address[:state],
         zipcode: address[:zipcode]
       )
+    end
+
+    def valid_credentials?
+      if credential_uuid.blank?
+        log_missing_credential('credential_uuid')
+        return false
+      end
+
+      if credential_email.blank?
+        log_missing_credential('credential_email')
+        return false
+      end
+
+      if credential_method.blank?
+        log_missing_credential('credential_method')
+        return false
+      end
+
+      true
+    end
+
+    def log_missing_credential(credential_type)
+      Rails.logger.info(
+        '[SignInService] SSOe get traits skipped due to missing credential data',
+        missing_credential_type: credential_type
+      )
+
+      StatsD.increment('api.ssoe.traits.validation_failure')
     end
 
     def credential_uuid        = idme_uuid || logingov_uuid
