@@ -280,7 +280,15 @@ module Vass
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
         expires_in = redis_client.redis_session_expiry.to_i
-        response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
+        email = retrieve_veteran_email(session.uuid)
+        response_data = camelize_keys({
+                                        data: {
+                                          token: jwt_token,
+                                          expires_in:,
+                                          token_type: 'Bearer',
+                                          email: obfuscate_email(email)
+                                        }
+                                      })
         track_success(SESSIONS_AUTHENTICATE_OTP)
         render json: response_data, status: :ok
       end
@@ -606,6 +614,46 @@ module Vass
       #
       def log_validation_rate_limit_exceeded(identifier)
         log_vass_event(action: 'validation_rate_limit_exceeded', vass_uuid: identifier, level: :warn)
+      end
+
+      ##
+      # Retrieves veteran email from stored metadata.
+      #
+      # @param uuid [String] Veteran UUID
+      # @return [String, nil] Email address or nil if not found
+      #
+      def retrieve_veteran_email(uuid)
+        metadata = redis_client.veteran_metadata(uuid:)
+        metadata&.dig(:email)
+      end
+
+      ##
+      # Obfuscates an email address for display.
+      # Shows the first character and domain, masks the rest.
+      #
+      # @example
+      #   obfuscate_email('charles@agile6.com') #=> 'c******@agile6.com'
+      #   obfuscate_email('ab@example.com') #=> 'a*@example.com'
+      #
+      # @param email [String, nil] Email address to obfuscate
+      # @return [String, nil] Obfuscated email or nil if input is nil/invalid
+      #
+      def obfuscate_email(email)
+        return nil if email.blank?
+
+        parts = email.split('@')
+        return nil if parts.length != 2
+
+        local_part = parts[0]
+        domain = parts[1]
+
+        return nil if local_part.empty? || domain.empty?
+
+        if local_part.length <= 1
+          "#{local_part}@#{domain}"
+        else
+          "#{local_part[0]}#{'*' * (local_part.length - 1)}@#{domain}"
+        end
       end
     end
   end

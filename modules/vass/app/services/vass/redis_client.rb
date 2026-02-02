@@ -137,18 +137,20 @@ module Vass
     end
 
     ##
-    # Saves veteran metadata (edipi, veteran_id) keyed by UUID.
+    # Saves veteran metadata (edipi, veteran_id, email) keyed by UUID.
     # Used to avoid fetching veteran data again in the show flow.
     #
     # @param uuid [String] Veteran UUID
     # @param edipi [String] Veteran EDIPI
     # @param veteran_id [String] Veteran ID
+    # @param email [String, nil] Veteran email address (optional)
     # @return [Boolean] true if write succeeds
     #
-    def save_veteran_metadata(uuid:, edipi:, veteran_id:)
+    def save_veteran_metadata(uuid:, edipi:, veteran_id:, email: nil)
       metadata = {
         edipi:,
-        veteran_id:
+        veteran_id:,
+        email:
       }
 
       with_redis_error_handling do

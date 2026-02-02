@@ -260,7 +260,8 @@ module Vass
         redis_client.save_veteran_metadata(
           uuid:,
           edipi:,
-          veteran_id: uuid
+          veteran_id: uuid,
+          email: contact_value
         )
       end
 

@@ -414,9 +414,10 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
                                                 redis_session_expiry: 2.hours)
         allow(redis_client).to receive(:reset_validation_rate_limit)
+        allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return({ email: valid_email })
       end
 
-      it 'returns success response with JWT token' do
+      it 'returns success response with JWT token and obfuscated email' do
         post :authenticate_otp, params:, format: :json
 
         expect(response).to have_http_status(:ok)
@@ -424,6 +425,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(json_response['data']['token']).to eq(jwt_token)
         expect(json_response['data']['tokenType']).to eq('Bearer')
         expect(json_response['data']['expiresIn']).to eq(2.hours.to_i)
+        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'creates authenticated session with jti' do
