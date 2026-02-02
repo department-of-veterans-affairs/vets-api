@@ -4,9 +4,9 @@
 # for payloads sent to VANotify callbacks. These signatures are used to verify the
 # authenticity and integrity of the payloads.
 
-require 'sidekiq/attr_package'
-require 'va_notify/default_callback'
-require 'va_notify/callback_signature_generator'
+require "sidekiq/attr_package"
+require "va_notify/default_callback"
+require "va_notify/callback_signature_generator"
 
 module VANotify
   class CallbacksController < VANotify::ApplicationController
@@ -14,7 +14,7 @@ module VANotify
 
     UUID_LENGTH = 36
 
-    service_tag 'va-notify'
+    service_tag "va-notify"
 
     skip_before_action :verify_authenticity_token, only: [:create]
     skip_before_action :authenticate, only: [:create]
@@ -29,8 +29,8 @@ module VANotify
           **notification_params.to_h.symbolize_keys
         )
         VANotify::DeliveryStatusUpdateJob.perform_async(notification_id, attr_package_params_cache_key)
-        Rails.logger.info('va_notify callbacks - Enqueued DeliveryStatusUpdateJob',
-                          { notification_id:, attr_package_params_cache_key: })
+        Rails.logger.info("va_notify callbacks - Enqueued DeliveryStatusUpdateJob",
+          {notification_id:, attr_package_params_cache_key:})
       elsif @notification
         @notification.update(notification_params)
 
@@ -44,21 +44,21 @@ module VANotify
         )
       end
 
-      render json: { message: 'success' }, status: :ok
+      render json: {message: "success"}, status: :ok
     end
 
     private
 
     def log_successful_update(notification)
       Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
-                        {
-                          notification_id: notification.id,
-                          source_location: notification.source_location,
-                          template_id: notification.template_id,
-                          callback_metadata: notification.callback_metadata,
-                          status: notification.status,
-                          status_reason: notification.status_reason
-                        })
+        {
+          notification_id: notification.id,
+          source_location: notification.source_location,
+          template_id: notification.template_id,
+          callback_metadata: notification.callback_metadata,
+          status: notification.status,
+          status_reason: notification.status_reason
+        })
     end
 
     def set_notification
@@ -75,7 +75,7 @@ module VANotify
     def authenticate_signature
       return false unless @notification
 
-      signature_from_header = request.headers['x-enp-signature'].to_s.strip
+      signature_from_header = request.headers["x-enp-signature"].to_s.strip
 
       return if signature_from_header.blank?
 
@@ -93,25 +93,15 @@ module VANotify
 
     def authenticate_token
       authenticate_with_http_token do |token|
-        return false if bearer_token_secret.nil?
-
-        if Flipper.enabled?(:va_notify_custom_bearer_tokens)
-          service_callback_tokens.any? do |service_token|
-            ActiveSupport::SecurityUtils.secure_compare(token, service_token)
-          end
-        else
-          ActiveSupport::SecurityUtils.secure_compare(token, bearer_token_secret)
+        service_callback_tokens.any? do |service_token|
+          ActiveSupport::SecurityUtils.secure_compare(token, service_token)
         end
       end
     end
 
     def authenticity_error
-      Rails.logger.info('va_notify callbacks - Failed to authenticate request')
-      render json: { message: 'Unauthorized' }, status: :unauthorized
-    end
-
-    def bearer_token_secret
-      Settings.vanotify.status_callback.bearer_token
+      Rails.logger.info("va_notify callbacks - Failed to authenticate request")
+      render json: {message: "Unauthorized"}, status: :unauthorized
     end
 
     def service_callback_tokens

@@ -2060,9 +2060,6 @@ features:
   va_notify_enhanced_uuid_validation:
     actor_type: user
     description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
-  va_notify_custom_bearer_tokens:
-    actor_type: user
-    description: Iterates through Settings.vanotify.service_callback_tokens for token matching
   va_notify_push_notifications:
     actor_type: user
     description: Enables initialization of push notification client in VA Notify
