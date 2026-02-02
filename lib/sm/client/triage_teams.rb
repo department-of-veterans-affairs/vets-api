@@ -47,25 +47,6 @@ module SM
         response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
         response&.status
       end
-
-      ##
-      # Find the station number (facility ID) for a recipient triage team
-      # Uses cached triage teams data to avoid additional API calls
-      #
-      # @param user_uuid [String] the user's UUID for cache key
-      # @param recipient_id [Integer] the triage team ID of the recipient
-      # @param use_cache [Boolean] whether to use cached triage teams data
-      # @return [Array<String>, nil] array with the station number if found, nil otherwise
-      #
-      def find_recipient_facility_ids(user_uuid, recipient_id, use_cache: true)
-        return nil if recipient_id.blank?
-
-        triage_teams = get_all_triage_teams(user_uuid, use_cache)
-        recipient_team = triage_teams.data.find { |team| team.triage_team_id == recipient_id }
-        return nil if recipient_team.blank? || recipient_team.station_number.blank?
-
-        [recipient_team.station_number]
-      end
     end
   end
 end

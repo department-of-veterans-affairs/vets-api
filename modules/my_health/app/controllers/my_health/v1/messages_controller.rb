@@ -32,7 +32,7 @@ module MyHealth
         UniqueUserEvents.log_event(
           user: current_user,
           event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-          event_facility_ids: recipient_facility_ids
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -72,7 +72,7 @@ module MyHealth
         UniqueUserEvents.log_event(
           user: current_user,
           event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-          event_facility_ids: recipient_facility_ids
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -146,7 +146,7 @@ module MyHealth
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number)
         end
       end
 
@@ -181,18 +181,19 @@ module MyHealth
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
       end
 
-      # Retrieves the facility IDs associated with the message recipient's triage group.
+      # Retrieves the facility ID from the station_number parameter provided by the frontend.
       # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      # The station_number is optional - if not provided, facility tracking is skipped.
       #
-      # @return [Array<String>, nil] Array of facility IDs if the recipient has associated facilities,
-      #   or nil if the feature flag is disabled, the recipient has no facilities, or an error occurs.
-      def recipient_facility_ids
+      # @return [String, nil] The station number if provided and feature flag enabled,
+      #   or nil if the feature flag is disabled or station_number is not provided.
+      def recipient_facility_id
         return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_sm, current_user)
 
-        client.find_recipient_facility_ids(current_user.uuid, message_params[:recipient_id]&.to_i)
-      rescue => e
-        Rails.logger.warn("Failed to look up recipient facility for messaging UUM: #{e.message}")
-        nil
+        station_number = message_params[:station_number]
+        return nil if station_number.blank?
+
+        station_number.to_s
       end
     end
   end
