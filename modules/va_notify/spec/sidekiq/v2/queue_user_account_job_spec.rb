@@ -47,6 +47,40 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
 
       described_class.enqueue(user_account.id, template_id, personalisation, api_key)
     end
+
+    context 'when Redis fails' do
+      it 'logs error, increments StatsD, and re-raises' do
+        error = Redis::ConnectionError.new('Connection refused')
+        allow(Sidekiq::AttrPackage).to receive(:create).and_raise(error)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify::V2::QueueUserAccountJob enqueue failed',
+          { error_class: 'Redis::ConnectionError', template_id: }
+        )
+        expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.enqueue_failure')
+
+        expect do
+          described_class.enqueue(user_account.id, template_id, personalisation, api_key, callback_options)
+        end.to raise_error(Redis::ConnectionError)
+      end
+    end
+
+    context 'when AttrPackage fails' do
+      it 'logs error, increments StatsD, and re-raises' do
+        error = Sidekiq::AttrPackageError.new('create', 'storage failed')
+        allow(Sidekiq::AttrPackage).to receive(:create).and_raise(error)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify::V2::QueueUserAccountJob enqueue failed',
+          { error_class: 'Sidekiq::AttrPackageError', template_id: }
+        )
+        expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.enqueue_failure')
+
+        expect do
+          described_class.enqueue(user_account.id, template_id, personalisation, api_key, callback_options)
+        end.to raise_error(Sidekiq::AttrPackageError)
+      end
+    end
   end
 
   describe 'when errors occur' do

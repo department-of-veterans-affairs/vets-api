@@ -46,6 +46,13 @@ module VANotify
       def self.enqueue(user_account_id, template_id, personalisation, api_key, callback_options = {})
         key = Sidekiq::AttrPackage.create(personalisation:, api_key:)
         perform_async(user_account_id, template_id, key, callback_options)
+      rescue Redis::BaseError, Sidekiq::AttrPackageError => e
+        Rails.logger.error('VANotify::V2::QueueUserAccountJob enqueue failed', {
+          error_class: e.class.name,
+          template_id:
+        })
+        StatsD.increment('api.vanotify.v2.queue_user_account_job.enqueue_failure')
+        raise
       end
 
       private
