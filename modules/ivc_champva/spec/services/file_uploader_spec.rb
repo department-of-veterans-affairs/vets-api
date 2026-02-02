@@ -22,10 +22,57 @@ describe IvcChampva::FileUploader do
     context 'when all PDF uploads succeed' do
       before do
         allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(false)
       end
 
       it 'generates and uploads meta JSON' do
         expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+        uploader.handle_uploads
+      end
+    end
+
+    context 'when all PDF uploads succeed for form 10-10d' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(false)
+      end
+
+      it 'generates and uploads meta JSON' do
+        expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+        uploader.handle_uploads
+      end
+    end
+
+    context 'when champva_bypass_metadata_json_file_for_1010d flipper is enabled and form is not 10-10d' do
+      let(:form_id) { 'vha_10_7959c' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'generates and uploads meta JSON' do
+        expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+        uploader.handle_uploads
+      end
+    end
+
+    context 'when champva_bypass_metadata_json_file_for_1010d flipper is enabled and form is 10-10d' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'skips generating and uploading meta JSON' do
+        expect(uploader).not_to receive(:generate_and_upload_meta_json)
         uploader.handle_uploads
       end
     end

@@ -355,6 +355,9 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_bypass_metadata_json_file_for_1010d:
+    actor_type: user
+    description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences

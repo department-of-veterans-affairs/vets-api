@@ -51,7 +51,10 @@ module IvcChampva
       end
 
       if all_success
-        generate_and_upload_meta_json
+        unless Flipper.enabled?(:champva_bypass_metadata_json_file_for_1010d, @current_user) &&
+               @form_id == 'vha_10_10d'
+          generate_and_upload_meta_json
+        end
       else
         monitor.track_s3_upload_error(@metadata['uuid'], s3_err)
         # Stop this submission in its tracks - entries will still be added to database
