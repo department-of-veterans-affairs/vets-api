@@ -157,8 +157,11 @@ RSpec.describe RepresentationManagement::BaseReloader do
       end
 
       it 'does not add poa_code when nil/blank after sanitization' do
-        rep = reloader.send(:find_or_initialize_by_id, { 'Registration Num' => 'BLAH', 'POA Code' => ' - ' },
-                            invididual_type_attorney)
+        rep = reloader.send(
+          :find_or_initialize_by_id,
+          { 'Registration Num' => 'BLAH', 'POA Code' => ' - ' },
+          invididual_type_attorney
+        )
         expect(rep.poa_code).to eq('')
         expect(rep.individual_type).to eq('attorney')
       end
@@ -234,9 +237,17 @@ RSpec.describe RepresentationManagement::BaseReloader do
 
   describe '#fetch_data' do
     let(:conn) { instance_double(Faraday::Connection) }
+    let(:options) do
+      instance_double(Faraday::RequestOptions, 'open_timeout=' => nil, 'timeout=' => nil)
+    end
 
     before do
-      allow(Faraday).to receive(:new).with(url: RepresentationManagement::BaseReloader::BASE_URL).and_return(conn)
+      allow(conn).to receive(:options).and_return(options)
+
+      allow(Faraday).to receive(:new)
+        .with(url: RepresentationManagement::BaseReloader::BASE_URL)
+        .and_yield(conn)
+        .and_return(conn)
     end
 
     it 'posts to the action and returns unique row hashes with headers mapped and blank headers removed' do
@@ -319,6 +330,28 @@ RSpec.describe RepresentationManagement::BaseReloader do
       expect(rows.first['First Name']).to include('Jún')
       expect(rows.first['Last Name']).to include('rk')
       expect(rows.first['POA Code']).to eq('9G-B')
+    end
+  end
+
+  describe '#with_registration_lock' do
+    it 'wraps the block in an advisory lock keyed by registration number' do
+      payload = { 'Registration Num' => 'A123' }
+
+      expect(AccreditedIndividual).to receive(:with_advisory_lock)
+        .with('accredited_individual:A123')
+        .and_yield
+
+      result = reloader.send(:with_registration_lock, payload) { :ok }
+      expect(result).to eq(:ok)
+    end
+
+    it 'yields without locking when registration number is blank' do
+      payload = { 'Registration Num' => '  ' }
+
+      expect(AccreditedIndividual).not_to receive(:with_advisory_lock)
+
+      result = reloader.send(:with_registration_lock, payload) { :ok }
+      expect(result).to eq(:ok)
     end
   end
 end

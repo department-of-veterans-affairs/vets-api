@@ -9,6 +9,15 @@ module RepresentationManagement
 
     private
 
+    def with_registration_lock(hash_object)
+      reg = hash_object['Registration Num']
+      return yield if reg.blank?
+
+      AccreditedIndividual.with_advisory_lock("accredited_individual:#{reg}") do
+        yield
+      end
+    end
+
     def find_or_initialize_by_id(hash_object, individual_type)
       rep = AccreditedIndividual.find_or_initialize_by(
         registration_number: hash_object['Registration Num']
@@ -30,10 +39,21 @@ module RepresentationManagement
       rep
     end
 
+    def connection
+      @connection ||= Faraday.new(url: BASE_URL) do |f|
+        f.options.open_timeout = 10
+        f.options.timeout = 30
+      end
+    end
+
     def fetch_data(action)
-      page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
+      page = connection
+        .post(action, id: 'frmExcelList', name: 'frmExcelList')
+        .body
+
       doc = Nokogiri::HTML(page)
       headers = doc.xpath('//table/tr').first.children.map { |child| child.children.text.scrub }
+
       doc.xpath('//table/tr').map do |line|
         row = line.children.map { |child| child.children.text.scrub }
         headers.zip(row).to_h.delete_if { |k, _v| k.blank? } unless headers == row
