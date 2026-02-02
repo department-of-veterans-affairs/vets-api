@@ -38,16 +38,19 @@ module RepresentationManagement
 
       # Configures NTLM authentication for the HTTPClient
       #
-      # NTLM requires using the negotiate_auth handler, not basic set_auth.
-      # Username should be in DOMAIN\username format if domain is required.
+      # HTTPClient handles NTLM automatically when the server responds with
+      # WWW-Authenticate: NTLM. The set_auth method stores credentials that
+      # will be used for the NTLM handshake.
+      #
+      # Username should be in DOMAIN\username format (e.g., 'va\svc_account')
       #
       # @param client [HTTPClient] The HTTP client to configure
       def configure_ntlm_auth(client)
-        domain = URI.parse(url).host
-        client.set_auth(domain, username, password)
+        # Set credentials for the URL - HTTPClient will use these for NTLM when challenged
+        client.set_auth(url, username, password)
 
-        # Force NTLM authentication by configuring the www_auth negotiate handler
-        client.www_auth.negotiate_auth.set(domain, username, password)
+        # Force negotiate auth to be tried (includes NTLM)
+        client.www_auth.basic_auth.challenge(url)
       end
 
       attr_reader :username, :password
