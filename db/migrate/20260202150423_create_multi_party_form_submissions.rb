@@ -26,12 +26,5 @@ class CreateMultiPartyFormSubmissions < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-
-    add_index :multi_party_form_submissions, :primary_user_uuid
-    add_index :multi_party_form_submissions, :secondary_user_uuid
-    add_index :multi_party_form_submissions, :secondary_email
-    add_index :multi_party_form_submissions, :secondary_access_token_digest
-    add_index :multi_party_form_submissions, :saved_claim_id
-    add_index :multi_party_form_submissions, [:form_type, :status]
   end
 end
