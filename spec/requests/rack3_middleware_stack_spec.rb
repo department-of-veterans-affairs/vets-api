@@ -7,24 +7,17 @@ RSpec.describe 'Rack 3.x Middleware Stack', type: :request do
     it 'returns array-wrapped response bodies' do
       get '/v0/status'
 
-      # Rack 3.x requires response bodies to be enumerable
       expect(response.body).to be_a(String)
-
-      # Access the actual Rack response
       rack_response = response.instance_variable_get(:@_response)
       if rack_response
-        # In Rack 3.x, the body should be an array or respond to #each
-        body = rack_response[2] # [status, headers, body]
         expect(body).to respond_to(:each)
       end
     end
 
     it 'handles JSON responses correctly through middleware stack' do
-      # Use an existing authenticated endpoint or create a test one
       get '/v0/status'
 
       expect(response.content_type).to include('application/json').or include('text/html')
-      # Verify response is well-formed
       expect(response.body).to be_present
     end
 
@@ -32,13 +25,11 @@ RSpec.describe 'Rack 3.x Middleware Stack', type: :request do
       get '/v0/nonexistent_endpoint_12345'
 
       expect(response.status).to be >= 400
-      # Body should still be properly formatted
       expect(response.body).to be_a(String)
     end
   end
 
   describe 'middleware chain execution order' do
-    # Instead of mocking, verify middleware is present
     it 'has required middleware in the stack' do
       middleware_names = Rails.application.middleware.map(&:name)
 
@@ -48,14 +39,12 @@ RSpec.describe 'Rack 3.x Middleware Stack', type: :request do
     end
 
     it 'middleware processes requests in order' do
-      # Make a simple request and verify it goes through successfully
       get '/v0/status'
       expect(response).to have_http_status(:ok)
     end
   end
 
   describe 'multipart request handling' do
-    # Create fixture files first
     before do
       FileUtils.mkdir_p('spec/fixtures/files')
       File.write('spec/fixtures/files/test.txt', 'test content')
@@ -74,7 +63,6 @@ RSpec.describe 'Rack 3.x Middleware Stack', type: :request do
 
       post '/v0/upload', params: { file: }
 
-      # Should not crash with Rack 3.x
       expect(response.status).to be < 500
     end
 
@@ -102,7 +90,6 @@ RSpec.describe 'Rack 3.x Middleware Stack', type: :request do
     it 'processes POST requests correctly' do
       post '/v0/status', params: { test: 'data' }.to_json,
                          headers: { 'Content-Type' => 'application/json' }
-      # Should process without middleware errors
       expect(response.status).to be < 500
     end
 

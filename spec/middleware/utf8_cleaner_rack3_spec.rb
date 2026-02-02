@@ -11,7 +11,6 @@ RSpec.describe 'UTF8 Cleaner Middleware Rack 3', type: :request do
            params: valid_utf8.to_json,
            headers: { 'Content-Type' => 'application/json' }
 
-      # Should not crash with valid UTF-8
       expect(response.status).to be < 500
     end
 
@@ -21,7 +20,6 @@ RSpec.describe 'UTF8 Cleaner Middleware Rack 3', type: :request do
     end
 
     it 'processes requests with various encodings' do
-      # Test with different valid UTF-8 characters
       %w[hello foo test].each do |text|
         get '/v0/status', params: { q: text }
         expect(response.status).to be < 500

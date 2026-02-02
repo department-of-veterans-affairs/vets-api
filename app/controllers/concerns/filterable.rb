@@ -50,11 +50,9 @@ module Filterable
   end
 
   def valid_filters?
-    # Double brackets: filter[[key][subkey]]=value (returned from external service)
-    # Single brackets: filter[key][subkey]=value
     filter_query.map { |a| a.gsub('filter', '') }.all? do |s|
-      s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ || # Double bracket format
-        s =~ /\A\[[^\]]+\]\[[^\]]+\]=.+\z/ # Single bracket format (Eric's regex)
+      s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ || # Single brackets: filter[key][subkey]=value
+        s =~ /\A\[[^\]]+\]\[[^\]]+\]=.+\z/ # Double brackets: filter[[key][subkey]]=value
     end
   end
 
