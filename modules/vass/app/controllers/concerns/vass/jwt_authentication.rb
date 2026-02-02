@@ -70,27 +70,27 @@ module Vass
 
     def handle_missing_token
       log_auth_failure('missing_token')
-      raise Vass::Errors::AuthenticationError, 'Missing authentication token'
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::MISSING_TOKEN
     end
 
     def handle_missing_veteran_id
       log_auth_failure('missing_veteran_id')
-      raise Vass::Errors::AuthenticationError, 'Invalid or malformed token'
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::INVALID_TOKEN
     end
 
     def handle_revoked_token
       log_auth_failure('revoked_token')
-      raise Vass::Errors::AuthenticationError, 'Token is invalid or already revoked'
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::REVOKED_TOKEN
     end
 
     def handle_expired_token
       log_auth_failure('expired_token')
-      raise Vass::Errors::AuthenticationError, 'Token has expired'
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::EXPIRED_TOKEN
     end
 
     def handle_invalid_token(exception)
       log_auth_failure('invalid_token', error_class: exception.class.name)
-      raise Vass::Errors::AuthenticationError, 'Invalid or malformed token'
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::INVALID_TOKEN
     end
 
     ##
