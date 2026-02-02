@@ -81,8 +81,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
               processor = described_class.new(submission.id)
               processed_files = processor.get_uploads
               processed_files.each do |processed_file|
-                # Filenames are shortened at upload time by SupportingEvidenceAttachmentUploader
-                # so all stored filenames should be <= MAX_FILENAME_LENGTH
+                # Filenames are shortened at upload time by SupportingEvidenceAttachmentUploader,
+                # and the resulting temporary file paths should be reasonably short (<= 255 characters).
                 expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
                 expect(processed_file[:file].length).to be <= 255
               end
@@ -97,8 +97,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         before do
           # Override the first upload with a long filename
           first_upload = upload_data.first
-          file_path = Rails.root.join('spec', 'fixtures', 'files', first_upload['name'])
-          file = Rack::Test::UploadedFile.new(file_path, 'application/pdf')
+          fixture_file_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+          file = Rack::Test::UploadedFile.new(fixture_file_path, 'application/pdf')
           allow(file).to receive(:original_filename).and_return(long_filename)
 
           sea = SupportingEvidenceAttachment.find_by(guid: first_upload['confirmationCode'])
