@@ -1851,6 +1851,7 @@ spec/requests/flipper_spec.rb @department-of-veterans-affairs/backend-review-gro
 spec/requests/gids @department-of-veterans-affairs/backend-review-group
 spec/requests/http_method_not_allowed_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
+spec/requests/rack3_middleware_stack_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/root_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/statsd_middleware_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/requests/swagger_spec.rb @department-of-veterans-affairs/backend-review-group
