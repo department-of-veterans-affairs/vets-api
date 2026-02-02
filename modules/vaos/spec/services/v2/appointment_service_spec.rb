@@ -2386,6 +2386,107 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#fetch_avs_binary' do
+    let(:avs_pdf) do
+      UnifiedHealthData::BinaryData.new(
+        content_type: 'application/pdf',
+        binary: 'binaryString'
+      )
+    end
+
+    context 'invalid arguments' do
+      it 'sets the error field when doc_id is nil' do
+        result = subject.send(:fetch_avs_binary, 'appt', [nil])
+        expect(result).to eq([{
+                               doc_id: nil,
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+
+      it 'returns nil when appt_id is nil' do
+        result = subject.send(:fetch_avs_binary, nil, ['doc1'])
+        expect(result).to eq(nil)
+      end
+
+      it 'returns nil when doc_ids is nil' do
+        result = subject.send(:fetch_avs_binary, 'appt', nil)
+        expect(result).to eq(nil)
+      end
+
+      it 'returns nil when doc_ids is empty' do
+        result = subject.send(:fetch_avs_binary, 'appt', [])
+        expect(result).to eq(nil)
+      end
+    end
+
+    context 'when UHD Service successfully retrieved the binaries' do
+      it 'returns the fetched PDF binaries' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               binary: 'binaryString'
+                             }])
+      end
+    end
+
+    context 'when an error occurs' do
+      it 'logs the error and sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Error retrieving AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there is no available binary' do
+      it 'sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(nil)
+        result = subject.send(:fetch_avs_binary, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there are mixed results' do
+      it 'returns both successful binaries and error fields' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc2', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc3', appt_id: 'appt').and_return(nil)
+
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binary, 'appt', %w[doc1 doc2 doc3])
+        expect(result).to eq([
+                               {
+                                 doc_id: 'doc1',
+                                 binary: 'binaryString'
+                               },
+                               {
+                                 doc_id: 'doc2',
+                                 error: 'Error retrieving AVS binary'
+                               },
+                               {
+                                 doc_id: 'doc3',
+                                 error: 'Retrieved empty AVS binary'
+                               }
+                             ])
+      end
+    end
+  end
+
   describe '#filter_reason_code_text' do
     let(:request_object_body) { { reason_code: { text: "This is\t a test\n\r" } } }
     let(:request_object_body_with_non_ascii) { { reason_code: { text: 'Thïs ïs ä tést' } } }
