@@ -22,13 +22,12 @@ module Swagger
                 'JSON string containing dispute information. Must include a "disputes" array with ' \
                 'objects containing: composite_debt_id (string, required), deduction_code (string, required), ' \
                 'original_ar (number, required), current_ar (number, required), benefit_type (string, required), ' \
-                'dispute_reason (string, required), rcvbl_id (string, optional)'
-            key :required, true
-            key :type, :string
-            key :example,
-                '{"disputes":[{"composite_debt_id":"71166","deduction_code":"71",' \
+                'dispute_reason (string, required), rcvbl_id (string, optional). ' \
+                'Example: {"disputes":[{"composite_debt_id":"71166","deduction_code":"71",' \
                 '"original_ar":166.67,"current_ar":120.4,"benefit_type":"CH33 Books, Supplies/MISC EDU",' \
                 '"dispute_reason":"I don\'t think I owe this debt to VA"}]}'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
