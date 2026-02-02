@@ -53,6 +53,10 @@ module SurvivorsBenefits
           },
           'middle' => {
             limit: 1,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s Middle Initial (additional)',
+            question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
             key: "form1[0].#subform[207].Middle_Initial[#{ITERATOR}]"
           },
           'last' => {
