@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
         parsed_response = if Flipper.enabled?(:accredited_representative_portal_skip_itf_check)
                             MOCK_ITF_NOT_FOUND
                           else
-                            service.get_intent_to_file(params[:benefitType])
+                            intent_to_file_check_service.get_intent_to_file(params[:benefitType])
                           end
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
         monitoring = ar_monitoring
         monitoring.track_count(ATTEMPT_METRIC, tags: default_tags)
 
-        parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
+        parsed_response = submit_service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
         Rails.logger.info('ARP ITF: Created intent to file in Benefits Claims')
 
         if parsed_response['errors'].present?
@@ -132,16 +132,35 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def service
-        @service ||= BenefitsClaims::Service.new(icn)
+      def intent_to_file_check_service
+        @intent_to_file_check_service ||= BenefitsClaims::Service.new(icn)
+      end
+
+      def submit_service
+        @submit_service ||= BenefitsClaims::Service.new(veteran_icn)
       end
 
       def icn
-        @icn ||= ClaimantLookupService.get_icn(
+        params[:benefitType] == 'survivor' ? claimant_icn : veteran_icn
+      end
+
+      def veteran_icn
+        @veteran_icn ||= ClaimantLookupService.get_icn(
           params[:veteranFirstName] || params[:veteranFullName][:first],
           params[:veteranLastName] || params[:veteranFullName][:last],
           params[:veteranSsn],
           params[:veteranDateOfBirth]
+        )
+      rescue Common::Exceptions::RecordNotFound => e
+        raise Common::Exceptions::BadRequest.new(detail: e.message)
+      end
+
+      def claimant_icn
+        @claimant_icn ||= ClaimantLookupService.get_icn(
+          params[:claimantFirstName] || params[:claimantFullName][:first],
+          params[:claimantLastName] || params[:claimantFullName][:last],
+          params[:claimantSsn],
+          params[:claimantDateOfBirth]
         )
       rescue Common::Exceptions::RecordNotFound => e
         raise Common::Exceptions::BadRequest.new(detail: e.message)

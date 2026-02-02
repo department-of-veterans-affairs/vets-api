@@ -162,6 +162,22 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             link = response.parsed_body.dig('data', 'links', 'self')
             expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/674852')
           end
+
+          it 'logs and re-raises serialization errors on create with attachments' do
+            error = Common::Client::Errors::Serialization.new(status: 500, body: 'bad response', message: 'parse error')
+            allow_any_instance_of(Mobile::V0::Messaging::Client)
+              .to receive(:post_create_message_with_attachment).and_raise(error)
+
+            allow(Rails.logger).to receive(:info)
+            expect(Rails.logger).to receive(:info).with(
+              'Mobile SM create with attachment error',
+              hash_including(:status, :error_body, :message)
+            )
+
+            post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: params_with_attachments
+
+            expect(response).not_to be_successful
+          end
         end
 
         context 'reply' do
@@ -212,7 +228,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           it 'passes poll_for_status=true on create with attachments when is_oh_triage_group=true' do
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages?is_oh_triage_group=true',
@@ -251,7 +267,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             # NOTE: NO query param is_oh_triage_group - it's only inside the JSON string
@@ -269,7 +285,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_reply_with_attachment)
-              .with(kind_of(String), kind_of(Hash), poll_for_status: true)
+              .with(kind_of(String), kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages/674838/reply',
@@ -286,7 +302,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: true)
+              .with(kind_of(Hash), is_oh: true)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages',
@@ -302,10 +318,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                  .merge(is_oh_triage_group: false)
             stringified_message = message_with_oh_flag.to_json
 
-            # Should NOT receive poll_for_status: true
+            # Should NOT receive is_oh: true
             expect_any_instance_of(Mobile::V0::Messaging::Client)
               .to receive(:post_create_message_with_attachment)
-              .with(kind_of(Hash), poll_for_status: false)
+              .with(kind_of(Hash), is_oh: false)
               .and_return(build(:message, attachment: true, attachments: build_list(:attachment, 1)))
 
             post '/mobile/v0/messaging/health/messages',
@@ -494,6 +510,47 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(validation).to be_present
             expect(validation.status).to eq('success')
           end
+
+        end
+      end
+
+
+      describe 'message id validation' do
+        it 'returns 400 for show with blank id' do
+          get '/mobile/v0/messaging/health/messages/%20', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for thread with blank id' do
+          get '/mobile/v0/messaging/health/messages/%20/thread', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for move with blank id' do
+          patch '/mobile/v0/messaging/health/messages/%20/move?folder_id=0', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for destroy with blank id' do
+          delete '/mobile/v0/messaging/health/messages/%20', headers: sis_headers
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
+        end
+
+        it 'returns 400 for reply with blank id' do
+          post '/mobile/v0/messaging/health/messages/%20/reply',
+               headers: sis_headers,
+               params: { message: { category: 'OTHER', body: 'Test', recipient_id: '1', subject: 'Test' } }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.parsed_body['errors'].first['detail']).to include('id')
         end
       end
     end

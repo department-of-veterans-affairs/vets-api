@@ -61,7 +61,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
   describe '#submit_form' do
     let(:valid_form_content) do
-      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+      File.read 'spec/support/disability_compensation_form/submit_all_claim/uploads.json'
     end
 
     context 'with a 503 error' do
@@ -84,22 +84,6 @@ describe EVSS::DisabilityCompensationForm::Service do
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           response = subject.submit_form526(valid_form_content)
-          expect(response).to be_ok
-          expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
-          expect(response.claim_id).to be_an Integer
-        end
-      end
-    end
-
-    context 'with valid BDD input' do
-      let(:valid_bdd_form_content) do
-        File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json'
-      end
-
-      it 'returns a form submit response object' do
-        # TODO: this cassette seems hand-written and is missing a body
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-          response = subject.submit_form526(valid_bdd_form_content)
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
           expect(response.claim_id).to be_an Integer

@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <OGC_ORGANIZATIONS_EXCEL_LIST_URI>
+    body:
+      encoding: UTF-8
+      string: id=frmExcelList&name=frmExcelList
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 29 Oct 2019 13:38:38 GMT
+      Content-Type:
+      - application/vnd.ms-excel
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - private
+      Set-Cookie:
+      - ASPSESSIONIDAACTTSBC=HJKIIHJDHDLFMGMCHLPKLMIG; path=/
+      - TS016f4012=01c8917e48fee352385163d68ffb91e97d3eaf0452338178d6d0f238434fc88c0576fa60d81a1c23b1724d026fa5b6d9b19946f1f126450ad49473c9fdc5bd3fc15d0962bf;
+        Max-Age=900; Path=/
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "\r\n<HTML>\r\n<BODY>\r\n\r\n\r\n<!-- Our table which will be translated
+        into an Excel spreadsheet -->\r\n<TABLE WIDTH=75% BORDER=1 CELLSPACING=1 CELLPADDING=1>\r\n<TR>\r\n
+        \  <td>Organization Name</td>\r\n   <td>POA</td>\r\n   <td>Org Phone</td>\r\n
+        \  <td>Org City</td>\r\n   <td>Org State</td>\r\n   <td>Representative</td>\r\n
+        \  <td>Rep City</td>\r\n   <td>Rep State</td>\r\n   <td>Rep Zip</td>\r\n   <td>Registration
+        Num</td>\r\n   <td>AccrRepresentativeId</td>\r\n</TR>\r\n<!-- server-side loop adding Table entries -->\r\n\r\n<TR>\r\n
+        \  <TD>African American PTSD Association</TD>\r\n   <TD>'091</TD>\r\n   <TD>253-589-0766</TD>\r\n
+        \  <TD>Lakewood</TD>\r\n   <TD>WA</TD>\r\n   <TD>Anderson, Edgar B</TD>\r\n
+        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>8239</TD>\r\n
+        \  <TD>0a3f2f8c-1d7a-4c9b-b6d2-9a1f2c3d4e5f</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>NOT A REAL PLACE</TD>\r\n   <TD>'ZZZ</TD>\r\n   <TD>555-555-5555</TD>\r\n
+        \  <TD>NOWHERE</TD>\r\n   <TD>MO</TD>\r\n   <TD>PERSON, FAKE</TD>\r\n
+        \  <TD>NOWHERE</TD>\r\n   <TD>MO</TD>\r\n   <TD>'60635</TD>\r\n   <TD></TD>\r\n
+        \  <TD>1b4c5d6e-7f80-4a9b-8c1d-2e3f4a5b6c7d</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>African American PTSD Association</TD>\r\n   <TD>'091</TD>\r\n   <TD>253-589-0766</TD>\r\n
+        \  <TD>Lakewood</TD>\r\n   <TD>WA</TD>\r\n   <TD>Anderson, Edgar B</TD>\r\n
+        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>8239</TD>\r\n
+        \  <TD>2c5d6e7f-8091-4b0c-9d2e-3f4a5b6c7d8e</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>PTSD Association</TD>\r\n   <TD>'095</TD>\r\n   <TD>153-557-0736</TD>\r\n
+        \  <TD>Norfolk</TD>\r\n   <TD>WA</TD>\r\n   <TD>Good , Johnny B</TD>\r\n
+        \  <TD>New Orleans</TD>\r\n   <TD>LA</TD>\r\n   <TD>'60634</TD>\r\n   <TD>8240</TD>\r\n
+        \  <TD>3d6e7f80-91a2-4c1d-8e3f-4a5b6c7d8e9f</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>African American PTSD Association</TD>\r\n   <TD>'091</TD>\r\n   <TD>253-589-0766</TD>\r\n
+        \  <TD>Lakewood</TD>\r\n   <TD>WA</TD>\r\n   <TD>Anderson, Anna Mae B</TD>\r\n
+        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>82390</TD>\r\n
+        \  <TD>4e7f8091-a2b3-4d2e-9f4a-5b6c7d8e9f0a</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>African American PTSD Association</TD>\r\n   <TD>'091</TD>\r\n   <TD>253-589-0766</TD>\r\n
+        \  <TD>Lakewood</TD>\r\n   <TD>WA</TD>\r\n   <TD>Anderson Anna Mae No Comma B</TD>\r\n
+        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>82391</TD>\r\n
+        \  <TD>5f8091a2-b3c4-4e3f-8a5b-6c7d8e9f0a1b</TD>\r\n</TR>\r\n\r\n
+        \  </TABLE>\r\n</BODY>\r\n</HTML>\r\n"
+    http_version:
+  recorded_at: Mon, 15 Apr 2019 13:02:15 GMT
+recorded_with: VCR 3.0.3
