@@ -9,13 +9,11 @@ module RepresentationManagement
 
     private
 
-    def with_registration_lock(hash_object)
+    def with_registration_lock(hash_object, &)
       reg = hash_object['Registration Num']
       return yield if reg.blank?
 
-      AccreditedIndividual.with_advisory_lock("accredited_individual:#{reg}") do
-        yield
-      end
+      AccreditedIndividual.with_advisory_lock("accredited_individual:#{reg}", &)
     end
 
     def find_or_initialize_by_id(hash_object, individual_type)
@@ -48,8 +46,8 @@ module RepresentationManagement
 
     def fetch_data(action)
       page = connection
-        .post(action, id: 'frmExcelList', name: 'frmExcelList')
-        .body
+             .post(action, id: 'frmExcelList', name: 'frmExcelList')
+             .body
 
       doc = Nokogiri::HTML(page)
       headers = doc.xpath('//table/tr').first.children.map { |child| child.children.text.scrub }
