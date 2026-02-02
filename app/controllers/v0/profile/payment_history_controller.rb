@@ -16,6 +16,24 @@ module V0
 
       private
 
+      def validate_user_for_bgs
+        # Identifier check - ensure user has at least one identifier
+        if current_user.icn.blank? && current_user.uuid.blank?
+          Rails.logger.error('User missing both ICN and UUID identifiers', {
+                               user_uuid: current_user&.uuid
+                             })
+          StatsD.increment('api.payment_history.user.no_identifiers')
+        end
+
+        # Additional identifier check - ensure user has contact information for BGS service
+        if current_user.common_name.blank? && current_user.email.blank? && current_user.va_profile_email.blank?
+          Rails.logger.error('User missing all contact identifiers (common_name, email, va_profile_email)', {
+                               user_uuid: current_user&.uuid
+                             })
+          StatsD.increment('api.payment_history.user.no_contact_identifiers')
+        end
+      end
+
       def validate_user_identifiers
         missing = []
 
@@ -79,6 +97,8 @@ module V0
       end
 
       def bgs_service_response
+        validate_user_for_bgs
+
         log_before_bgs_people_request
         person = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
         log_after_bgs_people_request
