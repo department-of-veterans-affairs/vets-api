@@ -7,15 +7,15 @@ module V0
       before_action :check_feature_enabled
 
       # POST /v0/multi_party_forms/primary
-      # Creates a new multi-party form submission and the veteran's InProgressForm
+      # Creates a new multi-party form submission and the Primary Party's InProgressForm
       def create
         # TODO: Replace with actual MultiPartyFormSubmission.new once model is available
         # Expected attributes:
         # - form_type: params[:multi_party_form][:form_type]
         # - primary_user_uuid: current_user.uuid
-        # - secondary_email: 'placeholder@pending.com' (updated when veteran completes)
+        # - secondary_email: 'placeholder@pending.com' (updated when Primary Party completes)
 
-        # TODO: Create the coordination record and veteran's InProgressForm in a transaction
+        # TODO: Create the coordination record and Primary Party's InProgressForm in a transaction
         # ActiveRecord::Base.transaction do
         #   @submission = MultiPartyFormSubmission.new(
         #     form_type: params[:multi_party_form][:form_type],
