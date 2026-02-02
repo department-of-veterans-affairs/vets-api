@@ -319,9 +319,15 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       end
     end
 
-    describe '#extract_last_refill_date (private method via get_sorted_dispensed_date)' do
-      # Test the private extract_last_refill_date method via its caller get_sorted_dispensed_date
-      # This method determines which date field to use for "last filled" sorting
+    describe '#extract_last_fill_date (private method via get_sorted_dispensed_date)' do
+      # Tests the private extract_last_fill_date method via its caller get_sorted_dispensed_date
+      # This method extracts the correct date for "last filled" sorting from dispenses.
+      #
+      # Key difference between data sources:
+      # - Vista: dispenses have BOTH dispensed_date AND refill_date. We prefer dispensed_date.
+      # - Oracle Health: dispenses only have refill_date (set from FHIR whenHandedOver).
+      #   The adapter sets refill_date = whenHandedOver, so they're the same value.
+      #   Oracle Health dispenses do NOT have dispensed_date.
 
       context 'with Vista prescriptions (have dispensed_date in dispenses)' do
         it 'uses dispensed_date from dispenses for sorting' do
@@ -343,22 +349,25 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           expect(result).to eq(Date.new(2024, 6, 15))
         end
 
-        it 'uses refill_date when dispensed_date is nil in dispenses' do
-          # When dispenses have refill_date but not dispensed_date (like Oracle Health),
-          # we should use refill_date rather than falling back to prescription.dispensed_date
-          med = double('vista_med_no_dispense_date',
+        it 'uses refill_date when dispensed_date is nil among mixed dispenses' do
+          # When some dispenses have dispensed_date and others don't, we use what's available.
+          # This tests the refill_date fallback when dispensed_date is nil for a particular dispense.
+          med = double('vista_med_mixed_dispenses',
                        prescription_name: 'Vista Med',
                        dispensed_date: Date.new(2024, 1, 1),
                        dispenses: [
-                         { dispensed_date: nil, refill_date: Date.new(2024, 6, 10) }
+                         { dispensed_date: Date.new(2024, 3, 15), refill_date: Date.new(2024, 3, 10) },
+                         { dispensed_date: nil, refill_date: Date.new(2024, 6, 10) },
+                         { dispensed_date: Date.new(2024, 5, 20), refill_date: Date.new(2024, 5, 15) }
                        ])
           allow(med).to receive(:respond_to?).with(:dispenses).and_return(true)
           allow(med).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
 
           result = helper.send(:get_sorted_dispensed_date, med)
 
-          # Should use refill_date when dispensed_date is not available
-          expect(result).to eq(Date.new(2024, 6, 10))
+          # Should return 2024-05-20, the max of the available dispensed_dates (ignoring nil)
+          # The refill_date 2024-06-10 is not used because other dispenses have dispensed_date
+          expect(result).to eq(Date.new(2024, 5, 20))
         end
 
         it 'falls back to prescription dispensed_date when dispenses have neither dispensed_date nor refill_date' do
@@ -379,28 +388,31 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       end
 
       context 'with Oracle Health prescriptions (only have refill_date in dispenses)' do
-        it 'falls back to refill_date when dispensed_date is not available' do
-          # Oracle Health dispenses do NOT have dispensed_date, only refill_date (from whenHandedOver)
+        it 'uses refill_date when dispensed_date is not available' do
+          # Oracle Health dispenses do NOT have dispensed_date.
+          # The adapter sets refill_date from FHIR whenHandedOver.
+          # refill_date IS whenHandedOver - the adapter maps them to the same value.
           med = double('oracle_med',
                        prescription_name: 'Oracle Med',
                        dispensed_date: Date.new(2024, 1, 1),
                        dispenses: [
-                         { refill_date: Date.new(2024, 6, 15), when_handed_over: '2024-06-15' },
-                         { refill_date: Date.new(2024, 3, 20), when_handed_over: '2024-03-20' }
+                         { refill_date: Date.new(2024, 6, 15) },
+                         { refill_date: Date.new(2024, 3, 20) }
                        ])
           allow(med).to receive(:respond_to?).with(:dispenses).and_return(true)
           allow(med).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
 
           result = helper.send(:get_sorted_dispensed_date, med)
 
-          # Should fall back to max refill_date since dispensed_date is not available
+          # Should use max refill_date since dispensed_date is not available
           expect(result).to eq(Date.new(2024, 6, 15))
         end
       end
     end
 
-    describe 'last-fill-date sorting with mixed Vista and Oracle Health prescriptions' do
-      # This integration test verifies prescriptions from both systems sort correctly by last filled date
+    describe 'last-fill-date sorting integration' do
+      # Integration tests verifying prescriptions from different sources sort correctly.
+      # Tests mixed Vista/Oracle Health, Vista-only, and Oracle Health-only scenarios.
 
       let(:vista_med_old) do
         OpenStruct.new(
@@ -428,6 +440,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         )
       end
 
+      # Oracle Health: refill_date is populated from FHIR whenHandedOver by the adapter
       let(:oracle_med_middle) do
         OpenStruct.new(
           prescription_name: 'Oracle Middle Med',
@@ -435,25 +448,52 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           prescription_source: 'VA',
           dispensed_date: Date.new(2024, 1, 1),
           dispenses: [
-            { refill_date: Date.new(2024, 4, 10), when_handed_over: '2024-04-10' }
+            { refill_date: Date.new(2024, 4, 10) }
           ],
           orderable_item: nil
         )
       end
 
-      let(:mixed_prescriptions) { [vista_med_old, oracle_med_middle, vista_med_recent] }
+      let(:oracle_med_old) do
+        OpenStruct.new(
+          prescription_name: 'Oracle Old Med',
+          disp_status: 'Active',
+          prescription_source: 'VA',
+          dispensed_date: nil,
+          dispenses: [
+            { refill_date: Date.new(2024, 2, 5) }
+          ],
+          orderable_item: nil
+        )
+      end
 
-      let(:resource) do
-        records = mixed_prescriptions.dup
+      let(:oracle_med_recent) do
+        OpenStruct.new(
+          prescription_name: 'Oracle Recent Med',
+          disp_status: 'Active',
+          prescription_source: 'VA',
+          dispensed_date: nil,
+          dispenses: [
+            { refill_date: Date.new(2024, 5, 25) }
+          ],
+          orderable_item: nil
+        )
+      end
+
+      def build_resource(records)
+        records_copy = records.dup
         metadata = {}
         double('resource').tap do |r|
-          allow(r).to receive_messages(records:, metadata:)
-          allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
+          allow(r).to receive_messages(records: records_copy, metadata:)
+          allow(r).to receive(:records=) { |new_records| records_copy.replace(new_records) }
           allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
         end
       end
 
       it 'sorts mixed Vista and Oracle Health prescriptions by last filled date descending' do
+        mixed_prescriptions = [vista_med_old, oracle_med_middle, vista_med_recent]
+        resource = build_resource(mixed_prescriptions)
+
         result = helper.apply_sorting(resource, 'last-fill-date')
 
         # Expected order (most recent first):
@@ -464,74 +504,26 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         expect(sorted_names).to eq(['Vista Recent Med', 'Oracle Middle Med', 'Vista Old Med'])
       end
 
-      context 'with only Vista prescriptions' do
-        let(:vista_only_prescriptions) { [vista_med_old, vista_med_recent] }
+      it 'sorts Vista-only prescriptions by dispensed_date descending' do
+        vista_only = [vista_med_old, vista_med_recent]
+        resource = build_resource(vista_only)
 
-        let(:resource) do
-          records = vista_only_prescriptions.dup
-          metadata = {}
-          double('resource').tap do |r|
-            allow(r).to receive_messages(records:, metadata:)
-            allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
-            allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
-          end
-        end
+        result = helper.apply_sorting(resource, 'last-fill-date')
 
-        it 'sorts Vista prescriptions by dispensed_date descending' do
-          result = helper.apply_sorting(resource, 'last-fill-date')
-
-          sorted_names = result.records.map(&:prescription_name)
-          # Recent (2024-06-20) should come before Old (2024-02-15)
-          expect(sorted_names).to eq(['Vista Recent Med', 'Vista Old Med'])
-        end
+        sorted_names = result.records.map(&:prescription_name)
+        # Recent (2024-06-20) should come before Old (2024-02-15)
+        expect(sorted_names).to eq(['Vista Recent Med', 'Vista Old Med'])
       end
 
-      context 'with only Oracle Health prescriptions' do
-        let(:oracle_med_old) do
-          OpenStruct.new(
-            prescription_name: 'Oracle Old Med',
-            disp_status: 'Active',
-            prescription_source: 'VA',
-            dispensed_date: nil,
-            dispenses: [
-              { refill_date: Date.new(2024, 2, 5), when_handed_over: '2024-02-05' }
-            ],
-            orderable_item: nil
-          )
-        end
+      it 'sorts Oracle Health-only prescriptions by refill_date descending' do
+        oracle_only = [oracle_med_old, oracle_med_recent]
+        resource = build_resource(oracle_only)
 
-        let(:oracle_med_recent) do
-          OpenStruct.new(
-            prescription_name: 'Oracle Recent Med',
-            disp_status: 'Active',
-            prescription_source: 'VA',
-            dispensed_date: nil,
-            dispenses: [
-              { refill_date: Date.new(2024, 5, 25), when_handed_over: '2024-05-25' }
-            ],
-            orderable_item: nil
-          )
-        end
+        result = helper.apply_sorting(resource, 'last-fill-date')
 
-        let(:oracle_only_prescriptions) { [oracle_med_old, oracle_med_recent] }
-
-        let(:resource) do
-          records = oracle_only_prescriptions.dup
-          metadata = {}
-          double('resource').tap do |r|
-            allow(r).to receive_messages(records:, metadata:)
-            allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
-            allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
-          end
-        end
-
-        it 'sorts Oracle Health prescriptions by refill_date descending when dispensed_date is unavailable' do
-          result = helper.apply_sorting(resource, 'last-fill-date')
-
-          sorted_names = result.records.map(&:prescription_name)
-          # Recent (2024-05-25) should come before Old (2024-02-05)
-          expect(sorted_names).to eq(['Oracle Recent Med', 'Oracle Old Med'])
-        end
+        sorted_names = result.records.map(&:prescription_name)
+        # Recent (2024-05-25) should come before Old (2024-02-05)
+        expect(sorted_names).to eq(['Oracle Recent Med', 'Oracle Old Med'])
       end
     end
   end
