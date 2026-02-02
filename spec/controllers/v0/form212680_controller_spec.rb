@@ -70,8 +70,10 @@ RSpec.describe V0::Form212680Controller, type: :controller do
 
     it 'saves user_account_id on the saved claim' do
       post(:create, body: form_data, as: :json)
-      expect(SavedClaim::Form212680.last.user_account_id).not_to be_nil
-      expect(SavedClaim::Form212680.last.user_account_id).to eq(user.user_account_uuid)
+
+      saved_claim = SavedClaim::Form212680.last
+      expect(saved_claim.user_account_id).not_to be_nil
+      expect(saved_claim.user_account_id).to eq(user.user_account_uuid)
     end
 
     it 'returns bad_request when json is invalid' do

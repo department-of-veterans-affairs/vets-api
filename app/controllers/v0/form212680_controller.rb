@@ -95,7 +95,7 @@ module V0
     def build_and_save_claim!
       claim = saved_claim_class.new(
         form: filtered_params,
-        user_account_id: @current_user&.user_account_uuid
+        user_account_id: current_user&.user_account_uuid
       )
       Rails.logger.info(
         'Begin claim submission',
