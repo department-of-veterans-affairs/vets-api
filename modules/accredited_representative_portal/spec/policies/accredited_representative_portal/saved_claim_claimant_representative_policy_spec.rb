@@ -107,7 +107,7 @@ module AccreditedRepresentativePortal
       context 'orphaned records exist' do
         let!(:orphaned_record) do
           create(:saved_claim_claimant_representative,
-                 saved_claim: matching_saved_claim_2,
+                 saved_claim: matching_saved_claim2,
                  accredited_individual_registration_number: 'AIRN-MATCH')
         end
         let!(:matching_saved_claim2) { create(:saved_claim_benefits_intake) }
