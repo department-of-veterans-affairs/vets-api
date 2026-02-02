@@ -19,11 +19,13 @@ module SimpleFormsApi
       21P-4718a
       21-4140
       21-0304
+      21P-535
     ].freeze
 
     # Special cases: forms that stamp on a different page
     STAMP_PAGE_OVERRIDES = {
-      '21-0304' => 1 # Stamp on page 2 instead of page 1
+      '21-0304' => 1, # Stamp on page 2 instead of page 1
+      '21P-535' => 2 # Stamp on page 3 instead of page 1
     }.freeze
 
     # Special cases: forms that need different coordinates (lower position)
