@@ -18,5 +18,7 @@ module Vass
     class RateLimitError < BaseError; end
     class IdentityValidationError < BaseError; end
     class MissingContactInfoError < BaseError; end
+    class AuditLogError < BaseError; end
+    class SerializationError < BaseError; end
   end
 end

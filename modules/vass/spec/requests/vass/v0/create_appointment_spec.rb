@@ -8,12 +8,13 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
   let(:veteran_id) { 'vet-uuid-123' }
   let(:edipi) { '1234567890' }
   let(:jwt_secret) { 'test-jwt-secret' }
+  let(:jti) { SecureRandom.uuid }
   let(:jwt_token) do
     payload = {
       sub: veteran_id,
       exp: 1.hour.from_now.to_i,
       iat: Time.current.to_i,
-      jti: SecureRandom.uuid
+      jti:
     }
     JWT.encode(payload, jwt_secret, 'HS256')
   end
@@ -42,9 +43,9 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       )
     )
 
-    # Set up veteran metadata in Redis
+    # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
-    redis_client.save_veteran_metadata(uuid: veteran_id, edipi:, veteran_id:)
+    redis_client.save_session(uuid: veteran_id, jti:, edipi:, veteran_id:)
   end
 
   describe 'POST /vass/v0/appointment' do
@@ -109,6 +110,23 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           end
         end
 
+        it 'tracks success metrics' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.create.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:create'))
+          ).and_call_original
+
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
+              post('/vass/v0/appointment',
+                   params: appointment_params.to_json,
+                   headers:)
+            end
+          end
+        end
+
         it 'returns appointment ID in response' do
           VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
@@ -129,6 +147,12 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       context 'when booking session is missing from Redis' do
         it 'returns bad request with descriptive error message' do
           # No booking session setup - redis_client.get_booking_session will return nil
+          allow(Rails.logger).to receive(:warn).and_call_original
+          expect(Rails.logger).to receive(:warn)
+            .with(a_string_including('"service":"vass"', '"action":"missing_booking_session"',
+                                     "\"vass_uuid\":\"#{veteran_id}"))
+            .and_call_original
+
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -189,6 +213,21 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
             hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
           ).at_least(:once)
         end
+
+        it 'tracks failure metrics' do
+          allow(StatsD).to receive(:increment)
+
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
+
+          expect(response).to have_http_status(:bad_request)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.vass.controller.appointments.create.failure',
+            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
+          ).at_least(:once)
+        end
       end
 
       context 'when topics parameter is missing' do
@@ -212,7 +251,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: topics')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -237,7 +276,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtStartUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
@@ -262,19 +301,17 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
           expect(json_response['errors']).to be_present
           expect(json_response['errors'].first['code']).to eq('missing_parameter')
-          expect(json_response['errors'].first['detail']).to eq('param is missing or the value is empty: dtEndUtc')
+          expect(json_response['errors'].first['detail']).to eq('Required parameter is missing')
         end
       end
 
-      context 'when veteran metadata is missing from Redis' do
+      context 'when session is missing from Redis (token revoked)' do
         before do
-          Rails.cache.delete(
-            "veteran_metadata_#{veteran_id}",
-            namespace: 'vass-otc-cache'
-          )
+          redis_client = Vass::RedisClient.build
+          redis_client.delete_session(uuid: veteran_id)
         end
 
-        it 'returns unauthorized status' do
+        it 'returns unauthorized status with revoked token error' do
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -282,7 +319,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           expect(response).to have_http_status(:unauthorized)
           json_response = JSON.parse(response.body)
           expect(json_response['errors']).to be_present
-          expect(json_response['errors'].first['detail']).to include('EDIPI not found')
+          expect(json_response['errors'].first['detail']).to eq('Token is invalid or already revoked')
         end
       end
 

@@ -24,6 +24,10 @@ accredited_representative_portal:
         stale_sla: 10
       use_mocks: false
       version: v1
+active_record_encryption:
+  deterministic_key: lRZb6GdKZX5L7zzuEe6osyDDC6V7R5PJ
+  key_derivation_salt: IdWoSgvha0ZyWLZPA4RLkYOMTbITYcKP
+  primary_key: Jhm5UbpDiP08qT2pW6EguvojkLSZjJdw
 adapted_housing:
   prefill: true
 argocd:
@@ -218,7 +222,11 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
-    host: https://qa.lighthouse.va.gov
+        secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
+    service_url: ~
+    ssl: false
+    token_host: https://qa.lighthouse.va.gov
+    use_mocks: true
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -628,6 +636,12 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: ~
+  path: "/api/validated-forms"
+  use_mocks: false
+  version: v1
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -981,8 +995,8 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
-    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
+    oh_migrations_list: "2026-02-11:[983,Test 1],[984,Test 2];2026-05-01:[518,Cleveland VA]"
     pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
     app_token: ~
@@ -1235,6 +1249,13 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: ~
+  ogc_attorney_excel_list_uri: ~
+  ogc_claims_agent_excel_list_uri: ~
+  ogc_organizations_excel_list_uri: ~
 res:
   api_key: ~
   base_url: https://fake_url.com
