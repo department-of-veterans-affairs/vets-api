@@ -89,12 +89,7 @@ module V0
         payment_history = BGS::PaymentService.new(current_user).payment_history(person)
         log_after_bgs_payment_service_request
 
-        if payment_history.nil?
-          Rails.logger.error('BGS::PaymentService returned nil', {
-                               person_status: person.status,
-                               user_uuid: current_user&.uuid
-                             })
-        end
+        validate_payment_history(payment_history, person)
 
         payment_history
       end
@@ -120,6 +115,24 @@ module V0
                               missing_attributes: missing.join(', ')
                             })
           StatsD.increment('api.payment_history.bgs_person.missing_attributes')
+        end
+      end
+
+      def validate_payment_history(payment_history, person)
+        if payment_history.nil?
+          Rails.logger.error('BGS::PaymentService returned nil', {
+                               person_status: person&.status,
+                               user_uuid: current_user&.uuid
+                             })
+          StatsD.increment('api.payment_history.payment_history.nil')
+          return
+        end
+
+        if payment_history.payments.blank?
+          Rails.logger.warn('BGS payment history has no payments', {
+                              user_uuid: current_user&.uuid
+                            })
+          StatsD.increment('api.payment_history.payments.empty')
         end
       end
     end
