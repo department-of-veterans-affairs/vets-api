@@ -5,6 +5,7 @@ module V0
     class PaymentHistoryController < ApplicationController
       service_tag 'payment-history'
       before_action :log_access_attempt
+      before_action :validate_user_identifiers
       before_action { authorize :bgs, :access? }
 
       def index
@@ -14,6 +15,22 @@ module V0
       end
 
       private
+
+      def validate_user_identifiers
+        missing = []
+
+        missing << 'ICN' if current_user&.icn.present?
+        missing << 'SSN' if current_user&.ssn.present?
+        missing << 'participant_id' if current_user&.participant_id.present?
+
+        if missing.any?
+          Rails.logger.warn('User missing required identifiers for BGS payment history', {
+                              user_uuid: current_user&.uuid,
+                              missing_identifiers: missing.join(', ')
+                            })
+          StatsD.increment('api.payment_history.missing_identifiers')
+        end
+      end
 
       def log_access_attempt
         StatsD.increment('api.payment_history.access_attempt')
