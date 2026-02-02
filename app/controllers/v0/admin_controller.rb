@@ -32,7 +32,6 @@ module V0
                          'X-Forwarded-Scheme': request.headers['HTTP_X_FORWARDED_SCHEME'],
                          'request.ssl?': request.ssl?,
                          'request.protocol': request.protocol,
-                         # Additional useful headers:
                          Host: request.host,
                          Port: request.port,
                          'Original-URL': request.original_url,
