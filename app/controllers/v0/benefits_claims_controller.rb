@@ -180,6 +180,7 @@ module V0
       end
 
       # always map "Death" claimType to "expenses related to death or burial"
+      # TODO: #131812 [CST/MyVA] Remove claimType mapping from api responses (blocked)
       language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
       if language_map.key?(claim.dig('attributes', 'claimType'))
         claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
