@@ -32,7 +32,7 @@ module V0
     end
 
     def new_rated_disabilities
-      invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
+      invoker = 'V0::DisabilityCompensationFormsController#new_rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
         provider: :lighthouse,
