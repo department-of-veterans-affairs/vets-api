@@ -29,10 +29,11 @@ module SimpleFormsApi
         '21P-601' => 'vba_21p_601',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
-        '40-10007' => 'vba_40_10007'
+        '40-10007' => 'vba_40_10007',
+        '40-1330M' => 'vba_40_1330m'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 21P-0537 21P-601].freeze
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 40-1330M 21P-0537 21P-601].freeze
 
       def submit
         # Temporarily gate submissions to 21P-0537 while in development
@@ -57,7 +58,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        return unless %w[40-0247 20-10207 40-10007 21-4140 21P-601].include?(params[:form_id])
+        return unless %w[40-0247 20-10207 40-10007 40-1330M 21-4140 21P-601].include?(params[:form_id])
 
         attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
         attachment.file = params['file']
@@ -138,7 +139,10 @@ module SimpleFormsApi
       def handle264555
         parsed_form_data = JSON.parse(params.to_json)
         form = SimpleFormsApi::VBA264555.new(parsed_form_data)
-        lgy_response = LGY::Service.new.post_grant_application(payload: form.as_payload)
+
+        raise Common::Exceptions::Unauthorized, 'ICN is required for LGY service' if icn.blank?
+
+        lgy_response = LGY::Service.new(icn:).post_grant_application(payload: form.as_payload)
         reference_number = lgy_response.body['reference_number']
         status = lgy_response.body['status']
         Rails.logger.info(
@@ -206,7 +210,11 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007 vba_21p_601].include?(form_id)
+        if %w[vba_40_0247 vba_40_10007 vba_40_1330m vba_21p_601].include?(form_id)
+          raise "Generated PDF does not exist: #{file_path}" unless File.exist?(file_path)
+
+          form.handle_attachments(file_path)
+        end
 
         [file_path, metadata, form]
       end

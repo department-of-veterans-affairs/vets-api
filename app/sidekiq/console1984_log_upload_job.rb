@@ -5,7 +5,6 @@ require 'fileutils'
 
 class Console1984LogUploadJob
   include Sidekiq::Job
-  include Logging::Helper::DataScrubber
 
   CONSOLE_LOGS_S3_BUCKET = 'vets-api-console-access-logs'
   AWS_REGION = 'us-gov-west-1'
@@ -38,7 +37,7 @@ class Console1984LogUploadJob
     transfer_manager.upload_file(
       file_path,
       bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: "console1984/#{Settings.vsp_environment}/#{filename}",
+      key: "#{Settings.vsp_environment}/#{filename}",
       content_type: 'application/json',
       server_side_encryption: 'AES256'
     )
@@ -98,7 +97,7 @@ class Console1984LogUploadJob
     {
       id: command.id,
       timestamp: command.created_at,
-      statements: scrub(command.statements),
+      statements: command.statements,
       sensitive: command.sensitive_access_id.present?,
       sensitive_access: sensitive_access_for_command(command)
     }
