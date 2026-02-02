@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Schema for SM get_all_triage_teams response - list of triage teams including blocked",
+  "type": "object",
+  "required": ["data"],
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["triage_team_id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "triage_team_id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "station_number": {
+            "type": ["string", "null"]
+          },
+          "blocked_status": {
+            "type": "boolean"
+          },
+          "preferred_team": {
+            "type": "boolean"
+          },
+          "relation_type": {
+            "type": ["string", "null"]
+          },
+          "location_name": {
+            "type": ["string", "null"]
+          },
+          "lead_provider_name": {
+            "type": ["string", "null"]
+          },
+          "team_name": {
+            "type": ["string", "null"]
+          },
+          "suggested_name_display": {
+            "type": ["string", "null"]
+          },
+          "health_care_system_name": {
+            "type": ["string", "null"]
+          },
+          "oh_triage_group": {
+            "type": "boolean"
+          },
+          "group_type_enum_val": {
+            "type": ["string", "null"]
+          },
+          "sub_group_type_enum_val": {
+            "type": ["string", "null"]
+          },
+          "group_type_patient_display": {
+            "type": ["string", "null"]
+          },
+          "sub_group_type_patient_display": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "errors": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
