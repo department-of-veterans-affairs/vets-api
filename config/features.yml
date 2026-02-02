@@ -2803,7 +2803,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-2680 on vets-website
-  multi_party_forms_enabled:
+  form_2680_multi_party_forms_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
