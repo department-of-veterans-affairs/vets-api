@@ -117,35 +117,72 @@ RSpec.describe Vass::ApplicationController, type: :controller do
     end
 
     describe '#handle_authentication_error' do
-      let(:exception) { Vass::Errors::AuthenticationError.new('Test error') }
+      context 'with whitelisted error message' do
+        let(:exception) { Vass::Errors::AuthenticationError.new('Token has expired') }
 
-      it 'renders 401 unauthorized status' do
-        expect(controller).to receive(:render).with(
-          hash_including(status: :unauthorized)
-        )
+        it 'renders 401 unauthorized status' do
+          expect(controller).to receive(:render).with(
+            hash_including(status: :unauthorized)
+          )
 
-        controller.send(:handle_authentication_error, exception)
-      end
+          controller.send(:handle_authentication_error, exception)
+        end
 
-      it 'renders JSON:API error format with exception message' do
-        expect(controller).to receive(:render).with(
-          hash_including(
-            json: hash_including(
-              errors: array_including(
-                hash_including(
-                  title: 'Authentication Error',
-                  detail: 'Test error',
-                  code: 'unauthorized'
+        it 'renders the whitelisted message' do
+          expect(controller).to receive(:render).with(
+            hash_including(
+              json: hash_including(
+                errors: array_including(
+                  hash_including(
+                    title: 'Authentication Error',
+                    detail: 'Token has expired',
+                    code: 'unauthorized'
+                  )
                 )
               )
             )
           )
-        )
 
-        controller.send(:handle_authentication_error, exception)
+          controller.send(:handle_authentication_error, exception)
+        end
+
+        it 'logs error without PHI' do
+          expect(Rails.logger).to receive(:error) do |log_message|
+            log_data = JSON.parse(log_message)
+            expect(log_data['service']).to eq('vass')
+            expect(log_data['action']).to eq('test_action')
+            expect(log_data['error_type']).to eq('authentication_error')
+            expect(log_data['exception_class']).to eq('Vass::Errors::AuthenticationError')
+            expect(log_data['controller']).to eq('test_controller')
+            expect(log_data['timestamp']).to be_present
+          end
+
+          controller.send(:handle_authentication_error, exception)
+        end
+      end
+
+      context 'with non-whitelisted error message' do
+        let(:exception) { Vass::Errors::AuthenticationError.new("Failed for user #{SecureRandom.uuid}") }
+
+        it 'renders generic fallback message to prevent PII leakage' do
+          expect(controller).to receive(:render).with(
+            hash_including(
+              json: hash_including(
+                errors: array_including(
+                  hash_including(
+                    detail: 'Unable to authenticate request'
+                  )
+                )
+              )
+            )
+          )
+
+          controller.send(:handle_authentication_error, exception)
+        end
       end
 
       it 'logs error without PHI' do
+        exception = Vass::Errors::AuthenticationError.new('Token has expired')
         expect(Rails.logger).to receive(:error) do |log_message|
           log_data = JSON.parse(log_message)
           expect(log_data['service']).to eq('vass')

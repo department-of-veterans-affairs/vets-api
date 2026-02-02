@@ -35,17 +35,31 @@ module Vass
     rescue_from Vass::Errors::AuditLogError, with: :handle_audit_log_error
     rescue_from Vass::Errors::SerializationError, with: :handle_serialization_error
 
+    # Whitelisted authentication error messages safe to render to clients.
+    # Any message not in this list falls back to generic response.
+    # This prevents accidental PII leakage if someone passes dynamic data to AuthenticationError.
+    SAFE_AUTH_ERROR_MESSAGES = [
+      'Missing authentication token',
+      'Token has expired',
+      'Invalid or malformed token',
+      'Token is invalid or already revoked'
+    ].freeze
+
     private
 
     def handle_authentication_error(exception)
       log_safe_error('authentication_error', exception.class.name)
-
+      detail = safe_auth_error_message(exception.message)
       render_error_response(
         title: 'Authentication Error',
-        detail: exception.message,
+        detail:,
         code: 'unauthorized',
         status: :unauthorized
       )
+    end
+
+    def safe_auth_error_message(message)
+      SAFE_AUTH_ERROR_MESSAGES.include?(message) ? message : 'Unable to authenticate request'
     end
 
     def handle_not_found_error(exception)
