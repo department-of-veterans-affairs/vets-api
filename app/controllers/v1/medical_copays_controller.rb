@@ -4,6 +4,8 @@ module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
     before_action :authorize_icn
+    before_action :validate_pagination_params, only: :index
+    rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
       invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
@@ -42,17 +44,8 @@ module V1
       end
     end
 
-    def record_not_found(exception)
-      render json: { error: exception.message }, status: :not_found
-    end
-
-    def service_error(exception)
+    def service_error
       render json: { error: 'External service error' }, status: :bad_gateway
-    end
-
-    def internal_server_error(exception)
-      Rails.logger.error("Unexpected error: #{exception.message}")
-      render json: { error: 'Internal server error' }, status: :internal_server_error
     end
 
     def authorize_icn

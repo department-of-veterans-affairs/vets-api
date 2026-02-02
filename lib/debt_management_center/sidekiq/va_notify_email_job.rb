@@ -8,7 +8,7 @@ module DebtManagementCenter
     include Sidekiq::Job
     include Vets::SharedLogging
     sidekiq_options retry: 14
-    STATS_KEY = 'api.dmc.va_notify_email'
+    STATS_KEY = 'api.Sdmc.va_notify_email'
     VA_NOTIFY_CALLBACK_OPTIONS = {
       callback_metadata: {
         notification_type: 'error',

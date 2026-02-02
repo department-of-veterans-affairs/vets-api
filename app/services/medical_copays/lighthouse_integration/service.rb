@@ -23,6 +23,7 @@ module MedicalCopays
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
       class MissingCityError < StandardError; end
+      class ServiceError < StandardError; end
 
       def initialize(icn)
         @icn = icn
@@ -64,6 +65,10 @@ module MedicalCopays
         end
 
         summary_output(total_amount, count, month_count)
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.summary.failure")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#summary error: #{e.class}: #{e.message}")
+        raise ServiceError, 'External service error'
       end
 
       def process_entries(entries, from, total_amount, count)
