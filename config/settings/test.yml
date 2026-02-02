@@ -643,6 +643,12 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: ~
+  path: "/api/validated-forms"
+  use_mocks: true
+  version: v1
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -1253,6 +1259,9 @@ representation_management:
   geocoder:
     mapbox:
       api_key: ~
+  ogc_attorney_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/attorneyexcellist.asp
+  ogc_claims_agent_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+  ogc_organizations_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/orgsexcellist.asp
 res:
   api_key: fake_auth
   base_url: https://fake_url.com

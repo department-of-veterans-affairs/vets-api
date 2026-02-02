@@ -107,27 +107,49 @@ module Vass
 
       ##
       # Saves the OTC to Redis with expiration.
+      # Stores identity data (last_name, dob) for verification during authentication.
       #
       # @param code [String] OTC code to save
       # @return [Boolean] true if saved successfully
       #
       def save_otc(code)
-        redis_client.save_otc(uuid:, code:)
+        redis_client.save_otc(uuid:, code:, last_name:, dob: date_of_birth)
       end
 
       ##
-      # Validates the provided OTC against the stored value.
+      # Validates the provided OTC and identity against stored values.
+      # Ensures the same last_name and dob used during OTC request are provided during authentication.
       #
-      # @return [Boolean] true if OTC matches, false otherwise
+      # @return [Boolean] true if OTC and identity match, false otherwise
       #
       def valid_otc?
         return false unless valid_for_validation?
 
-        stored_otc = redis_client.otc(uuid:)
-        return false if stored_otc.nil?
+        stored_data = redis_client.otc_data(uuid:)
+        return false if stored_data.nil?
 
-        # Constant-time comparison to prevent timing attacks
-        ActiveSupport::SecurityUtils.secure_compare(stored_otc, otp_code)
+        # Perform both checks without early returns to prevent timing attacks
+        otc_matches = otc_codes_match?(stored_data[:code], otp_code)
+        identity_valid = identity_matches?(stored_data)
+
+        otc_matches && identity_valid
+      end
+
+      ##
+      # Checks if provided identity matches stored identity data.
+      # Uses case-insensitive comparison for last name.
+      #
+      # @param stored_data [Hash] Stored OTC data with :last_name and :dob
+      # @return [Boolean] true if identity matches
+      #
+      def identity_matches?(stored_data)
+        stored_last_name = stored_data[:last_name]&.downcase
+        stored_dob = stored_data[:dob]
+
+        provided_last_name = last_name&.downcase
+        provided_dob = date_of_birth
+
+        stored_last_name == provided_last_name && stored_dob == provided_dob
       end
 
       ##
@@ -136,8 +158,8 @@ module Vass
       # @return [Boolean] true if OTC is expired/not found
       #
       def otc_expired?
-        stored_otc = redis_client.otc(uuid:)
-        stored_otc.nil?
+        stored_data = redis_client.otc_data(uuid:)
+        stored_data.nil?
       end
 
       ##
@@ -271,16 +293,13 @@ module Vass
       # Creates an authenticated session after OTC validation.
       #
       # Retrieves veteran metadata from Redis (stored during create flow) and saves it
-      # to a session keyed by the token.
+      # to a session keyed by UUID (one session per veteran). The jti is stored to
+      # ensure only the most recently issued token is valid.
       #
-      # @param token [String] Generated JWT token
-      # @param session_token [String] Deprecated: use token instead
+      # @param jti [String] JWT ID of the token being issued
       # @return [Boolean] true if session created successfully, false if metadata not found
       #
-      def create_authenticated_session(token: nil, session_token: nil)
-        # Support both token and session_token for backwards compatibility
-        auth_token = token || session_token
-
+      def create_authenticated_session(jti:)
         # Retrieve veteran metadata from Redis (stored during create flow)
         metadata = redis_client.veteran_metadata(uuid:)
 
@@ -290,10 +309,10 @@ module Vass
         end
 
         redis_client.save_session(
-          session_token: auth_token,
+          uuid:,
+          jti:,
           edipi: metadata[:edipi],
-          veteran_id: metadata[:veteran_id],
-          uuid:
+          veteran_id: metadata[:veteran_id]
         )
       end
 
@@ -348,6 +367,21 @@ module Vass
       end
 
       private
+
+      ##
+      # Safely compares OTC codes using constant-time comparison.
+      # Handles nil, non-string, or unexpected values gracefully.
+      #
+      # @param stored_code [String, nil] The stored OTC code from cache
+      # @param provided_code [String, nil] The user-provided OTC code
+      # @return [Boolean] true if codes match, false otherwise
+      #
+      def otc_codes_match?(stored_code, provided_code)
+        return false unless stored_code.is_a?(String) && provided_code.is_a?(String)
+        return false if stored_code.empty? || provided_code.empty?
+
+        ActiveSupport::SecurityUtils.secure_compare(stored_code, provided_code)
+      end
 
       ##
       # Checks if submitted identity matches veteran data.
