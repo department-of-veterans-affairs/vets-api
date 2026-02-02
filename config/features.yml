@@ -1745,6 +1745,10 @@ features:
     actor_type: user
     description: Hides the health care contacts section on the Profile
     enable_in_development: true
+  profile_hide_missing_claim_information_notification_setting:
+    actor_type: user
+    description: Hides the Missing claim information notification setting on the Profile notifications page
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
