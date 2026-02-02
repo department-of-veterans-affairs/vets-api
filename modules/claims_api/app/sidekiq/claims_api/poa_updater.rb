@@ -10,17 +10,7 @@ module ClaimsApi
     sidekiq_options retry_for: 48.hours
 
     def perform(power_of_attorney_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
-      poa_form = ClaimsApi::PowerOfAttorney.find_by(id: power_of_attorney_id)
-
-      unless poa_form
-        ClaimsApi::Logger.log(
-          'poa',
-          poa_id: power_of_attorney_id,
-          detail: 'POA form not found in PoaUpdater job',
-          level: :warn
-        )
-        raise ActiveRecord::RecordNotFound, "PowerOfAttorney with ID #{power_of_attorney_id} not found"
-      end
+      poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
       process = ClaimsApi::Process.find_or_create_by(processable: poa_form,
                                                      step_type: 'POA_UPDATE')
