@@ -12,6 +12,7 @@ FactoryBot.define do
     code { SecureRandom.hex }
     created_at { Time.zone.now.to_i }
     scope { SignIn::Constants::Auth::DEVICE_SSO }
+    operation { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
 
     initialize_with do
       new(acr:,
@@ -21,7 +22,8 @@ FactoryBot.define do
           type:,
           code:,
           created_at:,
-          scope:)
+          scope:,
+          operation:)
     end
   end
 end
