@@ -58,25 +58,20 @@ module VANotify
       private
 
       def fetch_attrs(attr_package_key, template_id = nil)
-        begin
-          attrs = Sidekiq::AttrPackage.find(attr_package_key)
-        rescue Sidekiq::AttrPackageError => e
-          Rails.logger.error('VANotify::V2::QueueUserAccountJob AttrPackage error', {
-                               error: e.message,
-                               template_id:
-                             })
-          raise ArgumentError, e.message
-        end
+        attrs = Sidekiq::AttrPackage.find(attr_package_key)
+        return attrs if attrs
 
-        if attrs
-          attrs
-        else
-          Rails.logger.error('VANotify::V2::QueueUserAccountJob failed: Missing personalisation data in Redis', {
-                               template_id:,
-                               attr_package_key_present: attr_package_key.present?
-                             })
-          raise ArgumentError, 'Missing personalisation data in Redis'
-        end
+        Rails.logger.error('VANotify::V2::QueueUserAccountJob failed: Missing personalisation data in Redis', {
+                             template_id:,
+                             attr_package_key_present: attr_package_key.present?
+                           })
+        raise ArgumentError, 'Missing personalisation data in Redis'
+      rescue Sidekiq::AttrPackageError => e
+        Rails.logger.error('VANotify::V2::QueueUserAccountJob AttrPackage error', {
+                             error: e.message,
+                             template_id:
+                           })
+        raise ArgumentError, e.message
       end
 
       def handle_backend_exception(e)
