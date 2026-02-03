@@ -1210,7 +1210,7 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    utf8-cleaner (1.0.0)
+    utf8-cleaner (2.0.1)
       activesupport
     vcr (6.4.0)
     version_gem (1.1.3)
