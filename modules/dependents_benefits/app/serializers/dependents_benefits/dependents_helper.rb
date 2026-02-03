@@ -205,7 +205,10 @@ module DependentsBenefits
       decisions = if diaries.is_a?(Hash)
                     diaries[:dependency_decs]
                   else
-                    monitor.track_error_event("Diaries is not a hash! Diaries type: #{diaries.class.name}", '')
+                    monitor.track_error_event(
+                      "Diaries is not a hash! Diaries type: #{diaries.class.name}",
+                      'dependents_benefits.dependency_decisions.invalid_diaries_type'
+                    )
                     nil
                   end
       return if decisions.nil?
