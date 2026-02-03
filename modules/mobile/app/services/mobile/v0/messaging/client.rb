@@ -72,12 +72,15 @@ module Mobile
           return if response.blank?
 
           user = ::User.find(user_uuid)
-          return unless user
 
           body = response_to_hash(response)
           return if body.blank?
 
           SchemaContract::ValidationInitiator.call_with_body(user:, body:, contract_name:)
+        rescue ActiveRecord::RecordNotFound
+          # Missing user likely indicates a data consistency issue; log distinctly and skip validation
+          Rails.logger.warn('Mobile messaging schema validation skipped - user not found',
+                            { contract_name:, user_uuid: })
         rescue => e
           # Log but don't block - schema validation should never break user requests
           Rails.logger.error('Mobile messaging schema validation error',
