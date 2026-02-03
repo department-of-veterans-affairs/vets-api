@@ -1052,19 +1052,19 @@ module PdfFill
       # @param form_key [String] The key in the form data corresponding to the earnings section
       # @return [void]
       def handle_earnings_overflow(form_data, student_earnings, form_key)
-        expected_earnings_overflow = FORMATTER.check_earnings_overflow(student_earnings)
+        earnings_overflow_hash = FORMATTER.check_earnings_overflow(student_earnings)
 
         # If any field overflows, move all fields to overflow page and clear originals
-        if expected_earnings_overflow.values.any?
+        if earnings_overflow_hash.values.any?
           form_data["#{form_key}_overflow"] ||= {}
 
           %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
              all_other_income].each do |field|
             original_value = student_earnings[field]
-            if original_value.present?
+            if earnings_overflow_hash[field]
               # Copy original string value to overflow
               form_data["#{form_key}_overflow"][field] = original_value
-              # Set original field to 'See add'l Info' text similar to rest of overflow handling on 686c-674
+              # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
               form_data['dependents_application']['student_information'][0][form_key][field] =
                 {
                   'first' => 'Se',
@@ -1090,10 +1090,10 @@ module PdfFill
 
           %w[savings securities real_estate other_assets total_value].each do |field|
             original_value = student_networth[field]
-            if original_value.present?
+            if networth_overflow[field]
               # Copy original string value to overflow
               form_data['student_networth_information_overflow'][field] = original_value
-              # Set original field to 'See add'l Info' text similar to rest of overflow handling on 686c-674
+              # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
               form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = {
                 'first' => 'S',
                 'second' => 'ee ',
