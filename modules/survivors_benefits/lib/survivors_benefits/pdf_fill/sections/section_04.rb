@@ -25,6 +25,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[11]'
         },
         'howMarriageEndedExplanation' => {
+          limit: 52,
+          question_num: 4,
+          question_suffix: 'C',
+          question_label: 'How Marriage Ended',
+          question_text: 'HOW MARRIAGE ENDED',
           key: 'form1[0].#subform[208].Explain[2]'
         },
         'marriageDates' => {
