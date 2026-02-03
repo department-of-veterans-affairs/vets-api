@@ -77,7 +77,7 @@ module SurvivorsBenefits
         chunks = bank_name.to_s.scan(/.{1,17}/)
         {
           'line_one' => chunks[0],
-          'line_two' => bank_name[17..-1]
+          'line_two' => bank_name[17..]
         }.compact
       end
 

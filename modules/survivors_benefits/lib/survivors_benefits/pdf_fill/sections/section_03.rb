@@ -225,7 +225,7 @@ module SurvivorsBenefits
           'line_two' => parts[1],
           # to ensure overflow gets triggered, line_three should be the rest of
           # the string even if longer than 20 chars.
-          'line_three' => unit_name_and_address[40..-1] || ''
+          'line_three' => unit_name_and_address[40..] || ''
         }
       end
     end
