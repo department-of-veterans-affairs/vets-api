@@ -52,6 +52,7 @@ module PdfFill
             if students_information.present?
               students_information.each do |student_information|
                 was_married = student_information['was_married']
+                school_information = student_information['school_information']
                 student_information['was_married'] = {
                   'was_married_yes' => select_checkbox(was_married),
                   'was_married_no' => select_checkbox(!was_married)
@@ -63,20 +64,20 @@ module PdfFill
                   'is_paid_no' => select_checkbox(!is_paid)
                 }
 
-                is_full_time = student_information['school_information']['student_is_enrolled_full_time']
-                student_information['school_information']['student_is_enrolled_full_time'] = {
+                is_full_time = school_information['student_is_enrolled_full_time']
+                school_information['student_is_enrolled_full_time'] = {
                   'full_time_yes' => select_checkbox(is_full_time),
                   'full_time_no' => select_checkbox(!is_full_time)
                 }
 
-                did_attend = student_information['school_information']['student_did_attend_school_last_term']
-                student_information['school_information']['student_did_attend_school_last_term'] = {
+                did_attend = school_information['student_did_attend_school_last_term']
+                school_information['student_did_attend_school_last_term'] = {
                   'did_attend_yes' => select_checkbox(did_attend),
                   'did_attend_no' => select_checkbox(!did_attend)
                 }
 
-                is_school_accredited = student_information['school_information']['is_school_accredited']
-                student_information['school_information']['is_school_accredited'] = {
+                is_school_accredited = school_information['is_school_accredited']
+                school_information['is_school_accredited'] = {
                   'is_school_accredited_yes' => select_radio_button(is_school_accredited),
                   'is_school_accredited_no' => select_radio_button(!is_school_accredited)
                 }
