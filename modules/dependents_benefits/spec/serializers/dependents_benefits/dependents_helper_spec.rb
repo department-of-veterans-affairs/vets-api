@@ -560,7 +560,8 @@ RSpec.describe DependentsBenefits::DependentsHelper do
         allow(helper).to receive(:monitor).and_return(monitor)
 
         expect(monitor).to receive(:track_error_event)
-          .with('Diaries is not a hash! Diaries type: String', '')
+          .with('Diaries is not a hash! Diaries type: String',
+                'dependents_benefits.dependency_decisions.invalid_diaries_type')
 
         helper.dependency_decisions('not a hash')
       end
