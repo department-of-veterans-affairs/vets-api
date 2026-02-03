@@ -8,7 +8,7 @@ module V1
     rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
-      invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
+      invoice_bundle = medical_copay_service.list_months
 
       render json: Lighthouse::HCC::InvoiceSerializer.new(
         invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
