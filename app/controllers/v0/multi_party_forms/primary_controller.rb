@@ -92,7 +92,7 @@ module V0
 
       def check_feature_enabled
         # TODO: Update feature flag name when PR #26240 is merged
-        # Expected flag: multi_party_forms_enabled
+        # Expected flag: form_2680_multi_party_forms_enabled
         routing_error unless Flipper.enabled?(:multi_party_forms_enabled, current_user)
       end
 
