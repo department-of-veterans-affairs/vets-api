@@ -876,24 +876,31 @@ RSpec.describe PdfFill::Forms::Formatters::Va21674v2 do
         # Check expected earnings overflow
         expect(form_data['student_expected_earnings_next_year_overflow']['earnings_from_all_employment'])
           .to eq('123456789.00')
-        expect(form_data['dependents_application']['student_information'][0]['student_expected_earnings_next_year']['earnings_from_all_employment'])
+
+        student_info = form_data['dependents_application']['student_information'][0]
+        expected_earnings = student_info['student_expected_earnings_next_year']
+        expect(expected_earnings['earnings_from_all_employment'])
           .to eq({ 'first' => 'Se', 'second' => 'e a', 'third' => 'dd' })
 
         # Check current earnings overflow
         expect(form_data['student_earnings_from_school_year_overflow']['annual_social_security_payments'])
           .to eq('123456789.00')
-        expect(form_data['dependents_application']['student_information'][0]['student_earnings_from_school_year']['annual_social_security_payments'])
+
+        current_earnings = student_info['student_earnings_from_school_year']
+        expect(current_earnings['annual_social_security_payments'])
           .to eq({ 'first' => 'Se', 'second' => 'e a', 'third' => 'dd' })
 
         # Check networth overflow
         expect(form_data['student_networth_information_overflow']['real_estate'])
           .to eq('15000000000.00')
-        expect(form_data['dependents_application']['student_information'][0]['student_networth_information']['real_estate'])
+
+        networth_info = student_info['student_networth_information']
+        expect(networth_info['real_estate'])
           .to eq({ 'first' => 'S', 'second' => 'ee ', 'third' => 'add', 'last' => "'l" })
 
         expect(form_data['student_networth_information_overflow']['total_value'])
           .to eq('15000010000.00')
-        expect(form_data['dependents_application']['student_information'][0]['student_networth_information']['total_value'])
+        expect(networth_info['total_value'])
           .to eq({ 'first' => 'S', 'second' => 'ee ', 'third' => 'add', 'last' => "'l" })
       end
     end
@@ -1038,7 +1045,8 @@ RSpec.describe PdfFill::Forms::Formatters::Va21674v2 do
         expect(form_data['student_networth_information_overflow']['real_estate']).to eq('55566677889.99')
         expect(form_data['student_networth_information_overflow']['total_value']).to eq('99999999999.88')
 
-        student_networth_info = form_data['dependents_application']['student_information'][0]['student_networth_information']
+        student_info = form_data['dependents_application']['student_information'][0]
+        student_networth_info = student_info['student_networth_information']
         expect(student_networth_info['savings']).to eq({
                                                          'first' => 'S',
                                                          'second' => 'ee ',
