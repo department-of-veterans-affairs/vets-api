@@ -77,14 +77,14 @@ module UnifiedHealthData
       # @param resource [Hash] FHIR AllergyIntolerance resource
       # @return [Boolean] true if the allergy should be included
       def should_include_allergy?(resource)
-        has_active_status?(resource) && has_name?(resource)
+        active_status?(resource) && name?(resource)
       end
 
       # Checks if the allergy has an active clinical status
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
       # @return [Boolean] true if clinicalStatus is 'active'
-      def has_active_status?(resource)
+      def active_status?(resource)
         clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
         clinical_status == 'active'
       end
@@ -93,7 +93,7 @@ module UnifiedHealthData
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
       # @return [Boolean] true if the allergy has a non-empty name
-      def has_name?(resource)
+      def name?(resource)
         name = resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text')
         name.present?
       end
