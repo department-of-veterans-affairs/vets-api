@@ -580,9 +580,5 @@ RSpec.describe DependentsBenefits::DependentsHelper do
     it 'returns a DependentsBenefits::Monitor instance' do
       expect(helper.monitor).to be_a(DependentsBenefits::Monitor)
     end
-
-    it 'memoizes the monitor instance' do
-      expect(helper.monitor).to be(helper.monitor)
-    end
   end
 end

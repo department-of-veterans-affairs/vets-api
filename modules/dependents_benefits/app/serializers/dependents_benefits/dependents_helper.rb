@@ -81,6 +81,20 @@ module DependentsBenefits
     end
 
     ##
+    # Filters decisions to only include removal events (END_EVENTS).
+    # This is a helper method that filters by decision type only, not by date.
+    # Returns decisions of type T18 (Turns 18) or SCHATTT (School Attendance Terminates).
+    #
+    # @param decisions [Array<Hash>] Array of dependency decisions to filter
+    # @return [Array<Hash>] Decisions that match END_EVENTS types
+    #
+    def select_end_events(decisions)
+      decisions.filter do |dec|
+        END_EVENTS.include?(dec[:dependency_decision_type])
+      end
+    end
+
+    ##
     # Extracts the most recent upcoming removal event for each person.
     # Filters decisions by END_EVENTS and returns the one with the latest effective date.
     #
@@ -89,9 +103,7 @@ module DependentsBenefits
     #
     def upcoming_removals(decisions)
       decisions.transform_values do |decs|
-        decs.filter do |dec|
-          END_EVENTS.include?(dec[:dependency_decision_type])
-        end.max { |a, b| compare_by_effective_date(a, b) }
+        select_end_events(decs).max { |a, b| compare_by_effective_date(a, b) }
       end
     end
 
