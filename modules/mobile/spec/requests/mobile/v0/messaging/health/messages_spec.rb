@@ -510,10 +510,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(validation).to be_present
             expect(validation.status).to eq('success')
           end
-
         end
       end
-
 
       describe 'message id validation' do
         it 'returns 400 for show with blank id' do
