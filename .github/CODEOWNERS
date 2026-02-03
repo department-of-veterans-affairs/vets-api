@@ -1108,8 +1108,12 @@ modules/accredited_representative_portal/app/controllers/accredited_representati
 modules/accredited_representative_portal/spec/requests/accredited_representative_portal/v0/power_of_attorney_request_decisions_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/app/services/accredited_representative_portal/representative_user_loader.rb @department-of-veterans-affairs/octo-identity
 modules/accredited_representative_portal/app/sidekiq/accredited_representative_portal/delete_old_benefits_intake_records_job.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/app/sidekiq/accredited_representative_portal/delete_old_intent_to_file_records_job.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/app/sidekiq/accredited_representative_portal/delete_old_saved_claims_job.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/spec/services/accredited_representative_portal/representative_user_loader_spec.rb @department-of-veterans-affairs/octo-identity
 modules/accredited_representative_portal/spec/sidekiq/accredited_representative_portal/delete_old_benefits_intake_records_job_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/spec/sidekiq/accredited_representative_portal/delete_old_intent_to_file_records_job_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
+modules/accredited_representative_portal/spec/sidekiq/accredited_representative_portal/delete_old_saved_claims_job_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/spec/services/accredited_representative_portal/send_poa_request_to_corp_db_service_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/spec/sidekiq/accredited_representative_portal/send_poa_request_to_corp_db_job_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/app/services/accredited_representative_portal/send_poa_request_to_corp_db_service.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
@@ -2385,6 +2389,7 @@ spec/support/vcr_cassettes/pagerduty @department-of-veterans-affairs/backend-rev
 spec/support/vcr_cassettes/phr_mgr_client @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/RapidReadyForDecision_DisabilityCompensationJob @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/representation_management @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/rrd @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/rx_client @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/s3 @department-of-veterans-affairs/backend-review-group
