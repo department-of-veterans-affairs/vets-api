@@ -10,11 +10,13 @@ module RepresentationManagement
     private
 
     def find_or_initialize_by_id(hash_object, individual_type)
-      registration_number = hash_object['Registration Num']
+      registration_number = hash_object['Registration Num']&.strip
 
       return build_rep(hash_object, individual_type) if registration_number.blank?
 
-      AccreditedIndividual.with_advisory_lock("accredited_individual:#{registration_number}") do
+      lock_key = "accredited_individual:#{registration_number}:#{individual_type}"
+
+      AccreditedIndividual.with_advisory_lock(lock_key) do
         rep = build_rep(hash_object, individual_type)
 
         return yield(rep) if block_given?
@@ -24,14 +26,30 @@ module RepresentationManagement
     end
 
     def build_rep(hash_object, individual_type)
+      registration_number = hash_object['Registration Num']&.strip
+
       rep = AccreditedIndividual.find_or_initialize_by(
-        registration_number: hash_object['Registration Num']
+        registration_number:,
+        individual_type:
       )
 
-      poa_code = hash_object['POA Code']&.gsub(/\W/, '')
-      rep.poa_code = poa_code
-      rep.individual_type = individual_type
-      rep.ogc_id = AccreditedIndividual::DUMMY_OGC_ID if rep.ogc_id.blank?
+      sanitized_poa_code = hash_object['POA Code']&.gsub(/\W/, '')&.strip
+
+      # Avoid wiping out an existing POA code if the scrape returns blank.
+      # Only overwrite when the new value is present, or populate when currently blank.
+      rep.poa_code = sanitized_poa_code if sanitized_poa_code.present? || rep.poa_code.blank?
+
+      if rep.ogc_id.blank?
+        source_ogc_id = ogc_id_from_payload(hash_object, individual_type)
+        rep.ogc_id = source_ogc_id.presence || AccreditedIndividual::DUMMY_OGC_ID
+      end
+
+      populate_blank_attributes(rep, hash_object)
+
+      rep
+    end
+
+    def populate_blank_attributes(rep, hash_object)
       rep.phone = hash_object['Phone'] if rep.phone.blank?
       rep.first_name = hash_object['First Name'] if rep.first_name.blank?
       rep.last_name = hash_object['Last Name']&.strip if rep.last_name.blank?
@@ -43,8 +61,17 @@ module RepresentationManagement
       rep.city = hash_object['City'] if rep.city.blank?
       rep.state_code = hash_object['State']&.gsub(/\W/, '') if rep.state_code.blank?
       rep.zip_code = hash_object['Zip']&.gsub(/\W/, '') if rep.zip_code.blank?
+    end
 
-      rep
+    def ogc_id_from_payload(hash_object, individual_type)
+      case individual_type
+      when AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY
+        hash_object['AccrAttorneyId']
+      when AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT
+        hash_object['AccrClaimAgentId']
+      when AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE
+        hash_object['AccrRepresentativeId']
+      end&.strip
     end
 
     def connection
@@ -60,9 +87,12 @@ module RepresentationManagement
              .body
 
       doc = Nokogiri::HTML(page)
-      headers = doc.xpath('//table/tr').first.children.map { |child| child.children.text.scrub }
+      rows = doc.xpath('//table/tr')
+      return [] if rows.empty?
 
-      doc.xpath('//table/tr').map do |line|
+      headers = rows.first.children.map { |child| child.children.text.scrub }
+
+      rows.map do |line|
         row = line.children.map { |child| child.children.text.scrub }
         headers.zip(row).to_h.delete_if { |k, _v| k.blank? } unless headers == row
       end.compact.uniq
