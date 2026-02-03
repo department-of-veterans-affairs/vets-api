@@ -291,7 +291,8 @@ paths:
           required: true
           name: "appointment-id"
           schema:
-            type: integer
+            type: string
+            example: "38eb82d7451c9036df43fa75318a5453d1a66e3055ce09ebcec16821949e44ce"
         - in: query
           name: doc_ids
           required: true
@@ -2058,9 +2059,9 @@ components:
     AvsBinary:
       type: object
       required:
-        - doc_id
+        - docId
       properties:
-        doc_id:
+        docId:
           description: The document ID of the After Visit Summary PDF.
           type: string
           example: 20875041789
