@@ -59,5 +59,19 @@ RSpec.describe FormIntake::Service do
           end
       end
     end
+
+    context 'connection failure' do
+      before do
+        stub_request(:put, %r{localhost:3000/api/validated-forms/v1/[a-f0-9-]+})
+          .to_raise(Faraday::ConnectionFailed.new('connection down'))
+      end
+
+      it 'raises ServiceError with 503' do
+        expect { service.submit_form_data(payload, uuid) }
+          .to raise_error(FormIntake::ServiceError) do |error|
+            expect(error.status_code).to eq(503)
+          end
+      end
+    end
   end
 end

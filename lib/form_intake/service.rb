@@ -53,7 +53,7 @@ module FormIntake
     end
 
     def parse_response(response)
-      body = JSON.parse(response.body)
+      body = safe_parse_json(response.body)
       {
         status: response.status,
         body: response.body,
@@ -63,8 +63,14 @@ module FormIntake
     end
 
     def handle_client_error(error)
+      # Explicitly checking if cause is connectionfailed as those get wrapped in a common
+      # error class higher up the chain, so this is the only way to check for our 503 case
+      if error.cause.is_a?(Faraday::ConnectionFailed)
+        raise ServiceError.new("Connection failed: #{error.cause.message}", 503)
+      end
+
       status = error.status || 500
-      body = JSON.parse(error.body)
+      body = safe_parse_json(error.body)
       message = body.dig('errors', 0, 'detail') || error.message
 
       Rails.logger.error(
@@ -75,6 +81,14 @@ module FormIntake
       )
 
       raise ServiceError.new(message, status)
+    end
+
+    def safe_parse_json(string)
+      return {} if string.blank?
+
+      JSON.parse(string)
+    rescue JSON::ParserError
+      {}
     end
   end
 end
