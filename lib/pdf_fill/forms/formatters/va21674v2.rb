@@ -23,10 +23,16 @@ module PdfFill
             }
           end
 
-          # Retrieves the program names based on the keys present in the parent object
+          ##
+          # Converts program type codes to human-readable program names
           #
-          # @param parent_object [Hash] The parent object containing program keys
-          # @return [String, nil] A comma-separated string of program names or nil if parent_object is blank
+          # @param parent_object [Hash] Hash with program type keys (ch35, fry, feca, other)
+          # @return [String, nil] Comma-separated list of program names, or nil if no programs selected
+          #
+          # @example
+          #   get_program({ 'ch35' => true, 'fry' => true })
+          #   # => "Chapter 35, Fry Scholarship"
+          #
           def get_program(parent_object)
             return nil if parent_object.blank?
 
@@ -86,10 +92,14 @@ module PdfFill
           end
           # rubocop:enable Metrics/MethodLength
 
-          # Formats student earnings for pdf fields
+          ##
+          # Splits earnings values into PDF field format segments
           #
-          # @param form_data [Hash] The form data hash to process
-          # return [Hash] The modified form data with formatted earnings
+          # Converts numeric earnings values into the format required by the PDF form,
+          # splitting each value into first (2 digits), second (3 digits), and third (2 digits) segments.
+          #
+          # @param parent_object [Hash] Hash containing earnings keys to process
+          # @return [Hash, nil] Modified parent object with split values, or nil if blank
           def split_earnings(parent_object)
             return if parent_object.blank?
 
@@ -116,10 +126,15 @@ module PdfFill
             parent_object
           end
 
-          # Formats student networth information for pdf fields
+          ##
+          # Splits net worth values into PDF field format segments
           #
-          # @param form_data [Hash] The form data hash to process
-          # return [Hash] The modified form data with formatted networth information
+          # Converts numeric net worth values (savings, securities, real estate, etc.) into
+          # the format required by the PDF form, splitting each into 4 segments for different
+          # magnitude ranges.
+          #
+          # @param parent_object [Hash] Hash containing net worth keys to process
+          # @return [Hash, nil] Modified parent object with split values, or nil if blank
           def split_networth_information(parent_object)
             return if parent_object.blank?
 
@@ -209,6 +224,94 @@ module PdfFill
           # @return [Integer, nil] 0 if true, nil if false
           def select_radio_button(value)
             value ? 0 : nil
+          end
+
+          # Handles overflows for student earnings and networth information
+          #
+          # @param form_data [Hash] The form data hash to process
+          # @return [void]
+          def handle_overflows(form_data)
+            student_information = form_data.dig('dependents_application', 'student_information', 0)
+            return unless student_information
+
+            expected_earnings_key = 'student_expected_earnings_next_year'
+            earnings_key = 'student_earnings_from_school_year'
+            networth_key = 'student_networth_information'
+
+            student_expected_earnings = student_information[expected_earnings_key]
+            student_earnings = student_information[earnings_key]
+            student_networth = student_information[networth_key]
+
+            # Check for overflows and handle each section
+            if student_expected_earnings.present?
+              handle_earnings_overflow(form_data, student_expected_earnings,
+                                       expected_earnings_key)
+            end
+            if student_earnings.present?
+              handle_earnings_overflow(form_data, student_earnings,
+                                       earnings_key)
+            end
+            handle_networth_overflow(form_data, student_networth) if student_networth.present?
+          end
+
+          # Handles overflow for student current and expected earnings sections
+          #
+          # @param form_data [Hash] The form data hash to process
+          # @param student_earnings [Hash] The student earnings data to check for overflow
+          # @param form_key [String] The key in the form data corresponding to the earnings section
+          # @return [void]
+          def handle_earnings_overflow(form_data, student_earnings, form_key)
+            earnings_overflow_hash = check_earnings_overflow(student_earnings)
+
+            # If any field overflows, move all fields to overflow page and clear originals
+            if earnings_overflow_hash.values.any?
+              form_data["#{form_key}_overflow"] ||= {}
+
+              %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
+                 all_other_income].each do |field|
+                original_value = student_earnings[field]
+                if earnings_overflow_hash[field.to_sym]
+                  # Copy original string value to overflow
+                  form_data["#{form_key}_overflow"][field] = original_value
+                  # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
+                  form_data['dependents_application']['student_information'][0][form_key][field] =
+                    {
+                      'first' => 'Se',
+                      'second' => 'e a',
+                      'third' => 'dd'
+                    }
+                end
+              end
+            end
+          end
+
+          # Handles overflow for student networth information section
+          #
+          # @param form_data [Hash] The form data hash to process
+          # @param student_networth [Hash] The student networth data to check for overflow
+          # @return [void]
+          def handle_networth_overflow(form_data, student_networth)
+            networth_overflow = check_networth_overflow(student_networth)
+
+            # If any field overflows, move all fields to overflow page and clear originals
+            if networth_overflow.values.any?
+              form_data['student_networth_information_overflow'] ||= {}
+
+              %w[savings securities real_estate other_assets total_value].each do |field|
+                original_value = student_networth[field]
+                if networth_overflow[field.to_sym]
+                  # Copy original string value to overflow
+                  form_data['student_networth_information_overflow'][field] = original_value
+                  # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
+                  form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = {
+                    'first' => 'S',
+                    'second' => 'ee ',
+                    'third' => 'add',
+                    'last' => "'l"
+                  }
+                end
+              end
+            end
           end
         end
       end

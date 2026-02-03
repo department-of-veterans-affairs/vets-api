@@ -943,7 +943,7 @@ module PdfFill
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
-        handle_overflows(@form_data)
+        FORMATTER.handle_overflows(@form_data)
 
         @form_data
       end
@@ -1014,96 +1014,6 @@ module PdfFill
         FORMATTER.format_checkboxes(dependents_application)
       end
       # rubocop:enable Metrics/MethodLength
-
-      # Handles overflows for student earnings and networth information
-      #
-      # @param form_data [Hash] The form data hash to process
-      # @return [void]
-      def handle_overflows(form_data)
-        student_information = form_data.dig('dependents_application', 'student_information', 0)
-        return unless student_information
-
-        expected_earnings_key = 'student_expected_earnings_next_year'
-        earnings_key = 'student_earnings_from_school_year'
-        networth_key = 'student_networth_information'
-
-        student_expected_earnings = student_information[expected_earnings_key]
-        student_earnings = student_information[earnings_key]
-        student_networth = student_information[networth_key]
-
-        # Check for overflows and handle each section
-        if student_expected_earnings.present?
-          handle_earnings_overflow(form_data, student_expected_earnings,
-                                   expected_earnings_key)
-        end
-        if student_earnings.present?
-          handle_earnings_overflow(form_data, student_earnings,
-                                   earnings_key)
-        end
-        handle_networth_overflow(form_data, student_networth) if student_networth.present?
-      end
-
-      private
-
-      # Handles overflow for student current and expected earnings sections
-      #
-      # @param form_data [Hash] The form data hash to process
-      # @param student_earnings [Hash] The student earnings data to check for overflow
-      # @param form_key [String] The key in the form data corresponding to the earnings section
-      # @return [void]
-      def handle_earnings_overflow(form_data, student_earnings, form_key)
-        earnings_overflow_hash = FORMATTER.check_earnings_overflow(student_earnings)
-
-        # If any field overflows, move all fields to overflow page and clear originals
-        if earnings_overflow_hash.values.any?
-          form_data["#{form_key}_overflow"] ||= {}
-
-          %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
-             all_other_income].each do |field|
-            original_value = student_earnings[field]
-            if earnings_overflow_hash[field.to_sym]
-              # Copy original string value to overflow
-              form_data["#{form_key}_overflow"][field] = original_value
-              # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
-              form_data['dependents_application']['student_information'][0][form_key][field] =
-                {
-                  'first' => 'Se',
-                  'second' => 'e a',
-                  'third' => 'dd'
-                }
-            end
-          end
-        end
-      end
-
-      # Handles overflow for student networth information section
-      #
-      # @param form_data [Hash] The form data hash to process
-      # @param student_networth [Hash] The student networth data to check for overflow
-      # @return [void]
-      def handle_networth_overflow(form_data, student_networth)
-        networth_overflow = FORMATTER.check_networth_overflow(student_networth)
-
-        # If any field overflows, move all fields to overflow page and clear originals
-        if networth_overflow.values.any?
-          form_data['student_networth_information_overflow'] ||= {}
-
-          %w[savings securities real_estate other_assets total_value].each do |field|
-            original_value = student_networth[field]
-            if networth_overflow[field.to_sym]
-              # Copy original string value to overflow
-              form_data['student_networth_information_overflow'][field] = original_value
-              # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
-              form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = {
-                'first' => 'S',
-                'second' => 'ee ',
-                'third' => 'add',
-                'last' => "'l"
-              }
-            end
-          end
-        end
-      end
     end
   end
 end
