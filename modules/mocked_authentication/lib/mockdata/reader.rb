@@ -5,7 +5,6 @@ module MockedAuthentication
     class Reader
       LOGINGOV_CREDENTIAL_FILEPATH = 'logingov'
       IDME_CREDENTIAL_FILEPATH = 'idme'
-      DSLOGON_CREDENTIAL_FILEPATH = 'dslogon'
       MHV_CREDENTIAL_FILEPATH = 'mhv'
 
       IDME_MPI_FILEPATH = 'profile_idme_uuid'
@@ -41,8 +40,6 @@ module MockedAuthentication
             IDME_CREDENTIAL_FILEPATH
           when SignIn::Constants::Auth::LOGINGOV
             LOGINGOV_CREDENTIAL_FILEPATH
-          when SignIn::Constants::Auth::DSLOGON
-            DSLOGON_CREDENTIAL_FILEPATH
           when SignIn::Constants::Auth::MHV
             MHV_CREDENTIAL_FILEPATH
           end
@@ -50,7 +47,7 @@ module MockedAuthentication
 
         def convert_type_to_mpi_directory(type)
           case type
-          when SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::DSLOGON, SignIn::Constants::Auth::MHV
+          when SignIn::Constants::Auth::IDME, SignIn::Constants::Auth::MHV
             IDME_MPI_FILEPATH
           when SignIn::Constants::Auth::LOGINGOV
             LOGINGOV_MPI_FILEPATH

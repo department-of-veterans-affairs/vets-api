@@ -42,18 +42,6 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
         end
 
-        it 'has sign in url: dslogon_url' do
-          expect(subject.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON))
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
-        end
-
-        it 'has sign in url: dslogon_verified' do
-          expect(subject.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON))
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
-        end
-
         it 'has sign in url: idme_url' do
           expect_any_instance_of(OneLogin::RubySaml::Settings)
             .to receive(:authn_context_comparison=).with('minimum')
@@ -134,18 +122,6 @@ RSpec.describe SAML::URLService do
                   .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
               end
             end
-
-            context 'with DSLogon as CSP' do
-              let(:params) { { action: 'saml_callback', RelayState: '{"type":"dslogon"}' } }
-
-              it 'has uplevel url with DSLogon' do
-                expect_any_instance_of(OneLogin::RubySaml::Settings)
-                  .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::DSLOGON])
-                expect(subject.verify_url)
-                  .to be_a_saml_url(expected_saml_url)
-                  .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
-              end
-            end
           end
 
           it 'has sign in url: with (default authn_context)' do
@@ -183,24 +159,6 @@ RSpec.describe SAML::URLService do
               .to be_a_saml_url(expected_saml_url)
               .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
           end
-
-          it 'has sign in url: with (dslogon authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::DSLOGON])
-            expect(subject.verify_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
-          end
-
-          it 'has sign in url: with (dslogon_multifactor authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon_multifactor')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::DSLOGON])
-            expect(subject.verify_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
-          end
         end
 
         context 'mfa_url' do
@@ -226,24 +184,6 @@ RSpec.describe SAML::URLService do
             allow(user).to receive(:authn_context).and_return('myhealthevet_loa3')
             expect_any_instance_of(OneLogin::RubySaml::Settings)
               .to receive(:authn_context=).with(['myhealthevet_multifactor', AuthnContext::MHV])
-            expect(subject.mfa_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
-          end
-
-          it 'has mfa url: with (dslogon authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_multifactor', AuthnContext::DSLOGON])
-            expect(subject.mfa_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
-          end
-
-          it 'has mfa url: with (dslogon_loa3 authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon_loa3')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_multifactor', AuthnContext::DSLOGON])
             expect(subject.mfa_url)
               .to be_a_saml_url(expected_saml_url)
               .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
@@ -352,12 +292,6 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
         end
 
-        it 'has sign in url: dslogon_url' do
-          expect(subject.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON))
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
-        end
-
         it 'has sign in url: idme_url' do
           expect_any_instance_of(OneLogin::RubySaml::Settings)
             .to receive(:authn_context_comparison=).with('minimum')
@@ -425,34 +359,6 @@ RSpec.describe SAML::URLService do
               .to be_a_saml_url(expected_saml_url)
               .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
           end
-
-          it 'has sign in url: with (dslogon authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::DSLOGON])
-            expect(subject.verify_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
-          end
-
-          it 'has sign in url: with (dslogon_multifactor authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon_multifactor')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::DSLOGON])
-            expect(subject.verify_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
-          end
-
-          it 'has sign in url: with (ssoe inbound authn_context)' do
-            allow(user).to receive(:authn_context).and_return('urn:oasis:names:tc:SAML:2.0:ac:classes:Password')
-            allow(user.identity).to receive(:sign_in).and_return({ service_name: 'dslogon' })
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with('dslogon_loa3')
-            expect(subject.verify_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
-          end
         end
 
         context 'mfa_url' do
@@ -478,24 +384,6 @@ RSpec.describe SAML::URLService do
             allow(user).to receive(:authn_context).and_return('myhealthevet_loa3')
             expect_any_instance_of(OneLogin::RubySaml::Settings)
               .to receive(:authn_context=).with(['myhealthevet_multifactor', AuthnContext::MHV])
-            expect(subject.mfa_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
-          end
-
-          it 'has mfa url: with (dslogon authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_multifactor', AuthnContext::DSLOGON])
-            expect(subject.mfa_url)
-              .to be_a_saml_url(expected_saml_url)
-              .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
-          end
-
-          it 'has mfa url: with (dslogon_loa3 authn_context)' do
-            allow(user).to receive(:authn_context).and_return('dslogon_loa3')
-            expect_any_instance_of(OneLogin::RubySaml::Settings)
-              .to receive(:authn_context=).with(['dslogon_multifactor', AuthnContext::DSLOGON])
             expect(subject.mfa_url)
               .to be_a_saml_url(expected_saml_url)
               .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')

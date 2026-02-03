@@ -101,14 +101,6 @@ RSpec.describe UserAudit::Appenders::AuditLogAppender do
           it_behaves_like 'a csp identifier'
         end
 
-        context 'when the user_verification is dslogon' do
-          let!(:subject_user_verification) { create(:dslogon_user_verification, user_account: subject_user_account) }
-          let!(:acting_user_verification) { create(:dslogon_user_verification, user_account: acting_user_account) }
-          let(:expected_identifier_type) { 'dslogon_id' }
-
-          it_behaves_like 'a csp identifier'
-        end
-
         context 'when the user_verification is mhv' do
           let!(:subject_user_verification) { create(:mhv_user_verification, user_account: subject_user_account) }
           let!(:acting_user_verification) { create(:mhv_user_verification, user_account: acting_user_account) }

@@ -110,7 +110,7 @@ module SAML
       # For verification from a login callback, type should be the initial login policy.
       # In that case, it will have been set to the type from RelayState.
       @type ||= 'verify'
-      return callback_verify_url if %w[logingov mhv dslogon].include?(type)
+      return callback_verify_url if %w[logingov mhv].include?(type)
 
       link_authn_context =
         case authn_context
@@ -120,8 +120,6 @@ module SAML
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'myhealthevet', 'myhealthevet_multifactor'
           build_authn_context('myhealthevet_loa3', AuthnContext::MHV)
-        when 'dslogon', 'dslogon_multifactor'
-          build_authn_context('dslogon_loa3', AuthnContext::DSLOGON)
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_loa3"
         end
@@ -136,8 +134,6 @@ module SAML
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'mhv', 'mhv_verified'
           build_authn_context('myhealthevet_loa3', AuthnContext::MHV)
-        when 'dslogon'
-          build_authn_context('dslogon_loa3', AuthnContext::DSLOGON)
         end
 
       build_sso_url(link_authn_context)
@@ -151,8 +147,6 @@ module SAML
           build_authn_context('multifactor', AuthnContext::ID_ME)
         when 'myhealthevet', 'myhealthevet_loa3'
           build_authn_context('myhealthevet_multifactor', AuthnContext::MHV)
-        when 'dslogon', 'dslogon_loa3'
-          build_authn_context('dslogon_multifactor', AuthnContext::DSLOGON)
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_multifactor"
         end
@@ -166,7 +160,7 @@ module SAML
 
     private
 
-    # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
+    # Builds the urls to trigger various SSO policies: mhv, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context, authn_con_compare = AuthnContext::EXACT)
       @query_params[:RelayState] = relay_state_params

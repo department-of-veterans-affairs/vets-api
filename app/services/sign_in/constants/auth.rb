@@ -23,8 +23,6 @@ module SignIn
                           IDME_MHV_LOA3 = 'myhealthevet_loa3',
                           IDME_COMPARISON_MINIMUM = 'comparison:minimum',
                           MHV_PREMIUM_VERIFIED = %w[Premium].freeze,
-                          DSLOGON_PREMIUM_VERIFIED = [DSLOGON_ASSURANCE_TWO = '2',
-                                                      DSLOGON_ASSURANCE_THREE = '3'].freeze,
                           LOGIN_GOV_IAL0 = 'http://idmanagement.gov/ns/assurance/ial/0',
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
                           LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2',

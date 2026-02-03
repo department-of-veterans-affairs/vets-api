@@ -9,14 +9,12 @@ RSpec.describe Login::UserVerifier do
                           auth_broker:,
                           mhv_uuid:,
                           idme_uuid:,
-                          dslogon_uuid:,
                           logingov_uuid:,
                           icn:,
                           credential_attributes_digest:).perform
     end
 
     let(:auth_broker) { 'some-auth-broker' }
-    let(:dslogon_uuid) { 'some-edipi' }
     let(:mhv_uuid) { 'some-credential-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:logingov_uuid) { 'some-logingov-uuid' }
@@ -37,7 +35,6 @@ RSpec.describe Login::UserVerifier do
 
     shared_examples 'user_verification with nil credential identifier' do
       let(:authn_identifier) { nil }
-      let(:dslogon_uuid) { authn_identifier }
       let(:mhv_uuid) { authn_identifier }
       let(:idme_uuid) { authn_identifier }
       let(:logingov_uuid) { authn_identifier }
@@ -461,7 +458,6 @@ RSpec.describe Login::UserVerifier do
 
       context 'when credential identifier is nil' do
         let(:authn_identifier) { nil }
-        let(:dslogon_uuid) { authn_identifier }
         let(:mhv_uuid) { authn_identifier }
         let(:idme_uuid) { authn_identifier }
         let(:logingov_uuid) { authn_identifier }
@@ -474,17 +470,6 @@ RSpec.describe Login::UserVerifier do
         end
       end
 
-      it_behaves_like 'user_verification with defined credential identifier'
-    end
-
-    context 'when user credential is dslogon' do
-      let(:login_type) { SignIn::Constants::Auth::DSLOGON }
-      let(:authn_identifier) { dslogon_uuid }
-      let(:authn_identifier_type) { :dslogon_uuid }
-      let(:backing_idme_uuid) { idme_uuid }
-      let(:linked_user_verification_type) { :dslogon_user_verification }
-
-      it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
     end
 

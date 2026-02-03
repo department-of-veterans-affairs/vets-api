@@ -246,7 +246,6 @@ module SignIn
       case service_name
       when Constants::Auth::MHV      then mhv_credential_uuid
       when Constants::Auth::IDME     then idme_uuid
-      when Constants::Auth::DSLOGON  then edipi
       when Constants::Auth::LOGINGOV then logingov_uuid
       end
     end

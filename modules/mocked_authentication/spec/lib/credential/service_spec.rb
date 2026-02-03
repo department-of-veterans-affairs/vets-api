@@ -273,64 +273,6 @@ describe MockedAuthentication::Credential::Service do
       end
     end
 
-    context 'when type is equal to dslogon' do
-      let(:type) { SignIn::Constants::Auth::DSLOGON }
-      let(:user_info) do
-        OpenStruct.new(
-          {
-            iss: user_uuid,
-            sub: user_uuid,
-            aud:,
-            exp:,
-            iat:,
-            credential_aal_highest: 2,
-            credential_ial_highest: 'classic_loa3',
-            dslogon_birth_date: birth_date,
-            email:,
-            dslogon_uuid: edipi,
-            dslogon_fname: first_name,
-            dslogon_idvalue: ssn,
-            dslogon_lname: last_name,
-            dslogon_mname: middle_name,
-            level_of_assurance: 3,
-            multifactor:,
-            credential_aal: 2,
-            credential_ial: 'classic_loa3',
-            uuid: user_uuid
-          }
-        )
-      end
-      let(:edipi) { 'some-edipi' }
-      let(:aud) { 'some-aud' }
-      let(:exp) { 'some-exp' }
-      let(:iat) { 'some-iat' }
-      let(:authn_context) { LOA::IDME_DSLOGON_LOA3 }
-      let(:expected_attributes) do
-        {
-          idme_uuid: user_uuid,
-          current_ial: IAL::TWO,
-          max_ial: IAL::TWO,
-          service_name: type,
-          csp_email: email,
-          all_csp_emails: nil,
-          multifactor:,
-          authn_context:,
-          auto_uplevel:,
-          ssn: ssn.tr('-', ''),
-          birth_date:,
-          first_name:,
-          middle_name:,
-          last_name:,
-          edipi:,
-          digest:
-        }
-      end
-
-      it 'returns expected attributes' do
-        expect(subject).to eq(expected_attributes)
-      end
-    end
-
     context 'when type is equal to mhv' do
       let(:type) { SignIn::Constants::Auth::MHV }
       let(:user_info) do

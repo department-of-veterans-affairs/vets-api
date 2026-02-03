@@ -130,7 +130,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
     context 'when not logged in' do
       context 'routes not requiring auth' do
-        %w[mhv mhv_verified dslogon dslogon_verified idme idme_verified logingov logingov_verified].each do |type|
+        %w[mhv mhv_verified idme idme_verified logingov logingov_verified].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             let(:params) { { type:, clientId: '123123' } }
             let(:authn) do
@@ -141,8 +141,6 @@ RSpec.describe V1::SessionsController, type: :controller do
                 [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
               when 'idme_verified'
                 [LOA::IDME_LOA3, AuthnContext::ID_ME]
-              when 'dslogon', 'dslogon_verified'
-                ['dslogon', AuthnContext::DSLOGON]
               when 'logingov'
                 [IAL::LOGIN_GOV_IAL1,
                  AAL::LOGIN_GOV_AAL2,
@@ -374,7 +372,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             end
           end
 
-          context 'dslogon mhv idme inbound ssoe' do
+          context 'mhv idme inbound ssoe' do
             let(:params) { { type: 'custom', authn: 'myhealthevet', clientId: '123123', operation: 'authorize' } }
 
             it 'redirects for an inbound ssoe' do
@@ -677,7 +675,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         sign_in_as(loa1, token)
       end
 
-      %w[mhv dslogon idme mfa verify].each do |type|
+      %w[mhv idme mfa verify].each do |type|
         context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
           let(:params) { { type: } }
 
