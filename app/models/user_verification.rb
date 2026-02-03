@@ -11,7 +11,6 @@ class UserVerification < ApplicationRecord
   scope :idme, -> { where.not(idme_uuid: nil) }
   scope :logingov, -> { where.not(logingov_uuid: nil) }
   scope :mhv, -> { where.not(mhv_uuid: nil) }
-  scope :dslogon, -> { where.not(dslogon_uuid: nil) }
 
   def self.find_by_type!(type, identifier)
     user_verification =
@@ -22,8 +21,6 @@ class UserVerification < ApplicationRecord
         find_by(idme_uuid: identifier)
       when SAML::User::MHV_ORIGINAL_CSID
         find_by(mhv_uuid: identifier)
-      when SAML::User::DSLOGON_CSID
-        find_by(dslogon_uuid: identifier)
       end
     raise ActiveRecord::RecordNotFound unless user_verification
 
@@ -51,13 +48,12 @@ class UserVerification < ApplicationRecord
   def credential_type
     return SAML::User::IDME_CSID if idme_uuid
     return SAML::User::LOGINGOV_CSID if logingov_uuid
-    return SAML::User::MHV_ORIGINAL_CSID if mhv_uuid
 
-    SAML::User::DSLOGON_CSID if dslogon_uuid
+    SAML::User::MHV_ORIGINAL_CSID if mhv_uuid
   end
 
   def credential_identifier
-    idme_uuid || logingov_uuid || mhv_uuid || dslogon_uuid
+    idme_uuid || logingov_uuid || mhv_uuid
   end
 
   def backing_credential_identifier
@@ -69,12 +65,12 @@ class UserVerification < ApplicationRecord
   # XOR operators between the four credential identifiers mean one, and only one, of these can be
   # defined, If two or more are defined, or if none are defined, then a validation error is raised
   def single_credential_identifier
-    unless idme_uuid.present? ^ logingov_uuid.present? ^ mhv_uuid.present? ^ dslogon_uuid.present?
+    unless idme_uuid.present? ^ logingov_uuid.present? ^ mhv_uuid.present?
       errors.add(:base, 'Must specify one, and only one, credential identifier')
     end
   end
 
-  # All credentials require either an idme_uuid or logingov_uuid, mhv/dslogon credential types
+  # All credentials require either an idme_uuid or logingov_uuid, mhv credential types
   # store the backing idme_uuid as backing_idme_uuid
   def backing_uuid_credentials
     unless idme_uuid || logingov_uuid || backing_idme_uuid
