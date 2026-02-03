@@ -75,22 +75,23 @@ module V0
                          tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
       end
 
-      def get_claim_from_providers(claim_id)
-        configured_providers.each do |provider_class|
+      def get_claim_from_providers(claim_id, provider_type = nil)
+        # If provider_type is specified, use it directly
+        if provider_type.present?
+          provider_class = provider_class_for_type(provider_type)
           provider = provider_class.new(@current_user)
           return provider.get_claim(claim_id)
-        rescue Common::Exceptions::RecordNotFound
-          # Expected: this provider doesn't have the claim, try next provider
-          log_claim_not_found(provider_class)
-        rescue Common::Exceptions::Unauthorized,
-               Common::Exceptions::Forbidden => e
-          # Re-raise: these are user-level auth errors that affect ALL providers
-          raise e
-        rescue => e
-          # Handle all other errors, log and try next provider
-          handle_get_claim_error(provider_class, e)
         end
-        raise Common::Exceptions::RecordNotFound, claim_id
+
+        # No provider_type specified - check if multiple providers exist
+        if configured_providers.length > 1
+          raise Common::Exceptions::ParameterMissing.new('type', detail: 'Provider type is required')
+        end
+
+        # Single provider - no id collision possible
+        provider_class = configured_providers.first
+        provider = provider_class.new(@current_user)
+        provider.get_claim(claim_id)
       end
 
       def log_claim_not_found(provider_class)
@@ -112,6 +113,16 @@ module V0
         )
         StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
                          tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
+      end
+
+      def provider_class_for_type(type)
+        case type.to_s.downcase
+        when 'lighthouse'
+          BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+        # TODO: Add ID collision test when multiple providers are available
+        else
+          raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
+        end
       end
     end
   end
