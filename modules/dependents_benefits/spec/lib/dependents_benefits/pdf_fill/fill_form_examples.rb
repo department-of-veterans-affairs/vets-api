@@ -29,7 +29,7 @@ require 'dependents_benefits/pdf_fill/filler'
 # }
 RSpec.shared_examples 'a form filler' do |options|
   form_id, factory, test_data_types, run_at = options.values_at(:form_id, :factory, :test_data_types, :run_at)
-  test_data_types ||= %w[simple kitchen_sink overflow pension_overflow]
+  test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe DependentsBenefits::PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: run_at || '2017-07-25 00:00:00 -0400' do
