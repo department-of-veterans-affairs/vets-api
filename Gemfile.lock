@@ -102,6 +102,7 @@ PATH
       dry-schema
     claims_evidence_api (0.1.0)
     debts_api (0.1.0)
+      active_storage_validations (~> 3.0.2)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
     dependents_benefits (0.1.0)
@@ -140,17 +141,6 @@ PATH
     veteran (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
-
-GEM
-  remote: https://enterprise.contribsys.com/
-  specs:
-    sidekiq-ent (7.3.4)
-      einhorn (~> 1.0)
-      gserver
-      sidekiq (>= 7.3.7, < 8)
-      sidekiq-pro (>= 7.3.4, < 8)
-    sidekiq-pro (7.3.6)
-      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -204,6 +194,12 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
+    active_storage_validations (3.0.3)
+      activejob (>= 6.1.4)
+      activemodel (>= 6.1.4)
+      activestorage (>= 6.1.4)
+      activesupport (>= 6.1.4)
+      marcel (>= 1.0.3)
     activejob (7.2.3)
       activesupport (= 7.2.3)
       globalid (>= 0.3.6)
@@ -451,7 +447,6 @@ GEM
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
     erb (6.0.1)
     erb (6.0.1-java)
     erubi (1.13.1)
@@ -603,7 +598,6 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -856,6 +850,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-x64-mingw-ucrt)
+    pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -1459,8 +1456,6 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq
-  sidekiq-ent!
-  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
