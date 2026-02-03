@@ -124,7 +124,6 @@ module AccreditedRepresentativePortal
           error_message: message
         )
 
-        Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
         Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
       end
 
