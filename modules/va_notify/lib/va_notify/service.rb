@@ -39,21 +39,15 @@ module VaNotify
         span.set_tag("template_id", args[:template_id])
 
         @template_id = args[:template_id]
-        if Flipper.enabled?(:va_notify_notification_creation)
-          response = with_monitoring do
-            if Flipper.enabled?(:va_notify_request_level_callbacks)
-              notify_client.send_email(append_callback_url(args))
-            else
-              notify_client.send_email(args)
-            end
-          end
-          create_notification(response)
-          response
-        else
-          with_monitoring do
+        response = with_monitoring do
+          if Flipper.enabled?(:va_notify_request_level_callbacks)
+            notify_client.send_email(append_callback_url(args))
+          else
             notify_client.send_email(args)
           end
         end
+        create_notification(response)
+        response
       rescue => e
         handle_error(e)
       end
@@ -62,21 +56,15 @@ module VaNotify
 
     def send_sms(args)
       @template_id = args[:template_id]
-      if Flipper.enabled?(:va_notify_notification_creation)
-        response = with_monitoring do
-          if Flipper.enabled?(:va_notify_request_level_callbacks)
-            notify_client.send_sms(append_callback_url(args))
-          else
-            notify_client.send_sms(args)
-          end
-        end
-        create_notification(response)
-        response
-      else
-        with_monitoring do
+      response = with_monitoring do
+        if Flipper.enabled?(:va_notify_request_level_callbacks)
+          notify_client.send_sms(append_callback_url(args))
+        else
           notify_client.send_sms(args)
         end
       end
+      create_notification(response)
+      response
     rescue => e
       handle_error(e)
     end

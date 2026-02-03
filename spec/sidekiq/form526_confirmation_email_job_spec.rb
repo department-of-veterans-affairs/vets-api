@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
-    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
   end
 
   describe '#perform' do
@@ -62,6 +61,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'sends a confirmation email' do
         requirements = {
+          callback_url: Settings.vanotify.callback_url,
           email_address:,
           template_id: Settings.vanotify
                                .services
