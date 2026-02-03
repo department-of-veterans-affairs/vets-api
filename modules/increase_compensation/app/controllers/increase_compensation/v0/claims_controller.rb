@@ -131,7 +131,6 @@ module IncreaseCompensation
       end
 
       def log_success(claim, user_uuid)
-        StatsD.increment("#{stats_key}.success")
         Rails.logger.info(
           "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
         )
