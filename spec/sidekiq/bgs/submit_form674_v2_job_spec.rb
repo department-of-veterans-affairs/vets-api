@@ -12,7 +12,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
-  let(:client_stub) { instance_double(BGSV2::Form674) }
+  let(:client_stub) { instance_double(BGS::Form674) }
   let(:vet_info) do
     {
       'veteran_information' => {
@@ -51,7 +51,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
 
   context 'success' do
     before do
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
     end
 
@@ -116,7 +116,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674V2Job::Invalid674Claim)
 
       expect do
@@ -128,7 +128,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect do
@@ -139,7 +139,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
 
   context '674 only' do
     it 'sends confirmation email for 674 only' do
-      expect(BGSV2::Form674).to receive(:new).and_return(client_stub)
+      expect(BGS::Form674).to receive(:new).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
