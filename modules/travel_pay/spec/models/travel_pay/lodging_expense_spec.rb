@@ -131,7 +131,7 @@ RSpec.describe TravelPay::LodgingExpense, type: :model do
     end
 
     it 'returns receipt via receipt_association' do
-      fake_receipt = double('Receipt', id: SecureRandom.uuid)
+      fake_receipt = { id: SecureRandom.uuid, file_name: 'test.pdf', content_type: 'application/pdf' }
       lodging_expense.receipt = fake_receipt
       expect(lodging_expense.receipt_association).to eq(fake_receipt)
     end
