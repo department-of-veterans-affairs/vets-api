@@ -70,10 +70,14 @@ RSpec.describe FormIntake do
       end
 
       it 'logs error' do
-        expect(Rails.logger).to receive(:error).with(hash_including(
-                                                       error: /Flipper error/,
-                                                       form_id: '21P-601'
-                                                     ))
+        expect(Rails.logger).to receive(:error).with(
+          'FormIntake feature flag check failed',
+          hash_including(
+            error: 'Flipper error', # Matches the stub above
+            form_id: '21P-601',
+            flag: :form_intake_integration_601
+          )
+        )
         described_class.enabled_for_form?('21P-601', user_account)
       end
 
@@ -109,8 +113,15 @@ RSpec.describe FormIntake do
       end
 
       it 'returns false and logs error' do
-        expect(Rails.logger).to receive(:error).with(hash_including(error: /Redis connection failed/))
-        expect(StatsD).to receive(:increment).with('form_intake.flipper_check_failed', anything)
+        expect(Rails.logger).to receive(:error).with(
+          'FormIntake feature flag check failed',
+          hash_including(
+            error: 'Redis connection failed', # Matches the stub
+            form_id: '21P-601',
+            flag: :form_intake_integration_601
+          )
+        )
+        expect(StatsD).to receive(:increment).with('form_intake.flipper_check_failed', tags: ['form_id:21P-601'])
 
         result = described_class.enabled_for_form?('21P-601', user_account)
         expect(result).to be false

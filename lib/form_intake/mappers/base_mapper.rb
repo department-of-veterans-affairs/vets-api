@@ -44,14 +44,16 @@ module FormIntake
 
       def map_ssn(ssn_parts)
         return nil unless ssn_parts
-        return nil unless ssn_parts['first3'] && ssn_parts['middle2'] && ssn_parts['last4']
+        return nil if ssn_parts['first3'].blank? || ssn_parts['middle2'].blank? || ssn_parts['last4'].blank?
 
         "#{ssn_parts['first3']}#{ssn_parts['middle2']}#{ssn_parts['last4']}"
       end
 
       def map_phone(phone_parts)
         return nil unless phone_parts
-        return nil unless phone_parts['area_code'] && phone_parts['prefix'] && phone_parts['line_number']
+        if phone_parts['area_code'].blank? || phone_parts['prefix'].blank? || phone_parts['line_number'].blank?
+          return nil
+        end
 
         "#{phone_parts['area_code']}#{phone_parts['prefix']}#{phone_parts['line_number']}"
       end

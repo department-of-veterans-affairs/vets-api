@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'form_intake/mappers/base_mapper'
 
 RSpec.describe FormIntake::Mappers::BaseMapper do
   let(:form_submission) { create(:form_submission, form_type: 'TEST', form_data: '{"test": "data"}') }
