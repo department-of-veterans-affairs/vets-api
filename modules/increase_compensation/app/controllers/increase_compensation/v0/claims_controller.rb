@@ -69,11 +69,11 @@ module IncreaseCompensation
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
-        clear_saved_form(claim.form_id)
+        clear_saved_form(claim.form_id[..6])
 
         # submission attempt is created in the method
         pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
-
+        log_success(claim, current_user&.user_account_uuid)
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
@@ -128,6 +128,13 @@ module IncreaseCompensation
       #
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
+      end
+
+      def log_success(claim, user_uuid)
+        StatsD.increment("#{stats_key}.success")
+        Rails.logger.info(
+          "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+        )
       end
     end
   end
