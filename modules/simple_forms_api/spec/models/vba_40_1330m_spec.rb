@@ -106,7 +106,7 @@ RSpec.describe SimpleFormsApi::VBA401330m do
 
       form = SimpleFormsApi::VBA401330m.new(form_data)
       pdf_filler = double('SimpleFormsApi::PdfFiller')
-      
+
       expect(SimpleFormsApi::PdfFiller).to receive(:new).with(
         form_number: 'vba_40_1330m',
         form: instance_of(SimpleFormsApi::VBA401330m),
