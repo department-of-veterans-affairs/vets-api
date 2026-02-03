@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/service'
+require 'bgs/service'
 require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
