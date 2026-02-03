@@ -55,6 +55,32 @@ module MedicalCopays
         raise e
       end
 
+      def list_months(month_count: 6, count: 50)
+        from = month_count.months.ago.utc
+        page = 1
+        all_entries = []
+
+        loop do
+          raw = invoice_service.list(count:, page:)
+          entries = raw['entry'] || []
+          break if entries.empty?
+
+          entries.each do |entry|
+            date_str = entry.dig('resource', 'date')
+            next unless date_str
+
+            invoice_date = Time.iso8601(date_str)
+            return build_invoice_entries('entry' => all_entries) if invoice_date < from
+
+            all_entries << entry
+          end
+
+          page += 1
+        end
+
+        build_invoice_entries('entry' => all_entries)
+      end
+
       private
 
       def record_success(operation)
