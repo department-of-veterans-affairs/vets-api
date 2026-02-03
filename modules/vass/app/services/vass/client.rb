@@ -114,7 +114,7 @@ module Vass
     ##
     # Retrieves veteran information by veteran ID.
     #
-    # Used in the OTC flow where we only have the UUID from the welcome email.
+    # Used in the OTP flow where we only have the UUID from the welcome email.
     # The VASS API returns EDIPI in the response, so it's not required in the request.
     #
     # @param veteran_id [String] Veteran ID (UUID) in VASS system
