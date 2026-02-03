@@ -101,14 +101,94 @@ module UnifiedHealthData
       end
 
       def build_tracking_information(resource)
+        # Extract tracking from MedicationDispense extensions (new format)
         contained_resources = resource['contained'] || []
         dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
 
+        tracking_from_dispense_extensions = dispenses.filter_map do |dispense|
+          extract_tracking_from_dispense_extensions(resource, dispense)
+        end
+
+        return tracking_from_dispense_extensions if tracking_from_dispense_extensions.any?
+
+        # Fallback to MedicationDispense identifiers (legacy format)
         dispenses.filter_map do |dispense|
           extract_tracking_from_dispense(resource, dispense)
         end
       end
 
+      # Extracts tracking information from MedicationDispense.extension array (new format)
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param dispense [Hash] FHIR MedicationDispense resource
+      # @return [Hash, nil] Tracking information hash or nil if no tracking number
+      def extract_tracking_from_dispense_extensions(resource, dispense)
+        dispense_extensions = dispense['extension'] || []
+        
+        # Find the shipping-info extension
+        shipping_extension = dispense_extensions.find do |ext|
+          ext['url'] == 'http://va.gov/fhir/StructureDefinition/shipping-info'
+        end
+        
+        return nil unless shipping_extension
+        
+        nested_extensions = shipping_extension['extension'] || []
+        return nil if nested_extensions.empty?
+        
+        # Extract tracking data using 'url' instead of 'type.text'
+        tracking_number = find_extension_value_by_url(nested_extensions, 'Tracking Number')
+        return nil unless tracking_number # Only create tracking record if we have a tracking number
+
+        prescription_number = find_extension_value_by_url(nested_extensions, 'Prescription Number')
+        carrier = find_extension_value_by_url(nested_extensions, 'Delivery Service')
+        shipped_date = find_extension_value_by_url(nested_extensions, 'Shipped Date')
+        ndc_number = find_extension_value_by_url(nested_extensions, 'NDC Code')
+        prescription_name = find_extension_value_by_url(nested_extensions, 'Prescription Name')
+
+        {
+          prescription_name: prescription_name || extract_prescription_name(resource),
+          prescription_number: prescription_number || extract_prescription_number(resource),
+          ndc_number: ndc_number || extract_ndc_from_resource(resource),
+          prescription_id: resource['id'],
+          tracking_number:,
+          shipped_date:,
+          carrier:,
+          other_prescriptions: []
+        }
+      end
+
+      # Finds an extension value by URL
+      #
+      # @param extensions [Array<Hash>] Array of extension objects
+      # @param url_suffix [String] The URL suffix to search for (e.g., 'Tracking Number')
+      # @return [String, nil] The extension valueString or nil if not found
+      def find_extension_value_by_url(extensions, url_suffix)
+        extension = extensions.find { |ext| ext['url']&.end_with?(url_suffix) }
+        extension&.dig('valueString')
+      end
+
+      # Extracts NDC number from MedicationRequest resource
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String, nil] NDC code or nil if not found
+      def extract_ndc_from_resource(resource)
+        # Try medicationCodeableConcept coding array
+        coding = resource.dig('medicationCodeableConcept', 'coding') || []
+        ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
+        return ndc_coding&.dig('code') if ndc_coding
+
+        # Fallback: check most recent dispense
+        dispense = find_most_recent_medication_dispense(resource)
+        return nil unless dispense
+
+        extract_ndc_number(dispense)
+      end
+
+      # Extracts tracking information from MedicationDispense identifiers (legacy format)
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @param dispense [Hash] FHIR MedicationDispense resource
+      # @return [Hash, nil] Tracking information hash or nil if no tracking number
       def extract_tracking_from_dispense(resource, dispense)
         identifiers = dispense['identifier'] || []
 
