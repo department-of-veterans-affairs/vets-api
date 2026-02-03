@@ -186,6 +186,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
+  mgr.register('0 2 * * *', 'RepresentationManagement::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')
