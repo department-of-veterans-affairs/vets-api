@@ -19,6 +19,12 @@ module Vass
       head :ok
     end
 
+    # Catch-all for unexpected errors to ensure they're logged to Rails.logger
+    # (and therefore Datadog Logs) before the global handler processes them.
+    # This addresses a gap where errors may only go to Sentry if configured.
+    # NOTE: Must be declared FIRST so it runs LAST (rescue_from uses reverse order)
+    rescue_from StandardError, with: :handle_unexpected_error
+
     # Custom rescue_from handlers for VASS-specific errors
     # Note: RateLimitError and VANotify::Error are handled locally in SessionsController
     rescue_from Vass::Errors::AuthenticationError, with: :handle_authentication_error
@@ -33,12 +39,21 @@ module Vass
 
     def handle_authentication_error(exception)
       log_safe_error('authentication_error', exception.class.name)
+      detail = safe_auth_error_message(exception.message)
       render_error_response(
         title: 'Authentication Error',
-        detail: 'Unable to authenticate request',
-        code: 'authentication_error',
+        detail:,
+        code: 'unauthorized',
         status: :unauthorized
       )
+    end
+
+    # Returns the exception message only if it's in the whitelist of safe messages.
+    # Falls back to generic message to prevent accidental PII leakage.
+    def safe_auth_error_message(message)
+      return message if Vass::Errors::AuthenticationError::SAFE_MESSAGES.include?(message)
+
+      'Unable to authenticate request'
     end
 
     def handle_not_found_error(exception)
@@ -99,6 +114,16 @@ module Vass
         code: 'serialization_error',
         status: :internal_server_error
       )
+    end
+
+    def handle_unexpected_error(exception)
+      log_vass_event(
+        action: action_name,
+        level: :error,
+        error_type: 'unexpected_error',
+        error_class: exception.class.name
+      )
+      raise exception # Re-raise so global handler still processes the error
     end
 
     # Logs error information without PHI
