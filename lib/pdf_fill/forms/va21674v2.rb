@@ -1015,6 +1015,10 @@ module PdfFill
       end
       # rubocop:enable Metrics/MethodLength
 
+      # Handles overflows for student earnings and networth information
+      #
+      # @param form_data [Hash] The form data hash to process
+      # @return [void]
       def handle_overflows(form_data)
         student_information = form_data.dig('dependents_application', 'student_information', 0)
         return unless student_information
@@ -1041,6 +1045,12 @@ module PdfFill
 
       private
 
+      # Handles overflow for student current and expected earnings sections
+      #
+      # @param form_data [Hash] The form data hash to process
+      # @param student_earnings [Hash] The student earnings data to check for overflow
+      # @param form_key [String] The key in the form data corresponding to the earnings section
+      # @return [void]
       def handle_earnings_overflow(form_data, student_earnings, form_key)
         expected_earnings_overflow = FORMATTER.check_earnings_overflow(student_earnings)
 
@@ -1066,6 +1076,11 @@ module PdfFill
         end
       end
 
+      # Handles overflow for student networth information section
+      #
+      # @param form_data [Hash] The form data hash to process
+      # @param student_networth [Hash] The student networth data to check for overflow
+      # @return [void]
       def handle_networth_overflow(form_data, student_networth)
         networth_overflow = FORMATTER.check_networth_overflow(student_networth)
 

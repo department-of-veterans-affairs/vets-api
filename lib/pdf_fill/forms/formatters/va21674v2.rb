@@ -10,6 +10,10 @@ module PdfFill
           INCOME_CHAR_LIMIT = 8
           NETWORTH_CHAR_LIMIT = 10
 
+          # Handles phone number formatting for pdf fields
+          #
+          # @param phone_number [String, Integer] The phone number to format
+          # @return [Hash] A hash with area code, first three numbers, and last four numbers
           def expand_phone_number(phone_number)
             phone_number = phone_number.to_s.delete('^0-9')
             {
@@ -19,6 +23,10 @@ module PdfFill
             }
           end
 
+          # Retrieves the program names based on the keys present in the parent object
+          #
+          # @param parent_object [Hash] The parent object containing program keys
+          # @return [String, nil] A comma-separated string of program names or nil if parent_object is blank
           def get_program(parent_object)
             return nil if parent_object.blank?
 
@@ -35,6 +43,10 @@ module PdfFill
           end
 
           # rubocop:disable Metrics/MethodLength
+          # Formats checkboxes and radio buttons in the dependents pdf
+          #
+          # @param dependents_application [Hash] The dependents application data
+          # @return [void]
           def format_checkboxes(dependents_application)
             students_information = dependents_application['student_information']
             if students_information.present?
@@ -73,6 +85,10 @@ module PdfFill
           end
           # rubocop:enable Metrics/MethodLength
 
+          # Formats student earnings for pdf fields
+          #
+          # @param form_data [Hash] The form data hash to process
+          # return [Hash] The modified form data with formatted earnings
           def split_earnings(parent_object)
             return if parent_object.blank?
 
@@ -99,6 +115,10 @@ module PdfFill
             parent_object
           end
 
+          # Formats student networth information for pdf fields
+          #
+          # @param form_data [Hash] The form data hash to process
+          # return [Hash] The modified form data with formatted networth information
           def split_networth_information(parent_object)
             return if parent_object.blank?
 
@@ -123,6 +143,10 @@ module PdfFill
             parent_object
           end
 
+          # Checks for overflow in student current/expected earnings section
+          #
+          # @param student_earnings [Hash] The student earnings data to check for overflow
+          # @return [Hash] A hash indicating which fields have overflowed
           def check_earnings_overflow(student_earnings)
             all_employment, annual_ss, other_annuities, all_other_income = student_earnings.values_at(
               'earnings_from_all_employment',
@@ -138,6 +162,10 @@ module PdfFill
             }
           end
 
+          # Checks for overflow in student networth information section
+          #
+          # @param student_networth [Hash] The student networth data to check for overflow
+          # @return [Hash] A hash indicating which fields have overflowed
           def check_networth_overflow(student_networth)
             savings, securities, real_estate, other_assets, total_value = student_networth.values_at(
               'savings',
@@ -155,7 +183,11 @@ module PdfFill
             }
           end
 
-          # checks the passed in attribute against the limit for the fields passed in.
+          # checks the passed in attribute against the limit for the fields passed in
+          #
+          # @param data [String, Hash, nil] The data to check for overflow
+          # @param size [Integer] The character limit for the field
+          # @return [Boolean] Whether the data exceeds the character limit
           def check_for_single_overflow(data, size)
             return false if data.is_a?(Hash) || data.blank?
 
@@ -163,10 +195,17 @@ module PdfFill
           end
 
           # override from form_helper
+          #
+          # @param value [Boolean] The value to convert to a checkbox state
+          # @return [String, nil] 'On' if true, nil if false
           def select_checkbox(value)
             value ? 'On' : nil
           end
 
+          # override from form_helper
+          #
+          # @param value [Boolean] The value to convert to a radio button state
+          # @return [Integer, nil] 0 if true, nil if false
           def select_radio_button(value)
             value ? 0 : nil
           end
