@@ -74,7 +74,7 @@ module IncreaseCompensation
     end
 
     def self.signature_text_for(form_data)
-      form_data['statement_of_truth_signature'].presence ||
+      form_data['statementOfTruthSignature'].presence ||
         form_data['signature'].presence ||
         veteran_full_name(form_data)
     end
