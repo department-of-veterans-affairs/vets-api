@@ -18,6 +18,7 @@ Vass::Engine.routes.draw do
     # OTC (One-Time Code) authentication endpoints
     post 'request-otc', to: 'sessions#request_otc'
     post 'authenticate-otc', to: 'sessions#authenticate_otc'
+    post 'revoke-token', to: 'sessions#revoke_token'
 
     # Appointment management endpoints
     get 'appointment-availability', to: 'appointments#availability' # Get appointment availability for current cohort
