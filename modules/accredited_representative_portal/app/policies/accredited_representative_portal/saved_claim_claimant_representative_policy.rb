@@ -19,7 +19,7 @@ module AccreditedRepresentativePortal
         ).where(
           accredited_individual_registration_number:
             @user.registration_numbers
-        )
+        ).joins(:saved_claim)
       end
     end
   end
