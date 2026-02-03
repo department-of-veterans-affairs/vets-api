@@ -11,14 +11,14 @@ module UnifiedHealthData
         return [] if records.blank?
 
         filtered = records.select do |record|
-          unless record['resource'] &&
-                 record['resource']['resourceType'] == 'Condition' &&
-                 (record['resource']['onsetDateTime'] || record['resource']['recordedDate'])
+          resource = record['resource']
+          unless resource && resource['resourceType'] == 'Condition' &&
+                 (resource['onsetDateTime'] || resource['recordedDate'])
             next false
           end
           next true unless filter_by_status
 
-          should_include_condition?(record['resource'])
+          should_include_condition?(resource)
         end
         parsed = filtered.map { |record| parse_single_condition(record, filter_by_status:) }
         parsed.compact
