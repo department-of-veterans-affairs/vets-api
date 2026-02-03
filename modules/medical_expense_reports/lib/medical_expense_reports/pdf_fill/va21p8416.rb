@@ -150,9 +150,30 @@ module MedicalExpenseReports
       # @param pdf_path [String] Path to the PDF template
       # @return [Hash, nil] Coordinates hash of the form
       #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
-      def self.signature_overlay_coordinates(pdf_path)
+      def self.signature_overlay_coordinates(pdf_path) # rubocop:disable Metrics/MethodLength
+        if Flipper.enabled?(:acroform_debug_logs)
+          Rails.logger.info("MedicalExpenseReports::PdfFill::Va21p8416 HexaPDF template: #{pdf_path}")
+        end
+
         doc = HexaPDF::Document.open(pdf_path)
-        field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
+        form = doc.acro_form
+        raise 'No AcroForm found in PDF template.' if form.nil?
+
+        if Flipper.enabled?(:acroform_debug_logs)
+          # Find problematic fields
+          problematic_fields = form.each_field.select do |field|
+            field.field_type == :Btn && field[:AP].nil?
+          end
+
+          if problematic_fields.any?
+            Rails.logger.warn("Template #{template_path} has #{problematic_fields.size} fields missing AP")
+            problematic_fields.each do |field|
+              Rails.logger.warn("  - Field: #{field.full_field_name}")
+            end
+          end
+        end
+
+        field = form&.field_by_name(SIGNATURE_FIELD_NAME)
         widget = field&.each_widget&.first
         return unless widget
 

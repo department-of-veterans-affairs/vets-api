@@ -207,23 +207,10 @@ module PdfFill
     #
 
     def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      Rails.logger.info("PdfFill::Filler HexaPDF template: #{template_path}") if Flipper.enabled?(:acroform_debug_logs)
       doc = HexaPDF::Document.open(template_path)
       form = doc.acro_form
       raise 'No AcroForm found in PDF template.' if form.nil?
-
-      if Flipper.enabled?(:acroform_debug_logs)
-        # Find problematic fields
-        problematic_fields = form.each_field.select do |field|
-          field.field_type == :Btn && field[:AP].nil?
-        end
-
-        if problematic_fields.any?
-          Rails.logger.warn("Template #{template_path} has #{problematic_fields.size} fields missing AP")
-          problematic_fields.each do |field|
-            Rails.logger.warn("  - Field: #{field.full_field_name}")
-          end
-        end
-      end
 
       form.fill(hash_data)
       doc.write(output_path)
