@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service_exception'
+require 'lighthouse/benefits_claims/tracked_item_content'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -23,13 +24,20 @@ module BenefitsClaims
     }.freeze
     # rubocop:enable Naming/VariableNumber
 
-    def initialize(icn)
-      @icn = icn
-      if icn.blank?
-        raise ArgumentError, 'no ICN passed in for LH API request.'
+    # Accepts either a user object or an ICN string for backwards compatibility
+    # @param user_or_icn [User, String] A user object with an ICN or an ICN string
+    def initialize(user_or_icn)
+      if user_or_icn.respond_to?(:icn)
+        @user = user_or_icn
+        @icn = user_or_icn.icn
       else
-        super()
+        @user = nil
+        @icn = user_or_icn
       end
+
+      raise ArgumentError, 'no ICN passed in for LH API request.' if @icn.blank?
+
+      super()
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
@@ -363,17 +371,60 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.each do |i|
-        display_name = i['displayName']
-        i['canUploadFile'] =
-          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
-          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
-        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[display_name]
-        i['activityDescription'] = BenefitsClaims::Constants::ACTIVITY_DESCRIPTION_MAPPING[display_name]
-        i['shortDescription'] = BenefitsClaims::Constants::SHORT_DESCRIPTION_MAPPING[display_name]
-        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING[display_name] || []
+      use_content_overrides = Flipper.enabled?(:cst_evidence_requests_content_override, @user)
+
+      tracked_items.each do |item|
+        display_name = item['displayName']
+        description = item['description']
+        # Track tracked items with blank descriptions
+        if description.blank?
+          StatsD.increment(
+            "#{STATSD_KEY_PREFIX}.tracked_item.missing_api_description",
+            tags: ["display_name:#{display_name}"]
+          )
+        end
+
+        if use_content_overrides
+          apply_content_overrides(item, display_name)
+        else
+          apply_legacy_content_overrides(item, display_name)
+        end
       end
+
       tracked_items
+    end
+
+    def apply_legacy_content_overrides(item, display_name)
+      item['canUploadFile'] =
+        BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
+        BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
+      item['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[display_name]
+      item['activityDescription'] = BenefitsClaims::Constants::ACTIVITY_DESCRIPTION_MAPPING[display_name]
+      item['shortDescription'] = BenefitsClaims::Constants::SHORT_DESCRIPTION_MAPPING[display_name]
+      item['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING[display_name] || []
+    end
+
+    def apply_content_overrides(item, display_name)
+      content = BenefitsClaims::TrackedItemContent.find_by_display_name(display_name) # rubocop:disable Rails/DynamicFindBy
+
+      if content
+        # Existing fields (previously from constants.rb, now from TrackedItemContent::CONTENT)
+        item['friendlyName'] = content[:friendlyName]
+        item['activityDescription'] = content[:activityDescription]
+        item['shortDescription'] = content[:shortDescription]
+        item['supportAliases'] = content[:supportAliases]
+        item['canUploadFile'] = content[:canUploadFile]
+        item['longDescription'] = content[:longDescription]
+        item['nextSteps'] = content[:nextSteps]
+        item['noActionNeeded'] = content[:noActionNeeded]
+        item['isDBQ'] = content[:isDBQ]
+        item['isProperNoun'] = content[:isProperNoun]
+        item['isSensitive'] = content[:isSensitive]
+        item['noProvidePrefix'] = content[:noProvidePrefix]
+      else
+        # Fall back to legacy overrides for display names with no content overrides
+        apply_legacy_content_overrides(item, display_name)
+      end
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)
