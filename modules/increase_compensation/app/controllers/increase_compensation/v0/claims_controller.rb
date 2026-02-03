@@ -98,6 +98,7 @@ module IncreaseCompensation
         claim.process_attachments!
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+
         raise e
       end
 
@@ -131,9 +132,14 @@ module IncreaseCompensation
       end
 
       def log_success(claim, user_uuid)
+        StatsD.increment("#{stats_key}.success")
         Rails.logger.info(
           "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
         )
+      end
+
+      def stats_key
+        "api.#{service_tag}"
       end
     end
   end
