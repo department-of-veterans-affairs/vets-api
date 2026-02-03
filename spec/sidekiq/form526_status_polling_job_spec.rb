@@ -176,6 +176,39 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
       end
 
+      describe 'when final_status is false' do
+        let(:in_progress_response) do
+          {
+            'data' => [
+              {
+                'id' => backup_submission_a.backup_submitted_claim_id,
+                'attributes' => {
+                  'guid' => backup_submission_a.backup_submitted_claim_id,
+                  'status' => 'processing',
+                  'final_status' => false
+                }
+              }
+            ]
+          }
+        end
+
+        it 'does not update the submission status' do
+          pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
+          response = double
+          allow(response).to receive(:body).and_return(in_progress_response)
+          allow_any_instance_of(BenefitsIntakeService::Service)
+            .to receive(:get_bulk_status_of_uploads)
+            .with(pending_claim_ids)
+            .and_return(response)
+
+          original_status = backup_submission_a.backup_submitted_claim_status
+
+          Form526StatusPollingJob.new.perform
+
+          expect(backup_submission_a.reload.backup_submitted_claim_status).to eq original_status
+        end
+      end
+
       context 'when a failure type response is returned from the API' do
         context 'when form526_send_backup_submission_polling_failure_email_notice is enabled' do
           let(:timestamp) { Time.now.utc }
