@@ -389,14 +389,15 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         Timecop.freeze(Time.zone.now.floor)
         sign_in(user)
         allow(TermsOfUse::Acceptor).to receive(:new).and_return(acceptor)
+        allow(Identity::CernerProvisionerJob).to receive(:perform_inline).and_call_original
         allow(Identity::CernerProvisioner).to receive(:new).and_return(provisioner)
       end
 
       after { Timecop.return }
 
-      it 'calls provisioner with the correct params' do
+      it 'calls the provisioner job with the correct params' do
         subject
-        expect(Identity::CernerProvisioner).to have_received(:new).with(icn: user.icn, source: :tou)
+        expect(Identity::CernerProvisionerJob).to have_received(:perform_inline).with(user.icn, :tou)
       end
 
       context 'when the acceptance and provisioning is successful' do
@@ -417,7 +418,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         let(:expected_error) { Identity::Errors::CernerProvisionerError }
 
         before do
-          allow(provisioner).to receive(:perform).and_raise(expected_error)
+          allow(Identity::CernerProvisionerJob).to receive(:perform_inline).and_raise(expected_error)
         end
 
         it_behaves_like 'unsuccessful acceptance and provisioning'
@@ -434,7 +435,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       let(:expected_cookie_path) { '/' }
       let(:expected_cookie_expiration) { 2.minutes.from_now }
       let(:expected_log) { '[TermsOfUseAgreementsController] update_provisioning success' }
-      let(:expected_source) { 'tou' }
 
       before do
         allow(Rails.logger).to receive(:info)
@@ -477,16 +477,21 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     context 'when user is authenticated with a session token' do
       let(:mpi_profile) { build(:mpi_profile) }
       let(:user) { build(:user, :loa3, mpi_profile:) }
-      let(:provisioned) { true }
-      let(:provisioner) { instance_double(Identity::CernerProvisioner, perform: provisioned) }
+      let(:provisioner) { instance_double(Identity::CernerProvisioner, perform: true) }
 
       before do
         Timecop.freeze(Time.zone.now.floor)
         sign_in(user)
+        allow(Identity::CernerProvisionerJob).to receive(:perform_inline).and_call_original
         allow(Identity::CernerProvisioner).to receive(:new).and_return(provisioner)
       end
 
       after { Timecop.return }
+
+      it 'calls the provisioner job with the correct params' do
+        subject
+        expect(Identity::CernerProvisionerJob).to have_received(:perform_inline).with(user.icn, :tou)
+      end
 
       context 'when the provisioning is successful' do
         it_behaves_like 'successful provisioning'
@@ -494,12 +499,13 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the provisioning raises an error' do
         let(:expected_status) { :unprocessable_entity }
+        let(:expected_error) { Identity::Errors::CernerProvisionerError }
         let(:expected_log) do
           '[TermsOfUseAgreementsController] update_provisioning error: Identity::Errors::CernerProvisionerError'
         end
 
         before do
-          allow(provisioner).to receive(:perform).and_raise(Identity::Errors::CernerProvisionerError)
+          allow(Identity::CernerProvisionerJob).to receive(:perform_inline).and_raise(expected_error)
         end
 
         it_behaves_like 'unsuccessful provisioning'
