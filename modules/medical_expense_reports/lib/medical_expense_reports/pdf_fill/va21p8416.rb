@@ -156,24 +156,7 @@ module MedicalExpenseReports
         end
 
         doc = HexaPDF::Document.open(pdf_path)
-        form = doc.acro_form
-        raise 'No AcroForm found in PDF template.' if form.nil?
-
-        if Flipper.enabled?(:acroform_debug_logs)
-          # Find problematic fields
-          problematic_fields = form.each_field.select do |field|
-            field.field_type == :Btn && field[:AP].nil?
-          end
-
-          if problematic_fields.any?
-            Rails.logger.warn("Template #{template_path} has #{problematic_fields.size} fields missing AP")
-            problematic_fields.each do |field|
-              Rails.logger.warn("  - Field: #{field.full_field_name}")
-            end
-          end
-        end
-
-        field = form&.field_by_name(SIGNATURE_FIELD_NAME)
+        field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
         widget = field&.each_widget&.first
         return unless widget
 
