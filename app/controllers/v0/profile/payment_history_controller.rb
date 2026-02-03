@@ -13,6 +13,9 @@ module V0
         payment_history = PaymentHistory.new(payments: adapter.payments, return_payments: adapter.return_payments)
         validate_final_response(payment_history)
         render json: PaymentHistorySerializer.new(payment_history)
+      rescue => e
+        log_payment_history_exception(e)
+        raise
       end
 
       private
@@ -198,6 +201,21 @@ module V0
                             })
           StatsD.increment('api.payment_history.response.success')
         end
+      end
+
+      # Exception logging function. For logging exceptions information and tracking exception drop off.
+
+      def log_payment_history_exception(exception)
+        return unless Flipper.enabled?(:payment_history_exception_logging)
+
+        exception_class = exception.class.name
+        Rails.logger.error('Exception occurred in payment history controller', {
+                             user_uuid: current_user&.uuid,
+                             exception_class:,
+                             exception_message: exception.message,
+                             backtrace: exception.backtrace&.first(5)
+                           })
+        StatsD.increment("api.payment_history.exception.#{exception_class.underscore}")
       end
     end
   end
