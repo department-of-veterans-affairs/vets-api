@@ -28,10 +28,15 @@ module RepresentationManagement
     def build_rep(hash_object, individual_type)
       registration_number = hash_object['Registration Num']&.strip
 
-      rep = AccreditedIndividual.find_or_initialize_by(
-        registration_number:,
-        individual_type:
-      )
+      rep =
+        if registration_number.blank?
+          AccreditedIndividual.new(individual_type:)
+        else
+          AccreditedIndividual.find_or_initialize_by(
+            registration_number:,
+            individual_type:
+          )
+        end
 
       sanitized_poa_code = hash_object['POA Code']&.gsub(/\W/, '')&.strip
 

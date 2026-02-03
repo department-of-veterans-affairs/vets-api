@@ -44,6 +44,17 @@ RSpec.describe RepresentationManagement::BaseReloader do
         expect(yielded).to be(true)
         expect(result).to be_a(AccreditedIndividual)
       end
+
+      it 'strips whitespace from registration number for locking and lookup' do
+        payload = { 'Registration Num' => '  A123  ', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123:attorney')
+          .and_yield
+
+        rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
+        expect(rep.registration_number).to eq('A123')
+      end
     end
 
     context 'new record' do
