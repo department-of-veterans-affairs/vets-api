@@ -9,7 +9,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
-  let(:client_stub) { instance_double(BGSV2::Form686c) }
+  let(:client_stub) { instance_double(BGS::Form686c) }
   let(:vet_info) do
     {
       'veteran_information' => {
@@ -57,14 +57,14 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
 
   context 'successfully' do
     it 'calls #submit for 686c submission' do
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
 
       expect { job }.not_to raise_error
     end
 
     it 'sends confirmation email for 686c only' do
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
 
       callback_options = {
@@ -95,7 +95,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
 
     it 'does not send confirmation email for 686c_674 combo' do
       allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
 
       expect(VANotify::EmailJob).not_to receive(:perform_async)
@@ -107,7 +107,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
   context 'Claim is submittable_674' do
     it 'enqueues SubmitForm674Job' do
       allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
       expect(BGS::SubmitForm674V2Job).to receive(:perform_async).with(user.uuid,
                                                                       dependency_claim.id, encrypted_vet_info,
@@ -119,7 +119,7 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
 
   context 'Claim is not submittable_674' do
     it 'does not enqueue SubmitForm674Job' do
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
       expect(BGS::SubmitForm674V2Job).not_to receive(:perform_async)
 
@@ -129,14 +129,14 @@ RSpec.describe BGS::SubmitForm686cV2Job, type: :job do
 
   context 'when submission raises error' do
     it 'raises error' do
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm686cV2Job::Invalid686cClaim)
 
       expect { job }.to raise_error(BGS::SubmitForm686cV2Job::Invalid686cClaim)
     end
 
     it 'filters based on error cause' do
-      expect(BGSV2::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect { job }.to raise_error(Sidekiq::JobRetry::Skip)
