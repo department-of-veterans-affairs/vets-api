@@ -18,6 +18,7 @@ module RepresentationManagement
 
       AccreditedIndividual.with_advisory_lock(lock_key) do
         rep = build_rep(hash_object, individual_type)
+
         return yield(rep) if block_given?
 
         rep

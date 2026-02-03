@@ -226,7 +226,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         expect(rep).to eq(existing)
         expect(rep.poa_code).to eq('KEP') # unchanged
       end
- end
+    end
 
     context 'edge cases' do
       it 'handles missing middle initial without error and does not set it for new record' do
