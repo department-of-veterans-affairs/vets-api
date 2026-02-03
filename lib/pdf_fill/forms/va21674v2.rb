@@ -1019,55 +1019,48 @@ module PdfFill
         student_information = form_data.dig('dependents_application', 'student_information', 0)
         return unless student_information
 
-        student_expected_earnings = student_information['student_expected_earnings_next_year']
-        student_earnings = student_information['student_earnings_from_school_year']
-        student_networth = student_information['student_networth_information']
+        expected_earnings_key = 'student_expected_earnings_next_year'
+        earnings_key = 'student_earnings_from_school_year'
+        networth_key = 'student_networth_information'
+
+        student_expected_earnings = student_information[expected_earnings_key]
+        student_earnings = student_information[earnings_key]
+        student_networth = student_information[networth_key]
 
         # Check for overflows and handle each section
-        handle_expected_earnings_overflow(form_data, student_expected_earnings) if student_expected_earnings.present?
-        handle_earnings_overflow(form_data, student_earnings) if student_earnings.present?
+        if student_expected_earnings.present?
+          handle_earnings_overflow(form_data, student_expected_earnings,
+                                   expected_earnings_key)
+        end
+        if student_earnings.present?
+          handle_earnings_overflow(form_data, student_earnings,
+                                   earnings_key)
+        end
         handle_networth_overflow(form_data, student_networth) if student_networth.present?
       end
 
       private
 
-      def handle_expected_earnings_overflow(form_data, student_expected_earnings)
-        expected_earnings_overflow = FORMATTER.check_expected_earnings_overflow(student_expected_earnings)
+      def handle_earnings_overflow(form_data, student_earnings, form_key)
+        expected_earnings_overflow = FORMATTER.check_earnings_overflow(student_earnings)
 
         # If any field overflows, move all fields to overflow page and clear originals
         if expected_earnings_overflow.values.any?
-          form_data['student_expected_earnings_next_year_overflow'] ||= {}
-
-          %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
-             all_other_income].each do |field|
-            original_value = student_expected_earnings[field]
-            if original_value.present?
-              # Copy original string value to overflow
-              form_data['student_expected_earnings_next_year_overflow'][field] = original_value
-              # Clear the original field
-              form_data['dependents_application']['student_information'][0]['student_expected_earnings_next_year'][field] =
-                nil
-            end
-          end
-        end
-      end
-
-      def handle_earnings_overflow(form_data, student_earnings)
-        earnings_overflow = FORMATTER.check_earnings_overflow(student_earnings)
-
-        # If any field overflows, move all fields to overflow page and clear originals
-        if earnings_overflow.values.any?
-          form_data['student_earnings_from_school_year_overflow'] ||= {}
+          form_data["#{form_key}_overflow"] ||= {}
 
           %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
              all_other_income].each do |field|
             original_value = student_earnings[field]
             if original_value.present?
               # Copy original string value to overflow
-              form_data['student_earnings_from_school_year_overflow'][field] = original_value
-              # Clear the original field
-              form_data['dependents_application']['student_information'][0]['student_earnings_from_school_year'][field] =
-                nil
+              form_data["#{form_key}_overflow"][field] = original_value
+              # Set original field to 'See add'l Info' text similar to rest of overflow handling on 686c-674
+              form_data['dependents_application']['student_information'][0][form_key][field] =
+                {
+                  'first' => 'Se',
+                  'second' => 'e a',
+                  'third' => 'dd'
+                }
             end
           end
         end
@@ -1085,8 +1078,13 @@ module PdfFill
             if original_value.present?
               # Copy original string value to overflow
               form_data['student_networth_information_overflow'][field] = original_value
-              # Clear the original field
-              form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = nil
+              # Set original field to 'See add'l Info' text similar to rest of overflow handling on 686c-674
+              form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = {
+                'first' => 'S',
+                'second' => 'ee ',
+                'third' => 'add',
+                'last' => "'l"
+              }
             end
           end
         end

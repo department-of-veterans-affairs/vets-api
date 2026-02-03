@@ -123,21 +123,6 @@ module PdfFill
             parent_object
           end
 
-          def check_expected_earnings_overflow(student_expected_earnings)
-            expected_all_employment, expected_annual_ss, expected_other_annuities, expected_all_other_income = student_expected_earnings.values_at(
-              'earnings_from_all_employment',
-              'annual_social_security_payments',
-              'other_annuities_income',
-              'all_other_income'
-            )
-            {
-              earnings_from_all_employment: check_for_single_overflow(expected_all_employment, INCOME_CHAR_LIMIT),
-              annual_social_security_payments: check_for_single_overflow(expected_annual_ss, INCOME_CHAR_LIMIT),
-              other_annuities_income: check_for_single_overflow(expected_other_annuities, INCOME_CHAR_LIMIT),
-              all_other_income: check_for_single_overflow(expected_all_other_income, INCOME_CHAR_LIMIT)
-            }
-          end
-
           def check_earnings_overflow(student_earnings)
             all_employment, annual_ss, other_annuities, all_other_income = student_earnings.values_at(
               'earnings_from_all_employment',
@@ -175,22 +160,6 @@ module PdfFill
             return false if data.is_a?(Hash) || data.blank?
 
             data.size > size
-          end
-
-          def clear_section(overflow_hash, parent_key, form_data)
-            # Initialize the overflow section if it doesn't exist
-            form_data["#{parent_key}_overflow"] ||= {}
-
-            overflow_hash.each_key do |child_key|
-              next unless overflow_hash[child_key]
-
-              # Copy original data to overflow section first
-              original_value = form_data.dig('dependents_application', 'student_information', 0, parent_key, child_key)
-              form_data["#{parent_key}_overflow"][child_key] = original_value
-
-              # Then clear the original section by setting to nil
-              form_data['dependents_application']['student_information'][0][parent_key][child_key] = nil
-            end
           end
 
           # override from form_helper
