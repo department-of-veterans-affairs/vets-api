@@ -22,6 +22,7 @@ module BenefitsClaims
 
         def self.serialize_claim_attributes(dto)
           attributes = {
+            'provider' => dto.provider,
             'baseEndProductCode' => dto.base_end_product_code,
             'claimDate' => dto.claim_date,
             'claimType' => dto.claim_type,
