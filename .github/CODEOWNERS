@@ -1843,6 +1843,7 @@ spec/rakelib/piilog_repl/piilog_helpers_spec.rb @department-of-veterans-affairs/
 spec/rakelib/secure_messaging_spec.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/rakelib/user_credential_spec.rb @department-of-veterans-affairs/octo-identity
 spec/rakelib/vet360_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+spec/requests/admin_controller_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/authentication/standard_authentication_spec.rb @department-of-veterans-affairs/octo-identity
 spec/requests/breakers_integration_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/connected_applications_request_spec.rb @department-of-veterans-affairs/lighthouse-pivot
