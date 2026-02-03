@@ -29,9 +29,8 @@ module UnifiedHealthData
         filtered = records.select do |record|
           resource = record['resource']
           next false unless resource && resource['resourceType'] == 'AllergyIntolerance'
-          next true unless filter_by_status
 
-          should_include_allergy?(resource)
+          should_include_allergy?(resource, filter_by_status:)
         end
         parsed = filtered.map { |record| parse_single_allergy(record, filter_by_status: false) }
         parsed.compact
@@ -48,8 +47,8 @@ module UnifiedHealthData
 
         resource = record['resource']
 
-        # Filter out allergies without active clinical status if filtering is enabled
-        return nil if filter_by_status && !should_include_allergy?(resource)
+        # Always filter out allergies without a name; filter by active status only when enabled
+        return nil unless should_include_allergy?(resource, filter_by_status:)
 
         date_value = resource['onsetDateTime'] || resource['recordedDate'] || nil
 
@@ -70,14 +69,18 @@ module UnifiedHealthData
 
       private
 
-      # Determines if an allergy should be included based on its clinical status and name
-      # Only includes allergies with clinicalStatus of 'active' and a non-empty name
-      # Allergies with no clinicalStatus, non-active status (e.g., resolved), or missing name are excluded
+      # Determines if an allergy should be included based on its name and optionally clinical status
+      # Always excludes allergies without a name
+      # When filter_by_status is true, also excludes allergies without 'active' clinicalStatus
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
+      # @param filter_by_status [Boolean] When true, also checks for active clinical status
       # @return [Boolean] true if the allergy should be included
-      def should_include_allergy?(resource)
-        active_status?(resource) && name?(resource)
+      def should_include_allergy?(resource, filter_by_status: true)
+        return false unless name?(resource)
+        return false if filter_by_status && !active_status?(resource)
+
+        true
       end
 
       # Checks if the allergy has an active clinical status
