@@ -19,14 +19,12 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     it 'returns the expected fields for vista condition with all fields' do
       vista_records = conditions_sample_response['vista']['entry']
       parsed_conditions = adapter.parse(vista_records)
-
-      expect(vista_records.size).to be > parsed_conditions.size
-      expect(parsed_conditions.size).to eq(13)
+      expect(parsed_conditions.size).to eq(16)
 
       expect(parsed_conditions).to all(have_attributes(
                                          id: be_a(String),
                                          name: be_a(String),
-                                         date: be_a(String),
+                                         date: be_a(String).or(be_nil),
                                          provider: be_a(String),
                                          facility: be_a(String),
                                          comments: be_an(Array)
@@ -42,7 +40,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       expect(parsed_conditions).to all(have_attributes(
                                          id: be_a(String),
                                          name: be_a(String),
-                                         date: be_a(String),
+                                         date: be_a(String).or(be_nil),
                                          provider: be_a(String),
                                          facility: be_a(String),
                                          comments: be_an(Array)
@@ -84,28 +82,8 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
     end
   end
 
-  describe 'filtering by clinical status and date requirements' do
+  describe 'filtering by clinical status' do
     context 'with filtering enabled (default)' do
-      it 'filters out conditions without onsetDateTime or recordedDate' do
-        records = [
-          {
-            'resource' => {
-              'resourceType' => 'Condition',
-              'id' => '1',
-              'clinicalStatus' => {
-                'coding' => [{ 'code' => 'active' }]
-              },
-              'code' => {
-                'coding' => [{ 'display' => 'Test Condition' }]
-              }
-              # Missing both onsetDateTime and recordedDate
-            }
-          }
-        ]
-
-        expect(adapter.parse(records)).to eq([])
-      end
-
       it 'filters out conditions with non-active clinical status' do
         records = [
           {
@@ -144,7 +122,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(adapter.parse(records)).to eq([])
       end
 
-      it 'includes conditions with active clinical status and onsetDateTime' do
+      it 'includes conditions with active clinical status' do
         records = [
           {
             'resource' => {
@@ -166,30 +144,6 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result.first.name).to eq('Active Condition')
         expect(result.first.date).to eq('2024-01-15')
         expect(result.first.id).to eq('1')
-      end
-
-      it 'includes conditions with active clinical status and recordedDate' do
-        records = [
-          {
-            'resource' => {
-              'resourceType' => 'Condition',
-              'id' => '2',
-              'recordedDate' => '2024-02-20',
-              'clinicalStatus' => {
-                'coding' => [{ 'code' => 'active' }]
-              },
-              'code' => {
-                'coding' => [{ 'display' => 'Recorded Condition' }]
-              }
-            }
-          }
-        ]
-
-        result = adapter.parse(records)
-        expect(result.length).to eq(1)
-        expect(result.first.name).to eq('Recorded Condition')
-        expect(result.first.date).to eq('2024-02-20')
-        expect(result.first.id).to eq('2')
       end
 
       it 'filters mixed active and inactive conditions' do
@@ -258,9 +212,9 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         ]
 
         result = adapter.parse(records)
-        expect(result.length).to eq(2)
-        expect(result.map(&:name)).to contain_exactly('Active Condition', 'Another Active Condition')
-        expect(result.map(&:date)).to all(be_present)
+        expect(result.length).to eq(3)
+        expect(result.map(&:name)).to contain_exactly('Active Condition', 'Another Active Condition',
+                                                      'No Date Condition')
       end
     end
 
@@ -300,47 +254,9 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result.map(&:name)).to contain_exactly('Resolved Condition', 'Active Condition')
         expect(result.map(&:date)).to all(be_present)
       end
-
-      it 'still requires a valid date even when filter_by_status is false' do
-        records = [
-          {
-            'resource' => {
-              'resourceType' => 'Condition',
-              'id' => '1',
-              'clinicalStatus' => {
-                'coding' => [{ 'code' => 'active' }]
-              },
-              'code' => {
-                'coding' => [{ 'display' => 'No Date Condition' }]
-              }
-              # Missing both onsetDateTime and recordedDate
-            }
-          }
-        ]
-
-        result = adapter.parse(records, filter_by_status: false)
-        expect(result).to eq([])
-      end
     end
 
     context 'with parse_single_condition' do
-      it 'returns nil for condition without date' do
-        record = {
-          'resource' => {
-            'resourceType' => 'Condition',
-            'id' => '1',
-            'clinicalStatus' => {
-              'coding' => [{ 'code' => 'active' }]
-            },
-            'code' => {
-              'coding' => [{ 'display' => 'Test' }]
-            }
-          }
-        }
-
-        expect(adapter.parse_single_condition(record)).to be_nil
-      end
-
       it 'returns nil for condition with inactive status' do
         record = {
           'resource' => {
@@ -359,7 +275,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(adapter.parse_single_condition(record)).to be_nil
       end
 
-      it 'returns condition object for active condition with date' do
+      it 'returns condition object for active condition' do
         record = {
           'resource' => {
             'resourceType' => 'Condition',

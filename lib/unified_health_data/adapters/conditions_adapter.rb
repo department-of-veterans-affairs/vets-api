@@ -12,10 +12,7 @@ module UnifiedHealthData
 
         filtered = records.select do |record|
           resource = record['resource']
-          unless resource && resource['resourceType'] == 'Condition' &&
-                 (resource['onsetDateTime'] || resource['recordedDate'])
-            next false
-          end
+          next false unless resource && resource['resourceType'] == 'Condition'
           next true unless filter_by_status
 
           should_include_condition?(resource)
@@ -31,7 +28,7 @@ module UnifiedHealthData
         date_value = resource['onsetDateTime'] || resource['recordedDate']
 
         # Filter out conditions without active clinical status or a date if filtering is enabled
-        return nil if !date_value || (filter_by_status && !should_include_condition?(resource))
+        return nil if filter_by_status && !should_include_condition?(resource)
 
         UnifiedHealthData::Condition.new(
           id: resource['id'],

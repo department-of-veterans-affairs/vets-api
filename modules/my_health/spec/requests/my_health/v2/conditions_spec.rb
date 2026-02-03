@@ -41,14 +41,13 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
           'comments'
         )
 
-        # There are 4 conditions in the cassette, but 2 are filtered out:
+        # There are 4 conditions in the cassette, but 1 is filtered out:
         # - 1 with status 'entered-in-error'
-        # - 1 with no date
-        expect(json_response['data'].size).to eq(2)
+        expect(json_response['data'].size).to eq(3)
         # status of entered-in-error should be excluded from results
         expect(json_response['data'].find { |c| c['id'] == 'p1534246681' }).to be_nil
-        # condition with no date should be excluded from results
-        expect(json_response['data'].find { |c| c['id'] == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }).to be_nil
+        # condition with no date should be included from results
+        expect(json_response['data'].find { |c| c['id'] == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }).to be_present
 
         # Verify event logging was called
         expect(UniqueUserEvents).to have_received(:log_events).with(

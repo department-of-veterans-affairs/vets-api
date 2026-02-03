@@ -1871,7 +1871,7 @@ describe UnifiedHealthData::Service, type: :service do
       {
         'id' => be_a(String),
         'name' => be_a(String),
-        'date' => be_a(String),
+        'date' => be_a(String).or(be_nil),
         'provider' => be_a(String).or(be_nil),
         'facility' => be_a(String).or(be_nil),
         'comments' => be_an(Array).or(be_nil)
@@ -1892,7 +1892,7 @@ describe UnifiedHealthData::Service, type: :service do
 
     it 'returns conditions from both VistA and Oracle Health' do
       conditions = service.get_conditions
-      expect(conditions.size).to eq(15)
+      expect(conditions.size).to eq(18)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
     end
@@ -1912,7 +1912,7 @@ describe UnifiedHealthData::Service, type: :service do
 
     it 'returns conditions from both VistA and Oracle Health with real sample data' do
       conditions = service.get_conditions
-      expect(conditions.size).to eq(15)
+      expect(conditions.size).to eq(18)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
 
@@ -1970,7 +1970,7 @@ describe UnifiedHealthData::Service, type: :service do
                     ))
 
       conditions = service.get_conditions
-      expect(conditions.size).to eq(13)
+      expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
