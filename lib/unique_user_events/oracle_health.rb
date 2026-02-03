@@ -18,7 +18,6 @@ module UniqueUserEvents
     # Uses EventRegistry constants to avoid string duplication
     TRACKED_EVENTS = [
       EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-      EventRegistry::APPOINTMENTS_ACCESSED,
       EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED,
       EventRegistry::MEDICAL_RECORDS_VACCINES_ACCESSED,
       EventRegistry::MEDICAL_RECORDS_LABS_ACCESSED,
