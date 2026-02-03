@@ -150,7 +150,7 @@ module MedicalExpenseReports
       # @param pdf_path [String] Path to the PDF template
       # @return [Hash, nil] Coordinates hash of the form
       #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
-      def self.signature_overlay_coordinates(pdf_path) # rubocop:disable Metrics/MethodLength
+      def self.signature_overlay_coordinates(pdf_path)
         if Flipper.enabled?(:acroform_debug_logs)
           Rails.logger.info("MedicalExpenseReports::PdfFill::Va21p8416 HexaPDF template: #{pdf_path}")
         end
