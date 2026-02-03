@@ -1446,7 +1446,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
     t.uuid "primary_user_uuid", null: false
     t.bigint "primary_in_progress_form_id"
     t.datetime "primary_completed_at"
-    t.string "secondary_email", null: false
+    t.string "secondary_email"
     t.uuid "secondary_user_uuid"
     t.bigint "secondary_in_progress_form_id"
     t.datetime "secondary_completed_at"

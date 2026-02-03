@@ -10,7 +10,7 @@ class CreateMultiPartyFormSubmissions < ActiveRecord::Migration[7.1]
       t.bigint :primary_in_progress_form_id
       t.datetime :primary_completed_at
 
-      t.string :secondary_email, null: false
+      t.string :secondary_email
       t.uuid :secondary_user_uuid
       t.bigint :secondary_in_progress_form_id
       t.datetime :secondary_completed_at
