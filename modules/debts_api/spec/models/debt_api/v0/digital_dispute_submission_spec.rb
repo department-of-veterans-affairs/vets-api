@@ -13,6 +13,82 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
   end
 
+  describe 'file validations' do
+    subject(:submission) { create(:debts_api_digital_dispute_submission) }
+
+    context 'when no files attached' do
+      before { submission.files.purge }
+
+      it { is_expected.not_to be_valid }
+
+      it 'has appropriate error' do
+        submission.valid?
+        expect(submission.errors[:files]).to include(/at least one file is required/)
+      end
+    end
+
+    context 'when file is too large' do
+      before do
+        submission.files.purge
+        large_content = '%PDF-' + ('x' * (2 * 1024 * 1024 - 5)) # 2MB with PDF header
+        submission.files.attach(
+          io: StringIO.new(large_content),
+          filename: 'large.pdf',
+          content_type: 'application/pdf'
+        )
+      end
+
+      it { is_expected.not_to be_valid }
+
+      it 'has size error' do
+        submission.valid?
+        expect(submission.errors[:files]).to include(/too large/)
+      end
+    end
+
+    context 'when file is not a PDF' do
+      before do
+        submission.files.purge
+        submission.files.attach(
+          io: StringIO.new('plain text content'),
+          filename: 'document.txt',
+          content_type: 'text/plain'
+        )
+      end
+
+      it { is_expected.not_to be_valid }
+
+      it 'has content type error' do
+        submission.valid?
+        expect(submission.errors[:files]).to include(/must be a PDF/)
+      end
+    end
+
+    context 'when file is valid' do
+      it { is_expected.to be_valid }
+    end
+
+    context 'when content-type is spoofed' do
+      before do
+        submission.files.purge
+        submission.files.attach(
+          io: StringIO.new("MZ\x90\x00"),
+          filename: 'virus.exe',
+          content_type: 'application/pdf'
+        )
+      end
+
+      it 'rejects the file' do
+        expect(submission).not_to be_valid
+      end
+
+      it 'has PDF-related error' do
+        submission.valid?
+        expect(submission.errors[:files]).to include(match(/must be a PDF|valid PDF|could not be validated/))
+      end
+    end
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:user_account).optional(false) }
 

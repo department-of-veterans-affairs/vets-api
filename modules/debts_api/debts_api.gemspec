@@ -17,4 +17,6 @@ Gem::Specification.new do |spec|
   spec.license     = 'CC0-1.0'
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
+
+  spec.add_dependency 'active_storage_validations', '~> 3.0.2'
 end
