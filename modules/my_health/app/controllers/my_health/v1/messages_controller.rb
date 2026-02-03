@@ -187,10 +187,7 @@ module MyHealth
       #
       # @return [String, nil] The station number if provided, or nil if not provided.
       def recipient_facility_id
-        station_number = message_params[:station_number]
-        return nil if station_number.blank?
-
-        station_number.to_s
+        message_params[:station_number]&.to_s&.presence
       end
     end
   end
