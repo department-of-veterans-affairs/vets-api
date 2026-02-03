@@ -156,7 +156,7 @@ module SurvivorsBenefits
 
       def self.signature_overlay_coordinates_for(pdf_path)
         if Flipper.enabled?(:acroform_debug_logs)
-          Rails.logger.info("SurivorsBenefits::PdfFill::Va21p534ez HexaPDF template: #{pdf_path}")
+          Rails.logger.info("SurvivorsBenefits::PdfFill::Va21p534ez HexaPDF template: #{pdf_path}")
         end
 
         HexaPDF::Document.open(pdf_path) do |doc|
