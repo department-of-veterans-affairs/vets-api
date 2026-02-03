@@ -19,9 +19,12 @@ module UnifiedHealthData
 
       # Parses allergy records from FHIR AllergyIntolerance resources
       #
+      # Always excludes allergies without a name (from code.coding[0].display or code.text).
+      # When filter_by_status is true, also excludes allergies without 'active' clinicalStatus.
+      #
       # @param records [Array] Array of FHIR entry records
-      # @param filter_by_status [Boolean] When true, only includes allergies with 'active'
-      #   clinical status. Defaults to true.
+      # @param filter_by_status [Boolean] When true, also requires 'active' clinical status.
+      #   Defaults to true.
       # @return [Array<UnifiedHealthData::Allergy>] Array of parsed allergy objects
       def parse(records, filter_by_status: true)
         return [] if records.blank?
@@ -29,8 +32,9 @@ module UnifiedHealthData
         filtered = records.select do |record|
           resource = record['resource']
           next false unless resource && resource['resourceType'] == 'AllergyIntolerance'
+          next true unless filter_by_status
 
-          should_include_allergy?(resource, filter_by_status:)
+          active_status?(resource)
         end
         parsed = filtered.map { |record| parse_single_allergy(record, filter_by_status: false) }
         parsed.compact
@@ -38,23 +42,30 @@ module UnifiedHealthData
 
       # Parses a single allergy record from a FHIR AllergyIntolerance resource
       #
+      # Always returns nil for allergies without a name (from code.coding[0].display or code.text).
+      # When filter_by_status is true, also returns nil for allergies without 'active' clinicalStatus.
+      #
       # @param record [Hash] A single FHIR entry record
-      # @param filter_by_status [Boolean] When true, returns nil for allergies without 'active'
-      #   clinical status. Defaults to true.
+      # @param filter_by_status [Boolean] When true, also requires 'active' clinical status.
+      #   Defaults to true.
       # @return [UnifiedHealthData::Allergy, nil] Parsed allergy object or nil if filtered/invalid
       def parse_single_allergy(record, filter_by_status: true)
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
 
-        # Always filter out allergies without a name; filter by active status only when enabled
-        return nil unless should_include_allergy?(resource, filter_by_status:)
+        # Filter by active status if enabled
+        return nil if filter_by_status && !active_status?(resource)
+
+        # Extract name and skip if blank
+        name = extract_name(resource)
+        return nil if name.blank?
 
         date_value = resource['onsetDateTime'] || resource['recordedDate'] || nil
 
         UnifiedHealthData::Allergy.new(
           id: resource['id'],
-          name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
+          name:,
           # VistA samples have neither; OH has both but each are different
           date: date_value,
           sort_date: normalize_date_for_sorting(date_value),
@@ -69,20 +80,6 @@ module UnifiedHealthData
 
       private
 
-      # Determines if an allergy should be included based on its name and optionally clinical status
-      # Always excludes allergies without a name
-      # When filter_by_status is true, also excludes allergies without 'active' clinicalStatus
-      #
-      # @param resource [Hash] FHIR AllergyIntolerance resource
-      # @param filter_by_status [Boolean] When true, also checks for active clinical status
-      # @return [Boolean] true if the allergy should be included
-      def should_include_allergy?(resource, filter_by_status: true)
-        return false unless name?(resource)
-        return false if filter_by_status && !active_status?(resource)
-
-        true
-      end
-
       # Checks if the allergy has an active clinical status
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
@@ -92,13 +89,12 @@ module UnifiedHealthData
         clinical_status == 'active'
       end
 
-      # Checks if the allergy has a name (from code.coding[0].display or code.text)
+      # Extracts the allergy name from code.coding[0].display or code.text
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
-      # @return [Boolean] true if the allergy has a non-empty name
-      def name?(resource)
-        name = resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text')
-        name.present?
+      # @return [String, nil] the allergy name or nil if not present
+      def extract_name(resource)
+        resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text')
       end
 
       def extract_reactions(resource)
