@@ -3,12 +3,49 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::BaseReloader do
-  let(:reloader) { RepresentationManagement::BaseReloader.new }
+  let(:reloader) { described_class.new }
   let(:invididual_type_attorney) { AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY }
   let(:invididual_type_claim)    { AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT }
   let(:invididual_type_representative) { AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
 
   describe '#find_or_initialize_by_id' do
+    context 'locking' do
+      it 'wraps the lookup in an advisory lock keyed by registration number when present' do
+        payload = { 'Registration Num' => 'A123', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123')
+          .and_yield
+
+        reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+      end
+
+      it 'does not lock when registration number is blank' do
+        payload = { 'Registration Num' => '  ', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).not_to receive(:with_advisory_lock)
+
+        reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+      end
+
+      it 'yields within the advisory lock when a block is given' do
+        payload = { 'Registration Num' => 'A123', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123')
+          .and_yield
+
+        yielded = false
+        result = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney) do |rep|
+          yielded = true
+          rep
+        end
+
+        expect(yielded).to be(true)
+        expect(result).to be_a(AccreditedIndividual)
+      end
+    end
+
     context 'new record' do
       let(:payload) do
         {
@@ -196,7 +233,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         expect(out.phone).to eq('555-1111')
         expect(out.city).to eq('Kept City')
         expect(out.state_code).to eq('KS')
-        expect(out.zip_code).to   eq('66002')
+        expect(out.zip_code).to eq('66002')
       end
 
       it 'does not overwrite with blank payload values' do
@@ -212,7 +249,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         expect(out.phone).to eq('555-1111')
         expect(out.city).to eq('Kept City')
         expect(out.state_code).to eq('KS')
-        expect(out.zip_code).to   eq('66002')
+        expect(out.zip_code).to eq('66002')
       end
     end
 
@@ -330,28 +367,6 @@ RSpec.describe RepresentationManagement::BaseReloader do
       expect(rows.first['First Name']).to include('Jún')
       expect(rows.first['Last Name']).to include('rk')
       expect(rows.first['POA Code']).to eq('9G-B')
-    end
-  end
-
-  describe '#with_registration_lock' do
-    it 'wraps the block in an advisory lock keyed by registration number' do
-      payload = { 'Registration Num' => 'A123' }
-
-      expect(AccreditedIndividual).to receive(:with_advisory_lock)
-        .with('accredited_individual:A123')
-        .and_yield
-
-      result = reloader.send(:with_registration_lock, payload) { :ok }
-      expect(result).to eq(:ok)
-    end
-
-    it 'yields without locking when registration number is blank' do
-      payload = { 'Registration Num' => '  ' }
-
-      expect(AccreditedIndividual).not_to receive(:with_advisory_lock)
-
-      result = reloader.send(:with_registration_lock, payload) { :ok }
-      expect(result).to eq(:ok)
     end
   end
 end

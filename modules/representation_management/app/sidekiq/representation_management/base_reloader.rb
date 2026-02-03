@@ -9,14 +9,21 @@ module RepresentationManagement
 
     private
 
-    def with_registration_lock(hash_object, &)
-      reg = hash_object['Registration Num']
-      return yield if reg.blank?
+    def find_or_initialize_by_id(hash_object, individual_type)
+      registration_number = hash_object['Registration Num']
 
-      AccreditedIndividual.with_advisory_lock("accredited_individual:#{reg}", &)
+      return build_rep(hash_object, individual_type) if registration_number.blank?
+
+      AccreditedIndividual.with_advisory_lock("accredited_individual:#{registration_number}") do
+        rep = build_rep(hash_object, individual_type)
+
+        return yield(rep) if block_given?
+
+        rep
+      end
     end
 
-    def find_or_initialize_by_id(hash_object, individual_type)
+    def build_rep(hash_object, individual_type)
       rep = AccreditedIndividual.find_or_initialize_by(
         registration_number: hash_object['Registration Num']
       )
@@ -28,12 +35,15 @@ module RepresentationManagement
       rep.phone = hash_object['Phone'] if rep.phone.blank?
       rep.first_name = hash_object['First Name'] if rep.first_name.blank?
       rep.last_name = hash_object['Last Name']&.strip if rep.last_name.blank?
+
       if !hash_object['Middle Initial'].nil? && rep.middle_initial.blank?
         rep.middle_initial = hash_object['Middle Initial']
       end
+
       rep.city = hash_object['City'] if rep.city.blank?
       rep.state_code = hash_object['State']&.gsub(/\W/, '') if rep.state_code.blank?
       rep.zip_code = hash_object['Zip']&.gsub(/\W/, '') if rep.zip_code.blank?
+
       rep
     end
 
