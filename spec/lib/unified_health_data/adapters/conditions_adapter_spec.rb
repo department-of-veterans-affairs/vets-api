@@ -252,7 +252,6 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         result = adapter.parse(records, filter_by_status: false)
         expect(result.length).to eq(2)
         expect(result.map(&:name)).to contain_exactly('Resolved Condition', 'Active Condition')
-        expect(result.map(&:date)).to all(be_present)
       end
     end
 

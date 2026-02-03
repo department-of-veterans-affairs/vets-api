@@ -27,7 +27,7 @@ module UnifiedHealthData
         resource = record['resource']
         date_value = resource['onsetDateTime'] || resource['recordedDate']
 
-        # Filter out conditions without active clinical status or a date if filtering is enabled
+        # Filter out conditions without active clinical status if filtering is enabled
         return nil if filter_by_status && !should_include_condition?(resource)
 
         UnifiedHealthData::Condition.new(
