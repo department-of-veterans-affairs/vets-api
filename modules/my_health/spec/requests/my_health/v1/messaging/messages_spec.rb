@@ -442,6 +442,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
       end
+
+      it 'responds to GET #thread with canReply' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_full') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+        end
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+        expect(data).to be_an(Array)
+        expect(data[0]['attributes']['can_reply']).to be(false)
+        expect(data[1]['attributes']['can_reply']).to be(true)
+        expect(data[2]['attributes']['can_reply']).to be(true)
+      end
     end
 
     describe '#destroy' do

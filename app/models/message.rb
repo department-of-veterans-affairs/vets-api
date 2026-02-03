@@ -74,6 +74,7 @@ class Message
   attribute :is_oh_message, Bool, default: false
   attribute :metadata, Hash, default: -> { {} }
   attribute :is_large_attachment_upload, Bool, default: false
+  attribute :reply_disabled, Bool, default: false
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, ActionDispatch::Http::UploadedFile, array: true

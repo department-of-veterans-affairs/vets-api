@@ -95,6 +95,9 @@
             },
             "isOhMessage": {
               "type": "boolean"
+            },
+            "canReply": {
+              "type": "boolean" 
             }
           }
         },
