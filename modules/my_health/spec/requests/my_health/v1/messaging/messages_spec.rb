@@ -159,6 +159,23 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
         end
 
+        it 'without station_number omits facility tracking' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            post '/my_health/v1/messaging/messages', params: { message: params }
+          end
+
+          expect(response).to be_successful
+
+          # Verify event logging was called with empty facility IDs when station_number not provided
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: []
+          )
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments

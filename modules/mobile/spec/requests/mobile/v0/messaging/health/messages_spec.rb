@@ -167,6 +167,24 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/674852')
           end
 
+          it 'without station_number omits facility tracking' do
+            allow(UniqueUserEvents).to receive(:log_event)
+
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages', headers: sis_headers,
+                                                           params: { message: params }
+            end
+
+            expect(response).to be_successful
+
+            # Verify event logging was called with empty facility IDs when station_number not provided
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: []
+            )
+          end
+
           it 'logs and re-raises serialization errors on create with attachments' do
             error = Common::Client::Errors::Serialization.new(status: 500, body: 'bad response', message: 'parse error')
             allow_any_instance_of(Mobile::V0::Messaging::Client)
