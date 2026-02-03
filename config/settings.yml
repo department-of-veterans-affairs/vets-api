@@ -549,6 +549,13 @@ form_10_10cg:
       bucket: <%= ENV['form_10_10cg__poa__s3__bucket'] %>
       enabled: true
       region: us-gov-west-1
+form_intake:
+  host: <%= ENV['form_intake__host'] %>
+  path: <%= ENV['form_intake__path'] %>
+  api_version: 'v1'
+  timeout: 30
+  breakers_error_threshold : 80
+  use_mocks: false
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
