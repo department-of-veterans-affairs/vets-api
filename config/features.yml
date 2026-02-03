@@ -352,6 +352,9 @@ features:
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
+  champva_bypass_persisting_ves_json_to_database:
+    actor_type: user
+    description: Enables logic to bypass persisting VES JSON to the database for form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1489,6 +1492,10 @@ features:
     actor_type: user
     description: Enables updated hold time messaging
     enable_in_development: true
+  mhv_medical_records_images_domain:
+    actor_type: user
+    description: Pulls images out of Labs & Tests into its own top-level domain
+    enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
     description: Combines CVIX lab record list with the SCDF/Unified lab record list
@@ -1737,6 +1744,10 @@ features:
   profile_hide_health_care_contacts:
     actor_type: user
     description: Hides the health care contacts section on the Profile
+    enable_in_development: true
+  profile_hide_missing_claim_information_notification_setting:
+    actor_type: user
+    description: Hides the Missing claim information notification setting on the Profile notifications page
     enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
@@ -2816,6 +2827,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-2680 on vets-website
+  form_2680_multi_party_forms_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables multi-party forms feature for form 21-2680
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
