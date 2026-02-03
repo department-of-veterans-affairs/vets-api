@@ -26,15 +26,11 @@ module DebtsApi
       # Validates uploaded files are PDFs by checking both the content-type header
       # and the actual file content (PDF magic bytes: %PDF) to prevent spoofing attacks
       validates :files,
-        attached: { message: 'at least one file is required' },
-        content_type: { 
-          in: ACCEPTED_CONTENT_TYPE,
-          message: 'must be a PDF'
-        },
-        size: { 
-          less_than: MAX_FILE_SIZE,
-          message: 'is too large (maximum is 1MB)'
-        }
+                attached: true,
+                content_type: ACCEPTED_CONTENT_TYPE,
+                size: { less_than: MAX_FILE_SIZE }
+
+      after_validation :log_and_sanitize_file_errors
 
       enum :state, { pending: 0, submitted: 1, failed: 2 }
 
@@ -99,6 +95,16 @@ module DebtsApi
       end
 
       private
+
+      def log_and_sanitize_file_errors
+        return unless errors[:files].any?
+
+        error_messages = errors[:files].join(', ')
+        Rails.logger.error("File validation failed for submission #{id || 'new'}: #{error_messages}")
+
+        errors.delete(:files)
+        errors.add(:files, 'Invalid file')
+      end
 
       def extract_debt_types(disputes)
         disputes.map { |d| d[:debt_type] }.compact.uniq
