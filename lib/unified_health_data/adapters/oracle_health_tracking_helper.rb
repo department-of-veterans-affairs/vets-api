@@ -44,15 +44,16 @@ module UnifiedHealthData
         tracking_number = find_extension_value(nested_extensions, 'Tracking Number')
         return nil unless tracking_number
 
-        build_tracking_hash(
-          resource:,
+        extension_data = {
           tracking_number:,
           carrier: find_extension_value(nested_extensions, 'Delivery Service'),
           shipped_date: find_extension_value(nested_extensions, 'Shipped Date'),
           prescription_name: find_extension_value(nested_extensions, 'Prescription Name'),
           prescription_number: find_extension_value(nested_extensions, 'Prescription Number'),
           ndc_number: find_extension_value(nested_extensions, 'NDC Code')
-        )
+        }
+
+        build_tracking_hash(resource, extension_data)
       end
 
       # Finds the shipping-info extension from a dispense's extension array
@@ -77,23 +78,17 @@ module UnifiedHealthData
       # Builds a tracking hash with fallback to resource extraction methods
       #
       # @param resource [Hash] FHIR MedicationRequest resource
-      # @param tracking_number [String] Tracking number (required)
-      # @param carrier [String, nil] Delivery carrier
-      # @param shipped_date [String, nil] Shipped date
-      # @param prescription_name [String, nil] Prescription name from extension
-      # @param prescription_number [String, nil] Prescription number from extension
-      # @param ndc_number [String, nil] NDC code from extension
+      # @param data [Hash] Tracking data extracted from extension or identifiers
       # @return [Hash] Tracking information hash
-      def build_tracking_hash(resource:, tracking_number:, carrier: nil, shipped_date: nil,
-                              prescription_name: nil, prescription_number: nil, ndc_number: nil)
+      def build_tracking_hash(resource, data)
         {
-          prescription_name: prescription_name || extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: ndc_number || extract_ndc_code(resource),
+          prescription_name: data[:prescription_name] || extract_prescription_name(resource),
+          prescription_number: data[:prescription_number] || extract_prescription_number(resource),
+          ndc_number: data[:ndc_number] || extract_ndc_code(resource),
           prescription_id: resource['id'],
-          tracking_number:,
-          shipped_date:,
-          carrier:,
+          tracking_number: data[:tracking_number],
+          shipped_date: data[:shipped_date],
+          carrier: data[:carrier],
           other_prescriptions: []
         }
       end
@@ -136,18 +131,15 @@ module UnifiedHealthData
         tracking_number = find_identifier_value(identifiers, 'Tracking Number')
         return nil unless tracking_number
 
-        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
-
-        {
-          prescription_name: extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'],
+        identifier_data = {
           tracking_number:,
+          prescription_number: find_identifier_value(identifiers, 'Prescription Number'),
           shipped_date: find_identifier_value(identifiers, 'Shipped Date'),
           carrier: find_identifier_value(identifiers, 'Carrier'),
-          other_prescriptions: []
+          ndc_number: extract_ndc_number(dispense)
         }
+
+        build_tracking_hash(resource, identifier_data)
       end
     end
   end
