@@ -856,6 +856,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-x64-mingw-ucrt)
+    pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -1206,7 +1209,7 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    utf8-cleaner (1.0.0)
+    utf8-cleaner (2.0.1)
       activesupport
     vcr (6.4.0)
     version_gem (1.1.3)
@@ -1413,7 +1416,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.21)
+  rack
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
