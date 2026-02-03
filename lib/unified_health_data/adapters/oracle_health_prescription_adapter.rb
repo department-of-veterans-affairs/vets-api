@@ -153,7 +153,7 @@ module UnifiedHealthData
           tracking_number:,
           shipped_date:,
           carrier:,
-          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
+          other_prescriptions: []
         }
       end
 
@@ -167,62 +167,6 @@ module UnifiedHealthData
         extension&.dig('valueString')
       end
 
-      # Extracts tracking information from MedicationRequest extension array (new format)
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource
-      # @return [Array<Hash>] Array of tracking information hashes
-      def extract_tracking_from_extensions(resource)
-        extensions = resource['extension'] || []
-        
-        # Look for tracking extension (may have specific URL or be identifiable by structure)
-        tracking_extensions = extensions.filter_map do |ext|
-          # Each tracking extension contains nested extensions with type.text fields
-          nested_extensions = ext['extension'] || []
-          next if nested_extensions.empty?
-          
-          # Extract tracking data from nested extensions
-          extract_tracking_from_nested_extensions(resource, nested_extensions)
-        end
-        
-        tracking_extensions.compact
-      end
-
-      # Extracts tracking data from nested extension array
-      #
-      # @param resource [Hash] FHIR MedicationRequest resource (for additional data)
-      # @param nested_extensions [Array<Hash>] Array of nested extension objects
-      # @return [Hash, nil] Tracking information hash or nil if no tracking number
-      def extract_tracking_from_nested_extensions(resource, nested_extensions)
-        tracking_number = find_extension_value(nested_extensions, 'Tracking Number')
-        return nil unless tracking_number # Only create tracking record if we have a tracking number
-
-        prescription_number = find_extension_value(nested_extensions, 'Prescription Number')
-        carrier = find_extension_value(nested_extensions, 'Carrier')
-        shipped_date = find_extension_value(nested_extensions, 'Shipped Date')
-        ndc_number = find_extension_value(nested_extensions, 'NDC Number')
-
-        {
-          prescription_name: extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: ndc_number || extract_ndc_from_resource(resource),
-          prescription_id: resource['id'],
-          tracking_number:,
-          shipped_date:,
-          carrier:,
-          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
-        }
-      end
-
-      # Finds an extension value by type text
-      #
-      # @param extensions [Array<Hash>] Array of extension objects
-      # @param type_text [String] The type.text value to search for
-      # @return [String, nil] The extension value or nil if not found
-      def find_extension_value(extensions, type_text)
-        extension = extensions.find { |ext| ext.dig('type', 'text') == type_text }
-        extension&.dig('value')
-      end
-
       # Extracts NDC number from MedicationRequest resource
       #
       # @param resource [Hash] FHIR MedicationRequest resource
@@ -231,7 +175,7 @@ module UnifiedHealthData
         # Try medicationCodeableConcept coding array
         coding = resource.dig('medicationCodeableConcept', 'coding') || []
         ndc_coding = coding.find { |c| c['system'] == 'http://hl7.org/fhir/sid/ndc' }
-        return ndc_coding['code'] if ndc_coding
+        return ndc_coding&.dig('code') if ndc_coding
 
         # Fallback: check most recent dispense
         dispense = find_most_recent_medication_dispense(resource)
