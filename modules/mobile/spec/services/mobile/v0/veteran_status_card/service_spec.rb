@@ -223,8 +223,9 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           expect(Rails.logger).to have_received(:info).with(
             '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
             hash_including(
-              confirmation_status: 'CONFIRMED',
-              service_summary_code: ssc_code
+              veteran_status: 'confirmed',
+              service_summary_code: ssc_code,
+              service_history_status: 'found'
             )
           )
         end
@@ -246,7 +247,8 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           expect(Rails.logger).to have_received(:info).with(
             '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
             hash_including(
-              confirmation_status: 'PERSON_NOT_FOUND',
+              veteran_status: 'not confirmed',
+              not_confirmed_reason: 'PERSON_NOT_FOUND',
               service_summary_code: ssc_code
             )
           )
@@ -399,8 +401,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         expect(result[:attributes][:disability_rating]).to eq(50)
         expect(result[:attributes][:latest_service]).to be_present
         expect(result[:attributes][:edipi]).to eq(user.edipi)
-        expect(result[:attributes][:confirmation_status]).to eq('CONFIRMED')
+        expect(result[:attributes][:veteran_status]).to eq('confirmed')
+        expect(result[:attributes][:not_confirmed_reason]).to be_nil
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
+        expect(result[:attributes][:service_history_status]).to eq('found')
       end
     end
 
@@ -418,8 +422,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:title])
           expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:message])
           expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE[:status])
-          expect(result[:attributes][:confirmation_status]).to eq('DISHONORABLE_SSC_CODE')
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
+          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
