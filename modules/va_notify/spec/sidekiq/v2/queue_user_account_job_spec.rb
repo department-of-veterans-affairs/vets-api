@@ -95,12 +95,12 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
 
       expect(Rails.logger).to receive(:error).with(
         'VANotify::V2::QueueUserAccountJob AttrPackage error',
-        hash_including(error: /redis down/)
+        { error_class: 'Sidekiq::AttrPackageError', template_id: }
       )
 
       expect do
         described_class.new.perform(user_account.id, template_id, key, callback_options)
-      end.to raise_error(ArgumentError, /redis down/)
+      end.to raise_error(ArgumentError, 'AttrPackage retrieval failed')
     end
 
     it 'raises ArgumentError and logs when personalisation data is missing' do

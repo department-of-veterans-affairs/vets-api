@@ -68,10 +68,10 @@ module VANotify
         raise ArgumentError, 'Missing personalisation data in Redis'
       rescue Sidekiq::AttrPackageError => e
         Rails.logger.error('VANotify::V2::QueueUserAccountJob AttrPackage error', {
-                             error: e.message,
+                             error_class: e.class.name,
                              template_id:
                            })
-        raise ArgumentError, e.message
+        raise ArgumentError, 'AttrPackage retrieval failed'
       end
 
       def handle_backend_exception(e)
