@@ -7,21 +7,28 @@ module UnifiedHealthData
   module Adapters
     class ConditionsAdapter
       include DateNormalizer
-      def parse(records)
+      def parse(records, filter_by_status: true)
         return [] if records.blank?
 
         filtered = records.select do |record|
-          record['resource'] && record['resource']['resourceType'] == 'Condition'
+          resource = record['resource']
+          next false unless resource && resource['resourceType'] == 'Condition'
+          next true unless filter_by_status
+
+          should_include_condition?(resource)
         end
-        parsed = filtered.map { |record| parse_single_condition(record) }
+        parsed = filtered.map { |record| parse_single_condition(record, filter_by_status:) }
         parsed.compact
       end
 
-      def parse_single_condition(record)
+      def parse_single_condition(record, filter_by_status: true)
         return nil if record.nil? || record['resource'].nil?
 
         resource = record['resource']
         date_value = resource['onsetDateTime'] || resource['recordedDate']
+
+        # Filter out conditions without active clinical status if filtering is enabled
+        return nil if filter_by_status && !should_include_condition?(resource)
 
         UnifiedHealthData::Condition.new(
           id: resource['id'],
@@ -35,6 +42,20 @@ module UnifiedHealthData
       end
 
       private
+
+      # Determines if a condition should be included based on its clinical status
+      # Only includes conditions with clinicalStatus of 'active'
+      # Conditions with no clinicalStatus or non-active status (e.g., resolved) are excluded
+      #
+      # @param resource [Hash] FHIR Condition resource
+      # @return [Boolean] true if the condition should be included (has active clinicalStatus)
+      def should_include_condition?(resource)
+        clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
+
+        # Only include conditions with 'active' clinical status
+        # This excludes conditions with nil/missing clinicalStatus or non-active statuses like 'resolved'
+        clinical_status == 'active'
+      end
 
       def extract_condition_comments(resource)
         return [] unless resource['note']
