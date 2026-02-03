@@ -23,14 +23,14 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
 
       it 'has appropriate error' do
         submission.valid?
-        expect(submission.errors[:files]).to include(/at least one file is required/)
+        expect(submission.errors[:files]).to include(/Invalid file/)
       end
     end
 
     context 'when file is too large' do
       before do
         submission.files.purge
-        large_content = '%PDF-' + ('x' * (2 * 1024 * 1024 - 5)) # 2MB with PDF header
+        large_content = "%PDF-#{'x' * ((2 * 1024 * 1024) - 5)}" # 2MB with PDF header
         submission.files.attach(
           io: StringIO.new(large_content),
           filename: 'large.pdf',
@@ -41,8 +41,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
       it { is_expected.not_to be_valid }
 
       it 'has size error' do
+        expect(Rails.logger).to receive(:error).with(/file size must be less than 1 MB/)
         submission.valid?
-        expect(submission.errors[:files]).to include(/too large/)
+        expect(submission.errors[:files]).to include(/Invalid file/)
       end
     end
 
@@ -59,8 +60,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
       it { is_expected.not_to be_valid }
 
       it 'has content type error' do
+        expect(Rails.logger).to receive(:error).with(/has an invalid content type/)
         submission.valid?
-        expect(submission.errors[:files]).to include(/must be a PDF/)
+        expect(submission.errors[:files]).to include(/Invalid file/)
       end
     end
 
@@ -83,8 +85,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
       end
 
       it 'has PDF-related error' do
+        expect(Rails.logger).to receive(:error).with(/has an invalid content type/)
         submission.valid?
-        expect(submission.errors[:files]).to include(match(/must be a PDF|valid PDF|could not be validated/))
+        expect(submission.errors[:files]).to include(/Invalid file/)
       end
     end
   end
