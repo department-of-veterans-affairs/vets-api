@@ -142,7 +142,7 @@ module V0
     end
 
     def service
-      @service ||= BenefitsClaims::Service.new(@current_user.icn)
+      @service ||= BenefitsClaims::Service.new(@current_user)
     end
 
     def check_for_birls_id

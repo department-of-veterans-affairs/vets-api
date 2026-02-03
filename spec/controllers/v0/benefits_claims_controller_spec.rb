@@ -983,6 +983,94 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
+      context "when 'cst_evidence_requests_content_override' is disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override, anything).and_return(false)
+        end
+
+        it 'returns tracked items with legacy content fields only' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+          # Legacy fields should be populated
+          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+          expect(form_item['canUploadFile']).to be true
+          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+          # New content override fields should NOT be present
+          expect(form_item).not_to have_key('longDescription')
+          expect(form_item).not_to have_key('nextSteps')
+          expect(form_item).not_to have_key('noActionNeeded')
+          expect(form_item).not_to have_key('isDBQ')
+          expect(form_item).not_to have_key('isProperNoun')
+          expect(form_item).not_to have_key('isSensitive')
+          expect(form_item).not_to have_key('noProvidePrefix')
+        end
+      end
+
+      context "when 'cst_evidence_requests_content_override' is enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override, anything).and_return(true)
+        end
+
+        it 'returns tracked items with new content override fields as well as legacy fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+          # Existing fields should still be populated
+          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+          expect(form_item['canUploadFile']).to be true
+          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+          # New structured content fields should be present
+          expect(form_item['longDescription']).to be_a(Hash)
+          expect(form_item['longDescription']).to have_key('blocks')
+          expect(form_item['nextSteps']).to be_a(Hash)
+          expect(form_item['nextSteps']).to have_key('blocks')
+          # New boolean flags should be present
+          expect(form_item).to have_key('noActionNeeded')
+          expect(form_item).to have_key('isDBQ')
+          expect(form_item).to have_key('isProperNoun')
+          expect(form_item).to have_key('isSensitive')
+          expect(form_item).to have_key('noProvidePrefix')
+        end
+
+        context 'when a tracked item does not have content overrides' do
+          let(:test_display_name) { 'Submit buddy statement(s)' }
+
+          before do
+            # First allow all calls to pass through to the real implementation
+            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+            # Then override for this specific display name to simulate no content overrides
+            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+              .with(test_display_name).and_return(nil)
+          end
+
+          it 'falls back to legacy content fields only' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: '600383363' })
+            end
+
+            parsed_body = JSON.parse(response.body)
+            tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+            buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+            # Should fall back to legacy content fields
+            expect(buddy_statement_item['friendlyName']).to eq('Witness or corroboration statements')
+            expect(buddy_statement_item['canUploadFile']).to be true
+            expect(buddy_statement_item['supportAliases']).to eq(['Submit buddy statement(s)'])
+            # New content override fields should NOT be present for items without overrides
+            expect(buddy_statement_item).not_to have_key('longDescription')
+            expect(buddy_statement_item).not_to have_key('nextSteps')
+          end
+        end
+      end
+
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(
@@ -1622,6 +1710,100 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context "when 'cst_multi_claim_provider' is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider, anything).and_return(false)
+      end
+
+      context "when 'cst_evidence_requests_content_override' is disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                    instance_of(User)).and_return(false)
+        end
+
+        it 'returns tracked items with legacy content fields only' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+          # Legacy fields should be populated
+          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+          expect(form_item['canUploadFile']).to be true
+          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+          # New content override fields should NOT be present
+          expect(form_item).not_to have_key('longDescription')
+          expect(form_item).not_to have_key('nextSteps')
+          expect(form_item).not_to have_key('noActionNeeded')
+          expect(form_item).not_to have_key('isDBQ')
+          expect(form_item).not_to have_key('isProperNoun')
+          expect(form_item).not_to have_key('isSensitive')
+          expect(form_item).not_to have_key('noProvidePrefix')
+        end
+      end
+
+      context "when 'cst_evidence_requests_content_override' is enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                    instance_of(User)).and_return(true)
+        end
+
+        it 'returns tracked items with new content override fields as well as legacy fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+          # Existing fields should still be populated
+          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+          expect(form_item['canUploadFile']).to be true
+          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+          # New structured content fields should be present
+          expect(form_item['longDescription']).to be_a(Hash)
+          expect(form_item['longDescription']).to have_key('blocks')
+          expect(form_item['nextSteps']).to be_a(Hash)
+          expect(form_item['nextSteps']).to have_key('blocks')
+          # New boolean flags should be present
+          expect(form_item).to have_key('noActionNeeded')
+          expect(form_item).to have_key('isDBQ')
+          expect(form_item).to have_key('isProperNoun')
+          expect(form_item).to have_key('isSensitive')
+          expect(form_item).to have_key('noProvidePrefix')
+        end
+
+        context 'when a tracked item does not have content overrides' do
+          let(:test_display_name) { 'Submit buddy statement(s)' }
+
+          before do
+            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+              .with(test_display_name).and_return(nil)
+          end
+
+          it 'falls back to legacy content fields only' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: '600383363' })
+            end
+
+            parsed_body = JSON.parse(response.body)
+            tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+            buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+            # Should fall back to legacy content fields
+            expect(buddy_statement_item['friendlyName']).to eq('Witness or corroboration statements')
+            expect(buddy_statement_item['canUploadFile']).to be true
+            expect(buddy_statement_item['supportAliases']).to eq(['Submit buddy statement(s)'])
+            # New content override fields should NOT be present for items without overrides
+            expect(buddy_statement_item).not_to have_key('longDescription')
+            expect(buddy_statement_item).not_to have_key('nextSteps')
+          end
+        end
       end
     end
   end
