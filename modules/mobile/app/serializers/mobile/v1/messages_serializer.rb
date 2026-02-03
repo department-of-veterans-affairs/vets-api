@@ -14,6 +14,9 @@ module Mobile
                  :draft_date, :to_date, :has_attachments
 
       attribute :body, &:message_body
+      attribute :can_reply do |object|
+        !object.reply_disabled
+      end
 
       link :self do |object|
         Mobile::UrlHelper.new.v0_message_url(object.message_id)

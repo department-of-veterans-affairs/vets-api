@@ -13,6 +13,9 @@ module Mobile
                  :triage_group_name, :proxy_sender_name, :is_oh_message
 
       attribute :message_id, &:id
+      attribute :can_reply do |object|
+        !object.reply_disabled
+      end
 
       link :self do |object|
         Mobile::UrlHelper.new.v0_message_url(object.id)

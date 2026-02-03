@@ -70,4 +70,8 @@ describe Mobile::V0::MessagesSerializer, type: :serializer do
     expected_url = Mobile::UrlHelper.new.v0_message_url(message.id)
     expect(links['self']).to eq expected_url
   end
+
+  it 'includes :can_reply' do
+    expect(attributes['can_reply']).to eq !message.reply_disabled
+  end
 end
