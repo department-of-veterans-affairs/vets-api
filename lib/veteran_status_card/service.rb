@@ -85,9 +85,9 @@ module VeteranStatusCard
     #   - :type [String] 'veteran_status_card' or 'veteran_status_alert'
     #   - :attributes [Hash] containing either:
     #     - When eligible: { full_name:, disability_rating:, latest_service:, edipi:,
-    #         confirmation_status:, service_summary_code: }
-    #     - When not eligible: { header:, body:, alert_type:, confirmation_status:,
-    #         service_summary_code: }
+    #         veteran_status:, not_confirmed_reason:, service_summary_code:, service_history_status: }
+    #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
+    #         not_confirmed_reason:, service_summary_code:, service_history_status: }
     #
     def status_card
       if eligible?
@@ -223,21 +223,11 @@ module VeteranStatusCard
       log_statsd(key)
       log_statsd(ineligible_message_or_vet_verification_reason) unless confirmed
       Rails.logger.info("#{service_name} VSC Card Result", {
-                          confirmation_status: confirmation_status(confirmed),
-                          service_summary_code: ssc_code
+                          veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
+                          not_confirmed_reason: vet_verification_status[:reason],
+                          service_summary_code: ssc_code,
+                          service_history_status:
                         })
-    end
-
-    ##
-    # Retrieves a single string to determine confirmation, or non-confirmation reason
-    #
-    # @param confirmed [Boolean] whether the status is 'confirmed' (true) or 'not confirmed' (false)
-    # @return [String] a single string confirmed status or not confirmed reason
-    #
-    def confirmation_status(confirmed)
-      # If the status is confirmed, use CONFIRMED_TEXT
-      # Otherwise, use the message from ineligible_message_or_vet_verification_reason
-      (confirmed ? CONFIRMED_TEXT : ineligible_message_or_vet_verification_reason).upcase
     end
 
     ##
@@ -264,8 +254,10 @@ module VeteranStatusCard
           disability_rating:,
           latest_service: latest_service_history,
           edipi: @user&.edipi,
-          confirmation_status: confirmation_status(true),
-          service_summary_code: ssc_code
+          veteran_status: CONFIRMED_TEXT,
+          not_confirmed_reason: vet_verification_status[:reason],
+          service_summary_code: ssc_code,
+          service_history_status:
         }
       }
     end
@@ -283,8 +275,10 @@ module VeteranStatusCard
           header: error_details[:title],
           body: error_details[:message],
           alert_type: error_details[:status],
-          confirmation_status: confirmation_status(false),
-          service_summary_code: ssc_code
+          veteran_status: NOT_CONFIRMED_TEXT,
+          not_confirmed_reason: vet_verification_status[:reason],
+          service_summary_code: ssc_code,
+          service_history_status:
         }
       }
     end
@@ -390,6 +384,24 @@ module VeteranStatusCard
     #
     def lighthouse_disabilities_provider
       @lighthouse_disabilities_provider ||= LighthouseRatedDisabilitiesProvider.new(@user.icn)
+    end
+
+    ##
+    # Returns 'found' or 'empty' based on the Boolean from #service_history?
+    #
+    # @return [String] either 'found' or 'empty'
+    #
+    def service_history_status
+      service_history? ? 'found' : 'empty'
+    end
+
+    ##
+    # Checks if the user has any service history episodes
+    #
+    # @return [Boolean] true if service history episodes exist, false otherwise
+    #
+    def service_history?
+      service_history_response&.episodes&.any?
     end
 
     ##
@@ -610,8 +622,10 @@ module VeteranStatusCard
           header: response[:title],
           body: response[:message],
           alert_type: response[:status],
-          confirmation_status: confirmation_status(false),
-          service_summary_code: ssc_code
+          veteran_status: NOT_CONFIRMED_TEXT,
+          not_confirmed_reason: vet_verification_status[:reason],
+          service_summary_code: ssc_code,
+          service_history_status:
         }
       }
     end
