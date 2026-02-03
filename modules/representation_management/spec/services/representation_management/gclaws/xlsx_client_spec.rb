@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'httpclient'
 
 RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
   subject { described_class }
 
   let(:test_url) { 'https://ssrs.example.com/reports/accreditation.xlsx' }
+  let(:test_hostname) { 'ssrs.example.com' }
   let(:test_username) { 'test_user' }
   let(:test_password) { 'test_password' }
   let(:xlsx_content_type) { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
@@ -29,50 +29,130 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
   end
 
   describe '.download_accreditation_xlsx' do
-    context 'when the request is successful' do
-      it 'returns binary content when content-type is correct' do
-        stub_request(:get, test_url)
-          .to_return(
-            status: 200,
-            body: xlsx_binary_content,
-            headers: { 'Content-Type' => xlsx_content_type }
-          )
+    context 'when block is not provided' do
+      it 'raises ArgumentError' do
+        expect { subject.download_accreditation_xlsx }.to raise_error(ArgumentError, 'Block required')
+      end
+    end
 
-        result = subject.download_accreditation_xlsx
+    context 'when the request is successful' do
+      before do
+        allow(Open3).to receive(:capture3) do |*command|
+          # Verify curl command structure
+          expect(command).to include('curl')
+          expect(command).to include('--ntlm')
+          expect(command).to include('--max-time')
+          expect(command).to include('60')
+          expect(command).to include('--connect-timeout')
+          expect(command).to include('10')
+
+          # Write mock XLSX content to output file
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, xlsx_binary_content)
+
+          # Return successful curl output: HTTP status + content-type
+          stdout = "200\n#{xlsx_content_type}"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+      end
+
+      it 'yields success result with file path' do
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
 
         expect(result[:success]).to be true
-        expect(result[:data]).to eq(xlsx_binary_content)
+        expect(result[:file_path]).to be_a(String)
+        expect(result[:error]).to be_nil
+      end
+
+      it 'allows reading the file content within the block' do
+        content_read = nil
+        subject.download_accreditation_xlsx do |result|
+          content_read = File.read(result[:file_path]) if result[:success]
+        end
+
+        expect(content_read).to eq(xlsx_binary_content)
       end
 
       it 'handles content-type with charset parameter' do
-        stub_request(:get, test_url)
-          .to_return(
-            status: 200,
-            body: xlsx_binary_content,
-            headers: { 'Content-Type' => "#{xlsx_content_type}; charset=utf-8" }
-          )
+        allow(Open3).to receive(:capture3) do |*command|
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, xlsx_binary_content)
 
-        result = subject.download_accreditation_xlsx
+          stdout = "200\n#{xlsx_content_type}; charset=utf-8"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
 
         expect(result[:success]).to be true
-        expect(result[:data]).to eq(xlsx_binary_content)
+      end
+
+      it 'cleans up tempfiles after block completes' do
+        file_path = nil
+        netrc_path = nil
+
+        # Capture paths before they're deleted
+        allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
+          tempfile = method.call(*args)
+          if args[0] == 'netrc'
+            netrc_path = tempfile.path
+          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
+            file_path = tempfile.path
+          end
+          tempfile
+        end
+
+        subject.download_accreditation_xlsx do |result|
+          # Files should exist during block
+          expect(File.exist?(result[:file_path])).to be true if result[:success]
+        end
+
+        # Files should be deleted after block
+        expect(File.exist?(file_path)).to be false if file_path
+        expect(File.exist?(netrc_path)).to be false if netrc_path
       end
     end
 
     context 'when content-type is invalid' do
-      it 'returns an error for text/html content-type' do
-        stub_request(:get, test_url)
-          .to_return(
-            status: 200,
-            body: '<html>Error page</html>',
-            headers: { 'Content-Type' => 'text/html' }
-          )
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns an error for text/html content-type' do
+        allow(Open3).to receive(:capture3) do |*command|
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, '<html>Error page</html>')
+
+          stdout = "200\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX invalid_content_type error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Invalid content type: text/html')
@@ -80,37 +160,53 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
       end
 
       it 'returns an error for application/json content-type' do
-        stub_request(:get, test_url)
-          .to_return(
-            status: 200,
-            body: '{"error": "not xlsx"}',
-            headers: { 'Content-Type' => 'application/json' }
-          )
+        allow(Open3).to receive(:capture3) do |*command|
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, '{"error": "not xlsx"}')
 
-        expect(Rails.logger).to receive(:error).with(
+          stdout = "200\napplication/json"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX invalid_content_type error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Invalid content type: application/json')
         expect(result[:status]).to eq(:unprocessable_entity)
       end
 
-      it 'returns an error when content-type header is missing' do
-        stub_request(:get, test_url)
-          .to_return(
-            status: 200,
-            body: xlsx_binary_content,
-            headers: {}
-          )
+      it 'returns an error when content-type is empty' do
+        allow(Open3).to receive(:capture3) do |*command|
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, xlsx_binary_content)
 
-        expect(Rails.logger).to receive(:error).with(
+          stdout = "200\n"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX invalid_content_type error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Invalid content type: ')
@@ -119,15 +215,27 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     end
 
     context 'when the request is unauthorized (401)' do
-      it 'returns an unauthorized error' do
-        stub_request(:get, test_url)
-          .to_return(status: 401, body: 'Unauthorized')
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns an unauthorized error' do
+        allow(Open3).to receive(:capture3) do
+          stdout = "401\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX unauthorized error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX unauthorized')
@@ -136,15 +244,27 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     end
 
     context 'when the server returns an error status' do
-      it 'returns a bad gateway error for 500 status' do
-        stub_request(:get, test_url)
-          .to_return(status: 500, body: 'Internal Server Error')
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns a bad gateway error for 500 status' do
+        allow(Open3).to receive(:capture3) do
+          stdout = "500\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX http_error error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX request failed with status 500')
@@ -152,14 +272,22 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
       end
 
       it 'returns a bad gateway error for 503 status' do
-        stub_request(:get, test_url)
-          .to_return(status: 503, body: 'Service Unavailable')
+        allow(Open3).to receive(:capture3) do
+          stdout = "503\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
 
-        expect(Rails.logger).to receive(:error).with(
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX http_error error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX request failed with status 503')
@@ -168,14 +296,27 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     end
 
     context 'when the connection times out' do
-      it 'returns a timeout error' do
-        stub_request(:get, test_url).to_timeout
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns a timeout error (curl exit code 28)' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (28) Operation timed out'
+          status = double('Process::Status', success?: false, exitstatus: 28)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX timeout error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX download timed out')
@@ -184,42 +325,50 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     end
 
     context 'when the connection fails' do
-      it 'returns a service unavailable error for connection refused' do
-        stub_request(:get, test_url).to_raise(Errno::ECONNREFUSED.new('Connection refused'))
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns a service unavailable error for connection refused (exit code 7)' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (7) Failed to connect to host'
+          status = double('Process::Status', success?: false, exitstatus: 7)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX connection_failed error/
         )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX service unavailable')
         expect(result[:status]).to eq(:service_unavailable)
       end
 
-      it 'returns a service unavailable error for socket error' do
-        stub_request(:get, test_url).to_raise(SocketError.new('getaddrinfo: Name or service not known'))
+      it 'returns a service unavailable error for resolve error (exit code 6)' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (6) Could not resolve host'
+          status = double('Process::Status', success?: false, exitstatus: 6)
 
-        expect(Rails.logger).to receive(:error).with(
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX connection_failed error/
         )
-
-        result = subject.download_accreditation_xlsx
-
-        expect(result[:success]).to be false
-        expect(result[:error]).to eq('GCLAWS XLSX service unavailable')
-        expect(result[:status]).to eq(:service_unavailable)
-      end
-
-      it 'returns a service unavailable error for host unreachable' do
-        stub_request(:get, test_url).to_raise(Errno::EHOSTUNREACH.new('No route to host'))
-
-        expect(Rails.logger).to receive(:error).with(
-          /#{error_log_prefix} GCLAWS XLSX connection_failed error/
-        )
-
-        result = subject.download_accreditation_xlsx
 
         expect(result[:success]).to be false
         expect(result[:error]).to eq('GCLAWS XLSX service unavailable')
@@ -227,19 +376,157 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
       end
     end
 
-    context 'when an unexpected error occurs' do
-      it 'returns an internal server error' do
-        stub_request(:get, test_url).to_raise(StandardError.new('Something went wrong'))
+    context 'when curl returns HTTP error with -f flag (exit code 22)' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
 
-        expect(Rails.logger).to receive(:error).with(
+      it 'returns unauthorized error when stderr contains 401' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (22) The requested URL returned error: 401'
+          status = double('Process::Status', success?: false, exitstatus: 22)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
+          /#{error_log_prefix} GCLAWS XLSX unauthorized error/
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:error]).to eq('GCLAWS XLSX unauthorized')
+        expect(result[:status]).to eq(:unauthorized)
+      end
+
+      it 'returns http_error for other HTTP errors' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (22) The requested URL returned error: 500'
+          status = double('Process::Status', success?: false, exitstatus: 22)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
+          /#{error_log_prefix} GCLAWS XLSX http_error error/
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:error]).to match(/GCLAWS XLSX HTTP error/)
+        expect(result[:status]).to eq(:bad_gateway)
+      end
+    end
+
+    context 'when an unexpected curl error occurs' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns an internal server error' do
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (35) SSL connect error'
+          status = double('Process::Status', success?: false, exitstatus: 35)
+
+          [stdout, stderr, status]
+        end
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
           /#{error_log_prefix} GCLAWS XLSX unexpected error/
         )
 
-        result = subject.download_accreditation_xlsx
-
         expect(result[:success]).to be false
-        expect(result[:error]).to eq('GCLAWS XLSX unexpected error: Something went wrong')
+        expect(result[:error]).to match(/GCLAWS XLSX unexpected curl error/)
         expect(result[:status]).to eq(:internal_server_error)
+      end
+    end
+
+    context 'tempfile cleanup' do
+      it 'cleans up tempfiles even when an error occurs' do
+        file_path = nil
+        netrc_path = nil
+
+        allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
+          tempfile = method.call(*args)
+          if args[0] == 'netrc'
+            netrc_path = tempfile.path
+          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
+            file_path = tempfile.path
+          end
+          tempfile
+        end
+
+        allow(Open3).to receive(:capture3) do
+          stdout = ''
+          stderr = 'curl: (28) Operation timed out'
+          status = double('Process::Status', success?: false, exitstatus: 28)
+
+          [stdout, stderr, status]
+        end
+
+        allow(Rails.logger).to receive(:error)
+
+        subject.download_accreditation_xlsx do |result|
+          # Block receives error result
+          expect(result[:success]).to be false
+        end
+
+        # Files should still be deleted after error
+        expect(File.exist?(file_path)).to be false if file_path
+        expect(File.exist?(netrc_path)).to be false if netrc_path
+      end
+
+      it 'cleans up tempfiles even when block raises an exception' do
+        file_path = nil
+        netrc_path = nil
+
+        allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
+          tempfile = method.call(*args)
+          if args[0] == 'netrc'
+            netrc_path = tempfile.path
+          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
+            file_path = tempfile.path
+          end
+          tempfile
+        end
+
+        allow(Open3).to receive(:capture3) do |*command|
+          output_index = command.index('-o')
+          output_file = command[output_index + 1]
+          File.write(output_file, xlsx_binary_content)
+
+          stdout = "200\n#{xlsx_content_type}"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
+
+        expect do
+          subject.download_accreditation_xlsx do |_result|
+            raise StandardError, 'Block error'
+          end
+        end.to raise_error(StandardError, 'Block error')
+
+        # Files should still be deleted after exception
+        expect(File.exist?(file_path)).to be false if file_path
+        expect(File.exist?(netrc_path)).to be false if netrc_path
       end
     end
   end
@@ -248,6 +535,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     context 'in production environment' do
       before do
         allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(Rails.logger).to receive(:error)
       end
 
       it 'sends a Slack notification' do
@@ -255,13 +543,17 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
         allow(slack_client).to receive(:notify)
 
-        stub_request(:get, test_url)
-          .to_return(status: 401, body: 'Unauthorized')
+        allow(Open3).to receive(:capture3) do
+          stdout = "401\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
 
-        # Suppress the expected logger error
-        allow(Rails.logger).to receive(:error)
+          [stdout, stderr, status]
+        end
 
-        subject.download_accreditation_xlsx
+        subject.download_accreditation_xlsx do |result|
+          # noop
+        end
 
         expect(slack_client).to have_received(:notify).with(
           a_string_including('GCLAWS XLSX Download Error Alert')
@@ -272,6 +564,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     context 'in non-production environment' do
       before do
         allow(Settings).to receive(:vsp_environment).and_return('staging')
+        allow(Rails.logger).to receive(:error)
       end
 
       it 'does not send a Slack notification' do
@@ -279,13 +572,17 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
         allow(slack_client).to receive(:notify)
 
-        stub_request(:get, test_url)
-          .to_return(status: 401, body: 'Unauthorized')
+        allow(Open3).to receive(:capture3) do
+          stdout = "401\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
 
-        # Suppress the expected logger error
-        allow(Rails.logger).to receive(:error)
+          [stdout, stderr, status]
+        end
 
-        subject.download_accreditation_xlsx
+        subject.download_accreditation_xlsx do |result|
+          # noop
+        end
 
         expect(slack_client).not_to have_received(:notify)
       end
@@ -301,8 +598,13 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         allow(SlackNotify::Client).to receive(:new).and_return(slack_client)
         allow(slack_client).to receive(:notify).and_raise(StandardError.new('Slack API error'))
 
-        stub_request(:get, test_url)
-          .to_return(status: 401, body: 'Unauthorized')
+        allow(Open3).to receive(:capture3) do
+          stdout = "401\ntext/html"
+          stderr = ''
+          status = double('Process::Status', success?: true, exitstatus: 0)
+
+          [stdout, stderr, status]
+        end
 
         expect(Rails.logger).to receive(:error).with(
           /#{error_log_prefix} GCLAWS XLSX unauthorized error/
@@ -312,30 +614,31 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         )
 
         # Should not raise, just log
-        expect { subject.download_accreditation_xlsx }.not_to raise_error
+        expect do
+          subject.download_accreditation_xlsx do |result|
+            # noop
+          end
+        end.not_to raise_error
       end
     end
   end
 
-  describe '.extract_content_type' do
-    it 'extracts content type without charset' do
-      response = instance_double(HTTP::Message, content_type: xlsx_content_type)
-      expect(subject.extract_content_type(response)).to eq(xlsx_content_type)
-    end
+  describe '.create_netrc_file' do
+    it 'creates a netrc file with proper permissions' do
+      config = RepresentationManagement::GCLAWS::XlsxConfiguration.new
 
-    it 'strips charset from content type' do
-      response = instance_double(HTTP::Message, content_type: "#{xlsx_content_type}; charset=utf-8")
-      expect(subject.extract_content_type(response)).to eq(xlsx_content_type)
-    end
+      netrc_file = subject.send(:create_netrc_file, config)
 
-    it 'handles nil content type' do
-      response = instance_double(HTTP::Message, content_type: nil)
-      expect(subject.extract_content_type(response)).to eq('')
-    end
+      expect(File.exist?(netrc_file.path)).to be true
+      expect(File.stat(netrc_file.path).mode & 0o777).to eq(0o600)
 
-    it 'handles empty content type' do
-      response = instance_double(HTTP::Message, content_type: '')
-      expect(subject.extract_content_type(response)).to eq('')
+      content = File.read(netrc_file.path)
+      expect(content).to include("machine #{test_hostname}")
+      expect(content).to include("login #{test_username}")
+      expect(content).to include("password #{test_password}")
+
+      netrc_file.close
+      netrc_file.unlink
     end
   end
 end

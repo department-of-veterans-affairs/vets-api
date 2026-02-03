@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'httpclient'
 
 RSpec.describe RepresentationManagement::GCLAWS::XlsxConfiguration do
   subject(:configuration) { described_class.new }
@@ -20,41 +19,51 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxConfiguration do
     )
   end
 
-  describe '#connection' do
-    it 'returns an HTTPClient instance' do
-      expect(configuration.connection).to be_a(HTTPClient)
-    end
-
-    it 'configures NTLM authentication with the correct credentials' do
-      client = configuration.connection
-      # HTTPClient stores auth info internally, we verify by checking the client was created
-      expect(client).to be_a(HTTPClient)
-    end
-
-    it 'uses system CA certificates for SSL verification' do
-      client = configuration.connection
-      # HTTPClient defaults to VERIFY_PEER | VERIFY_FAIL_IF_NO_PEER_CERT (3)
-      expect(client.ssl_config.verify_mode).to be >= OpenSSL::SSL::VERIFY_PEER
-    end
-  end
-
   describe '#url' do
     it 'returns the configured URL from settings' do
       expect(configuration.url).to eq(test_url)
     end
   end
 
-  describe 'settings access' do
-    it 'reads username from Settings.gclaws.accreditation_xlsx' do
-      expect(Settings.gclaws.accreditation_xlsx.username).to eq(test_username)
+  describe '#username' do
+    it 'returns the configured username from settings' do
+      expect(configuration.username).to eq(test_username)
+    end
+  end
+
+  describe '#password' do
+    it 'returns the configured password from settings' do
+      expect(configuration.password).to eq(test_password)
+    end
+  end
+
+  describe '#hostname' do
+    it 'extracts the hostname from the URL' do
+      expect(configuration.hostname).to eq('ssrs.example.com')
     end
 
-    it 'reads password from Settings.gclaws.accreditation_xlsx' do
-      expect(Settings.gclaws.accreditation_xlsx.password).to eq(test_password)
+    it 'handles URL with path' do
+      allow(Settings.gclaws).to receive(:accreditation_xlsx).and_return(
+        OpenStruct.new(
+          url: 'https://server.va.gov/path/to/report.xlsx',
+          username: test_username,
+          password: test_password
+        )
+      )
+
+      expect(configuration.hostname).to eq('server.va.gov')
     end
 
-    it 'reads url from Settings.gclaws.accreditation_xlsx' do
-      expect(Settings.gclaws.accreditation_xlsx.url).to eq(test_url)
+    it 'handles URL with port' do
+      allow(Settings.gclaws).to receive(:accreditation_xlsx).and_return(
+        OpenStruct.new(
+          url: 'https://ssrs.example.com:8443/reports/accreditation.xlsx',
+          username: test_username,
+          password: test_password
+        )
+      )
+
+      expect(configuration.hostname).to eq('ssrs.example.com')
     end
   end
 end
