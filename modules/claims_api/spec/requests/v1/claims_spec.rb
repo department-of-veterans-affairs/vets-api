@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
@@ -293,8 +293,8 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
     it 'users the poa verifier when the header is present' do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/claims/claim') do
-          verifier_stub = instance_double(BGSV2::PowerOfAttorneyVerifier)
-          allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+          verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
+          allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
           get("/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers:)
@@ -307,8 +307,8 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   context 'with oauth user and no headers' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double(BGSV2::PowerOfAttorneyVerifier)
-        allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('claims_api/bgs/claims/claims') do
           allow_any_instance_of(ClaimsApi::V1::ApplicationController)
@@ -321,8 +321,8 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
 
     it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double(BGSV2::PowerOfAttorneyVerifier)
-        allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('claims_api/bgs/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)
