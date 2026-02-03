@@ -75,6 +75,14 @@ module V0
                          tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
       end
 
+      # Retrieves a claim from the appropriate provider based on provider_type parameter.
+      #
+      # When multiple providers exist, the type parameter is REQUIRED to prevent ID collision
+      # (same claim ID could exist in multiple systems). With a single provider, type is optional
+      # for backward compatibility.
+      #
+      # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
+      # the second provider. This ensures type is always present before it becomes required.
       def get_claim_from_providers(claim_id, provider_type = nil)
         # If provider_type is specified, use it directly
         if provider_type.present?
@@ -92,27 +100,6 @@ module V0
         provider_class = configured_providers.first
         provider = provider_class.new(@current_user)
         provider.get_claim(claim_id)
-      end
-
-      def log_claim_not_found(provider_class)
-        # Expected case: this provider doesn't have the claim, try next provider
-        ::Rails.logger.info(
-          "Provider #{provider_class.name} doesn't have claim",
-          { error_class: 'Common::Exceptions::RecordNotFound' }
-        )
-      end
-
-      def handle_get_claim_error(provider_class, error)
-        provider_name = provider_class.name
-        controller_class = self.class
-
-        # Unexpected error: log and try next provider
-        ::Rails.logger.error(
-          "Provider #{provider_name} error fetching claim",
-          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
-        )
-        StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
-                         tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
       end
 
       def provider_class_for_type(type)
