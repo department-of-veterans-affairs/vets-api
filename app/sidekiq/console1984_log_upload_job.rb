@@ -5,7 +5,6 @@ require 'fileutils'
 
 class Console1984LogUploadJob
   include Sidekiq::Job
-  include Logging::Helper::DataScrubber
 
   CONSOLE_LOGS_S3_BUCKET = 'vets-api-console-access-logs'
   AWS_REGION = 'us-gov-west-1'
@@ -30,6 +29,7 @@ class Console1984LogUploadJob
   end
 
   def create_log_file
+    FileUtils.mkdir_p(folder_path)
     File.write(file_path, JSON.pretty_generate(sessions_data))
   end
 
@@ -37,7 +37,7 @@ class Console1984LogUploadJob
     transfer_manager.upload_file(
       file_path,
       bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: "console1984/#{filename}",
+      key: "#{Settings.vsp_environment}/#{filename}",
       content_type: 'application/json',
       server_side_encryption: 'AES256'
     )
@@ -64,8 +64,12 @@ class Console1984LogUploadJob
     "console1984_logs_#{yesterday}.json"
   end
 
+  def folder_path
+    'tmp/console_access_logs'
+  end
+
   def file_path
-    Rails.root.join('tmp', 'console_access_logs', filename).to_s
+    Rails.root.join(folder_path + "/#{filename}").to_s
   end
 
   def sessions_data
@@ -93,7 +97,7 @@ class Console1984LogUploadJob
     {
       id: command.id,
       timestamp: command.created_at,
-      statements: scrub(command.statements),
+      statements: command.statements,
       sensitive: command.sensitive_access_id.present?,
       sensitive_access: sensitive_access_for_command(command)
     }
