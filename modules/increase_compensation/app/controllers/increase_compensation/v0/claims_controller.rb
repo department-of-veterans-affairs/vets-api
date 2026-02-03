@@ -2,7 +2,6 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
-require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
 
 module IncreaseCompensation
@@ -35,7 +34,7 @@ module IncreaseCompensation
         pdf_url = s3_signed_url(
           claim,
           form_submission_attempt.created_at.to_date,
-          config: IncreaseCompensation::ZsfConfig.new,
+          config: Settings.bio.increase_compensation,
           form_class: IncreaseCompensation::PdfFill::Va218940v1
         )
 
@@ -72,7 +71,7 @@ module IncreaseCompensation
         clear_saved_form(claim.form_id)
 
         # submission attempt is created in the method
-        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+        pdf_url = upload_to_s3(claim, config: Settings.bio.increase_compensation)
 
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e

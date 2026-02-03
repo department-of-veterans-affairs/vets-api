@@ -670,6 +670,7 @@ app/uploaders/form1010cg/poa_uploader.rb @department-of-veterans-affairs/health-
 app/uploaders/hca_attachment_uploader.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/uploaders/lighthouse_document_uploader.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
+app/uploaders/pdf_upload/s3_uploader.rb @department-of-veterans-affairs/bio-huntridge @department-of-veterans-affairs/benefits-intake-pingwind
 app/uploaders/preneed_attachment_uploader.rb @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 app/uploaders/set_aws_config.rb @department-of-veterans-affairs/backend-review-group
 app/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
@@ -2438,6 +2439,7 @@ spec/uploaders/evss_claim_document_uploader_spec.rb @department-of-veterans-affa
 spec/uploaders/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/uploaders/form1010cg/poa_uploader_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 spec/uploaders/hca_attachment_uploader_spec.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
+spec/uploaders/pdf_upload/s3_uploader_spec.rb @department-of-veterans-affairs/bio-huntridge @department-of-veterans-affairs/benefits-intake-pingwind
 spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 spec/uploaders/supporting_evidence_attachment_uploader_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/uploaders/uploader_virus_scan_spec.rb @department-of-veterans-affairs/backend-review-group
