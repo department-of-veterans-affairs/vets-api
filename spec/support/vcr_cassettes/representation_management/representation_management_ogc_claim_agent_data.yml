@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <OGC_CLAIMS_AGENT_EXCEL_LIST_URI>
+    body:
+      encoding: UTF-8
+      string: id=frmExcelList&name=frmExcelList
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 29 Oct 2019 13:32:37 GMT
+      Content-Type:
+      - application/vnd.ms-excel
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - private
+      Set-Cookie:
+      - ASPSESSIONIDSAAQRSCB=DKNDJIJDEDDEFALIHNAMONDB; path=/
+      - TS016f4012=01c8917e48435825e8cb5946eb5136f2705b2a2c628e232335515fd36dfe25b0551c236ecc1593756d006b5ae7705b54d6da33c639ece0bdbd2e441bdbcd37e6579fd2f21d;
+        Max-Age=900; Path=/
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "\r\n<HTML>\r\n<BODY>\r\n\r\n\r\n<!-- Our table which will be translated
+        into an Excel spreadsheet -->\r\n<TABLE WIDTH=75% BORDER=1 CELLSPACING=1 CELLPADDING=1>\r\n<TR>\r\n
+        \  <td>Last Name</td>\r\n   <td>First Name</td>\r\n   <td>Date Accredited</td>\r\n
+        \  <td>Registration Num</td>\r\n   <td>POA Code</td>\r\n   <td>City</td>\r\n
+        \  <td>State</td>\r\n   <td>Zip</td>\r\n   <td>Phone</td>\r\n   <td>AccrClaimAgentId</td>\r\n</TR>\r\n<!--
+        server-side loop adding Table entries -->\r\n\r\n<TR>\r\n   <TD>Adams</TD>\r\n
+        \  <TD>David</TD>\r\n   <TD>1/23/2017</TD>\r\n   <TD>40537</TD>\r\n   <TD>EMK</TD>\r\n
+        \  <TD>Denver</TD>\r\n   <TD>CO</TD>\r\n   <TD>'80210</TD>\r\n   <TD>720-985-6747</TD>\r\n
+        \  <TD>1f7f8c3e-5b4c-4a7d-9c1f-6b2d8e4a1c90</TD>\r\n</TR>\r\n\r\n<TR>\r\n
+        \  <TD>Allen</TD>\r\n   <TD>Kelvin</TD>\r\n   <TD>8/21/2017</TD>\r\n   <TD>42535</TD>\r\n
+        \  <TD>FDN</TD>\r\n   <TD>Durham</TD>\r\n   <TD>NC</TD>\r\n   <TD>'27712</TD>\r\n
+        \  <TD>919-824-9873</TD>\r\n   <TD>6a2d4b19-2f8c-4c63-9d6a-0e9c7a4b2d11</TD>\r\n</TR>\r\n\r\n<TR>\r\n
+        \  <TD>Alston</TD>\r\n   <TD>James</TD>\r\n
+        \  <TD>12/20/2016</TD>\r\n   <TD>40393</TD>\r\n   <TD>ELC</TD>\r\n   <TD>Durham</TD>\r\n
+        \  <TD>NC</TD>\r\n   <TD>'27701</TD>\r\n   <TD>1-984-219-1580</TD>\r\n   <TD>c4e9b2a1-7d3f-4c8b-8f2e-3a6b9d1c7e45</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n   <TD>PERSON</TD>\r\n   <TD>FAKE</TD>\r\n
+        \  <TD>1/1/1970</TD>\r\n   <TD></TD>\r\n   <TD>ZZZ</TD>\r\n   <TD>NOWHERE</TD>\r\n
+        \  <TD>MO</TD>\r\n   <TD>'27701</TD>\r\n   <TD>555-555-5555</TD>\r\n   <TD>8f1c2d3e-4b5a-469c-9d1e-2f3a4b5c6d7e</TD>\r\n</TR>\r\n\r\n
+        \ </TABLE>\r\n</BODY>\r\n</HTML>\r\n"
+    http_version:
+  recorded_at: Tue, 29 Oct 2019 13:32:38 GMT
+recorded_with: VCR 3.0.3

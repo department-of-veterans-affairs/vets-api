@@ -18,6 +18,16 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
     context 'when logged in' do
       before { sign_in_as(user) }
 
+      it 'uses the base VeteranStatusCard::Service' do
+        mock_service = instance_double(VeteranStatusCard::Service)
+        allow(mock_service).to receive(:status_card).and_return({ type: 'veteran_status_card' })
+        expect(VeteranStatusCard::Service).to receive(:new).and_return(mock_service)
+
+        get '/v0/veteran_status_card'
+
+        expect(response).to have_http_status(:ok)
+      end
+
       context 'when veteran is eligible' do
         let(:eligible_response) do
           {
