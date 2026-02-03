@@ -96,6 +96,30 @@ RSpec.describe 'AllergyAdapter' do
         allergy_names = parsed_allergies.map(&:name)
         expect(allergy_names).to include('Penicillin')
       end
+
+      it 'filters out allergies without a name' do
+        # Create a record with active status but no name
+        record_without_name = {
+          'resource' => {
+            'resourceType' => 'AllergyIntolerance',
+            'id' => 'no-name-allergy',
+            'clinicalStatus' => {
+              'coding' => [{ 'code' => 'active' }]
+            },
+            'code' => {
+              'coding' => [{ 'system' => 'http://snomed.info/sct', 'code' => '12345' }]
+              # No 'display' or 'text' field
+            }
+          }
+        }
+
+        oh_records = allergy_sample_response['oracle-health']['entry'] + [record_without_name]
+        parsed_allergies = adapter.parse(oh_records)
+
+        # Should not include the allergy without a name
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).not_to include('no-name-allergy')
+      end
     end
 
     context 'when filter_by_status is false' do
@@ -176,6 +200,25 @@ RSpec.describe 'AllergyAdapter' do
 
         expect(parsed_allergy).not_to be_nil
         expect(parsed_allergy.name).to eq('Penicillin')
+      end
+
+      it 'returns nil for allergy without a name' do
+        record_without_name = {
+          'resource' => {
+            'resourceType' => 'AllergyIntolerance',
+            'id' => 'no-name-allergy',
+            'clinicalStatus' => {
+              'coding' => [{ 'code' => 'active' }]
+            },
+            'code' => {
+              'coding' => [{ 'system' => 'http://snomed.info/sct', 'code' => '12345' }]
+              # No 'display' or 'text' field
+            }
+          }
+        }
+
+        parsed_allergy = adapter.parse_single_allergy(record_without_name)
+        expect(parsed_allergy).to be_nil
       end
     end
 

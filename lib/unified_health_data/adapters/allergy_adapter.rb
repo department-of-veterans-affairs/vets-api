@@ -70,18 +70,32 @@ module UnifiedHealthData
 
       private
 
-      # Determines if an allergy should be included based on its clinical status
-      # Only includes allergies with clinicalStatus of 'active'
-      # Allergies with no clinicalStatus or non-active status (e.g., resolved) are excluded
+      # Determines if an allergy should be included based on its clinical status and name
+      # Only includes allergies with clinicalStatus of 'active' and a non-empty name
+      # Allergies with no clinicalStatus, non-active status (e.g., resolved), or missing name are excluded
       #
       # @param resource [Hash] FHIR AllergyIntolerance resource
-      # @return [Boolean] true if the allergy should be included (has active clinicalStatus)
+      # @return [Boolean] true if the allergy should be included
       def should_include_allergy?(resource)
-        clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
+        has_active_status?(resource) && has_name?(resource)
+      end
 
-        # Only include allergies with 'active' clinical status
-        # This excludes allergies with nil/missing clinicalStatus or non-active statuses like 'resolved'
+      # Checks if the allergy has an active clinical status
+      #
+      # @param resource [Hash] FHIR AllergyIntolerance resource
+      # @return [Boolean] true if clinicalStatus is 'active'
+      def has_active_status?(resource)
+        clinical_status = resource.dig('clinicalStatus', 'coding', 0, 'code')
         clinical_status == 'active'
+      end
+
+      # Checks if the allergy has a name (from code.coding[0].display or code.text)
+      #
+      # @param resource [Hash] FHIR AllergyIntolerance resource
+      # @return [Boolean] true if the allergy has a non-empty name
+      def has_name?(resource)
+        name = resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text')
+        name.present?
       end
 
       def extract_reactions(resource)
