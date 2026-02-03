@@ -303,7 +303,8 @@ module PdfFill
                   # Copy original string value to overflow
                   form_data['student_networth_information_overflow'][field] = original_value
                   # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
-                  form_data['dependents_application']['student_information'][0]['student_networth_information'][field] = {
+                  student_information = form_data['dependents_application']['student_information'][0]
+                  student_information['student_networth_information'][field] = {
                     'first' => 'S',
                     'second' => 'ee ',
                     'third' => 'add',
