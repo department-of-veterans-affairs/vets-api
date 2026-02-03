@@ -324,6 +324,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_tracking_from_dispense_extensions' do
+    let(:adapter) { described_class.new }
     let(:resource) { { 'id' => '12345' } }
 
     context 'when dispense has shipping-info extension with tracking data' do
@@ -472,6 +473,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#find_extension_value_by_url' do
+    let(:adapter) { described_class.new }
     let(:extensions) do
       [
         { 'url' => 'http://example.com/tracking/Tracking Number', 'valueString' => '123456' },
@@ -534,6 +536,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#extract_ndc_from_resource' do
+    let(:adapter) { described_class.new }
+
     context 'when medicationCodeableConcept has NDC coding' do
       let(:resource) do
         {
@@ -657,6 +661,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
   end
 
   describe '#build_tracking_information integration' do
+    let(:adapter) { described_class.new }
+
     context 'when dispenses have extension-based tracking' do
       let(:resource) do
         {
