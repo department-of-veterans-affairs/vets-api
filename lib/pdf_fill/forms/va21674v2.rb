@@ -1061,7 +1061,7 @@ module PdfFill
           %w[earnings_from_all_employment annual_social_security_payments other_annuities_income
              all_other_income].each do |field|
             original_value = student_earnings[field]
-            if earnings_overflow_hash[field]
+            if earnings_overflow_hash[field.to_sym]
               # Copy original string value to overflow
               form_data["#{form_key}_overflow"][field] = original_value
               # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
@@ -1090,7 +1090,7 @@ module PdfFill
 
           %w[savings securities real_estate other_assets total_value].each do |field|
             original_value = student_networth[field]
-            if networth_overflow[field]
+            if networth_overflow[field.to_sym]
               # Copy original string value to overflow
               form_data['student_networth_information_overflow'][field] = original_value
               # Set original field to 'See add'l info' text similar to rest of overflow handling on 686c-674
