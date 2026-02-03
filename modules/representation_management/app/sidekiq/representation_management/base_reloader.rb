@@ -87,9 +87,15 @@ module RepresentationManagement
     end
 
     def fetch_data(action)
-      page = connection
-             .post(action, id: 'frmExcelList', name: 'frmExcelList')
-             .body
+      page = connection.post(action) do |req|
+        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
+        # VCR requires req.body to be a String, not a Hash
+        req.body = URI.encode_www_form(
+          id: 'frmExcelList',
+          name: 'frmExcelList'
+        )
+      end.body
 
       doc = Nokogiri::HTML(page)
       rows = doc.xpath('//table/tr')

@@ -83,7 +83,7 @@ module RepresentationManagement
       ensure_initial_counts
 
       data = fetch_data(endpoint)
-      new_count = data.count { |record| record['Registration Num'].present? }
+      new_count = data.count { |record| normalized_registration_number(record).present? }
 
       if valid_count?(rep_type, new_count)
         process_valid_representative_data(data, processor, entity_type, new_count)
@@ -183,10 +183,17 @@ module RepresentationManagement
 
     # Representative type helper methods
 
+    def normalized_registration_number(record)
+      record['Registration Num']&.strip
+    end
+
     def process_valid_representative_data(data, processor, entity_type, new_count)
-      result = data.map do |record|
-        processor.call(record) if record['Registration Num'].present?
-        record['Registration Num']
+      result = data.filter_map do |record|
+        registration_number = normalized_registration_number(record)
+        next if registration_number.blank?
+
+        processor.call(record)
+        registration_number
       end
       @ingestion_log&.mark_entity_success!(entity_type, count: new_count)
       result
@@ -337,7 +344,7 @@ module RepresentationManagement
 
     def calculate_vso_counts(vso_data)
       {
-        reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
+        reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num']&.strip.present? },
         orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
       }
     end
@@ -348,9 +355,11 @@ module RepresentationManagement
       vso_orgs = vso_data.map do |vso_rep|
         next unless vso_rep['Representative']
 
-        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
-        vso_reps << vso_rep['Registration Num']
+        registration_number = vso_rep['Registration Num']&.strip
+        next if registration_number.blank?
 
+        find_or_create_vso(vso_rep)
+        vso_reps << registration_number
         {
           poa_code: vso_rep['POA'].gsub(/\W/, ''),
           name: vso_rep['Organization Name'],
