@@ -93,7 +93,9 @@ module V0
 
         # No provider_type specified - check if multiple providers exist
         if configured_providers.length > 1
-          raise Common::Exceptions::ParameterMissing.new('type', detail: 'Provider type is required')
+          valid_types = supported_provider_types.join(', ')
+          detail_message = "Provider type is required. Valid types: #{valid_types}"
+          raise Common::Exceptions::ParameterMissing.new('type', detail: detail_message)
         end
 
         # Single provider - no id collision possible
@@ -110,6 +112,12 @@ module V0
         else
           raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
         end
+      end
+
+      def supported_provider_types
+        # Returns list of valid provider type strings that can be used in the type parameter
+        # This is derived from the provider_class_for_type case statement
+        ['lighthouse']
       end
     end
   end

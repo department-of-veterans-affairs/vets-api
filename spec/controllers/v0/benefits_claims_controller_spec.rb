@@ -2437,6 +2437,11 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end.to raise_error(Common::Exceptions::ParameterMissing)
       end
 
+      it 'returns list of supported provider types' do
+        supported_types = controller.send(:supported_provider_types)
+        expect(supported_types).to eq(['lighthouse'])
+      end
+
       context 'when provider_type parameter is specified' do
         let(:lighthouse_provider_class) { BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider }
         let(:lighthouse_provider) { double('LighthouseProvider') }
