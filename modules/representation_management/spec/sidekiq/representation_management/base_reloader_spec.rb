@@ -3,12 +3,60 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::BaseReloader do
-  let(:reloader) { RepresentationManagement::BaseReloader.new }
-  let(:invididual_type_attorney) { AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY }
-  let(:invididual_type_claim)    { AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT }
-  let(:invididual_type_representative) { AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
+  let(:reloader) { described_class.new }
+  let(:individual_type_attorney) { AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY }
+  let(:individual_type_claim)    { AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT }
+  let(:individual_type_representative) { AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE }
 
   describe '#find_or_initialize_by_id' do
+    context 'locking' do
+      it 'wraps the lookup in an advisory lock keyed by registration number when present' do
+        payload = { 'Registration Num' => 'A123', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123:attorney')
+          .and_yield
+
+        reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
+      end
+
+      it 'does not lock when registration number is blank' do
+        payload = { 'Registration Num' => '  ', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).not_to receive(:with_advisory_lock)
+
+        reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
+      end
+
+      it 'yields within the advisory lock when a block is given' do
+        payload = { 'Registration Num' => 'A123', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123:attorney')
+          .and_yield
+
+        yielded = false
+        result = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney) do |rep|
+          yielded = true
+          rep
+        end
+
+        expect(yielded).to be(true)
+        expect(result).to be_a(AccreditedIndividual)
+      end
+
+      it 'strips whitespace from registration number for locking and lookup' do
+        payload = { 'Registration Num' => '  A123  ', 'POA Code' => '9G-B' }
+
+        expect(AccreditedIndividual).to receive(:with_advisory_lock)
+          .with('accredited_individual:A123:attorney')
+          .and_yield
+
+        rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
+        expect(rep.registration_number).to eq('A123')
+      end
+    end
+
     context 'new record' do
       let(:payload) do
         {
@@ -27,7 +75,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
 
       it 'initializes by registration_number and populates blanks, sanitizing inputs, without saving' do
         expect do
-          rep = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+          rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
           expect(rep).to be_new_record
 
           expect(rep.registration_number).to eq('A123')
@@ -44,9 +92,9 @@ RSpec.describe RepresentationManagement::BaseReloader do
         end.not_to change(AccreditedIndividual, :count)
       end
 
-      it 'ignores blank POA Code and still adds invididual_type' do
+      it 'ignores blank POA Code and still adds individual_type' do
         payload_blank_poa = payload.merge('POA Code' => '  ')
-        rep = reloader.send(:find_or_initialize_by_id, payload_blank_poa, invididual_type_attorney)
+        rep = reloader.send(:find_or_initialize_by_id, payload_blank_poa, individual_type_attorney)
 
         expect(rep.poa_code).to eq('')
         expect(rep.individual_type).to eq('attorney')
@@ -70,7 +118,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         )
       end
 
-      it 'finds by registration_number only (no duplicate by name changes)' do
+      it 'finds by registration_number + individual_type (no duplicate by name changes)' do
         payload = {
           'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373b',
           'Registration Num' => 'B777',
@@ -85,7 +133,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         }
 
         expect do
-          rep = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+          rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
           expect(rep).to eq(existing)
 
           expect(rep.first_name).to eq('Alex')
@@ -101,7 +149,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
         end.not_to change(AccreditedIndividual, :count)
       end
 
-      it 'changes invididual_type' do
+      it 'initializes a separate record for a different individual_type with the same registration number' do
         payload = {
           'Registration Num' => 'B777',
           'POA Code' => 'XY-Z ',
@@ -110,11 +158,75 @@ RSpec.describe RepresentationManagement::BaseReloader do
           'AccrClaimAgentId' => '9c6f8595-4e84-42e5-b90a-270c422c373b'
         }
 
-        rep = reloader.send(:find_or_initialize_by_id, payload, invididual_type_claim)
-        expect(rep.individual_type).to eq('claims_agent')
-        expect(rep.poa_code).to eq('XYZ')
+        expect do
+          rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_claim)
+
+          expect(rep).to be_new_record
+          expect(rep.registration_number).to eq('B777')
+          expect(rep.individual_type).to eq('claims_agent')
+
+          rep.save!
+        end.to change(AccreditedIndividual, :count).by(1)
+
+        expect(existing.reload.individual_type).to eq('attorney')
       end
-    end
+
+      it 'finds the correct row when both attorney and claims_agent exist for the same registration number' do
+        claim_agent = AccreditedIndividual.create!(
+          ogc_id: '9c6f8595-4e84-42e5-b90a-270c422c9999',
+          registration_number: 'B777',
+          first_name: 'Case',
+          last_name: 'Agent',
+          individual_type: 'claims_agent',
+          poa_code: 'ABC',
+          phone: '111-1111',
+          city: 'Boulder',
+          state_code: 'CO',
+          zip_code: '80301'
+        )
+
+        attorney_payload = {
+          'Registration Num' => 'B777',
+          'AccrAttorneyId' => existing.ogc_id,
+          'POA Code' => 'XYZ'
+        }
+
+        claim_payload = {
+          'Registration Num' => 'B777',
+          'AccrClaimAgentId' => claim_agent.ogc_id,
+          'POA Code' => 'ABC'
+        }
+
+        attorney_rep = reloader.send(:find_or_initialize_by_id, attorney_payload, individual_type_attorney)
+        claim_rep = reloader.send(:find_or_initialize_by_id, claim_payload, individual_type_claim)
+
+        expect(attorney_rep).to eq(existing)
+        expect(claim_rep).to eq(claim_agent)
+
+        expect(attorney_rep.individual_type).to eq('attorney')
+        expect(claim_rep.individual_type).to eq('claims_agent')
+      end
+
+      it 'does not overwrite an existing poa_code when sanitized payload poa_code is blank' do
+        existing = AccreditedIndividual.create!(
+          ogc_id: '9c6f8595-4e84-42e5-b90a-270c422c373b', # valid UUID
+          registration_number: 'POA1',
+          individual_type: 'attorney',
+          poa_code: 'KEP' # 3 chars
+        )
+
+        payload = {
+          'Registration Num' => 'POA1',
+          'AccrAttorneyId' => existing.ogc_id,
+          'POA Code' => '   ' # blank after sanitize
+        }
+
+        rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
+
+        expect(rep).to eq(existing)
+        expect(rep.poa_code).to eq('KEP') # unchanged
+      end
+ end
 
     context 'edge cases' do
       it 'handles missing middle initial without error and does not set it for new record' do
@@ -127,7 +239,7 @@ RSpec.describe RepresentationManagement::BaseReloader do
           'AccrRepresentativeId' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
         }
 
-        rep = reloader.send(:find_or_initialize_by_id, payload, invididual_type_representative)
+        rep = reloader.send(:find_or_initialize_by_id, payload, individual_type_representative)
         expect(rep.middle_initial).to be_nil
         expect(rep.poa_code).to eq('ABC')
         expect(rep.individual_type).to eq('representative')
@@ -151,14 +263,17 @@ RSpec.describe RepresentationManagement::BaseReloader do
           'Zip' => '94105-1234'
         }
 
-        out = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+        out = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
         expect(out.state_code).to eq('NY')
         expect(out.zip_code).to eq('10001')
       end
 
       it 'does not add poa_code when nil/blank after sanitization' do
-        rep = reloader.send(:find_or_initialize_by_id, { 'Registration Num' => 'BLAH', 'POA Code' => ' - ' },
-                            invididual_type_attorney)
+        rep = reloader.send(
+          :find_or_initialize_by_id,
+          { 'Registration Num' => 'BLAH', 'POA Code' => ' - ' },
+          individual_type_attorney
+        )
         expect(rep.poa_code).to eq('')
         expect(rep.individual_type).to eq('attorney')
       end
@@ -189,11 +304,11 @@ RSpec.describe RepresentationManagement::BaseReloader do
           'Zip' => '94105-1234',
           'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
         }
-        out = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+        out = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
         expect(out.phone).to eq('555-1111')
         expect(out.city).to eq('Kept City')
         expect(out.state_code).to eq('KS')
-        expect(out.zip_code).to   eq('66002')
+        expect(out.zip_code).to eq('66002')
       end
 
       it 'does not overwrite with blank payload values' do
@@ -205,38 +320,28 @@ RSpec.describe RepresentationManagement::BaseReloader do
           'Zip' => nil,
           'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a'
         }
-        out = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
+        out = reloader.send(:find_or_initialize_by_id, payload, individual_type_attorney)
         expect(out.phone).to eq('555-1111')
         expect(out.city).to eq('Kept City')
         expect(out.state_code).to eq('KS')
-        expect(out.zip_code).to   eq('66002')
-      end
-    end
-
-    context 'individual_types accumulate without duplication' do
-      it 'accumulates types across calls and never duplicates' do
-        payload = { 'Registration Num' => 'UT1', 'First Name' => 'X', 'Last Name' => 'Y', 'POA Code' => 'BBB' }
-
-        out1 = reloader.send(:find_or_initialize_by_id, payload, invididual_type_attorney)
-        out1.save
-        expect(out1.individual_type).to eq('attorney')
-
-        out2 = reloader.send(:find_or_initialize_by_id, payload, invididual_type_claim)
-        out2.save
-        expect(out2.individual_type).to eq('claims_agent')
-
-        out3 = reloader.send(:find_or_initialize_by_id, payload, invididual_type_claim)
-        out3.save
-        expect(out3.individual_type).to eq('claims_agent')
+        expect(out.zip_code).to eq('66002')
       end
     end
   end
 
   describe '#fetch_data' do
     let(:conn) { instance_double(Faraday::Connection) }
+    let(:options) do
+      instance_double(Faraday::RequestOptions, 'open_timeout=' => nil, 'timeout=' => nil)
+    end
 
     before do
-      allow(Faraday).to receive(:new).with(url: RepresentationManagement::BaseReloader::BASE_URL).and_return(conn)
+      allow(conn).to receive(:options).and_return(options)
+
+      allow(Faraday).to receive(:new)
+        .with(url: RepresentationManagement::BaseReloader::BASE_URL)
+        .and_yield(conn)
+        .and_return(conn)
     end
 
     it 'posts to the action and returns unique row hashes with headers mapped and blank headers removed' do
@@ -319,6 +424,19 @@ RSpec.describe RepresentationManagement::BaseReloader do
       expect(rows.first['First Name']).to include('Jún')
       expect(rows.first['Last Name']).to include('rk')
       expect(rows.first['POA Code']).to eq('9G-B')
+    end
+
+    it 'returns empty array when no table is present in the HTML' do
+      html = <<~HTML
+        <html><body>
+          <div>Error loading page</div>
+        </body></html>
+      HTML
+
+      allow(conn).to receive(:post).and_return(double(body: html))
+
+      rows = reloader.send(:fetch_data, 'attorneyexcellist.asp')
+      expect(rows).to eq([])
     end
   end
 end

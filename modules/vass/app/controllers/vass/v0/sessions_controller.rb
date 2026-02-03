@@ -10,6 +10,7 @@ module Vass
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
+      include Vass::JwtAuthentication
       include Vass::MetricsTracking
 
       rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
@@ -77,7 +78,7 @@ module Vass
         jwt_result = session.validate_and_generate_jwt
         jwt_token = jwt_result[:token]
         jti = jwt_result[:jti]
-        session.create_authenticated_session(token: jwt_token)
+        session.create_authenticated_session(jti:)
         handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
@@ -90,7 +91,45 @@ module Vass
         raise
       end
 
+      ##
+      # POST /vass/v0/revoke-token
+      #
+      # Revokes an active JWT token (logout functionality).
+      # Deletes the session from Redis, making the token invalid for future requests.
+      #
+      # @return [JSON] Success message or error
+      #
+      def revoke_token
+        token = extract_token_from_header
+        return render_invalid_token_response unless token
+
+        payload = decode_jwt_for_revocation(token)
+        return render_invalid_token_response unless payload
+
+        uuid = payload['sub']
+        return render_invalid_token_response unless uuid && redis_client.session_exists?(uuid:)
+
+        redis_client.delete_session(uuid:)
+        log_vass_event(action: 'token_revoked', vass_uuid: uuid, jti: payload['jti'])
+        track_success(SESSIONS_REVOKE_TOKEN)
+        render_camelized_json({ data: { message: 'Token successfully revoked' } })
+      rescue Vass::Errors::RedisError => e
+        track_failure(SESSIONS_REVOKE_TOKEN, error_type: e.class.name)
+        raise
+      end
+
       private
+
+      ##
+      # Renders invalid token error response.
+      #
+      def render_invalid_token_response
+        render_session_error_response(
+          code: 'invalid_token',
+          detail: 'Token is invalid or already revoked',
+          status: :unauthorized
+        )
+      end
 
       ##
       # Returns array of VASS API exception classes that should be handled uniformly.
@@ -240,7 +279,8 @@ module Vass
       def handle_successful_authentication(session, jwt_token, jti)
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
-        response_data = camelize_keys({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
+        expires_in = redis_client.redis_session_expiry.to_i
+        response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
         track_success(SESSIONS_AUTHENTICATE_OTC)
         render json: response_data, status: :ok
       end

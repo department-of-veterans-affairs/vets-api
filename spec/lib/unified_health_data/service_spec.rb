@@ -169,7 +169,8 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(sample_client_response)
 
           allergies = service.get_allergies
-          expect(allergies.size).to eq(13)
+          # 13 total AllergyIntolerance resources, only 10 have active clinicalStatus
+          expect(allergies.size).to eq(10)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
@@ -178,11 +179,8 @@ describe UnifiedHealthData::Service, type: :service do
             ['medication'],
             ['medication'],
             ['medication'],
-            ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           # Verify specific allergy exists (not checking position due to sorting)
@@ -244,9 +242,9 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(5)
+          # 5 AllergyIntolerance resources, only 4 have active clinicalStatus
+          expect(allergies.size).to eq(4)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
             ['medication'],
             ['medication'],
             ['medication'],
@@ -276,15 +274,14 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(8)
+          # 8 AllergyIntolerance resources, only 6 have active clinicalStatus
+          expect(allergies.size).to eq(6)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
             ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           expect(allergies).to all(have_attributes(
@@ -1924,12 +1921,12 @@ describe UnifiedHealthData::Service, type: :service do
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
-        name: 'Major depressive disorder, recurrent, moderate',
-        provider: 'BORLAND,VICTORIA A',
+        name: 'Major depressive disorder, recurrent, mild',
+        provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
       )
 
@@ -1975,8 +1972,8 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
-      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
     # TODO: This DOES actually raise an error, which seems accurate
@@ -2008,14 +2005,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_a(UnifiedHealthData::Condition)
         expect(condition.id).to eq(condition_id)
-        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.name).to eq('Carcinoma in situ of skin, unspecified')
+        expect(condition.provider).to eq('MCGUIRE,MARCI P')
         expect(condition.facility).to eq('CHYSHR TEST LAB')
       end
 
