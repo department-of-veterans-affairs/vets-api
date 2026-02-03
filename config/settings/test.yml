@@ -549,11 +549,11 @@ form_10_10cg:
       region: us-gov-west-1
 form_intake:
   api_version: 'v1'
-  breakers_error_threshold : 80
+  breakers_error_threshold: 80
   host: 'http://localhost:3000'
   path: 'api/validated-forms'
-  timeout: 5 
-  use_mocks: true 
+  timeout: 5
+  use_mocks: true
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
