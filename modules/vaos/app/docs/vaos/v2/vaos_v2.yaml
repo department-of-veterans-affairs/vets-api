@@ -278,6 +278,71 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/avs_binaries/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve appointment AVS binary by id
+      operationId: fetchAvsBinaries
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: integer
+        - in: query
+          name: doc_ids
+          required: true
+          schema:
+            type: string
+          description: A comma-separated list of document IDs.
+          example: '20875041789,20875041790'
+      responses:
+        "200":
+          description: AVS binary retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: avs_binary
+                        attributes:
+                          $ref: "#/components/schemas/AvsBinary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
     put:
       tags:
         - appointments
@@ -1993,9 +2058,9 @@ components:
     AvsBinary:
       type: object
       required:
-        - document_id
+        - doc_id
       properties:
-        document_id:
+        doc_id:
           description: The document ID of the After Visit Summary PDF.
           type: string
           example: 20875041789

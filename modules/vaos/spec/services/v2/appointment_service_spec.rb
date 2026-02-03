@@ -2405,17 +2405,17 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns nil when appt_id is nil' do
         result = subject.send(:fetch_avs_binaries, nil, ['doc1'])
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
 
       it 'returns nil when doc_ids is nil' do
         result = subject.send(:fetch_avs_binaries, 'appt', nil)
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
 
       it 'returns nil when doc_ids is empty' do
         result = subject.send(:fetch_avs_binaries, 'appt', [])
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
     end
 
