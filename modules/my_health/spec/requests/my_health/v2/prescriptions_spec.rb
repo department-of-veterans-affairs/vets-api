@@ -78,12 +78,51 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             expect(data['attributes']).to have_key('errors')
             expect(data['attributes']).to have_key('info_messages')
 
-            # Verify event logging was called
+            # Verify event logging was called with station numbers from orders
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+              event_facility_ids: %w[556 570]
             )
           end
+        end
+
+        it 'logs event with station numbers from the request' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '757', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+            event_facility_ids: %w[757 570]
+          )
+        end
+
+        it 'logs event with unique station numbers when duplicates exist' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '757', id: '15220389459' },
+                   { stationNumber: '757', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+            event_facility_ids: %w[757]
+          )
         end
       end
 
@@ -1211,6 +1250,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+      end
+
+      it 'returns 400 when station_number parameter is missing' do
+        get('/my_health/v2/prescriptions/12345', headers:)
+
+        expect(response).to have_http_status(:bad_request)
+        error = response.parsed_body['errors']&.first
+        expect(error['detail']).to include('station_number')
       end
 
       it 'returns a successful response when prescription is found' do
