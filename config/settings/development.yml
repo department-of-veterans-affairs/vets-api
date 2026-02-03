@@ -1253,6 +1253,9 @@ representation_management:
   geocoder:
     mapbox:
       api_key: ~
+  ogc_attorney_excel_list_uri: ~
+  ogc_claims_agent_excel_list_uri: ~
+  ogc_organizations_excel_list_uri: ~
 res:
   api_key: ~
   base_url: https://fake_url.com

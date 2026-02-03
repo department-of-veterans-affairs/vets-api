@@ -70,27 +70,27 @@ module Vass
 
     def handle_missing_token
       log_auth_failure('missing_token')
-      render_unauthorized('Missing authentication token')
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::MISSING_TOKEN
     end
 
     def handle_missing_veteran_id
       log_auth_failure('missing_veteran_id')
-      render_unauthorized('Invalid or malformed token')
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::INVALID_TOKEN
     end
 
     def handle_revoked_token
       log_auth_failure('revoked_token')
-      render_unauthorized('Token is invalid or already revoked')
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::REVOKED_TOKEN
     end
 
     def handle_expired_token
       log_auth_failure('expired_token')
-      render_unauthorized('Token has expired')
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::EXPIRED_TOKEN
     end
 
     def handle_invalid_token(exception)
       log_auth_failure('invalid_token', error_class: exception.class.name)
-      render_unauthorized('Invalid or malformed token')
+      raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::INVALID_TOKEN
     end
 
     ##
@@ -142,6 +142,20 @@ module Vass
     end
 
     ##
+    # Decodes JWT without expiration verification.
+    # Used for token revocation - users should be able to logout even with expired tokens.
+    #
+    # @param token [String] JWT token
+    # @return [Hash, nil] Decoded payload or nil if invalid signature/format
+    #
+    def decode_jwt_for_revocation(token)
+      JWT.decode(token, jwt_secret, true, { algorithm: 'HS256', verify_expiration: false })[0]
+    rescue JWT::DecodeError => e
+      log_auth_failure('revocation_decode_error', error_class: e.class.name)
+      nil
+    end
+
+    ##
     # Returns JWT secret from VASS configuration.
     #
     # @return [String] JWT secret key
@@ -161,22 +175,6 @@ module Vass
       metadata[:error_class] = error_class if error_class
 
       log_vass_event(action: 'auth_failure', level: :warn, **metadata)
-    end
-
-    ##
-    # Renders unauthorized error response.
-    #
-    # @param detail [String] Error detail message
-    #
-    def render_unauthorized(detail)
-      render json: {
-        errors: [
-          {
-            code: 'unauthorized',
-            detail:
-          }
-        ]
-      }, status: :unauthorized
     end
   end
 end
