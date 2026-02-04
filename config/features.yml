@@ -37,6 +37,9 @@ features:
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
+  acroform_debug_logs:
+    actor_type: user
+    description: When enabled, AcroForm problematic fields will report in Rails logs
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -567,6 +570,10 @@ features:
   cst_multi_claim_provider:
     actor_type: user
     description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
+  cst_multi_claim_provider_mobile:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
     enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user

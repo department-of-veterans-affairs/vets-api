@@ -3,7 +3,7 @@
   "validMarriage": true,
   "marriageValidityExplanation": "4A. Any reason the marriage might not be legally valid",
   "marriedToVeteranAtTimeOfDeath": true,
-  "howMarriageEnded": "death",
+  "howMarriageEnded": "",
   "howMarriageEndedExplanation": "4C How Marriage Ended",
   "marriageDates": {
     "from": "1999-01-01",
