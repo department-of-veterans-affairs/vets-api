@@ -12,6 +12,8 @@ module DecisionReviews
     STATSD_KEY_PREFIX = 'worker.decision_review.delete_saved_claim_records'
 
     def perform
+      return unless Settings.decision_review.delete_saved_claim_records_job_enabled
+
       deleted_records = ::SavedClaim
                         .where(type: [
                                  'SavedClaim::HigherLevelReview',

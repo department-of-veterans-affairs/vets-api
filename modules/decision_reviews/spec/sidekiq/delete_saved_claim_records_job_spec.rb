@@ -18,6 +18,26 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
+    context 'when the job is disabled via Settings' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(false)
+      end
+
+      it 'does not delete any records and does not increment StatsD' do
+        guid = SecureRandom.uuid
+        SavedClaim::SupplementalClaim.create(guid:, form: '{}', delete_date: delete_date1)
+
+        Timecop.freeze(delete_date2) do
+          subject.new.perform
+
+          expect(SavedClaim.exists?(guid:)).to be true
+        end
+
+        expect(StatsD).not_to have_received(:increment)
+          .with(start_with('worker.decision_review.delete_saved_claim_records'), any_args)
+      end
+    end
+
     context 'when SavedClaim records have a delete_date set' do
       let(:guid1) { SecureRandom.uuid }
       let(:guid2) { SecureRandom.uuid }
