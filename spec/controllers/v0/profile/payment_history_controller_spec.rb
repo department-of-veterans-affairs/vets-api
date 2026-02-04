@@ -261,6 +261,468 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
     end
   end
 
+  describe '#validate_person_attributes' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with validation logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(true)
+      end
+
+      context 'when person is nil' do
+        before do
+          # Stub BGS to return nil person
+          allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+            .and_return(nil)
+          allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+            .and_return(double('payment_history', payments: []))
+        end
+
+        it 'logs error and increments StatsD' do
+          # Allow all other calls
+          allow(StatsD).to receive(:increment).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:error).and_call_original
+
+          # Set specific expectations
+          expect(Rails.logger).to receive(:error).with(
+            'BGS::People::Request returned nil person',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.bgs_person.nil').and_call_original
+
+          get(:index)
+        end
+      end
+
+      context 'when person has missing attributes' do
+        before do
+          # Stub BGS to return person with missing attributes
+          person = double('person',
+                          status: nil,
+                          file_number: nil,
+                          participant_id: '123456',
+                          ssn_number: '123456789')
+          allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+            .and_return(person)
+          allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+            .and_return(double('payment_history', payments: []))
+        end
+
+        it 'logs warning and increments StatsD' do
+          # Allow all other calls
+          allow(StatsD).to receive(:increment).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:error).and_call_original
+
+          # Set specific expectations
+          expect(Rails.logger).to receive(:warn).with(
+            'BGS person missing required attributes',
+            hash_including(
+              user_uuid: user.uuid,
+              missing_attributes: 'status, file_number'
+            )
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.bgs_person.missing_attributes').and_call_original
+
+          get(:index)
+        end
+      end
+
+      context 'when person has all attributes' do
+        it 'does not log warnings or errors' do
+          # Don't allow error or warn logs for person validation
+          expect(Rails.logger).not_to receive(:error).with(
+            'BGS::People::Request returned nil person',
+            anything
+          )
+          expect(Rails.logger).not_to receive(:warn).with(
+            'BGS person missing required attributes',
+            anything
+          )
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.bgs_person.nil')
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.bgs_person.missing_attributes')
+
+          VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+            VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+              get(:index)
+            end
+          end
+        end
+      end
+    end
+
+    context 'with validation logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      end
+
+      it 'does not log person validation' do
+        # Stub BGS to return nil person
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_return(nil)
+
+        expect(Rails.logger).not_to receive(:error).with(
+          'BGS::People::Request returned nil person',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.bgs_person.nil')
+
+        # This will fail because person is nil, but we're just testing logging doesn't happen
+        begin
+          get(:index)
+        rescue
+          # Expected to fail with nil person, we're just checking no logging occurred
+        end
+      end
+    end
+  end
+
+  describe '#log_before_bgs_people_request' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with detailed logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(true)
+      end
+
+      it 'logs BGS people request start and increments StatsD' do
+        # Allow all logger and StatsD calls
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific calls for log_before_bgs_people_request
+        expect(Rails.logger).to receive(:info).with(
+          'Requesting person from BGS',
+          hash_including(user_uuid: user.uuid)
+        ).and_call_original
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.bgs_people_request.started').and_call_original
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+
+      it 'is called after log_authorized_access' do
+        call_order = []
+
+        allow(controller).to receive(:log_authorized_access).and_wrap_original do |method|
+          call_order << :log_authorized
+          method.call
+        end
+
+        allow(controller).to receive(:log_before_bgs_people_request).and_wrap_original do |method|
+          call_order << :log_before_people_request
+          method.call
+        end
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+
+        # Verify log_authorized was called before log_before_people_request
+        authorized_index = call_order.index(:log_authorized)
+        before_request_index = call_order.index(:log_before_people_request)
+
+        expect(authorized_index).not_to be_nil
+        expect(before_request_index).not_to be_nil
+        expect(authorized_index).to be < before_request_index
+      end
+    end
+
+    context 'with detailed logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      end
+
+      it 'does not log BGS people request start' do
+        expect(Rails.logger).not_to receive(:info).with(
+          'Requesting person from BGS',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment)
+          .with('api.payment_history.bgs_people_request.started')
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#log_after_bgs_people_request' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with detailed logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(true)
+      end
+
+      it 'logs BGS people request completion and increments StatsD' do
+        # Allow all logger and StatsD calls
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific calls for log_after_bgs_people_request
+        expect(Rails.logger).to receive(:info).with(
+          'Received person from BGS',
+          hash_including(user_uuid: user.uuid)
+        ).and_call_original
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.bgs_people_request.completed').and_call_original
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+
+      it 'is called after log_before_bgs_people_request' do
+        call_order = []
+
+        allow(controller).to receive(:log_before_bgs_people_request).and_wrap_original do |method|
+          call_order << :log_before_people_request
+          method.call
+        end
+
+        allow(controller).to receive(:log_after_bgs_people_request).and_wrap_original do |method|
+          call_order << :log_after_people_request
+          method.call
+        end
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+
+        # Verify log_before was called before log_after
+        before_index = call_order.index(:log_before_people_request)
+        after_index = call_order.index(:log_after_people_request)
+
+        expect(before_index).not_to be_nil
+        expect(after_index).not_to be_nil
+        expect(before_index).to be < after_index
+      end
+    end
+
+    context 'with detailed logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      end
+
+      it 'does not log BGS people request completion' do
+        expect(Rails.logger).not_to receive(:info).with(
+          'Received person from BGS',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment)
+          .with('api.payment_history.bgs_people_request.completed')
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#log_before_bgs_payment_service_request' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with detailed logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(true)
+      end
+
+      it 'logs BGS payment service request start and increments StatsD' do
+        # Allow all logger and StatsD calls
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific calls for log_before_bgs_payment_service_request
+        expect(Rails.logger).to receive(:info).with(
+          'Requesting payment history from BGS',
+          hash_including(user_uuid: user.uuid)
+        ).and_call_original
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.bgs_payment_service.started').and_call_original
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+
+      it 'is called after validate_person_attributes' do
+        call_order = []
+
+        allow(controller).to receive(:validate_person_attributes).and_wrap_original do |method, *args|
+          call_order << :validate_person
+          method.call(*args)
+        end
+
+        allow(controller).to receive(:log_before_bgs_payment_service_request).and_wrap_original do |method|
+          call_order << :log_before_payment_request
+          method.call
+        end
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+
+        # Verify validate_person was called before log_before_payment_request
+        validate_index = call_order.index(:validate_person)
+        before_request_index = call_order.index(:log_before_payment_request)
+
+        expect(validate_index).not_to be_nil
+        expect(before_request_index).not_to be_nil
+        expect(validate_index).to be < before_request_index
+      end
+    end
+
+    context 'with detailed logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      end
+
+      it 'does not log BGS payment service request start' do
+        expect(Rails.logger).not_to receive(:info).with(
+          'Requesting payment history from BGS',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment)
+          .with('api.payment_history.bgs_payment_service.started')
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#log_after_bgs_payment_service_request' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with detailed logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(true)
+      end
+
+      it 'logs BGS payment service completion and increments StatsD' do
+        # Allow all logger and StatsD calls
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific calls for log_after_bgs_payment_service_request
+        expect(Rails.logger).to receive(:info).with(
+          'Received payment history from BGS',
+          hash_including(user_uuid: user.uuid)
+        ).and_call_original
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.bgs_payment_service.completed').and_call_original
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+
+      it 'is called after log_before_bgs_payment_service_request' do
+        call_order = []
+
+        allow(controller).to receive(:log_before_bgs_payment_service_request).and_wrap_original do |method|
+          call_order << :log_before_payment_request
+          method.call
+        end
+
+        allow(controller).to receive(:log_after_bgs_payment_service_request).and_wrap_original do |method|
+          call_order << :log_after_payment_request
+          method.call
+        end
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+
+        # Verify log_before was called before log_after
+        before_index = call_order.index(:log_before_payment_request)
+        after_index = call_order.index(:log_after_payment_request)
+
+        expect(before_index).not_to be_nil
+        expect(after_index).not_to be_nil
+        expect(before_index).to be < after_index
+      end
+    end
+
+    context 'with detailed logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      end
+
+      it 'does not log BGS payment service completion' do
+        expect(Rails.logger).not_to receive(:info).with(
+          'Received payment history from BGS',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment)
+          .with('api.payment_history.bgs_payment_service.completed')
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+    end
+  end
+
   describe '#log_authorized_access' do
     before do
       allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
