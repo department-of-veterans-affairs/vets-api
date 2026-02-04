@@ -110,8 +110,7 @@ module VetsAPI
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use Warden::Manager do |config|
       config.failure_app = proc do |_env|
-        body = { error: 'Unauthorized', code: 401 }.to_json
-        [401, { 'Content-Type' => 'application/json' }, [body]]
+        ['401', { 'Content-Type' => 'application/json' }, { error: 'Unauthorized', code: 401 }]
       end
       config.intercept_401 = false
       config.default_strategies :github

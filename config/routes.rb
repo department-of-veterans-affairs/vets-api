@@ -209,7 +209,6 @@ Rails.application.routes.draw do
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
-    get 'header_status', to: 'admin#header_status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
     get 'openapi', to: 'open_api#index'
