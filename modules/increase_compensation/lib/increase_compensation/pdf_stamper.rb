@@ -43,7 +43,10 @@ module IncreaseCompensation
     # @param pdf_path [String] Path to the PDF template
     # @return [Hash, nil] Coordinates hash of the form
     #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
-    def self.signature_overlay_coordinates(pdf_path = TEMPLATE)
+    def self.signature_overlay_coordinates(pdf_path = TEMPLATE) # rubocop:disable Metrics/MethodLength
+      if Flipper.enabled?(:acroform_debug_logs)
+        Rails.logger.info("IncreaseCompensation::PdfStamper HexaPDF template: #{pdf_path}")
+      end
       doc = HexaPDF::Document.open(pdf_path)
       return unless doc.validate(auto_correct: false)
 
