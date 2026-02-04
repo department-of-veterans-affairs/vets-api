@@ -2694,7 +2694,19 @@ describe VAOS::V2::AppointmentsService do
 
     it 'is claimExamAppointment for comp & pen service_category' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
-      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      appt[:service_category] =
+        [
+          {
+            coding: [
+              {
+                system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
+                code: 'COMPENSATION & PENSION',
+                display: 'COMPENSATION & PENSION'
+              }
+            ],
+            text: 'COMPENSATION & PENSION'
+          }
+        ]
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('claimExamAppointment')
     end

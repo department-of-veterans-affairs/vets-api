@@ -74,6 +74,7 @@
     "type": "VA",
     "status": "booked",
     "service_type": "optometry",
+    "type_of_care": "Optometry",
     "patient_icn": "1012853802V084487",
     "location_id": "442",
     "clinic": "408",
