@@ -9,18 +9,24 @@ module DisabilityCompensation
   #
   module DownloadClaimDocuments
     class << self
-      def perform(claim_id:, icn:)
+      def perform(claim_id:, icn:) # rubocop:disable Metrics/MethodLength
         profile_service = MPI::Service.new
         profile = fetch_profile(profile_service, icn)
 
         claims_service = BenefitsClaims::Service.new(profile.icn)
         documents_service = BenefitsDocuments::Service.new(:__UNUSED__)
 
-        vbms_document_uuids = fetch_vbms_document_uuids(documents_service, profile.participant_id)
-        claim_documents = fetch_claim_documents(claims_service, claim_id)
+        claim = fetch_claim(claims_service, claim_id)
+        claim_documents = get_claim_documents(claim)
+
+        vbms_document_uuids = fetch_vbms_document_uuids(
+          documents_service,
+          profile.participant_id
+        )
 
         directory = Rails.root / 'tmp' / name.underscore / claim_id
         FileUtils.mkdir_p(directory)
+        File.write(directory / 'claim.json', JSON.pretty_generate(claim))
 
         filenames = []
 
@@ -46,9 +52,13 @@ module DisabilityCompensation
         service.participant_documents_download(document_uuid:, file_number:).body
       end
 
-      def fetch_claim_documents(service, id)
+      def fetch_claim(service, id)
         log_call
-        documents = service.get_claim(id).dig(
+        service.get_claim(id)
+      end
+
+      def get_claim_documents(claim)
+        documents = claim.dig(
           *%w[data attributes supportingDocuments]
         ).to_a
 
@@ -67,12 +77,12 @@ module DisabilityCompensation
       # cross-reference.
       #
       def fetch_vbms_document_uuids(service, participant_id)
-        log_call
         {}.tap do |memo|
           page_number = 1
           page_size = 100
 
           loop do
+            log_call
             response = service.participant_documents_search(
               participant_id:,
               page_number:,
@@ -105,8 +115,14 @@ module DisabilityCompensation
         uuid.delete('{}')
       end
 
+      ##
+      # This is mostly meant to show the user each slow network call, so they
+      # know what they're waiting for. Therefore, it should be placed ahead of
+      # any such call.
+      #
       def log_call
-        Rails.logger.info self, caller_locations(1, 1).first.base_label
+        message = "#{self}.#{caller_locations(1, 1).first.base_label}"
+        Rails.logger.info message
       end
     end
   end
