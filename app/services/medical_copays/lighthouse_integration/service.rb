@@ -161,7 +161,7 @@ module MedicalCopays
         response = account_service.list(id: account_id)
         response.dig('entry', 0, 'resource')
       rescue => e
-        Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.class}" }
         nil
       end
 
@@ -174,14 +174,14 @@ module MedicalCopays
 
         retrieve_organization_address(org_id)
       rescue => e
-        Rails.logger.warn { "Failed to fetch organization address: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch organization address: #{e.class}" }
         nil
       end
 
       def fetch_patient_data
         patient_service.read(@icn)
       rescue => e
-        Rails.logger.warn { "Failed to fetch patient data: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch patient data: #{e.class}" }
         nil
       end
 
@@ -196,7 +196,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && charge_item_ids.include?(resource['id'])
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch charge items: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch charge items: #{e.class}" }
         {}
       end
 
@@ -214,7 +214,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && encounter_ids.include?(resource['id'])
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch encounters: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch encounters: #{e.class}" }
         {}
       end
 
@@ -248,7 +248,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && resource['id']
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch #{data_type}: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch #{data_type}: #{e.class}" }
         {}
       end
 
@@ -264,7 +264,7 @@ module MedicalCopays
           resource if invoice_ref == invoice_id
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch payments: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch payments: #{e.class}" }
         []
       end
 
