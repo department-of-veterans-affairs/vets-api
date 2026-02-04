@@ -38,7 +38,7 @@ module MedicalCopays
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}")
         raise
       end
 
@@ -51,7 +51,7 @@ module MedicalCopays
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
         Rails.logger.error(
-          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
+          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.class}"
         )
         raise e
       end
