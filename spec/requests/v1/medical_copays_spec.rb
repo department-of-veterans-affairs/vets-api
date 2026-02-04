@@ -112,6 +112,17 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           ]
         )
         expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
+
+        facility = data['attributes']['facility']
+        expect(facility).to be_a(Hash)
+        expect(facility['name']).to be_present
+        expect(facility['address']).to be_a(Hash)
+
+        address = facility['address']
+        expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
+        expect(address['city']).to eq('CORAL SPRINGS')
+        expect(address['state']).to eq('FL')
+        expect(address['postalCode']).to eq('330654108')
       end
     end
 

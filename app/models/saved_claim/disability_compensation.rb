@@ -34,7 +34,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
                                                                                      @form_hash.deep_dup).translate,
       Form526Submission::FORM_8940 => EVSS::DisabilityCompensationForm::Form8940.new(user,
                                                                                      @form_hash.deep_dup).translate,
-      'flashes' => BGS::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup, claimed_disabilities).translate
+      'flashes' => BGS::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup,
+                                                              claimed_disabilities).translate
     }.to_json
   end
 end

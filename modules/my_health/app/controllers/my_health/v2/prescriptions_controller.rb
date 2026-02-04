@@ -17,16 +17,32 @@ module MyHealth
 
       service_tag 'mhv-medications'
 
+      ACTIVE_STATUSES_V1 = [
+        'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+        'Active: Parked', 'Active: Submitted'
+      ].freeze
+      ACTIVE_STATUSES_V2 = ['Active'].freeze
+
+      IN_PROGRESS_STATUSES_V1 = ['Active: Refill in Process', 'Active: Submitted'].freeze
+      IN_PROGRESS_STATUSES_V2 = ['In progress'].freeze
+
+      UNKNOWN_STATUS_V1 = 'Unknown'
+      UNKNOWN_STATUS_V2 = 'Status not available'
+
       def refill
         return unless validate_feature_flag
 
-        result = service.refill_prescription(orders)
+        parsed_orders = orders
+        result = service.refill_prescription(parsed_orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
 
         # Log unique user event for prescription refill requested
+        # Also logs OH-specific events if any facility IDs match tracked OH facilities
+        event_facility_ids = parsed_orders.map { |order| order['stationNumber'] }.compact.uniq
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+          event_facility_ids:
         )
 
         render json: response.serializable_hash
@@ -57,6 +73,8 @@ module MyHealth
 
       def show
         return unless validate_feature_flag
+
+        raise Common::Exceptions::ParameterMissing, 'station_number' if params[:station_number].blank?
 
         prescriptions = service.get_prescriptions(current_only: false).compact
         prescription = prescriptions.find do |p|
@@ -141,9 +159,12 @@ module MyHealth
 
       def get_recently_requested_prescriptions(prescriptions)
         prescriptions.select do |item|
-          item.respond_to?(:disp_status) && ['Active: Refill in Process',
-                                             'Active: Submitted'].include?(item.disp_status)
+          item.respond_to?(:disp_status) && in_progress_statuses.include?(item.disp_status)
         end
+      end
+
+      def in_progress_statuses
+        v2_status_mapping_enabled? ? IN_PROGRESS_STATUSES_V2 : IN_PROGRESS_STATUSES_V1
       end
 
       def apply_filters_to_list(prescriptions)
@@ -230,10 +251,7 @@ module MyHealth
       end
 
       def count_active_medications(list)
-        active_statuses = [
-          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
-          'Active: Parked', 'Active: Submitted'
-        ]
+        active_statuses = v2_status_mapping_enabled? ? ACTIVE_STATUSES_V2 : ACTIVE_STATUSES_V1
         list.count { |rx| rx.respond_to?(:disp_status) && active_statuses.include?(rx.disp_status) }
       end
 
@@ -258,7 +276,12 @@ module MyHealth
       end
 
       def count_unknown_status_medications(list)
-        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == 'Unknown' }
+        unknown_status = v2_status_mapping_enabled? ? UNKNOWN_STATUS_V2 : UNKNOWN_STATUS_V1
+        list.count { |rx| rx.respond_to?(:disp_status) && rx.disp_status == unknown_status }
+      end
+
+      def v2_status_mapping_enabled?
+        Flipper.enabled?(:mhv_medications_v2_status_mapping, @current_user)
       end
 
       def remove_pf_pd(data)

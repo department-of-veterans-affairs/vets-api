@@ -251,6 +251,114 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
+        context 'missing API description metric tracking' do
+          before do
+            allow(StatsD).to receive(:increment)
+          end
+
+          let(:claim_with_blank_description) do
+            {
+              'attributes' => {
+                'trackedItems' => [
+                  { 'displayName' => 'Test Item', 'description' => '' },
+                  { 'displayName' => 'Test Item 2', 'description' => nil },
+                  { 'displayName' => 'Another Item', 'description' => 'Some description' }
+                ]
+              }
+            }
+          end
+
+          it 'increments StatsD metric when a tracked item has a blank description' do
+            service.send(:apply_friendlier_language, claim_with_blank_description)
+
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item']
+            ).once
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item 2']
+            ).once
+          end
+        end
+
+        describe 'tracked item content overrides' do
+          context 'when cst_evidence_requests_content_override is disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                        anything).and_return(false)
+            end
+
+            it 'uses legacy constants for tracked item content' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find the 21-4142/21-4142a item
+                form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+                # Legacy fields should be populated from Constants
+                expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+                expect(form_item['canUploadFile']).to be true
+                expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+                # New fields should NOT be present
+                expect(form_item).not_to have_key('longDescription')
+                expect(form_item).not_to have_key('nextSteps')
+                expect(form_item).not_to have_key('noActionNeeded')
+                expect(form_item).not_to have_key('isDBQ')
+                expect(form_item).not_to have_key('isProperNoun')
+                expect(form_item).not_to have_key('isSensitive')
+                expect(form_item).not_to have_key('noProvidePrefix')
+              end
+            end
+          end
+
+          context 'when cst_evidence_requests_content_override is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                        anything).and_return(true)
+            end
+
+            it 'uses TrackedItemContent for known tracked items' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find the 21-4142/21-4142a item
+                form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+                # Existing fields should be populated from TrackedItemContent::CONTENT
+                expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+                expect(form_item['canUploadFile']).to be true
+                expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+                # New structured content fields should be present
+                expect(form_item['longDescription']).to be_a(Hash)
+                expect(form_item['longDescription']).to have_key(:blocks)
+                expect(form_item['nextSteps']).to be_a(Hash)
+                expect(form_item['nextSteps']).to have_key(:blocks)
+                # New boolean flags should be present
+                expect(form_item['noActionNeeded']).to be false
+                expect(form_item['isDBQ']).to be false
+                expect(form_item['isProperNoun']).to be false
+                expect(form_item['isSensitive']).to be false
+                expect(form_item['noProvidePrefix']).to be false
+              end
+            end
+
+            it 'falls back to legacy content for display names with no content overrides' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find an item not in TrackedItemContent::CONTENT (Attorney Fee is suppressed, not in content)
+                tracked_item_without_content_overrides = tracked_items.find { |i| i['displayName'] == 'Attorney Fee' }
+                # Should fall back to legacy behavior
+                expect(tracked_item_without_content_overrides['friendlyName']).to be_nil
+                expect(tracked_item_without_content_overrides['canUploadFile']).to be true
+                expect(tracked_item_without_content_overrides['supportAliases']).to eq([])
+                # New fields should NOT be present for display names with no content overrides
+                expect(tracked_item_without_content_overrides).not_to have_key('longDescription')
+                expect(tracked_item_without_content_overrides).not_to have_key('nextSteps')
+              end
+            end
+          end
+        end
+
         context 'when response is invalid' do
           let(:config) { instance_double(BenefitsClaims::Configuration) }
           let(:response) { instance_double(Faraday::Response, status: 200, headers: { 'content-type' => 'text/html' }) }

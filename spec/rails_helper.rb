@@ -20,6 +20,7 @@ require 'support/factory_bot'
 require 'support/serializer_spec_helper'
 require 'support/validation_helpers'
 require 'support/model_helpers'
+require 'support/helpers/fhir_resource_builder'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/vcr'
@@ -102,6 +103,7 @@ Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
   chain.add SidekiqStatsInstrumentation::ServerMiddleware
   chain.add Sidekiq::ErrorTag
+  chain.add Sidekiq::Batch::Server if defined?(Sidekiq::Batch)
 end
 
 require 'shrine/storage/memory'
@@ -125,6 +127,7 @@ RSpec.configure do |config|
   %i[controller model].each do |type|
     config.include(ModelHelpers, type:)
   end
+  config.include(FhirResourceBuilder, type: :model)
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)

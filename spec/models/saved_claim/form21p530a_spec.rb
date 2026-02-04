@@ -40,17 +40,17 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'rejects first name longer than 12 characters' do
-        form['veteranInformation']['fullName']['first'] = 'A' * 13
+        form['veteranInformation']['fullName']['first'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 12')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects last name longer than 18 characters' do
-        form['veteranInformation']['fullName']['last'] = 'A' * 19
+        form['veteranInformation']['fullName']['last'] = 'A' * 31
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
-        expect(claim.errors.full_messages.join).to include('is greater than: 18')
+        expect(claim.errors.full_messages.join).to include('is greater than: 30')
       end
 
       it 'rejects invalid SSN format' do
@@ -81,12 +81,6 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(claim).not_to be_valid
         expect(claim.errors.full_messages.join).to include('string length')
         expect(claim.errors.full_messages.join).to include('is greater than: 3')
-      end
-
-      it 'rejects invalid postalCodeExtension format' do
-        form['burialInformation']['recipientOrganization']['address']['postalCodeExtension'] = '12345' # Too long
-        expect(claim).not_to be_valid
-        expect(claim.errors.full_messages.join).to include('pattern')
       end
 
       it 'requires veteran full name' do
