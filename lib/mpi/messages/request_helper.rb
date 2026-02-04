@@ -52,12 +52,13 @@ module MPI
           orchestrated_search_element
         end
 
-        def build_query_by_parameter(search_type:)
+        def build_query_by_parameter(search_type:, view_type: MPI::Constants::PRIMARY_VIEW)
           query_element = element('queryByParameter')
           query_element << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
           query_element << element('statusCode', code: 'new')
           query_element << element('modifyCode', code: search_type)
           query_element << element('initialQuantity', value: 1)
+          query_element << element('responseElementGroupId', extension: view_type, root: MPI::Constants::VA_ROOT_OID)
           query_element
         end
 

@@ -10,6 +10,9 @@ RSpec.describe UserSessionForm, type: :model do
     build(:user, :loa3, uuid: saml_attributes[:uuid],
                         idme_uuid: saml_attributes[:uuid])
   end
+  let(:correlation_mpi_record) { build(:mpi_profile, ssn: correlation_mpi_ssn) }
+  let(:find_profile_response) { create(:find_profile_response, profile: correlation_mpi_record) }
+
   let(:authn_context) { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
   let(:saml_response) do
     build_saml_response(
@@ -19,6 +22,16 @@ RSpec.describe UserSessionForm, type: :model do
       existing_attributes: nil,
       issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
     )
+  end
+
+  let(:mpi_service) { instance_double(MPI::Service) }
+  let(:identifier_type) { 'dme' }
+  let(:identifier) { '12345' }
+  let(:correlation_mpi_ssn) { saml_attributes[:va_eauth_pnid] }
+
+  before do
+    allow(MPI::Service).to receive(:new).and_return(mpi_service)
+    allow(mpi_service).to receive(:find_profile_by_identifier).with(anything).and_return(find_profile_response)
   end
 
   context 'with ID.me UUID in SAML' do
@@ -74,12 +87,12 @@ RSpec.describe UserSessionForm, type: :model do
       let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
+        allow(mpi_service).to receive(:add_person_implicit_search).and_return(add_person_response)
       end
 
       it 'adds the ID.me UUID to the existing mpi record' do
-        expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
         UserSessionForm.new(saml_response)
+        expect(mpi_service).to have_received(:add_person_implicit_search)
       end
     end
   end
@@ -114,7 +127,7 @@ RSpec.describe UserSessionForm, type: :model do
         let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
         before do
-          allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
+          allow(mpi_service).to receive(:add_person_implicit_search).and_return(add_person_response)
         end
 
         it 'uses the user account uuid as the user key' do
@@ -125,8 +138,8 @@ RSpec.describe UserSessionForm, type: :model do
         end
 
         it 'adds the identifier to an existing mpi record' do
-          expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
           UserSessionForm.new(saml_response)
+          expect(mpi_service).to have_received(:add_person_implicit_search)
         end
 
         context 'when failure occurs during adding identifier to existing mpi record' do
@@ -163,6 +176,19 @@ RSpec.describe UserSessionForm, type: :model do
         form = UserSessionForm.new(saml_response)
         expect(form.user_identity.logingov_uuid)
           .to eq(saml_attributes['va_eauth_uid'])
+      end
+    end
+
+    context 'when the correlation mpi ssn does not match the saml response ssn' do
+      let(:saml_attributes) do
+        build(:ssoe_logingov_ial2)
+      end
+      let(:correlation_mpi_ssn) { '123456789' }
+      let(:expected_log_message) { '[UserSessionForm] error' }
+      let(:expected_error_message) { "Attribute mismatch: ssn in primary view doesn't match correlation record" }
+
+      it 'raises a saml user attribute error' do
+        expect { UserSessionForm.new(saml_response) }.to raise_error(SAML::UserAttributeError, expected_error_message)
       end
     end
   end

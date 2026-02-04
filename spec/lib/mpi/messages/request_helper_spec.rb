@@ -219,12 +219,19 @@ describe MPI::Messages::RequestHelper do
       element[:value] = 1
       element
     end
+    let(:expected_response_element_group_id_element) do
+      element = Ox::Element.new('responseElementGroupId')
+      element[:extension] = MPI::Constants::PRIMARY_VIEW
+      element[:root] = MPI::Constants::VA_ROOT_OID
+      element
+    end
     let(:expected_element) do
       element = Ox::Element.new('queryByParameter')
       element << expected_query_id_element
       element << expected_status_code_element
       element << expected_modify_code_element
       element << expected_initial_quantity_element
+      element << expected_response_element_group_id_element
       element
     end
 
