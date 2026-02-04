@@ -732,4 +732,77 @@ http_interactions:
       encoding: UTF-8
       string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","resource":{"resourceType":"Organization","id":"4-5pFm5Av0PHt","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"5768763296"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_482"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"3000 CORAL HILLS DR CORAL SPRINGS FL 330654108","line":["3000 CORAL HILLS DR"],"city":"CORAL SPRINGS","state":"FL","postalCode":"330654108"}]},"search":{"mode":"match"}}]}'
   recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient?_id=32000551"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 29 Dec 2025 15:27:33 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '2847'
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '54'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '28'
+      X-Ratelimit-Remaining-Minute:
+      - '54'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="123456790", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '42'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 3e0564e5-949d-4674-9b1a-888378211583#3205579
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/32000551","resource":{"resourceType":"Patient","id":"32000551","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"extension":[{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2106-3","display":"White"}},{"url":"text","valueString":"White"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"},{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2135-2","display":"Hispanic or Latino"}},{"url":"text","valueString":"Hispanic or Latino"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"},{"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex","valueCode":"F"}],"identifier":[{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"PN"}]},"system":"http://va.gov/mpi","value":"32000551","assigner":{"display":"Master Patient Index"}}],"name":[{"use":"usual","text":"Mrs. Ivory697 Britta584 Kirlin939","family":"Kirlin939","given":["Ivory697"]}],"telecom":[{"system":"phone","value":"5559987693","use":"home"}],"gender":"female","birthDate":"1929-03-15","deceasedBoolean":false,"address":[{"line":["197 Ullrich Well"],"city":"Broadview Park","state":"FL","postalCode":"00000"}],"contact":[{"relationship":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0131","code":"C","display":"Emergency Contact"},{"system":"http://va.gov/terminology/vistaDefinedTerms/2","code":".3311","display":"SECONDARY EMERGENCY CONTACT"}],"text":"SECONDARY EMERGENCY CONTACT"}],"name":{"text":"O''Conner582, Anneliese959"},"telecom":[{"system":"phone","value":"5552902741","use":"home"},{"system":"phone","value":"5558725482","use":"work"},{"system":"email","value":"stewart.skiles@example.com"}],"address":{"line":["76210 Stehr Causeway","Suite 315"],"city":"South Carleetown","state":"TX","postalCode":"42094"}}],"communication":[{"language":{"text":"ENGLISH"}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
 recorded_with: VCR 6.3.1

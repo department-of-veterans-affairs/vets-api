@@ -8,6 +8,7 @@ require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication/service'
 require 'lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service'
 require 'lighthouse/healthcare_cost_and_coverage/organization/service'
+require 'lighthouse/healthcare_cost_and_coverage/patient/service'
 require 'concurrent-ruby'
 
 module MedicalCopays
@@ -69,6 +70,7 @@ module MedicalCopays
         invoice_data = invoice_service.read(id)
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         org_address = fetch_organization_address(invoice_data)
+        patient_data = fetch_patient_data
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
 
@@ -80,7 +82,8 @@ module MedicalCopays
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
           payments: invoice_deps[:payments],
-          facility_address: org_address
+          facility_address: org_address,
+          patient_data:
         )
       end
 
@@ -169,6 +172,13 @@ module MedicalCopays
         retrieve_organization_address(org_id)
       rescue => e
         Rails.logger.warn { "Failed to fetch organization address: #{e.message}" }
+        nil
+      end
+
+      def fetch_patient_data
+        patient_service.read(@icn)
+      rescue => e
+        Rails.logger.warn { "Failed to fetch patient data: #{e.message}" }
         nil
       end
 
@@ -280,6 +290,10 @@ module MedicalCopays
 
       def organization_service
         @organization_service ||= ::Lighthouse::HealthcareCostAndCoverage::Organization::Service.new(@icn)
+      end
+
+      def patient_service
+        @patient_service ||= ::Lighthouse::HealthcareCostAndCoverage::Patient::Service.new(@icn)
       end
 
       def invoice_service

@@ -9,6 +9,7 @@ module Lighthouse
 
       attribute :external_id, String
       attribute :facility, Hash
+      attribute :patient, Hash
       attribute :bill_number, String
       attribute :status, String
       attribute :status_description, String
@@ -36,6 +37,7 @@ module Lighthouse
         @medications = attrs[:medications] || {}
         @payments_data = attrs[:payments] || []
         @facility_address = attrs[:facility_address]
+        @patient_data = attrs[:patient_data]
         assign_attributes
       end
 
@@ -54,6 +56,7 @@ module Lighthouse
         assign_line_items
         assign_payments
         assign_facility
+        assign_patient
       end
 
       def assign_balances
@@ -90,6 +93,35 @@ module Lighthouse
           'city' => @facility_address[:city],
           'state' => @facility_address[:state],
           'postalCode' => @facility_address[:postalCode]
+        }
+      end
+
+      def assign_patient
+        @patient = build_patient_info
+      end
+
+      def build_patient_info
+        return nil unless @patient_data
+
+        patient_resource = @patient_data.dig('entry', 0, 'resource')
+        return nil unless patient_resource
+
+        address = patient_resource.dig('address', 0) || {}
+        name = patient_resource.dig('name', 0) || {}
+        given_names = name['given'] || []
+
+        {
+          'first_name' => given_names[0],
+          'middle_name' => given_names[1],
+          'last_name' => name['family'],
+          'address' => {
+            'address_line1' => address.dig('line', 0),
+            'address_line2' => address.dig('line', 1),
+            'address_line3' => address.dig('line', 2),
+            'city' => address['city'],
+            'state' => address['state'],
+            'postalCode' => address['postalCode']
+          }
         }
       end
 
