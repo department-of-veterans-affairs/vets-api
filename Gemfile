@@ -23,7 +23,6 @@ path 'modules' do
   gem 'dependents_verification'
   gem 'dhp_connected_devices'
   gem 'digital_forms_api'
-  gem 'employment_questionnaires'
   gem 'facilities_api'
   gem 'income_and_assets'
   gem 'income_limits'
