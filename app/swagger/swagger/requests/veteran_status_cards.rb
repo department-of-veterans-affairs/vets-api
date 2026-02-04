@@ -23,7 +23,7 @@ module Swagger
                 key :description, "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility"
               end
               property :attributes, type: :object do
-                key :required, %i[veteran_status service_summary_code service_history_status]
+                key :required, %i[veteran_status confirmation_status service_summary_code service_history_status]
                 key :description, "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card"
                 property :full_name, type: %i[string null] do
                   key :description,
@@ -101,10 +101,11 @@ module Swagger
                   key :description, 'Displays the reason the veteran is not eligible for a status card'
                   key :example, 'PERSON_NOT_FOUND'
                 end
-                property :confirmation_status, type: %i[string null] do
+                property :confirmation_status, type: :string do
                   key :enum,
-                      %w[DISCHONORABLE_SSC_CODE INELIGIBLE_SSC_CODE UNKNOWN_SSC_CODE EDIPI_NO_PNL_SSC_CODE
-                         CURRENTLY_SERVING_SSC_CODE ERROR_SSC_CODE UNCAUGHT_SSC_CODE UNKNOWN_REASON]
+                      %w[DISCHONORABLE_SSC INELIGIBLE_SSC UNKNOWN_SSC EDIPI_NO_PNL_SSC CURRENTLY_SERVING_SSC ERROR_SSC
+                         UNCAUGHT_SSC UNKNOWN_REASON NO_SSC_CHECK AD_DSCH_VAL_SSC AD_VAL_PREV_QUAL_SSC
+                         AD_VAL_PREV_RES_GRD_SSC AD_UNCHAR_DSCH_SSC VAL_PREV_QUAL_SSC]
                   key :description, 'Displays the confirmation status of the veteran'
                   key :example, 'INELIGIBLE_SSC_CODE'
                 end

@@ -16,6 +16,7 @@ properties:
     additionalProperties: false
     required:
       - veteranStatus
+      - confirmationStatus
       - serviceSummaryCode
       - serviceHistoryStatus
     description: Displays data specific to either 'confirmed' or 'not confirmed' veteran status card
@@ -128,15 +129,20 @@ properties:
       confirmationStatus:
         type: string
         enum:
-          - DISCHONORABLE_SSC_CODE
-          - INELIGIBLE_SSC_CODE
-          - UNKNOWN_SSC_CODE
-          - EDIPI_NO_PNL_SSC_CODE
-          - CURRENTLY_SERVING_SSC_CODE
-          - ERROR_SSC_CODE
-          - UNCAUGHT_SSC_CODE
+          - DISCHONORABLE_SSC
+          - INELIGIBLE_SSC
+          - UNKNOWN_SSC
+          - EDIPI_NO_PNL_SSC
+          - CURRENTLY_SERVING_SSC
+          - ERROR_SSC
+          - UNCAUGHT_SSC
           - UNKNOWN_REASON
-        nullable: true
+          - NO_SSC_CHECK
+          - AD_DSCH_VAL_SSC
+          - AD_VAL_PREV_QUAL_SSC
+          - AD_VAL_PREV_RES_GRD_SSC
+          - AD_UNCHAR_DSCH_SSC
+          - VAL_PREV_QUAL_SSC
         description: Displays the confirmation status of the veteran
         example: INELIGIBLE_SSC_CODE
       serviceSummaryCode:
