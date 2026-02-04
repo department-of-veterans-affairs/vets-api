@@ -218,41 +218,47 @@ RSpec.describe VeteranStatusCard::Service do
         )
       end
 
-      context 'when not confirmed' do
-        it 'logs the ineligibility reason as a StatsD metric' do
-          subject.instance_variable_set(:@ineligible_message, 'test_ineligibility_reason')
+      context 'confirmation_status StatsD logging' do
+        it 'logs the confirmation_status as a StatsD metric' do
+          subject.instance_variable_set(:@confirmation_status, 'test_confirmation_status')
 
           subject.send(:log_vsc_result, confirmed: false)
 
-          expect(StatsD).to have_received(:increment).with('veteran_status_card.test_ineligibility_reason')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.test_confirmation_status')
         end
 
-        it 'does not log ineligibility reason when confirmed' do
-          subject.instance_variable_set(:@ineligible_message, 'test_ineligibility_reason')
+        it 'logs the confirmation_status even when confirmed' do
+          subject.instance_variable_set(:@confirmation_status, 'test_confirmation_status')
 
           subject.send(:log_vsc_result, confirmed: true)
 
-          expect(StatsD).not_to have_received(:increment).with('veteran_status_card.test_ineligibility_reason')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.test_confirmation_status')
+        end
+
+        it 'logs the default NO_SSC_CHECK_MESSAGE when not otherwise set' do
+          subject.send(:log_vsc_result, confirmed: true)
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.no_ssc_check')
         end
       end
     end
 
-    describe '#ineligible_message_upcase' do
-      context 'when @ineligible_message is set' do
-        it 'returns the uppercase @ineligible_message' do
-          subject.instance_variable_set(:@ineligible_message, 'dishonorable_ssc_code')
+    describe '#confirmation_status_upcase' do
+      context 'when @confirmation_status is set' do
+        it 'returns the uppercase @confirmation_status' do
+          subject.instance_variable_set(:@confirmation_status, 'dishonorable_ssc')
 
-          result = subject.send(:ineligible_message_upcase)
+          result = subject.send(:confirmation_status_upcase)
 
-          expect(result).to eq('DISHONORABLE_SSC_CODE')
+          expect(result).to eq('DISHONORABLE_SSC')
         end
       end
 
-      context 'when @ineligible_message is nil' do
-        it 'returns nil' do
-          result = subject.send(:ineligible_message_upcase)
+      context 'when @confirmation_status has default value' do
+        it 'returns the uppercase default value' do
+          result = subject.send(:confirmation_status_upcase)
 
-          expect(result).to be_nil
+          expect(result).to eq('NO_SSC_CHECK')
         end
       end
     end
@@ -322,7 +328,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs DISHONORABLE_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.dishonorable_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.dishonorable_ssc')
           end
         end
 
@@ -334,7 +340,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs INELIGIBLE_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_ssc')
           end
         end
 
@@ -346,7 +352,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs UNKNOWN_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.unknown_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.unknown_ssc')
           end
         end
 
@@ -358,7 +364,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs EDIPI_NO_PNL_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.edipi_no_pnl_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.edipi_no_pnl_ssc')
           end
         end
 
@@ -370,7 +376,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs CURRENTLY_SERVING_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.currently_serving_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.currently_serving_ssc')
           end
         end
 
@@ -382,7 +388,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs ERROR_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.error_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.error_ssc')
           end
         end
 
@@ -394,7 +400,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs UNCAUGHT_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.uncaught_ssc_code')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.uncaught_ssc')
           end
         end
 
@@ -473,20 +479,31 @@ RSpec.describe VeteranStatusCard::Service do
         let(:veteran_status) { 'not confirmed' }
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
 
-        described_class::CONFIRMED_SSC_CODES.each do |code|
-          context "with SSC code #{code}" do
-            let(:ssc_code) { code }
+        {
+          'AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
+          'AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
+          'AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
+          'AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
+          'VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
+        }.each do |category, codes|
+          context "with #{category} codes" do
+            codes.each do |code|
+              context "with SSC code #{code}" do
+                let(:ssc_code) { code }
 
-            it 'returns veteran_status_card for confirmed SSC code' do
-              result = subject.status_card
+                it 'returns veteran_status_card for confirmed SSC code' do
+                  result = subject.status_card
 
-              expect(result[:type]).to eq('veteran_status_card')
-              expect(result[:attributes][:full_name]).to be_a(String)
-              expect(result[:attributes][:full_name]).to be_present
-              expect(result[:attributes][:veteran_status]).to eq('confirmed')
-              expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
-              expect(result[:attributes][:service_summary_code]).to eq(code)
-              expect(result[:attributes][:service_history_status]).to eq('found')
+                  expect(result[:type]).to eq('veteran_status_card')
+                  expect(result[:attributes][:full_name]).to be_a(String)
+                  expect(result[:attributes][:full_name]).to be_present
+                  expect(result[:attributes][:veteran_status]).to eq('confirmed')
+                  expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
+                  expect(result[:attributes][:service_summary_code]).to eq(code)
+                  expect(result[:attributes][:service_history_status]).to eq('found')
+                  expect(result[:attributes][:confirmation_status]).to eq(category)
+                end
+              end
             end
           end
         end
@@ -496,17 +513,28 @@ RSpec.describe VeteranStatusCard::Service do
         let(:veteran_status) { 'not confirmed' }
         let(:not_confirmed_reason) { 'NOT_TITLE_38' }
 
-        described_class::CONFIRMED_SSC_CODES.each do |code|
-          context "with SSC code #{code}" do
-            let(:ssc_code) { code }
+        {
+          'AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
+          'AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
+          'AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
+          'AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
+          'VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
+        }.each do |category, codes|
+          context "with #{category} codes" do
+            codes.each do |code|
+              context "with SSC code #{code}" do
+                let(:ssc_code) { code }
 
-            it 'returns veteran_status_card for confirmed SSC code' do
-              result = subject.status_card
+                it 'returns veteran_status_card for confirmed SSC code' do
+                  result = subject.status_card
 
-              expect(result[:type]).to eq('veteran_status_card')
-              expect(result[:attributes][:veteran_status]).to eq('confirmed')
-              expect(result[:attributes][:not_confirmed_reason]).to eq('NOT_TITLE_38')
-              expect(result[:attributes][:service_summary_code]).to eq(code)
+                  expect(result[:type]).to eq('veteran_status_card')
+                  expect(result[:attributes][:veteran_status]).to eq('confirmed')
+                  expect(result[:attributes][:not_confirmed_reason]).to eq('NOT_TITLE_38')
+                  expect(result[:attributes][:service_summary_code]).to eq(code)
+                  expect(result[:attributes][:confirmation_status]).to eq(category)
+                end
+              end
             end
           end
         end
@@ -1380,7 +1408,7 @@ RSpec.describe VeteranStatusCard::Service do
         expect(result[:attributes][:alert_type]).to eq('error')
         expect(result[:attributes][:veteran_status]).to eq('not confirmed')
         expect(result[:attributes][:not_confirmed_reason]).to be_nil
-        expect(result[:attributes][:confirmation_status]).to be_nil
+        expect(result[:attributes][:confirmation_status]).to eq('NO_SSC_CHECK')
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
         expect(result[:attributes][:service_history_status]).to eq('found')
       end
