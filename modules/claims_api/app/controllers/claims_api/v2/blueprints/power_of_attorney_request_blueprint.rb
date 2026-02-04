@@ -65,11 +65,12 @@ module ClaimsApi
                   address_line_2: request.dig('veteran', 'address', 'addressLine2'),
                   city: request.dig('veteran', 'address', 'city'),
                   state_code: request.dig('veteran', 'address', 'stateCode'),
-                  countryCode: request.dig('veteran', 'address', 'countryCode'),
+                  country_code: request.dig('veteran', 'address', 'countryCode'),
                   zip_code: request.dig('veteran', 'address', 'zipCode'),
                   zip_code_suffix: request.dig('veteran', 'address', 'zipCodeSuffix')
                 },
                 phone: {
+                  country_code: request.dig('veteran', 'phone', 'countryCode'),
                   area_code: request.dig('veteran', 'phone', 'areaCode'),
                   phone_number: request.dig('veteran', 'phone', 'phoneNumber')
                 },
@@ -83,11 +84,12 @@ module ClaimsApi
                   address_line_2: request.dig('claimant', 'address', 'addressLine2'),
                   city: request.dig('claimant', 'address', 'city'),
                   state_code: request.dig('claimant', 'address', 'stateCode'),
-                  countryCode: request.dig('claimant', 'address', 'countryCode'),
+                  country_code: request.dig('claimant', 'address', 'countryCode'),
                   zip_code: request.dig('claimant', 'address', 'zipCode'),
                   zip_code_suffix: request.dig('claimant', 'address', 'zipCodeSuffix')
                 },
                 phone: {
+                  country_code: request.dig('claimant', 'phone', 'countryCode'),
                   area_code: request.dig('claimant', 'phone', 'areaCode'),
                   phone_number: request.dig('claimant', 'phone', 'phoneNumber')
                 },

@@ -1,0 +1,53 @@
+{
+  "data": {
+    "id": "PLACEHOLDER",
+    "type": "power-of-attorney-request",
+    "attributes": {
+      "veteran": {
+        "serviceNumber": "123678453",
+        "serviceBranch": "ARMY",
+        "address": {
+          "addressLine1": "2719 Hyperion Ave",
+          "addressLine2": "Apt 2",
+          "city": "Los Angeles",
+          "stateCode": "CA",
+          "countryCode": "US",
+          "zipCode": "92264",
+          "zipCodeSuffix": "0200"
+        },
+        "phone": {
+          "countryCode": null,
+          "areaCode": "555",
+          "phoneNumber": "5551234"
+        },
+        "email": "test@test.com",
+        "insuranceNumber": "1234567890"
+      },
+      "claimant": {
+        "claimantId": null,
+        "address": {
+          "addressLine1": null,
+          "addressLine2": null,
+          "city": null,
+          "stateCode": null,
+          "countryCode": null,
+          "zipCode": null,
+          "zipCodeSuffix": null
+        },
+        "phone": {
+          "countryCode": null,
+          "areaCode": null,
+          "phoneNumber": null
+        },
+        "email": null,
+        "relationship": null
+      },
+      "representative": {
+        "poaCode": "067"
+      },
+      "recordConsent": true,
+      "consentLimits": ["DRUG_ABUSE", "SICKLE_CELL", "HIV", "ALCOHOLISM"],
+      "consentAddressChange": true
+    }
+  }
+}
