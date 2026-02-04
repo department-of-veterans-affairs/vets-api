@@ -564,5 +564,4 @@ describe Veteran::Service::Representative, type: :model do
       expect(assoc.options[:source]).to eq(:organization)
     end
   end
-
 end

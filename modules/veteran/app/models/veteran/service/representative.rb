@@ -18,15 +18,14 @@ module Veteran
 
       validates :poa_codes, presence: true
       has_many :organization_representatives,
-         class_name: 'Veteran::Service::OrganizationRepresentative',
-         foreign_key: :representative_id,
-         primary_key: :representative_id,
-         inverse_of: :representative,
-         dependent: :destroy
+               class_name: 'Veteran::Service::OrganizationRepresentative',
+               primary_key: :representative_id,
+               inverse_of: :representative,
+               dependent: :destroy
 
       has_many :organizations,
-              through: :organization_representatives,
-              source: :organization
+               through: :organization_representatives,
+               source: :organization
 
       before_save :set_full_name
 

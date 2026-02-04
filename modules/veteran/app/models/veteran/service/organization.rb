@@ -8,15 +8,15 @@ module Veteran
 
       validates :poa, presence: true
       has_many :organization_representatives,
-         class_name: 'Veteran::Service::OrganizationRepresentative',
-         foreign_key: :organization_poa,
-         primary_key: :poa,
-         inverse_of: :organization,
-         dependent: :destroy
+               class_name: 'Veteran::Service::OrganizationRepresentative',
+               foreign_key: :organization_poa,
+               primary_key: :poa,
+               inverse_of: :organization,
+               dependent: :destroy
 
       has_many :representatives,
-              through: :organization_representatives,
-              source: :representative
+               through: :organization_representatives,
+               source: :representative
 
       #
       # Compares org's current info with new data to detect changes in address.

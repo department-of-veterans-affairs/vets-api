@@ -1,4 +1,5 @@
-# app/models/veteran/service/organization_representative.rb
+# frozen_string_literal: true
+
 module Veteran
   module Service
     class OrganizationRepresentative < ApplicationRecord
@@ -6,7 +7,6 @@ module Veteran
 
       belongs_to :representative,
                  class_name: 'Veteran::Service::Representative',
-                 foreign_key: :representative_id,
                  primary_key: :representative_id,
                  inverse_of: :organization_representatives
 
@@ -22,7 +22,6 @@ module Veteran
         disabled: 'disabled'
       }, default: 'disabled'
 
-      validates :representative_id, presence: true
       validates :organization_poa, presence: true
       validates :representative_id, uniqueness: { scope: :organization_poa }
     end

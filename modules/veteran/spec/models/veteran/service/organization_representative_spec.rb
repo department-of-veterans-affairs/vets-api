@@ -50,10 +50,10 @@ RSpec.describe Veteran::Service::OrganizationRepresentative, type: :model do
       expect(org_rep).to be_valid
     end
 
-    it 'requires representative_id' do
-      org_rep.representative_id = nil
+    it 'requires a representative' do
+      org_rep.representative = nil
       expect(org_rep).not_to be_valid
-      expect(org_rep.errors[:representative_id]).to be_present
+      expect(org_rep.errors[:representative]).to be_present
     end
 
     it 'requires organization_poa' do
