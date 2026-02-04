@@ -205,13 +205,14 @@ module PdfFill
     #
     # @return [None]
     #
+
     def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      Rails.logger.info("PdfFill::Filler HexaPDF template: #{template_path}") if Flipper.enabled?(:acroform_debug_logs)
       doc = HexaPDF::Document.open(template_path)
       form = doc.acro_form
       raise 'No AcroForm found in PDF template.' if form.nil?
 
       form.fill(hash_data)
-
       doc.write(output_path)
     end
 
