@@ -174,7 +174,7 @@ module MHV
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
         PHASES.transform_values do |day_offset|
-          "#{format_phase_date(migration_date + day_offset)} at 12:00AM EST"
+          "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
 
