@@ -247,7 +247,9 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
   describe 'dedup by registration_number (attorney)' do
     let(:reloader) { RepresentationManagement::VSOReloader.new }
 
-    RepresentationManagement::AccreditationTotal.destroy_all
+    before do
+      RepresentationManagement::AccreditationTotal.destroy_all
+    end
 
     it 'does not create a duplicate when names vary' do
       AccreditedIndividual.create!(
@@ -283,7 +285,9 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
   describe 'initial attribute population for new reps' do
     let(:reloader) { RepresentationManagement::VSOReloader.new }
 
-    RepresentationManagement::AccreditationTotal.destroy_all
+    before do
+      RepresentationManagement::AccreditationTotal.destroy_all
+    end
 
     it 'fills names/contacts for a NEW attorney record' do
       payload = {
