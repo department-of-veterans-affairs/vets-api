@@ -59,6 +59,38 @@ module MHV
         []
       end
 
+      # Looks up migration phase for a given station number
+      # @param station_number [String] the facility station number
+      # @return [String, nil] the current phase (e.g., "p1") or nil if not in migration
+      def get_phase_for_station_number(station_number)
+        return nil if station_number.blank?
+
+        raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
+        return nil if raw_value.to_s.strip.blank?
+
+        raw_value.to_s.split(';').each do |migration_entry|
+          migration_entry = migration_entry.strip
+          next if migration_entry.blank?
+
+          date_part, facilities_part = migration_entry.split(':', 2)
+          next if date_part.blank? || facilities_part.blank?
+
+          facility_ids = facilities_part.scan(/\[([^,]+),/).flatten.map(&:strip)
+          next unless facility_ids.include?(station_number.to_s)
+
+          migration_date = Date.parse(date_part.strip)
+          return determine_current_phase(migration_date)
+        end
+
+        nil
+      rescue => e
+        Rails.logger.error(
+          'OH Migration Phase Lookup Error',
+          { error_class: e.class.name, error_message: e.message, station_number: }
+        )
+        nil
+      end
+
       private
 
       def pretransitioned_oh_facilities
@@ -179,6 +211,7 @@ module MHV
       end
 
       # Determines the current phase based on today's date (inclusive boundaries)
+      # @param migration_date [Date] the migration date
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
         today = Time.zone.today
