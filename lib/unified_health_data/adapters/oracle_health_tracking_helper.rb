@@ -65,13 +65,17 @@ module UnifiedHealthData
         extensions.find { |ext| ext['url'] == 'http://va.gov/fhir/StructureDefinition/shipping-info' }
       end
 
-      # Finds an extension value by URL suffix
+      # Finds an extension value by exact URL match
       #
       # @param extensions [Array<Hash>] Array of extension objects
-      # @param url_suffix [String] The URL suffix to search for (e.g., 'Tracking Number')
+      # @param url [String] The exact URL to search for (e.g., 'Tracking Number')
       # @return [String, nil] The extension valueString or nil if not found
-      def find_extension_value(extensions, url_suffix)
-        extension = extensions.find { |ext| ext['url']&.end_with?(url_suffix) }
+      #
+      # Note: Oracle Health uses simple field names as URLs in shipping-info extensions,
+      # not full URIs. This method performs exact string matching to avoid ambiguity.
+      # Expected URL format: 'Tracking Number', 'Delivery Service', 'NDC Code', etc.
+      def find_extension_value(extensions, url)
+        extension = extensions.find { |ext| ext['url'] == url }
         extension&.dig('valueString')
       end
 
