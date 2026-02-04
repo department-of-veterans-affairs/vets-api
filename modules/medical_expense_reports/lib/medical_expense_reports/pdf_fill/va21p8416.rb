@@ -151,6 +151,10 @@ module MedicalExpenseReports
       # @return [Hash, nil] Coordinates hash of the form
       #   `{ x: Float, y: Float, page_number: Integer }` or nil on failure
       def self.signature_overlay_coordinates(pdf_path)
+        if Flipper.enabled?(:acroform_debug_logs)
+          Rails.logger.info("MedicalExpenseReports::PdfFill::Va21p8416 HexaPDF template: #{pdf_path}")
+        end
+
         doc = HexaPDF::Document.open(pdf_path)
         field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
         widget = field&.each_widget&.first
