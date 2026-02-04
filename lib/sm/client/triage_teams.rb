@@ -35,11 +35,11 @@ module SM
         collection = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata],
                                                                        errors: json[:errors])
 
-        # Check each team for OH migration status and update blocked_status if in p3/p4
+        # Check each team for OH migration status and update blocked_status if in p3-p6
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
         collection.data.each do |team|
           phase = oh_service.get_phase_for_station_number(team.station_number)
-          if %w[p3 p4].include?(phase)
+          if %w[p3 p4 p5 p6].include?(phase)
             team.blocked_status = true
             team.migrating_to_oh = true
           end
