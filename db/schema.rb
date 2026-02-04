@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_04_160007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1484,6 +1484,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
+  end
+
+  create_table "organization_representatives", force: :cascade do |t|
+    t.string "representative_id", null: false
+    t.string "organization_poa", limit: 3, null: false
+    t.string "acceptance_mode", default: "disabled", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
