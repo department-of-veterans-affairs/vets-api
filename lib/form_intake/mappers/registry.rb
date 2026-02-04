@@ -24,7 +24,7 @@ module FormIntake
       # Check if form has a mapper
       # @param form_type [String] Form type
       # @return [Boolean]
-      def self.has_mapper?(form_type)
+      def self.mapper?(form_type)
         FORM_MAPPERS.key?(form_type)
       end
 

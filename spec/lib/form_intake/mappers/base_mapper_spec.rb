@@ -80,18 +80,17 @@ RSpec.describe FormIntake::Mappers::BaseMapper do
   end
 
   describe '#map_address' do
-    it 'formats address hash' do
+    it 'flattens address to single string' do
       address = {
         'street' => '123 Main St',
+        'street2' => 'Apt 2',
         'city' => 'Portland',
         'state' => 'OR',
-        'zip_code' => { 'first5' => '97201' }
+        'zip_code' => { 'first5' => '97201' },
+        'country' => 'USA'
       }
       result = mapper.send(:map_address, address)
-      expect(result[:street]).to eq('123 Main St')
-      expect(result[:city]).to eq('Portland')
-      expect(result[:state]).to eq('OR')
-      expect(result[:postal_code]).to eq('97201')
+      expect(result).to eq('123 Main St Apt 2 Portland OR 97201 USA')
     end
 
     it 'returns nil for missing address' do
@@ -99,37 +98,32 @@ RSpec.describe FormIntake::Mappers::BaseMapper do
     end
 
     it 'handles alternate postal_code field' do
-      address = { 'city' => 'Portland', 'postal_code' => '97201' }
+      address = { 'street' => '123 Main', 'city' => 'Portland', 'state' => 'OR', 'postal_code' => '97201' }
       result = mapper.send(:map_address, address)
-      expect(result[:postal_code]).to eq('97201')
+      expect(result).to eq('123 Main Portland OR 97201')
     end
 
-    it 'removes nil values with compact' do
-      address = { 'street' => '123 Main', 'street2' => nil, 'city' => 'Portland' }
+    it 'omits street2 when not present' do
+      address = { 'street' => '123 Main', 'city' => 'Portland', 'state' => 'OR', 'postal_code' => '97201' }
       result = mapper.send(:map_address, address)
-      expect(result.keys).not_to include(:street2)
+      expect(result).not_to include('  ') # No double spaces
     end
   end
 
   describe '#map_date' do
-    it 'formats date parts to ISO format' do
+    it 'formats date parts to MM/DD/YYYY format with zero-padding' do
       date = { 'year' => '2024', 'month' => '3', 'day' => '5' }
-      expect(mapper.send(:map_date, date)).to eq('2024-03-05')
-    end
-
-    it 'zero-pads month and day' do
-      date = { 'year' => '2024', 'month' => '3', 'day' => '5' }
-      expect(mapper.send(:map_date, date)).to eq('2024-03-05')
+      expect(mapper.send(:map_date, date)).to eq('03/05/2024')
     end
 
     it 'handles integer values' do
       date = { 'year' => 2024, 'month' => 3, 'day' => 5 }
-      expect(mapper.send(:map_date, date)).to eq('2024-03-05')
+      expect(mapper.send(:map_date, date)).to eq('03/05/2024')
     end
 
     it 'converts string numbers to integers' do
       date = { 'year' => '2024', 'month' => '12', 'day' => '25' }
-      expect(mapper.send(:map_date, date)).to eq('2024-12-25')
+      expect(mapper.send(:map_date, date)).to eq('12/25/2024')
     end
 
     it 'returns nil for missing date' do
@@ -143,13 +137,21 @@ RSpec.describe FormIntake::Mappers::BaseMapper do
   end
 
   describe '#map_full_name' do
-    it 'formats full name hash' do
-      name = { 'first' => 'John', 'middle' => 'M', 'last' => 'Doe', 'suffix' => 'Jr' }
+    it 'formats full name hash with all parts' do
+      name = { 'first' => 'John', 'middle' => 'Michael', 'last' => 'Doe', 'suffix' => 'Jr' }
       result = mapper.send(:map_full_name, name)
       expect(result[:first]).to eq('John')
-      expect(result[:middle]).to eq('M')
+      expect(result[:middle]).to eq('Michael')
+      expect(result[:middle_initial]).to eq('M')
       expect(result[:last]).to eq('Doe')
       expect(result[:suffix]).to eq('Jr')
+      expect(result[:full]).to eq('John Michael Doe')
+    end
+
+    it 'extracts middle initial from middle name' do
+      name = { 'first' => 'John', 'middle' => 'Michael', 'last' => 'Doe' }
+      result = mapper.send(:map_full_name, name)
+      expect(result[:middle_initial]).to eq('M')
     end
 
     it 'returns nil for missing name' do
@@ -160,6 +162,7 @@ RSpec.describe FormIntake::Mappers::BaseMapper do
       name = { 'first' => 'John', 'middle' => nil, 'last' => 'Doe' }
       result = mapper.send(:map_full_name, name)
       expect(result.keys).not_to include(:middle)
+      expect(result[:full]).to eq('John Doe')
     end
   end
 end

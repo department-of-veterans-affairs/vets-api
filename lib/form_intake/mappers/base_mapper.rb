@@ -61,21 +61,20 @@ module FormIntake
       def map_address(address)
         return nil unless address
 
-        {
-          street: address['street'],
-          street2: address['street2'],
-          city: address['city'],
-          state: address['state'],
-          country: address['country'],
-          postal_code: address.dig('zip_code', 'first5') || address['postal_code']
-        }.compact
+        # Flatten address to single string (matches IBM format)
+        street_line = [address['street'], address['street2']].compact.join(' ').strip
+        postal_code = address.dig('zip_code', 'first5') || address['postal_code']
+        city_line = [address['city'], address['state'], postal_code].compact.join(' ').strip
+        lines = [street_line, city_line, address['country']].compact.reject(&:empty?)
+        lines.join(' ').presence
       end
 
       def map_date(date_parts)
         return nil unless date_parts
         return nil unless date_parts['year'] && date_parts['month'] && date_parts['day']
 
-        "#{date_parts['year']}-#{format('%02d', date_parts['month'].to_i)}-#{format('%02d', date_parts['day'].to_i)}"
+        # Format as MM/DD/YYYY (matches IBM format)
+        "#{format('%02d', date_parts['month'].to_i)}/#{format('%02d', date_parts['day'].to_i)}/#{date_parts['year']}"
       end
 
       def map_full_name(name_parts)
@@ -84,8 +83,10 @@ module FormIntake
         {
           first: name_parts['first'],
           middle: name_parts['middle'],
+          middle_initial: name_parts['middle']&.slice(0, 1),
           last: name_parts['last'],
-          suffix: name_parts['suffix']
+          suffix: name_parts['suffix'],
+          full: [name_parts['first'], name_parts['middle'], name_parts['last']].compact.join(' ').presence
         }.compact
       end
     end

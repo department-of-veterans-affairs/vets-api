@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Naming/VariableNumber
 RSpec.describe FormIntake do
   describe '.enabled_for_form?' do
     let(:user_account) { create(:user_account) }
@@ -107,7 +108,7 @@ RSpec.describe FormIntake do
       end
     end
 
-    context 'when Flipper raises error' do
+    context 'when Flipper raises network error' do
       before do
         allow(Flipper).to receive(:enabled?).and_raise(StandardError, 'Redis connection failed')
       end
@@ -139,7 +140,7 @@ RSpec.describe FormIntake do
                  })
     end
 
-    it 'returns forms with enabled flags' do
+    it 'returns only forms with enabled flags' do
       Flipper.enable(:form_intake_integration_601)
       Flipper.disable(:form_intake_integration_0966)
       Flipper.disable(:form_intake_integration_4138)
@@ -147,7 +148,7 @@ RSpec.describe FormIntake do
       expect(described_class.enabled_forms).to eq(['21P-601'])
     end
 
-    it 'returns multiple enabled forms' do
+    it 'returns multiple forms when multiple flags enabled' do
       Flipper.enable(:form_intake_integration_601)
       Flipper.enable(:form_intake_integration_0966)
       Flipper.disable(:form_intake_integration_4138)
@@ -175,3 +176,4 @@ RSpec.describe FormIntake do
     end
   end
 end
+# rubocop:enable Naming/VariableNumber
