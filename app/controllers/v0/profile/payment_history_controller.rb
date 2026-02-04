@@ -104,7 +104,7 @@ module V0
         return unless Flipper.enabled?(:payment_history_validation_logging)
 
         # Identifier check - ensure user has at least one identifier
-        if current_user.icn.blank? && current_user.uuid.blank?
+        if current_user&.icn.blank? && current_user&.uuid.blank?
           Rails.logger.error('User missing both ICN and UUID identifiers', {
                                user_uuid: current_user&.uuid
                              })
@@ -112,7 +112,7 @@ module V0
         end
 
         # Additional identifier check - ensure user has contact information for BGS service
-        if current_user.common_name.blank? && current_user.email.blank? && current_user.va_profile_email.blank?
+        if current_user&.common_name.blank? && current_user&.email.blank? && current_user&.va_profile_email.blank?
           Rails.logger.error('User missing all contact identifiers (common_name, email, va_profile_email)', {
                                user_uuid: current_user&.uuid
                              })
@@ -176,7 +176,7 @@ module V0
           return
         end
 
-        if payment_history.payments.blank?
+        if payment_history&.payments.blank?
           Rails.logger.warn('BGS payment history has no payments', {
                               user_uuid: current_user&.uuid
                             })

@@ -126,6 +126,139 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         end
       end
     end
+
+    describe '#validate_user_for_bgs' do
+      context 'with validation logging enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(true)
+        end
+
+        context 'when user is missing both ICN and UUID identifiers' do
+          let(:user_without_identifiers) { create(:evss_user) }
+
+          before do
+            sign_in_as(user_without_identifiers)
+            # Stub the controller's current_user to return our stubbed version
+            allow(controller).to receive(:current_user).and_return(user_without_identifiers)
+            allow(user_without_identifiers).to receive(:icn).and_return(nil)
+            allow(user_without_identifiers).to receive(:uuid).and_return(nil)
+
+            # Stub authorization to pass despite missing identifiers
+            allow(controller).to receive(:authorize).and_return(true)
+
+            # Stub BGS services to prevent actual calls
+            allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+              .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
+                                           participant_id: '123456', ssn_number: '123456789'))
+            allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+              .and_return(double('payment_history', payments: []))
+          end
+
+          it 'logs error and increments StatsD' do
+            # Allow all other calls
+            allow(StatsD).to receive(:increment).and_call_original
+            allow(Rails.logger).to receive(:info).and_call_original
+            allow(Rails.logger).to receive(:warn).and_call_original
+            allow(Rails.logger).to receive(:error).and_call_original
+
+            # Set specific expectations
+            expect(Rails.logger).to receive(:error).with(
+              'User missing both ICN and UUID identifiers',
+              hash_including(user_uuid: nil)
+            ).and_call_original
+            expect(StatsD).to receive(:increment)
+              .with('api.payment_history.user.no_identifiers').and_call_original
+
+            get(:index)
+          end
+        end
+
+        context 'when user is missing all contact identifiers' do
+          let(:user_without_contact) do
+            create(:evss_user, first_name: nil, last_name: nil, email: nil)
+          end
+
+          before do
+            sign_in_as(user_without_contact)
+            # Stub the controller's current_user and all contact identifier methods
+            allow(controller).to receive(:current_user).and_return(user_without_contact)
+            allow(user_without_contact).to receive(:common_name).and_return(nil)
+            allow(user_without_contact).to receive(:va_profile_email).and_return(nil)
+
+            # Stub BGS services to prevent actual calls
+            allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+              .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
+                                           participant_id: '123456', ssn_number: '123456789'))
+            allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+              .and_return(double('payment_history', payments: []))
+          end
+
+          it 'logs error and increments StatsD' do
+            # Allow all other calls - authorization will increment api.bgs.policy.success
+            allow(StatsD).to receive(:increment).and_call_original
+            allow(Rails.logger).to receive(:info).and_call_original
+            allow(Rails.logger).to receive(:warn).and_call_original
+            allow(Rails.logger).to receive(:error).and_call_original
+
+            # Set specific expectations for our validation
+            expect(Rails.logger).to receive(:error).with(
+              'User missing all contact identifiers (common_name, email, va_profile_email)',
+              hash_including(user_uuid: user_without_contact.uuid)
+            ).and_call_original
+            expect(StatsD).to receive(:increment)
+              .with('api.payment_history.user.no_contact_identifiers').and_call_original
+
+            get(:index)
+          end
+        end
+
+        context 'when user has all identifiers' do
+          it 'does not log errors' do
+            expect(Rails.logger).not_to receive(:error).with(
+              'User missing both ICN and UUID identifiers',
+              anything
+            )
+            expect(Rails.logger).not_to receive(:error).with(
+              'User missing all contact identifiers (common_name, email, va_profile_email)',
+              anything
+            )
+            expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_identifiers')
+            expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_contact_identifiers')
+
+            VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+              VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+                get(:index)
+              end
+            end
+          end
+        end
+      end
+
+      context 'with validation logging disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+        end
+
+        it 'does not log or increment StatsD for missing identifiers' do
+          expect(Rails.logger).not_to receive(:error).with(
+            'User missing both ICN and UUID identifiers',
+            anything
+          )
+          expect(Rails.logger).not_to receive(:error).with(
+            'User missing all contact identifiers (common_name, email, va_profile_email)',
+            anything
+          )
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_identifiers')
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_contact_identifiers')
+
+          VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+            VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+              get(:index)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#log_authorized_access' do
