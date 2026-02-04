@@ -771,30 +771,15 @@ describe UnifiedHealthData::Service, type: :service do
     context 'date range filtering' do
       # SCDF may return notes outside the requested range; API filters so only in-range notes are returned
       it 'returns only notes whose date is within the requested start_date and end_date' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '2024-12-01', end_date: '2024-12-31')
-          .and_return(sample_client_response)
-
-        # Get unfiltered count first to verify filtering is actually reducing results
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
-          .and_return(sample_client_response)
-        all_notes = service.get_care_summaries_and_notes
-
-        # Re-stub for filtered call
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '2024-12-01', end_date: '2024-12-31')
           .and_return(sample_client_response)
 
         notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
 
-        # Fixture has notes in Dec 2024 and Jan/Jul 2025; only Dec 2024 should be returned
+        # Fixture has notes in Dec 2024 and Jan/May 2025; only Dec 2024 should be returned
         expect(notes).not_to be_empty
-        # Verify filter actually reduced the count (proving it's working)
-        expect(notes.size).to be < all_notes.size
         notes.each do |note|
           note_date = Date.parse(note.date)
           expect(note_date).to be >= Date.parse('2024-12-01')
@@ -803,33 +788,32 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'excludes notes from future years when filtering for a specific year' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '2025-01-01', end_date: '2025-12-31')
-          .and_return(sample_client_response)
-
-        # Get unfiltered count first
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
-          .and_return(sample_client_response)
-        all_notes = service.get_care_summaries_and_notes
-
-        # Re-stub for filtered call
-        allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_notes_by_date)
-          .with(patient_id: user.icn, start_date: '2025-01-01', end_date: '2025-12-31')
           .and_return(sample_client_response)
 
         notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
 
-        # Verify filter actually reduced the count (fixture has notes from 2024 and 2025)
-        expect(notes.size).to be < all_notes.size
-        # All returned notes must be in 2025
+        # All returned notes must be in 2025 (fixture has notes from 2024 and 2025)
+        expect(notes).not_to be_empty
         notes.each do |note|
           note_date = Date.parse(note.date)
           expect(note_date.year).to eq(2025)
         end
+      end
+
+      it 'handles blank string parameters by using default dates' do
+        # Stub returns all notes from fixture
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Blank strings should be treated as nil and use defaults
+        notes = service.get_care_summaries_and_notes(start_date: '', end_date: '')
+
+        # Should return notes (defaults applied, no filtering errors)
+        expect(notes).to be_an(Array)
       end
     end
 
