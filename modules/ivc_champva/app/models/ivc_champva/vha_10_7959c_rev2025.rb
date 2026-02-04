@@ -143,8 +143,8 @@ module IvcChampva
 
       if transformed['certifier_role'] == 'applicant'
         transformed['applicant_email_address'] ||= transformed['certifier_email'] 
-      else
-        transformed['applicant_email_address'] ||= transformed['applicant_email'] if transformed['applicant_email']
+      else transformed['applicant_email'].present?
+        transformed['applicant_email_address'] ||= transformed['applicant_email']
       end
 
       transformed
