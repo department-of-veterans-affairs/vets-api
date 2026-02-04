@@ -23,6 +23,10 @@ require_relative '../lib/olive_branch_patch'
 
 module VetsAPI
   class Application < Rails::Application
+    # Prefer X-Forwarded-Scheme over X-Forwarded-Proto for scheme detection.
+    # Dev proxy sends X-Forwarded-Proto: http (incorrect) but X-Forwarded-Scheme: https (correct).
+    Rack::Request.x_forwarded_proto_priority = %i[scheme proto]
+
     # Initialize configuration defaults for originally generated Rails version.
     # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
     config.load_defaults 7.1
