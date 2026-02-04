@@ -26732,6 +26732,7 @@
             "additionalProperties": false,
             "required": [
               "veteranStatus",
+              "confirmationStatus",
               "serviceSummaryCode",
               "serviceHistoryStatus"
             ],
@@ -26870,16 +26871,21 @@
               "confirmationStatus": {
                 "type": "string",
                 "enum": [
-                  "DISCHONORABLE_SSC_CODE",
-                  "INELIGIBLE_SSC_CODE",
-                  "UNKNOWN_SSC_CODE",
-                  "EDIPI_NO_PNL_SSC_CODE",
-                  "CURRENTLY_SERVING_SSC_CODE",
-                  "ERROR_SSC_CODE",
-                  "UNCAUGHT_SSC_CODE",
-                  "UNKNOWN_REASON"
+                  "DISCHONORABLE_SSC",
+                  "INELIGIBLE_SSC",
+                  "UNKNOWN_SSC",
+                  "EDIPI_NO_PNL_SSC",
+                  "CURRENTLY_SERVING_SSC",
+                  "ERROR_SSC",
+                  "UNCAUGHT_SSC",
+                  "UNKNOWN_REASON",
+                  "NO_SSC_CHECK",
+                  "AD_DSCH_VAL_SSC",
+                  "AD_VAL_PREV_QUAL_SSC",
+                  "AD_VAL_PREV_RES_GRD_SSC",
+                  "AD_UNCHAR_DSCH_SSC",
+                  "VAL_PREV_QUAL_SSC"
                 ],
-                "nullable": true,
                 "description": "Displays the confirmation status of the veteran",
                 "example": "INELIGIBLE_SSC_CODE"
               },
