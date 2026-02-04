@@ -160,9 +160,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
 
         expect(response).to be_successful
         # messages with reply_disabled: false, true, nil
-        expect(response.parsed_body['data'].map{|msg| msg['attributes']['canReply']}).to eq [true, false, true]
+        expect(response.parsed_body['data'].map { |msg| msg['attributes']['canReply'] }).to eq [true, false, true]
       end
-
 
       it 'filters the provided message when excludeProvidedMessage is true' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
