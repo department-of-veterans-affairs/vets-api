@@ -5,10 +5,12 @@ namespace :disability_compensation do
     Download disability compensation form documents
 
     Use this during manual testing against the staging environment to verify
-    that 526 submissions from the frontend produce the expected documents upstream.
+    that 526 submissions from the frontend produce the expected documents
+    upstream.
 
     While submitting the 526 on the frontend, inspect the network tab for status
-    polling to find the IDs that should be passed to this utility.
+    polling to find the claim ID that should be passed to this utility. Also
+    provide the user's ICN.
 
 
     ```jsonc
@@ -18,8 +20,6 @@ namespace :disability_compensation do
         "type": "form526_job_statuses",
         "attributes": {
           "claimId": "<claim_id>",
-          "jobId": "<job_id>",
-          "submissionId": "<submission_id>",
           // ...
         }
       }
@@ -27,14 +27,12 @@ namespace :disability_compensation do
     ```
 
     EXAMPLES
-      bin/rails disability_compensation:download_documents[claim_id,123]
-      bin/rails disability_compensation:download_documents[job_id,456]
-      bin/rails disability_compensation:download_documents[submission_id,789]
+      bundle exec rails disability_compensation:download_claim_documents[600878948,1012667122V019349]
   DESC
 
-  task :download_documents, %i[id_type id_value] => :environment do |_, args|
-    require_relative 'disability_compensation/download_pdfs'
+  task :download_claim_documents, %i[claim_id icn] => :environment do |_, args|
+    require_relative 'disability_compensation/download_claim_documents'
 
-    DisabilityCompensation::DownloadDocuments.perform(**args)
+    DisabilityCompensation::DownloadClaimDocuments.perform(**args)
   end
 end
