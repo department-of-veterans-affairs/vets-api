@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'lighthouse/healthcare_cost_and_coverage/configuration'
-include ActiveSupport::Testing::TimeHelpers
 
 RSpec.describe 'V1::MedicalCopays', type: :request do
   let(:current_user) { build(:user, :loa3, icn: '123') }
