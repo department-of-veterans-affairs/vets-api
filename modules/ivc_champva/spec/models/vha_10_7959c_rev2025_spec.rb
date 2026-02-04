@@ -69,7 +69,7 @@ RSpec.describe IvcChampva::VHA107959cRev2025 do
             'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
             'applicant_ssn' => '123456789',
             'applicant_primary_provider' => 'Already Flattened Insurance',
-            'form_number' => '10-7959C-REV2025'
+            'form_number' => '10-7959C'
           }
         end
         let(:form) { described_class.new(pre_flattened_data) }
