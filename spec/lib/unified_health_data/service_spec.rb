@@ -773,8 +773,14 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
 
+        # Get all notes first (no date filtering applied by service when using wide range)
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for Dec 2024 only
         notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
 
+        # Verify filtering actually excluded some notes
+        expect(notes.size).to be < all_notes.size
         # Fixture has notes in Dec 2024 and Jan/May 2025; only Dec 2024 should be returned
         expect(notes).not_to be_empty
         notes.each do |note|
@@ -790,9 +796,15 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
 
+        # Get all notes first
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for 2025 only
         notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
 
-        # All returned notes must be in 2025 (fixture has notes from 2024 and 2025)
+        # Verify filtering actually excluded some notes (2024 notes should be filtered out)
+        expect(notes.size).to be < all_notes.size
+        # All returned notes must be in 2025
         expect(notes).not_to be_empty
         notes.each do |note|
           note_date = Date.parse(note.date)
@@ -801,9 +813,10 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'handles blank string parameters by using default dates' do
-        # Stub returns all notes from fixture
-        allow_any_instance_of(UnifiedHealthData::Client)
+        # Verify blank strings are converted to nil and defaults are applied
+        expect_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
           .and_return(sample_client_response)
 
         # Blank strings should be treated as nil and use defaults

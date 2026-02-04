@@ -400,13 +400,13 @@ module UnifiedHealthData
       return notes if notes.blank?
       return notes if start_date.blank? || end_date.blank?
 
-      start_d = Date.parse(start_date.to_s)
-      end_d = Date.parse(end_date.to_s)
+      start_d = DateTime.parse(start_date.to_s).to_date
+      end_d = DateTime.parse(end_date.to_s).to_date
 
       notes.select do |note|
         next false if note.blank? || note.date.blank?
 
-        note_date = Date.parse(note.date.to_s)
+        note_date = DateTime.parse(note.date.to_s).to_date
         note_date >= start_d && note_date <= end_d
       rescue ArgumentError, TypeError
         Rails.logger.warn(
