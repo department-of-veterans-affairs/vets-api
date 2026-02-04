@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
@@ -30,7 +30,7 @@ module ClaimsApi
         #   information and POA code, serialized via PowerOfAttorneyBlueprint
         #
         def show
-          poa_code = BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
+          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code(respect_expiration: true)
           data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
 
           if poa_code.blank?
@@ -172,7 +172,7 @@ module ClaimsApi
         end
 
         def current_poa
-          @current_poa ||= BGSV2::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def representative(poa_code)
