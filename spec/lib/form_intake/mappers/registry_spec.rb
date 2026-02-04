@@ -31,7 +31,7 @@ RSpec.describe FormIntake::Mappers::Registry do
     end
   end
 
-  describe '.has_mapper?' do
+  describe '.mapper?' do
     before do
       stub_const('FormIntake::Mappers::Registry::FORM_MAPPERS', {
                    '21P-601' => FormIntake::Mappers::BaseMapper
@@ -39,11 +39,11 @@ RSpec.describe FormIntake::Mappers::Registry do
     end
 
     it 'returns true for mapped form' do
-      expect(described_class.has_mapper?('21P-601')).to be true
+      expect(described_class.mapper?('21P-601')).to be true
     end
 
     it 'returns false for unmapped form' do
-      expect(described_class.has_mapper?('UNKNOWN')).to be false
+      expect(described_class.mapper?('UNKNOWN')).to be false
     end
   end
 
