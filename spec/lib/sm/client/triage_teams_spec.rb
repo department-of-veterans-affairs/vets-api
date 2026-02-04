@@ -26,7 +26,7 @@ describe 'sm client' do
     it 'populates health care system names' do
       VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
         VCR.use_cassette('sm_client/get_unique_care_systems') do
-          all_triage_teams = client.get_all_triage_teams('1234', false)
+          all_triage_teams = client.get_all_triage_teams('1234')
           all_triage_teams.records.each { |record| expect(record.health_care_system_name).not_to be_nil }
         end
       end
@@ -42,8 +42,39 @@ describe 'sm client' do
     it 'does not cache all triage teams' do
       VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
         VCR.use_cassette('sm_client/get_unique_care_systems') do
-          client.get_all_triage_teams('1234', false)
+          client.get_all_triage_teams('1234')
           expect(AllTriageTeams.get_cached('1234-all-triage-teams')).to be_nil
+        end
+      end
+    end
+
+    it 'caches triage_team_id and station_number via TriageTeamCache' do
+      VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          client.get_all_triage_teams('1234')
+
+          cached_data = TriageTeamCache.get_cached('1234-all-triage-teams-station-numbers')
+          expect(cached_data).not_to be_nil
+          expect(cached_data).to be_an(Array)
+          expect(cached_data.first).to respond_to(:triage_team_id)
+          expect(cached_data.first).to respond_to(:station_number)
+        end
+      end
+    end
+
+    it 'caches only minimal triage team data with correct attributes' do
+      VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+        VCR.use_cassette('sm_client/get_unique_care_systems') do
+          collection = client.get_all_triage_teams('user-uuid-123')
+
+          cached_data = TriageTeamCache.get_cached('user-uuid-123-all-triage-teams-station-numbers')
+          expect(cached_data.length).to eq(collection.data.length)
+
+          # Verify cached data matches the original collection's triage_team_id and station_number
+          collection.data.each_with_index do |team, index|
+            expect(cached_data[index].triage_team_id).to eq(team.triage_team_id)
+            expect(cached_data[index].station_number).to eq(team.station_number)
+          end
         end
       end
     end

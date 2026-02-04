@@ -8,7 +8,7 @@ module MyHealth
       STATSD_KEY_PREFIX = 'api.my_health.all_triage_teams'
 
       def index
-        resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        resource = client.get_all_triage_teams(@current_user.uuid)
         if resource.blank?
           raise Common::Exceptions::RecordNotFound,
                 "Triage teams for user ID #{@current_user.uuid} not found"

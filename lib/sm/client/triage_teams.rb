@@ -24,15 +24,23 @@ module SM
       # with detailed attributes per each team
       # including a total tally of associated and locked teams
       #
+      # @note Only triage_team_id and station_number are cached via TriageTeamCache model
       # @return [Common::Collection[AllTriageTeams]]
       #
-      def get_all_triage_teams(user_uuid, use_cache)
-        cache_key = "#{user_uuid}-all-triage-teams"
-        get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-          path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
-          json = perform(:get, path, nil, token_headers).body
-          Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
+      def get_all_triage_teams(user_uuid)
+        path = append_requires_oh_messages_query('alltriageteams', 'requiresOHTriageGroup')
+        json = perform(:get, path, nil, token_headers).body
+        collection = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata],
+                                                                       errors: json[:errors])
+
+        # Cache only triage_team_id and station_number via TriageTeamCache model
+        minimal_data = collection.data.map do |team|
+          { triage_team_id: team.triage_team_id, station_number: team.station_number }
         end
+        cache_key = "#{user_uuid}-all-triage-teams-station-numbers"
+        TriageTeamCache.set_cached(cache_key, minimal_data)
+
+        collection
       end
 
       ##
