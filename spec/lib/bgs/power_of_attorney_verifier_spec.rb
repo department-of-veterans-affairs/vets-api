@@ -342,31 +342,4 @@ describe BGS::PowerOfAttorneyVerifier do
       end
     end
   end
-
-  describe '#current_poa_code' do
-    context 'when respect_expiration is true' do
-      it 'returns nil if the current poa has an end date' do
-        allow(Veteran::User).to receive(:new) do
-          OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q', end_date: '01/15/2020'))
-        end
-        expect(described_class.new(user).current_poa_code(respect_expiration: true)).to be_nil
-      end
-
-      it 'returns the current poa code if there is no end date' do
-        allow(Veteran::User).to receive(:new) do
-          OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q', end_date: nil))
-        end
-        expect(described_class.new(user).current_poa_code(respect_expiration: true)).to eq('A1Q')
-      end
-    end
-
-    context 'when respect_expiration is false' do
-      it 'returns the current poa code regardless of end date' do
-        allow(Veteran::User).to receive(:new) do
-          OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q', end_date: '01/15/2020'))
-        end
-        expect(described_class.new(user).current_poa_code(respect_expiration: false)).to eq('A1Q')
-      end
-    end
-  end
 end

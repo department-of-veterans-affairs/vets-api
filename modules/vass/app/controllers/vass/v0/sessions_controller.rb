@@ -10,6 +10,7 @@ module Vass
     # before scheduling appointments.
     #
     class SessionsController < Vass::ApplicationController
+      include Vass::JwtAuthentication
       include Vass::MetricsTracking
 
       rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
@@ -38,8 +39,11 @@ module Vass
         check_all_rate_limits(session.uuid)
         process_otc_creation(session)
         complete_otc_creation(session)
+        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
+        response_data = camelize_keys({ data: { message: 'OTC sent to registered email address',
+                                                expires_in: otc_expiry_seconds } })
         track_success(SESSIONS_REQUEST_OTC)
-        render_otc_success_response
+        render json: response_data, status: :ok
       rescue Vass::Errors::RateLimitError => e
         handle_request_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::IdentityValidationError => e
@@ -71,19 +75,61 @@ module Vass
         check_validation_rate_limit(session.uuid)
         return unless validate_otc_session(session)
 
-        jwt_token = session.validate_and_generate_jwt
-        session.create_authenticated_session(token: jwt_token)
-        track_success(SESSIONS_AUTHENTICATE_OTC)
-        handle_successful_authentication(session, jwt_token)
+        jwt_result = session.validate_and_generate_jwt
+        jwt_token = jwt_result[:token]
+        jti = jwt_result[:jti]
+        session.create_authenticated_session(jti:)
+        handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
         handle_authenticate_otc_error(e, session, :rate_limit)
       rescue Vass::Errors::AuthenticationError => e
         handle_authenticate_otc_error(e, session, :authentication)
       rescue *vass_api_exceptions => e
         handle_authenticate_otc_error(e, session, :vass_api)
+      rescue Vass::Errors::RedisError, Vass::Errors::AuditLogError => e
+        track_failure(SESSIONS_AUTHENTICATE_OTC, error_type: e.class.name)
+        raise
+      end
+
+      ##
+      # POST /vass/v0/revoke-token
+      #
+      # Revokes an active JWT token (logout functionality).
+      # Deletes the session from Redis, making the token invalid for future requests.
+      #
+      # @return [JSON] Success message or error
+      #
+      def revoke_token
+        token = extract_token_from_header
+        return render_invalid_token_response unless token
+
+        payload = decode_jwt_for_revocation(token)
+        return render_invalid_token_response unless payload
+
+        uuid = payload['sub']
+        return render_invalid_token_response unless uuid && redis_client.session_exists?(uuid:)
+
+        redis_client.delete_session(uuid:)
+        log_vass_event(action: 'token_revoked', vass_uuid: uuid, jti: payload['jti'])
+        track_success(SESSIONS_REVOKE_TOKEN)
+        render_camelized_json({ data: { message: 'Token successfully revoked' } })
+      rescue Vass::Errors::RedisError => e
+        track_failure(SESSIONS_REVOKE_TOKEN, error_type: e.class.name)
+        raise
       end
 
       private
+
+      ##
+      # Renders invalid token error response.
+      #
+      def render_invalid_token_response
+        render_session_error_response(
+          code: 'invalid_token',
+          detail: 'Token is invalid or already revoked',
+          status: :unauthorized
+        )
+      end
 
       ##
       # Returns array of VASS API exception classes that should be handled uniformly.
@@ -174,7 +220,7 @@ module Vass
       #
       def complete_otc_creation(session)
         increment_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_generated', uuid: session.uuid)
+        log_vass_event(action: 'otc_generated', vass_uuid: session.uuid)
       end
 
       ##
@@ -184,8 +230,8 @@ module Vass
       # @param error [Vass::Errors::IdentityValidationError] Error
       #
       def handle_identity_validation_error(session, _error)
-        log_vass_event(action: 'identity_validation_failed', uuid: session.uuid, level: :warn)
-        render_error_response(
+        log_vass_event(action: 'identity_validation_failed', vass_uuid: session.uuid, level: :warn)
+        render_session_error_response(
           code: 'invalid_credentials',
           detail: 'Unable to verify identity. Please check your information.',
           status: :unauthorized
@@ -199,8 +245,8 @@ module Vass
       # @param error [Vass::Errors::MissingContactInfoError] Error
       #
       def handle_missing_contact_info_error(session, _error)
-        log_vass_event(action: 'missing_contact_info', uuid: session.uuid, level: :error)
-        render_error_response(
+        log_vass_event(action: 'missing_contact_info', vass_uuid: session.uuid, level: :error)
+        render_session_error_response(
           code: 'missing_contact_info',
           detail: 'No contact information available for this veteran.',
           status: :unprocessable_entity
@@ -214,9 +260,9 @@ module Vass
       # @param error [Exception] Error
       #
       def handle_vass_api_error(session, error)
-        log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error,
+        log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                        error_class: error.class.name)
-        render_error_response(
+        render_session_error_response(
           code: 'service_error',
           detail: 'VASS service error',
           status: :bad_gateway
@@ -228,11 +274,15 @@ module Vass
       #
       # @param session [Vass::V0::Session] Session instance
       # @param jwt_token [String] Generated JWT token
+      # @param jti [String] JWT ID for audit logging
       #
-      def handle_successful_authentication(session, jwt_token)
+      def handle_successful_authentication(session, jwt_token, jti)
         reset_validation_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_authenticated', uuid: session.uuid)
-        render_camelized_json({ data: { token: jwt_token, expires_in: 3600, token_type: 'Bearer' } })
+        log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
+        expires_in = redis_client.redis_session_expiry.to_i
+        response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
+        track_success(SESSIONS_AUTHENTICATE_OTC)
+        render json: response_data, status: :ok
       end
 
       ##
@@ -244,14 +294,14 @@ module Vass
       def handle_vanotify_error(session, error)
         log_vass_event(
           action: 'vanotify_error',
-          uuid: session.uuid,
+          vass_uuid: session.uuid,
           level: :error,
           error_class: error.class.name,
           status_code: error.status_code,
           contact_method: session.contact_method
         )
         status = map_vanotify_status_to_http_status(error.status_code)
-        render_error_response(
+        render_session_error_response(
           code: 'notification_error',
           detail: 'Unable to send notification. Please try again later.',
           status:
@@ -291,8 +341,9 @@ module Vass
         when :rate_limit then handle_validation_rate_limit_error(session, error)
         when :authentication then handle_invalid_otc(session)
         when :vass_api
-          log_vass_event(action: 'vass_api_error', uuid: session.uuid, level: :error, error_class: error.class.name)
-          render_error_response(code: 'service_error', detail: 'VASS service error', status: :bad_gateway)
+          log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
+                         error_class: error.class.name)
+          render_session_error_response(code: 'service_error', detail: 'VASS service error', status: :bad_gateway)
         end
       end
 
@@ -339,7 +390,7 @@ module Vass
       def check_rate_limit(identifier)
         return unless redis_client.rate_limit_exceeded?(identifier:)
 
-        log_rate_limit_exceeded
+        log_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_GENERATION_EXCEEDED)
         raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC generation'
       end
@@ -365,12 +416,12 @@ module Vass
       ##
       # Handles missing parameter errors from Rails params.require().
       #
-      # @param exception [ActionController::ParameterMissing] The exception
+      # @param _exception [ActionController::ParameterMissing] The exception (unused)
       #
-      def handle_parameter_missing(exception)
-        render_error_response(
+      def handle_parameter_missing(_exception)
+        render_session_error_response(
           code: 'missing_parameter',
-          detail: exception.message,
+          detail: 'Required parameter is missing',
           status: :bad_request
         )
       end
@@ -395,9 +446,9 @@ module Vass
       # @return [Boolean] false
       #
       def handle_expired_otc(session)
-        log_vass_event(action: 'otc_expired', uuid: session.uuid, level: :warn)
+        log_vass_event(action: 'otc_expired', vass_uuid: session.uuid, level: :warn)
         track_infrastructure_metric(SESSION_OTC_EXPIRED)
-        render_error_response(
+        render_session_error_response(
           code: 'otc_expired',
           detail: 'OTC has expired. Please request a new one.',
           status: :unauthorized
@@ -417,7 +468,7 @@ module Vass
         track_infrastructure_metric(SESSION_OTC_INVALID)
 
         attempts_remaining = redis_client.validation_attempts_remaining(identifier: session.uuid)
-        render_error_response(
+        render_session_error_response(
           code: 'invalid_otc',
           detail: 'Invalid OTC. Please try again.',
           status: :unauthorized,
@@ -436,10 +487,10 @@ module Vass
       ##
       # Logs invalid OTC attempt (no PHI).
       #
-      # @param uuid [String] Session UUID
+      # @param uuid [String] Veteran UUID
       #
       def log_invalid_otc(uuid)
-        log_vass_event(action: 'invalid_otc', uuid:, level: :warn)
+        log_vass_event(action: 'invalid_otc', vass_uuid: uuid, level: :warn)
       end
 
       ##
@@ -451,7 +502,7 @@ module Vass
       # @param retry_after [Integer, nil] Retry after seconds (optional)
       # @param attempts_remaining [Integer, nil] Attempts remaining (optional)
       #
-      def render_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
+      def render_session_error_response(code:, detail:, status:, retry_after: nil, attempts_remaining: nil)
         error = { code:, detail: }
         error[:retry_after] = retry_after if retry_after
         error[:attempts_remaining] = attempts_remaining if attempts_remaining
@@ -462,8 +513,10 @@ module Vass
       ##
       # Logs rate limit exceeded (no PHI).
       #
-      def log_rate_limit_exceeded
-        log_vass_event(action: 'rate_limit_exceeded', level: :warn)
+      # @param identifier [String] Identifier (UUID) for the rate limit
+      #
+      def log_rate_limit_exceeded(identifier)
+        log_vass_event(action: 'rate_limit_exceeded', vass_uuid: identifier, level: :warn)
       end
 
       ##
@@ -475,7 +528,7 @@ module Vass
       def check_validation_rate_limit(identifier)
         return unless redis_client.validation_rate_limit_exceeded?(identifier:)
 
-        log_validation_rate_limit_exceeded
+        log_validation_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_VALIDATION_EXCEEDED)
         raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC validation attempts'
       end
@@ -499,15 +552,6 @@ module Vass
       end
 
       ##
-      # Renders success response for OTC generation.
-      #
-      def render_otc_success_response
-        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
-        render_camelized_json({ data: { message: 'OTC sent to registered email address',
-                                        expires_in: otc_expiry_seconds } })
-      end
-
-      ##
       # Handles rate limit errors in request_otc, determining which limit was hit.
       #
       # @param session [Vass::V0::Session] Session instance
@@ -524,13 +568,13 @@ module Vass
       ##
       # Handles generation rate limit errors.
       #
-      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param session [Vass::V0::Session] Session instance
       # @param _error [Vass::Errors::RateLimitError] Error (unused)
       #
-      def handle_generation_rate_limit_error(_session, _error)
-        log_rate_limit_exceeded
+      def handle_generation_rate_limit_error(session, _error)
+        log_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
-        render_error_response(
+        render_session_error_response(
           code: 'rate_limit_exceeded',
           detail: 'Too many OTC requests. Please try again later.',
           status: :too_many_requests,
@@ -541,13 +585,13 @@ module Vass
       ##
       # Handles validation rate limit errors.
       #
-      # @param _session [Vass::V0::Session] Session instance (unused)
+      # @param session [Vass::V0::Session] Session instance
       # @param _error [Vass::Errors::RateLimitError] Error (unused)
       #
-      def handle_validation_rate_limit_error(_session, _error)
-        log_validation_rate_limit_exceeded
+      def handle_validation_rate_limit_error(session, _error)
+        log_validation_rate_limit_exceeded(session.uuid)
         retry_after = Settings.vass.rate_limit_expiry.to_i
-        render_error_response(
+        render_session_error_response(
           code: 'account_locked',
           detail: 'Too many failed attempts. Please request a new OTC.',
           status: :too_many_requests,
@@ -558,8 +602,10 @@ module Vass
       ##
       # Logs validation rate limit exceeded (no PHI).
       #
-      def log_validation_rate_limit_exceeded
-        log_vass_event(action: 'validation_rate_limit_exceeded', level: :warn)
+      # @param identifier [String] Identifier (UUID) for the rate limit
+      #
+      def log_validation_rate_limit_exceeded(identifier)
+        log_vass_event(action: 'validation_rate_limit_exceeded', vass_uuid: identifier, level: :warn)
       end
     end
   end

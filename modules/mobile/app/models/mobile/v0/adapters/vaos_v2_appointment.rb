@@ -168,7 +168,10 @@ module Mobile
         # this does not match the way friendly name is set for web.
         # our mocks do not match the web mocks 1:1 so different data is needed
         def friendly_location_name
-          return appointment.dig(:location, :name) if va_appointment? || appointment_request?
+          if va_appointment? || appointment_request?
+            return appointment[:service_name] || appointment.dig(:location,
+                                                                 :name)
+          end
 
           appointment.dig(:extension, :cc_location, :practice_name)
         end

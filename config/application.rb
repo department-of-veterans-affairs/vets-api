@@ -45,6 +45,27 @@ module VetsAPI
 
     # RAILS 7 CONFIG END
 
+    # Active Record Encryption
+    # see: https://guides.rubyonrails.org/active_record_encryption.html
+    # ONLY USED FOR CONSOLE1984
+    config.active_record.encryption.primary_key = Settings.active_record_encryption.primary_key
+    config.active_record.encryption.deterministic_key = Settings.active_record_encryption.deterministic_key
+    config.active_record.encryption.key_derivation_salt = Settings.active_record_encryption.key_derivation_salt
+
+    # Console1984
+    # see: https://github.com/basecamp/console1984/tree/master?tab=readme-ov-file#configuration
+    config.console1984.ask_for_username_if_empty = true
+    config.console1984.incinerate_after = 1.year
+    config.console1984.production_data_warning = <<~TXT
+      All commands are recorded, logged, and audited. Results from commands are NOT recorded.
+
+      Please enter your VA email
+
+      Enter the Fed Engineer's username/email/id in the purpose prompt if pairing.
+
+      NOTE: Pairing is not required in dev and staging
+    TXT
+
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
@@ -89,7 +110,8 @@ module VetsAPI
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use Warden::Manager do |config|
       config.failure_app = proc do |_env|
-        ['401', { 'Content-Type' => 'application/json' }, { error: 'Unauthorized', code: 401 }]
+        body = { error: 'Unauthorized', code: 401 }.to_json
+        [401, { 'Content-Type' => 'application/json' }, [body]]
       end
       config.intercept_401 = false
       config.default_strategies :github

@@ -20,7 +20,6 @@ module AccreditedRepresentativePortal
       SUCCESS_METRIC = 'ar.itf.submit.success'
       ERROR_METRIC   = 'ar.itf.submit.error'
 
-      before_action :check_feature_toggle
       before_action :validate_file_type, only: %i[show create]
       before_action { authorize icn, policy_class: IntentToFilePolicy }
 
@@ -28,7 +27,7 @@ module AccreditedRepresentativePortal
         parsed_response = if Flipper.enabled?(:accredited_representative_portal_skip_itf_check)
                             MOCK_ITF_NOT_FOUND
                           else
-                            service.get_intent_to_file(params[:benefitType])
+                            intent_to_file_check_service.get_intent_to_file(params[:benefitType])
                           end
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
@@ -43,7 +42,7 @@ module AccreditedRepresentativePortal
         monitoring = ar_monitoring
         monitoring.track_count(ATTEMPT_METRIC, tags: default_tags)
 
-        parsed_response = service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
+        parsed_response = submit_service.create_intent_to_file(params[:benefitType], params[:claimantSsn])
         Rails.logger.info('ARP ITF: Created intent to file in Benefits Claims')
 
         if parsed_response['errors'].present?
@@ -124,16 +123,12 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def check_feature_toggle
-        unless Flipper.enabled?(:accredited_representative_portal_intent_to_file, @current_user)
-          message = 'The accredited_representative_portal_intent_to_file feature flag is disabled ' \
-                    "for the user with uuid: #{@current_user.uuid}"
-          raise Common::Exceptions::Forbidden, detail: message
-        end
+      def intent_to_file_check_service
+        @intent_to_file_check_service ||= BenefitsClaims::Service.new(icn)
       end
 
-      def service
-        @service ||= BenefitsClaims::Service.new(veteran_icn)
+      def submit_service
+        @submit_service ||= BenefitsClaims::Service.new(veteran_icn)
       end
 
       def icn
@@ -158,6 +153,8 @@ module AccreditedRepresentativePortal
           params[:claimantSsn],
           params[:claimantDateOfBirth]
         )
+      rescue Common::Exceptions::RecordNotFound => e
+        raise Common::Exceptions::BadRequest.new(detail: e.message)
       end
 
       def validate_file_type
