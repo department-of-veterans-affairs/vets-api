@@ -26732,7 +26732,6 @@
             "additionalProperties": false,
             "required": [
               "veteranStatus",
-              "notConfirmedReason",
               "serviceSummaryCode",
               "serviceHistoryStatus"
             ],
@@ -26754,6 +26753,11 @@
                 "type": "object",
                 "nullable": true,
                 "additionalProperties": false,
+                "required": [
+                  "branch",
+                  "beginDate",
+                  "endDate"
+                ],
                 "description": "The latest branch of service, begin date, and end date when the veteran is eligible for a status card",
                 "properties": {
                   "branch": {
@@ -26859,6 +26863,7 @@
                   "NOT_TITLE_38",
                   "PERSON_NOT_FOUND"
                 ],
+                "nullable": true,
                 "description": "Displays the reason the veteran is not eligible for a status card",
                 "example": "PERSON_NOT_FOUND"
               },
