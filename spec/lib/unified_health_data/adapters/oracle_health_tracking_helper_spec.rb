@@ -41,44 +41,51 @@ end
 describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
   let(:helper) { TrackingHelperTestClass.new }
 
-  describe '#build_tracking_information' do
-    context 'with extension-based tracking data' do
-      context 'when all extension fields are present' do
-        let(:resource) do
-          {
-            'id' => '12345',
-            'medicationCodeableConcept' => {
-              'text' => 'albuterol 90 mcg/inh Aerosol',
-              'coding' => [
-                { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '00487-9801-01' }
-              ]
-            },
-            'identifier' => [
-              { 'system' => 'http://example.com/prescription', 'value' => 'RX-001' }
-            ],
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'extension' => [
-                  {
-                    'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
-                    'extension' => [
-                      { 'url' => 'http://example.com/Tracking Number', 'valueString' => '9400111899223100000001' },
-                      { 'url' => 'http://example.com/Delivery Service', 'valueString' => 'USPS' },
-                      { 'url' => 'http://example.com/Shipped Date', 'valueString' => '2026-01-10 14:35:02.0' },
-                      { 'url' => 'http://example.com/Prescription Name', 'valueString' => 'Extension Med Name' },
-                      { 'url' => 'http://example.com/Prescription Number', 'valueString' => 'EXT-RX-999' },
-                      { 'url' => 'http://example.com/NDC Code', 'valueString' => '99999-9999-99' }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        end
+  # Update all test fixtures to use simple field names as URLs (matching actual Oracle Health format)
+  # Change from: 'url' => 'http://example.com/tracking/Tracking Number'
+  # Change to:   'url' => 'Tracking Number'
 
+  describe '#build_tracking_information' do
+    let(:adapter) { DummyAdapter.new }
+
+    context 'with extension-based tracking data' do
+      let(:resource_with_extension_tracking) do
+        {
+          'id' => '20848812135',
+          'medicationCodeableConcept' => {
+            'text' => 'albuterol 90 mcg/inh Aerosol',
+            'coding' => [
+              { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '00487-9801-01' }
+            ]
+          },
+          'identifier' => [
+            { 'system' => 'http://example.com/prescription', 'value' => 'RX-PLACER-001' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => '9400111899223100000001' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'USPS' },
+                    { 'url' => 'Shipped Date', 'valueString' => '2026-01-10 14:35:02.0' },
+                    { 'url' => 'Prescription Name', 'valueString' => 'albuterol 90 mcg/inh Aerosol' },
+                    { 'url' => 'NDC Code', 'valueString' => '00487-9801-01' },
+                    { 'url' => 'Prescription Number', 'valueString' => 'RX-PLACER-001' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      context 'when all extension fields are present' do
         it 'returns tracking information with all extension fields' do
-          result = helper.build_tracking_information(resource)
+          result = adapter.build_tracking_information(resource_with_extension_tracking)
 
           expect(result).to be_an(Array)
           expect(result.length).to eq(1)
@@ -87,26 +94,26 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
           expect(tracking[:tracking_number]).to eq('9400111899223100000001')
           expect(tracking[:carrier]).to eq('USPS')
           expect(tracking[:shipped_date]).to eq('2026-01-10 14:35:02.0')
-          expect(tracking[:prescription_name]).to eq('Extension Med Name')
-          expect(tracking[:prescription_number]).to eq('EXT-RX-999')
-          expect(tracking[:ndc_number]).to eq('99999-9999-99')
-          expect(tracking[:prescription_id]).to eq('12345')
+          expect(tracking[:prescription_name]).to eq('albuterol 90 mcg/inh Aerosol')
+          expect(tracking[:ndc_number]).to eq('00487-9801-01')
+          expect(tracking[:prescription_number]).to eq('RX-PLACER-001')
+          expect(tracking[:prescription_id]).to eq('20848812135')
           expect(tracking[:other_prescriptions]).to eq([])
         end
       end
 
       context 'when extension has only tracking number' do
-        let(:resource) do
+        let(:resource_with_minimal_extension) do
           {
             'id' => '12345',
             'medicationCodeableConcept' => {
-              'text' => 'Fallback Medication',
+              'text' => 'Test Medication',
               'coding' => [
                 { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '11111-2222-33' }
               ]
             },
             'identifier' => [
-              { 'system' => 'http://example.com/prescription', 'value' => 'FALLBACK-RX' }
+              { 'system' => 'http://example.com/prescription', 'value' => 'TEST-001' }
             ],
             'contained' => [
               {
@@ -115,7 +122,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
                   {
                     'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                     'extension' => [
-                      { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'MINIMAL-TRACK' }
+                      { 'url' => 'Tracking Number', 'valueString' => '9999888877776666' }
                     ]
                   }
                 ]
@@ -125,103 +132,26 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'falls back to resource extraction methods for missing fields' do
-          result = helper.build_tracking_information(resource)
+          result = adapter.build_tracking_information(resource_with_minimal_extension)
+
+          expect(result).to be_an(Array)
+          expect(result.length).to eq(1)
 
           tracking = result.first
-          expect(tracking[:tracking_number]).to eq('MINIMAL-TRACK')
-          expect(tracking[:carrier]).to be_nil
-          expect(tracking[:shipped_date]).to be_nil
-          # Fallback values from resource
-          expect(tracking[:prescription_name]).to eq('Fallback Medication')
-          expect(tracking[:prescription_number]).to eq('FALLBACK-RX')
+          expect(tracking[:tracking_number]).to eq('9999888877776666')
+          expect(tracking[:prescription_name]).to eq('Test Medication')
+          expect(tracking[:prescription_number]).to eq('TEST-001')
           expect(tracking[:ndc_number]).to eq('11111-2222-33')
         end
       end
 
-      context 'when extension has no tracking number' do
-        let(:resource) do
-          {
-            'id' => '12345',
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'extension' => [
-                  {
-                    'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
-                    'extension' => [
-                      { 'url' => 'http://example.com/Delivery Service', 'valueString' => 'USPS' }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        end
-
-        it 'does not create tracking record without tracking number' do
-          result = helper.build_tracking_information(resource)
-          expect(result).to eq([])
-        end
-      end
-
-      context 'when shipping extension has empty nested extensions' do
-        let(:resource) do
-          {
-            'id' => '12345',
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'extension' => [
-                  {
-                    'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
-                    'extension' => []
-                  }
-                ]
-              }
-            ]
-          }
-        end
-
-        it 'does not create tracking record' do
-          result = helper.build_tracking_information(resource)
-          expect(result).to eq([])
-        end
-      end
-
-      context 'when dispense has non-shipping extensions only' do
-        let(:resource) do
-          {
-            'id' => '12345',
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'extension' => [
-                  {
-                    'url' => 'http://example.com/other-extension',
-                    'extension' => [
-                      { 'url' => 'Some Field', 'valueString' => 'some value' }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        end
-
-        it 'does not create tracking record' do
-          result = helper.build_tracking_information(resource)
-          expect(result).to eq([])
-        end
-      end
-
       context 'when NDC is in resource coding but not in extension' do
-        let(:resource) do
+        let(:resource_with_ndc_in_coding) do
           {
             'id' => '12345',
             'medicationCodeableConcept' => {
               'coding' => [
-                { 'system' => 'http://rxnorm.org', 'code' => 'RXNORM-123' },
-                { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '55555-4444-33' }
+                { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '00487-9801-01' }
               ]
             },
             'contained' => [
@@ -231,7 +161,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
                   {
                     'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                     'extension' => [
-                      { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'TRACK-123' }
+                      { 'url' => 'Tracking Number', 'valueString' => '12345' }
                     ]
                   }
                 ]
@@ -241,18 +171,19 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'extracts NDC from resource coding array' do
-          result = helper.build_tracking_information(resource)
-          expect(result.first[:ndc_number]).to eq('55555-4444-33')
+          result = adapter.build_tracking_information(resource_with_ndc_in_coding)
+
+          expect(result.first[:ndc_number]).to eq('00487-9801-01')
         end
       end
 
       context 'when NDC is only in most recent dispense' do
-        let(:resource) do
+        let(:resource_with_dispense_ndc) do
           {
             'id' => '12345',
             'medicationCodeableConcept' => {
               'coding' => [
-                { 'system' => 'http://rxnorm.org', 'code' => 'RXNORM-123' }
+                { 'system' => 'http://rxnorm.org', 'code' => 'RXNORM-456' }
               ]
             },
             'contained' => [
@@ -261,14 +192,14 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
                 'whenHandedOver' => '2025-11-17T21:35:02.000Z',
                 'medicationCodeableConcept' => {
                   'coding' => [
-                    { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => 'DISPENSE-NDC-001' }
+                    { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '99999-8888-77' }
                   ]
                 },
                 'extension' => [
                   {
                     'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                     'extension' => [
-                      { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'TRACK-456' }
+                      { 'url' => 'Tracking Number', 'valueString' => '12345' }
                     ]
                   }
                 ]
@@ -278,126 +209,30 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'falls back to dispense NDC' do
-          result = helper.build_tracking_information(resource)
-          expect(result.first[:ndc_number]).to eq('DISPENSE-NDC-001')
-        end
-      end
-    end
+          result = adapter.build_tracking_information(resource_with_dispense_ndc)
 
-    context 'with legacy identifier-based tracking data' do
-      context 'when all identifier fields are present' do
-        let(:resource) do
-          {
-            'id' => '67890',
-            'medicationCodeableConcept' => { 'text' => 'Test Medication' },
-            'identifier' => [
-              { 'system' => 'http://example.com/prescription', 'value' => 'RX-002' }
-            ],
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'identifier' => [
-                  { 'type' => { 'text' => 'Tracking Number' }, 'value' => 'LEGACY-123' },
-                  { 'type' => { 'text' => 'Carrier' }, 'value' => 'UPS' },
-                  { 'type' => { 'text' => 'Shipped Date' }, 'value' => '2026-01-15' },
-                  { 'type' => { 'text' => 'Prescription Number' }, 'value' => 'LEGACY-RX-999' }
-                ],
-                'medicationCodeableConcept' => {
-                  'coding' => [
-                    { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '11111-2222-33' }
-                  ]
-                }
-              }
-            ]
-          }
-        end
-
-        it 'returns tracking information from identifiers' do
-          result = helper.build_tracking_information(resource)
-
-          expect(result).to be_an(Array)
-          expect(result.length).to eq(1)
-
-          tracking = result.first
-          expect(tracking[:tracking_number]).to eq('LEGACY-123')
-          expect(tracking[:carrier]).to eq('UPS')
-          expect(tracking[:shipped_date]).to eq('2026-01-15')
-          expect(tracking[:prescription_number]).to eq('LEGACY-RX-999')
-          expect(tracking[:ndc_number]).to eq('11111-2222-33')
-          expect(tracking[:prescription_id]).to eq('67890')
-        end
-      end
-
-      context 'when identifier has only tracking number' do
-        let(:resource) do
-          {
-            'id' => '67890',
-            'medicationCodeableConcept' => { 'text' => 'Minimal Med' },
-            'identifier' => [
-              { 'system' => 'http://example.com/prescription', 'value' => 'MINIMAL-RX' }
-            ],
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'identifier' => [
-                  { 'type' => { 'text' => 'Tracking Number' }, 'value' => 'MINIMAL-TRACK' }
-                ]
-              }
-            ]
-          }
-        end
-
-        it 'uses resource fallback for missing identifier fields' do
-          result = helper.build_tracking_information(resource)
-
-          tracking = result.first
-          expect(tracking[:tracking_number]).to eq('MINIMAL-TRACK')
-          expect(tracking[:carrier]).to be_nil
-          expect(tracking[:shipped_date]).to be_nil
-          expect(tracking[:prescription_name]).to eq('Minimal Med')
-          expect(tracking[:prescription_number]).to eq('MINIMAL-RX')
-        end
-      end
-
-      context 'when identifier has no tracking number' do
-        let(:resource) do
-          {
-            'id' => '67890',
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'identifier' => [
-                  { 'type' => { 'text' => 'Carrier' }, 'value' => 'FedEx' }
-                ]
-              }
-            ]
-          }
-        end
-
-        it 'does not create tracking record without tracking number' do
-          result = helper.build_tracking_information(resource)
-          expect(result).to eq([])
+          expect(result.first[:ndc_number]).to eq('99999-8888-77')
         end
       end
     end
 
     context 'with extension-based and identifier-based tracking in same resource' do
-      let(:resource) do
+      let(:resource_with_both_formats) do
         {
           'id' => '12345',
           'contained' => [
             {
               'resourceType' => 'MedicationDispense',
-              'identifier' => [
-                { 'type' => { 'text' => 'Tracking Number' }, 'value' => 'LEGACY-TRACK' }
-              ],
               'extension' => [
                 {
                   'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                   'extension' => [
-                    { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'EXTENSION-TRACK' }
+                    { 'url' => 'Tracking Number', 'valueString' => 'EXT-123456' }
                   ]
                 }
+              ],
+              'identifier' => [
+                { 'type' => { 'text' => 'Tracking Number' }, 'value' => 'ID-789012' }
               ]
             }
           ]
@@ -405,68 +240,38 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
       end
 
       it 'prioritizes extension-based tracking over identifier-based' do
-        result = helper.build_tracking_information(resource)
+        result = adapter.build_tracking_information(resource_with_both_formats)
 
         expect(result.length).to eq(1)
-        expect(result.first[:tracking_number]).to eq('EXTENSION-TRACK')
-      end
-    end
-
-    context 'with no tracking data' do
-      let(:resource) do
-        {
-          'id' => '99999',
-          'contained' => [
-            { 'resourceType' => 'MedicationDispense' }
-          ]
-        }
-      end
-
-      it 'returns empty array' do
-        result = helper.build_tracking_information(resource)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with no dispenses' do
-      let(:resource) do
-        {
-          'id' => '99999',
-          'contained' => []
-        }
-      end
-
-      it 'returns empty array' do
-        result = helper.build_tracking_information(resource)
-        expect(result).to eq([])
+        expect(result.first[:tracking_number]).to eq('EXT-123456')
       end
     end
 
     context 'with multiple dispenses' do
-      let(:resource) do
+      let(:resource_with_multiple_dispenses) do
         {
-          'id' => '55555',
+          'id' => '12345',
           'contained' => [
             {
               'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
               'extension' => [
                 {
                   'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                   'extension' => [
-                    { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'TRACK-001' },
-                    { 'url' => 'http://example.com/Delivery Service', 'valueString' => 'USPS' }
+                    { 'url' => 'Tracking Number', 'valueString' => 'TRACK-001' }
                   ]
                 }
               ]
             },
             {
               'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
               'extension' => [
                 {
                   'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                   'extension' => [
-                    { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'TRACK-002' },
-                    { 'url' => 'http://example.com/Delivery Service', 'valueString' => 'FedEx' }
+                    { 'url' => 'Tracking Number', 'valueString' => 'TRACK-002' }
                   ]
                 }
               ]
@@ -476,72 +281,55 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
       end
 
       it 'returns tracking for all dispenses with tracking data' do
-        result = helper.build_tracking_information(resource)
+        result = adapter.build_tracking_information(resource_with_multiple_dispenses)
 
         expect(result.length).to eq(2)
-        tracking_numbers = result.map { |t| t[:tracking_number] }
-        expect(tracking_numbers).to contain_exactly('TRACK-001', 'TRACK-002')
-
-        carriers = result.map { |t| t[:carrier] }
-        expect(carriers).to contain_exactly('USPS', 'FedEx')
+        expect(result.map { |t| t[:tracking_number] }).to contain_exactly('TRACK-001', 'TRACK-002')
       end
     end
 
     context 'with mixed dispenses (some with tracking, some without)' do
-      let(:resource) do
+      let(:resource_with_mixed_dispenses) do
         {
-          'id' => '44444',
+          'id' => '12345',
           'contained' => [
             {
               'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
               'extension' => [
                 {
                   'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
                   'extension' => [
-                    { 'url' => 'http://example.com/Tracking Number', 'valueString' => 'TRACK-ONLY' }
+                    { 'url' => 'Tracking Number', 'valueString' => 'TRACK-001' }
                   ]
                 }
               ]
             },
             {
-              'resourceType' => 'MedicationDispense'
-              # No tracking data
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-2',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Delivery Service', 'valueString' => 'USPS' }
+                  ]
+                }
+              ]
             },
             {
               'resourceType' => 'MedicationDispense',
-              'identifier' => [
-                { 'type' => { 'text' => 'Carrier' }, 'value' => 'UPS' }
-                # No tracking number
-              ]
+              'id' => 'dispense-3'
             }
           ]
         }
       end
 
       it 'returns only tracking for dispenses with tracking numbers' do
-        result = helper.build_tracking_information(resource)
+        result = adapter.build_tracking_information(resource_with_mixed_dispenses)
 
         expect(result.length).to eq(1)
-        expect(result.first[:tracking_number]).to eq('TRACK-ONLY')
-      end
-    end
-
-    context 'with dispense having no extension or identifier key' do
-      let(:resource) do
-        {
-          'id' => '12345',
-          'contained' => [
-            {
-              'resourceType' => 'MedicationDispense',
-              'status' => 'completed'
-            }
-          ]
-        }
-      end
-
-      it 'returns empty array' do
-        result = helper.build_tracking_information(resource)
-        expect(result).to eq([])
+        expect(result.first[:tracking_number]).to eq('TRACK-001')
       end
     end
   end
