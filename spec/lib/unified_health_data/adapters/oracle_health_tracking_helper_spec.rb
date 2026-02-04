@@ -47,7 +47,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
 
   describe '#build_tracking_information' do
     let(:adapter) { DummyAdapter.new }
-
+    
     context 'with extension-based tracking data' do
       let(:resource_with_extension_tracking) do
         {
