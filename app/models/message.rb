@@ -63,6 +63,7 @@ class Message
   attribute :recipient_name, String, filterable: %w[eq not_eq match]
   attribute :read_receipt, String
   attribute :triage_group_name, String
+  attribute :triage_group_id, Integer
   attribute :proxy_sender_name, String
   attribute :attachments, Attachment, array: true
   attribute :has_attachments, Bool, default: false

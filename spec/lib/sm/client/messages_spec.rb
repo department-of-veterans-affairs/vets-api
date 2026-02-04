@@ -58,6 +58,108 @@ describe 'sm client' do
       )
     end
 
+    describe '#get_full_messages_for_thread' do
+      let(:message_id) { 3_188_782 }
+
+      it 'returns a collection of MessageThreadDetails', :vcr do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+          result = client.get_full_messages_for_thread(message_id)
+
+          expect(result).to be_a(Vets::Collection)
+          expect(result.type).to eq(MessageThreadDetails)
+          expect(result.data).not_to be_empty
+        end
+      end
+
+      describe 'OH migration phase derivation' do
+        let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+        let(:triage_team_id) { 3_188_767 }
+
+        before do
+          allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+        end
+
+        it 'sets oh_migration_phase on all messages when triage team is in migration' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Mock the cached triage teams lookup
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return('p3')
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            # Set triage_group_id on messages to simulate proper data (API uses recipient_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            # Re-derive the phase with triage_group_id set
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p3')
+          end
+        end
+
+        it 'does not set oh_migration_phase when triage team is not in migration' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'does not set oh_migration_phase when cached teams are empty' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'does not set oh_migration_phase when triage_group_id not found in cache' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Cached teams with different triage_team_id
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id: 999_999, station_number: '456')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns nil when messages have no triage_group_id' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+
+            result = client.get_full_messages_for_thread(message_id)
+            # Don't set triage_group_id - it will be nil from the API
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+      end
+    end
+
     context 'creates' do
       before do
         VCR.use_cassette 'sm_client/messages/creates/a_new_message_without_attachments' do

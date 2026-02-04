@@ -76,6 +76,11 @@ module SM
         is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
         result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
                                                                          errors: json[:errors])
+
+        # Derive OH migration phase from cached triage teams
+        oh_migration_phase = derive_oh_migration_phase(result)
+        result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
+
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
         result
       rescue => e
@@ -121,6 +126,34 @@ module SM
         response = perform(:post, "message/#{id}", nil, custom_headers)
 
         response&.status
+      end
+
+      private
+
+      ##
+      # Derives OH migration phase from cached triage teams based on the first message's triage_group_id
+      #
+      # @param result [Vets::Collection] collection of MessageThreadDetails
+      # @return [String, nil] current migration phase (e.g., "p1") or nil
+      #
+      def derive_oh_migration_phase(message_thread_collection)
+        return nil if message_thread_collection.data.blank?
+
+        # Get triage_group_id from the first message
+        first_message = message_thread_collection.data.first
+        triage_group_id = first_message&.triage_group_id
+        return nil if triage_group_id.blank?
+
+        # Look up station_number from cached triage teams
+        cached_teams = get_triage_teams_station_numbers
+        return nil if cached_teams.blank?
+
+        matching_team = cached_teams.find { |team| team.triage_team_id == triage_group_id }
+        station_number = matching_team&.station_number
+        return nil if station_number.blank?
+
+        # Look up migration phase for this station number
+        MHV::OhFacilitiesHelper::Service.new(current_user).get_phase_for_station_number(station_number)
       end
     end
   end

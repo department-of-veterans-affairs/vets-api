@@ -9,4 +9,5 @@ class MessageThreadDetails < Message
   attribute :to_date, Vets::Type::DateTimeString
   attribute :has_attachments, Bool, default: false
   attribute :attachments, Array
+  attribute :oh_migration_phase, String
 end
