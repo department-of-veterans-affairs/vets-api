@@ -387,6 +387,301 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
     end
   end
 
+  describe '#validate_payment_history' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with validation logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(true)
+      end
+
+      context 'when payment_history is nil' do
+        before do
+          # Stub BGS to return valid person but nil payment_history
+          person = double('person',
+                          status: 'ACTIVE',
+                          file_number: '123456789',
+                          participant_id: '123456',
+                          ssn_number: '123456789')
+          allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+            .and_return(person)
+          allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+            .and_return(nil)
+        end
+
+        it 'logs error and increments StatsD' do
+          # Allow all other calls
+          allow(StatsD).to receive(:increment).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:error).and_call_original
+
+          # Set specific expectations
+          expect(Rails.logger).to receive(:error).with(
+            'BGS::PaymentService returned nil',
+            hash_including(
+              user_uuid: user.uuid,
+              person_status: 'ACTIVE'
+            )
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.payment_history.nil').and_call_original
+
+          # This will fail because payment_history is nil, but we're testing the logging
+          begin
+            get(:index)
+          rescue
+            # Expected to fail, we're checking logging occurred
+          end
+        end
+      end
+
+      context 'when payment_history has no payments' do
+        before do
+          # Stub BGS to return payment_history with blank payments
+          person = double('person',
+                          status: 'ACTIVE',
+                          file_number: '123456789',
+                          participant_id: '123456',
+                          ssn_number: '123456789')
+          payment_history = double('payment_history', payments: [])
+          allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+            .and_return(person)
+          allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+            .and_return(payment_history)
+        end
+
+        it 'logs warning and increments StatsD' do
+          # Allow all other calls
+          allow(StatsD).to receive(:increment).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:error).and_call_original
+
+          # Set specific expectations
+          expect(Rails.logger).to receive(:warn).with(
+            'BGS payment history has no payments',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.payments.empty').and_call_original
+
+          get(:index)
+        end
+      end
+
+      context 'when payment_history has payments' do
+        it 'does not log warnings or errors' do
+          # Don't allow error or warn logs for payment_history validation
+          expect(Rails.logger).not_to receive(:error).with(
+            'BGS::PaymentService returned nil',
+            anything
+          )
+          expect(Rails.logger).not_to receive(:warn).with(
+            'BGS payment history has no payments',
+            anything
+          )
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.payment_history.nil')
+          expect(StatsD).not_to receive(:increment).with('api.payment_history.payments.empty')
+
+          VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+            VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+              get(:index)
+            end
+          end
+        end
+      end
+    end
+
+    context 'with validation logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      end
+
+      it 'does not log payment_history validation' do
+        # Stub BGS to return nil payment_history
+        person = double('person',
+                        status: 'ACTIVE',
+                        file_number: '123456789',
+                        participant_id: '123456',
+                        ssn_number: '123456789')
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_return(person)
+        allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+          .and_return(nil)
+
+        expect(Rails.logger).not_to receive(:error).with(
+          'BGS::PaymentService returned nil',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.payment_history.nil')
+
+        # This will fail because payment_history is nil, but we're just testing logging doesn't happen
+        begin
+          get(:index)
+        rescue
+          # Expected to fail, we're just checking no logging occurred
+        end
+      end
+    end
+  end
+
+  describe '#validate_final_response' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with validation logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(true)
+      end
+
+      context 'when both payments and return_payments are empty' do
+        it 'logs warning and increments api.payment_history.response.empty' do
+          # Stub the adapter to return empty payments and return_payments
+          adapter = double('adapter', payments: [], return_payments: [])
+          allow_any_instance_of(V0::Profile::PaymentHistoryController).to receive(:adapter)
+            .and_return(adapter)
+
+          # Allow all logger and StatsD calls
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(StatsD).to receive(:increment).and_call_original
+
+          # Expect specific calls for validate_final_response
+          expect(Rails.logger).to receive(:warn).with(
+            'Returning empty payment history response to customer',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.response.empty').and_call_original
+
+          get(:index)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when payments is not empty' do
+        it 'logs info and increments api.payment_history.response.success' do
+          # Stub the adapter to return non-empty payments
+          adapter = double('adapter',
+                           payments: [{ 'payment_amount' => '123.45', 'payment_date' => '2024-01-01' }],
+                           return_payments: [])
+          allow_any_instance_of(V0::Profile::PaymentHistoryController).to receive(:adapter)
+            .and_return(adapter)
+
+          # Allow all logger and StatsD calls (including from other validation methods)
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(Rails.logger).to receive(:error).and_call_original
+          allow(StatsD).to receive(:increment).and_call_original
+
+          # Expect specific calls for validate_final_response
+          expect(Rails.logger).to receive(:info).with(
+            'Returning payment history response to customer',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.response.success').and_call_original
+
+          get(:index)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when return_payments is not empty but payments is empty' do
+        it 'logs info and increments api.payment_history.response.success' do
+          # Stub the adapter to return empty payments but has return_payments
+          adapter = double('adapter', payments: [], return_payments: [{ 'return_reason' => 'Undeliverable' }])
+          allow_any_instance_of(V0::Profile::PaymentHistoryController).to receive(:adapter)
+            .and_return(adapter)
+
+          # Allow all logger and StatsD calls
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(Rails.logger).to receive(:warn).and_call_original
+          allow(StatsD).to receive(:increment).and_call_original
+
+          # Expect specific calls for validate_final_response
+          expect(Rails.logger).to receive(:info).with(
+            'Returning payment history response to customer',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.response.success').and_call_original
+
+          get(:index)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when both payments and return_payments have data' do
+        it 'logs info and increments api.payment_history.response.success' do
+          # Stub the adapter to return both payments and return_payments
+          adapter = double('adapter',
+                           payments: [{ 'payment_amount' => '123.45' }],
+                           return_payments: [{ 'return_reason' => 'Undeliverable' }])
+          allow_any_instance_of(V0::Profile::PaymentHistoryController).to receive(:adapter)
+            .and_return(adapter)
+
+          # Allow all logger and StatsD calls
+          allow(Rails.logger).to receive(:info).and_call_original
+          allow(StatsD).to receive(:increment).and_call_original
+
+          # Expect specific calls for validate_final_response
+          expect(Rails.logger).to receive(:info).with(
+            'Returning payment history response to customer',
+            hash_including(user_uuid: user.uuid)
+          ).and_call_original
+          expect(StatsD).to receive(:increment)
+            .with('api.payment_history.response.success').and_call_original
+
+          get(:index)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'with validation logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      end
+
+      it 'does not log final response validation even when both are empty' do
+        # Stub the adapter to return empty payments and return_payments
+        adapter = double('adapter', payments: [], return_payments: [])
+        allow_any_instance_of(V0::Profile::PaymentHistoryController).to receive(:adapter)
+          .and_return(adapter)
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          'Returning empty payment history response to customer',
+          anything
+        )
+        expect(Rails.logger).not_to receive(:info).with(
+          'Returning payment history response to customer',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.response.empty')
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.response.success')
+
+        get(:index)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
   describe '#log_before_bgs_people_request' do
     before do
       allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
