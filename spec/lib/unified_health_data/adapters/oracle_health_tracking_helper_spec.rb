@@ -46,8 +46,6 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
   # Change to:   'url' => 'Tracking Number'
 
   describe '#build_tracking_information' do
-    let(:adapter) { DummyAdapter.new }
-    
     context 'with extension-based tracking data' do
       let(:resource_with_extension_tracking) do
         {
@@ -85,7 +83,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
 
       context 'when all extension fields are present' do
         it 'returns tracking information with all extension fields' do
-          result = adapter.build_tracking_information(resource_with_extension_tracking)
+          result = helper.build_tracking_information(resource_with_extension_tracking)
 
           expect(result).to be_an(Array)
           expect(result.length).to eq(1)
@@ -132,7 +130,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'falls back to resource extraction methods for missing fields' do
-          result = adapter.build_tracking_information(resource_with_minimal_extension)
+          result = helper.build_tracking_information(resource_with_minimal_extension)
 
           expect(result).to be_an(Array)
           expect(result.length).to eq(1)
@@ -171,7 +169,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'extracts NDC from resource coding array' do
-          result = adapter.build_tracking_information(resource_with_ndc_in_coding)
+          result = helper.build_tracking_information(resource_with_ndc_in_coding)
 
           expect(result.first[:ndc_number]).to eq('00487-9801-01')
         end
@@ -209,7 +207,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         end
 
         it 'falls back to dispense NDC' do
-          result = adapter.build_tracking_information(resource_with_dispense_ndc)
+          result = helper.build_tracking_information(resource_with_dispense_ndc)
 
           expect(result.first[:ndc_number]).to eq('99999-8888-77')
         end
@@ -240,7 +238,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
       end
 
       it 'prioritizes extension-based tracking over identifier-based' do
-        result = adapter.build_tracking_information(resource_with_both_formats)
+        result = helper.build_tracking_information(resource_with_both_formats)
 
         expect(result.length).to eq(1)
         expect(result.first[:tracking_number]).to eq('EXT-123456')
@@ -281,7 +279,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
       end
 
       it 'returns tracking for all dispenses with tracking data' do
-        result = adapter.build_tracking_information(resource_with_multiple_dispenses)
+        result = helper.build_tracking_information(resource_with_multiple_dispenses)
 
         expect(result.length).to eq(2)
         expect(result.map { |t| t[:tracking_number] }).to contain_exactly('TRACK-001', 'TRACK-002')
@@ -326,7 +324,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
       end
 
       it 'returns only tracking for dispenses with tracking numbers' do
-        result = adapter.build_tracking_information(resource_with_mixed_dispenses)
+        result = helper.build_tracking_information(resource_with_mixed_dispenses)
 
         expect(result.length).to eq(1)
         expect(result.first[:tracking_number]).to eq('TRACK-001')
