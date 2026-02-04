@@ -203,7 +203,14 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         subject.resolve_facility_name(dispense_with_invalid_station)
 
         expect(Rails.logger).to have_received(:info).with(
-          a_string_matching(/No facility name found for facility identifier: 7200.*or 3 digit station: 720.*derived from 7200-RX-MAIN/m)
+          a_string_matching(
+            Regexp.new(
+              'No facility name found for facility identifier: 7200.*' \
+              'or 3 digit station: 720.*' \
+              'derived from 7200-RX-MAIN',
+              Regexp::MULTILINE
+            )
+          )
         )
       end
 
