@@ -43,19 +43,13 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  attr_accessor :use_v2
-
   after_initialize do
-    self.form_id = if use_v2 || form_id == '686C-674-V2'
-                     '686C-674-V2'
-                   else
-                     self.class::FORM.upcase
-                   end
+    self.form_id = '686C-674-V2'
   end
 
   def pdf_overflow_tracking
-    track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
-    track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
+    track_each_pdf_overflow('686C-674-V2') if submittable_686?
+    track_each_pdf_overflow('21-674-V2') if submittable_674?
   rescue => e
     monitor.track_pdf_overflow_tracking_failure(e)
   end
@@ -107,6 +101,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_686?
+    # Check to ensure the key exists and has a value
+    selectable_options = parsed_form['view:selectable686_options']
+    return false unless selectable_options
+
     # checking key and value just avoids inconsistencies in the mock data or from FE submission
     DEPENDENT_CLAIM_FLOWS.any? do |flow|
       parsed_form['view:selectable686_options'].include?(flow) && parsed_form['view:selectable686_options'][flow]

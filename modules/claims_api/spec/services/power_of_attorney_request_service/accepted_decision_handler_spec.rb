@@ -24,14 +24,14 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
       )
     )
   end
-  let(:proc_id) { '3864182' }
+  let(:proc_id) { '3866592' }
   let(:poa_code) { '083' }
-  let(:registration_number) { '12345678' }
+  let(:registration_number) { '123456783' }
   let(:individual_type) { '2122a' }
   let(:organization_type) { '2122' }
 
   context 'for a valid decide request' do
-    let(:proc_id) { '3864182' }
+    let(:proc_id) { '3866592' }
     let(:poa_code) { '083' }
     let(:claimant) do
       OpenStruct.new(
@@ -53,8 +53,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
     end
     let(:metadata) do
       {
-        'veteran' => { 'vnp_mail_id' => '157252', 'vnp_email_id' => '157251', 'vnp_phone_id' => '111641' },
-        'claimant' => { 'vnp_mail_id' => '157253', 'vnp_email_id' => '157254', 'vnp_phone_id' => '111642' }
+        'veteran' => { 'vnp_mail_id' => '157252', 'vnp_email_id' => '157251', 'vnp_phone_id' => '111641',
+                       'phone_data' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234' } },
+        'claimant' => { 'vnp_mail_id' => '157253', 'vnp_email_id' => '157254', 'vnp_phone_id' => '111642',
+                        'phone_data' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' } }
       }
     end
     let(:returned_data) do
@@ -64,17 +66,17 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
               'address' => { 'addressLine1' => '2719 Hyperion Ave', 'addressLine2' => 'Apt 2',
                              'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'US',
                              'zipCode' => '92264', 'zipCodeSuffix' => '0200' },
-              'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
-              'serviceNumber' => '123678453'
+              'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234' },
+              'serviceNumber' => '123456783'
             },
-            'representative' => { 'poaCode' => '083', 'type' => 'ATTORNEY', 'registrationNumber' => '12345678' },
+            'representative' => { 'poaCode' => '067', 'type' => 'ATTORNEY', 'registrationNumber' => '123456783' },
             'recordConsent' => true, 'consentLimits' => %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
             'consentAddressChange' => true,
             'claimant' => { 'claimantId' => '1013093331V548481',
                             'address' => { 'addressLine1' => '123 Main St', 'addressLine2' => 'Apt 3',
                                            'city' => 'Boston', 'stateCode' => 'MA', 'countryCode' => 'US',
                                            'zipCode' => '02110', 'zipCodeSuffix' => '1000' },
-                            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5559876' },
+                            'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' },
                             'relationship' => 'Spouse' } } } }
     end
 
@@ -91,7 +93,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::AcceptedDecisionHandler do
 
     context 'determines the type' do
       let(:organization) { create(:organization, poa: 'B12') }
-      let(:representative) { create(:representative, representative_id: '12345678', poa_codes: ['A1Y']) }
+      let(:representative) { create(:representative, representative_id: '123456783', poa_codes: ['A1Y']) }
 
       it 'correctly for an organization' do
         subject.instance_variable_set(:@poa_code, organization.poa)

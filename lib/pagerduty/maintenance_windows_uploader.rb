@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/s3_helpers'
+
 module PagerDuty
   module MaintenanceWindowsUploader
     module_function
@@ -18,8 +20,15 @@ module PagerDuty
 
     def upload_file(file)
       s3_resource = new_s3_resource
-      obj = s3_resource.bucket(s3_bucket).object('maintenance_windows.json')
-      obj.upload_file(file, acl: 'public-read', content_type: 'application/json')
+
+      Common::S3Helpers.upload_file(
+        s3_resource:,
+        bucket: s3_bucket,
+        key: 'maintenance_windows.json',
+        file_path: file,
+        content_type: 'application/json',
+        acl: 'public-read'
+      )
     end
   end
 end

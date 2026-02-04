@@ -21,7 +21,7 @@ RSpec.describe IncreaseCompensation::SavedClaim do
 
   describe '#email' do
     it 'returns the users email' do
-      expect(instance.email).to be_nil
+      expect(instance.email).to eq('juan.johnny.rico@example.com')
     end
   end
 
@@ -71,12 +71,14 @@ RSpec.describe IncreaseCompensation::SavedClaim do
   describe '#to_pdf' do
     it 'calls PdfFill::Filler.fill_form' do
       expect(PdfFill::Filler).to receive(:fill_form).with(subject, nil, {})
+
       subject.to_pdf
     end
 
     [true, false].each do |extras_redesign|
       it "calls PdfFill::Filler.fill_form with extras_redesign: #{extras_redesign}" do
         expect(PdfFill::Filler).to receive(:fill_form).with(subject, nil, { extras_redesign: })
+
         subject.to_pdf(nil, { extras_redesign: })
       end
     end

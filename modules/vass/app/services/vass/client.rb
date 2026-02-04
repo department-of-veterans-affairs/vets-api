@@ -14,6 +14,7 @@ module Vass
   class Client < Common::Client::Base
     extend Forwardable
     include Common::Client::Concerns::Monitoring
+    include Vass::Logging
 
     GRANT_TYPE = 'client_credentials'
     STATSD_KEY_PREFIX = 'api.vass'
@@ -195,6 +196,7 @@ module Vass
       if cached_token.present?
         @current_oauth_token = cached_token
       else
+        log_vass_event(action: 'oauth_cache_miss', correlation_id: @correlation_id)
         @current_oauth_token = mint_oauth_token
         redis_client.save_token(token: @current_oauth_token)
       end
@@ -211,12 +213,8 @@ module Vass
       resp = oauth_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error('VassClient OAuth token response missing access_token', {
-                             correlation_id: @correlation_id,
-                             status: resp.status,
-                             has_body: resp.body.present?,
-                             body_keys: resp.body&.keys
-                           })
+        log_vass_event(action: 'oauth_token_missing', level: :error, correlation_id: @correlation_id,
+                       status: resp.status, has_body: resp.body.present?)
         raise Vass::ServiceException.new('VA900',
                                          { detail: 'OAuth auth missing access_token' }, 502)
       end
@@ -283,15 +281,12 @@ module Vass
     # ------------ Logging helpers ------------
 
     def log_auth_retry
-      Rails.logger.error('VassClient 401 error - retrying authentication', correlation_id: @correlation_id)
+      log_vass_event(action: 'auth_retry', level: :error, correlation_id: @correlation_id)
     end
 
     def log_auth_error(error_type, status_code)
-      Rails.logger.error('VassClient authentication failed', {
-                           correlation_id: @correlation_id,
-                           error_type:,
-                           status_code:
-                         })
+      log_vass_event(action: 'auth_failed', level: :error, correlation_id: @correlation_id,
+                     error_type:, status_code:)
     end
 
     ##
@@ -300,25 +295,43 @@ module Vass
     #
     def perform(method, path, params, headers = nil, options = nil)
       server_url = options&.delete(:server_url)
-
-      if server_url
-        custom_connection = config.connection(server_url:)
-        custom_connection.send(method.to_sym, path, params || {}) do |request|
-          request.headers.update(headers || {})
-          (options || {}).each { |option, value| request.options.send("#{option}=", value) }
-        end.env
-      else
-        super
-      end
-    rescue Common::Exceptions::BackendServiceException,
-           Common::Client::Errors::ClientError,
-           Common::Exceptions::GatewayTimeout,
-           Timeout::Error,
-           Faraday::TimeoutError,
-           Faraday::ClientError,
-           Faraday::ServerError,
-           Faraday::Error => e
+      response_env = if server_url
+                       perform_with_custom_connection(server_url, method, path, params,
+                                                      { headers:, options: })
+                     else
+                       super
+                     end
+      validate_response_body(response_env) unless server_url
+      response_env
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError,
+           Faraday::ClientError, Faraday::ServerError, Faraday::Error => e
       handle_error(e)
+    end
+
+    def perform_with_custom_connection(server_url, method, path, params, request_config)
+      config.connection(server_url:).send(method.to_sym, path, params || {}) do |request|
+        request.headers.update(request_config[:headers] || {})
+        (request_config[:options] || {}).each { |option, value| request.options.send("#{option}=", value) }
+      end.env
+    end
+
+    ##
+    # Validates the response body structure from VASS API.
+    #
+    # @param response_env [Faraday::Env] Faraday response environment
+    # @raise [Vass::ServiceException] if body indicates failure
+    #
+    def validate_response_body(response_env)
+      body = response_env.body
+      return if body.is_a?(Hash) && body['success']
+
+      raise config.service_exception.new(
+        Vass::Errors::ERROR_KEY_VASS_ERROR,
+        { detail: 'VASS API returned an unsuccessful response' },
+        response_env.status,
+        body
+      )
     end
 
     ##
@@ -353,8 +366,4 @@ module Vass
       end
     end
   end
-
-  # Mirrors the middleware-defined VASS exception so callers can rely on
-  # BackendServiceException fields (e.g., original_status, original_body).
-  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
 end

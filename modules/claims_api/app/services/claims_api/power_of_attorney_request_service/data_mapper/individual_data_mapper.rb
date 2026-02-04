@@ -43,12 +43,12 @@ module ClaimsApi
                 'zipCodeSuffix' => @data['zip_first_suffix_nbr']
               },
               'phone' => {
-                'countryCode' => parse_phone_number(@data['phone_number'])[0],
-                'areaCode' => parse_phone_number(@data['phone_number'])[1],
-                'phoneNumber' => parse_phone_number(@data['phone_number'])[2]
+                'countryCode' => @data['country_code'],
+                'areaCode' => @data['area_code'],
+                'phoneNumber' => @data['phone_number']
               },
               'email' => @data['email_addrs_txt'],
-              'serviceNumber' => @data['service_number'],
+              'serviceNumber' => @data['registration_number'],
               'serviceBranch' => @data['service_branch']
             },
             'representative' => {

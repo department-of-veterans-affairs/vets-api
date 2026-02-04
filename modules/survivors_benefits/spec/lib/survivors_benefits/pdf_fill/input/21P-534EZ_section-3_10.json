@@ -1,0 +1,29 @@
+{
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranPreviousNames": [
+    {
+      "first": "3A a long first name FIRST",
+      "middle": "A long middle name FIRST",
+      "last": "3A long last name FIRST"
+    },
+    {
+      "first": "3A Second",
+      "middle": "Z",
+      "last": "3A SECOND"
+    }
+  ],
+  "activeServiceDateRange": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  },
+  "serviceBranch": "army",
+  "placeOfSeparation": "3E Place of Last Separation",
+  "nationalGuardActivated": true,
+  "nationalGuardActivationDate": "1999-01-01",
+  "unitNameAndAddress": "3H Reserve or National Guard Unit and very long address line that exceeds limits",
+  "pow": true,
+  "powDateRange": {
+    "from": "1999-01-01",
+    "to": "1999-03-31"
+  }
+}

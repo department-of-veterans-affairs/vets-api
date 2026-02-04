@@ -12,7 +12,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
-  let(:client_stub) { instance_double(BGSV2::Form674) }
+  let(:client_stub) { instance_double(BGS::Form674) }
   let(:vet_info) do
     {
       'veteran_information' => {
@@ -51,7 +51,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
 
   context 'success' do
     before do
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
     end
 
@@ -82,7 +82,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
         callback_klass: 'Dependents::NotificationCallback',
         callback_metadata: { email_template_id: 'fake_received686c674',
                              email_type: :received686c674,
-                             form_id: '686C-674',
+                             form_id: '686C-674-V2',
                              claim_id: dependency_claim.id,
                              saved_claim_id: dependency_claim.id,
                              service_name: 'dependents' }
@@ -116,7 +116,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674V2Job::Invalid674Claim)
 
       expect do
@@ -128,7 +128,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
-      expect(BGSV2::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit) { raise_nested_err }
 
       expect do
@@ -139,7 +139,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
 
   context '674 only' do
     it 'sends confirmation email for 674 only' do
-      expect(BGSV2::Form674).to receive(:new).and_return(client_stub)
+      expect(BGS::Form674).to receive(:new).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
       expect(OpenStruct).to receive(:new)
         .with(hash_including('icn' => vet_info['veteran_information']['icn']))
@@ -149,7 +149,7 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
         callback_klass: 'Dependents::NotificationCallback',
         callback_metadata: { email_template_id: 'fake_received674',
                              email_type: :received674,
-                             form_id: '686C-674',
+                             form_id: '686C-674-V2',
                              claim_id: dependency_claim_674_only.id,
                              saved_claim_id: dependency_claim_674_only.id,
                              service_name: 'dependents' }
@@ -201,6 +201,134 @@ RSpec.describe BGS::SubmitForm674V2Job, type: :job do
 
       # Call the sidekiq_retries_exhausted callback
       described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    end
+
+    it 'monitors errors on retry exhaustion failure' do
+      msg = {
+        'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+        'error_message' => 'Connection timeout'
+      }
+      error = StandardError.new('Job failed')
+      # Mock the monitor
+      monitor_double = instance_double(Dependents::Monitor)
+      allow(Dependents::Monitor).to receive(:new).and_return(monitor_double)
+
+      # Expect the monitor to track the initial exhaustion event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job failed, retries exhausted! Last error: Connection timeout',
+        'worker.submit_674_bgs.exhaustion'
+      )
+
+      # Mock the backup submission to raise an error
+      expect(BGS::SubmitForm674V2Job).to receive(:send_backup_submission)
+        .and_raise(StandardError.new('Retry exhaustion failed'))
+
+      # Expect the monitor to track the retry exhaustion failure event
+      expect(monitor_double).to receive(:track_event).with(
+        'error',
+        'BGS::SubmitForm674Job retries exhausted failed...',
+        'worker.submit_674_bgs.retry_exhaustion_failure',
+        hash_including(
+          error: 'Retry exhaustion failed',
+          nested_error: nil,
+          last_error: 'Connection timeout'
+        )
+      )
+
+      # Call the sidekiq_retries_exhausted callback
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
+    end
+
+    context 'when backup submission fails' do
+      let(:msg) do
+        {
+          'args' => [user.uuid, dependency_claim.id, encrypted_vet_info, encrypted_user_struct],
+          'error_message' => 'Connection timeout'
+        }
+      end
+      let(:error) { StandardError.new('Job failed') }
+
+      before do
+        # Mock initial monitor for exhaustion tracking
+        monitor_double = instance_double(Dependents::Monitor)
+        allow(Dependents::Monitor).to receive(:new).with(dependency_claim.id).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_event)
+
+        # Mock backup submission failure
+        allow(BGS::SubmitForm674V2Job).to receive(:send_backup_submission)
+          .and_raise(StandardError.new('Backup failed'))
+      end
+
+      context 'when email is present' do
+        it 'sends failure email to veteran' do
+          # Mock the claim and monitor for the rescue block
+          claim_double = instance_double(SavedClaim::DependencyClaim)
+          monitor_double = instance_double(Dependents::Monitor)
+
+          expect(SavedClaim::DependencyClaim).to receive(:find).with(dependency_claim.id).and_return(claim_double)
+          expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(monitor_double)
+
+          # Expect monitor to track the retry exhaustion failure
+          expect(monitor_double).to receive(:track_event).with(
+            'error',
+            'BGS::SubmitForm674Job retries exhausted failed...',
+            'worker.submit_674_bgs.retry_exhaustion_failure',
+            hash_including(error: 'Backup failed')
+          )
+
+          # Expect failure email to be sent since email is present
+          expect(claim_double).to receive(:send_failure_email).with(user.va_profile_email)
+
+          # Call the sidekiq_retries_exhausted callback
+          described_class.sidekiq_retries_exhausted_block.call(msg, error)
+        end
+      end
+
+      context 'when email is not present' do
+        let(:vet_info_no_email) do
+          vet_info_copy = vet_info.deep_dup
+          vet_info_copy['veteran_information']['va_profile_email'] = nil
+          vet_info_copy
+        end
+        let(:encrypted_vet_info_no_email) { KmsEncrypted::Box.new.encrypt(vet_info_no_email.to_json) }
+        let(:msg_no_email) do
+          {
+            'args' => [user.uuid, dependency_claim.id, encrypted_vet_info_no_email, encrypted_user_struct],
+            'error_message' => 'Connection timeout'
+          }
+        end
+
+        it 'logs silent failure when email is not present' do
+          # Mock the claim and monitor for the rescue block
+          claim_double = instance_double(SavedClaim::DependencyClaim)
+          monitor_double = instance_double(Dependents::Monitor)
+
+          expect(SavedClaim::DependencyClaim).to receive(:find).with(dependency_claim.id).and_return(claim_double)
+          expect(Dependents::Monitor).to receive(:new).with(no_args).and_return(monitor_double)
+          allow(monitor_double).to receive(:default_payload).and_return({})
+
+          # Expect monitor to track the retry exhaustion failure
+          expect(monitor_double).to receive(:track_event).with(
+            'error',
+            'BGS::SubmitForm674Job retries exhausted failed...',
+            'worker.submit_674_bgs.retry_exhaustion_failure',
+            hash_including(error: 'Backup failed')
+          )
+
+          # Expect silent failure logging when email is not present
+          expect(monitor_double).to receive(:log_silent_failure).with(
+            hash_including(error: kind_of(StandardError)),
+            hash_including(call_location: kind_of(Thread::Backtrace::Location))
+          )
+
+          # Should not send failure email
+          expect(claim_double).not_to receive(:send_failure_email)
+
+          # Call the sidekiq_retries_exhausted callback
+          described_class.sidekiq_retries_exhausted_block.call(msg_no_email, error)
+        end
+      end
     end
   end
 

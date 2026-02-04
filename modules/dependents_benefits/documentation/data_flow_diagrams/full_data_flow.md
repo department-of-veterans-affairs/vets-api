@@ -10,32 +10,35 @@ This simplified end-to-end diagram shows the complete happy path from form submi
 
 ```mermaid
 graph TD
-    Start[User Submits Form] --> SaveClaim[Save Claim & User Data]
+    Start[User Submits Form] --> SaveClaim[Save PrimaryDependencyClaim & User Data]
     SaveClaim --> DB1[(DB: SavedClaim<br/>SavedClaimGroup parent)]
-    DB1 --> GenChildren[Generate Child Claims<br/>686c and/or 674 SavedClaims]
+    DB1 --> GenChildren[Generate Child Claims<br/>AddRemoveDependent and/or<br/>SchoolAttendanceApproval SavedClaims]
     GenChildren --> DB2[(DB: SavedClaim children<br/>SavedClaimGroup links)]
-    DB2 --> Return[Return 200 to User]
+    DB2 --> Enqueue[ClaimProcessor.enqueue_submissions<br/>Enqueues jobs + sends submitted notification]
+    Enqueue --> Return[Return 200 to User]
     
-    Return --> BGSProc[BGSProcJob]
-    BGSProc --> DB3[(DB: BGS::Submission<br/>BGS::SubmissionAttempt)]
-    DB3 --> BGSService[Service: BGSV2<br/>create_proc, create_proc_form]
-    BGSService -->|Failure| BGSFail[Mark Failed]
-    BGSService --> EnqueueSubs[Enqueue Submission Jobs<br/>0-1 BGS686c, 0-1 Claims686c<br/>0-n BGS674, 0-n Claims674<br/>per child claim]
+    Return -.Async.-> ParallelJobs[2 Parallel Jobs:<br/>BGSFormJob + ClaimsEvidenceFormJob]
+    ParallelJobs --> DB3[(DB: BGS::Submission<br/>BGS::SubmissionAttempt<br/>ClaimsEvidenceApi::Submission<br/>ClaimsEvidenceApi::SubmissionAttempt)]
     
-    EnqueueSubs --> SubmitAll[Submit to Services<br/>Parallel execution]
-    SubmitAll --> DB4[(DB: BGSFormSubmission<br/>LighthouseFormSubmission<br/>FormSubmissionAttempts)]
-    DB4 --> Services[Services: BGSV2 Form686c/Form674<br/>Claims Evidence API]
-    Services -->|Any Permanent Failure| SubFail[Mark Failed]
-    Services --> Coordinate[Coordinate Success<br/>Check all siblings completed]
+    DB3 --> BGSFlow[BGSFormJob:<br/>Generate proc_id<br/>Submit all child claims to BGS]
+    DB3 --> ClaimsFlow[ClaimsEvidenceFormJob:<br/>Submit all child claims to<br/>Lighthouse Benefits Intake]
     
-    Coordinate --> MarkSuccess[Mark All Groups SUCCESS<br/>Send Confirmation Email]
+    BGSFlow --> BGSService[Service: BGS<br/>Form686c/Form674.submit]
+    ClaimsFlow --> ClaimsService[Service: Claims Evidence API<br/>Upload PDFs to Lighthouse]
     
-    BGSFail --> Backup[DependentBackupJob]
-    SubFail --> Backup
+    BGSService -->|Any Permanent Failure| JobFail[Mark Parent Group FAILED]
+    ClaimsService -->|Any Permanent Failure| JobFail
+    
+    BGSService --> Coordinate[Coordinate Success<br/>Check all child claims completed]
+    ClaimsService --> Coordinate
+    
+    Coordinate --> MarkSuccess[Mark Parent Group SUCCESS<br/>Send Confirmation Email]
+    
+    JobFail --> Backup[DependentBackupJob]
     Backup --> DB5[(DB: Lighthouse::Submission<br/>Lighthouse::SubmissionAttempt)]
-    DB5 --> BackupService[Service: Lighthouse<br/>Benefits Intake API]
-    BackupService -->|Failure| BackupFail[Send Failure Email<br/>End]
-    BackupService --> BackupSuccess[Mark PROCESSING<br/>Send In-Progress Email]
+    DB5 --> BackupService[Service: Lighthouse<br/>Benefits Intake API<br/>Submit all child claims as package]
+    BackupService -->|Failure| BackupFail[Send Error Notification<br/>End]
+    BackupService --> BackupSuccess[Mark Parent Group PROCESSING]
     
     %% Styling
     classDef mainPath fill:#c8e6c9,stroke:#1b5e20,stroke-width:3px
@@ -44,10 +47,10 @@ graph TD
     classDef failure fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
     classDef backup fill:#fff9c4,stroke:#f57f17,stroke-width:2px
     
-    class Start,SaveClaim,GenChildren,Return,BGSProc,EnqueueSubs,SubmitAll,Coordinate,MarkSuccess,BackupSuccess mainPath
-    class DB1,DB2,DB3,DB4,DB5 database
-    class BGSService,Services,BackupService service
-    class BGSFail,SubFail,BackupFail failure
+    class Start,SaveClaim,GenChildren,Enqueue,Return,ParallelJobs,BGSFlow,ClaimsFlow,Coordinate,MarkSuccess,BackupSuccess mainPath
+    class DB1,DB2,DB3,DB5 database
+    class BGSService,ClaimsService,BackupService service
+    class JobFail,BackupFail failure
     class Backup backup
 ```
 
@@ -56,8 +59,9 @@ graph TD
 Each step in the simplified diagram above has a detailed flow diagram:
 
 1. **[Controller Flow](./controller_flow.md)** - Complete controller flow from form submission through async job enqueue
-   - Database: SavedClaim, SavedClaimGroup (parent and children)
-   - Generators: Claim686cGenerator, Claim674Generator
+   - Database: SavedClaim (PrimaryDependencyClaim), SavedClaimGroup (parent and children)
+   - Generators: Claim686cGenerator (creates AddRemoveDependent), Claim674Generator (creates SchoolAttendanceApproval)
+   - ClaimProcessor.enqueue_submissions enqueues BGSFormJob and ClaimsEvidenceFormJob
    - Validation and error handling
 
 2. **[UserData Collection](./userdata_flow.md)** - How user data is collected with fallback strategies
@@ -65,24 +69,19 @@ Each step in the simplified diagram above has a detailed flow diagram:
    - Fallback chains for each field
    - Error handling
 
-3. **[BGS Proc Job](./bgs_proc_job_flow.md)** - BGSProcJob creates vnp_proc in BGS
-   - Database: BGS::Submission, BGS::SubmissionAttempt
-   - Services: BGSV2 create_proc, create_proc_form
-   - Retry logic (up to 16 retries)
-   - Success: Triggers submission jobs
-   - Failure: Triggers backup job
-
-4. **[Submission Jobs](./submission_jobs_flow.md)** - Parallel jobs submit to BGS and Lighthouse (one pair per child claim)
-   - 0-1 BGS686cJob + 0-1 Claims686cJob (if 686c child claim exists)
-   - 0-n BGS674Job + 0-n Claims674Job (one pair per 674 child claim)
-   - Database: BGSFormSubmission, LighthouseFormSubmission, FormSubmissionAttempts
-   - Services: BGSV2 Form686c/Form674, Claims Evidence
+3. **[Submission Jobs](./submission_jobs_flow.md)** - Two parallel jobs that each process all child claims
+   - **BGSFormJob**: Generates proc_id, then submits all child claims (686c and/or 674s) to BGS
+   - **ClaimsEvidenceFormJob**: Submits all child claims (686c and/or 674s) to Lighthouse Benefits Intake
+   - Database: BGS::Submission, BGS::SubmissionAttempt, ClaimsEvidenceApi::Submission, ClaimsEvidenceApi::SubmissionAttempt
+   - Services: BGS::Form686c/Form674.submit, ClaimsEvidenceApi::Uploader
    - Coordination patterns for success and failure
-   - Pessimistic locking for sibling coordination
+   - Pessimistic locking for claim completion coordination
 
-5. **[Backup Job](./backup_job_flow.md)** - Lighthouse-only submission as last resort
+4. **[Backup Job](./backup_job_flow.md)** - Lighthouse-only submission as last resort
+   - Triggered when primary jobs fail permanently or exhaust retries
    - Database: Lighthouse::Submission, Lighthouse::SubmissionAttempt
    - Services: Lighthouse Benefits Intake API
-   - PDF generation and stamping
-   - Success: Mark PROCESSING, send in-progress email
-   - Failure: Send failure email, log to Datadog
+   - Processes all child claims together as a package
+   - PDF generation, stamping with VA.GOV and FDC Reviewed marks
+   - Success: Mark parent group PROCESSING (submitted notification already sent by controller)
+   - Failure: Send error notification, log to monitoring

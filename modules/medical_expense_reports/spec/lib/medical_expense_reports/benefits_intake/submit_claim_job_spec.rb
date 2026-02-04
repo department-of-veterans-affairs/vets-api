@@ -118,6 +118,40 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
     # perform
   end
 
+  describe '#govcio_upload' do
+    let(:ibm_service) { double('ibm_service') }
+    let(:response) { double('response') }
+
+    before do
+      job.instance_variable_set(:@intake_service, service)
+      allow(service).to receive(:guid).and_return('test_guid')
+
+      job.instance_variable_set(:@ibm_payload, { test: 'data' })
+
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+      allow(ibm_service).to receive(:upload_form).and_return(response)
+      allow(response).to receive(:success?).and_return(true)
+    end
+
+    it 'uploads to IBM MMS when govcio flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(true)
+
+      expect(Ibm::Service).to receive(:new)
+      expect(ibm_service).to receive(:upload_form).with(form: { test: 'data' }.to_json, guid: 'test_guid')
+
+      job.send(:govcio_upload)
+    end
+
+    it 'does not upload to IBM MMS when govcio flipper is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(false)
+
+      expect(Ibm::Service).not_to receive(:new)
+      expect(ibm_service).not_to receive(:upload_form)
+
+      job.send(:govcio_upload)
+    end
+  end
+
   describe '#build_ibm_payload' do
     let(:base_form_data) do
       {
@@ -301,22 +335,6 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       end
     end
 
-    describe '#us_phone_number' do
-      it 'returns nil when primary phone is nil' do
-        expect(job.send(:us_phone_number, nil)).to be_nil
-      end
-
-      it 'only returns digits for US numbers' do
-        primary_phone = { 'countryCode' => 'US', 'contact' => '(555) 123-4567' }
-        expect(job.send(:us_phone_number, primary_phone)).to eq('5551234567')
-      end
-
-      it 'returns nil for non-US phone codes' do
-        primary_phone = { 'countryCode' => 'CA', 'contact' => '123-456-7890' }
-        expect(job.send(:us_phone_number, primary_phone)).to be_nil
-      end
-    end
-
     describe '#international_phone_number' do
       it 'prioritizes the explicit internationalPhone field' do
         form = { 'internationalPhone' => '+52 1 234 567 890' }
@@ -431,35 +449,35 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
       it 'logs a distrinct error when only claim_id provided' do
         MedicalExpenseReports::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(MedicalExpenseReports::SavedClaim).to receive(:find).and_return(claim)
-          expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id)
+            allow(MedicalExpenseReports::SavedClaim).to receive(:find).and_return(claim)
+            expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         MedicalExpenseReports::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(MedicalExpenseReports::SavedClaim).to receive(:find).and_return(claim)
-          expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id)
+            allow(MedicalExpenseReports::SavedClaim).to receive(:find).and_return(claim)
+            expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim is not found' do
         MedicalExpenseReports::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(MedicalExpenseReports::SavedClaim).to receive(:find).with(claim.id - 1)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

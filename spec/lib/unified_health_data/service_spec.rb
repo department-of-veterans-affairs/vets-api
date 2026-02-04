@@ -169,7 +169,8 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(sample_client_response)
 
           allergies = service.get_allergies
-          expect(allergies.size).to eq(13)
+          # 13 total AllergyIntolerance resources, only 10 have active clinicalStatus
+          expect(allergies.size).to eq(10)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
@@ -178,11 +179,8 @@ describe UnifiedHealthData::Service, type: :service do
             ['medication'],
             ['medication'],
             ['medication'],
-            ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           # Verify specific allergy exists (not checking position due to sorting)
@@ -244,9 +242,9 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(5)
+          # 5 AllergyIntolerance resources, only 4 have active clinicalStatus
+          expect(allergies.size).to eq(4)
           expect(allergies.map(&:categories)).to contain_exactly(
-            ['medication'],
             ['medication'],
             ['medication'],
             ['medication'],
@@ -276,15 +274,14 @@ describe UnifiedHealthData::Service, type: :service do
                           body: modified_response
                         ))
           allergies = service.get_allergies
-          expect(allergies.size).to eq(8)
+          # 8 AllergyIntolerance resources, only 6 have active clinicalStatus
+          expect(allergies.size).to eq(6)
           expect(allergies.map(&:categories)).to contain_exactly(
             ['medication'],
             ['medication'],
             ['medication'],
-            ['environment'],
             ['food'],
             [],
-            ['food'],
             ['food']
           )
           expect(allergies).to all(have_attributes(
@@ -1212,7 +1209,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(oracle_prescription.ordered_date).to eq('2025-11-17T21:21:48Z')
           expect(oracle_prescription.quantity).to eq('18.0')
           expect(oracle_prescription.expiration_date).to eq('2026-11-17T07:59:59Z')
-          expect(oracle_prescription.prescription_number).to eq('20848812135')
+          expect(oracle_prescription.prescription_number).to be_nil # No prescription identifier exists
           expect(oracle_prescription.prescription_name).to eq('albuterol (albuterol 90 mcg inhaler [18g])')
           expect(oracle_prescription.dispensed_date).to be_nil
           expect(oracle_prescription.station_number).to eq('668')
@@ -1329,6 +1326,120 @@ describe UnifiedHealthData::Service, type: :service do
             expect(vista_prescription.refill_status).to eq('active')
             expect(vista_prescription.refill_submit_date).to be_nil
             expect(vista_prescription.disp_status).to eq('Active')
+          end
+        end
+      end
+
+      # is_renewable attribute tests
+      #
+      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_success):
+      # ============================================================================
+      # VistA Prescriptions:
+      #   26305871: dispStatus='Active', isRenewable=true
+      #   26305874: dispStatus='Discontinued', isRenewable=true
+      #
+      # Oracle Health Prescriptions:
+      #   20848812135: status='active', intent='order', refills=2, containedCount=3 (completed dispenses)
+      #                → NOT renewable (Gate 6: refills remaining > 0)
+      #   20848639997: status='active', intent='plan', refills=0, containedCount=1 (no dispenses)
+      #                → NOT renewable (Gate 3: no completed dispenses)
+      #   20848863583: status='completed', intent='order', refills=0, containedCount=2
+      #                → NOT renewable (Gate 1: status not active)
+      #   20849028695: status='active', intent='order', refills=0, containedCount=2 (dispense status='in-progress')
+      #                → NOT renewable (Gate 7: active processing)
+      #
+      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_vista_only):
+      # ================================================================================
+      # VistA Prescriptions:
+      #   25804852: dispStatus='Active: On Hold', isRenewable=false
+      #   25804855: dispStatus='Expired', isRenewable=false
+      #
+      context 'is_renewable attribute' do
+        context 'VistA prescriptions' do
+          it 'passes through isRenewable from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 26305871: dispStatus='Active', isRenewable=true in cassette
+              vista_prescription = prescriptions.find { |p| p.prescription_id == '26305871' }
+              expect(vista_prescription.is_renewable).to be true
+
+              # 26305874: dispStatus='Discontinued', isRenewable=true in cassette
+              # (VistA determines renewability server-side, so discontinued can still be renewable)
+              discontinued_vista = prescriptions.find { |p| p.prescription_id == '26305874' }
+              expect(discontinued_vista.is_renewable).to be true
+            end
+          end
+
+          it 'passes through isRenewable: false from the API response' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
+              prescriptions = service.get_prescriptions
+
+              # 25804852: dispStatus='Active: On Hold', isRenewable=false in cassette
+              hold_prescription = prescriptions.find { |p| p.prescription_id == '25804852' }
+              expect(hold_prescription.is_renewable).to be false
+
+              # 25804855: dispStatus='Expired', isRenewable=false in cassette
+              expired_prescription = prescriptions.find { |p| p.prescription_id == '25804855' }
+              expect(expired_prescription.is_renewable).to be false
+            end
+          end
+        end
+
+        context 'Oracle Health prescriptions' do
+          # Oracle Health renewability is computed client-side using 7 gate checks:
+          # Gate 1: status == 'active'
+          # Gate 2: VA prescription classification (not reportedBoolean, intent='order')
+          # Gate 3: Has at least one completed MedicationDispense
+          # Gate 4: Has validity period end date
+          # Gate 5: Within 120-day renewal window from expiration
+          # Gate 6: Refills exhausted OR prescription expired
+          # Gate 7: No active processing (no in-progress/preparation dispenses)
+
+          it 'returns false when refills remaining > 0 (Gate 6)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848812135: status='active', intent='order', refills=2, has completed dispenses
+              # Fails Gate 6: Still has 2 refills remaining, prescription not expired
+              prescription = prescriptions.find { |p| p.prescription_id == '20848812135' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when no dispenses exist (Gate 3)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848639997: status='active', intent='plan', refills=0
+              # containedCount=1 but contains Encounter, not MedicationDispense
+              # Fails Gate 3: No completed dispenses (never been dispensed)
+              prescription = prescriptions.find { |p| p.prescription_id == '20848639997' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when status is not active (Gate 1)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20848863583: status='completed', intent='order', refills=0, has dispenses
+              # Fails Gate 1: Status is 'completed', not 'active'
+              prescription = prescriptions.find { |p| p.prescription_id == '20848863583' }
+              expect(prescription.is_renewable).to be false
+            end
+          end
+
+          it 'returns false when dispense is in-progress (Gate 7 - no active processing)' do
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              prescriptions = service.get_prescriptions
+
+              # 20849028695: status='active', intent='order', refills=0
+              # contained[0] has MedicationDispense with status='in-progress'
+              # Fails Gate 7: Prescription is currently being processed
+              prescription = prescriptions.find { |p| p.prescription_id == '20849028695' }
+              expect(prescription.is_renewable).to be false
+            end
           end
         end
       end
@@ -1859,12 +1970,12 @@ describe UnifiedHealthData::Service, type: :service do
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
-        name: 'Major depressive disorder, recurrent, moderate',
-        provider: 'BORLAND,VICTORIA A',
+        name: 'Major depressive disorder, recurrent, mild',
+        provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
       )
 
@@ -1910,8 +2021,8 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
-      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
     # TODO: This DOES actually raise an error, which seems accurate
@@ -1943,14 +2054,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_a(UnifiedHealthData::Condition)
         expect(condition.id).to eq(condition_id)
-        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.name).to eq('Carcinoma in situ of skin, unspecified')
+        expect(condition.provider).to eq('MCGUIRE,MARCI P')
         expect(condition.facility).to eq('CHYSHR TEST LAB')
       end
 
@@ -1973,6 +2084,191 @@ describe UnifiedHealthData::Service, type: :service do
         expect { service.get_single_condition(condition_id) }.not_to raise_error
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_nil
+      end
+    end
+  end
+
+  # Vaccines
+  describe '#get_immunizations' do
+    let(:vaccines_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'immunizations_sample.json'
+      ).read)
+    end
+
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: vaccines_sample_response
+      )
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all vaccines' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(sample_client_response)
+
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(24)
+
+          # Verify specific vaccines exist:
+          # polio vax: M20875036615 (VistA polio vaccine)
+          # vax with note: M20875183434 (OH Flu vaccine with note and manufacturer)
+          vista_vaccine = vaccines.find { |v| v.id == 'c648f661-d8a1-4369-b7f1-1ed5c9b5f874' }
+          vaccine_oh_with_note = vaccines.find { |v| v.id == 'M20875183434' }
+
+          expect(vista_vaccine).to have_attributes(
+            {
+              'id' => 'c648f661-d8a1-4369-b7f1-1ed5c9b5f874',
+              'cvx_code' => 90_715,
+              'date' => '2024-03-04T14:00:00Z',
+              'dose_number' => 'COMPLETE',
+              'dose_series' => nil,
+              'group_name' => 'TDAP',
+              'location' => 'GREELEY NURSE',
+              'manufacturer' => nil,
+              'note' => nil,
+              'reaction' => nil,
+              'short_description' => 'TDAP',
+              'administration_site' => 'RIGHT DELTOID',
+              'lot_number' => nil,
+              'status' => 'completed'
+            }
+          )
+
+          expect(vaccine_oh_with_note).to have_attributes(
+            {
+              'id' => 'M20875183434',
+              'cvx_code' => 140,
+              'date' => '2025-12-10T16:20:00-06:00',
+              'dose_number' => 'Unknown',
+              'dose_series' => nil,
+              'group_name' => 'influenza virus vaccine, inactivated',
+              'location' => '556 Captain James A Lovell IL VA Medical Center',
+              'manufacturer' => 'Seqirus USA Inc',
+              'note' => 'Added comment "note"',
+              'reaction' => nil,
+              'short_description' => 'influenza virus vaccine, inactivated',
+              'administration_site' => 'Shoulder, left (deltoid)',
+              'lot_number' => 'AX5586C',
+              'status' => 'completed'
+            }
+          )
+
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'id' => be_a(String),
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+
+        it 'returns vaccines sorted by date in descending order' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(sample_client_response)
+
+          vaccines = service.get_immunizations.sort
+
+          vaccines_with_dates = vaccines.select { |vaccine| vaccine.date.present? }
+          # Use sort_date for comparison since that's what's used for sorting
+          dates = vaccines_with_dates.map(&:sort_date)
+          expect(dates).to eq(dates.sort.reverse)
+
+          vaccines_without_dates = vaccines.select { |vaccine| vaccine.date.nil? }
+          if vaccines_without_dates.any?
+            expect(vaccines.last(vaccines_without_dates.size)).to eq(vaccines_without_dates)
+          end
+        end
+      end
+
+      context 'when data exists for only VistA or OH' do
+        it 'returns vaccines for VistA only' do
+          modified_response = vaccines_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(15)
+
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'id' => be_a(String),
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+
+        it 'returns vaccines for OH only' do
+          modified_response = vaccines_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: modified_response
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(9)
+
+          expect(vaccines).to all(have_attributes(
+                                    {
+                                      'id' => be_a(String),
+                                      'cvx_code' => be_a(Integer),
+                                      'date' => be_a(String),
+                                      'dose_number' => be_a(String).or(be_nil),
+                                      'dose_series' => be_a(String).or(be_nil),
+                                      'group_name' => be_a(String).or(be_nil),
+                                      'location' => be_a(String).or(be_nil),
+                                      'manufacturer' => be_a(String).or(be_nil),
+                                      'note' => be_a(String).or(be_nil),
+                                      'reaction' => be_a(String).or(be_nil),
+                                      'short_description' => be_a(String).or(be_nil),
+                                      'administration_site' => be_a(String).or(be_nil),
+                                      'lot_number' => be_a(String).or(be_nil),
+                                      'status' => be_a(String).or(be_nil)
+                                    }
+                                  ))
+        end
+      end
+
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array vaccines' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_immunizations_by_date)
+            .and_return(Faraday::Response.new(
+                          body: { 'vista' => {}, 'oracle-health' => {} }
+                        ))
+          vaccines = service.get_immunizations
+          expect(vaccines.size).to eq(0)
+        end
       end
     end
   end

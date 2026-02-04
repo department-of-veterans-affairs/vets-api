@@ -31,10 +31,20 @@ module BenefitsClaims
       attribute :uploaded, Bool
       attribute :friendly_name, String
       attribute :friendly_description, String
+      attribute :activity_description, String
+      attribute :short_description, String
       attribute :can_upload_file, Bool
       attribute :support_aliases, String, array: true
       attribute :documents, String
       attribute :date, String
+      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
+      attribute :long_description, Hash
+      attribute :next_steps, Hash
+      attribute :no_action_needed, Bool
+      attribute :is_dbq, Bool
+      attribute :is_proper_noun, Bool
+      attribute :is_sensitive, Bool
+      attribute :no_provide_prefix, Bool
     end
 
     class SupportingDocument
@@ -126,13 +136,13 @@ module BenefitsClaims
       attribute :evidence_waiver_submitted5103, Bool
       attribute :lighthouse_id, String
       attribute :status, String
-      attribute :supporting_documents, SupportingDocument, array: true
-      attribute :evidence_submissions, EvidenceSubmission, array: true
-      attribute :contentions, Contention, array: true
-      attribute :events, Event, array: true
-      attribute :issues, Issue, array: true
-      attribute :evidence, Evidence, array: true
-      attribute :tracked_items, TrackedItem, array: true
+      attribute :supporting_documents, SupportingDocument, array: true, default: -> { [] }
+      attribute :evidence_submissions, EvidenceSubmission, array: true, default: -> { [] }
+      attribute :contentions, Contention, array: true, default: -> { [] }
+      attribute :events, Event, array: true, default: -> { [] }
+      attribute :issues, Issue, array: true, default: -> { [] }
+      attribute :evidence, Evidence, array: true, default: -> { [] }
+      attribute :tracked_items, TrackedItem, array: true, default: -> { [] }
     end
   end
 end

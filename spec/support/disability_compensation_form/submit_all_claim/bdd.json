@@ -1,0 +1,124 @@
+{
+  "form526": {
+    "waiveTrainingPay": true,
+    "waiveRetirementPay": true,
+    "isVaEmployee": false,
+    "bankAccountType": "Checking",
+    "bankAccountNumber": "0000000000",
+    "bankRoutingNumber": "000000000",
+    "bankName": "Testing",
+    "toxicExposure": {
+      "conditions": {
+        "none": true
+      },
+      "gulfWar1990": {},
+      "gulfWar1990Details": {
+        "afghanistan": {},
+        "bahrain": {},
+        "egypt": {},
+        "iraq": {},
+        "israel": {},
+        "jordan": {},
+        "kuwait": {},
+        "neutralzone": {},
+        "oman": {},
+        "qatar": {},
+        "saudiarabia": {},
+        "somalia": {},
+        "syria": {},
+        "uae": {},
+        "turkey": {},
+        "waters": {},
+        "airspace": {}
+      },
+      "gulfWar2001": {},
+      "gulfWar2001Details": {
+        "djibouti": {},
+        "lebanon": {},
+        "uzbekistan": {},
+        "yemen": {},
+        "airspace": {}
+      },
+      "herbicide": {},
+      "otherHerbicideLocations": {},
+      "herbicideDetails": {
+        "cambodia": {},
+        "guam": {},
+        "koreandemilitarizedzone": {},
+        "johnston": {},
+        "laos": {},
+        "c123": {},
+        "thailand": {},
+        "vietnam": {}
+      },
+      "otherExposures": {},
+      "specifyOtherExposures": {},
+      "otherExposuresDetails": {
+        "asbestos": {},
+        "chemical": {},
+        "water": {},
+        "mos": {},
+        "mustardgas": {},
+        "radiation": {}
+      }
+    },
+    "hasTrainingPay": true,
+    "militaryRetiredPayBranch": "Air Force",
+    "hasSeparationPay": true,
+    "separationPayDate": "2015-XX-XX",
+    "separationPayBranch": "Air Force",
+    "serviceInformation": {
+      "separationLocation": {
+        "separationLocationCode": "98283",
+        "separationLocationName": "AF Academy"
+      },
+      "servicePeriods": [
+        {
+          "serviceBranch": "Air Force",
+          "dateRange": {
+            "from": "2010-01-01",
+            "to": "2026-06-01"
+          }
+        }
+      ]
+    },
+    "isTerminallyIll": true,
+    "homelessOrAtRisk": "homeless",
+    "homelessHousingSituation": "shelter",
+    "needToLeaveHousing": true,
+    "homelessnessContact": {
+      "name": "Jon Doe",
+      "phoneNumber": "4105551234"
+    },
+    "phoneAndEmail": {
+      "primaryPhone": "2023336688",
+      "emailAddress": "vets.gov.user80@gmail.com"
+    },
+    "mailingAddress": {
+      "country": "USA",
+      "addressLine1": "1700 Clairmont Rd",
+      "city": "Decatur",
+      "state": "GA",
+      "zipCode": "30033-4032"
+    },
+    "mentalHealthWorkflowChoice": "optOutOfForm0781",
+    "disability526Enable2024Form4142": true,
+    "disability526SupportingEvidenceEnhancement": false,
+    "disabilityCompNewConditionsWorkflow": true,
+    "disability526ExtraBDDPagesEnabled": true,
+    "startedFormVersion": "2022",
+    "syncModern0781Flow": true,
+    "statementOfTruthSignature": "Greg A Anderson",
+    "statementOfTruthCertified": true,
+    "newPrimaryDisabilities": [
+      {
+        "primaryDescription": "This disability is related to my military service.",
+        "cause": "NEW",
+        "conditionDate": "2015-01-01",
+        "sideOfBody": "RIGHT",
+        "condition": "ACL tear (anterior cruciate ligament tear)"
+      }
+    ],
+    "standardClaim": false
+  }
+}

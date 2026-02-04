@@ -8,6 +8,7 @@ RSpec.describe FormSubmission, feature: :form_submission, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:saved_claim).optional }
     it { is_expected.to belong_to(:user_account).optional }
+    it { is_expected.to have_many(:form_intake_submissions).dependent(:destroy) }
   end
 
   describe 'validations' do
@@ -19,8 +20,8 @@ RSpec.describe FormSubmission, feature: :form_submission, type: :model do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
                          .zip(%w[FORM-A FORM-B FORM-C])
                          .map do |submission, form_type|
-        submission.update(form_type:)
-        submission
+                           submission.update(form_type:)
+                           submission
       end
 
       @fsa1, @fsa2, @fsa3 = create_list(:form_submission_attempt, 3, form_submission: @fsa) do |attempt, index|

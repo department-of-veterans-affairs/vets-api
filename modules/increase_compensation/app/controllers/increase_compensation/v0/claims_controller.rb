@@ -2,8 +2,8 @@
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
+require 'increase_compensation/zsf_config'
 require 'persistent_attachments/sanitizer'
-require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 module IncreaseCompensation
   module V0
@@ -11,6 +11,8 @@ module IncreaseCompensation
     # The Increase Compensation claim controller that handles form submissions
 
     class ClaimsController < ClaimsBaseController
+      include PdfS3Operations
+
       before_action :check_flipper_flag
       service_tag 'increase-compensation-application'
 
@@ -27,7 +29,17 @@ module IncreaseCompensation
       # GET serialized Increase Compensation form data
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
-        render json: IncreaseCompensation::SavedClaimSerializer.new(claim)
+        form_submission_attempt = last_form_submission_attempt(claim.guid)
+        raise Common::Exceptions::RecordNotFound, params[:id] if form_submission_attempt.nil?
+
+        pdf_url = s3_signed_url(
+          claim,
+          form_submission_attempt.created_at.to_date,
+          config: IncreaseCompensation::ZsfConfig.new,
+          form_class: IncreaseCompensation::PdfFill::Va218940v1
+        )
+
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue ActiveRecord::RecordNotFound => e
         monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
@@ -55,14 +67,14 @@ module IncreaseCompensation
         process_attachments(in_progress_form, claim)
 
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
-
         monitor.track_create_success(in_progress_form, claim, current_user)
-        # TODO: pdf url needed in response, s3 settings? settings.yml?
-        # config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new || nil
-        # pdf_url = SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(claim.guid, config:)
-        pdf_url = nil
-        clear_saved_form(claim.form_id)
-        render json: IncreaseCompensation::SavedClaimSerializer.new(claim, params: { pdf_url: })
+
+        clear_saved_form(claim.form_id[..6])
+
+        # submission attempt is created in the method
+        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+        log_success(claim, current_user&.user_account_uuid)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -86,6 +98,7 @@ module IncreaseCompensation
         claim.process_attachments!
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+
         raise e
       end
 
@@ -116,6 +129,17 @@ module IncreaseCompensation
       #
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
+      end
+
+      def log_success(claim, user_uuid)
+        StatsD.increment("#{stats_key}.success")
+        Rails.logger.info(
+          "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+        )
+      end
+
+      def stats_key
+        "api.#{service_tag}"
       end
     end
   end

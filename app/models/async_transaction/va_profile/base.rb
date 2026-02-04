@@ -81,6 +81,8 @@ module AsyncTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::VAProfile::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
+        when AsyncTransaction::VAProfile::PersonOptionsTransaction
+          service.get_person_options_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
           raise
@@ -137,6 +139,7 @@ module AsyncTransaction
           Email
           Telephone
           Permission
+          PersonOptions
         ].each do |transaction_type|
           ongoing_transactions += "AsyncTransaction::VAProfile::#{transaction_type}Transaction"
                                   .constantize

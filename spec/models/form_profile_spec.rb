@@ -730,7 +730,8 @@ RSpec.describe FormProfile, type: :model do
       'bankName' => 'WELLS FARGO BANK',
       'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
-      'syncModern0781Flow' => true
+      'syncModern0781Flow' => true,
+      'disabilityCompNewConditionsWorkflow' => true
     }
   end
   let(:vfeedback_tool_expected) do
@@ -760,23 +761,22 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v21_2680_expected) do
-    { veteranInformation: {
-      veteranFullName: {
+    { userInformation: {
+      fullName: {
         first: 'Abraham',
         last: 'Lincoln',
         suffix: 'Jr.'
       },
-      veteranDob: '1809-02-12',
+      dob: '1809-02-12',
       phoneNumber: '3035551234',
       email: user.va_profile_email,
-      veteranAddress: {
+      address: {
         street: '140 Rock Creek Rd',
         city: 'Washington',
         state: 'DC',
         country: 'USA',
         postalCode: '20011'
-      },
-      veteranSsn: '796111863'
+      }
     } }
   end
 
@@ -807,6 +807,39 @@ RSpec.describe FormProfile, type: :model do
     }
   end
   let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => va_profile_address.street,
+              'addressLine2' => va_profile_address.street2,
+              'city' => va_profile_address.city,
+              'stateCode' => va_profile_address.state,
+              'countryName' => va_profile_address.country,
+              'zipCode5' => va_profile_address.postal_code
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '3035551234',
+            'mobilePhone' => mobile_phone,
+            'emailAddressText' => user.va_profile_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
+  let(:vform_mock_prefill_expected) do
     {
       'data' => {
         'attributes' => {
@@ -1139,7 +1172,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS', 'FORM-MOCK-PREFILL'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1303,6 +1336,7 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a user that can prefill mdot' do
       before do
+        expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to be(true)
@@ -1465,6 +1499,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 0994' do
         before do
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
@@ -1481,6 +1516,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with VA Profile and ppiu prefill for 0994' do
         before do
           can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
@@ -1585,7 +1621,9 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with VA Profile prefill for 10203' do
         before do
-          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
@@ -1601,20 +1639,26 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper enabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(true)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:dgi, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 0
             }
+            v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+            v22_10203_expected['schoolCity'] = 'NORFOLK'
+            v22_10203_expected['schoolState'] = 'VA'
+            v22_10203_expected['schoolCountry'] = 'USA'
           end
 
           it 'prefills 10203 with VA Profile and entitlement information' do
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('sob/ch33_status/200') do
+                VCR.use_cassette('sob/ch33_status/200_with_enrollments') do
                   VCR.use_cassette('gi_client/gets_the_institution_details') do
-                    expect(SOB::DGI::Service).to receive(:new).with(user.ssn).and_call_original
+                    expect(SOB::DGI::Service).to receive(:new).with(ssn: user.ssn, include_enrollments: true)
+                                                              .and_call_original
 
                     prefilled_data = Oj.load(
                       described_class.for(form_id: '22-10203', user:).prefill.to_json
@@ -1631,8 +1675,9 @@ RSpec.describe FormProfile, type: :model do
         context 'when form 10203 claimant flipper disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:form_10203_claimant_service).and_return(false)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             can_prefill_vaprofile(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :access?).and_return(true).at_least(:once)
             v22_10203_expected['remainingEntitlement'] = {
               'months' => 0,
               'days' => 10
@@ -1706,6 +1751,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           before do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
           end
 
@@ -1736,36 +1782,96 @@ RSpec.describe FormProfile, type: :model do
                 allow(Rails.logger).to receive(:warn)
               end
 
-              it 'prefills net worth limit' do
+              it 'prefills net worth limit with default value when using get_current_awards' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  VCR.use_cassette('bid/awards/get_awards_pension') do
-                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
-                  end
+                  # Mock get_current_awards to return IP award line type
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'IP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
+
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
 
-              it 'prefills 1 when user is in receipt of pension' do
+              it 'prefills 1 when user is in receipt of pension (IP award line type)' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  VCR.use_cassette('bid/awards/get_awards_pension') do
-                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  # Mock get_current_awards to return IP award line type with effective date before today
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'IP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
 
-                    expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
-                  end
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
                 end
               end
 
-              it 'prefills 0 when user is not in receipt of pension' do
-                prefill_no_receipt_of_pension = {
-                  is_in_receipt_of_pension: false
-                }
-                form_profile_instance = described_class.for(form_id: '686C-674-V2', user:)
-                allow(form_profile_instance).to receive(:awards_pension).and_return(prefill_no_receipt_of_pension)
+              it 'prefills 0 when user has non-IP award line type (not receiving pension)' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  prefilled_data = form_profile_instance.prefill[:form_data]
+                  # Mock get_current_awards to return non-IP award line type
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'COMP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
+
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(0)
                 end
@@ -1775,14 +1881,17 @@ RSpec.describe FormProfile, type: :model do
                 error = StandardError.new('awards pension error')
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(error)
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_raise(error)
+                  monitor = instance_double(Dependents::Monitor)
+                  allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+                  allow(monitor).to receive(:track_event)
 
                   prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
-                  expect(Rails.logger)
-                    .to have_received(:warn)
+                  expect(monitor)
+                    .to have_received(:track_event)
                     .with(
-                      'Failed to retrieve awards pension data', {
+                      'warn', 'Failed to retrieve awards pension data', 'awards_pension_error', {
                         user_account_uuid: user&.user_account_uuid,
                         error: error.message,
                         form_id: '686C-674-V2'
@@ -1906,6 +2015,10 @@ RSpec.describe FormProfile, type: :model do
           end
 
           context 'with a 686c-674 v1 form' do
+            before do
+              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+            end
+
             it 'omits address fields in 686c-674 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -1918,6 +2031,7 @@ RSpec.describe FormProfile, type: :model do
             it 'omits address fields in 686c-674-V2 form' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 expect_prefilled('686C-674-V2')
               end
             end
@@ -1929,39 +2043,100 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
-              it 'prefills net worth limit' do
+              it 'prefills net worth limit with default value when using get_current_awards' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  VCR.use_cassette('bid/awards/get_awards_pension') do
-                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
-                    expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(129094) # rubocop:disable Style/NumericLiterals
-                  end
+                  # Mock get_current_awards to return IP award line type
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'IP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
+
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  expect(prefilled_data['nonPrefill']['netWorthLimit']).to eq(163_699)
                 end
               end
 
-              it 'prefills 1 when user is in receipt of pension' do
+              it 'prefills 1 when user is in receipt of pension (IP award line type)' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  VCR.use_cassette('bid/awards/get_awards_pension') do
-                    prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+                  # Mock get_current_awards to return IP award line type with effective date before today
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'IP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
 
-                    expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
-                  end
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+
+                  expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(1)
                 end
               end
 
-              it 'prefills 0 when user is not in receipt of pension' do
-                prefill_no_receipt_of_pension = {
-                  is_in_receipt_of_pension: false
-                }
-                form_profile_instance = described_class.for(form_id: '686C-674-V2', user:)
-                allow(form_profile_instance).to receive(:awards_pension).and_return(prefill_no_receipt_of_pension)
+              it 'prefills 0 when user has non-IP award line type (not receiving pension)' do
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  prefilled_data = form_profile_instance.prefill[:form_data]
+                  # Mock get_current_awards to return non-IP award line type
+                  mock_response_body = {
+                    'award' => {
+                      'award_event_list' => {
+                        'award_events' => [
+                          {
+                            'award_line_list' => {
+                              'award_lines' => [
+                                {
+                                  'award_line_type' => 'COMP',
+                                  'effective_date' => '2020-01-01T00:00:00-05:00'
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_return(
+                    OpenStruct.new(body: mock_response_body)
+                  )
+
+                  prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                   expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(0)
                 end
@@ -1971,14 +2146,17 @@ RSpec.describe FormProfile, type: :model do
                 error = StandardError.new('awards pension error')
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                  allow_playback_repeats: true) do
-                  allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_raise(error)
+                  allow_any_instance_of(BID::Awards::Service).to receive(:get_current_awards).and_raise(error)
+                  monitor = instance_double(Dependents::Monitor)
+                  allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+                  allow(monitor).to receive(:track_event)
 
                   prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
-                  expect(Rails.logger)
-                    .to have_received(:warn)
+                  expect(monitor)
+                    .to have_received(:track_event)
                     .with(
-                      'Failed to retrieve awards pension data', {
+                      'warn', 'Failed to retrieve awards pension data', 'awards_pension_error', {
                         user_account_uuid: user&.user_account_uuid,
                         error: error.message,
                         form_id: '686C-674-V2'
@@ -2023,6 +2201,7 @@ RSpec.describe FormProfile, type: :model do
               end
 
               before do
+                expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
                 allow(Rails.logger).to receive(:warn)
               end
 
@@ -2107,6 +2286,9 @@ RSpec.describe FormProfile, type: :model do
 
               before do
                 # Mock VAProfile contact info for both user and form profile usage
+                # allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
+                #   contact_info_service
+                # )
                 allow(VAProfileRedis::V2::ContactInformation).to receive(:for_user).with(user).and_return(
                   contact_info_service
                 )
@@ -2221,8 +2403,10 @@ RSpec.describe FormProfile, type: :model do
           21-22A
           21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
+          FORM-MOCK-PREFILL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -2230,38 +2414,40 @@ RSpec.describe FormProfile, type: :model do
             end
           end
         end
+      end
 
-        context 'when Vet360 prefill is enabled' do
-          let(:user) do
-            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
-                                             vet360_id: '1781151')
-          end
+      context 'when Vet360 prefill is enabled' do
+        let(:user) do
+          build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
+                                           vet360_id: '1781151')
+        end
 
-          before do
-            VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
-            expected_veteran_info = v21_526_ez_expected['veteran']
-            expected_veteran_info['emailAddress'] = user.va_profile_email
-            expected_veteran_info['primaryPhone'] = us_phone
-            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-          end
+        before do
+          expect(user).to receive(:authorize).with(:lighthouse, :access_vet_status?).and_return(true)
+          can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+          VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
+          expected_veteran_info = v21_526_ez_expected['veteran']
+          expected_veteran_info['emailAddress'] = user.va_profile_email
+          expected_veteran_info['primaryPhone'] = us_phone
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        end
 
-          after do
-            VAProfile::Configuration::SETTINGS.prefill = false
-          end
+        after do
+          VAProfile::Configuration::SETTINGS.prefill = false
+        end
 
-          it 'returns prefilled 21-526EZ' do
-            expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
-                                               .and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
-            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
-              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
-                  VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                   allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                    VCR.use_cassette('disability_max_ratings/max_ratings') do
-                      expect_prefilled('21-526EZ')
-                    end
+        it 'returns prefilled 21-526EZ' do
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
+                VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                                 allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                  VCR.use_cassette('disability_max_ratings/max_ratings') do
+                    expect_prefilled('21-526EZ')
                   end
                 end
               end
@@ -2422,6 +2608,12 @@ RSpec.describe FormProfile, type: :model do
       mappings = YAML.load_file(mapping_file)
 
       expect(FormProfile.load_form_mapping('10-7959C')).to match(mappings)
+    end
+  end
+
+  describe '.load_form_mapping' do
+    it 'handles uppercase form ID 40-1330M with lowercase filename' do
+      expect { FormProfile.load_form_mapping('40-1330M') }.not_to raise_error
     end
   end
 end
