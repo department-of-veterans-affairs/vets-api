@@ -128,6 +128,87 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
     end
   end
 
+  describe '#log_authorized_access' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+      sign_in_as(user)
+    end
+
+    context 'with detailed logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(true)
+      end
+
+      it 'logs authorized access and increments StatsD' do
+        # Allow all logger calls without expectations since SemanticLogger may handle them differently
+        allow(Rails.logger).to receive(:info)
+
+        # Allow all StatsD calls
+        allow(StatsD).to receive(:increment)
+
+        # Expect specific StatsD increments
+        expect(StatsD).to receive(:increment).with('api.payment_history.access_attempt').at_least(:once)
+        expect(StatsD).to receive(:increment).with('api.payment_history.authorized').at_least(:once)
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+
+      it 'logs after authorization before_action completes' do
+        call_order = []
+
+        allow(controller).to receive(:authorize).and_wrap_original do |method, *args|
+          call_order << :authorize
+          method.call(*args)
+        end
+
+        allow(controller).to receive(:log_authorized_access).and_wrap_original do |method|
+          call_order << :log_authorized
+          method.call
+        end
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+
+        # Verify authorize was called before log_authorized
+        authorize_index = call_order.index(:authorize)
+        log_index = call_order.index(:log_authorized)
+
+        expect(authorize_index).not_to be_nil
+        expect(log_index).not_to be_nil
+        expect(authorize_index).to be < log_index
+      end
+    end
+
+    context 'with detailed logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+      end
+
+      it 'does not log authorized access' do
+        expect(Rails.logger).not_to receive(:info).with(
+          'User authorized for BGS payment history access',
+          anything
+        )
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.authorized')
+
+        VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
+          VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
+            get(:index)
+          end
+        end
+      end
+    end
+  end
+
   describe '#index' do
     context 'with only regular payments' do
       it 'returns only payments and no return payments' do
