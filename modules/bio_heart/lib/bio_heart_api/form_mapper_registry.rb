@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bio_heart_api/form_mappers/form_21p0537_mapper'
+require 'ibm/service'
 
 module BioHeartApi
   class FormMapperRegistry

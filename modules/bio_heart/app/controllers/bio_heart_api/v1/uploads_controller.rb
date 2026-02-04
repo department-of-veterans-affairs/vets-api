@@ -6,21 +6,25 @@ require 'bio_heart_api/form_mapper_registry'
 module BioHeartApi
   module V1
     class UploadsController < ::SimpleFormsApi::V1::UploadsController
+      after_action :submit_to_ibm_if_successful, only: [:submit]
+
       def submit
-        # If successful, result is a stringified JSON object like:
-        # "{\"confirmation_number\":\"c44f39ea-29e4-4504-9e7e-12689a51d00a\",\"submission_api\":\"benefitsIntake\"}"
-        result = super # SimpleFormsApi handles generating PDF and submitting to benefits intake
-
-        # If we have a confirmation_number, we successfully submitted to benefits intake API, so
-        # go ahead and submit to MMS (otherwise, just gracefully return result)
-        submit_to_ibm(result) if extract_confirmation_number(result)
-
-        result
+        super
       end
 
       private
 
-      def submit_to_ibm(benefits_intake_uuid)
+      def submit_to_ibm_if_successful
+        return unless Flipper.enabled?(:bio_heart_govcio_mms)
+        return unless response.successful?
+
+        # Response body is like:
+        # "{\"confirmation_number\":\"c44f39ea-29e4-4504-9e7e-12689a51d00a\",\"submission_api\":\"benefitsIntake\"}"
+        confirmation_number = extract_confirmation_number(response.body)
+        submit_to_ibm(confirmation_number) if confirmation_number
+      end
+
+      def submit_to_ibm(confirmation_number)
         return unless Flipper.enabled?(:bio_heart_govcio_mms)
 
         mapper = FormMapperRegistry.mapper_for(params[:form_number])
@@ -28,13 +32,12 @@ module BioHeartApi
         ibm_payload = mapper.transform(params.to_unsafe_h)
 
         ibm_service = Ibm::Service.new
-        ibm_service.upload_form(form: ibm_payload.to_json, guid: benefits_intake_uuid)
-        Rails.logger.info("BioHeart MMS submission complete: #{benefits_intake_uuid}")
+        ibm_service.upload_form(form: ibm_payload.to_json, guid: confirmation_number)
+        Rails.logger.info("BioHeart MMS submission complete: #{confirmation_number}")
       rescue => e
         Rails.logger.error("BioHeart MMS submission failed: #{e.message}",
                            form_number: params[:form_number],
-                           guid: benefits_intake_uuid)
-        # Don't re-raise - submission to Benefits Intake already succeeded
+                           guid: confirmation_number)
       end
 
       # Returns benefits intake API confirmation number if present in input, otherwise returns false.
