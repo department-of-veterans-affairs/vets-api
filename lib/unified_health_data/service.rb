@@ -125,7 +125,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        body = JSON.parse(body) if body.is_a?(String)
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
