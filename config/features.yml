@@ -2227,6 +2227,20 @@ features:
     actor_type: user
     enable_in_development: false
     description: Enables detailed error message logging in CCRA referral service with PII scrubbing
+  va_online_scheduling_use_primary_care_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use primary_care_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Takes priority over referring_provider_npi flag if both are enabled.
+  va_online_scheduling_use_referring_provider_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use referring_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Primary care flag takes priority if both are enabled.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions

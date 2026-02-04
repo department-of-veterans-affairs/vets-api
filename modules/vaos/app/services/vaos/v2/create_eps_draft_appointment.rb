@@ -32,6 +32,8 @@ module VAOS
       PROVIDER_DRAFT_NETWORK_ID_METRIC = "#{STATSD_PREFIX}.provider_draft_network_id.access".freeze
       APPT_DRAFT_CREATION_SUCCESS_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.success".freeze
       APPT_DRAFT_CREATION_FAILURE_METRIC = "#{STATSD_PREFIX}.appointment_draft_creation.failure".freeze
+      # Number of characters to log from PII fields for safety
+      SAFE_LOG_LENGTH = 3
 
       # @!attribute [r] id
       #   @return [String, nil] The ID of the created draft appointment, or nil if creation failed
@@ -316,16 +318,20 @@ module VAOS
       ##
       # Validate that referral contains all required data with proper formatting
       #
-      # Checks for presence of required attributes and validates date formats.
-      # Used to ensure referral data is complete before attempting appointment creation.
+      # Checks for presence of required attributes including the selected NPI based on feature flags,
+      # and validates date formats. Used to ensure referral data is complete before attempting
+      # appointment creation.
       #
       # @param referral [OpenStruct, nil] The referral object to validate
       # @return [Hash] Validation result with :valid boolean and :missing_attributes details
       def validate_referral_data(referral)
         return { valid: false, missing_attributes: 'all required attributes' } if referral.nil?
 
+        # Get the selected NPI based on feature flags
+        selected_npi = referral.selected_npi_for_eps(@current_user)
+
         required_attributes = {
-          'provider_npi' => referral.provider_npi,
+          'selected_provider_npi' => selected_npi,
           'referral_date' => referral.referral_date,
           'expiration_date' => referral.expiration_date
         }
@@ -351,14 +357,20 @@ module VAOS
       ##
       # Search for a healthcare provider using referral criteria
       #
-      # Searches the EPS provider service using the referral's NPI, specialty,
-      # and treating facility address to locate the appropriate provider.
+      # Searches the EPS provider service using the referral's selected NPI (based on feature flags),
+      # specialty, and treating facility address to locate the appropriate provider.
       #
       # @param referral [OpenStruct] The referral containing search criteria
       # @return [OpenStruct, nil] The found provider object, or nil if not found
       def find_provider(referral)
+        selected_npi = referral.selected_npi_for_eps(@current_user)
+        npi_source = referral.selected_npi_source(@current_user)
+
+        # Log which NPI source is being used for EPS lookup
+        log_npi_selection(selected_npi, npi_source, referral)
+
         eps_provider_service.search_provider_services(
-          npi: referral.provider_npi,
+          npi: selected_npi,
           specialty: referral.provider_specialty,
           address: referral.treating_facility_address,
           referral_number: referral.referral_number
@@ -470,7 +482,7 @@ module VAOS
       def handle_missing_appointment_types_error
         log_personal_information_error('eps_draft_appointment_types_missing', {
                                          referral_number: @referral&.referral_number,
-                                         npi: @referral&.provider_npi,
+                                         npi: @referral&.selected_npi_for_eps(@current_user),
                                          failure_reason: 'Provider appointment types data is not available'
                                        })
         error_data = {
@@ -621,6 +633,41 @@ module VAOS
         value.to_s.gsub(/\s+/, '_')
       end
 
+      ##
+      # Logs which NPI source is being used for EPS provider lookup
+      # Only logs last 3 characters of NPI for PII safety
+      #
+      # Logs comprehensive information about NPI selection including:
+      # - Which NPI source was used (primary_care, referring, treating_root, or treating_nested)
+      # - Last 3 characters of the selected NPI (for PII safety)
+      # - Which feature flags are enabled
+      # - Associated referral number (last 3 chars for PII safety)
+      #
+      # @param selected_npi [String, nil] The NPI that will be used for lookup (can be nil if no NPI available)
+      # @param npi_source [Symbol] The source of the NPI (:primary_care, :referring, :treating_root, :treating_nested)
+      # @param referral [OpenStruct] The referral object
+      # @return [void]
+      def log_npi_selection(selected_npi, npi_source, referral)
+        referral_number_safe = if referral.referral_number.present?
+                                 referral.referral_number.to_s.last(SAFE_LOG_LENGTH)
+                               end
+
+        log_data = {
+          npi_source:,
+          npi_last3: selected_npi.present? ? selected_npi.to_s.last(SAFE_LOG_LENGTH) : nil,
+          npi_present: selected_npi.present?,
+          primary_care_npi_present: referral.primary_care_provider_npi.present?,
+          referring_npi_present: referral.referring_provider_npi.present?,
+          treating_npi_present: referral.treating_provider_npi.present?,
+          provider_npi_present: referral.provider_npi.present?,
+          primary_care_npi_flag_enabled: Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, @current_user),
+          referring_npi_flag_enabled: Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, @current_user),
+          referral_number_last3: referral_number_safe
+        }.merge(common_logging_context)
+
+        Rails.logger.info("#{CC_APPOINTMENTS}: EPS provider lookup using selected NPI", log_data)
+      end
+
       # =============================================================================
       # HELPER METHODS & SERVICE INITIALIZATION
       # =============================================================================
@@ -725,7 +772,7 @@ module VAOS
       def log_referral_validation_failure(referral, missing_attributes)
         log_personal_information_error('eps_draft_referral_validation_failed', {
                                          referral_number: referral&.referral_number,
-                                         npi: referral&.provider_npi,
+                                         npi: referral&.selected_npi_for_eps(@current_user),
                                          failure_reason: 'Required referral data is missing or incomplete: ' \
                                                          "#{missing_attributes}"
                                        })
