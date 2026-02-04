@@ -55,13 +55,16 @@ module MedicalCopays
         raise e
       end
 
-      def list_months(month_count: 6, count: 50)
+      def list_months(month_count: 18, count: 50)
         from = month_count.months.ago.utc
         page = 1
         all_entries = []
+        last_raw_bundle = nil
 
         loop do
           raw = invoice_service.list(count:, page:)
+          last_raw_bundle = raw
+
           entries = raw['entry'] || []
           break if entries.empty?
 
@@ -70,7 +73,7 @@ module MedicalCopays
             next unless date_str
 
             invoice_date = Time.iso8601(date_str)
-            return build_invoice_entries('entry' => all_entries) if invoice_date < from
+            next if invoice_date < from
 
             all_entries << entry
           end
@@ -78,7 +81,18 @@ module MedicalCopays
           page += 1
         end
 
-        build_invoice_entries('entry' => all_entries)
+        return Lighthouse::HCC::Bundle.new(
+          last_raw_bundle.merge('entry' => []),
+          []
+        ) if all_entries.empty?
+
+        raw_bundle = last_raw_bundle.merge(
+          'entry' => all_entries,
+          'total' => all_entries.length
+        )
+
+        formatted_entries = build_invoice_entries(raw_bundle)
+        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
       end
 
       private
