@@ -395,6 +395,11 @@ module UnifiedHealthData
         note_date = Date.parse(note.date.to_s)
         note_date >= start_d && note_date <= end_d
       rescue ArgumentError, TypeError
+        Rails.logger.warn(
+          'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
+          "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
+          "note_date=#{note&.date.inspect}"
+        )
         false
       end
     end
