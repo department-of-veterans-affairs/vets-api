@@ -68,9 +68,12 @@ module MedicalCopays
 
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
+
+        patient_future = Concurrent::Promises.future { fetch_patient_data }
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         org_address = fetch_organization_address(invoice_data)
-        patient_data = fetch_patient_data
+        patient_data = patient_future.value!
+
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
 
