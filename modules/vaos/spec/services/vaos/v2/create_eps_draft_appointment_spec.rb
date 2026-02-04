@@ -15,7 +15,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   let(:eps_provider_service) { instance_double(Eps::ProviderService) }
   let(:appointments_service) { instance_double(VAOS::V2::AppointmentsService) }
   let(:referral_data) do
-    OpenStruct.new(
+    data = OpenStruct.new(
       provider_npi: '1234567890',
       referral_number: 'REF-456',
       referral_date: '2024-01-15',
@@ -24,8 +24,35 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
       treating_facility_address: { city: 'Denver', state: 'CO' },
       referring_facility_code: 'FAC123',
       category_of_care: 'CARDIOLOGY',
-      station_id: '528A6'
+      station_id: '528A6',
+      primary_care_provider_npi: '1111111111',
+      referring_provider_npi: '2222222222',
+      treating_provider_npi: '3333333333'
     )
+
+    # Define the methods directly on the OpenStruct instance
+    def data.selected_npi_for_eps(user)
+      # Simulate the logic from ReferralDetail
+      if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+        primary_care_provider_npi.presence || provider_npi
+      elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+        referring_provider_npi.presence || provider_npi
+      else
+        treating_provider_npi.presence || provider_npi
+      end
+    end
+
+    def data.selected_npi_source(user)
+      if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+        primary_care_provider_npi.present? ? :primary_care : :treating_nested
+      elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+        referring_provider_npi.present? ? :referring : :treating_nested
+      else
+        treating_provider_npi.present? ? :treating_root : :treating_nested
+      end
+    end
+
+    data
   end
   let(:provider_data) do
     OpenStruct.new(
@@ -50,6 +77,37 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     allow(PersonalInformationLog).to receive(:create)
     # Set up RequestStore for controller name logging
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
+
+    # Wrap get_referral to ensure returned objects have the required methods
+    allow(ccra_referral_service).to receive(:get_referral) do |*_args|
+      referral = referral_data
+
+      # Add methods if they don't exist
+      unless referral.respond_to?(:selected_npi_for_eps)
+        def referral.selected_npi_for_eps(user)
+          if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+            primary_care_provider_npi.presence || provider_npi
+          elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+            referring_provider_npi.presence || provider_npi
+          else
+            treating_provider_npi.presence || provider_npi
+          end
+        end
+
+        def referral.selected_npi_source(user)
+          if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+            primary_care_provider_npi.present? ? :primary_care : :treating_nested
+          elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+            referring_provider_npi.present? ? :referring : :treating_nested
+          else
+            treating_provider_npi.present? ? :treating_root : :treating_nested
+          end
+        end
+      end
+
+      referral
+    end
+
     setup_successful_services
   end
 
@@ -64,7 +122,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
   # Shared setup for successful scenarios
   def setup_successful_services
-    allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
+    # NOTE: ccra_referral_service stubbing is done in the main before hook
     allow(appointments_service).to receive(:referral_appointment_already_exists?)
       .and_return({ error: false, exists: false })
     allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
@@ -138,6 +196,16 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     end
 
     context 'when all services return successfully' do
+      before do
+        # Ensure flags are off for default behavior tests
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_primary_care_npi, current_user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+          .and_return(false)
+      end
+
       it 'returns a successful response with all data' do
         expect(subject.error).to be_nil
         expect(subject.id).to eq('draft-123')
@@ -155,7 +223,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           .with(referral_id)
         expect(eps_provider_service).to have_received(:search_provider_services)
           .with(
-            npi: '1234567890',
+            npi: '3333333333', # Now uses treating_provider_npi (root level) by default
             specialty: 'Cardiology',
             address: { city: 'Denver', state: 'CO' },
             referral_number: 'REF-456'
@@ -194,8 +262,17 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             provider_npi: nil,
             referral_date: nil,
             expiration_date: nil,
-            referral_number: 'REF-123'
+            referral_number: 'REF-123',
+            primary_care_provider_npi: nil,
+            referring_provider_npi: nil,
+            treating_provider_npi: nil
           )
+
+          # Add required methods
+          def invalid_referral.selected_npi_for_eps(_user)
+            nil
+          end
+
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_referral)
         end
 
@@ -226,6 +303,18 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         before do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.referral_date = 'invalid-date-format'
+
+          # Ensure methods exist (dup doesn't copy singleton methods)
+          def invalid_date_referral.selected_npi_for_eps(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.presence || provider_npi
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.presence || provider_npi
+            else
+              treating_provider_npi.presence || provider_npi
+            end
+          end
+
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
@@ -236,6 +325,18 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         before do
           invalid_date_referral = referral_data.dup
           invalid_date_referral.expiration_date = 'another-invalid-date'
+
+          # Ensure methods exist (dup doesn't copy singleton methods)
+          def invalid_date_referral.selected_npi_for_eps(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.presence || provider_npi
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.presence || provider_npi
+            else
+              treating_provider_npi.presence || provider_npi
+            end
+          end
+
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
@@ -355,6 +456,13 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
     context 'provider appointment type validation' do
       before do
+        # Ensure flags are off for consistent NPI selection
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_primary_care_npi, current_user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+          .and_return(false)
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
         allow(appointments_service).to receive(:referral_appointment_already_exists?)
           .and_return({ error: false, exists: false })
@@ -375,7 +483,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,
-              npi: referral_data.provider_npi,
+              npi: referral_data.treating_provider_npi,
               failure_reason: 'Provider appointment types data is not available'
             )
           )
@@ -399,7 +507,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,
-              npi: referral_data.provider_npi,
+              npi: referral_data.treating_provider_npi,
               failure_reason: 'Provider appointment types data is not available'
             )
           )
@@ -526,6 +634,9 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
       end
 
       it 'logs provider slots information when slots are retrieved' do
+        # Allow other info logs (like NPI selection)
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific slots log
         expect(Rails.logger).to receive(:info).with(
           'Community Care Appointments: Provider slots retrieved',
           {
@@ -538,6 +649,9 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
       it 'logs provider slots information when no slots are available' do
         allow(eps_provider_service).to receive(:get_provider_slots).and_return([])
+        # Allow other info logs (like NPI selection)
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific slots log
         expect(Rails.logger).to receive(:info).with(
           'Community Care Appointments: Provider slots retrieved',
           {
@@ -550,6 +664,9 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
       it 'logs provider slots information when slots are nil' do
         allow(eps_provider_service).to receive(:get_provider_slots).and_return(nil)
+        # Allow other info logs (like NPI selection)
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific slots log
         expect(Rails.logger).to receive(:info).with(
           'Community Care Appointments: Provider slots retrieved',
           {
@@ -566,6 +683,28 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         before do
           past_date_referral = referral_data.dup
           past_date_referral.referral_date = '2020-01-15'
+
+          # Ensure methods exist (dup doesn't copy singleton methods)
+          def past_date_referral.selected_npi_for_eps(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.presence || provider_npi
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.presence || provider_npi
+            else
+              treating_provider_npi.presence || provider_npi
+            end
+          end
+
+          def past_date_referral.selected_npi_source(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.present? ? :primary_care : :treating_nested
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.present? ? :referring : :treating_nested
+            else
+              treating_provider_npi.present? ? :treating_root : :treating_nested
+            end
+          end
+
           allow(ccra_referral_service).to receive(:get_referral).and_return(past_date_referral)
         end
 
@@ -584,6 +723,28 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           travel_to Time.parse('2024-12-01T00:00:00Z')
           future_date_referral = referral_data.dup
           future_date_referral.referral_date = '2025-01-15'
+
+          # Ensure methods exist (dup doesn't copy singleton methods)
+          def future_date_referral.selected_npi_for_eps(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.presence || provider_npi
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.presence || provider_npi
+            else
+              treating_provider_npi.presence || provider_npi
+            end
+          end
+
+          def future_date_referral.selected_npi_source(user)
+            if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+              primary_care_provider_npi.present? ? :primary_care : :treating_nested
+            elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+              referring_provider_npi.present? ? :referring : :treating_nested
+            else
+              treating_provider_npi.present? ? :treating_root : :treating_nested
+            end
+          end
+
           allow(ccra_referral_service).to receive(:get_referral).and_return(future_date_referral)
         end
 
@@ -721,13 +882,322 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     end
 
     context 'with missing required attributes' do
-      let(:invalid_referral) { OpenStruct.new(provider_npi: nil, referral_date: '', expiration_date: '2024-04-15') }
+      let(:invalid_referral) do
+        data = OpenStruct.new(
+          provider_npi: nil,
+          referral_date: '',
+          expiration_date: '2024-04-15',
+          primary_care_provider_npi: nil,
+          referring_provider_npi: nil,
+          treating_provider_npi: nil
+        )
 
-      it 'returns valid false with missing attributes' do
+        # Define the method directly on the instance
+        def data.selected_npi_for_eps(_user)
+          nil
+        end
+
+        data
+      end
+
+      it 'returns valid false with missing selected_provider_npi' do
         result = subject.send(:validate_referral_data, invalid_referral)
         expect(result[:valid]).to be false
-        expect(result[:missing_attributes]).to include('provider_npi', 'referral_date')
+        expect(result[:missing_attributes]).to include('selected_provider_npi', 'referral_date')
       end
+    end
+  end
+
+  describe 'NPI selection for EPS lookup' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:va_online_scheduling_use_primary_care_npi, current_user)
+        .and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+        .and_return(false)
+    end
+
+    context 'with default behavior (no flags enabled)' do
+      it 'uses treating_provider_npi for EPS lookup' do
+        subject
+
+        expect(eps_provider_service).to have_received(:search_provider_services).with(
+          hash_including(npi: '3333333333')
+        )
+      end
+
+      it 'logs the NPI selection with treating_root source' do
+        # Allow all info logs
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific NPI selection log
+        expect(Rails.logger).to receive(:info) do |message, data|
+          next unless message == 'Community Care Appointments: EPS provider lookup using selected NPI'
+
+          expect(data[:npi_source]).to eq(:treating_root)
+          expect(data[:npi_last3]).to eq('333')
+          expect(data[:npi_present]).to be true
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
+          expect(data[:primary_care_npi_flag_enabled]).to be false
+          expect(data[:referring_npi_flag_enabled]).to be false
+        end
+
+        subject
+      end
+    end
+
+    context 'when primary care NPI flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_primary_care_npi, current_user)
+          .and_return(true)
+      end
+
+      it 'uses primary_care_provider_npi for EPS lookup' do
+        subject
+
+        expect(eps_provider_service).to have_received(:search_provider_services).with(
+          hash_including(npi: '1111111111')
+        )
+      end
+
+      it 'logs the NPI selection with primary_care source' do
+        # Allow all info logs
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific NPI selection log
+        expect(Rails.logger).to receive(:info) do |message, data|
+          next unless message == 'Community Care Appointments: EPS provider lookup using selected NPI'
+
+          expect(data[:npi_source]).to eq(:primary_care)
+          expect(data[:npi_last3]).to eq('111')
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
+          expect(data[:primary_care_npi_flag_enabled]).to be true
+          expect(data[:referring_npi_flag_enabled]).to be false
+        end
+
+        subject
+      end
+    end
+
+    context 'when referring provider NPI flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+          .and_return(true)
+      end
+
+      it 'uses referring_provider_npi for EPS lookup' do
+        subject
+
+        expect(eps_provider_service).to have_received(:search_provider_services).with(
+          hash_including(npi: '2222222222')
+        )
+      end
+
+      it 'logs the NPI selection with referring source' do
+        # Allow all info logs
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific NPI selection log
+        expect(Rails.logger).to receive(:info) do |message, data|
+          next unless message == 'Community Care Appointments: EPS provider lookup using selected NPI'
+
+          expect(data[:npi_source]).to eq(:referring)
+          expect(data[:npi_last3]).to eq('222')
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
+          expect(data[:primary_care_npi_flag_enabled]).to be false
+          expect(data[:referring_npi_flag_enabled]).to be true
+        end
+
+        subject
+      end
+    end
+
+    context 'when both flags are enabled (primary care takes priority)' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_primary_care_npi, current_user)
+          .and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+          .and_return(true)
+      end
+
+      it 'uses primary_care_provider_npi for EPS lookup' do
+        subject
+
+        expect(eps_provider_service).to have_received(:search_provider_services).with(
+          hash_including(npi: '1111111111')
+        )
+      end
+    end
+
+    context 'when selected NPI is blank (falls back to nested)' do
+      let(:referral_data_with_blank) do
+        data = OpenStruct.new(
+          provider_npi: '9999999999',
+          referral_number: 'REF-456',
+          referral_date: '2024-01-15',
+          expiration_date: '2024-04-15',
+          provider_specialty: 'Cardiology',
+          treating_facility_address: { city: 'Denver', state: 'CO' },
+          referring_facility_code: 'FAC123',
+          category_of_care: 'CARDIOLOGY',
+          station_id: '528A6',
+          primary_care_provider_npi: '',
+          referring_provider_npi: '2222222222',
+          treating_provider_npi: ''
+        )
+
+        def data.selected_npi_for_eps(_user)
+          '9999999999'
+        end
+
+        def data.selected_npi_source(_user)
+          :treating_nested
+        end
+
+        data
+      end
+
+      before do
+        allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data_with_blank)
+      end
+
+      it 'falls back to nested provider_npi' do
+        subject
+
+        expect(eps_provider_service).to have_received(:search_provider_services).with(
+          hash_including(npi: '9999999999')
+        )
+      end
+
+      it 'logs the fallback source as treating_nested' do
+        # Allow all info logs
+        allow(Rails.logger).to receive(:info)
+        # Expect the specific NPI selection log
+        expect(Rails.logger).to receive(:info) do |message, data|
+          next unless message == 'Community Care Appointments: EPS provider lookup using selected NPI'
+
+          expect(data[:npi_source]).to eq(:treating_nested)
+          expect(data[:npi_last3]).to eq('999')
+        end
+
+        subject
+      end
+    end
+
+    context 'when referral validation fails due to missing selected NPI' do
+      let(:referral_with_no_npi) do
+        data = OpenStruct.new(
+          provider_npi: nil,
+          referral_number: 'REF-456',
+          referral_date: '2024-01-15',
+          expiration_date: '2024-04-15',
+          provider_specialty: 'Cardiology',
+          treating_facility_address: { city: 'Denver', state: 'CO' },
+          primary_care_provider_npi: nil,
+          referring_provider_npi: nil,
+          treating_provider_npi: nil
+        )
+
+        def data.selected_npi_for_eps(_user)
+          nil
+        end
+
+        def data.selected_npi_source(_user)
+          :treating_nested
+        end
+
+        data
+      end
+
+      before do
+        allow(ccra_referral_service).to receive(:get_referral).and_return(referral_with_no_npi)
+      end
+
+      it 'returns error for missing NPI' do
+        expect(subject.error).to be_present
+        expect(subject.error[:message]).to include('Required referral data is missing or incomplete')
+        expect(subject.error[:message]).to include('selected_provider_npi')
+      end
+
+      it 'does not attempt EPS provider lookup' do
+        subject
+        expect(eps_provider_service).not_to have_received(:search_provider_services)
+      end
+    end
+  end
+
+  describe '#log_npi_selection (direct method test)' do
+    # Create an instance without calling it
+    let(:test_instance) { described_class.new(current_user, referral_id, referral_consult_id) }
+    let(:test_referral) do
+      OpenStruct.new(
+        referral_number: 'TEST-456',
+        primary_care_provider_npi: '1111111111',
+        referring_provider_npi: '2222222222',
+        treating_provider_npi: '3333333333',
+        provider_npi: '1234567890'
+      )
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:va_online_scheduling_use_primary_care_npi, current_user)
+        .and_return(false)
+      allow(Flipper).to receive(:enabled?)
+        .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+        .and_return(false)
+      RequestStore.store['eps_trace_id'] = 'test-trace-123'
+    end
+
+    it 'logs NPI selection with all required fields' do
+      expect(Rails.logger).to receive(:info) do |message, data|
+        expect(message).to eq('Community Care Appointments: EPS provider lookup using selected NPI')
+        expect(data[:npi_source]).to eq(:treating_root)
+        expect(data[:npi_last3]).to eq('890')
+        expect(data[:npi_present]).to be true
+        expect(data[:primary_care_npi_present]).to be true
+        expect(data[:referring_npi_present]).to be true
+        expect(data[:treating_npi_present]).to be true
+        expect(data[:provider_npi_present]).to be true
+        expect(data[:primary_care_npi_flag_enabled]).to be false
+        expect(data[:referring_npi_flag_enabled]).to be false
+        expect(data[:referral_number_last3]).to eq('456')
+        expect(data[:user_uuid]).to eq(current_user.uuid)
+        expect(data[:eps_trace_id]).to eq('test-trace-123')
+      end
+
+      test_instance.send(:log_npi_selection, '1234567890', :treating_root, test_referral)
+    end
+
+    it 'handles blank NPI correctly' do
+      expect(Rails.logger).to receive(:info) do |message, data|
+        expect(message).to eq('Community Care Appointments: EPS provider lookup using selected NPI')
+        expect(data[:npi_last3]).to be_nil
+        expect(data[:npi_present]).to be false
+      end
+
+      test_instance.send(:log_npi_selection, '', :treating_root, test_referral)
+    end
+
+    it 'handles short NPI values (less than 3 chars)' do
+      expect(Rails.logger).to receive(:info) do |message, data|
+        expect(message).to eq('Community Care Appointments: EPS provider lookup using selected NPI')
+        expect(data[:npi_last3]).to eq('AB')
+        expect(data[:npi_present]).to be true
+      end
+
+      test_instance.send(:log_npi_selection, 'AB', :treating_root, test_referral)
     end
   end
 end
