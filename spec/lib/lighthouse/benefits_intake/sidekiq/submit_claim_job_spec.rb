@@ -69,11 +69,12 @@ Rspec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths).and_call_original
 
       config = {
+        user_account_uuid: user_account.id,
         email_type: :submitted,
         submit_kafka_event: true,
         attachment_stamp_set: 'test'
       }
-      benefits_intake_uuid = job.perform(claim.id, user_account.id, **config)
+      benefits_intake_uuid = job.perform(claim.id, **config)
       expect(benefits_intake_uuid).to eq service.uuid
       expect(job.send(:attachment_stamp_set)).to eq 'test'
     end
@@ -86,7 +87,7 @@ Rspec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths)
       expect(BenefitsIntake::SubmitClaimJob).to receive(:exhaustion)
 
-      job.perform(claim.id, 'invalid-user-account-uuid')
+      job.perform(claim.id, user_account_uuid: 'invalid-user-account-uuid')
     end
 
     it 'is unable to find saved_claim_id' do
@@ -165,10 +166,10 @@ Rspec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         BenefitsIntake::SubmitClaimJob
-          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, { user_account_uuid: 2 }] }) do
             expect(SavedClaim).to receive(:find_by).with(id: claim.id).and_return(claim)
 
-            exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, { user_account_uuid: 2 }]
 
             expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
@@ -176,10 +177,10 @@ Rspec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       it 'logs a distrinct error when claim is not found' do
         BenefitsIntake::SubmitClaimJob
-          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1] }) do
             expect(SavedClaim).to receive(:find_by).with(id: claim.id - 1)
 
-            exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1]
 
             expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end

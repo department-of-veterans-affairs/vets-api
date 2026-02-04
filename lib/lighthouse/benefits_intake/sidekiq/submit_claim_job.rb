@@ -33,9 +33,10 @@ module BenefitsIntake
     def self.exhaustion(msg)
       claim = ::SavedClaim.find_by(id: msg['args'][0])
 
-      config = msg['args'][2] || {}
+      config = msg['args'][1] || {}
       if claim.present? && config[:submit_kafka_event]
-        user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
+        user_account_uuid = config[:user_account_uuid]
+        user_icn = UserAccount.find_by(id: user_account_uuid)&.icn.to_s
 
         Kafka.submit_event(
           icn: user_icn,
@@ -53,8 +54,8 @@ module BenefitsIntake
     # On success send email
     #
     # @param saved_claim_id [Integer] the claim id
-    # @param user_account_uuid [UUID] the user submitting the form
     # @param config [Mixed] key-value pairs for process steps
+    # @option config [UUID] :user_account_uuid the user submitting the form
     # @option config [Symbol|String] :email_type the email template to be sent on success
     # @option config [Symbol|Array<Hash>] :claim_stamp_set stamp set name or list to apply to generated pdf
     # @option config [Symbol|Array<Hash>] :attachment_stamp_set stamp set name or list to apply to evidence pdf
@@ -62,8 +63,8 @@ module BenefitsIntake
     # @option config [Boolean] :submit_kafka_event flag to send event data to Kafka
     #
     # @return [UUID] benefits intake upload uuid
-    def perform(saved_claim_id, user_account_uuid = nil, **config)
-      init(saved_claim_id, user_account_uuid, config || {})
+    def perform(saved_claim_id, **config)
+      init(saved_claim_id, config || {})
 
       generate_form_pdf
       generate_attachment_pdfs
@@ -78,7 +79,7 @@ module BenefitsIntake
       benefits_intake_uuid
     rescue NoRetryError => e
       submission_attempt&.fail!
-      msg = { 'args' => [saved_claim_id, user_account_uuid, config], 'error_message' => e.message }
+      msg = { 'args' => [saved_claim_id, config], 'error_message' => e.message }
       BenefitsIntake::SubmitClaimJob.exhaustion(msg)
     rescue => e
       submission_attempt&.fail!
@@ -142,7 +143,10 @@ module BenefitsIntake
     # @raise [BenefitIntakeError] if unable to find claim
     #
     # @param (see #perform)
-    def init(saved_claim_id, user_account_uuid, config)
+    def init(saved_claim_id, config)
+      @config = config || {}
+
+      user_account_uuid = config[:user_account_uuid]
       if user_account_uuid.present?
         @user_account = ::UserAccount.find_by(id: user_account_uuid)
         raise NoRetryError, "Unable to find ::UserAccount #{user_account_uuid}" unless @user_account
@@ -150,8 +154,6 @@ module BenefitsIntake
 
       @claim = ::SavedClaim.find_by(id: saved_claim_id)
       raise NoRetryError, "Unable to find ::SavedClaim #{saved_claim_id}" unless @claim
-
-      @config = config || {}
 
       @service = ::BenefitsIntake::Service.new
     end
