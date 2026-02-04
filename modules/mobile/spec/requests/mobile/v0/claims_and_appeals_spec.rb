@@ -15,12 +15,11 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
   let(:error_claims_response_vcr_path) { 'mobile/lighthouse_claims/index/404_response' }
 
   before do
-    Flipper.enable(:mobile_claims_log_decision_letter_sent)
+    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
     token = 'abcdefghijklmnop'
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
-
-  after { Flipper.disable(:mobile_claims_log_decision_letter_sent) }
 
   describe '#index is polled an unauthorized user' do
     it 'and not user returns a 401 status' do
@@ -469,6 +468,127 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
               claim.reload
             end.to change(claim, :updated_at)
+          end
+        end
+      end
+    end
+
+    describe 'multi-provider authorization edge cases' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('benefits_claims_lighthouse_provider', anything).and_return(true)
+      end
+
+      context 'when user is only authorized to access appeals, not claims' do
+        let!(:user) do
+          sis_user(icn: '1008596379V859838', participant_id: nil)
+        end
+
+        it 'returns appeals with authorization error for claims' do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            assert_schema_conform(207)
+
+            data = response.parsed_body['data']
+            expect(data.dig(0, 'type')).to eq('appeal')
+            expect(data.count).to eq(5)
+
+            error = response.parsed_body['meta'].dig('errors', 0, 'errorDetails')
+            expect(error).to eq('Forbidden: User is not authorized for claims')
+          end
+        end
+
+        it 'includes authorization error even when data is cached' do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            # First request - populate cache
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            assert_schema_conform(207)
+
+            # Second request - use cache and should still include authorization error
+            cached_params = params.merge(useCache: true)
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params: cached_params)
+            assert_schema_conform(207)
+
+            expect(response.parsed_body['data'].count).to eq(5)
+            expect(response.parsed_body.dig('meta', 'errors', 0,
+                                            'errorDetails')).to eq('Forbidden: User is not authorized for claims')
+          end
+        end
+
+        it 'returns 502 when appeals service fails' do
+          VCR.use_cassette('mobile/appeals/server_error') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+            assert_schema_conform(502)
+          end
+        end
+      end
+
+      context 'when user is only authorized to access claims, not appeals' do
+        before do
+          allow_any_instance_of(User).to receive(:loa3?).and_return(nil)
+          allow(Flipper).to receive(:enabled?).with('benefits_claims_lighthouse_provider', anything).and_return(true)
+        end
+
+        it 'returns claims with authorization error for appeals' do
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            assert_schema_conform(207)
+
+            data = response.parsed_body['data']
+            expect(data.dig(0, 'type')).to eq('claim')
+            expect(data.count).to eq(6)
+
+            error = response.parsed_body['meta'].dig('errors', 0, 'errorDetails')
+            expect(error).to eq('Forbidden: User is not authorized for appeals')
+          end
+        end
+
+        it 'includes authorization error even when data is cached' do
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            # First request - populate cache
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            assert_schema_conform(207)
+
+            # Second request - use cache and should still include authorization error
+            cached_params = params.merge(useCache: true)
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params: cached_params)
+            assert_schema_conform(207)
+
+            expect(response.parsed_body['data'].count).to eq(6)
+            expect(response.parsed_body.dig('meta', 'errors', 0,
+                                            'errorDetails')).to eq('Forbidden: User is not authorized for appeals')
+          end
+        end
+
+        it 'returns error when claims service fails' do
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_raise(StandardError)
+
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+
+            # Should have authorization error for appeals plus provider error for claims
+            errors = response.parsed_body['meta']['errors']
+            expect(errors).to be_present
+            expect(errors.map { |e| e['errorDetails'] }).to include(
+              'Forbidden: User is not authorized for appeals',
+              'Provider temporarily unavailable'
+            )
+          end
+        end
+      end
+
+      context 'when user is not authorized to access neither claims nor appeals' do
+        let!(:user) do
+          sis_user(:api_auth, :loa1, icn: '1008596379V859838', participant_id: nil)
+        end
+
+        it 'returns 403 status' do
+          VCR.use_cassette(good_claims_response_vcr_path) do
+            VCR.use_cassette('mobile/appeals/appeals') do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              assert_schema_conform(403)
+            end
           end
         end
       end
