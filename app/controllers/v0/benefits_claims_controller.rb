@@ -177,11 +177,13 @@ module V0
       if Flipper.enabled?(:cst_use_claim_title_generator_web)
         # Adds displayTitle and claimTypeBase to the claim response object
         BenefitsClaims::TitleGenerator.update_claim_title(claim)
-      else
-        language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
-        if language_map.key?(claim.dig('attributes', 'claimType'))
-          claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
-        end
+      end
+
+      # always map "Death" claimType to "expenses related to death or burial"
+      # TODO: #131812 [CST/MyVA] Remove claimType mapping from api responses (blocked)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
     end
 
