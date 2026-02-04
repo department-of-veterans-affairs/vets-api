@@ -55,6 +55,19 @@ module SM
         response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
         response&.status
       end
+
+      ##
+      # Get cached triage team station numbers, fetching from API if not cached
+      #
+      # @return [Array<TriageTeamCache>, nil] cached triage teams with triage_team_id and station_number
+      #
+      def get_triage_teams_station_numbers
+        cache_key = "#{session.user_uuid}-all-triage-teams-station-numbers"
+        get_cached_or_fetch_data(true, cache_key, TriageTeamCache) do
+          get_all_triage_teams(session.user_uuid)
+        end
+        TriageTeamCache.get_cached(cache_key)
+      end
     end
   end
 end

@@ -78,5 +78,51 @@ describe 'sm client' do
         end
       end
     end
+
+    describe '#get_triage_teams_station_numbers' do
+      it 'returns cached triage team station numbers when cache exists' do
+        # Pre-populate the cache
+        cache_key = "#{client.session.user_uuid}-all-triage-teams-station-numbers"
+        cached_data = [
+          { triage_team_id: 123, station_number: '456' },
+          { triage_team_id: 789, station_number: '012' }
+        ]
+        TriageTeamCache.set_cached(cache_key, cached_data)
+
+        result = client.get_triage_teams_station_numbers
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.first.triage_team_id).to eq(123)
+        expect(result.first.station_number).to eq('456')
+        expect(result.last.triage_team_id).to eq(789)
+        expect(result.last.station_number).to eq('012')
+      end
+
+      it 'fetches and caches data when cache is empty' do
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            result = client.get_triage_teams_station_numbers
+
+            expect(result).to be_an(Array)
+            expect(result).not_to be_empty
+            expect(result.first).to respond_to(:triage_team_id)
+            expect(result.first).to respond_to(:station_number)
+          end
+        end
+      end
+
+      it 'returns empty array when API returns no data' do
+        VCR.use_cassette 'sm_client/triage_teams/gets_empty_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            result = client.get_triage_teams_station_numbers
+
+            # When cache is empty and API returns empty, result is an empty array
+            expect(result).to be_an(Array)
+            expect(result).to be_empty
+          end
+        end
+      end
+    end
   end
 end
