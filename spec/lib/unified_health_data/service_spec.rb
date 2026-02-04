@@ -832,10 +832,16 @@ describe UnifiedHealthData::Service, type: :service do
           .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
           .and_return(false)
 
-        # Create a mock note with a blank date
-        note_with_blank_date = instance_double(UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil)
-        note_with_invalid_date = instance_double(UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date')
-        note_with_valid_date = instance_double(UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z')
+        # Create mock notes with various date conditions
+        note_with_blank_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil
+        )
+        note_with_invalid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date'
+        )
+        note_with_valid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z'
+        )
 
         # Stub the service to return our test notes
         allow_any_instance_of(UnifiedHealthData::Client)
@@ -843,7 +849,9 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Stub parse_notes to return our controlled notes
-        allow(service).to receive(:parse_notes).and_return([note_with_blank_date, note_with_invalid_date, note_with_valid_date])
+        allow(service).to receive(:parse_notes).and_return(
+          [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
+        )
 
         # Expect warning to be logged for invalid date
         expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
