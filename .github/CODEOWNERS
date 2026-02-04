@@ -1124,6 +1124,7 @@ modules/apps_api @department-of-veterans-affairs/lighthouse-pivot @department-of
 modules/ask_va_api @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 modules/avs @department-of-veterans-affairs/after-visit-summary @department-of-veterans-affairs/backend-review-group
 modules/banners @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
+modules/bio_heart @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 modules/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 modules/burials @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
