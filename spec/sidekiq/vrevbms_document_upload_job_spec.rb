@@ -43,12 +43,18 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
     end
 
     it 'logs success when processing completes' do
+      new_document_id = 'new-doc-id-123'
+      allow(claim).to receive(:upload_to_vbms) do
+        claim.parsed_form['documentId'] = new_document_id
+        claim.save!
+      end
+
       expect(Rails.logger).to receive(:info)
         .with('VRE_VBMS_BACKFILL_SUCCESS',
               hash_including(
                 claim_id: claim.id,
                 old_vbms_document_id: anything,
-                new_vbms_document_id: anything
+                new_vbms_document_id: new_document_id
               ))
 
       job.perform(claim.id)
