@@ -15,6 +15,8 @@ FactoryBot.define do
     sub_group_type_enum_val { 'General' }
     group_type_patient_display { 'Primary Care' }
     sub_group_type_patient_display { 'General Care' }
+    oh_triage_group { false }
+    migrating_to_oh { false }
     sequence :triage_team_id do |n|
       n
     end

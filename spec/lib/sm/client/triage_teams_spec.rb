@@ -124,5 +124,74 @@ describe 'sm client' do
         end
       end
     end
+
+    describe 'OH migration status check' do
+      let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+
+      before do
+        allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+      end
+
+      it 'sets blocked_status and migrating_to_oh to true when station is in p3 phase' do
+        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p3')
+
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            collection = client.get_all_triage_teams('1234')
+
+            collection.data.each do |team|
+              expect(team.blocked_status).to be true
+              expect(team.migrating_to_oh).to be true
+            end
+          end
+        end
+      end
+
+      it 'sets blocked_status and migrating_to_oh to true when station is in p4 phase' do
+        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p4')
+
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            collection = client.get_all_triage_teams('1234')
+
+            collection.data.each do |team|
+              expect(team.blocked_status).to be true
+              expect(team.migrating_to_oh).to be true
+            end
+          end
+        end
+      end
+
+      it 'does not modify blocked_status or migrating_to_oh when station is not in p3/p4 phase' do
+        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p2')
+
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            collection = client.get_all_triage_teams('1234')
+
+            # The original cassette has blocked_status: false
+            collection.data.each do |team|
+              expect(team.blocked_status).to be false
+              expect(team.migrating_to_oh).to be false
+            end
+          end
+        end
+      end
+
+      it 'does not modify blocked_status or migrating_to_oh when phase is nil' do
+        allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+
+        VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
+          VCR.use_cassette('sm_client/get_unique_care_systems') do
+            collection = client.get_all_triage_teams('1234')
+
+            collection.data.each do |team|
+              expect(team.blocked_status).to be false
+              expect(team.migrating_to_oh).to be false
+            end
+          end
+        end
+      end
+    end
   end
 end

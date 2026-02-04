@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mhv/oh_facilities_helper/service'
+
 module SM
   class Client < Common::Client::Base
     ##
@@ -32,6 +34,16 @@ module SM
         json = perform(:get, path, nil, token_headers).body
         collection = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata],
                                                                        errors: json[:errors])
+
+        # Check each team for OH migration status and update blocked_status if in p3/p4
+        oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
+        collection.data.each do |team|
+          phase = oh_service.get_phase_for_station_number(team.station_number)
+          if %w[p3 p4].include?(phase)
+            team.blocked_status = true
+            team.migrating_to_oh = true
+          end
+        end
 
         # Cache only triage_team_id and station_number via TriageTeamCache model
         minimal_data = collection.data.map do |team|
