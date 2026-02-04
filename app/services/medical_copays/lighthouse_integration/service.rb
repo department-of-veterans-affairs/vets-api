@@ -56,6 +56,27 @@ module MedicalCopays
       end
 
       def list_months(month_count: 18, count: 50)
+        raw_bundle, entries = collect_entries_in_range(month_count:, count:)
+
+        if entries.empty?
+          return Lighthouse::HCC::Bundle.new(
+            raw_bundle.merge('entry' => []),
+            []
+          )
+        end
+
+        raw_bundle = raw_bundle.merge(
+          'entry' => entries,
+          'total' => entries.length
+        )
+
+        formatted_entries = build_invoice_entries(raw_bundle)
+        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
+      end
+
+      private
+
+      def collect_entries_in_range(month_count:, count:)
         from = month_count.months.ago.utc
         page = 1
         all_entries = []
@@ -81,21 +102,8 @@ module MedicalCopays
           page += 1
         end
 
-        return Lighthouse::HCC::Bundle.new(
-          last_raw_bundle.merge('entry' => []),
-          []
-        ) if all_entries.empty?
-
-        raw_bundle = last_raw_bundle.merge(
-          'entry' => all_entries,
-          'total' => all_entries.length
-        )
-
-        formatted_entries = build_invoice_entries(raw_bundle)
-        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
+        [last_raw_bundle, all_entries]
       end
-
-      private
 
       def record_success(operation)
         start_time = Time.current
