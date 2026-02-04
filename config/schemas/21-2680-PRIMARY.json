@@ -1,0 +1,333 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Form 21-2680 Primary Party (Veteran) Schema - Sections I-V",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "veteranInformation",
+    "claimantInformation",
+    "benefitInformation",
+    "veteranSignature"
+  ],
+  "properties": {
+    "veteranInformation": {
+      "type": "object",
+      "description": "Section I: Information About the Veteran",
+      "additionalProperties": false,
+      "required": [
+        "fullName",
+        "ssn",
+        "dateOfBirth"
+      ],
+      "properties": {
+        "fullName": {
+          "type": "object",
+          "description": "Veteran's full name",
+          "additionalProperties": false,
+          "required": [
+            "first",
+            "last"
+          ],
+          "properties": {
+            "first": {
+              "type": "string",
+              "description": "Veteran's first name",
+              "maxLength": 12,
+              "example": "John"
+            },
+            "middle": {
+              "type": "string",
+              "description": "Veteran's middle initial",
+              "maxLength": 1,
+              "example": "H"
+            },
+            "last": {
+              "type": "string",
+              "description": "Veteran's last name",
+              "maxLength": 18,
+              "example": "Doe"
+            }
+          }
+        },
+        "ssn": {
+          "type": "string",
+          "description": "Veteran's Social Security Number",
+          "pattern": "^[0-9]{9}$",
+          "example": "123456789"
+        },
+        "vaFileNumber": {
+          "type": "string",
+          "description": "VA File Number",
+          "maxLength": 9,
+          "example": "123456789"
+        },
+        "serviceNumber": {
+          "type": "string",
+          "description": "Veteran's Service Number",
+          "maxLength": 10,
+          "example": "1234567890"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "Veteran's date of birth",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "example": "1950-01-15"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Veteran's phone number",
+          "pattern": "^[0-9]{10}$",
+          "example": "5551234567"
+        }
+      }
+    },
+    "claimantInformation": {
+      "type": "object",
+      "description": "Section I (continued): Information About the Claimant",
+      "additionalProperties": false,
+      "required": [
+        "fullName",
+        "ssn",
+        "dateOfBirth",
+        "relationship",
+        "address"
+      ],
+      "properties": {
+        "fullName": {
+          "type": "object",
+          "description": "Claimant's full name",
+          "additionalProperties": false,
+          "required": [
+            "first",
+            "last"
+          ],
+          "properties": {
+            "first": {
+              "type": "string",
+              "description": "Claimant's first name",
+              "maxLength": 12,
+              "example": "Jane"
+            },
+            "middle": {
+              "type": "string",
+              "description": "Claimant's middle initial",
+              "maxLength": 1,
+              "example": "M"
+            },
+            "last": {
+              "type": "string",
+              "description": "Claimant's last name",
+              "maxLength": 18,
+              "example": "Doe"
+            }
+          }
+        },
+        "ssn": {
+          "type": "string",
+          "description": "Claimant's Social Security Number",
+          "pattern": "^[0-9]{9}$",
+          "example": "987654321"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "Claimant's date of birth",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "example": "1955-06-20"
+        },
+        "relationship": {
+          "type": "string",
+          "description": "Claimant's relationship to Veteran",
+          "enum": [
+            "self",
+            "spouse",
+            "parent",
+            "child"
+          ],
+          "example": "spouse"
+        },
+        "address": {
+          "type": "object",
+          "description": "Claimant's mailing address",
+          "additionalProperties": false,
+          "required": [
+            "street",
+            "city",
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": {
+                    "enum": ["US", "USA"]
+                  }
+                }
+              },
+              "then": {
+                "required": ["state", "postalCode"]
+              }
+            }
+          ],
+          "properties": {
+            "street": {
+              "type": "string",
+              "description": "Street address",
+              "maxLength": 30,
+              "example": "123 Main St"
+            },
+            "street2": {
+              "type": "string",
+              "description": "Apartment or unit number",
+              "maxLength": 5,
+              "example": "4B"
+            },
+            "city": {
+              "type": "string",
+              "description": "City",
+              "maxLength": 18,
+              "example": "Springfield"
+            },
+            "state": {
+              "type": "string",
+              "description": "State (two-letter abbreviation, required for US addresses)",
+              "maxLength": 2,
+              "pattern": "^[A-Z]{2}$",
+              "example": "IL"
+            },
+            "postalCode": {
+              "type": "string",
+              "description": "ZIP or postal code (5 or 9 digits for US addresses)",
+              "maxLength": 9,
+              "pattern": "^[0-9]{5}(-?[0-9]{4})?$",
+              "example": "62701"
+            },
+            "country": {
+              "type": "string",
+              "description": "Country (two-letter code)",
+              "maxLength": 2,
+              "pattern": "^[A-Z]{2}$",
+              "example": "US"
+            }
+          }
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Claimant's phone number (10 digits for US numbers)",
+          "pattern": "^[0-9]{10}$",
+          "example": "5559876543"
+        },
+        "internationalPhoneNumber": {
+          "type": "string",
+          "description": "International phone number (if applicable)",
+          "maxLength": 14,
+          "example": "+441234567890"
+        },
+        "email": {
+          "type": "string",
+          "description": "Claimant's email address (optional)",
+          "format": "email",
+          "maxLength": 70,
+          "example": "jane.doe@example.com"
+        },
+        "agreeToElectronicCorrespondence": {
+          "type": "boolean",
+          "description": "Agreement to receive electronic correspondence",
+          "example": true
+        }
+      }
+    },
+    "benefitInformation": {
+      "type": "object",
+      "description": "Section III: Benefit Information",
+      "additionalProperties": false,
+      "required": [
+        "benefitSelection"
+      ],
+      "properties": {
+        "benefitSelection": {
+          "type": "string",
+          "description": "Type of benefit being applied for",
+          "enum": [
+            "smc",
+            "smp"
+          ],
+          "example": "smc"
+        }
+      }
+    },
+    "additionalInformation": {
+      "type": "object",
+      "description": "Section IV: Additional Information",
+      "additionalProperties": false,
+      "required": [
+        "currentlyHospitalized"
+      ],
+      "properties": {
+        "currentlyHospitalized": {
+          "type": "boolean",
+          "description": "Is the Veteran currently hospitalized?",
+          "example": false
+        },
+        "admissionDate": {
+          "type": "string",
+          "description": "Hospital admission date (required if currently hospitalized)",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "example": "2025-01-15"
+        },
+        "hospitalName": {
+          "type": "string",
+          "description": "Name of hospital (required if currently hospitalized)",
+          "maxLength": 50,
+          "example": "Springfield VA Medical Center"
+        },
+        "hospitalAddress": {
+          "type": "string",
+          "description": "Full address of hospital (required if currently hospitalized)",
+          "maxLength": 200,
+          "example": "789 Hospital Blvd, Springfield, IL 62701"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "currentlyHospitalized": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": ["admissionDate", "hospitalName", "hospitalAddress"]
+          }
+        }
+      ]
+    },
+    "veteranSignature": {
+      "type": "object",
+      "description": "Section V: Veteran Certification and Signature",
+      "additionalProperties": false,
+      "required": [
+        "signature",
+        "date"
+      ],
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Veteran's typed signature (full name)",
+          "maxLength": 30,
+          "example": "John H. Doe"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date signed",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "example": "2025-10-24"
+        }
+      }
+    }
+  }
+}
