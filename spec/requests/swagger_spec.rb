@@ -3433,9 +3433,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'returns ok status code' do
       status_card_response = {
         type: 'veteran_status_card',
-        veteran_status: 'confirmed',
-        service_summary_code: 'A1',
-        not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
         attributes: {
           full_name: 'John Doe',
           disability_rating: 50,
@@ -3444,7 +3441,11 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             begin_date: '2010-01-01',
             end_date: '2015-12-31'
           },
-          edipi: user.edipi
+          edipi: user.edipi,
+          veteran_status: 'confirmed',
+          service_summary_code: 'A1',
+          not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
+          service_history_status: 'found'
         }
       }
       allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)
