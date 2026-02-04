@@ -14,7 +14,7 @@ module Vass
   #   track_failure(APPOINTMENTS_CREATE, error_type: exception.class.name)
   #
   # @example Track an infrastructure event
-  #   track_infrastructure_metric(SESSION_OTC_GENERATED)
+  #   track_infrastructure_metric(SESSION_OTP_GENERATED)
   #
   module MetricsTracking
     extend ActiveSupport::Concern
@@ -72,7 +72,7 @@ module Vass
     #
     # @example
     #   track_infrastructure_metric(RATE_LIMIT_GENERATION_EXCEEDED)
-    #   track_infrastructure_metric(SESSION_OTC_GENERATED, identifier: uuid)
+    #   track_infrastructure_metric(SESSION_OTP_GENERATED, identifier: uuid)
     #
     def track_infrastructure_metric(metric_name, additional_tags: {})
       tags = [SERVICE_TAG]
