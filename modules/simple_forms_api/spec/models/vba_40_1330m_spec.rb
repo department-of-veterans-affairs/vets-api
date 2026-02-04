@@ -132,7 +132,7 @@ RSpec.describe SimpleFormsApi::VBA401330m do
 
       form = SimpleFormsApi::VBA401330m.new(form_data)
       pdf_filler = double('SimpleFormsApi::PdfFiller')
-      
+
       allow(SimpleFormsApi::PdfFiller).to receive(:new) do |args|
         expect(args[:form].data['applicant_address']['street']).to eq('789 Pine St')
         expect(args[:form].data['applicant_address']['city']).to eq('Portland')
