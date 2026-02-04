@@ -42,6 +42,7 @@ module SignIn
 
       context = {
         user_uuid: current_user.uuid,
+        user_credentials:,
         credential_uuid: user_verification.credential_identifier,
         icn: user_account.icn,
         sign_in:
@@ -113,6 +114,13 @@ module SignIn
 
     def session
       @session ||= OAuthSession.find_by(handle: access_token.session_handle)
+    end
+
+    def user_credentials
+      {
+        idme: user_account.user_verifications.where.not(idme_uuid: nil).count,
+        logingov: user_account.user_verifications.where.not(logingov_uuid: nil).count
+      }
     end
 
     def user_account
