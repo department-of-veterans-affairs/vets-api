@@ -398,7 +398,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         # NDC should be extracted even without tracking data
         expect(result).to be_a(UnifiedHealthData::Prescription)
-        # Note: NDC is not directly exposed in Prescription model, but is used internally
+        # NOTE: NDC is not directly exposed in Prescription model, but is used internally
         # Test via tracking if present, or verify it's extracted correctly in helper methods
       end
 
