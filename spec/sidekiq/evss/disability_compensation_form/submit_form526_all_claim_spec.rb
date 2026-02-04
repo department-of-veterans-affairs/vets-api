@@ -14,7 +14,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                               anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
