@@ -48,6 +48,7 @@ module ClaimsApi
                          "Form 526 Est. job errored #{e.class}: #{auto_claim&.evss_response}")
         if will_retry?(auto_claim, e)
           raise e
+          
         else
           # form526.submit.noRetryError OR form526.InProcess error returned
           {}
