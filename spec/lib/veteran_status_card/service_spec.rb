@@ -237,46 +237,22 @@ RSpec.describe VeteranStatusCard::Service do
       end
     end
 
-    describe '#ineligible_message_or_vet_verification_reason' do
+    describe '#ineligible_message_upcase' do
       context 'when @ineligible_message is set' do
-        it 'returns the @ineligible_message' do
+        it 'returns the uppercase @ineligible_message' do
           subject.instance_variable_set(:@ineligible_message, 'dishonorable_ssc_code')
 
-          result = subject.send(:ineligible_message_or_vet_verification_reason)
+          result = subject.send(:ineligible_message_upcase)
 
-          expect(result).to eq('dishonorable_ssc_code')
+          expect(result).to eq('DISHONORABLE_SSC_CODE')
         end
       end
 
-      context 'when @ineligible_message is nil but vet_verification_status[:reason] is present' do
-        let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+      context 'when @ineligible_message is nil' do
+        it 'returns nil' do
+          result = subject.send(:ineligible_message_upcase)
 
-        it 'returns the vet_verification_status reason' do
-          result = subject.send(:ineligible_message_or_vet_verification_reason)
-
-          expect(result).to eq('PERSON_NOT_FOUND')
-        end
-      end
-
-      context 'when both @ineligible_message and vet_verification_status[:reason] are nil' do
-        let(:not_confirmed_reason) { nil }
-
-        it 'returns UNKNOWN_REASON_MESSAGE' do
-          result = subject.send(:ineligible_message_or_vet_verification_reason)
-
-          expect(result).to eq('unknown_reason')
-        end
-      end
-
-      context 'when @ineligible_message is empty string' do
-        let(:not_confirmed_reason) { 'ERROR' }
-
-        it 'falls back to vet_verification_status reason' do
-          subject.instance_variable_set(:@ineligible_message, '')
-
-          result = subject.send(:ineligible_message_or_vet_verification_reason)
-
-          expect(result).to eq('ERROR')
+          expect(result).to be_nil
         end
       end
     end
@@ -633,7 +609,8 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes].keys).to contain_exactly(:full_name, :disability_rating,
                                                               :latest_service, :edipi,
                                                               :veteran_status, :not_confirmed_reason,
-                                                              :service_summary_code, :service_history_status)
+                                                              :confirmation_status, :service_summary_code,
+                                                              :service_history_status)
           expect(result[:attributes][:full_name]).to be_a(String)
           expect(result[:attributes][:disability_rating]).to be_a(Integer)
           expect(result[:attributes][:edipi]).to eq(user.edipi)
@@ -1403,6 +1380,7 @@ RSpec.describe VeteranStatusCard::Service do
         expect(result[:attributes][:alert_type]).to eq('error')
         expect(result[:attributes][:veteran_status]).to eq('not confirmed')
         expect(result[:attributes][:not_confirmed_reason]).to be_nil
+        expect(result[:attributes][:confirmation_status]).to be_nil
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
         expect(result[:attributes][:service_history_status]).to eq('found')
       end

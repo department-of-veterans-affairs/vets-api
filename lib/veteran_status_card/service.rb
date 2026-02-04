@@ -85,9 +85,10 @@ module VeteranStatusCard
     #   - :type [String] 'veteran_status_card' or 'veteran_status_alert'
     #   - :attributes [Hash] containing either:
     #     - When eligible: { full_name:, disability_rating:, latest_service:, edipi:,
-    #         veteran_status:, not_confirmed_reason:, service_summary_code:, service_history_status: }
+    #         veteran_status:, not_confirmed_reason:, confirmation_status:, service_summary_code:,
+    #         service_history_status: }
     #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
-    #         not_confirmed_reason:, service_summary_code:, service_history_status: }
+    #         not_confirmed_reason:, confirmation_status:, service_summary_code:, service_history_status: }
     #
     def status_card
       if eligible?
@@ -221,24 +222,28 @@ module VeteranStatusCard
     def log_vsc_result(confirmed: false)
       key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
       log_statsd(key)
-      log_statsd(ineligible_message_or_vet_verification_reason) unless confirmed
+      unless confirmed
+        # Log statsd metrics for reason and ineligibility message only if they exist
+        # to avoid incrementing metrics to veteran_status_card_nil, etc.
+        log_statsd(vet_verification_status[:reason]) if vet_verification_status[:reason].present?
+        log_statsd(@ineligible_message) if @ineligible_message.present?
+      end
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: vet_verification_status[:reason],
+                          confirmation_status: ineligible_message_upcase,
                           service_summary_code: ssc_code,
                           service_history_status:
                         })
     end
 
     ##
-    # Determines a single reason that status is 'not confirmed'
+    # Returns the uppercase version of ineligible_message if not nil
     #
-    # @return [String] a single string with the not confirmed reason
+    # @return [String, nil] an uppercase ineligibility message or nil
     #
-    def ineligible_message_or_vet_verification_reason
-      # Check for presence on existing reasons to ensure no nil or empty values are passed
-      # If both are empty, default to the UNKNOWN_REASON_MESSAGE
-      @ineligible_message.presence || vet_verification_status[:reason].presence || UNKNOWN_REASON_MESSAGE
+    def ineligible_message_upcase
+      @ineligible_message&.upcase
     end
 
     ##
@@ -256,6 +261,7 @@ module VeteranStatusCard
           edipi: @user&.edipi,
           veteran_status: CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
+          confirmation_status: ineligible_message_upcase,
           service_summary_code: ssc_code,
           service_history_status:
         }
@@ -277,6 +283,7 @@ module VeteranStatusCard
           alert_type: error_details[:status],
           veteran_status: NOT_CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
+          confirmation_status: ineligible_message_upcase,
           service_summary_code: ssc_code,
           service_history_status:
         }
@@ -624,6 +631,7 @@ module VeteranStatusCard
           alert_type: response[:status],
           veteran_status: NOT_CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
+          confirmation_status: ineligible_message_upcase,
           service_summary_code: ssc_code,
           service_history_status:
         }
