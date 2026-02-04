@@ -181,6 +181,7 @@ module MHV
       # Determines the current phase based on today's date (inclusive boundaries)
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
+        Time.zone = 'Pacific Time (US & Canada)'
         today = Time.zone.today
         days_until_migration = (migration_date - today).to_i
 
@@ -199,6 +200,7 @@ module MHV
       # Determines migration status based on today's date relative to migration
       # @return [String] NOT_STARTED, ACTIVE, or COMPLETE
       def determine_migration_status(migration_date)
+        Time.zone = 'Pacific Time (US & Canada)'
         today = Time.zone.today
         days_until_migration = (migration_date - today).to_i
 
