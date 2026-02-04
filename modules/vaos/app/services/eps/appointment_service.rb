@@ -8,7 +8,7 @@ module Eps
     # @param appointment_id [String] The ID of the appointment to retrieve
     # @param retrieve_latest_details [Boolean] Whether to fetch latest details from provider service
     # @raise [ArgumentError] If appointment_id is blank
-    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
+    # @raise [Eps::ServiceException] If response contains error field
     # @return OpenStruct response from EPS get appointment endpoint
     #
     def get_appointment(appointment_id:, retrieve_latest_details: false)
@@ -26,7 +26,10 @@ module Eps
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'get_appointment')
-      raise e
+      raise
+    rescue => e
+      log_sanitized_error(e, 'get_appointment')
+      raise
     end
 
     ##
@@ -56,7 +59,10 @@ module Eps
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'get_appointments')
-      raise e
+      raise
+    rescue => e
+      log_sanitized_error(e, 'get_appointments')
+      raise
     end
 
     ##
@@ -92,7 +98,10 @@ module Eps
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'create_draft_appointment')
-      raise e
+      raise
+    rescue => e
+      log_sanitized_error(e, 'create_draft_appointment')
+      raise
     end
 
     ##
@@ -107,7 +116,7 @@ module Eps
     # @option params [String] :referral_number The referral number
     # @option params [Hash] :additional_patient_attributes Optional patient details (address, contact info)
     # @raise [ArgumentError] If any required parameters are missing
-    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
+    # @raise [Eps::ServiceException] If response contains error field
     # @return OpenStruct response from EPS submit appointment endpoint
     #
     def submit_appointment(appointment_id, params = {})
@@ -125,7 +134,10 @@ module Eps
       end
     rescue Eps::ServiceException => e
       handle_eps_error!(e, 'submit_appointment')
-      raise e
+      raise
+    rescue => e
+      log_sanitized_error(e, 'submit_appointment')
+      raise
     end
 
     private
@@ -208,9 +220,79 @@ module Eps
     def redis_client
       @redis_client ||= Eps::RedisClient.new
     end
-  end
 
-  # Mirrors the middleware-defined EPS exception so callers can rely on
-  # BackendServiceException fields (e.g., original_status, original_body).
-  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Eps::ServiceException)
+    ##
+    # Logs error with sanitized PII (removes ICN and referral numbers)
+    #
+    # @param error [StandardError] The error to log
+    # @param method_name [String] The calling method name for logging context
+    # @return [void]
+    def log_sanitized_error(error, method_name)
+      sanitized_message = sanitize_error_message(error.message)
+
+      error_context = {
+        service: 'EPS',
+        method: method_name,
+        error_class: error.class.name,
+        error_message: sanitized_message,
+        backtrace: error.backtrace&.first(5), # Include first 5 lines of backtrace for debugging
+        timestamp: Time.current.iso8601,
+        controller: controller_name,
+        station_number:,
+        eps_trace_id:
+      }.compact
+
+      Rails.logger.error("#{CC_APPOINTMENTS}: EPS unexpected error", error_context)
+    end
+
+    ##
+    # Sanitizes error message by removing ICN and referral numbers
+    #
+    # @param message [String] The error message to sanitize
+    # @return [String] Sanitized error message
+    def sanitize_error_message(message)
+      return nil if message.nil?
+
+      sanitized = message.dup
+
+      # Remove ICNs using existing VAOS anonymizer
+      sanitized = VAOS::Anonymizers.anonymize_icns(sanitized)
+
+      # Remove referral numbers - these can have various formats:
+      # - VA followed by numbers (e.g., VA0000005681)
+      # - REF- followed by alphanumeric (e.g., REF-12345, ref-124)
+      # - referralNumber with values in quotes or after =
+      # Pattern matches common referral number formats
+      sanitized.gsub!(/\bVA\d{10}\b/, '[REFERRAL_REDACTED]')
+      sanitized.gsub!(/\bREF-[\w\d]+\b/i, '[REFERRAL_REDACTED]')
+      sanitized.gsub!(/referralNumber["\s:=]+[\w\d-]+/i, 'referralNumber=[REFERRAL_REDACTED]')
+      sanitized.gsub!(/referral_number["\s:=]+[\w\d-]+/i, 'referral_number=[REFERRAL_REDACTED]')
+
+      sanitized
+    end
+
+    ##
+    # Returns the controller name from RequestStore for logging context
+    #
+    # @return [String, nil] The controller name or nil if not set
+    def controller_name
+      RequestStore.store['controller_name']
+    end
+
+    ##
+    # Returns the user's primary station number for logging context
+    #
+    # @return [String, nil] The station number or nil if not available
+    def station_number
+      user&.va_treatment_facility_ids&.first
+    end
+
+    ##
+    # Returns the EPS trace ID from RequestStore
+    #
+    # @return [String, nil] The trace ID or nil if not set
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
+    end
+  end
 end

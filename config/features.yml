@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_intent_to_file:
-    actor_type: user
-    description: Enables accredited representative portal intent to file (0966)
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -1745,6 +1741,10 @@ features:
     actor_type: user
     description: Hides the health care contacts section on the Profile
     enable_in_development: true
+  profile_hide_missing_claim_information_notification_setting:
+    actor_type: user
+    description: Hides the Missing claim information notification setting on the Profile notifications page
+    enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
     description: Limits the Direct Deposit page functionality based on the veteranStatus property.
@@ -2796,6 +2796,10 @@ features:
     actor_type: user
     description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
     enable_in_development: true
+  mhv_oh_unique_user_metrics_logging_appt:
+    actor_type: user
+    description: Enables Oracle Health facility ID extraction for appointments controllers. When disabled, appointment_facility_ids returns nil, bypassing facility tracking overhead.
+    enable_in_development: true
   form_8794_release:
     actor_type: user
     description: If enabled, show link to digitized form instead of PDF download on SCO page
@@ -2832,6 +2836,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-2680 on vets-website
+  form_2680_multi_party_forms_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables multi-party forms feature for form 21-2680
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database

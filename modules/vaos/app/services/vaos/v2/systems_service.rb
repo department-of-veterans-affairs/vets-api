@@ -54,7 +54,25 @@ module VAOS
         #  'clinicalService' is used when retrieving clinics for appointment scheduling,
         #  triggering stop code filtering to avoid displaying unavailable clinics.
         url_params.merge!('enableStopCodeFilter' => true) if url_params['clinicalService'].present?
-        perform(:get, url, url_params, headers)
+
+        # splitting upstream service call into separately monitored methods for metric tracking
+        if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
+          perform_get_clinics_request_vpg(url, url_params)
+        else
+          perform_get_clinics_request_vaos(url, url_params)
+        end
+      end
+
+      def perform_get_clinics_request_vpg(url, url_params)
+        with_monitoring do
+          perform(:get, url, url_params, headers)
+        end
+      end
+
+      def perform_get_clinics_request_vaos(url, url_params)
+        with_monitoring do
+          perform(:get, url, url_params, headers)
+        end
       end
 
       # Patient icn is only valid if the clinical service is of type primary care.
@@ -76,7 +94,9 @@ module VAOS
           'start' => start_dt,
           'end' => end_dt
         }
-        perform(:get, url_path, url_params, headers)
+        with_monitoring do
+          perform(:get, url_path, url_params, headers)
+        end
       end
 
       def get_slots_vpg(options = {})
@@ -90,7 +110,9 @@ module VAOS
           'provider' => options[:provider_id]
         }.compact
 
-        perform(:get, url_path, url_params, headers)
+        with_monitoring do
+          perform(:get, url_path, url_params, headers)
+        end
       end
     end
   end
