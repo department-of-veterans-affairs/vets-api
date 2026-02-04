@@ -108,7 +108,8 @@ describe IvcChampva::PdfStamper do
         stamp_signature
       end
 
-      let(:test_payload) { 'vha_10_7959c' }
+      # Use a form that is NOT in FORM_REQUIRES_STAMP (10-7959F-2 doesn't require stamping)
+      let(:test_payload) { 'vha_10_7959f_2' }
       let(:stamps) { [] }
 
       it 'does not call :stamp' do

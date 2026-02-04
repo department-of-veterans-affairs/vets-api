@@ -55,6 +55,14 @@ RSpec.describe IvcChampva::VHA107959cRev2025 do
         expect(form.data['certifier_role']).to eq('other')
       end
 
+      it 'normalizes applicant_email to applicant_email_address for standalone submissions' do
+        expect(form.data['applicant_email_address']).to eq('applicant@email.gov')
+      end
+
+      it 'preserves form_number from frontend submission' do
+        expect(form.data['form_number']).to eq('10-7959C')
+      end
+
       context 'with pre-flattened data' do
         let(:pre_flattened_data) do
           {
