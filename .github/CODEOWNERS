@@ -1135,7 +1135,6 @@ modules/dependents_benefits @department-of-veterans-affairs/benefits-dependents-
 modules/dependents_verification @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 modules/dhp_connected_devices @department-of-veterans-affairs/digital-health-platform @department-of-veterans-affairs/backend-review-group
 modules/digital_forms_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
-modules/employment_questionnaires @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-intake-pingwind
 modules/facilities_api @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 modules/income_and_assets @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
 modules/income_limits @department-of-veterans-affairs/vfs-public-websites-frontend @department-of-veterans-affairs/backend-review-group
