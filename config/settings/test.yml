@@ -299,8 +299,8 @@ covid_vaccine:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-  delete_saved_claim_records_job_enabled: true
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
