@@ -37,6 +37,9 @@ features:
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
+  acroform_debug_logs:
+    actor_type: user
+    description: When enabled, AcroForm problematic fields will report in Rails logs
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -567,6 +570,10 @@ features:
   cst_multi_claim_provider:
     actor_type: user
     description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
+  cst_multi_claim_provider_mobile:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
     enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
@@ -2786,6 +2793,10 @@ features:
   mhv_oh_unique_user_metrics_logging:
     actor_type: user
     description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
+    enable_in_development: true
+  mhv_oh_unique_user_metrics_logging_appt:
+    actor_type: user
+    description: Enables Oracle Health facility ID extraction for appointments controllers. When disabled, appointment_facility_ids returns nil, bypassing facility tracking overhead.
     enable_in_development: true
   form_8794_release:
     actor_type: user
