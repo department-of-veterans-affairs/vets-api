@@ -12,6 +12,23 @@ RSpec.describe 'AllergyAdapter' do
     ).read)
   end
 
+  # Shared fixture for testing name filtering - an allergy with active status but no name
+  let(:record_without_name) do
+    {
+      'resource' => {
+        'resourceType' => 'AllergyIntolerance',
+        'id' => 'no-name-allergy',
+        'clinicalStatus' => {
+          'coding' => [{ 'code' => 'active' }]
+        },
+        'code' => {
+          'coding' => [{ 'system' => 'http://snomed.info/sct', 'code' => '12345' }]
+          # No 'display' or 'text' field
+        }
+      }
+    }
+  end
+
   before do
     allow(UnifiedHealthData::Allergy).to receive(:new).and_call_original
   end
@@ -96,6 +113,15 @@ RSpec.describe 'AllergyAdapter' do
         allergy_names = parsed_allergies.map(&:name)
         expect(allergy_names).to include('Penicillin')
       end
+
+      it 'filters out allergies without a name' do
+        oh_records = allergy_sample_response['oracle-health']['entry'] + [record_without_name]
+        parsed_allergies = adapter.parse(oh_records)
+
+        # Should not include the allergy without a name
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).not_to include('no-name-allergy')
+      end
     end
 
     context 'when filter_by_status is false' do
@@ -125,6 +151,15 @@ RSpec.describe 'AllergyAdapter' do
         expect(allergy_ids).to include('132312405')
         # Includes allergy with no clinicalStatus (Cashews)
         expect(allergy_ids).to include('132316427')
+      end
+
+      it 'still filters out allergies without a name even when filter_by_status is false' do
+        oh_records = allergy_sample_response['oracle-health']['entry'] + [record_without_name]
+        parsed_allergies = adapter.parse(oh_records, filter_by_status: false)
+
+        # Should not include the allergy without a name, even with filter_by_status: false
+        allergy_ids = parsed_allergies.map(&:id)
+        expect(allergy_ids).not_to include('no-name-allergy')
       end
     end
   end
@@ -177,6 +212,11 @@ RSpec.describe 'AllergyAdapter' do
         expect(parsed_allergy).not_to be_nil
         expect(parsed_allergy.name).to eq('Penicillin')
       end
+
+      it 'returns nil for allergy without a name' do
+        parsed_allergy = adapter.parse_single_allergy(record_without_name)
+        expect(parsed_allergy).to be_nil
+      end
     end
 
     context 'when filter_by_status is false' do
@@ -200,6 +240,11 @@ RSpec.describe 'AllergyAdapter' do
         expect(parsed_allergy).not_to be_nil
         expect(parsed_allergy.name).to eq('Grass pollen (substance)')
         expect(parsed_allergy.id).to eq('132312405')
+      end
+
+      it 'still returns nil for allergy without a name even when filter_by_status is false' do
+        parsed_allergy = adapter.parse_single_allergy(record_without_name, filter_by_status: false)
+        expect(parsed_allergy).to be_nil
       end
     end
 
