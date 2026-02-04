@@ -297,7 +297,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         phases = result.first[:phases]
 
         phases_constant.each do |phase_name, day_offset|
-          expected_date = (migration_date + day_offset).strftime('%B %-d, %Y')
+          expected_date = "#{(migration_date + day_offset).strftime('%B %-d, %Y')} at 12:00AM EST"
           expect(phases[phase_name]).to eq(expected_date),
                                         "Expected #{phase_name} to be #{expected_date}, got #{phases[phase_name]}"
         end
@@ -321,13 +321,13 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       it 'formats migration_date as human-readable string' do
         result = service.get_migration_schedules
-        expect(result.first[:migration_date]).to eq('March 3, 2026')
+        expect(result.first[:migration_date]).to eq('March 3, 2026 at 12:00AM EST')
       end
 
       it 'formats phase dates as human-readable strings' do
         result = service.get_migration_schedules
         # Check p5 (the migration date itself)
-        expect(result.first[:phases][:p5]).to eq('March 3, 2026')
+        expect(result.first[:phases][:p5]).to eq('March 3, 2026 at 12:00AM EST')
       end
 
       context 'with single-digit day' do
@@ -335,7 +335,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
         it 'formats without leading zero on day' do
           result = service.get_migration_schedules
-          expect(result.first[:migration_date]).to eq('January 5, 2026')
+          expect(result.first[:migration_date]).to eq('January 5, 2026 at 12:00AM EST')
         end
       end
     end
