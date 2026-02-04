@@ -1533,6 +1533,21 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      it 'increments StatsD refill metric for successful refills' do
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
+            { id: '20848650695', stationNumber: '668' },
+            { id: '0000000000001', stationNumber: '570' }
+          ]
+
+          allow(StatsD).to receive(:increment).and_call_original
+          # Expecting 1 because the cassette has 1 successful refill (20848650695) and 1 failed (0000000000001)
+          expect(StatsD).to receive(:increment).with('api.uhd.refills.requested', 1)
+
+          service.refill_prescription(orders)
+        end
+      end
+
       # TODO: Not sure why this is failing
       #
       #   it 'formats request body correctly' do
@@ -1592,6 +1607,15 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([])
           expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found',
                                            station_number: '663' }])
+        end
+      end
+
+      it 'does not increment StatsD refill metric when no successful refills' do
+        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+          allow(StatsD).to receive(:increment).and_call_original
+          expect(StatsD).not_to receive(:increment).with('api.uhd.refills.requested', anything)
+
+          service.refill_prescription([{ id: '21431810851', stationNumber: '663' }])
         end
       end
     end
@@ -1921,12 +1945,12 @@ describe UnifiedHealthData::Service, type: :service do
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
-        name: 'Major depressive disorder, recurrent, moderate',
-        provider: 'BORLAND,VICTORIA A',
+        name: 'Major depressive disorder, recurrent, mild',
+        provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
       )
 
@@ -1972,8 +1996,8 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
-      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
     # TODO: This DOES actually raise an error, which seems accurate
@@ -2005,14 +2029,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_a(UnifiedHealthData::Condition)
         expect(condition.id).to eq(condition_id)
-        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.name).to eq('Carcinoma in situ of skin, unspecified')
+        expect(condition.provider).to eq('MCGUIRE,MARCI P')
         expect(condition.facility).to eq('CHYSHR TEST LAB')
       end
 

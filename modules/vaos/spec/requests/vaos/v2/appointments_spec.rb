@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -517,10 +518,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
 
-              # Verify event logging was called
+              # Verify event logging was called with facility IDs extracted from visible appointments
+              # Cassette has 16 appointments: 14 cancelled + 1 proposed (983) + 1 null status (983)
+              # Only non-cancelled appointments are tracked, so we expect ['983']
               expect(UniqueUserEvents).to have_received(:log_event).with(
                 user: anything,
-                event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+                event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+                event_facility_ids: ['983']
               )
             end
           end
@@ -1904,7 +1908,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                 state: 'FL',
                                 zip: '12345'
                               },
-                              appointments: { system: 'EPS', data: [] })
+                              appointments: { system: 'EPS', data: [] },
+                              selected_npi_for_eps: npi,
+                              selected_npi_source: :treating_nested)
             )
 
           expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
