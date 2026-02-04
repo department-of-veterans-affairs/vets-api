@@ -3444,7 +3444,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           edipi: user.edipi,
           veteran_status: 'confirmed',
           service_summary_code: 'A1',
-          not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
+          confirmation_status: 'DISCHONORABLE_SSC',
           service_history_status: 'found'
         }
       }
