@@ -111,7 +111,12 @@ module Ccra
     #
     # @return [Lockbox] A Lockbox instance with the master key
     def lockbox
-      @lockbox ||= Lockbox.new(key: Settings.lockbox.master_key, encode: true)
+      @lockbox ||= begin
+        key = Settings.lockbox.master_key&.to_s
+        raise ArgumentError, 'Lockbox master key is required' if key.blank?
+
+        Lockbox.new(key:, encode: true)
+      end
     end
 
     # Encrypts data using Lockbox before caching

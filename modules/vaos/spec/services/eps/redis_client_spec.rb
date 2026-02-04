@@ -141,4 +141,37 @@ RSpec.describe Eps::RedisClient do
         .to eq("#{described_class::CACHE_KEY}:#{uuid}:0000")
     end
   end
+
+  describe '#lockbox' do
+    context 'when Settings.lockbox.master_key is a string' do
+      it 'creates a Lockbox instance successfully' do
+        expect { client.send(:lockbox) }.not_to raise_error
+        expect(client.send(:lockbox)).to be_a(Lockbox::Encryptor)
+      end
+    end
+
+    context 'when Settings.lockbox.master_key is nil' do
+      before do
+        allow(Settings.lockbox).to receive(:master_key).and_return(nil)
+      end
+
+      it 'raises ArgumentError' do
+        expect { client.send(:lockbox) }
+          .to raise_error(ArgumentError, 'Lockbox master key is required')
+      end
+    end
+
+    context 'when Settings.lockbox.master_key is an unexpected type (env_parse_values edge case)' do
+      before do
+        # Simulate env_parse_values converting a numeric string to an integer
+        allow(Settings.lockbox).to receive(:master_key).and_return(123)
+      end
+
+      it 'converts to string and attempts to use it' do
+        # The integer will be converted to string, but Lockbox will reject it due to invalid format
+        # This tests that our .to_s coercion happens before Lockbox validation
+        expect { client.send(:lockbox) }.to raise_error(Lockbox::Error)
+      end
+    end
+  end
 end
