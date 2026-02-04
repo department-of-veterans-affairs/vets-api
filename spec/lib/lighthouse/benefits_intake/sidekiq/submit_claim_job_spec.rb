@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'lighthouse/benefits_intake/sidekiq/submit_claim_job'
 
-Rspec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
+RSpec.describe BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
 
   let(:job) { described_class.new }

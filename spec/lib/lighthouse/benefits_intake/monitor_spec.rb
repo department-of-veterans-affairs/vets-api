@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'lighthouse/benefits_intake/monitor'
 
-Rspec.describe BenefitsIntake::Monitor do
+RSpec.describe BenefitsIntake::Monitor do
   let(:monitor) { described_class.new }
 
   it 'has required properties' do
