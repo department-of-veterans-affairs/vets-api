@@ -323,13 +323,11 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
       # Tests the private extract_last_fill_date method via its caller get_sorted_dispensed_date
       # This method extracts the correct date for "last filled" sorting from dispenses.
       #
-      # Key difference between data sources:
-      # - Vista: dispenses have BOTH dispensed_date AND refill_date. We prefer dispensed_date.
-      # - Oracle Health: dispenses only have refill_date (set from FHIR whenHandedOver).
-      #   The adapter sets refill_date = whenHandedOver, so they're the same value.
-      #   Oracle Health dispenses do NOT have dispensed_date.
+      # Both Vista and Oracle Health adapters now provide dispensed_date in dispenses:
+      # - Vista: dispensed_date from VistA dispensedDate field
+      # - Oracle Health: dispensed_date from FHIR whenHandedOver field
 
-      context 'with Vista prescriptions (have dispensed_date in dispenses)' do
+      context 'with Vista prescriptions' do
         it 'uses dispensed_date from dispenses for sorting' do
           # Vista dispenses have BOTH dispensed_date and refill_date
           # dispensed_date is the correct field for "when the medication was filled"
@@ -345,13 +343,12 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
 
           result = helper.send(:get_sorted_dispensed_date, med)
 
-          # Should return 2024-06-15 (the max dispensed_date), NOT 2024-06-10 (the max refill_date)
+          # Should return 2024-06-15 (the max dispensed_date)
           expect(result).to eq(Date.new(2024, 6, 15))
         end
 
-        it 'uses refill_date when dispensed_date is nil among mixed dispenses' do
+        it 'ignores nil dispensed_date entries and uses max of available dates' do
           # When some dispenses have dispensed_date and others don't, we use what's available.
-          # This tests the refill_date fallback when dispensed_date is nil for a particular dispense.
           med = double('vista_med_mixed_dispenses',
                        prescription_name: 'Vista Med',
                        dispensed_date: Date.new(2024, 1, 1),
@@ -366,11 +363,10 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           result = helper.send(:get_sorted_dispensed_date, med)
 
           # Should return 2024-05-20, the max of the available dispensed_dates (ignoring nil)
-          # The refill_date 2024-06-10 is not used because other dispenses have dispensed_date
           expect(result).to eq(Date.new(2024, 5, 20))
         end
 
-        it 'falls back to prescription dispensed_date when dispenses have neither dispensed_date nor refill_date' do
+        it 'falls back to prescription dispensed_date when dispenses have no dispensed_date' do
           med = double('med_empty_dispenses',
                        prescription_name: 'Med',
                        dispensed_date: Date.new(2024, 1, 1),
@@ -387,24 +383,22 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         end
       end
 
-      context 'with Oracle Health prescriptions (only have refill_date in dispenses)' do
-        it 'uses refill_date when dispensed_date is not available' do
-          # Oracle Health dispenses do NOT have dispensed_date.
-          # The adapter sets refill_date from FHIR whenHandedOver.
-          # refill_date IS whenHandedOver - the adapter maps them to the same value.
+      context 'with Oracle Health prescriptions' do
+        it 'uses dispensed_date from dispenses (mapped from FHIR whenHandedOver)' do
+          # Oracle Health adapter now provides dispensed_date (from FHIR whenHandedOver)
           med = double('oracle_med',
                        prescription_name: 'Oracle Med',
                        dispensed_date: Date.new(2024, 1, 1),
                        dispenses: [
-                         { refill_date: Date.new(2024, 6, 15) },
-                         { refill_date: Date.new(2024, 3, 20) }
+                         { dispensed_date: Date.new(2024, 6, 15) },
+                         { dispensed_date: Date.new(2024, 3, 20) }
                        ])
           allow(med).to receive(:respond_to?).with(:dispenses).and_return(true)
           allow(med).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
 
           result = helper.send(:get_sorted_dispensed_date, med)
 
-          # Should use max refill_date since dispensed_date is not available
+          # Should use max dispensed_date
           expect(result).to eq(Date.new(2024, 6, 15))
         end
       end
@@ -440,7 +434,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
         )
       end
 
-      # Oracle Health: refill_date is populated from FHIR whenHandedOver by the adapter
+      # Oracle Health: dispensed_date is populated from FHIR whenHandedOver by the adapter
       let(:oracle_med_middle) do
         OpenStruct.new(
           prescription_name: 'Oracle Middle Med',
@@ -448,7 +442,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           prescription_source: 'VA',
           dispensed_date: Date.new(2024, 1, 1),
           dispenses: [
-            { refill_date: Date.new(2024, 4, 10) }
+            { dispensed_date: Date.new(2024, 4, 10) }
           ],
           orderable_item: nil
         )
@@ -461,7 +455,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           prescription_source: 'VA',
           dispensed_date: nil,
           dispenses: [
-            { refill_date: Date.new(2024, 2, 5) }
+            { dispensed_date: Date.new(2024, 2, 5) }
           ],
           orderable_item: nil
         )
@@ -474,7 +468,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           prescription_source: 'VA',
           dispensed_date: nil,
           dispenses: [
-            { refill_date: Date.new(2024, 5, 25) }
+            { dispensed_date: Date.new(2024, 5, 25) }
           ],
           orderable_item: nil
         )
@@ -498,7 +492,7 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
 
         # Expected order (most recent first):
         # 1. Vista Recent Med - dispensed_date: 2024-06-20
-        # 2. Oracle Middle Med - refill_date: 2024-04-10 (no dispensed_date)
+        # 2. Oracle Middle Med - dispensed_date: 2024-04-10
         # 3. Vista Old Med - dispensed_date: 2024-02-15
         sorted_names = result.records.map(&:prescription_name)
         expect(sorted_names).to eq(['Vista Recent Med', 'Oracle Middle Med', 'Vista Old Med'])

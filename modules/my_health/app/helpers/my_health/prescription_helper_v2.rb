@@ -173,17 +173,12 @@ module MyHealth
       end
 
       # Extracts the most recent fill date from a prescription's dispenses.
-      # For Vista prescriptions, uses dispensed_date (when medication was actually filled).
-      # For Oracle Health prescriptions, falls back to refill_date (whenHandedOver) since
-      # dispensed_date is not available from that system.
+      # Both Vista and Oracle Health adapters now provide dispensed_date in dispenses:
+      # - Vista: dispensed_date from VistA dispensedDate field
+      # - Oracle Health: dispensed_date from FHIR whenHandedOver field
       def extract_last_fill_date(med)
-        # Try dispensed_date first (Vista has this field)
         dispensed_dates = med.dispenses.filter_map { |d| d[:dispensed_date]&.to_date }
-        return dispensed_dates.max if dispensed_dates.any?
-
-        # Fall back to refill_date (Oracle Health only has this)
-        refill_dates = med.dispenses.filter_map { |d| d[:refill_date]&.to_date }
-        refill_dates.max || med.dispensed_date&.to_date
+        dispensed_dates.max || med.dispensed_date&.to_date
       end
 
       def get_medication_name(med)
