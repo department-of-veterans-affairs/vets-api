@@ -173,40 +173,32 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             }
           end
 
+          it 'returns the expected response from the blueprinter' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
+                .to receive(:submit_request).and_return(orchestrator_res)
+
+              post request_path, params: request_body, headers: auth_header
+
+              response_body = JSON.parse(response.body)
+              expected = JSON.parse(
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', 'request_representative',
+                                'expected_response_without_claimant.json').read
+              )
+              expected['data']['id'] = response_body['data']['id']
+
+              expect(response).to have_http_status(:created)
+              expect(response_body).to eq(expected)
+            end
+          end
+
           it 'does call the Orchestrator' do
             mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
                 .to receive(:submit_request).and_return(orchestrator_res)
 
               post request_path, params: request_body, headers: auth_header
-
-              response_body = JSON.parse(response.body)
-              expected_response = JSON.parse(request_body)
-
-              expected_response['data']['id'] = response_body['data']['id']
-              expected_response['data']['type'] = response_body['data']['type']
-
-              expected_response['data']['attributes']['claimant'] = {
-                'claimantId' => nil,
-                'address' => {
-                  'addressLine1' => nil,
-                  'addressLine2' => nil,
-                  'city' => nil,
-                  'stateCode' => nil,
-                  'countryCode' => nil,
-                  'zipCode' => nil,
-                  'zipCodeSuffix' => nil
-                },
-                'phone' => {
-                  'areaCode' => nil,
-                  'phoneNumber' => nil
-                },
-                'email' => nil,
-                'relationship' => nil
-              }
-
-              expect(response).to have_http_status(:created)
-              expect(response_body).to eq(expected_response)
             end
           end
 
@@ -232,40 +224,29 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                             'power_of_attorney', 'request_representative', 'valid_no_claimant.json').read
           end
 
+          it 'returns the expected values from the blueprinter' do
+            mock_ccg(scopes) do |auth_header|
+              post request_path, params: request_body, headers: auth_header
+
+              response_body = JSON.parse(response.body)
+              expected = JSON.parse(
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', 'request_representative',
+                                'expected_response_without_claimant.json').read
+              )
+              expected['data']['id'] = response_body['data']['id']
+
+              expect(response).to have_http_status(:created)
+              expect(response_body).to eq(expected)
+            end
+          end
+
           it 'does not call the Orchestrator' do
             mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
                 .not_to receive(:submit_request)
 
               post request_path, params: request_body, headers: auth_header
-
-              response_body = JSON.parse(response.body)
-              expected_response = JSON.parse(request_body)
-
-              expected_response['data']['type'] = 'power-of-attorney-request'
-              expected_response['data']['id'] = response_body['data']['id']
-
-              expected_response['data']['attributes']['claimant'] = {
-                'claimantId' => nil,
-                'address' => {
-                  'addressLine1' => nil,
-                  'addressLine2' => nil,
-                  'city' => nil,
-                  'stateCode' => nil,
-                  'countryCode' => nil,
-                  'zipCode' => nil,
-                  'zipCodeSuffix' => nil
-                },
-                'phone' => {
-                  'areaCode' => nil,
-                  'phoneNumber' => nil
-                },
-                'email' => nil,
-                'relationship' => nil
-              }
-
-              expect(response).to have_http_status(:created)
-              expect(response_body).to eq(expected_response)
             end
           end
         end

@@ -909,6 +909,25 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
 
+      describe 'handling international phone numbers' do
+        it 'returns the countryCode for the phone number in the response when an international number is used' do
+          mock_ccg(scopes) do |auth_header|
+            form_attributes[:veteran][:phone][:countryCode] = '91'
+            form_attributes[:veteran][:phone][:areaCode] = '22'
+            form_attributes[:veteran][:phone][:phoneNumber] = '12345678'
+            create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+            parsed_response = JSON.parse(response.body)['data']
+            phone = parsed_response['attributes']['veteran']['phone']
+
+            expect(response).to have_http_status(:created)
+            expect(phone['countryCode']).to eq('91')
+            expect(phone['areaCode']).to eq('22')
+            expect(phone['phoneNumber']).to eq('12345678')
+          end
+        end
+      end
+
       describe '#validate_country_code' do
         let(:min_form_attributes) do
           {
