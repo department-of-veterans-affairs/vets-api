@@ -104,4 +104,58 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       end
     end
   end
+
+  describe '#enabled?' do
+    subject(:job) { described_class.new }
+
+    context 'when setting is nil' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(nil)
+      end
+
+      it 'returns DEFAULT_ENABLED (true)' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is boolean true' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(true)
+      end
+
+      it 'returns true' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is boolean false' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(job.send(:enabled?)).to be false
+      end
+    end
+
+    context 'when setting is string "true"' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return('true')
+      end
+
+      it 'returns true' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is string "false"' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return('false')
+      end
+
+      it 'returns false' do
+        expect(job.send(:enabled?)).to be false
+      end
+    end
+  end
 end
