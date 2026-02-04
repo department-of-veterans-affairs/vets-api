@@ -28,8 +28,7 @@ RSpec.describe FormProfiles::VA10272 do
         data = profile.prefill
         expect(data[:form_data]['applicantName']).to eq({ 'first' => 'Abraham',
                                                           'last' => 'Lincoln' })
-        expect(data[:form_data]['contactInfo']['homePhone']).to eq('3035551234')
-        expect(data[:form_data]['mailingAddress']['street']).to eq('140 Rock Creek Rd')
+        expect(data[:form_data]['ssn']).to eq('796111863')
         expect(data[:form_data]['vaFileNumber']).to eq('796043735')
       end
     end
