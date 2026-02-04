@@ -23,7 +23,7 @@ class VREVBMSDocumentUploadJob
     uuid = claim.user_account.present? ? claim.user_account.id : 'manual-run-missing-user-account'
     claim.upload_to_vbms(user: OpenStruct.new(uuid:))
 
-    new_vbms_document_id = claim.parsed_form['documentId']
+    new_vbms_document_id = claim.reload.parsed_form['documentId']
 
     Rails.logger.info('VRE_VBMS_BACKFILL_SUCCESS',
                       claim_id:,
