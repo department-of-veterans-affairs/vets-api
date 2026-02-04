@@ -456,6 +456,13 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
     context 'provider appointment type validation' do
       before do
+        # Ensure flags are off for consistent NPI selection
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_primary_care_npi, current_user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:va_online_scheduling_use_referring_provider_npi, current_user)
+          .and_return(false)
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
         allow(appointments_service).to receive(:referral_appointment_already_exists?)
           .and_return({ error: false, exists: false })
@@ -476,7 +483,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,
-              npi: referral_data.provider_npi,
+              npi: referral_data.treating_provider_npi,
               failure_reason: 'Provider appointment types data is not available'
             )
           )
@@ -500,7 +507,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             error_class: 'eps_draft_appointment_types_missing',
             data: hash_including(
               referral_number: referral_data.referral_number,
-              npi: referral_data.provider_npi,
+              npi: referral_data.treating_provider_npi,
               failure_reason: 'Provider appointment types data is not available'
             )
           )
@@ -930,6 +937,10 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           expect(data[:npi_source]).to eq(:treating_root)
           expect(data[:npi_last3]).to eq('333')
           expect(data[:npi_present]).to be true
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
           expect(data[:primary_care_npi_flag_enabled]).to be false
           expect(data[:referring_npi_flag_enabled]).to be false
         end
@@ -962,6 +973,10 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
           expect(data[:npi_source]).to eq(:primary_care)
           expect(data[:npi_last3]).to eq('111')
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
           expect(data[:primary_care_npi_flag_enabled]).to be true
           expect(data[:referring_npi_flag_enabled]).to be false
         end
@@ -994,6 +1009,10 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
           expect(data[:npi_source]).to eq(:referring)
           expect(data[:npi_last3]).to eq('222')
+          expect(data[:primary_care_npi_present]).to be true
+          expect(data[:referring_npi_present]).to be true
+          expect(data[:treating_npi_present]).to be true
+          expect(data[:provider_npi_present]).to be true
           expect(data[:primary_care_npi_flag_enabled]).to be false
           expect(data[:referring_npi_flag_enabled]).to be true
         end
@@ -1122,7 +1141,13 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     # Create an instance without calling it
     let(:test_instance) { described_class.new(current_user, referral_id, referral_consult_id) }
     let(:test_referral) do
-      OpenStruct.new(referral_number: 'TEST-456')
+      OpenStruct.new(
+        referral_number: 'TEST-456',
+        primary_care_provider_npi: '1111111111',
+        referring_provider_npi: '2222222222',
+        treating_provider_npi: '3333333333',
+        provider_npi: '1234567890'
+      )
     end
 
     before do
@@ -1141,6 +1166,10 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         expect(data[:npi_source]).to eq(:treating_root)
         expect(data[:npi_last3]).to eq('890')
         expect(data[:npi_present]).to be true
+        expect(data[:primary_care_npi_present]).to be true
+        expect(data[:referring_npi_present]).to be true
+        expect(data[:treating_npi_present]).to be true
+        expect(data[:provider_npi_present]).to be true
         expect(data[:primary_care_npi_flag_enabled]).to be false
         expect(data[:referring_npi_flag_enabled]).to be false
         expect(data[:referral_number_last3]).to eq('456')

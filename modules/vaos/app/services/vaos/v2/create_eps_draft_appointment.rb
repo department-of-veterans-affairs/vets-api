@@ -482,7 +482,7 @@ module VAOS
       def handle_missing_appointment_types_error
         log_personal_information_error('eps_draft_appointment_types_missing', {
                                          referral_number: @referral&.referral_number,
-                                         npi: @referral&.provider_npi,
+                                         npi: @referral&.selected_npi_for_eps(@current_user),
                                          failure_reason: 'Provider appointment types data is not available'
                                        })
         error_data = {
@@ -656,6 +656,10 @@ module VAOS
           npi_source:,
           npi_last3: selected_npi.present? ? selected_npi.to_s.last(SAFE_LOG_LENGTH) : nil,
           npi_present: selected_npi.present?,
+          primary_care_npi_present: referral.primary_care_provider_npi.present?,
+          referring_npi_present: referral.referring_provider_npi.present?,
+          treating_npi_present: referral.treating_provider_npi.present?,
+          provider_npi_present: referral.provider_npi.present?,
           primary_care_npi_flag_enabled: Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, @current_user),
           referring_npi_flag_enabled: Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, @current_user),
           referral_number_last3: referral_number_safe
@@ -768,7 +772,7 @@ module VAOS
       def log_referral_validation_failure(referral, missing_attributes)
         log_personal_information_error('eps_draft_referral_validation_failed', {
                                          referral_number: referral&.referral_number,
-                                         npi: referral&.provider_npi,
+                                         npi: referral&.selected_npi_for_eps(@current_user),
                                          failure_reason: 'Required referral data is missing or incomplete: ' \
                                                          "#{missing_attributes}"
                                        })
