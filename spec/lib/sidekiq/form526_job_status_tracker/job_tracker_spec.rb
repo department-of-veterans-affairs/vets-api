@@ -12,7 +12,7 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
+    Flipper.disable(:disability_compensation_production_tester)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
   end

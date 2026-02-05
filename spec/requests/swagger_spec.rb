@@ -1165,7 +1165,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
-        allow(Flipper).to receive(:enabled?).with('disability_compensation_prevent_submission_job').and_return(false)
+        Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable('disability_compensation_production_tester')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
