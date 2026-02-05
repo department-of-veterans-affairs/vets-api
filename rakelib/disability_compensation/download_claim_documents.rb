@@ -133,9 +133,11 @@ module DisabilityCompensation
       def file_io = FileIO
 
       module FileIO
-        def write(...) = File.write(...)
-        def binwrite(...) = File.binwrite(...)
-        def mkdir_p(...) = FileUtils.mkdir_p(...)
+        class << self
+          def write(...) = File.write(...)
+          def binwrite(...) = File.binwrite(...)
+          def mkdir_p(...) = FileUtils.mkdir_p(...)
+        end
       end
     end
   end
