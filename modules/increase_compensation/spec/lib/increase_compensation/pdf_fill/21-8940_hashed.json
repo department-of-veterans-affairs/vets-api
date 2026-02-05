@@ -159,11 +159,11 @@
   "form1[0].#subform[0].Year[0]":"1975",
   "form1[0].#subform[0].E_Mail_Address_If_Applicable[0]":"johnny.rico@examp",
   "form1[0].#subform[0].E_Mail_Address_If_Applicable[1]":"le.com",
-  "form1[0].#subform[0].Month[1]":"01",
-  "form1[0].#subform[0].Day[1]":"10",
+  "form1[0].#subform[0].Month[1]":"10",
+  "form1[0].#subform[0].Day[1]":"",
   "form1[0].#subform[0].Year[3]":"2024",
   "form1[0].#subform[0].Month[2]":"02",
-  "form1[0].#subform[0].Day[2]":"20",
+  "form1[0].#subform[0].Day[2]":"",
   "form1[0].#subform[0].Year[4]":"2025",
   "form1[0].#subform[0].Name_And_Address_Of_Doctors[0]":"VA - Dr. Carl Jenkins, 456 Medical St, Cheyenne, WY 82001"
 }
