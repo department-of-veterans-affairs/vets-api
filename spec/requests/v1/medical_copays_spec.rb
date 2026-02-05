@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/healthcare_cost_and_coverage/configuration'
 
 RSpec.describe 'V1::MedicalCopays', type: :request do
-  let(:current_user) { build(:user, :loa3, icn: '123') }
+  let(:current_user) { build(:user, :loa3, icn: 123) }
 
   before do
     sign_in_as(current_user)
