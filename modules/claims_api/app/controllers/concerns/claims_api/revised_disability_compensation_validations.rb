@@ -23,6 +23,9 @@ module ClaimsApi
       validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
+      # ensure 'anticipatedSeparationDate' if provided, in the future and
+      # occurs less than 180 days from the title10ActivationDate
+      validate_form_526_title10_anticipated_separation_date!
       # ensure 'currentMailingAddress' attributes are valid
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
@@ -175,6 +178,34 @@ module ClaimsApi
                 Date.parse(title10_activation_date) <= Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+    end
+
+    def validate_form_526_title10_anticipated_separation_date!
+      anticipated_separation_date = form_attributes.dig('serviceInformation',
+                                                       'reservesNationalGuardService',
+                                                       'title10Activation',
+                                                       'anticipatedSeparationDate')
+      return if anticipated_separation_date.blank?
+
+      # validate anticipated_separation_date is in the future
+      if Date.parse(anticipated_separation_date) <= Time.zone.today
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+      end
+
+      title10_activation_date = form_attributes.dig('serviceInformation',
+                                                    'reservesNationalGuardService',
+                                                    'title10Activation',
+                                                    'title10ActivationDate')
+      # validate anticipated_separation_date is within 180 days of title10_activation_date
+      begin
+        if title10_activation_date.present? &&
+           Date.parse(anticipated_separation_date) > (Date.parse(title10_activation_date) + 180.days)
+          raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+        end
+      # overkill rescue for Date.parse above
+      rescue ArgumentError
+        raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+      end
     end
 
     def valid_countries
