@@ -1049,7 +1049,7 @@ lib/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-vet
 lib/res @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/reports/uploader.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 lib/rubocop/cops/ams_serializer.rb @department-of-veterans-affairs/backend-review-group
-./lib/rubocop/cops/forbid_flipper_toggle_in_specs.rb @department-of-veterans-affairs/backend-review-group
+lib/rubocop/cops/forbid_flipper_toggle_in_specs.rb @department-of-veterans-affairs/backend-review-group
 lib/rx @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-integration
 lib/salesforce @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 lib/saml @department-of-veterans-affairs/octo-identity
