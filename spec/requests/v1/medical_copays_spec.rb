@@ -72,7 +72,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
       VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays?count=-4'
 
-        expect(JSON.parse(response.body)).to eq({ "error" => "Invalid count parameter" })
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Invalid count parameter' })
       end
     end
   end
