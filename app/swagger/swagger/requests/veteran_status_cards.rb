@@ -23,7 +23,7 @@ module Swagger
                 key :description, "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility"
               end
               property :attributes, type: :object do
-                key :required, %i[veteran_status confirmation_status service_summary_code service_history_status]
+                key :required, %i[veteran_status confirmation_status service_summary_code]
                 key :description, "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card"
                 property :full_name, type: %i[string null] do
                   key :description,
@@ -33,24 +33,6 @@ module Swagger
                 property :disability_rating, type: %i[integer null] do
                   key :description, 'The disability rating for the veteran when eligible for a status card'
                   key :example, 50
-                end
-                property :latest_service, type: %i[object null] do
-                  key :required, %i[branch begin_date end_date]
-                  key :description,
-                      'The latest branch of service, begin date, and end date when the veteran ' \
-                      'is eligible for a status card'
-                  property :branch, type: %i[string null] do
-                    key :description, "The veteran's latest branch of service"
-                    key :example, 'Army'
-                  end
-                  property :begin_date, type: %i[string null], format: :date do
-                    key :description, "The start date of the veteran's latest service"
-                    key :example, '2025-01-01'
-                  end
-                  property :end_date, type: %i[string null], format: :date do
-                    key :description, "The end date of the veteran's latest service"
-                    key :example, '2025-12-31'
-                  end
                 end
                 property :edipi, type: %i[string null] do
                   key :description, "The user's EDIPI number when eligible for a veteran status card"
@@ -112,11 +94,6 @@ module Swagger
                 property :service_summary_code, type: :string do
                   key :description, "The veteran's Service Summary Code determined by VAProfile"
                   key :example, 'A5'
-                end
-                property :service_history_status, type: :string do
-                  key :enum, %w[found empty]
-                  key :description, "The veteran's service history status - can either be 'found' or 'empty'"
-                  key :example, 'found'
                 end
               end
             end

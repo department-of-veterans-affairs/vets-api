@@ -3436,16 +3436,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         attributes: {
           full_name: 'John Doe',
           disability_rating: 50,
-          latest_service: {
-            branch: 'Army',
-            begin_date: '2010-01-01',
-            end_date: '2015-12-31'
-          },
           edipi: user.edipi,
           veteran_status: 'confirmed',
           service_summary_code: 'A1',
-          confirmation_status: 'DISCHONORABLE_SSC',
-          service_history_status: 'found'
+          confirmation_status: 'DISCHONORABLE_SSC'
         }
       }
       allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)

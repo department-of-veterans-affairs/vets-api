@@ -18,7 +18,6 @@ properties:
       - veteranStatus
       - confirmationStatus
       - serviceSummaryCode
-      - serviceHistoryStatus
     description: Displays data specific to either 'confirmed' or 'not confirmed' veteran status card
     properties:
       fullName:
@@ -31,33 +30,6 @@ properties:
         nullable: true
         description: The disability rating for the veteran when eligible for a status card
         example: 50
-      latestService:
-        type: object
-        nullable: true
-        additionalProperties: false
-        required:
-          - branch
-          - beginDate
-          - endDate
-        description: The latest branch of service, begin date, and end date when the veteran is eligible for a status card
-        properties:
-          branch:
-            type: string
-            nullable: true
-            description: The veteran's latest branch of service
-            example: 'Army'
-          beginDate:
-            type: string
-            format: date
-            nullable: true
-            description: The start date of the veteran's latest service
-            example: '2025-01-01'
-          endDate:
-            type: string
-            format: date
-            nullable: true
-            description: The end date of the veteran's latest service
-            example: '2025-12-31'
       edipi:
         type: string
         nullable: true
@@ -149,11 +121,4 @@ properties:
         type: string
         description: The veteran's Service Summary Code determined by VAProfile
         example: A5
-      serviceHistoryStatus:
-        type: string
-        enum:
-          - found
-          - empty
-        description: The veteran's service history status - can either be 'found' or 'empty'
-        example: found
   
