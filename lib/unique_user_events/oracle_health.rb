@@ -19,8 +19,9 @@ module UniqueUserEvents
       invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
       if invalid_ids.any?
         Rails.logger.error(
-          'UniqueUserEvents::OracleHealth: Invalid facility IDs in Settings.unique_user_metrics.oracle_health_tracked_facility_ids: ' \
-          "#{invalid_ids.join(', ')}. VA facility IDs must be 3-digit numbers. Returning empty array."
+          'UniqueUserEvents::OracleHealth: Invalid facility IDs in ' \
+          "Settings.unique_user_metrics.oracle_health_tracked_facility_ids: #{invalid_ids.join(', ')}. " \
+          'VA facility IDs must be 3-digit numbers. Returning empty array.'
         )
         return []
       end
