@@ -2066,6 +2066,7 @@ spec/sidekiq/lighthouse/failure_notification_spec.rb @department-of-veterans-aff
 spec/sidekiq/lighthouse/form526_document_upload_polling_job_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/lighthouse/poll_form526_pdf_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/lighthouse/submit_benefits_intake_claim_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
+spec/sidekiq/lighthouse/submit_career_counseling_job_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
 spec/sidekiq/load_average_days_for_claim_completion_job_spec.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/mhv @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/mhv/account_creator_job_spec.rb @department-of-veterans-affairs/octo-identity

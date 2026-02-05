@@ -47,7 +47,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
   describe 'when retries are exhausted' do
     before do
-      Flipper.enable(:ezr_use_va_notify_on_submission_failure)  # rubocop:disable Project/ForbidFlipperToggleInSpecs
+      Flipper.enable(:ezr_use_va_notify_on_submission_failure) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     after do
