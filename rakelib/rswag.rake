@@ -203,14 +203,14 @@ end
 
 # Sanitize dynamic values in swagger examples
 def sanitize_example_values!(data)
-  UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  uuid_regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   
   # Counter to generate sequential stable UUIDs
   @uuid_counter ||= 0
 
   transformer = lambda do |_k, v, _root|
     # Sanitize UUID-style IDs
-    if v.is_a?(String) && v.match?(UUID_REGEX)
+    if v.is_a?(String) && v.match?(uuid_regex)
       @uuid_counter += 1
       format('00000000-0000-0000-0000-%012d', @uuid_counter)
     else
