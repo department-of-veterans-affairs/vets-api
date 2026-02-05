@@ -197,14 +197,9 @@ module ClaimsApi
                                                     'title10Activation',
                                                     'title10ActivationDate')
       # validate anticipated_separation_date is within 180 days of title10_activation_date
-      begin
-        if title10_activation_date.present? &&
-           Date.parse(anticipated_separation_date) > (Date.parse(title10_activation_date) + 180.days)
-          raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
-        end
-      # overkill rescue for Date.parse above
-      rescue ArgumentError
-        raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+      if title10_activation_date.present? &&
+         Date.parse(anticipated_separation_date) > (Date.parse(title10_activation_date) + 180.days)
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
     end
 
