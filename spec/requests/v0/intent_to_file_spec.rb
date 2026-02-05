@@ -15,7 +15,8 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
   before do
     sign_in_as(user)
-    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                              instance_of(User)).and_return(false)
 
     allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)
   end
