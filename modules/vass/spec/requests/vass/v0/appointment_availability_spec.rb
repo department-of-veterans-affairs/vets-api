@@ -158,7 +158,7 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
               VCR.use_cassette('vass/appointments/get_availability_no_slots', match_requests_on: %i[method uri]) do
                 get('/vass/v0/appointment-availability', headers:)
 
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
                 json_response = JSON.parse(response.body)
 
                 expect(json_response['errors']).to be_present
@@ -175,7 +175,7 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
               VCR.use_cassette('vass/appointments/get_availability_no_slots', match_requests_on: %i[method uri]) do
                 get('/vass/v0/appointment-availability', headers:)
 
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
 
                 # No booking session should be created
                 redis_client = Vass::RedisClient.build
@@ -293,7 +293,7 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
             VCR.use_cassette('vass/appointments/get_appointments_no_cohorts', match_requests_on: %i[method uri]) do
               get('/vass/v0/appointment-availability', headers:)
 
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
               json_response = JSON.parse(response.body)
 
               expect(json_response['errors']).to be_present

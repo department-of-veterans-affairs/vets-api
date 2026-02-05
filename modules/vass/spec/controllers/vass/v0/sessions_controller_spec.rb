@@ -275,7 +275,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       it 'returns unprocessable entity status' do
         post :request_otp, params:, format: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_contact_info')

@@ -171,7 +171,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           VCR.use_cassette('vass/sessions/get_veteran_missing_contact', match_requests_on: %i[method uri]) do
             post '/vass/v0/request-otp', params:, as: :json
 
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             json_response = JSON.parse(response.body)
             expect(json_response['errors']).to be_present
             expect(json_response['errors'].first['code']).to eq('missing_contact_info')

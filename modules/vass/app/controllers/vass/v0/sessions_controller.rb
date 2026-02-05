@@ -271,7 +271,7 @@ module Vass
         render_session_error_response(
           code: 'missing_contact_info',
           detail: 'No contact information available for this veteran.',
-          status: :unprocessable_entity
+          status: :unprocessable_content
         )
       end
 
