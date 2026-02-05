@@ -2,7 +2,6 @@
 
 require 'common/client/base'
 require 'common/exceptions/not_implemented'
-require 'common/exceptions/upstream_partial_failure'
 require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
@@ -15,7 +14,6 @@ require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
-require_relative 'operation_outcome_detector'
 
 module UnifiedHealthData
   class Service
@@ -31,7 +29,6 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'labs')
 
         combined_records = fetch_combined_records(body)
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
@@ -50,7 +47,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'conditions')
 
         combined_records = fetch_combined_records(body)
         conditions_adapter.parse(combined_records)
@@ -64,7 +60,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_conditions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'conditions')
 
         combined_records = fetch_combined_records(body)
         target_record = combined_records.find { |record| record['resource']['id'] == condition_id }
@@ -86,7 +81,6 @@ module UnifiedHealthData
         end_date = default_end_date
         response = uhd_client.get_prescriptions_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'medications')
 
         adapter = UnifiedHealthData::Adapters::PrescriptionsAdapter.new(@user)
         prescriptions = adapter.parse(body, current_only:)
@@ -133,7 +127,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'clinical_notes')
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -158,7 +151,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'clinical_notes')
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -177,7 +169,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'vitals')
 
         combined_records = fetch_combined_records(body)
 
@@ -193,7 +184,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'allergies')
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -210,7 +200,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'allergies')
 
         remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
@@ -230,7 +219,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_immunizations_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'immunizations')
 
         combined_records = fetch_combined_records(body)
 
@@ -253,7 +241,6 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'avs')
 
         summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
         parsed_avs_meta = summaries.map do |summary|
@@ -268,7 +255,6 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'avs')
 
         summary = body['entry'].find do |record|
           record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
@@ -288,7 +274,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_ccd(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-        check_for_partial_failures!(body, resource_type: 'ccd')
 
         document_ref = body['entry']&.find do |entry|
           entry['resource'] && entry['resource']['resourceType'] == 'DocumentReference'
@@ -516,30 +501,6 @@ module UnifiedHealthData
       Date.parse(date_string)
     rescue ArgumentError, TypeError
       raise ArgumentError, "Invalid #{param_name}: '#{date_string}'. Expected format: YYYY-MM-DD"
-    end
-
-    # Checks the response body for OperationOutcome resources with error severity.
-    # If partial failures are detected and the feature flag is enabled, raises an exception.
-    #
-    # @param body [Hash] The response body from SCDF
-    # @param resource_type [String] The type of resource being fetched (for logging/metrics)
-    # @raise [Common::Exceptions::UpstreamPartialFailure] when partial failures detected and flag enabled
-    def check_for_partial_failures!(body, resource_type:)
-      return unless partial_failure_detection_enabled?
-
-      detector = OperationOutcomeDetector.new(body)
-      return unless detector.partial_failure?
-
-      detector.log_and_track(user: @user, resource_type:)
-
-      raise Common::Exceptions::UpstreamPartialFailure.new(
-        failed_sources: detector.failed_sources,
-        failure_details: detector.failure_details
-      )
-    end
-
-    def partial_failure_detection_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_partial_failure_detection, @user)
     end
   end
 end

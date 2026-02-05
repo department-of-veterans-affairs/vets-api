@@ -17,12 +17,11 @@ module UnifiedHealthData
   #
   class OperationOutcomeDetector
     STATSD_KEY_PREFIX = 'api.uhd.partial_failure'
+    ERROR_SEVERITIES = %w[error fatal].freeze
 
     attr_reader :body, :failure_details, :failed_sources
 
     # @param body [Hash] The response body from SCDF containing vista and oracle-health keys
-    ERROR_SEVERITIES = %w[error fatal].freeze
-
     def initialize(body)
       @body = body
       @failed_sources = []
