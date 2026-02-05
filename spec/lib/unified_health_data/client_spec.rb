@@ -144,15 +144,52 @@ RSpec.describe UnifiedHealthData::Client do
       end
     end
 
-    context 'when resource type is not a FHIR resource' do
-      let(:response) { Faraday::Response.new(body: partial_failure_body) }
+    context 'when response is not SCDF FHIR format' do
+      # Refill endpoint returns an array, not an SCDF FHIR response with vista/oracle-health keys
+      let(:non_scdf_body) do
+        {
+          'resourceType' => 'OperationOutcome',
+          'issue' => [{ 'severity' => 'error', 'code' => 'exception' }]
+        }
+      end
+      let(:response) { Faraday::Response.new(body: non_scdf_body) }
 
-      it 'does not check for partial failures' do
-        # "unknown" is not in FHIR_RESOURCE_TYPES, so no check happens
+      it 'does not check for partial failures when response lacks vista/oracle-health keys' do
         expect do
           client.send(:check_for_partial_failures!, response, '/some/unknown/path')
         end.not_to raise_error
       end
+    end
+  end
+
+  describe '#scdf_fhir_response?' do
+    it 'returns true when body has vista key' do
+      body = { 'vista' => { 'entry' => [] } }
+      expect(client.send(:scdf_fhir_response?, body)).to be true
+    end
+
+    it 'returns true when body has oracle-health key' do
+      body = { 'oracle-health' => { 'entry' => [] } }
+      expect(client.send(:scdf_fhir_response?, body)).to be true
+    end
+
+    it 'returns true when body has both keys' do
+      body = { 'vista' => { 'entry' => [] }, 'oracle-health' => { 'entry' => [] } }
+      expect(client.send(:scdf_fhir_response?, body)).to be true
+    end
+
+    it 'returns false when body is an array' do
+      body = [{ 'success' => true }]
+      expect(client.send(:scdf_fhir_response?, body)).to be false
+    end
+
+    it 'returns false when body is a hash without vista/oracle-health keys' do
+      body = { 'resourceType' => 'OperationOutcome' }
+      expect(client.send(:scdf_fhir_response?, body)).to be false
+    end
+
+    it 'returns false when body is nil' do
+      expect(client.send(:scdf_fhir_response?, nil)).to be false
     end
   end
 
@@ -205,19 +242,6 @@ RSpec.describe UnifiedHealthData::Client do
     it 'returns unknown for unrecognized paths' do
       path = '/some/other/path'
       expect(client.send(:extract_resource_type, path)).to eq('unknown')
-    end
-  end
-
-  describe '#fhir_resource?' do
-    it 'returns true for FHIR resource types' do
-      %w[allergies labs conditions notes vitals immunizations prescriptions avs ccd].each do |resource|
-        expect(client.send(:fhir_resource?, resource)).to be true
-      end
-    end
-
-    it 'returns false for non-FHIR resource types' do
-      expect(client.send(:fhir_resource?, 'refill')).to be false
-      expect(client.send(:fhir_resource?, 'unknown')).to be false
     end
   end
 end

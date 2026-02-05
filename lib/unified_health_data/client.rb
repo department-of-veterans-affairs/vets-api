@@ -12,9 +12,6 @@ module UnifiedHealthData
 
     configuration UnifiedHealthData::Configuration
 
-    # Resource types that return FHIR-formatted responses with potential OperationOutcome errors
-    FHIR_RESOURCE_TYPES = %w[allergies labs conditions notes vitals immunizations prescriptions avs ccd].freeze
-
     def get_allergies_by_date(patient_id:, start_date:, end_date:)
       path = "#{config.base_path}allergies?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
       perform(:get, path, nil, request_headers)
@@ -84,27 +81,37 @@ module UnifiedHealthData
     end
 
     # Checks the response body for OperationOutcome resources with error severity.
-    # Only applies to FHIR-formatted responses (not prescription refill which is non-FHIR).
+    # Only applies to SCDF FHIR-formatted responses (detected by presence of vista/oracle-health keys).
     #
     # @param response [Faraday::Response] The response from the API
-    # @param path [String] The API path to determine resource type
+    # @param path [String] The API path for logging/metrics
     # @raise [Common::Exceptions::UpstreamPartialFailure] when partial failures detected
     def check_for_partial_failures!(response, path)
-      resource_type = extract_resource_type(path)
-      return unless fhir_resource?(resource_type)
-
       body = response.body
-      return unless body.is_a?(Hash)
+      return unless scdf_fhir_response?(body)
 
       detector = OperationOutcomeDetector.new(body)
       return unless detector.partial_failure?
 
+      resource_type = extract_resource_type(path)
       detector.log_and_track(resource_type:)
 
       raise Common::Exceptions::UpstreamPartialFailure.new(
         failed_sources: detector.failed_sources,
         failure_details: detector.failure_details
       )
+    end
+
+    # Determines if a response body is an SCDF FHIR-formatted response.
+    # SCDF responses contain 'vista' and/or 'oracle-health' keys with FHIR bundles.
+    # Non-FHIR responses (like refill) return arrays or different structures.
+    #
+    # @param body [Object] The response body
+    # @return [Boolean] true if the body appears to be an SCDF FHIR response
+    def scdf_fhir_response?(body)
+      return false unless body.is_a?(Hash)
+
+      body.key?('vista') || body.key?('oracle-health')
     end
 
     # Extracts the resource type from the API path for logging and metrics
@@ -119,13 +126,6 @@ module UnifiedHealthData
       return 'unknown' unless version_index
 
       segments[version_index + 1] || 'unknown'
-    end
-
-    # Determines if a resource type uses FHIR-formatted responses
-    # @param resource_type [String] The resource type
-    # @return [Boolean] true if the resource type returns FHIR responses
-    def fhir_resource?(resource_type)
-      FHIR_RESOURCE_TYPES.include?(resource_type)
     end
 
     def fetch_access_token
