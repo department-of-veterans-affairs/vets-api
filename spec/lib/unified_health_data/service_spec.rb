@@ -1921,12 +1921,12 @@ describe UnifiedHealthData::Service, type: :service do
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
-        name: 'Major depressive disorder, recurrent, moderate',
-        provider: 'BORLAND,VICTORIA A',
+        name: 'Major depressive disorder, recurrent, mild',
+        provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
       )
 
@@ -1972,8 +1972,8 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
-      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
     # TODO: This DOES actually raise an error, which seems accurate
@@ -2005,14 +2005,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_a(UnifiedHealthData::Condition)
         expect(condition.id).to eq(condition_id)
-        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.name).to eq('Carcinoma in situ of skin, unspecified')
+        expect(condition.provider).to eq('MCGUIRE,MARCI P')
         expect(condition.facility).to eq('CHYSHR TEST LAB')
       end
 

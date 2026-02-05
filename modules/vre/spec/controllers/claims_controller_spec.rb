@@ -9,7 +9,7 @@ RSpec.describe VRE::V0::ClaimsController, type: :controller do
   let(:user_no_pid) { create(:unauthorized_evss_user) }
 
   let(:test_form) do
-    build(:vre_veteran_readiness_employment_claim)
+    build(:veteran_readiness_employment_claim)
   end
 
   let(:no_veteran_info) do
@@ -45,6 +45,28 @@ RSpec.describe VRE::V0::ClaimsController, type: :controller do
             'form - can\'t be blank'
           )
         ).to be(true)
+      end
+
+      it 'associates the claim with the user_account' do
+        form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
+        post(:create, params: form_params)
+
+        claim = SavedClaim::VeteranReadinessEmploymentClaim.last
+        expect(claim.user_account).to eq(loa3_user.user_account)
+      end
+    end
+
+    context 'logged in user with missing user_account' do
+      before { sign_in_as(loa3_user) }
+
+      it 'creates claim without user_account when user_account does not exist' do
+        UserAccount.find_by(icn: loa3_user.icn)&.destroy
+
+        form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
+        post(:create, params: form_params)
+
+        claim = SavedClaim::VeteranReadinessEmploymentClaim.last
+        expect(claim.user_account).to be_nil
       end
     end
 

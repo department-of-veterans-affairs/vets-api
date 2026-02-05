@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'

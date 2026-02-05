@@ -787,6 +787,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
           it 'logs error if email job throws error' do
             allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+            allow(Rails.logger).to receive(:error)
             expect(Rails.logger).to receive(:error).with(
               '[10-10EZ] - Failure sending Submission Failure Email',
               { exception: standard_error }
@@ -833,6 +834,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
             it 'logs error if email job throws error' do
               allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              allow(Rails.logger).to receive(:error)
               expect(Rails.logger).to receive(:error).with(
                 '[10-10EZ] - Failure sending Submission Failure Email',
                 { exception: standard_error }
