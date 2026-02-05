@@ -19,11 +19,11 @@ module VANotify
         StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
       end
 
-      def perform(template_id, attr_package_key, callback_options = {})
+      def perform(template_id, attr_package_key, api_key_path, callback_options = {})
         attrs = fetch_attrs(attr_package_key, template_id)
         email = attrs[:email]
         personalisation = attrs[:personalisation]
-        api_key = attrs[:api_key]
+        api_key = resolve_api_key(api_key_path)
 
         begin
           VaNotify::Service.new(api_key, callback_options).send_email(
@@ -41,9 +41,9 @@ module VANotify
         end
       end
 
-      def self.enqueue(email, template_id, personalisation, api_key, callback_options = {})
-        key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation:, api_key: })
-        perform_async(template_id, key, callback_options)
+      def self.enqueue(email, template_id, personalisation, api_key_path, callback_options = {})
+        key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation: })
+        perform_async(template_id, key, api_key_path, callback_options)
       end
 
       private
@@ -76,6 +76,18 @@ module VANotify
         else
           raise e
         end
+      end
+
+      def resolve_api_key(api_key_path)
+        unless api_key_path.start_with?('Settings.')
+          raise ArgumentError, "API key path must start with 'Settings.': #{api_key_path}"
+        end
+
+        keys = api_key_path.delete_prefix('Settings.').split('.')
+        api_key = Settings.dig(*keys)
+        raise ArgumentError, "Unable to resolve API key from path: #{api_key_path}" unless api_key.present?
+
+        api_key
       end
     end
   end
