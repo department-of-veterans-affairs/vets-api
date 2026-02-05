@@ -25,15 +25,17 @@ module TravelPay
     #
     # @param receipt_data [Hash, nil] the receipt hash containing file_data, content_type, etc.
     def receipt=(receipt_data)
-      return @receipt = nil if receipt_data.nil? || receipt_data.blank?
-
-      # Convert to hash with indifferent access for easier key handling
-      receipt_hash = receipt_data.with_indifferent_access
-      @receipt = if heic_image?(receipt_hash[:content_type])
-                   convert_heic_to_jpg(receipt_hash)
-                 else
-                   receipt_data
-                 end
+      if receipt_data.nil? || receipt_data.blank?
+        @receipt = nil
+      else
+        # Convert to hash with indifferent access for easier key handling
+        receipt_hash = receipt_data.with_indifferent_access
+        @receipt = if Flipper.enabled?(:travel_pay_enable_heic_conversion) && heic_image?(receipt_hash[:content_type])
+                     convert_heic_to_jpg(receipt_hash)
+                   else
+                     receipt_data
+                   end
+      end
     rescue => e
       Rails.logger.error("Error converting HEIC receipt: #{e.message}")
       @receipt = receipt_data
@@ -152,7 +154,7 @@ module TravelPay
         file_data: Base64.strict_encode64(jpg_binary),
         content_type: 'image/jpeg',
         length: jpg_binary.bytesize.to_s,
-        file_name: receipt_hash[:file_name]&.sub(/\.heif?$/i, '.jpg')
+        file_name: receipt_hash[:file_name]&.sub(/\.hei[cf]$/i, '.jpg')
       ).tap do |_updated|
         Rails.logger.info("Successfully converted HEIC to JPG (size: #{jpg_binary.bytesize} bytes)")
       end
