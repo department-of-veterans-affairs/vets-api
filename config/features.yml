@@ -1396,6 +1396,13 @@ features:
     actor_type: user
     description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_partial_failure_detection:
+    actor_type: user
+    description: >
+      Control whether vets-api returns a 502 error when SCDF returns OperationOutcome
+      resources with error severity, indicating partial data retrieval failures from
+      upstream health sources (e.g., Oracle Health rate limiting)
+    enable_in_development: false
   mhv_landing_page_aal_notice:
     actor_type: user
     description: Enables AAL help content on the My HealtheVet landing page.
