@@ -168,8 +168,8 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
   def user_credentials
     {
-      idme: @current_user.user_account.user_verifications.where.not(idme_uuid: nil).count,
-      logingov: @current_user.user_account.user_verifications.where.not(logingov_uuid: nil).count
+      idme: @current_user.user_account.user_verifications.idme.count,
+      logingov: @current_user.user_account.user_verifications.logingov.count
     }
   end
 

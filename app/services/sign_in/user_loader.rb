@@ -118,8 +118,8 @@ module SignIn
 
     def user_credentials
       {
-        idme: user_account.user_verifications.where.not(idme_uuid: nil).count,
-        logingov: user_account.user_verifications.where.not(logingov_uuid: nil).count
+        idme: user_account.user_verifications.idme.count,
+        logingov: user_account.user_verifications.logingov.count
       }
     end
 
