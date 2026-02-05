@@ -73,6 +73,7 @@ class Message
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
   attribute :is_oh_message, Bool, default: false
+  attribute :oh_migration_phase, String
   attribute :metadata, Hash, default: -> { {} }
   attribute :is_large_attachment_upload, Bool, default: false
 

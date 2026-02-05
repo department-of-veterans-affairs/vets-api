@@ -27,7 +27,11 @@ module SM
       def get_message(id)
         path = "message/#{id}/read"
         json = perform(:get, path, nil, token_headers).body
-        Message.new(json[:data].merge(json[:metadata]))
+        message = Message.new(json[:data].merge(json[:metadata]))
+
+        # Derive OH migration phase from cached triage teams
+        message.oh_migration_phase = derive_oh_migration_phase_for_message(message)
+        message
       end
 
       ##
@@ -131,18 +135,14 @@ module SM
       private
 
       ##
-      # Derives OH migration phase from cached triage teams based on the first message's triage_group_id
+      # Derives OH migration phase for a single message based on its triage_group_id
       #
-      # @param result [Vets::Collection] collection of MessageThreadDetails
+      # @param message [Message] the message to derive phase for
       # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
       #                       if team not found in cache, or nil if no migration data exists
       #
-      def derive_oh_migration_phase(message_thread_collection)
-        return nil if message_thread_collection.data.blank?
-
-        # Get triage_group_id from the first message
-        first_message = message_thread_collection.data.first
-        triage_group_id = first_message&.triage_group_id
+      def derive_oh_migration_phase_for_message(message)
+        triage_group_id = message&.triage_group_id
         return nil if triage_group_id.blank?
 
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
@@ -163,6 +163,20 @@ module SM
 
         # Look up migration phase for this station number
         oh_service.get_phase_for_station_number(station_number)
+      end
+
+      ##
+      # Derives OH migration phase from cached triage teams based on the first message's triage_group_id
+      #
+      # @param result [Vets::Collection] collection of MessageThreadDetails
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
+      #                       if team not found in cache, or nil if no migration data exists
+      #
+      def derive_oh_migration_phase(message_thread_collection)
+        return nil if message_thread_collection.data.blank?
+
+        first_message = message_thread_collection.data.first
+        derive_oh_migration_phase_for_message(first_message)
       end
     end
   end

@@ -27,6 +27,9 @@
     },
     "relationship_type": {
       "type": "string"
+    },
+    "migrating_to_oh": {
+      "type": "boolean"
     }
   }
 }
