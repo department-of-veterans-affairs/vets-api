@@ -87,13 +87,14 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:save_veteran_metadata_for_session)
       end
 
-      it 'returns success response' do
+      it 'returns success response with obfuscated email' do
         post :request_otp, params:, format: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
         expect(json_response['data']['message']).to eq('OTP sent to registered email address')
         expect(json_response['data']['expiresIn']).to be_a(Integer)
+        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'validates and fetches veteran info from VASS' do
@@ -414,10 +415,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
                                                 redis_session_expiry: 2.hours)
         allow(redis_client).to receive(:reset_validation_rate_limit)
-        allow(redis_client).to receive(:veteran_metadata).with(uuid:).and_return({ email: valid_email })
       end
 
-      it 'returns success response with JWT token and obfuscated email' do
+      it 'returns success response with JWT token' do
         post :authenticate_otp, params:, format: :json
 
         expect(response).to have_http_status(:ok)
@@ -425,7 +425,6 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(json_response['data']['token']).to eq(jwt_token)
         expect(json_response['data']['tokenType']).to eq('Bearer')
         expect(json_response['data']['expiresIn']).to eq(2.hours.to_i)
-        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'creates authenticated session with jti' do

@@ -74,6 +74,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               json_response = JSON.parse(response.body)
               expect(json_response['data']['message']).to eq('OTP sent to registered email address')
               expect(json_response['data']['expiresIn']).to be_a(Integer)
+              expect(json_response['data']['email']).to be_present
             end
           end
         end
@@ -236,7 +237,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
-      it 'validates OTP and returns JWT token with obfuscated email' do
+      it 'validates OTP and returns JWT token' do
         allow(StatsD).to receive(:increment).and_call_original
 
         expect(StatsD).to receive(:increment).with(
@@ -251,7 +252,6 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         expect(json_response['data']['token']).to be_present
         expect(json_response['data']['tokenType']).to eq('Bearer')
         expect(json_response['data']['expiresIn']).to eq(7200)
-        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'tracks success metrics' do
