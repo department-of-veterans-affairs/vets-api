@@ -25,8 +25,8 @@ module DisabilityCompensation
         )
 
         directory = Rails.root / 'tmp' / name.underscore / claim_id
-        FileUtils.mkdir_p(directory)
-        File.write(directory / 'claim.json', JSON.pretty_generate(claim))
+        file_io.mkdir_p(directory)
+        file_io.write(directory / 'claim.json', JSON.pretty_generate(claim))
 
         filenames = []
 
@@ -41,7 +41,7 @@ module DisabilityCompensation
             document[:extname]
           ].join
 
-          File.binwrite(directory / filename, file)
+          file_io.binwrite(directory / filename, file)
         end
       end
 
@@ -123,6 +123,17 @@ module DisabilityCompensation
       def log_call
         message = "#{self}.#{caller_locations(1, 1).first.base_label}"
         Rails.logger.info message
+      end
+
+      ##
+      # For stubbing file IO during testing.
+      #
+      def file_io = FileIO
+
+      module FileIO
+        def write(...) = File.write(...)
+        def binwrite(...) = File.binwrite(...)
+        def mkdir_p(...) = FileUtils.mkdir_p(...)
       end
     end
   end
