@@ -392,6 +392,48 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
       end
     end
 
+    context 'when Sidekiq::AttrPackage.find raises AttrPackageError' do
+      let(:cache_key) { 'test_cache_key_123' }
+
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
+                                    .and_raise(Sidekiq::AttrPackageError.new('find', 'Redis connection failed'))
+      end
+
+      it 'logs the error and raises ArgumentError' do
+        expect(Rails.logger).to receive(:error).with(
+          'LetterReadySmsJob AttrPackage error',
+          { error: '[Sidekiq] [AttrPackage] find error: Redis connection failed' }
+        )
+
+        expect { subject.new.perform(participant_id, template_id, cache_key) }
+          .to raise_error(ArgumentError, '[Sidekiq] [AttrPackage] find error: Redis connection failed')
+      end
+    end
+
+    context 'when Sidekiq::AttrPackage.delete raises AttrPackageError' do
+      let(:cache_key) { 'test_cache_key_123' }
+
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
+          first_name:,
+          icn: mpi_profile.icn
+        )
+        allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
+                                    .and_raise(Sidekiq::AttrPackageError.new('delete', 'Redis delete failed'))
+      end
+
+      it 'logs the error and raises ArgumentError' do
+        expect(Rails.logger).to receive(:error).with(
+          'LetterReadySmsJob AttrPackage error',
+          { error: '[Sidekiq] [AttrPackage] delete error: Redis delete failed' }
+        )
+
+        expect { subject.new.perform(participant_id, template_id, cache_key) }
+          .to raise_error(ArgumentError, '[Sidekiq] [AttrPackage] delete error: Redis delete failed')
+      end
+    end
+
     context 'when BGS service fails' do
       include_examples 'letter ready job bgs error handling', 'Sms'
 
