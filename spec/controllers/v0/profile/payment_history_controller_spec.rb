@@ -139,12 +139,10 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
           before do
             sign_in_as(user_without_identifiers)
             # Stub the controller's current_user to return our stubbed version
-            allow(controller).to receive(:current_user).and_return(user_without_identifiers)
-            allow(user_without_identifiers).to receive(:icn).and_return(nil)
-            allow(user_without_identifiers).to receive(:uuid).and_return(nil)
+            allow(user_without_identifiers).to receive_messages(icn: nil, uuid: nil)
 
             # Stub authorization to pass despite missing identifiers
-            allow(controller).to receive(:authorize).and_return(true)
+            allow(controller).to receive_messages(current_user: user_without_identifiers, authorize: true)
 
             # Stub BGS services to prevent actual calls
             allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
@@ -182,8 +180,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             sign_in_as(user_without_contact)
             # Stub the controller's current_user and all contact identifier methods
             allow(controller).to receive(:current_user).and_return(user_without_contact)
-            allow(user_without_contact).to receive(:common_name).and_return(nil)
-            allow(user_without_contact).to receive(:va_profile_email).and_return(nil)
+            allow(user_without_contact).to receive_messages(common_name: nil, va_profile_email: nil)
 
             # Stub BGS services to prevent actual calls
             allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
