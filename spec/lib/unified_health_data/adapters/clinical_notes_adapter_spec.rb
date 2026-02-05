@@ -53,7 +53,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'name' => 'Clinical Summary',
           'note_type' => 'discharge_summary',
           'loinc_codes' => %w[4189665 18842-5],
-          'date' => '2025-07-29T17:48:51Z',
+          'date' => '2025-05-15T17:48:51Z',
           'date_signed' => nil, # OH records do not have a date signed field
           'written_by' => 'Victoria A Borland',
           'signed_by' => 'Victoria A Borland',

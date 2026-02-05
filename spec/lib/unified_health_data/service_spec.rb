@@ -765,6 +765,105 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'date range filtering' do
+      # SCDF may return notes outside the requested range; API filters so only in-range notes are returned
+      it 'returns only notes whose date is within the requested start_date and end_date' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Get all notes first (no date filtering applied by service when using wide range)
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for Dec 2024 only
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+
+        # Verify filtering actually excluded some notes
+        expect(notes.size).to be < all_notes.size
+        # Fixture has notes in Dec 2024 and Jan/May 2025; only Dec 2024 should be returned
+        expect(notes).not_to be_empty
+        notes.each do |note|
+          note_date = Date.parse(note.date)
+          expect(note_date).to be >= Date.parse('2024-12-01')
+          expect(note_date).to be <= Date.parse('2024-12-31')
+        end
+      end
+
+      it 'excludes notes from future years when filtering for a specific year' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Get all notes first
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for 2025 only
+        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
+
+        # Verify filtering actually excluded some notes (2024 notes should be filtered out)
+        expect(notes.size).to be < all_notes.size
+        # All returned notes must be in 2025
+        expect(notes).not_to be_empty
+        notes.each do |note|
+          note_date = Date.parse(note.date)
+          expect(note_date.year).to eq(2025)
+        end
+      end
+
+      it 'handles blank string parameters by using default dates' do
+        # Verify blank strings are converted to nil and defaults are applied
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        # Blank strings should be treated as nil and use defaults
+        notes = service.get_care_summaries_and_notes(start_date: '', end_date: '')
+
+        # Should return notes (defaults applied, no filtering errors)
+        expect(notes).to be_an(Array)
+      end
+
+      it 'excludes notes with blank or invalid dates and logs a warning' do
+        # Disable LOINC logging to simplify test
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .and_return(false)
+
+        # Create mock notes with various date conditions
+        note_with_blank_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil
+        )
+        note_with_invalid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date'
+        )
+        note_with_valid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z'
+        )
+
+        # Stub the service to return our test notes
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Stub parse_notes to return our controlled notes
+        allow(service).to receive(:parse_notes).and_return(
+          [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
+        )
+
+        # Expect warning to be logged for invalid date
+        expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
+
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+
+        # Only the valid note should be returned
+        expect(notes.size).to eq(1)
+        expect(notes.first.id).to eq('valid-note')
+      end
+    end
+
     context 'with date parameters' do
       it 'accepts and uses provided start_date and end_date' do
         expect_any_instance_of(UnifiedHealthData::Client)
