@@ -143,58 +143,54 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
 
-      it 'skips provider when response has nil data' do
-        provider_class2 = double('ProviderClass2', name: 'TestProvider2')
-        provider_instance2 = double('Provider2')
-        allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
-        allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
-          .with(user)
-          .and_return([provider_class, provider_class2])
+      context 'with single provider' do
+        it 'works without type parameter for backward compatibility' do
+          allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
+                                                                                      'data' => { 'id' => claim_id }
+                                                                                    })
 
-        # First provider returns nil data (should be skipped)
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => nil
-                                                                                  })
-        # Second provider has the claim
-        allow(provider_instance2).to receive(:get_claim).with(claim_id).and_return({
-                                                                                     'data' => { 'id' => claim_id }
-                                                                                   })
-        allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+          result = controller.send(:get_claim_from_providers, claim_id, nil)
 
-        result = controller.send(:get_claim_from_providers, claim_id)
-
-        expect(result).to eq({ 'data' => { 'id' => claim_id } })
+          expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        end
       end
 
-      it 'raises RecordNotFound when no provider has valid data' do
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => nil
-                                                                                  })
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+      context 'with multiple providers' do
+        let(:provider_class2) { double('ProviderClass2', name: 'TestProvider2') }
+        let(:provider_instance2) { double('Provider2') }
 
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::RecordNotFound)
-      end
+        before do
+          allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([provider_class, provider_class2])
+        end
 
-      it 'tracks metrics with mobile prefix' do
-        allow(provider_instance).to receive(:get_claim)
-          .with(claim_id)
-          .and_raise(StandardError.new('Failed'))
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+        it 'requires type parameter when multiple providers exist' do
+          allow(controller).to receive(:supported_provider_types).and_return(%w[lighthouse test])
 
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::RecordNotFound)
+          expect do
+            controller.send(:get_claim_from_providers, claim_id)
+          end.to raise_error(Common::Exceptions::ParameterMissing)
+        end
 
-        expect(StatsD).to have_received(:increment).with(
-          'mobile.claims_and_appeals.get_claim.provider_error',
-          tags: ['provider:TestProvider']
-        )
+        it 'routes to correct provider when type specified' do
+          lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          lighthouse_instance = double('LighthouseProvider')
+          allow(lighthouse_class).to receive(:new).with(user).and_return(lighthouse_instance)
+          allow(lighthouse_instance).to receive(:get_claim).with(claim_id)
+            .and_return({ 'data' => { 'id' => claim_id } })
+
+          result = controller.send(:get_claim_from_providers, claim_id, 'lighthouse')
+
+          expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        end
+
+        it 'raises error for invalid provider type' do
+          expect do
+            controller.send(:get_claim_from_providers, claim_id, 'invalid-provider')
+          end.to raise_error(Common::Exceptions::ParameterMissing)
+        end
       end
     end
   end

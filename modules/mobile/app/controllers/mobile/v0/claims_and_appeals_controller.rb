@@ -25,7 +25,8 @@ module Mobile
 
       def get_claim
         claim_response = if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
-                           get_claim_from_providers(params[:id])
+          # TODO: create transform layer to handle the response from the providers
+                           get_claim_from_providers(params[:id], params[:type])
                          else
                            lighthouse_claims_proxy.get_claim(params[:id])
                          end
