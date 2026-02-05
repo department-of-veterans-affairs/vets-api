@@ -41,20 +41,16 @@ module RepresentationManagement
         raise ArgumentError, 'Block required' unless block_given?
 
         config = XlsxConfiguration.new
-        netrc_file = nil
         output_file = nil
 
         begin
-          netrc_file = create_netrc_file(config)
           output_file = Tempfile.new(['gclaws_accreditation', '.xlsx'])
           output_file.close
 
-          result = execute_curl_download(config, netrc_file, output_file)
+          result = execute_curl_download(config, output_file)
 
           yield result
         ensure
-          netrc_file&.close
-          netrc_file&.unlink
           if output_file
             output_file.close unless output_file.closed?
             output_file.unlink
@@ -62,35 +58,18 @@ module RepresentationManagement
         end
       end
 
-      # Creates a temporary netrc file with NTLM credentials
-      #
-      # @param config [XlsxConfiguration] Configuration with hostname, username, password
-      # @return [Tempfile] The temporary netrc file (caller must close and unlink)
-      def self.create_netrc_file(config)
-        netrc_file = Tempfile.new('netrc')
-        netrc_file.chmod(0o600) # Owner read/write only for security
-
-        netrc_file.write("machine #{config.hostname}\n")
-        netrc_file.write("login #{config.username}\n")
-        netrc_file.write("password #{config.password}\n")
-
-        netrc_file.close
-        netrc_file
-      end
-
       # Executes curl command to download the XLSX file
       #
       # @param config [XlsxConfiguration] Configuration with URL
-      # @param netrc_file [Tempfile] Temporary netrc file with credentials
       # @param output_file [Tempfile] Temporary output file for downloaded content
       # @return [Hash] Result hash with success/error information
-      def self.execute_curl_download(config, netrc_file, output_file)
+      def self.execute_curl_download(config, output_file)
         command = [
-          'curl', '-sSf',
+          'curl', '-sS',
           '--ntlm',
-          '--netrc-file', netrc_file.path,
-          '--max-time', '60',
-          '--connect-timeout', '10',
+          '-u', "#{config.username}:#{config.password}",
+          '--max-time', '120',
+          '--connect-timeout', '30',
           '-o', output_file.path,
           '-w', '%<http_code>s\n%<content_type>s',
           config.url
@@ -215,7 +194,7 @@ module RepresentationManagement
         Rails.logger.error("RepresentationManagement::GCLAWS::XlsxClient error: #{message}")
       end
 
-      private_class_method :create_netrc_file, :execute_curl_download, :process_curl_result,
+      private_class_method :execute_curl_download, :process_curl_result,
                            :handle_curl_error, :handle_error, :notify_slack_error,
                            :log_to_slack_channel, :log_error
     end
