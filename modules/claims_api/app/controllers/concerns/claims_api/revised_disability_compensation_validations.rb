@@ -182,9 +182,9 @@ module ClaimsApi
 
     def validate_form_526_title10_anticipated_separation_date!
       anticipated_separation_date = form_attributes.dig('serviceInformation',
-                                                       'reservesNationalGuardService',
-                                                       'title10Activation',
-                                                       'anticipatedSeparationDate')
+                                                        'reservesNationalGuardService',
+                                                        'title10Activation',
+                                                        'anticipatedSeparationDate')
       return if anticipated_separation_date.blank?
 
       # validate anticipated_separation_date is in the future
