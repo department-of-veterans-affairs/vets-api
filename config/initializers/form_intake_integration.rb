@@ -22,7 +22,8 @@ module FormIntake
 
   # Check if GCIO is enabled for a specific form
   # @param form_id [String] Form type ID
-  # @param user_account [UserAccount, nil] Optional user account for actor-based flags
+  # @param user_account [UserAccount, nil] Optional user account for actor-based flags.
+  #                                         For unauthenticated forms, pass nil - Flipper will check global enable only.
   # @return [Boolean]
   def self.enabled_for_form?(form_id, user_account = nil)
     # Form not in eligible list? Not enabled
