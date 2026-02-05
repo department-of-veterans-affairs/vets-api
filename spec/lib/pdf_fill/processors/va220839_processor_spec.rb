@@ -36,6 +36,8 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'academic_year')).to eq '2025 to 2025'
+        expect(get_field_value(fields, 'poc_name')).to eq 'Jane Doe'
+        expect(get_field_value(fields, 'sco_name')).to eq 'Jane Doe2'
       end
     end
 
