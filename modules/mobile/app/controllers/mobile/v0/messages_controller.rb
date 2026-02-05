@@ -59,10 +59,11 @@ module Mobile
 
         client_response = build_create_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = { meta: {} }
@@ -94,10 +95,11 @@ module Mobile
 
         client_response = build_reply_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = {}
@@ -131,7 +133,8 @@ module Mobile
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group,
+                                          :station_number)
         end
       rescue JSON::ParserError
         raise Common::Exceptions::InvalidFieldValue.new('message', params[:message])
@@ -196,6 +199,15 @@ module Mobile
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      # Retrieves the facility ID from the station_number parameter provided by the frontend.
+      # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      # The station_number is optional - if not provided, facility tracking is skipped.
+      #
+      # @return [String, nil] The station number if provided, or nil if not provided.
+      def recipient_facility_id
+        message_params[:station_number]&.to_s&.presence
       end
 
       def validate_message_id

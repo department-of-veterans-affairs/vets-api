@@ -37,6 +37,9 @@ features:
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
+  acroform_debug_logs:
+    actor_type: user
+    description: When enabled, AcroForm problematic fields will report in Rails logs
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -79,6 +82,10 @@ features:
       NOTE: When ready for all users to be in the updated experience on
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
+    enable_in_development: true
+  ask_va_enhanced_inbox:
+    actor_type: cookie_id
+    description: Enables the enhanced Ask VA inbox experience
     enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
@@ -567,6 +574,10 @@ features:
   cst_multi_claim_provider:
     actor_type: user
     description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
+  cst_multi_claim_provider_mobile:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
     enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
@@ -1610,6 +1621,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -2053,6 +2068,10 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  unfreeze_strings:
+    actor_type: user
+    description: Dupe messages to avoid FrozenError during PII scrubbing
+    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -2220,6 +2239,20 @@ features:
     actor_type: user
     enable_in_development: false
     description: Enables detailed error message logging in CCRA referral service with PII scrubbing
+  va_online_scheduling_use_primary_care_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use primary_care_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Takes priority over referring_provider_npi flag if both are enabled.
+  va_online_scheduling_use_referring_provider_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use referring_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Primary care flag takes priority if both are enabled.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -2706,9 +2739,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  form_10282_sftp_debug:
-    actor_type: user
-    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.

@@ -8,8 +8,6 @@ module VRE
       skip_before_action :load_user
 
       def create
-        claim = VRE::VREVeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
-
         if claim.save
           VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
           Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -26,6 +24,14 @@ module VRE
       end
 
       private
+
+      def user_account
+        @user_account ||= UserAccount.find_by(icn: current_user.icn) if current_user.icn.present?
+      end
+
+      def claim
+        @claim ||= SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
+      end
 
       def filtered_params
         params.require(:veteran_readiness_employment_claim).permit(:form)
