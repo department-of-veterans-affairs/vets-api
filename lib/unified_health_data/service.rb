@@ -114,6 +114,9 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
+        # Treat blank as "use default" so filtering still runs with a valid range
+        start_date = nil if start_date.blank?
+        end_date = nil if end_date.blank?
         # Validate user-provided dates BEFORE applying defaults
         validate_date_param(start_date, 'start_date') if start_date
         validate_date_param(end_date, 'end_date') if end_date
@@ -127,9 +130,12 @@ module UnifiedHealthData
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref_records = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parsed_notes = parse_notes(doc_ref_records)
 
-        parsed_notes = parse_notes(filtered)
+        # Filter by date range on parsed notes (single source of truth for what we return).
+        # SCDF may return notes outside the requested range; this ensures only in-range notes are returned.
+        parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
@@ -389,6 +395,30 @@ module UnifiedHealthData
     end
 
     # Care Summaries and Notes methods
+    # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
+    # Filtering on parsed notes (same objects we return) so the response is guaranteed correct.
+    def filter_parsed_notes_by_date_range(notes, start_date, end_date)
+      return notes if notes.blank?
+      return notes if start_date.blank? || end_date.blank?
+
+      start_d = DateTime.parse(start_date.to_s).to_date
+      end_d = DateTime.parse(end_date.to_s).to_date
+
+      notes.select do |note|
+        next false if note.blank? || note.date.blank?
+
+        note_date = DateTime.parse(note.date.to_s).to_date
+        note_date >= start_d && note_date <= end_d
+      rescue ArgumentError, TypeError
+        Rails.logger.warn(
+          'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
+          "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
+          "note_date=#{note&.date.inspect}"
+        )
+        false
+      end
+    end
+
     def remap_vista_uid(records)
       records['vista']['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }

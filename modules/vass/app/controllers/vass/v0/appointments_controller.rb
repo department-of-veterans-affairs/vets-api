@@ -5,7 +5,7 @@ module Vass
     ##
     # AppointmentsController handles appointment availability operations for authenticated veterans.
     #
-    # All endpoints require JWT authentication from the OTC authentication flow.
+    # All endpoints require JWT authentication from the OTP authentication flow.
     # The JWT contains the veteran_id which is used to fetch veteran-specific data.
     #
     class AppointmentsController < Vass::ApplicationController
