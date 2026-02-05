@@ -232,7 +232,7 @@ module Vass
     # Retrieves veteran information by veteran ID (UUID).
     #
     # This method can be called without EDIPI - the VASS API returns EDIPI in the response.
-    # Used for OTC flow where we only have the UUID from the welcome email.
+    # Used for OTP flow where we only have the UUID from the welcome email.
     #
     # @param veteran_id [String] Veteran ID (UUID) in VASS system
     #
@@ -247,7 +247,7 @@ module Vass
       response = client.get_veteran(veteran_id:)
       veteran_data = response.body
 
-      # Extract and add contact info for OTC flow
+      # Extract and add contact info for OTP flow
       contact_method, contact_value = extract_contact_info(veteran_data)
       unless contact_method && contact_value
         raise Vass::Errors::MissingContactInfoError, 'Veteran contact information not found'
@@ -424,7 +424,7 @@ module Vass
     ##
     # Extracts contact method and value from VASS veteran data.
     #
-    # Currently only supports email (SMS not supported for OTC flow).
+    # Currently only supports email (SMS not supported for OTP flow).
     #
     # @param veteran_data [Hash] Veteran data from VASS API
     # @return [Array<String, String>, Array[nil, nil]] [contact_method, contact_value] or [nil, nil]

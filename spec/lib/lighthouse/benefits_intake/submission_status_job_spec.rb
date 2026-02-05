@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
-Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
+RSpec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
   let(:job) { described_class.new }
   let(:stats_key) { described_class::STATS_KEY }
 
