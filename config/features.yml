@@ -83,6 +83,10 @@ features:
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
     enable_in_development: true
+  ask_va_enhanced_inbox:
+    actor_type: cookie_id
+    description: Enables the enhanced Ask VA inbox experience
+    enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
     description: >
@@ -1617,6 +1621,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
