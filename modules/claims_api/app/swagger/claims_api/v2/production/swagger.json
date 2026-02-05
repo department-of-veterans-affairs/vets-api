@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "00000000-0000-0000-0000-000000000028",
+                        "id": "ee14df0e-7047-49b7-ad10-0e1aceab5952",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -382,8 +382,8 @@
                             "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
-                              "beginDate": "2024-01-01",
-                              "endDate": "2024-01-01"
+                              "beginDate": "2026-06-04",
+                              "endDate": "2026-12-04"
                             }
                           },
                           "homeless": {
@@ -442,7 +442,7 @@
                               "name": "Traumatic Brain Injury",
                               "exposureOrEventOrInjury": "EXPOSURE",
                               "serviceRelevance": "ABCDEFG",
-                              "approximateDate": "2024-01-01",
+                              "approximateDate": "2018-03-11",
                               "disabilityActionType": "NEW",
                               "classificationCode": "9014",
                               "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -454,7 +454,7 @@
                                   "exposureOrEventOrInjury": "EXPOSURE",
                                   "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                                   "disabilityActionType": "SECONDARY",
-                                  "approximateDate": "2024-01-01",
+                                  "approximateDate": "2018-03-12",
                                   "classificationCode": "9014"
                                 }
                               ]
@@ -462,7 +462,7 @@
                             {
                               "name": "Cancer - Musculoskeletal - Elbow",
                               "exposureOrEventOrInjury": "EXPOSURE",
-                              "approximateDate": "2024-01-01",
+                              "approximateDate": "2018-03-02",
                               "serviceRelevance": "ABCDEFG",
                               "disabilityActionType": "NEW",
                               "classificationCode": "9014",
@@ -506,8 +506,8 @@
                               {
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
-                                "activeDutyBeginDate": "2024-01-01",
-                                "activeDutyEndDate": "2024-01-01",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2023-10-30",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -515,8 +515,8 @@
                             "reservesNationalGuardService": {
                               "component": "National Guard",
                               "obligationTermsOfService": {
-                                "beginDate": "2024-01-01",
-                                "endDate": "2024-01-01"
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
                               },
                               "unitName": "National Guard Unit Name",
                               "unitAddress": "1243 pine court",
@@ -527,13 +527,13 @@
                               "receivingInactiveDutyTrainingPay": "YES"
                             },
                             "federalActivation": {
-                              "activationDate": "2024-01-01",
-                              "anticipatedSeparationDate": "2024-01-01"
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2026-01-29"
                             },
                             "confinements": [
                               {
-                                "approximateBeginDate": "2024-01-01",
-                                "approximateEndDate": "2024-01-01"
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
                               },
                               {
                                 "approximateBeginDate": "2020-06",
@@ -553,7 +553,7 @@
                             "favorMilitaryRetiredPay": false,
                             "receivedSeparationOrSeverancePay": "NO",
                             "separationSeverancePay": {
-                              "datePaymentReceived": "2024-01-01",
+                              "datePaymentReceived": "2022-03-12",
                               "branchOfService": "Naval Academy",
                               "preTaxAmountReceived": 379
                             },
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "00000000-0000-0000-0000-000000000029",
+                        "id": "14fedca6-f5d3-43ab-bd42-f39e9a2f9ed2",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -613,8 +613,8 @@
                             "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
-                              "beginDate": "2024-01-01",
-                              "endDate": "2024-01-01"
+                              "beginDate": "2026-06-04",
+                              "endDate": "2026-12-04"
                             }
                           },
                           "homeless": {
@@ -673,7 +673,7 @@
                               "name": "Traumatic Brain Injury",
                               "exposureOrEventOrInjury": "EXPOSURE",
                               "serviceRelevance": "ABCDEFG",
-                              "approximateDate": "2024-01-01",
+                              "approximateDate": "2018-03-11",
                               "disabilityActionType": "NEW",
                               "classificationCode": "9014",
                               "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -685,7 +685,7 @@
                                   "exposureOrEventOrInjury": "EXPOSURE",
                                   "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                                   "disabilityActionType": "SECONDARY",
-                                  "approximateDate": "2024-01-01",
+                                  "approximateDate": "2018-03-12",
                                   "classificationCode": "9014"
                                 }
                               ]
@@ -693,7 +693,7 @@
                             {
                               "name": "Cancer - Musculoskeletal - Elbow",
                               "exposureOrEventOrInjury": "EXPOSURE",
-                              "approximateDate": "2024-01-01",
+                              "approximateDate": "2018-03-02",
                               "serviceRelevance": "ABCDEFG",
                               "disabilityActionType": "NEW",
                               "classificationCode": "9014",
@@ -737,8 +737,8 @@
                               {
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
-                                "activeDutyBeginDate": "2024-01-01",
-                                "activeDutyEndDate": "2024-01-01",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2026-01-29",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -746,8 +746,8 @@
                             "reservesNationalGuardService": {
                               "component": "National Guard",
                               "obligationTermsOfService": {
-                                "beginDate": "2024-01-01",
-                                "endDate": "2024-01-01"
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
                               },
                               "unitName": "National Guard Unit Name",
                               "unitAddress": "1243 pine court",
@@ -758,13 +758,13 @@
                               "receivingInactiveDutyTrainingPay": "YES"
                             },
                             "federalActivation": {
-                              "activationDate": "2024-01-01",
-                              "anticipatedSeparationDate": "2024-01-01"
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2026-01-29"
                             },
                             "confinements": [
                               {
-                                "approximateBeginDate": "2024-01-01",
-                                "approximateEndDate": "2024-01-01"
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
                               },
                               {
                                 "approximateBeginDate": "2020-06",
@@ -784,7 +784,7 @@
                             "favorMilitaryRetiredPay": false,
                             "receivedSeparationOrSeverancePay": "NO",
                             "separationSeverancePay": {
-                              "datePaymentReceived": "2024-01-01",
+                              "datePaymentReceived": "2022-03-12",
                               "branchOfService": "Naval Academy",
                               "preTaxAmountReceived": 379
                             },
@@ -801,7 +801,7 @@
                         }
                       },
                       "meta": {
-                        "transactionId": "00000000-0000-0000-0000-000000000030"
+                        "transactionId": "00000000-0000-0000-0000-000000000000"
                       }
                     }
                   }
@@ -822,7 +822,7 @@
                       "properties": {
                         "id": {
                           "type": "string",
-                          "example": "00000000-0000-0000-0000-000000000031"
+                          "example": "7d0de77e-b7bd-4db7-a8d9-69a25482c80a"
                         },
                         "type": {
                           "type": "string",
@@ -3489,8 +3489,8 @@
                         "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
-                          "beginDate": "2024-01-01",
-                          "endDate": "2024-01-01"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         }
                       },
                       "homeless": {
@@ -3598,8 +3598,8 @@
                           {
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2024-01-01",
-                            "activeDutyEndDate": "2024-01-01",
+                            "activeDutyBeginDate": "1964-11-14",
+                            "activeDutyEndDate": "1980-10-30",
                             "separationLocationCode": "98289"
                           }
                         ],
@@ -3607,8 +3607,8 @@
                         "reservesNationalGuardService": {
                           "component": "National Guard",
                           "obligationTermsOfService": {
-                            "beginDate": "2024-01-01",
-                            "endDate": "2024-01-01"
+                            "beginDate": "1990-11-24",
+                            "endDate": "1995-11-17"
                           },
                           "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 Main Street",
@@ -3620,8 +3620,8 @@
                         },
                         "confinements": [
                           {
-                            "approximateBeginDate": "2024-01-01",
-                            "approximateEndDate": "2024-01-01"
+                            "approximateBeginDate": "1970-06-11",
+                            "approximateEndDate": "1970-09-11"
                           }
                         ]
                       },
@@ -3637,7 +3637,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivedSeparationOrSeverancePay": "YES",
                         "separationSeverancePay": {
-                          "datePaymentReceived": "2024-01-01",
+                          "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
                           "preTaxAmountReceived": 179
                         },
@@ -3684,8 +3684,8 @@
                             {
                               "serviceBranch": "Air Force",
                               "serviceComponent": "Active",
-                              "activeDutyBeginDate": "2024-01-01",
-                              "activeDutyEndDate": "2024-01-01"
+                              "activeDutyBeginDate": "2015-11-14",
+                              "activeDutyEndDate": "2018-11-30"
                             }
                           ]
                         },
@@ -3734,8 +3734,8 @@
                           "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
-                            "beginDate": "2024-01-01",
-                            "endDate": "2024-01-01"
+                            "beginDate": "2026-06-04",
+                            "endDate": "2026-12-04"
                           }
                         },
                         "homeless": {
@@ -3794,7 +3794,7 @@
                             "name": "Traumatic Brain Injury",
                             "exposureOrEventOrInjury": "EXPOSURE",
                             "serviceRelevance": "ABCDEFG",
-                            "approximateDate": "2024-01-01",
+                            "approximateDate": "2018-03-11",
                             "disabilityActionType": "NEW",
                             "classificationCode": "9014",
                             "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -3806,7 +3806,7 @@
                                 "exposureOrEventOrInjury": "EXPOSURE",
                                 "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                                 "disabilityActionType": "SECONDARY",
-                                "approximateDate": "2024-01-01",
+                                "approximateDate": "2018-03-12",
                                 "classificationCode": "9014"
                               }
                             ]
@@ -3814,7 +3814,7 @@
                           {
                             "name": "Cancer - Musculoskeletal - Elbow",
                             "exposureOrEventOrInjury": "EXPOSURE",
-                            "approximateDate": "2024-01-01",
+                            "approximateDate": "2018-03-02",
                             "serviceRelevance": "ABCDEFG",
                             "disabilityActionType": "NEW",
                             "classificationCode": "9014",
@@ -3858,16 +3858,16 @@
                             {
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
-                              "activeDutyBeginDate": "2024-01-01",
-                              "activeDutyEndDate": "2024-01-01"
+                              "activeDutyBeginDate": "2008-11-14",
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
                           "reservesNationalGuardService": {
                             "component": "National Guard",
                             "obligationTermsOfService": {
-                              "beginDate": "2024-01-01",
-                              "endDate": "2024-01-01"
+                              "beginDate": "2019-06-04",
+                              "endDate": "2020-06-04"
                             },
                             "unitName": "National Guard Unit Name",
                             "unitAddress": "1243 pine court",
@@ -3879,8 +3879,8 @@
                           },
                           "confinements": [
                             {
-                              "approximateBeginDate": "2024-01-01",
-                              "approximateEndDate": "2024-01-01"
+                              "approximateBeginDate": "2018-06-04",
+                              "approximateEndDate": "2018-07-04"
                             },
                             {
                               "approximateBeginDate": "2020-06",
@@ -3900,7 +3900,7 @@
                           "favorMilitaryRetiredPay": false,
                           "receivedSeparationOrSeverancePay": "NO",
                           "separationSeverancePay": {
-                            "datePaymentReceived": "2024-01-01",
+                            "datePaymentReceived": "2022-03-12",
                             "branchOfService": "Naval Academy",
                             "preTaxAmountReceived": 379
                           },
@@ -3921,7 +3921,7 @@
                 "Transaction ID": {
                   "value": {
                     "meta": {
-                      "transactionId": "00000000-0000-0000-0000-000000000032"
+                      "transactionId": "00000000-0000-0000-0000-000000000000"
                     },
                     "data": {
                       "type": "form/526",
@@ -3961,8 +3961,8 @@
                           "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
-                            "beginDate": "2024-01-01",
-                            "endDate": "2024-01-01"
+                            "beginDate": "2026-06-04",
+                            "endDate": "2026-12-04"
                           }
                         },
                         "homeless": {
@@ -4021,7 +4021,7 @@
                             "name": "Traumatic Brain Injury",
                             "exposureOrEventOrInjury": "EXPOSURE",
                             "serviceRelevance": "ABCDEFG",
-                            "approximateDate": "2024-01-01",
+                            "approximateDate": "2018-03-11",
                             "disabilityActionType": "NEW",
                             "classificationCode": "9014",
                             "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -4033,7 +4033,7 @@
                                 "exposureOrEventOrInjury": "EXPOSURE",
                                 "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                                 "disabilityActionType": "SECONDARY",
-                                "approximateDate": "2024-01-01",
+                                "approximateDate": "2018-03-12",
                                 "classificationCode": "9014"
                               }
                             ]
@@ -4041,7 +4041,7 @@
                           {
                             "name": "Cancer - Musculoskeletal - Elbow",
                             "exposureOrEventOrInjury": "EXPOSURE",
-                            "approximateDate": "2024-01-01",
+                            "approximateDate": "2018-03-02",
                             "serviceRelevance": "ABCDEFG",
                             "disabilityActionType": "NEW",
                             "classificationCode": "9014",
@@ -4085,8 +4085,8 @@
                             {
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
-                              "activeDutyBeginDate": "2024-01-01",
-                              "activeDutyEndDate": "2024-01-01",
+                              "activeDutyBeginDate": "2008-11-14",
+                              "activeDutyEndDate": "2026-01-29",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4094,8 +4094,8 @@
                           "reservesNationalGuardService": {
                             "component": "National Guard",
                             "obligationTermsOfService": {
-                              "beginDate": "2024-01-01",
-                              "endDate": "2024-01-01"
+                              "beginDate": "2019-06-04",
+                              "endDate": "2020-06-04"
                             },
                             "unitName": "National Guard Unit Name",
                             "unitAddress": "1243 pine court",
@@ -4106,13 +4106,13 @@
                             "receivingInactiveDutyTrainingPay": "YES"
                           },
                           "federalActivation": {
-                            "activationDate": "2024-01-01",
-                            "anticipatedSeparationDate": "2024-01-01"
+                            "activationDate": "2023-10-01",
+                            "anticipatedSeparationDate": "2026-01-29"
                           },
                           "confinements": [
                             {
-                              "approximateBeginDate": "2024-01-01",
-                              "approximateEndDate": "2024-01-01"
+                              "approximateBeginDate": "2018-06-04",
+                              "approximateEndDate": "2018-07-04"
                             },
                             {
                               "approximateBeginDate": "2020-06",
@@ -4132,7 +4132,7 @@
                           "favorMilitaryRetiredPay": false,
                           "receivedSeparationOrSeverancePay": "NO",
                           "separationSeverancePay": {
-                            "datePaymentReceived": "2024-01-01",
+                            "datePaymentReceived": "2022-03-12",
                             "branchOfService": "Naval Academy",
                             "preTaxAmountReceived": 379
                           },
@@ -5668,8 +5668,8 @@
                         "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
-                          "beginDate": "2024-01-01",
-                          "endDate": "2024-01-01"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         }
                       },
                       "homeless": {
@@ -5777,8 +5777,8 @@
                           {
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2024-01-01",
-                            "activeDutyEndDate": "2024-01-01",
+                            "activeDutyBeginDate": "1964-11-14",
+                            "activeDutyEndDate": "1980-10-30",
                             "separationLocationCode": "98289"
                           }
                         ],
@@ -5786,8 +5786,8 @@
                         "reservesNationalGuardService": {
                           "component": "National Guard",
                           "obligationTermsOfService": {
-                            "beginDate": "2024-01-01",
-                            "endDate": "2024-01-01"
+                            "beginDate": "1990-11-24",
+                            "endDate": "1995-11-17"
                           },
                           "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 Main Street",
@@ -5799,8 +5799,8 @@
                         },
                         "confinements": [
                           {
-                            "approximateBeginDate": "2024-01-01",
-                            "approximateEndDate": "2024-01-01"
+                            "approximateBeginDate": "1970-06-11",
+                            "approximateEndDate": "1970-09-11"
                           }
                         ]
                       },
@@ -5816,7 +5816,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivedSeparationOrSeverancePay": "YES",
                         "separationSeverancePay": {
-                          "datePaymentReceived": "2024-01-01",
+                          "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
                           "preTaxAmountReceived": 179
                         },
@@ -7143,7 +7143,7 @@
                   "data": {
                     "type": "form/526",
                     "attributes": {
-                      "claimDate": "2024-01-01",
+                      "claimDate": "2018-06-25",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
                       "claimNotes": "Some things that are important to know, and are not included in any other place.",
                       "veteranIdentification": {
@@ -7178,8 +7178,8 @@
                         "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
-                          "beginDate": "2024-01-01",
-                          "endDate": "2024-01-01"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         }
                       },
                       "homeless": {
@@ -7287,8 +7287,8 @@
                           {
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2024-01-01",
-                            "activeDutyEndDate": "2024-01-01",
+                            "activeDutyBeginDate": "1964-11-14",
+                            "activeDutyEndDate": "1980-10-30",
                             "separationLocationCode": "98289"
                           }
                         ],
@@ -7296,8 +7296,8 @@
                         "reservesNationalGuardService": {
                           "component": "National Guard",
                           "obligationTermsOfService": {
-                            "beginDate": "2024-01-01",
-                            "endDate": "2024-01-01"
+                            "beginDate": "1990-11-24",
+                            "endDate": "1995-11-17"
                           },
                           "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 Main Street",
@@ -7309,8 +7309,8 @@
                         },
                         "confinements": [
                           {
-                            "approximateBeginDate": "2024-01-01",
-                            "approximateEndDate": "2024-01-01"
+                            "approximateBeginDate": "1970-06-11",
+                            "approximateEndDate": "1970-09-11"
                           }
                         ]
                       },
@@ -7326,7 +7326,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivedSeparationOrSeverancePay": "YES",
                         "separationSeverancePay": {
-                          "datePaymentReceived": "2024-01-01",
+                          "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
                           "preTaxAmountReceived": 179
                         },
@@ -7391,18 +7391,18 @@
                 "example": {
                   "data": [
                     {
-                      "id": "25",
+                      "id": "555555555",
                       "type": "claim",
                       "attributes": {
                         "baseEndProductCode": "400",
-                        "claimDate": "2024-01-01",
+                        "claimDate": "2017-05-02",
                         "claimPhaseDates": {
-                          "phaseChangeDate": "2024-01-01",
+                          "phaseChangeDate": "2017-10-18",
                           "phaseType": "COMPLETE"
                         },
                         "claimType": "Compensation",
                         "claimTypeCode": "400PREDSCHRG",
-                        "closeDate": "2024-01-01",
+                        "closeDate": "2017-10-18",
                         "decisionLetterSent": false,
                         "developmentLetterSent": false,
                         "documentsNeeded": false,
@@ -7536,7 +7536,7 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "Claim ID in Lighthouse",
-                                "example": "00000000-0000-0000-0000-000000000033"
+                                "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
                               },
                               "status": {
                                 "type": "string",
@@ -7680,21 +7680,21 @@
                   "returns a 200 response for established claim": {
                     "value": {
                       "data": {
-                        "id": "26",
+                        "id": "555555555",
                         "type": "claim",
                         "attributes": {
                           "claimTypeCode": "400PREDSCHRG",
-                          "claimDate": "2024-01-01",
+                          "claimDate": "2017-05-02",
                           "claimPhaseDates": {
-                            "phaseChangeDate": "2024-01-01",
+                            "phaseChangeDate": "2017-10-18",
                             "currentPhaseBack": false,
                             "latestPhaseType": "COMPLETE",
                             "previousPhases": {
-                              "phase7CompleteDate": "2024-01-01"
+                              "phase7CompleteDate": "2017-10-18"
                             }
                           },
                           "claimType": "Compensation",
-                          "closeDate": "2024-01-01",
+                          "closeDate": "2017-10-18",
                           "contentions": [
                             {
                               "name": "abnormal heart (New)"
@@ -7738,51 +7738,51 @@
                           "tempJurisdiction": null,
                           "trackedItems": [
                             {
-                              "closedDate": "2024-01-01",
+                              "closedDate": "2021-06-04",
                               "description": null,
                               "displayName": "21-4142a",
                               "overdue": false,
                               "receivedDate": null,
-                              "requestedDate": "2024-01-01",
+                              "requestedDate": "2021-05-05",
                               "status": "NO_LONGER_REQUIRED",
-                              "suspenseDate": "2024-01-01",
-                              "id": 27,
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
                               "uploadsAllowed": false
                             },
                             {
-                              "closedDate": "2024-01-01",
+                              "closedDate": "2021-06-04",
                               "description": null,
                               "displayName": "Employment info needed",
                               "overdue": false,
                               "receivedDate": null,
-                              "requestedDate": "2024-01-01",
+                              "requestedDate": "2021-05-05",
                               "status": "NO_LONGER_REQUIRED",
-                              "suspenseDate": "2024-01-01",
-                              "id": 28,
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
                               "uploadsAllowed": false
                             },
                             {
-                              "closedDate": "2024-01-01",
+                              "closedDate": "2021-06-04",
                               "description": null,
                               "displayName": "Accidental injury - 21-4176 needed",
                               "overdue": false,
                               "receivedDate": null,
-                              "requestedDate": "2024-01-01",
+                              "requestedDate": "2021-05-05",
                               "status": "NO_LONGER_REQUIRED",
-                              "suspenseDate": "2024-01-01",
-                              "id": 29,
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
                               "uploadsAllowed": false
                             },
                             {
-                              "closedDate": "2024-01-01",
+                              "closedDate": "2021-06-04",
                               "description": null,
                               "displayName": "Buddy mentioned - No complete address",
                               "overdue": false,
                               "receivedDate": null,
-                              "requestedDate": "2024-01-01",
+                              "requestedDate": "2021-05-05",
                               "status": "NO_LONGER_REQUIRED",
-                              "suspenseDate": "2024-01-01",
-                              "id": 30,
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
                               "uploadsAllowed": false
                             }
                           ]
@@ -7818,7 +7818,7 @@
                             }
                           ],
                           "jurisdiction": null,
-                          "lighthouseId": "00000000-0000-0000-0000-000000000034",
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
                           "maxEstClaimDate": null,
                           "minEstClaimDate": null,
                           "status": "ERRORED",
@@ -8055,7 +8055,7 @@
                               "type": "string",
                               "nullable": true,
                               "description": "Claim ID in Lighthouse",
-                              "example": "00000000-0000-0000-0000-000000000035"
+                              "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
                             },
                             "minEstClaimDate": {
                               "format": "date",
@@ -8128,7 +8128,7 @@
                                     "format": "date",
                                     "type": "string",
                                     "description": "Date and time document was uploaded in UTC format",
-                                    "example": "2024-01-01T00:00:00.000Z",
+                                    "example": "2023-04-14T13:54:52Z",
                                     "nullable": true
                                   }
                                 }
@@ -8224,14 +8224,14 @@
                   "benefit_claim_details_dto": {
                     "attention_needed": "No",
                     "base_end_prdct_type_cd": "400",
-                    "benefit_claim_id": "31",
+                    "benefit_claim_id": "555555555",
                     "bnft_claim_lc_status": {
-                      "phase_chngd_dt": "2024-01-01T00:00:00.000Z",
+                      "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
                       "phase_type": "COMPLETE",
                       "phase_type_change_ind": "78"
                     },
                     "bnft_claim_type_cd": "400PREDSCHRG",
-                    "claim_complete_dt": "2024-01-01T00:00:00.000Z",
+                    "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
                     "claim_dt": "2017-05-02",
                     "claim_status": "CAN",
                     "claim_status_type": "Compensation",
@@ -8242,8 +8242,8 @@
                     "errors": [],
                     "poa": "RANDOM E PERSON",
                     "program_type": "CPL",
-                    "ptcpnt_clmant_id": "32",
-                    "ptcpnt_vet_id": "33",
+                    "ptcpnt_clmant_id": "111111111",
+                    "ptcpnt_vet_id": "111111111",
                     "regional_office_jrsdctn": "National Work Queue",
                     "submtr_applcn_type_cd": "EBN",
                     "submtr_role_type_cd": "VET",
@@ -8439,11 +8439,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "34",
+                    "id": "193685",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-01T00:00:00.000Z",
-                      "expirationDate": "2024-01-01T00:00:00.000Z",
+                      "creationDate": "2021-03-16T19:15:21.000-05:00",
+                      "expirationDate": "2022-03-16T19:15:20.000-05:00",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8679,11 +8679,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "35",
+                    "id": "294045",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-01T00:00:00.000Z",
-                      "expirationDate": "2024-01-01T00:00:00.000Z",
+                      "creationDate": "2025-02-07T09:17:18-06:00",
+                      "expirationDate": "2026-02-07T07:12:40-06:00",
                       "type": "compensation",
                       "status": "duplicate"
                     }
@@ -9717,7 +9717,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "00000000-0000-0000-0000-000000000036",
+                    "id": "e03a596e-97ec-4143-9e3e-8189a8f11896",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -10634,8 +10634,8 @@
                         "representative": {
                           "poaCode": "083"
                         },
-                        "receivedDate": "2024-01-01T00:00:00.000Z",
-                        "actionedDate": "2024-01-01T00:00:00.000Z",
+                        "receivedDate": "2012-11-23T16:49:16-06:00",
+                        "actionedDate": "2024-05-25T13:45:00-05:00",
                         "status": "New",
                         "declinedReason": null,
                         "consentAddressChange": true,
@@ -10664,8 +10664,8 @@
                         "representative": {
                           "poaCode": "002"
                         },
-                        "receivedDate": "2024-01-01T00:00:00.000Z",
-                        "actionedDate": "2024-01-01T00:00:00.000Z",
+                        "receivedDate": "2013-01-14T08:50:17-06:00",
+                        "actionedDate": "2013-01-14T08:50:17-06:00",
                         "status": "New",
                         "declinedReason": null,
                         "consentAddressChange": true,
@@ -10694,8 +10694,8 @@
                         "representative": {
                           "poaCode": "002"
                         },
-                        "receivedDate": "2024-01-01T00:00:00.000Z",
-                        "actionedDate": "2024-01-01T00:00:00.000Z",
+                        "receivedDate": "2013-01-14T08:51:25-06:00",
+                        "actionedDate": "2013-01-14T08:51:25-06:00",
                         "status": "New",
                         "declinedReason": null,
                         "consentAddressChange": true,
@@ -11088,7 +11088,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "example": "00000000-0000-0000-0000-000000000037",
+            "example": "12e13134-7229-4e44-90ae-bcea2a4525fa",
             "description": "The ID of the Power of Attorney request",
             "schema": {
               "type": "string"
@@ -11102,7 +11102,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "00000000-0000-0000-0000-000000000038",
+                    "id": "12e13134-7229-4e44-90ae-bcea2a4525fa",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -11123,8 +11123,8 @@
                       "representative": {
                         "poaCode": "074"
                       },
-                      "receivedDate": "2024-01-01T00:00:00.000Z",
-                      "actionedDate": "2024-01-01T00:00:00.000Z",
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
                       "status": "Accepted",
                       "declinedReason": null,
                       "consentAddressChange": true,
@@ -11417,7 +11417,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "example": "00000000-0000-0000-0000-000000000039",
+            "example": "348fa995-5b29-4819-91af-13f1bb3c7d77",
             "description": "The ID of the request for representation",
             "schema": {
               "type": "string"
@@ -11452,8 +11452,8 @@
                       "representative": {
                         "poaCode": "074"
                       },
-                      "receivedDate": "2024-01-01T00:00:00.000Z",
-                      "actionedDate": "2024-01-01T00:00:00.000Z",
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
                       "status": "Accepted",
                       "declinedReason": null,
                       "consentAddressChange": true,
@@ -12571,7 +12571,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "00000000-0000-0000-0000-000000000040",
+                    "id": "f7033b38-df1b-43c7-9edf-1a8d19ea6113",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14068,7 +14068,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "00000000-0000-0000-0000-000000000041",
+                    "id": "0769ca0b-335f-4a7b-b104-b207c1b8335d",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14902,7 +14902,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "example": "00000000-0000-0000-0000-000000000042",
+            "example": "12e13134-7229-4e44-90ae-bcea2a4525fa",
             "description": "The ID of the 21-22 submission",
             "schema": {
               "type": "string"
@@ -14916,10 +14916,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "00000000-0000-0000-0000-000000000043",
+                    "id": "97244942-87a2-44ab-8b69-15fd912c9cee",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2026-02-05 21:37:45 UTC",
+                      "createdAt": "2026-01-27 16:39:53 UTC",
                       "representative": {
                         "poaCode": "074"
                       },
