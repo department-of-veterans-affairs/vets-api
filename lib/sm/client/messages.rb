@@ -134,7 +134,8 @@ module SM
       # Derives OH migration phase from cached triage teams based on the first message's triage_group_id
       #
       # @param result [Vets::Collection] collection of MessageThreadDetails
-      # @return [String, nil] current migration phase (e.g., "p1") or nil
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
+      #                       if team not found in cache, or nil if no migration data exists
       #
       def derive_oh_migration_phase(message_thread_collection)
         return nil if message_thread_collection.data.blank?
@@ -144,16 +145,24 @@ module SM
         triage_group_id = first_message&.triage_group_id
         return nil if triage_group_id.blank?
 
+        oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
+
         # Look up station_number from cached triage teams
         cached_teams = get_triage_teams_station_numbers
-        return nil if cached_teams.blank?
+        if cached_teams.blank?
+          # If no cached teams, return phase of soonest migration window (or nil if none exist)
+          return oh_service.get_soonest_migration_phase
+        end
 
         matching_team = cached_teams.find { |team| team.triage_team_id == triage_group_id }
         station_number = matching_team&.station_number
-        return nil if station_number.blank?
+        if station_number.blank?
+          # Team not found in cache, return phase of soonest migration window
+          return oh_service.get_soonest_migration_phase
+        end
 
         # Look up migration phase for this station number
-        MHV::OhFacilitiesHelper::Service.new(current_user).get_phase_for_station_number(station_number)
+        oh_service.get_phase_for_station_number(station_number)
       end
     end
   end
