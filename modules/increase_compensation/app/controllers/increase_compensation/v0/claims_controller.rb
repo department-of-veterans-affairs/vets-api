@@ -139,7 +139,7 @@ module IncreaseCompensation
       end
 
       def stats_key
-        "api.#{service_tag}"
+        "api.#{short_name}"
       end
     end
   end

@@ -100,7 +100,7 @@ module SAML
       current_application = @tracker&.payload_attr(:application)
 
       base_url = if Settings.review_instance_slug.present?
-                   "http://#{Settings.review_instance_slug}.vfs.va.gov/terms-of-use"
+                   "https://#{Settings.review_instance_slug}.vfs.va.gov/terms-of-use"
                  else
                    "#{base_redirect_url}/terms-of-use"
                  end
