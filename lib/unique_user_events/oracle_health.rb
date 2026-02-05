@@ -9,7 +9,7 @@ module UniqueUserEvents
   # based on user facility registrations and tracked events.
   module OracleHealth
     # Tracked facility IDs that should generate OH events
-    TRACKED_FACILITY_IDS = %w[506 515 553 655 757].freeze
+    TRACKED_FACILITY_IDS = %w[757 506 515 553 655].freeze
 
     # Event suffix for Oracle Health facility-specific events (explicit facility context)
     OH_EVENT_SUFFIX = '_oh_'
