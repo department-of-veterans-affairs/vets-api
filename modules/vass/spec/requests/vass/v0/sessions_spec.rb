@@ -74,7 +74,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               json_response = JSON.parse(response.body)
               expect(json_response['data']['message']).to eq('OTP sent to registered email address')
               expect(json_response['data']['expiresIn']).to be_a(Integer)
-              expect(json_response['data']['email']).to be_present
+              expect(json_response['data']['email']).to eq('v******@example.com')
             end
           end
         end
