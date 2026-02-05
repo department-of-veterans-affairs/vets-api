@@ -96,63 +96,21 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     end
   end
 
-  describe '.tracked_facility_ids' do
-    context 'with actual config file settings' do
-      it 'loads facility IDs that are all valid 3-digit numbers' do
-        # Don't stub - use actual settings from config/settings/test.yml
-        facility_ids = described_class.tracked_facility_ids
+  describe 'TRACKED_FACILITY_IDS' do
+    it 'loads facility IDs that are all valid 3-digit numbers' do
+      # Uses actual settings from config/settings/test.yml
+      facility_ids = described_class::TRACKED_FACILITY_IDS
 
-        expect(facility_ids).to be_an(Array)
-        expect(facility_ids).to all(match(/^\d{3}$/))
-        expect(facility_ids).to all(be_a(String))
-      end
-
-      it 'includes expected facility IDs' do
-        facility_ids = described_class.tracked_facility_ids
-
-        expect(facility_ids).to include('757', '506', '515', '553', '655')
-      end
+      expect(facility_ids).to be_an(Array)
+      expect(facility_ids).to all(match(/^\d{3}$/))
+      expect(facility_ids).to all(be_a(String))
+      expect(facility_ids).to be_frozen
     end
 
-    it 'returns facility IDs from settings as strings' do
-      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
-        .and_return(%w[757 506])
+    it 'includes expected facility IDs from config' do
+      facility_ids = described_class::TRACKED_FACILITY_IDS
 
-      expect(described_class.tracked_facility_ids).to eq(%w[757 506])
-    end
-
-    it 'validates that facility IDs are 3-digit numbers' do
-      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
-        .and_return(%w[757 12 9999 abc])
-      allow(Rails.logger).to receive(:error)
-
-      result = described_class.tracked_facility_ids
-
-      expect(result).to eq([])
-      expect(Rails.logger).to have_received(:error).with(
-        /Invalid facility IDs.*12, 9999, abc.*Returning empty array/
-      )
-    end
-
-    it 'handles nil settings gracefully' do
-      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
-        .and_return(nil)
-
-      expect(described_class.tracked_facility_ids).to eq([])
-    end
-
-    it 'handles empty array' do
-      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
-        .and_return([])
-
-      expect(described_class.tracked_facility_ids).to eq([])
-    end
-
-    it 'normalizes integer IDs to strings' do
-      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
-        .and_return([757, 506])
-
-      expect(described_class.tracked_facility_ids).to eq(%w[757 506])
+      expect(facility_ids).to include('757', '506', '515', '553', '655')
     end
   end
 
@@ -192,8 +150,8 @@ RSpec.describe UniqueUserEvents::OracleHealth do
       end
 
       it 'generates OH events for multiple matching facilities' do
-        # Temporarily stub tracked_facility_ids to include multiple facilities for this test
-        allow(described_class).to receive(:tracked_facility_ids).and_return(%w[757 688])
+        # Temporarily stub TRACKED_FACILITY_IDS to include multiple facilities for this test
+        stub_const('UniqueUserEvents::OracleHealth::TRACKED_FACILITY_IDS', %w[757 688])
         allow(user).to receive(:cerner_facility_ids).and_return(%w[757 688])
 
         result = described_class.generate_events(
