@@ -22765,6 +22765,17 @@
                 "type": "string",
                 "nullable": true,
                 "example": "SMITH, JOHN"
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "description": "Indicates if this message is an Oracle Health message",
+                "example": false
+              },
+              "ohMigrationPhase": {
+                "type": "string",
+                "nullable": true,
+                "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
+                "example": null
               }
             }
           },
@@ -22977,6 +22988,11 @@
               "unreadMessages": {
                 "type": "boolean",
                 "example": true
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "description": "Indicates if this message thread is an Oracle Health message",
+                "example": false
               }
             }
           },
@@ -23477,6 +23493,12 @@
               "isOhMessage": {
                 "type": "boolean",
                 "example": true
+              },
+              "ohMigrationPhase": {
+                "type": "string",
+                "nullable": true,
+                "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
+                "example": null
               }
             }
           },
