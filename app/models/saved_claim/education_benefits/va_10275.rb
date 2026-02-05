@@ -19,6 +19,7 @@ class SavedClaim::EducationBenefits::VA10275 < SavedClaim::EducationBenefits
       Settings.form_10275.submission_email,
       email_template,
       email_params,
+      Settings.vanotify.services.va_gov.api_key,
       callback_metadata
     )
   end
