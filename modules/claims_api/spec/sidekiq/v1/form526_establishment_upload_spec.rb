@@ -327,6 +327,32 @@ RSpec.describe ClaimsApi::V1::Form526EstablishmentUpload, type: :job do
         # rubocop:enable Layout/LineLength
         expect(@should_retry).to be(true)
       end
+
+      it 'logs BackendServiceException errors at ERROR level via log_exception_to_rails' do
+        body = [{
+          key: 'form526.submit.establishClaim.serviceError',
+          severity: 'FATAL',
+          text: 'Error calling external service to establish the claim during submit.'
+        }]
+
+        backend_error = Common::Exceptions::BackendServiceException.new(
+          'form526.submit.establishClaim.serviceError', {}, nil, body
+        )
+
+        allow_any_instance_of(ClaimsApi::FesService::Base).to receive(:submit).and_raise(backend_error)
+
+        # Spy on the service instance to verify log_exception_to_rails is called
+        allow(service).to receive(:log_exception_to_rails).and_call_original
+
+        Sidekiq::Testing.inline! do
+          expect do
+            service.perform(claim.id)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        # Verify that log_exception_to_rails was called with the BackendServiceException
+        expect(service).to have_received(:log_exception_to_rails).with(backend_error)
+      end
     end
   end
 

@@ -1,117 +1,37 @@
 # frozen_string_literal: true
 
-# This concern extracts multi-provider aggregation methods from BenefitsClaimsController
-# to satisfy Metrics/ClassLength linting requirements.
+require 'benefits_claims/concerns/multi_provider_base'
+
+# Web-specific implementation of multi-provider support for BenefitsClaimsController.
+# Extends the shared BenefitsClaims::Concerns::MultiProviderBase with web-specific
+# response formatting and metrics.
 #
-# Note: This concern is tightly coupled to BenefitsClaimsController and references its
-# STATSD_METRIC_PREFIX and STATSD_TAGS constants. This coupling is intentional as the
-# concern is not designed for reuse in other controllers.
+# Note: This concern references BenefitsClaimsController's STATSD_METRIC_PREFIX and
+# STATSD_TAGS constants for metrics reporting. This coupling is intentional.
 module V0
   module Concerns
     module MultiProviderSupport
       extend ActiveSupport::Concern
+      include BenefitsClaims::Concerns::MultiProviderBase
 
       private
 
-      def configured_providers
-        BenefitsClaims::Providers::ProviderRegistry.enabled_provider_classes(@current_user)
+      def format_error_entry(provider_name, message)
+        { 'provider' => provider_name, 'error' => message }
       end
 
-      def get_claims_from_providers
-        claims_data = []
-        provider_errors = []
-        configured_providers.each do |provider_class|
-          provider = provider_class.new(@current_user)
-          response = provider.get_claims
-          claims_data.concat(extract_claims_data(provider_class, response))
-        rescue Common::Exceptions::Unauthorized,
-               Common::Exceptions::Forbidden => e
-          # Re-raise: these are user-level auth errors that affect ALL providers
-          raise e
-        rescue => e
-          # Handle all other errors, log and try next provider
-          handle_provider_error(provider_class, e, provider_errors)
-        end
-        { 'data' => claims_data, 'meta' => { 'provider_errors' => provider_errors.presence }.compact }
+      def format_get_claims_response(claims_data, errors)
+        { 'data' => claims_data, 'meta' => { 'provider_errors' => errors.presence }.compact }
       end
 
-      def extract_claims_data(provider_class, response)
-        provider_name = provider_class.name
-        logger = ::Rails.logger
-
-        if response.nil?
-          logger.warn("Provider #{provider_name} returned nil from get_claims")
-          return []
-        end
-
-        is_hash = response.is_a?(Hash)
-        has_data_key = is_hash && response.key?('data')
-
-        unless has_data_key
-          logger.error(
-            "Provider #{provider_name} returned unexpected structure from get_claims",
-            {
-              provider: provider_name,
-              response_class: response.class.name
-            }
-          )
-          return []
-        end
-
-        response['data'] || []
-      end
-
-      def handle_provider_error(provider_class, error, provider_errors)
-        provider_name = provider_class.name
+      def statsd_metric_name(action)
         controller_class = self.class
-
-        provider_errors << { 'provider' => provider_name, 'error' => 'Provider temporarily unavailable' }
-
-        ::Rails.logger.warn(
-          "Provider #{provider_name} failed",
-          { provider: provider_name, error_class: error.class.name }
-        )
-        StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.provider_error",
-                         tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
+        "#{controller_class::STATSD_METRIC_PREFIX}.#{action}"
       end
 
-      def get_claim_from_providers(claim_id)
-        configured_providers.each do |provider_class|
-          provider = provider_class.new(@current_user)
-          return provider.get_claim(claim_id)
-        rescue Common::Exceptions::RecordNotFound
-          # Expected: this provider doesn't have the claim, try next provider
-          log_claim_not_found(provider_class)
-        rescue Common::Exceptions::Unauthorized,
-               Common::Exceptions::Forbidden => e
-          # Re-raise: these are user-level auth errors that affect ALL providers
-          raise e
-        rescue => e
-          # Handle all other errors, log and try next provider
-          handle_get_claim_error(provider_class, e)
-        end
-        raise Common::Exceptions::RecordNotFound, claim_id
-      end
-
-      def log_claim_not_found(provider_class)
-        # Expected case: this provider doesn't have the claim, try next provider
-        ::Rails.logger.info(
-          "Provider #{provider_class.name} doesn't have claim",
-          { error_class: 'Common::Exceptions::RecordNotFound' }
-        )
-      end
-
-      def handle_get_claim_error(provider_class, error)
-        provider_name = provider_class.name
+      def statsd_tags_for_provider(provider_name)
         controller_class = self.class
-
-        # Unexpected error: log and try next provider
-        ::Rails.logger.error(
-          "Provider #{provider_name} error fetching claim",
-          { error_class: error.class.name, backtrace: error.backtrace&.first(3) }
-        )
-        StatsD.increment("#{controller_class::STATSD_METRIC_PREFIX}.get_claim.provider_error",
-                         tags: controller_class::STATSD_TAGS + ["provider:#{provider_name}"])
+        controller_class::STATSD_TAGS + ["provider:#{provider_name}"]
       end
     end
   end
