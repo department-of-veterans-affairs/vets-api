@@ -12,8 +12,8 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake-access-token')
   end
 
-  describe 'index', skip: 'temporarily skipped' do
-    it 'returns a formatted hash response' do
+  describe 'index' do
+    it 'returns a formatted hash response', skip: 'temporarily skipped' do
       VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
@@ -65,6 +65,14 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         response_body = JSON.parse(response.body)
         expect(response_body['data']).to eq([])
+      end
+    end
+
+    it 'handles bad params' do
+      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
+        get '/v1/medical_copays?count=-4'
+
+        expect(JSON.parse(response.body)).to eq({ "error" => "Invalid count parameter" })
       end
     end
   end
