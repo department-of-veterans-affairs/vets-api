@@ -203,7 +203,7 @@ RSpec.describe AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob,
         )
 
         expect(monitor_double).to have_received(:track_count).with(
-          'vets_api.statsd.ar_poa_request_count',
+          'ar.poa.request.expired',
           tags: expected_tags
         ).twice
       end

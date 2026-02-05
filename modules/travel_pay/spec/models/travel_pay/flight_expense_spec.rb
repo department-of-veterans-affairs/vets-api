@@ -277,13 +277,12 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
             expect(subject.errors[:return_date]).to include('must be after departure date')
           end
 
-          it 'is invalid when departure date equals return date' do
+          it 'is valid when departure date equals return date' do
             subject.trip_type = 'RoundTrip'
             same_time = 2.days.from_now
             subject.departure_date = same_time
             subject.return_date = same_time
-            expect(subject).not_to be_valid
-            expect(subject.errors[:return_date]).to include('must be after departure date')
+            expect(subject).to be_valid
           end
 
           it 'is valid when departure date is before return date' do
@@ -298,6 +297,15 @@ RSpec.describe TravelPay::FlightExpense, type: :model do
             base_date = 2.days.from_now.beginning_of_day
             subject.departure_date = base_date + 8.hours # 8:00 AM
             subject.return_date = base_date + 14.hours # 2:00 PM
+            expect(subject).to be_valid
+          end
+
+          it 'is valid when departure and return are on same day but times are reversed' do
+            subject.trip_type = 'RoundTrip'
+            base_date = 2.days.from_now.beginning_of_day
+            subject.departure_date = base_date + 14.hours # 2:00 PM
+            subject.return_date = base_date + 8.hours # 8:00 AM
+            # Should still be valid because we only compare dates, not times
             expect(subject).to be_valid
           end
 

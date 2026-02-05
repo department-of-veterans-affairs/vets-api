@@ -16,20 +16,25 @@ module UniqueUserEvents
     # Validates event names, expands Oracle Health events, and pushes all events
     # to the Redis buffer in a single call.
     #
+    # Oracle Health facility detection:
+    # - Without event_facility_ids: OH facilities are derived from the user's facilities
+    # - With event_facility_ids: OH facilities are determined from the provided IDs
+    #
     # @param user [User] the authenticated User object
     # @param event_names [Array<String>] Array of event names to buffer
+    # @param event_facility_ids [Array<String>, nil] Optional facility IDs from operation context.
+    #   When provided, these are checked against tracked OH facilities instead of user's facilities.
     # @return [Array<String>] Array of all event names that were buffered (including OH events)
     # @raise [ArgumentError] if any event_name is not in the registry
-    def self.buffer_events(user:, event_names:)
+    def self.buffer_events(user:, event_names:, event_facility_ids: nil)
       user_id = extract_user_id(user)
 
-      # Collect all events to buffer across all event_names
       all_events = []
       buffered_event_names = []
 
       event_names.each do |event_name|
         EventRegistry.validate_event!(event_name)
-        event_names_to_buffer = get_all_events_to_log(user:, event_name:)
+        event_names_to_buffer = get_all_events_to_log(user:, event_name:, event_facility_ids:)
 
         event_names_to_buffer.each do |name|
           all_events << { user_id:, event_name: name }
@@ -37,7 +42,6 @@ module UniqueUserEvents
         end
       end
 
-      # Push all events in a single Redis call
       Buffer.push_batch(all_events)
 
       buffered_event_names
@@ -64,10 +68,13 @@ module UniqueUserEvents
     #
     # @param user [User] the authenticated User object
     # @param event_name [String] Name of the original event
+    # @param event_facility_ids [Array<String>, nil] Optional facility IDs from operation context
     # @return [Array<String>] Array of all event names to be logged
-    def self.get_all_events_to_log(user:, event_name:)
+    def self.get_all_events_to_log(user:, event_name:, event_facility_ids:)
       events = [event_name]
-      oh_events = OracleHealth.generate_events(user:, event_name:)
+
+      oh_events = OracleHealth.generate_events(user:, event_name:, event_facility_ids:)
+
       events.concat(oh_events)
       events
     end

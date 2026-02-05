@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'hca/service'
-require 'bgsv2/service'
+require 'bgs/service'
 
 RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   let(:test_veteran) do
@@ -43,7 +43,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       it 'does not call the BGS Service and returns the rating info as 0' do
-        expect_any_instance_of(BGSV2::Service).not_to receive(:find_rating_data)
+        expect_any_instance_of(BGS::Service).not_to receive(:find_rating_data)
 
         get(rating_info_v0_health_care_applications_path)
 
@@ -56,7 +56,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     context 'User not found' do
       before do
         error404 = Common::Exceptions::RecordNotFound.new(1)
-        allow_any_instance_of(BGSV2::Service).to receive(:find_rating_data).and_raise(error404)
+        allow_any_instance_of(BGS::Service).to receive(:find_rating_data).and_raise(error404)
       end
 
       it 'returns a 404 if user not found' do

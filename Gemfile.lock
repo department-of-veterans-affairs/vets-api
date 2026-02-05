@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6f83c6cd8093b5fffe3463d2d3b794a8e91b6d4c
+  revision: 292ebeae984e8fb39b8b1277bdbcd1a5296553c8
   branch: master
   specs:
-    vets_json_schema (25.2.43)
+    vets_json_schema (25.2.47)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -296,7 +296,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.20.1)
       msgpack (~> 1.2)
-    brakeman (7.1.2)
+    brakeman (8.0.2)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -347,7 +347,7 @@ GEM
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.4)
+    connection_pool (2.5.5)
     console1984 (0.2.2)
       irb (~> 1.13)
       parser
@@ -384,11 +384,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.25.0)
-      cgi
-      datadog-ruby_core_source (~> 3.5, >= 3.5.0)
-      libdatadog (~> 24.0.1.1.0)
-      libddwaf (~> 1.30.0.0.0)
+    datadog (2.22.0)
+      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
+      libdatadog (~> 22.0.1.1.0)
+      libddwaf (~> 1.25.1.1.0)
       logger
       msgpack
     datadog-ruby_core_source (3.5.2)
@@ -439,8 +438,8 @@ GEM
       dry-types (~> 1.8, >= 1.8.2)
       ice_nine (~> 0.11)
       zeitwerk (~> 2.6)
-    dry-types (1.8.3)
-      bigdecimal (~> 3.0)
+    dry-types (1.9.0)
+      bigdecimal (>= 3.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.0)
       dry-inflector (~> 1.0)
@@ -650,7 +649,7 @@ GEM
       mutex_m
       nkf
       rack (>= 2.0, < 4)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.14.0)
@@ -713,14 +712,14 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.5)
-    libdatadog (24.0.1.1.0)
-    libdatadog (24.0.1.1.0-aarch64-linux)
-    libdatadog (24.0.1.1.0-x86_64-linux)
-    libddwaf (1.30.0.0.0)
+    libdatadog (22.0.1.1.0)
+    libdatadog (22.0.1.1.0-aarch64-linux)
+    libdatadog (22.0.1.1.0-x86_64-linux)
+    libddwaf (1.25.1.1.0)
       ffi (~> 1.0)
-    libddwaf (1.30.0.0.0-aarch64-linux)
+    libddwaf (1.25.1.1.0-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.30.0.0.0-x86_64-linux)
+    libddwaf (1.25.1.1.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.11.0)
@@ -759,7 +758,8 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.2)
+    minitest (6.0.1)
+      prism (~> 1.5)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -857,6 +857,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-x64-mingw-ucrt)
+    pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -904,24 +907,25 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.21)
+    rack (3.2.4)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
-    rack-protection (3.2.0)
+    rack-protection (4.2.1)
       base64 (>= 0.1.0)
-      rack (~> 2.2, >= 2.2.4)
-    rack-session (1.0.2)
-      rack (< 3)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-session (2.1.1)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
     rack-test (2.2.0)
       rack (>= 1.3)
     rack-timeout (0.7.0)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rackup (1.0.1)
-      rack (< 3)
-      webrick
+    rackup (2.3.1)
+      rack (>= 3)
     rails (7.2.3)
       actioncable (= 7.2.3)
       actionmailbox (= 7.2.3)
@@ -1207,8 +1211,9 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    utf8-cleaner (1.0.0)
+    utf8-cleaner (2.0.1)
       activesupport
+      rack (~> 3.0)
     vcr (6.4.0)
     version_gem (1.1.3)
     virtus (2.0.0)
@@ -1315,7 +1320,7 @@ DEPENDENCIES
   csv
   danger
   database_cleaner
-  datadog
+  datadog (~> 2.22.0)
   date_validator
   debts_api!
   debug
@@ -1414,7 +1419,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.21)
+  rack
   rack-attack
   rack-cors
   rack-test (= 2.2.0)

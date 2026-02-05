@@ -76,6 +76,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
             let(:authentication_time) { 0 }
             let(:expected_icn) { nil }
+            let(:operation) { SignIn::Constants::Auth::AUTHORIZE }
             let(:expected_logger_context) do
               {
                 type:,
@@ -84,7 +85,8 @@ RSpec.describe V0::SignInController, type: :controller do
                 acr:,
                 icn: expected_icn,
                 credential_uuid: backing_idme_uuid,
-                authentication_time:
+                authentication_time:,
+                operation:
               }
             end
             let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }

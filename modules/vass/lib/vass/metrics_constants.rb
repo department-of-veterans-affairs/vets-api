@@ -8,13 +8,13 @@ module Vass
   #
   # Layers:
   #   - controller: User-facing API endpoints (success/failure)
-  #   - infrastructure: Rate limiting, OTC/session lifecycle, VANotify
+  #   - infrastructure: Rate limiting, OTP/session lifecycle, VANotify
   #
   # Controller Metrics (7 endpoints × 2 outcomes = 14 metrics):
   #   Each endpoint tracks: .success, .failure
   #
   # Infrastructure Metrics (4 metrics):
-  #   OTC lifecycle (expired/invalid), rate limiting (generation/validation)
+  #   OTP lifecycle (expired/invalid), rate limiting (generation/validation)
   #
   # Tags (consistent across all metrics):
   #   - service:vass (always present)
@@ -40,8 +40,9 @@ module Vass
     # ========================================
     # Controller Metrics - Sessions
     # ========================================
-    SESSIONS_REQUEST_OTC = "#{CONTROLLER_PREFIX}.sessions.request_otc".freeze
-    SESSIONS_AUTHENTICATE_OTC = "#{CONTROLLER_PREFIX}.sessions.authenticate_otc".freeze
+    SESSIONS_REQUEST_OTP = "#{CONTROLLER_PREFIX}.sessions.request_otp".freeze
+    SESSIONS_AUTHENTICATE_OTP = "#{CONTROLLER_PREFIX}.sessions.authenticate_otp".freeze
+    SESSIONS_REVOKE_TOKEN = "#{CONTROLLER_PREFIX}.sessions.revoke_token".freeze
 
     # ========================================
     # Controller Metrics - Appointments
@@ -59,10 +60,10 @@ module Vass
     RATE_LIMIT_VALIDATION_EXCEEDED = "#{INFRASTRUCTURE_PREFIX}.rate_limit.validation.exceeded".freeze
 
     # ========================================
-    # Infrastructure Metrics - Session/OTC
+    # Infrastructure Metrics - Session/OTP
     # ========================================
-    SESSION_OTC_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otc.expired".freeze
-    SESSION_OTC_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otc.invalid".freeze
+    SESSION_OTP_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otp.expired".freeze
+    SESSION_OTP_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otp.invalid".freeze
 
     # ========================================
     # Infrastructure Metrics - Availability Scenarios
