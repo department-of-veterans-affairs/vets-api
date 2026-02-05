@@ -296,7 +296,7 @@ RSpec.describe SavedClaim::Form214192, type: :model do
         'VETERAN_LAST_NAME' => 'Doe',
         'VETERAN_SSN' => '123456789',
         'VA_FILE_NUMBER' => '987654321',
-        'VETERAN_DOB' => '01/01/1980'
+        'VETERAN_DOB' => '01011980'
       )
     end
 
@@ -308,7 +308,10 @@ RSpec.describe SavedClaim::Form214192, type: :model do
     end
 
     it 'includes form metadata' do
-      expect(ibm_payload).to include('FORM_TYPE' => '21-4192')
+      expect(ibm_payload).to include(
+        'FORM_TYPE' => '21-4192',
+        'FORM_TYPE_1' => '21-4192'
+      )
     end
 
     it 'handles missing middle name' do

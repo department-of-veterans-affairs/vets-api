@@ -100,14 +100,23 @@ module IbmDataDictionary
     }.compact
   end
 
-  # Format date from YYYY-MM-DD to MM/DD/YYYY for IBM MMS
+  # Format date from YYYY-MM-DD to MM/DD/YYYY or MMDDYYYY for IBM MMS
+  # Different VA forms use different date formats in their VBA Data Dictionaries:
+  # - Form 21P-8416: MM/DD/YYYY (with slashes)
+  # - Form 21-4192: MMDDYYYY (no slashes)
   # @param date_string [String, nil] ISO 8601 date string (YYYY-MM-DD)
-  # @return [String, nil] Formatted date (MM/DD/YYYY) or nil if invalid
-  def format_date_for_ibm(date_string)
+  # @param format [Symbol] Date format - :with_slashes (default) or :without_slashes
+  # @return [String, nil] Formatted date or nil if invalid
+  def format_date_for_ibm(date_string, format: :with_slashes)
     return nil unless date_string
 
     date = Date.parse(date_string)
-    date.strftime('%m/%d/%Y')
+    case format
+    when :without_slashes
+      date.strftime('%m%d%Y')
+    else
+      date.strftime('%m/%d/%Y')
+    end
   rescue ArgumentError, TypeError
     nil
   end

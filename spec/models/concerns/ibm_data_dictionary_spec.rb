@@ -181,8 +181,20 @@ RSpec.describe IbmDataDictionary do
   end
 
   describe '#format_date_for_ibm' do
-    it 'converts YYYY-MM-DD to MM/DD/YYYY' do
-      expect(subject.format_date_for_ibm('1950-01-15')).to eq('01/15/1950')
+    context 'with default format (with slashes)' do
+      it 'converts YYYY-MM-DD to MM/DD/YYYY' do
+        expect(subject.format_date_for_ibm('1950-01-15')).to eq('01/15/1950')
+      end
+
+      it 'explicitly uses :with_slashes format' do
+        expect(subject.format_date_for_ibm('1950-01-15', format: :with_slashes)).to eq('01/15/1950')
+      end
+    end
+
+    context 'with :without_slashes format' do
+      it 'converts YYYY-MM-DD to MMDDYYYY' do
+        expect(subject.format_date_for_ibm('1950-01-15', format: :without_slashes)).to eq('01151950')
+      end
     end
 
     it 'returns nil for nil date' do

@@ -117,6 +117,11 @@ class SavedClaim::Form214192 < SavedClaim
     basic_fields = build_veteran_basic_fields(vet_info)
     basic_fields['VETERAN_INITIAL'] = basic_fields.delete('VETERAN_MIDDLE_INITIAL')
 
+    # Override date format: AUG2024 spec requires MMDDYYYY (no slashes)
+    if vet_info['dateOfBirth']
+      basic_fields['VETERAN_DOB'] = format_date_for_ibm(vet_info['dateOfBirth'], format: :without_slashes)
+    end
+
     basic_fields
   end
 
@@ -135,7 +140,10 @@ class SavedClaim::Form214192 < SavedClaim
   # Build form metadata
   # @return [Hash]
   def build_form_metadata_fields
-    build_form_metadata('21-4192')
+    {
+      'FORM_TYPE' => '21-4192',
+      'FORM_TYPE_1' => '21-4192'
+    }
   end
 
   # Build employer name and address as single field
