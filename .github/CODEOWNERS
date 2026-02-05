@@ -1386,6 +1386,7 @@ spec/factories/military_service_episodes.rb @department-of-veterans-affairs/vfs-
 spec/factories/mpi @department-of-veterans-affairs/octo-identity
 spec/factories/mvi_profile_relationships.rb @department-of-veterans-affairs/octo-identity
 spec/factories/mvi_profiles.rb @department-of-veterans-affairs/octo-identity
+spec/factories/multi_party_form_submissions.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/factories/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/factories/organizations.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/factories/pagerduty_services.rb @department-of-veterans-affairs/backend-review-group
