@@ -361,11 +361,10 @@ module ClaimsApi
         # is international
         if phone_data[:countryCode].present? && phone_data[:countryCode] != '1'
           return ' ' if location_type == 'domestic'
-
         elsif location_type == 'international'
           return nil
-
         end
+
         "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".gsub(/\s/, '')
       end
     end
