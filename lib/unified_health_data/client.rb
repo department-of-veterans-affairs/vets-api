@@ -81,16 +81,14 @@ module UnifiedHealthData
     end
 
     # Checks the response body for OperationOutcome resources with error severity.
-    # Only applies to SCDF FHIR-formatted responses (detected by presence of vista/oracle-health keys).
+    # The detector handles any response format gracefully - non-SCDF responses
+    # (arrays, different hash structures) will simply return partial_failure? = false.
     #
     # @param response [Faraday::Response] The response from the API
     # @param path [String] The API path for logging/metrics
     # @raise [Common::Exceptions::UpstreamPartialFailure] when partial failures detected
     def check_for_partial_failures!(response, path)
-      body = response.body
-      return unless scdf_fhir_response?(body)
-
-      detector = OperationOutcomeDetector.new(body)
+      detector = OperationOutcomeDetector.new(response.body)
       return unless detector.partial_failure?
 
       resource_type = extract_resource_type(path)
@@ -100,18 +98,6 @@ module UnifiedHealthData
         failed_sources: detector.failed_sources,
         failure_details: detector.failure_details
       )
-    end
-
-    # Determines if a response body is an SCDF FHIR-formatted response.
-    # SCDF responses contain 'vista' and/or 'oracle-health' keys with FHIR bundles.
-    # Non-FHIR responses (like refill) return arrays or different structures.
-    #
-    # @param body [Object] The response body
-    # @return [Boolean] true if the body appears to be an SCDF FHIR response
-    def scdf_fhir_response?(body)
-      return false unless body.is_a?(Hash)
-
-      body.key?('vista') || body.key?('oracle-health')
     end
 
     # Extracts the resource type from the API path for logging and metrics

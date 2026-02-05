@@ -26,7 +26,7 @@ module UnifiedHealthData
       @body = body
       @failed_sources = []
       @failure_details = []
-      detect_failures if @body
+      detect_failures if @body.is_a?(Hash)
     end
 
     # @return [Boolean] true if any OperationOutcome with severity: error was found

@@ -137,15 +137,14 @@ RSpec.describe UnifiedHealthData::Client do
       let(:array_response) { Faraday::Response.new(body: [{ 'success' => true }]) }
 
       it 'does not raise an exception' do
+        # Detector handles arrays gracefully - body['vista'] returns nil, so no failure detected
         expect do
-          # refill endpoint returns array, not FHIR bundle
           client.send(:check_for_partial_failures!, array_response, '/uhd/v1/refill')
         end.not_to raise_error
       end
     end
 
-    context 'when response is not SCDF FHIR format' do
-      # Refill endpoint returns an array, not an SCDF FHIR response with vista/oracle-health keys
+    context 'when response lacks vista/oracle-health keys' do
       let(:non_scdf_body) do
         {
           'resourceType' => 'OperationOutcome',
@@ -154,42 +153,12 @@ RSpec.describe UnifiedHealthData::Client do
       end
       let(:response) { Faraday::Response.new(body: non_scdf_body) }
 
-      it 'does not check for partial failures when response lacks vista/oracle-health keys' do
+      it 'does not raise an exception' do
+        # Detector looks for body['vista'] and body['oracle-health'], finds neither
         expect do
           client.send(:check_for_partial_failures!, response, '/some/unknown/path')
         end.not_to raise_error
       end
-    end
-  end
-
-  describe '#scdf_fhir_response?' do
-    it 'returns true when body has vista key' do
-      body = { 'vista' => { 'entry' => [] } }
-      expect(client.send(:scdf_fhir_response?, body)).to be true
-    end
-
-    it 'returns true when body has oracle-health key' do
-      body = { 'oracle-health' => { 'entry' => [] } }
-      expect(client.send(:scdf_fhir_response?, body)).to be true
-    end
-
-    it 'returns true when body has both keys' do
-      body = { 'vista' => { 'entry' => [] }, 'oracle-health' => { 'entry' => [] } }
-      expect(client.send(:scdf_fhir_response?, body)).to be true
-    end
-
-    it 'returns false when body is an array' do
-      body = [{ 'success' => true }]
-      expect(client.send(:scdf_fhir_response?, body)).to be false
-    end
-
-    it 'returns false when body is a hash without vista/oracle-health keys' do
-      body = { 'resourceType' => 'OperationOutcome' }
-      expect(client.send(:scdf_fhir_response?, body)).to be false
-    end
-
-    it 'returns false when body is nil' do
-      expect(client.send(:scdf_fhir_response?, nil)).to be false
     end
   end
 

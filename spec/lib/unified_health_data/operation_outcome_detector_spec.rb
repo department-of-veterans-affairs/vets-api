@@ -15,6 +15,14 @@ RSpec.describe UnifiedHealthData::OperationOutcomeDetector do
       end
     end
 
+    context 'when body is an array (non-SCDF response)' do
+      let(:body) { [{ 'success' => true }] }
+
+      it 'returns false without raising' do
+        expect(detector.partial_failure?).to be false
+      end
+    end
+
     context 'when body has no OperationOutcome entries' do
       let(:body) do
         {
