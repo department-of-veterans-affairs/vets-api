@@ -36,7 +36,7 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
         service_name: 'vass_api',
-        redis_otc_expiry: 600,
+        redis_otp_expiry: 600,
         redis_session_expiry: 7200,
         redis_token_expiry: 3540,
         rate_limit_max_attempts: 5,
