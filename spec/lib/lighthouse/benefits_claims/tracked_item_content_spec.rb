@@ -301,6 +301,21 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
         expect(result[key]).to eq(described_class::DEFAULTS[key])
       end
     end
+
+    context 'with radiation exposure entry' do
+      it 'returns radiation exposure content with correct attributes' do
+        result = described_class.find_by_display_name('Radiation-tell us how you were exposed')
+
+        expect(result).not_to be_nil
+        expect(result[:friendlyName]).to eq('Radiation exposure information')
+        expect(result[:shortDescription]).to include('radiation exposure')
+        expect(result[:supportAliases]).to include('Radiation-tell us how you were exposed')
+        expect(result[:canUploadFile]).to be true
+        expect(result[:isSensitive]).to be true
+        expect(result[:longDescription]).to have_key(:blocks)
+        expect(result[:nextSteps]).to have_key(:blocks)
+      end
+    end
   end
   # rubocop:enable Rails/DynamicFindBy
 end
