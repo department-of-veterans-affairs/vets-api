@@ -3,7 +3,7 @@
 module Console1984
   class << self
     def running_protected_environment?
-      %w[development staging].include?(Settings.vsp_environment)
+      Rails.env.development?
     end
   end
 end
