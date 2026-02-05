@@ -64,6 +64,7 @@ module Vass
     # ========================================
     SESSION_OTP_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.otp.expired".freeze
     SESSION_OTP_INVALID = "#{INFRASTRUCTURE_PREFIX}.session.otp.invalid".freeze
+    SESSION_JWT_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.jwt.expired".freeze
 
     # ========================================
     # Infrastructure Metrics - Availability Scenarios
