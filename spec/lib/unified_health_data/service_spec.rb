@@ -765,6 +765,105 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'date range filtering' do
+      # SCDF may return notes outside the requested range; API filters so only in-range notes are returned
+      it 'returns only notes whose date is within the requested start_date and end_date' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Get all notes first (no date filtering applied by service when using wide range)
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for Dec 2024 only
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+
+        # Verify filtering actually excluded some notes
+        expect(notes.size).to be < all_notes.size
+        # Fixture has notes in Dec 2024 and Jan/May 2025; only Dec 2024 should be returned
+        expect(notes).not_to be_empty
+        notes.each do |note|
+          note_date = Date.parse(note.date)
+          expect(note_date).to be >= Date.parse('2024-12-01')
+          expect(note_date).to be <= Date.parse('2024-12-31')
+        end
+      end
+
+      it 'excludes notes from future years when filtering for a specific year' do
+        # Stub returns all notes from fixture (Dec 2024 + Jan/May 2025)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Get all notes first
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+
+        # Now get filtered notes for 2025 only
+        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
+
+        # Verify filtering actually excluded some notes (2024 notes should be filtered out)
+        expect(notes.size).to be < all_notes.size
+        # All returned notes must be in 2025
+        expect(notes).not_to be_empty
+        notes.each do |note|
+          note_date = Date.parse(note.date)
+          expect(note_date.year).to eq(2025)
+        end
+      end
+
+      it 'handles blank string parameters by using default dates' do
+        # Verify blank strings are converted to nil and defaults are applied
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .with(patient_id: user.icn, start_date: '1900-01-01', end_date: anything)
+          .and_return(sample_client_response)
+
+        # Blank strings should be treated as nil and use defaults
+        notes = service.get_care_summaries_and_notes(start_date: '', end_date: '')
+
+        # Should return notes (defaults applied, no filtering errors)
+        expect(notes).to be_an(Array)
+      end
+
+      it 'excludes notes with blank or invalid dates and logs a warning' do
+        # Disable LOINC logging to simplify test
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .and_return(false)
+
+        # Create mock notes with various date conditions
+        note_with_blank_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil
+        )
+        note_with_invalid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date'
+        )
+        note_with_valid_date = instance_double(
+          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z'
+        )
+
+        # Stub the service to return our test notes
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+
+        # Stub parse_notes to return our controlled notes
+        allow(service).to receive(:parse_notes).and_return(
+          [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
+        )
+
+        # Expect warning to be logged for invalid date
+        expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
+
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+
+        # Only the valid note should be returned
+        expect(notes.size).to eq(1)
+        expect(notes.first.id).to eq('valid-note')
+      end
+    end
+
     context 'with date parameters' do
       it 'accepts and uses provided start_date and end_date' do
         expect_any_instance_of(UnifiedHealthData::Client)
@@ -1533,6 +1632,21 @@ describe UnifiedHealthData::Service, type: :service do
         end
       end
 
+      it 'increments StatsD refill metric for successful refills' do
+        VCR.use_cassette('unified_health_data/refill_prescription_success') do
+          orders = [
+            { id: '20848650695', stationNumber: '668' },
+            { id: '0000000000001', stationNumber: '570' }
+          ]
+
+          allow(StatsD).to receive(:increment).and_call_original
+          # Expecting 1 because the cassette has 1 successful refill (20848650695) and 1 failed (0000000000001)
+          expect(StatsD).to receive(:increment).with('api.uhd.refills.requested', 1)
+
+          service.refill_prescription(orders)
+        end
+      end
+
       # TODO: Not sure why this is failing
       #
       #   it 'formats request body correctly' do
@@ -1592,6 +1706,15 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([])
           expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found',
                                            station_number: '663' }])
+        end
+      end
+
+      it 'does not increment StatsD refill metric when no successful refills' do
+        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+          allow(StatsD).to receive(:increment).and_call_original
+          expect(StatsD).not_to receive(:increment).with('api.uhd.refills.requested', anything)
+
+          service.refill_prescription([{ id: '21431810851', stationNumber: '663' }])
         end
       end
     end
@@ -1921,12 +2044,12 @@ describe UnifiedHealthData::Service, type: :service do
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
-        name: 'Major depressive disorder, recurrent, moderate',
-        provider: 'BORLAND,VICTORIA A',
+        name: 'Major depressive disorder, recurrent, mild',
+        provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
       )
 
@@ -1972,8 +2095,8 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
-      expect(first_condition.name).to eq('Major depressive disorder, recurrent, moderate')
+      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
     # TODO: This DOES actually raise an error, which seems accurate
@@ -2005,14 +2128,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }
+      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
         expect(condition).to be_a(UnifiedHealthData::Condition)
         expect(condition.id).to eq(condition_id)
-        expect(condition.name).to eq('Major depressive disorder, recurrent, moderate')
-        expect(condition.provider).to eq('BORLAND,VICTORIA A')
+        expect(condition.name).to eq('Carcinoma in situ of skin, unspecified')
+        expect(condition.provider).to eq('MCGUIRE,MARCI P')
         expect(condition.facility).to eq('CHYSHR TEST LAB')
       end
 

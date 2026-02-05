@@ -4,6 +4,18 @@ module AskVAApi
   module Inquiries
     module PayloadBuilder
       module SharedHelpers
+        # interim mapping for labels missing from locations.yml
+        # TODO: remove once frontend begins sending state codes (see AskVA #1825)
+        MISSING_STATE_CODES = {
+          'American Samoa' => 'AS',
+          'Armed Forces Americas (AA)' => 'AA',
+          'Armed Forces Europe (AE)' => 'AE',
+          'Armed Forces Pacific (AP)' => 'AP',
+          'Federated States Of Micronesia' => 'FM',
+          'Marshall Islands' => 'MH',
+          'Northern Mariana Islands' => 'MP'
+        }.freeze
+
         def fetch_country(country_code)
           return if country_code.blank?
 
@@ -26,6 +38,14 @@ module AskVAApi
         def fetch_state_code(state)
           return if state.blank?
 
+          state = state.to_s.strip
+
+          # pass through once frontend begins sending two-letter state codes
+          return state.upcase if state.length == 2
+
+          return MISSING_STATE_CODES[state] if MISSING_STATE_CODES[state]
+
+          # otherwise continue with existing behavior
           I18n.t('ask_va_api.states').invert[state]&.to_s
         end
 

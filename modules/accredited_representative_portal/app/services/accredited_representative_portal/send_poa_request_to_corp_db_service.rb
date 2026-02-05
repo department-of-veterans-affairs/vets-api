@@ -27,7 +27,7 @@ module AccreditedRepresentativePortal
           attributes: {
             veteran: veteran_payload,
             representative: representative_payload,
-            recordConsent: true,
+            recordConsent: authorizations['recordDisclosureLimitations'].blank?,
             consentAddressChange: authorizations['addressChange'] == true,
             consentLimits: authorizations['recordDisclosureLimitations'] || []
           }
