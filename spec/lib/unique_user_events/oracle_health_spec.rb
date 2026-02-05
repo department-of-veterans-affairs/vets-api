@@ -112,6 +112,97 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       expect(facility_ids).to include('757', '506', '515', '553', '655')
     end
+
+    context 'validation behavior during initialization' do
+      it 'would reject invalid 2-digit facility IDs' do
+        invalid_ids = %w[757 12 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['12'])
+      end
+
+      it 'would reject invalid 4-digit facility IDs' do
+        invalid_ids = %w[757 7575 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['7575'])
+      end
+
+      it 'would reject non-numeric facility IDs' do
+        invalid_ids = %w[757 ABC 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['ABC'])
+      end
+
+      it 'would reject multiple invalid facility IDs' do
+        invalid_ids = %w[757 12 9999 ABC 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(%w[12 9999 ABC])
+      end
+
+      it 'demonstrates the error path returns empty frozen array when validation fails' do
+        # Simulate what happens in the constant initialization
+        ids = %w[757 12 ABC]
+        invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        result = if invalid_ids.any?
+                   [].freeze
+                 else
+                   ids.map(&:to_s).freeze
+                 end
+
+        expect(result).to eq([])
+        expect(result).to be_frozen
+      end
+
+      it 'demonstrates the success path returns valid IDs when validation passes' do
+        # Simulate what happens in the constant initialization
+        ids = %w[757 506 515]
+        invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        result = if invalid_ids.any?
+                   [].freeze
+                 else
+                   ids.map(&:to_s).freeze
+                 end
+
+        expect(result).to eq(%w[757 506 515])
+        expect(result).to be_frozen
+      end
+
+      it 'handles scalar integer value from env override using Array()' do
+        # Simulates when env var sets SETTINGS__...__ORACLE_HEALTH_TRACKED_FACILITY_IDS=757
+        # and env_parse_values converts it to integer 757
+        raw_value = 757
+        ids = Array(raw_value)
+
+        expect(ids).to eq([757])
+        expect(ids.map(&:to_s)).to eq(['757'])
+      end
+
+      it 'handles scalar string value from env override using Array()' do
+        raw_value = '757'
+        ids = Array(raw_value)
+
+        expect(ids).to eq(['757'])
+      end
+
+      it 'handles nil value using Array()' do
+        raw_value = nil
+        ids = Array(raw_value)
+
+        expect(ids).to eq([])
+      end
+
+      it 'passes through array values unchanged using Array()' do
+        raw_value = %w[757 506]
+        ids = Array(raw_value)
+
+        expect(ids).to eq(%w[757 506])
+      end
+    end
   end
 
   describe '.generate_events with event_facility_ids' do

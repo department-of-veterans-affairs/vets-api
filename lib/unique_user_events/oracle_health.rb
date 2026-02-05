@@ -12,8 +12,10 @@ module UniqueUserEvents
     # Loaded from Settings.unique_user_metrics.oracle_health_tracked_facility_ids
     # Validates that all IDs are 3-digit numbers (VA facility ID format)
     # Returns empty array if validation fails to avoid crashing metrics code
+    # Uses Array() to safely handle scalar values from environment variable overrides
     TRACKED_FACILITY_IDS = begin
-      ids = Settings.unique_user_metrics&.oracle_health_tracked_facility_ids || []
+      raw_value = Settings.unique_user_metrics&.oracle_health_tracked_facility_ids
+      ids = Array(raw_value)
 
       # Validate facility IDs are 3-digit numbers
       invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
