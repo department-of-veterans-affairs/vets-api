@@ -169,7 +169,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_vitals_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-
         combined_records = fetch_combined_records(body)
 
         vitals_adapter.parse(combined_records)
@@ -219,7 +218,6 @@ module UnifiedHealthData
 
         response = uhd_client.get_immunizations_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
-
         combined_records = fetch_combined_records(body)
 
         immunization_adapter.parse(combined_records)
@@ -241,7 +239,6 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
         body = response.body
-
         summaries = body['entry'].select { |record| record['resource']['resourceType'] == 'DocumentReference' }
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
@@ -255,7 +252,6 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_avs(patient_id: @user.icn, appt_id:)
         body = response.body
-
         summary = body['entry'].find do |record|
           record['resource']['resourceType'] == 'DocumentReference' && record['resource']['id'] == doc_id
         end
