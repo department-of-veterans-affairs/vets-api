@@ -31,6 +31,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
