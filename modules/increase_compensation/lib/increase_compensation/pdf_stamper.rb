@@ -74,9 +74,9 @@ module IncreaseCompensation
     end
 
     def self.signature_text_for(form_data)
-      form_data['statementOfTruthSignature'].presence ||
-        form_data['signature'].presence ||
-        veteran_full_name(form_data)
+      Rails.logger.info('IncreaseCompensation using form Signature') if form_data['signature'].presence
+      Rails.logger.info('IncreaseCompensation building Signature from name') unless form_data['signature'].presence
+      form_data['signature'].presence || veteran_full_name(form_data)
     end
 
     def self.veteran_full_name(form_data)

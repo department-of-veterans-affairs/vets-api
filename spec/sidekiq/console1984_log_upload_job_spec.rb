@@ -34,7 +34,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
   describe '#perform' do
     context 'when in a valid environment' do
       before do
-        allow(Rails.env).to receive(:development?).and_return(true)
+        allow(Rails.env).to receive(:production?).and_return(true)
         allow(Common::S3Helpers).to receive(:upload_file)
         allow(FileUtils).to receive(:rm_f).with(expected_file_path.to_s)
       end
@@ -213,7 +213,6 @@ RSpec.describe Console1984LogUploadJob, type: :job do
     context 'when not in a valid environment' do
       before do
         allow(Rails.env).to receive(:development?).and_return(false)
-        allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
       it 'returns true without processing' do
