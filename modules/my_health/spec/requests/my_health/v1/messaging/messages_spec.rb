@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
+require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
   include SM::ClientHelpers
@@ -123,6 +124,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
       let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+      let(:params_with_station) { params.merge(station_number: '979') }
       let(:params_with_attachments) { { message: params, uploads: } }
 
       context 'message' do
@@ -130,7 +132,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           allow(UniqueUserEvents).to receive(:log_event)
 
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-            post '/my_health/v1/messaging/messages', params: { message: params }
+            post '/my_health/v1/messaging/messages', params: { message: params_with_station }
           end
 
           expect(response).to be_successful
@@ -139,10 +141,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
 
-          # Verify event logging was called
+          # Verify event logging was called with facility ID from station_number param
           expect(UniqueUserEvents).to have_received(:log_event).with(
             user: anything,
-            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: ['979']
           )
         end
 
@@ -156,6 +159,23 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'without station_number omits facility tracking' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            post '/my_health/v1/messaging/messages', params: { message: params }
+          end
+
+          expect(response).to be_successful
+
+          # Verify event logging was called with empty facility IDs when station_number not provided
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: []
+          )
         end
 
         it 'with attachments' do
@@ -216,7 +236,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           allow(UniqueUserEvents).to receive(:log_event)
 
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply", params: { message: params }
+            post "/my_health/v1/messaging/messages/#{reply_message_id}/reply",
+                 params: { message: params_with_station }
           end
 
           expect(response).to be_successful
@@ -225,10 +246,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('my_health/messaging/v1/message')
 
-          # Verify event logging was called
+          # Verify event logging was called with facility ID from station_number param
           expect(UniqueUserEvents).to have_received(:log_event).with(
             user: anything,
-            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: ['979']
           )
         end
 

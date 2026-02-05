@@ -3218,6 +3218,13 @@ components:
           type: integer
           description: |
             Specifies draft message ID to send.  Draft message is deleted once sent. Note that the recipient_id, category, body, and subject included with this post will overwrite any of original values of the draft.
+        station_number:
+          type: string
+          description: |
+            Optional. The station number (facility ID) associated with the recipient's triage group.
+            Used for analytics tracking of Oracle Health facility messages. If not provided, facility
+            tracking is skipped.
+          example: '989'
     SecureMessageAttachment:
       type: object
       required:
@@ -3441,6 +3448,13 @@ components:
           type: integer
           description: |
             Specifies draft message ID to send.  Draft message is deleted once sent. Note that body included with this post will overwrite any of original values of the draft.
+        station_number:
+          type: string
+          description: |
+            Optional. The station number (facility ID) associated with the recipient's triage group.
+            Used for analytics tracking of Oracle Health facility messages. If not provided, facility
+            tracking is skipped.
+          example: '989'
     SecureMessageListInThread:
       type: object
       required:

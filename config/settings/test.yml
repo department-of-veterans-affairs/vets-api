@@ -773,6 +773,8 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1855,7 +1857,7 @@ vass:
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>

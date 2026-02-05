@@ -127,14 +127,14 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(death_claims.count).to eq(1)
       end
 
-      it 'sets correct disaply title and claim type base for Death claims using title generator' do
+      it 'sets correct display title and claim type base for Death claims using title generator' do
         allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
         end
         parsed_body = JSON.parse(response.body)
         death_claims = parsed_body['data'].select do |claim|
-          claim['attributes']['claimType'] == 'Death'
+          claim['attributes']['claimType'] == 'expenses related to death or burial'
         end
 
         expect(death_claims.count).to eq(1)
@@ -1691,7 +1691,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'claim title generator' do
         it 'returns claimType language modifications' do
-          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
           VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
             get(:show, params: { id: '600229972' })
           end
@@ -1699,17 +1699,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
           expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
           expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
-        end
-
-        it 'does not return claimType language modifications' do
-          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
-            get(:show, params: { id: '600229972' })
-          end
-          parsed_body = JSON.parse(response.body)
-
-          expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be false
-          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be true
         end
       end
     end

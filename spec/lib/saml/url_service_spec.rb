@@ -582,7 +582,7 @@ RSpec.describe SAML::URLService do
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
       with_settings(IdentitySettings.saml_ssoe,
-                    relay: "http://#{slug_id}.vfs.va.gov/auth/login/callback") do
+                    relay: "https://#{slug_id}.vfs.va.gov/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end

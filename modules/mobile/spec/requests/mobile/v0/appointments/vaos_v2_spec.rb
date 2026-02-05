@@ -64,9 +64,12 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             assert_schema_conform(200)
 
             # Verify event logging was called
+            # Note: facility_ids is nil because all appointments in the cassette are cancelled
+            # and we only track visible appointments (pending or non-cancelled)
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+              event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+              event_facility_ids: nil
             )
           end
         end
@@ -455,6 +458,38 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
             expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
           end
+        end
+      end
+
+      describe 'event logging with facility IDs' do
+        let(:erb_template_params) { { start_date: '2022-01-01T19:25:00Z', end_date: '2022-02-01T23:59:59Z' } }
+
+        it 'logs unique user event with facility IDs from visible appointments' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
+                               match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+                  get '/mobile/v0/appointments', headers: sis_headers
+                end
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:ok)
+
+          # Cassette contains 3 appointments with location_id: booked (438), proposed (442), booked (984)
+          # Mobile adapter converts non-prod IDs: 984 → 552
+          # All are visible (pending or non-cancelled), so all facility IDs should be included
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+            event_facility_ids: contain_exactly('438', '442', '552')
+          )
         end
       end
 
