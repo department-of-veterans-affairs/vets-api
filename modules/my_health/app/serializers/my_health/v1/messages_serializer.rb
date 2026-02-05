@@ -20,6 +20,7 @@ module MyHealth
       attribute :proxy_sender_name
       attribute :suggested_name_display
       attribute :is_oh_message
+      attribute :oh_migration_phase
 
       link :self do |object|
         MyHealth::UrlHelper.new.v1_message_url(object.id)

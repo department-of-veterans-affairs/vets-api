@@ -39,6 +39,7 @@ describe 'sm client' do
     end
 
     it 'gets a message with id', :vcr do
+      allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
       message = client.get_message(existing_message_id)
       expect(message.id).to eq(existing_message_id)
       expect(message.subject).to eq('Quote test: “test”')

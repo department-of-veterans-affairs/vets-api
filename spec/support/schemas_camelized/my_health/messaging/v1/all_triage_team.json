@@ -67,6 +67,9 @@
     },
     "ohTriageGroup": {
       "type": "boolean"
+    },
+    "migratingToOh": {
+      "type": "boolean"
     }
   }
 }
