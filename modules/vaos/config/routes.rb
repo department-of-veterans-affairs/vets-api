@@ -5,6 +5,7 @@ VAOS::Engine.routes.draw do
     get 'apidocs', to: 'apidocs#index'
     get '/appointments', to: 'appointments#index'
     get '/appointments/:appointment_id', to: 'appointments#show'
+    get '/appointments/avs_binaries/:appointment_id', to: 'appointments#get_avs_binaries'
     put '/appointments/:id', to: 'appointments#update'
     get '/eps_appointments/:id', to: 'eps_appointments#show'
     get '/providers', to: 'providers#index'

@@ -2293,8 +2293,7 @@ describe VAOS::V2::AppointmentsService do
           'name' => 'Ambulatory Visit Summary',
           'loinc_codes' => %w[4189669 96345-4],
           'note_type' => 'ambulatory_patient_summary',
-          'content_type' => 'application/pdf',
-          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+          'content_type' => 'application/pdf'
         }
       ]
     end
@@ -2383,6 +2382,107 @@ describe VAOS::V2::AppointmentsService do
           subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
           expect(appt_no_avs[:avs_path]).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#fetch_avs_binaries' do
+    let(:avs_pdf) do
+      UnifiedHealthData::BinaryData.new(
+        content_type: 'application/pdf',
+        binary: 'binaryString'
+      )
+    end
+
+    context 'invalid arguments' do
+      it 'sets the error field when doc_id is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [nil])
+        expect(result).to eq([{
+                               doc_id: nil,
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+
+      it 'returns nil when appt_id is nil' do
+        result = subject.send(:fetch_avs_binaries, nil, ['doc1'])
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', nil)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is empty' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [])
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when UHD Service successfully retrieved the binaries' do
+      it 'returns the fetched PDF binaries' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               binary: 'binaryString'
+                             }])
+      end
+    end
+
+    context 'when an error occurs' do
+      it 'logs the error and sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Error retrieving AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there is no available binary' do
+      it 'sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(nil)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there are mixed results' do
+      it 'returns both successful binaries and error fields' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc2', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc3', appt_id: 'appt').and_return(nil)
+
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', %w[doc1 doc2 doc3])
+        expect(result).to eq([
+                               {
+                                 doc_id: 'doc1',
+                                 binary: 'binaryString'
+                               },
+                               {
+                                 doc_id: 'doc2',
+                                 error: 'Error retrieving AVS binary'
+                               },
+                               {
+                                 doc_id: 'doc3',
+                                 error: 'Retrieved empty AVS binary'
+                               }
+                             ])
       end
     end
   end

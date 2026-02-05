@@ -212,7 +212,6 @@ http_interactions:
             "loincCodes" : %w[4189669 96345-4],
             "noteType" : "ambulatory_patient_summary",
             "contentType" : "application/pdf",
-            "binary" : /JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e
             }
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 recorded_with: VCR 6.0.0

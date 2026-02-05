@@ -13,6 +13,8 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
+      AVS_BINARY_ERROR_MESSAGE = 'Error retrieving AVS binary'
+      AVS_BINARY_EMPTY_MESSAGE = 'Retrieved empty AVS binary'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
@@ -399,6 +401,28 @@ module VAOS
             location_id ? "facility #{location_id}" : 'unknown facility'
           end
         end
+      end
+
+      def fetch_avs_binaries(appt_id, doc_ids)
+        return nil if appt_id.nil? || doc_ids.nil? || doc_ids.empty?
+
+        responses = []
+
+        doc_ids.each do |doc_id|
+          response = get_avs_pdf_binary(doc_id, appt_id)
+          if response.nil?
+            responses.push({ doc_id:, error: AVS_BINARY_EMPTY_MESSAGE })
+          else
+            responses.push({ doc_id:, binary: response.binary })
+          end
+        rescue => e
+          err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
+          error_log = "VAOS: Error retrieving AVS binary for appt #{appt_id} doc #{doc_id}:" \
+                      "#{e.class}, #{e.message} \n   #{err_stack}"
+          Rails.logger.error(error_log)
+          responses.push({ doc_id:, error: AVS_BINARY_ERROR_MESSAGE })
+        end
+        responses
       end
 
       private
@@ -906,9 +930,19 @@ module VAOS
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id)
 
         return nil if avs_resp.empty? || avs_resp.nil?
+
+        avs_resp
+      end
+
+      def get_avs_pdf_binary(doc_id, appt_id)
+        return nil if doc_id.nil? || appt_id.nil?
+
+        avs_resp = unified_health_data_service.get_avs_binary_data(doc_id:, appt_id:)
+
+        return nil if avs_resp.nil?
 
         avs_resp
       end
