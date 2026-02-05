@@ -8,6 +8,13 @@ module DependentsBenefits
     module FormValidation
       extend ActiveSupport::Concern
 
+      # @see ::SavedClaim#form_schema
+      # @see ::VetsJsonSchema::SCHEMAS
+      def form_schema(form_id)
+        path = "#{DependentsBenefits::FORM_SCHEMA_BASE}/#{form_id.sub('-V2', '')}.json"
+        MultiJson.load(File.read(path))
+      end
+
       ##
       # Validates whether the form matches the expected VetsJsonSchema::JSON schema
       #
@@ -15,7 +22,7 @@ module DependentsBenefits
       def form_matches_schema
         return unless form_is_string
 
-        schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
+        schema = form_schema(form_id)
 
         schema_errors = validate_schema(schema)
         unless schema_errors.empty?

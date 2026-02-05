@@ -27,6 +27,9 @@ module DependentsBenefits
   # Path to the 21-674 PDF template
   PDF_PATH_21_674 = "#{PDF_PATH_BASE}/#{SCHOOL_ATTENDANCE_APPROVAL}.pdf".freeze
 
+  # path to the form schemas
+  FORM_SCHEMA_BASE = "#{MODULE_PATH}/schema".freeze
+
   # API Version 0
   module V0
   end
