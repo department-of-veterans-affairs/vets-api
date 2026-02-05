@@ -183,40 +183,36 @@ module MHV
       # Determines the current phase based on today's date (inclusive boundaries)
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
-        Time.use_zone('Eastern Time (US & Canada)') do
-          today = Time.zone.today
-          days_until_migration = (migration_date - today).to_i
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
+        days_until_migration = (migration_date - today).to_i
 
-          # Find the current phase by checking from latest phase to earliest
-          # Phase boundaries are inclusive - if today is day -45, we're in p1
-          sorted_phases = PHASES.sort_by { |_, offset| -offset }
+        # Find the current phase by checking from latest phase to earliest
+        # Phase boundaries are inclusive - if today is day -45, we're in p1
+        sorted_phases = PHASES.sort_by { |_, offset| -offset }
 
-          sorted_phases.each do |phase_name, day_offset|
-            return phase_name.to_s if days_until_migration <= -day_offset
-          end
-
-          # If we haven't returned yet, we're before p0 (NOT_STARTED)
-          nil
+        sorted_phases.each do |phase_name, day_offset|
+          return phase_name.to_s if days_until_migration <= -day_offset
         end
+
+        # If we haven't returned yet, we're before p0 (NOT_STARTED)
+        nil
       end
 
       # Determines migration status based on today's date relative to migration
       # @return [String] NOT_STARTED, ACTIVE, or COMPLETE
       def determine_migration_status(migration_date)
-        Time.use_zone('Eastern Time (US & Canada)') do
-          today = Time.zone.today
-          days_until_migration = (migration_date - today).to_i
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
+        days_until_migration = (migration_date - today).to_i
 
-          p0_offset = PHASES[:p0] # -60
-          p7_offset = PHASES[:p7] # 7
+        p0_offset = PHASES[:p0] # -60
+        p7_offset = PHASES[:p7] # 7
 
-          if days_until_migration > -p0_offset
-            MIGRATION_STATUS[:not_started]
-          elsif days_until_migration >= -p7_offset
-            MIGRATION_STATUS[:active]
-          else
-            MIGRATION_STATUS[:complete]
-          end
+        if days_until_migration > -p0_offset
+          MIGRATION_STATUS[:not_started]
+        elsif days_until_migration >= -p7_offset
+          MIGRATION_STATUS[:active]
+        else
+          MIGRATION_STATUS[:complete]
         end
       end
 

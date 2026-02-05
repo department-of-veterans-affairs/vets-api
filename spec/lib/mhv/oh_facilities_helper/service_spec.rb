@@ -350,7 +350,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is exactly at phase boundary' do
         it 'returns correct phase when today equals each phase start date' do
           phases.each do |phase_key, day_offset|
-            allow(Time.zone).to receive(:today).and_return(migration_date + day_offset)
+            allow(Date).to receive(:current).and_return(migration_date + day_offset)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -362,7 +362,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is one day before first phase boundary' do
         it 'current phase is nil (not yet started)' do
           first_phase_offset = phases.values.min
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -374,7 +374,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           first_offset = sorted_offsets[0]
           second_offset = sorted_offsets[1]
           midpoint = first_offset + ((second_offset - first_offset) / 2)
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(phases.key(first_offset).to_s)
         end
@@ -401,7 +401,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
                          offset + 1
                        end
 
-            allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+            allow(Date).to receive(:current).and_return(migration_date + midpoint)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -421,7 +421,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when before first phase' do
         it 'returns NOT_STARTED' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
         end
@@ -429,7 +429,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at first phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -438,7 +438,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when in middle of active window' do
         it 'returns ACTIVE' do
           midpoint = (first_phase_offset + last_phase_offset) / 2
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -446,7 +446,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at last phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -454,7 +454,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when after last phase' do
         it 'returns COMPLETE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 1)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
         end
@@ -472,7 +472,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when migration_status is NOT_STARTED' do
         it 'current phase is nil' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -481,7 +481,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when migration_status is COMPLETE' do
         it 'current phase is last phase' do
           # After last phase the current phase will be the last phase (the last phase we passed)
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 3)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 3)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(last_phase_key)
         end
@@ -509,7 +509,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
 
       before do
-        allow(Time.zone).to receive(:today).and_return(today)
+        allow(Date).to receive(:current).and_return(today)
       end
 
       it 'returns all migrations regardless of status' do
