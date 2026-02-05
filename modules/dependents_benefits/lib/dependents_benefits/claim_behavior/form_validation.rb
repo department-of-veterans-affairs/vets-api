@@ -9,10 +9,14 @@ module DependentsBenefits
       extend ActiveSupport::Concern
 
       # @see ::SavedClaim#form_schema
-      # @see DependentsBenefits::FORM_SCHEMA_BASE
       def form_schema(form_id)
+        # Remove V2 tag (handle for backwards compatibility)
         path = "#{DependentsBenefits::FORM_SCHEMA_BASE}/#{form_id.sub('-V2', '')}.json"
         MultiJson.load(File.read(path))
+      rescue => e
+        monitor.track_error_event('Dependents Benefits form schema could not be loaded.',
+                                  "#{stats_key}.schema_load_error", form_id:, error: e.message)
+        nil
       end
 
       ##
