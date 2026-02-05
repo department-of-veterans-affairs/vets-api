@@ -57,9 +57,19 @@ module SurvivorsBenefits
           }
         },
         'placeOfMarriage' => {
+          limit: 52,
+          question_num: 4,
+          question_suffix: 'E',
+          question_label: 'Place of Marriage (City/State or Country)',
+          question_text: 'PLACE OF MARRIAGE (CITY/STATE OR COUNTRY)',
           key: 'form1[0].#subform[208].Place_Of_Marriage_City_State_or_Country[0]'
         },
         'placeOfMarriageTermination' => {
+          limit: 52,
+          question_num: 4,
+          question_suffix: 'F',
+          question_label: 'Place of Marriage (City/State or Country)',
+          question_text: 'PLACE OF MARRIAGE (CITY/STATE OR COUNTRY)',
           key: 'form1[0].#subform[208].Place_Of_Marriage_Termination_City_State_or_Country[0]'
         },
         'marriageType' => {
