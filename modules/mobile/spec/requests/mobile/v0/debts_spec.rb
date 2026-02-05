@@ -10,6 +10,30 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
   include CommitteeHelper
 
   let!(:user) { sis_user }
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mobile_debts_enabled, anything).and_return(true)
+  end
+
+  context 'when mobile_debts_enabled feature flag is disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mobile_debts_enabled, anything).and_return(false)
+    end
+
+    it 'returns forbidden for index' do
+      get '/mobile/v0/debts', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
+
+    it 'returns forbidden for show' do
+      get '/mobile/v0/debts/some-id', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
+  end
   let(:debt1) do
     { 'type' => 'debts',
       'attributes' =>
