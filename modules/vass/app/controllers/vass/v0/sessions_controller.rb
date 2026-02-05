@@ -3,9 +3,9 @@
 module Vass
   module V0
     ##
-    # Controller for OTC-based session management (One-Time Code).
+    # Controller for OTP-based session management (One-Time Password).
     #
-    # Handles the generation and validation of One-Time Codes (OTC)
+    # Handles the generation and validation of One-Time Passwords (OTP)
     # for non-authenticated users who need to verify their identity
     # before scheduling appointments.
     #
@@ -16,16 +16,16 @@ module Vass
       rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
 
       ##
-      # POST /vass/v0/request-otc
+      # POST /vass/v0/request-otp
       #
-      # Validates veteran identity and generates an OTC.
+      # Validates veteran identity and generates an OTP.
       #
       # Flow:
       # 1. Accepts UUID (veteran_id from welcome email), last_name, and dob
       # 2. Calls VASS GetVeteran to fetch veteran info using UUID
       # 3. Validates last_name and dob match VASS response
       # 4. Extracts contact info (email) from VASS response
-      # 5. Generates OTC and sends via VANotify
+      # 5. Generates OTP and sends via VANotify
       #
       # @param uuid [String] Veteran UUID from welcome email
       # @param last_name [String] Veteran's last name for validation
@@ -33,47 +33,47 @@ module Vass
       #
       # @return [JSON] Success message and expiration time per spec
       #
-      def request_otc
+      def request_otp
         validate_required_params!(:uuid, :last_name, :dob)
         session = Vass::V0::Session.build(data: permitted_params)
         check_all_rate_limits(session.uuid)
-        process_otc_creation(session)
-        complete_otc_creation(session)
-        otc_expiry_seconds = redis_client.redis_otc_expiry.to_i
-        response_data = camelize_keys({ data: { message: 'OTC sent to registered email address',
-                                                expires_in: otc_expiry_seconds } })
-        track_success(SESSIONS_REQUEST_OTC)
+        process_otp_creation(session)
+        complete_otp_creation(session)
+        otp_expiry_seconds = redis_client.redis_otp_expiry.to_i
+        response_data = camelize_keys({ data: { message: 'OTP sent to registered email address',
+                                                expires_in: otp_expiry_seconds } })
+        track_success(SESSIONS_REQUEST_OTP)
         render json: response_data, status: :ok
       rescue Vass::Errors::RateLimitError => e
-        handle_request_otc_error(e, session, :rate_limit)
+        handle_request_otp_error(e, session, :rate_limit)
       rescue Vass::Errors::IdentityValidationError => e
-        handle_request_otc_error(e, session, :identity_validation)
+        handle_request_otp_error(e, session, :identity_validation)
       rescue Vass::Errors::MissingContactInfoError => e
-        handle_request_otc_error(e, session, :missing_contact)
+        handle_request_otp_error(e, session, :missing_contact)
       rescue *vass_api_exceptions => e
-        handle_request_otc_error(e, session, :vass_api)
+        handle_request_otp_error(e, session, :vass_api)
       rescue VANotify::Error => e
-        handle_request_otc_error(e, session, :vanotify)
+        handle_request_otp_error(e, session, :vanotify)
       end
 
       ##
-      # POST /vass/v0/authenticate-otc
+      # POST /vass/v0/authenticate-otp
       #
-      # Validates the OTC provided by the user.
+      # Validates the OTP provided by the user.
       # On success, generates a JWT token for authenticated access.
       #
       # @param uuid [String] Veteran UUID
       # @param last_name [String] Veteran's last name
       # @param dob [String] Veteran's date of birth (YYYY-MM-DD)
-      # @param otc [String] User-provided OTC
+      # @param otp [String] User-provided OTP
       #
       # @return [JSON] JWT token and expiration per spec
       #
-      def authenticate_otc
-        validate_required_params!(:uuid, :last_name, :dob, :otc)
+      def authenticate_otp
+        validate_required_params!(:uuid, :last_name, :dob, :otp)
         session = Vass::V0::Session.build(data: permitted_params_for_auth)
         check_validation_rate_limit(session.uuid)
-        return unless validate_otc_session(session)
+        return unless validate_otp_session(session)
 
         jwt_result = session.validate_and_generate_jwt
         jwt_token = jwt_result[:token]
@@ -81,13 +81,13 @@ module Vass
         session.create_authenticated_session(jti:)
         handle_successful_authentication(session, jwt_token, jti)
       rescue Vass::Errors::RateLimitError => e
-        handle_authenticate_otc_error(e, session, :rate_limit)
+        handle_authenticate_otp_error(e, session, :rate_limit)
       rescue Vass::Errors::AuthenticationError => e
-        handle_authenticate_otc_error(e, session, :authentication)
+        handle_authenticate_otp_error(e, session, :authentication)
       rescue *vass_api_exceptions => e
-        handle_authenticate_otc_error(e, session, :vass_api)
+        handle_authenticate_otp_error(e, session, :vass_api)
       rescue Vass::Errors::RedisError, Vass::Errors::AuditLogError => e
-        track_failure(SESSIONS_AUTHENTICATE_OTC, error_type: e.class.name)
+        track_failure(SESSIONS_AUTHENTICATE_OTP, error_type: e.class.name)
         raise
       end
 
@@ -146,7 +146,7 @@ module Vass
       end
 
       ##
-      # Permitted parameters for OTC request.
+      # Permitted parameters for OTP request.
       #
       # @return [Hash] Permitted params
       #
@@ -155,12 +155,12 @@ module Vass
       end
 
       ##
-      # Permitted parameters for OTC authentication.
+      # Permitted parameters for OTP authentication.
       #
       # @return [Hash] Permitted params
       #
       def permitted_params_for_auth
-        params.permit(:uuid, :last_name, :dob, :otc)
+        params.permit(:uuid, :last_name, :dob, :otp)
       end
 
       ##
@@ -182,11 +182,11 @@ module Vass
       end
 
       ##
-      # Processes OTC creation: fetches veteran info, validates identity, sets contact info, generates and sends OTC.
+      # Processes OTP creation: fetches veteran info, validates identity, sets contact info, generates and sends OTP.
       #
       # @param session [Vass::V0::Session] Session instance
       #
-      def process_otc_creation(session)
+      def process_otp_creation(session)
         # Fetch veteran info using only UUID
         veteran_data = appointments_service.get_veteran_info(veteran_id: session.uuid)
 
@@ -194,33 +194,33 @@ module Vass
         session.validate_identity_against_veteran_data(veteran_data)
 
         session.set_contact_from_veteran_data(veteran_data)
-        otc_code = session.generate_and_save_otc
-        Rails.logger.info("VASS OTC Generated for UUID #{session.uuid}: #{otc_code}") if Rails.env.development?
-        send_otc_via_vanotify(session, otc_code)
+        otp_code = session.generate_and_save_otp
+        Rails.logger.info("VASS OTP Generated for UUID #{session.uuid}: #{otp_code}") if Rails.env.development?
+        send_otp_via_vanotify(session, otp_code)
       end
 
       ##
-      # Sends OTC via VANotify service.
+      # Sends OTP via VANotify service.
       #
       # @param session [Vass::V0::Session] Session instance
-      # @param otc_code [String] OTC code to send
+      # @param otp_code [String] OTP code to send
       #
-      def send_otc_via_vanotify(session, otc_code)
-        vanotify_service.send_otc(
+      def send_otp_via_vanotify(session, otp_code)
+        vanotify_service.send_otp(
           contact_method: session.contact_method,
           contact_value: session.contact_value,
-          otc_code:
+          otp_code:
         )
       end
 
       ##
-      # Completes OTC creation: increments rate limit, logs, and increments stats.
+      # Completes OTP creation: increments rate limit, logs, and increments stats.
       #
       # @param session [Vass::V0::Session] Session instance
       #
-      def complete_otc_creation(session)
+      def complete_otp_creation(session)
         increment_rate_limit(session.uuid)
-        log_vass_event(action: 'otc_generated', vass_uuid: session.uuid)
+        log_vass_event(action: 'otp_generated', vass_uuid: session.uuid)
       end
 
       ##
@@ -270,7 +270,7 @@ module Vass
       end
 
       ##
-      # Handles successful OTC authentication.
+      # Handles successful OTP authentication.
       #
       # @param session [Vass::V0::Session] Session instance
       # @param jwt_token [String] Generated JWT token
@@ -281,12 +281,12 @@ module Vass
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
         expires_in = redis_client.redis_session_expiry.to_i
         response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
-        track_success(SESSIONS_AUTHENTICATE_OTC)
+        track_success(SESSIONS_AUTHENTICATE_OTP)
         render json: response_data, status: :ok
       end
 
       ##
-      # Handles VANotify errors in request_otc action.
+      # Handles VANotify errors in request_otp action.
       #
       # @param session [Vass::V0::Session] Session instance
       # @param error [VANotify::Error] VANotify error
@@ -309,14 +309,14 @@ module Vass
       end
 
       ##
-      # Handles request_otc errors by tracking and routing to appropriate handler.
+      # Handles request_otp errors by tracking and routing to appropriate handler.
       #
       # @param error [Exception] The error that occurred
       # @param session [Vass::V0::Session] The session object
       # @param error_type [Symbol] Type of error (:rate_limit, :identity_validation, etc.)
       #
-      def handle_request_otc_error(error, session, error_type)
-        track_failure(SESSIONS_REQUEST_OTC, error_type: error.class.name)
+      def handle_request_otp_error(error, session, error_type)
+        track_failure(SESSIONS_REQUEST_OTP, error_type: error.class.name)
         case error_type
         when :rate_limit then handle_rate_limit_error_for_generation(session, error)
         when :identity_validation
@@ -329,17 +329,17 @@ module Vass
       end
 
       ##
-      # Handles authenticate_otc errors by tracking and routing to appropriate handler.
+      # Handles authenticate_otp errors by tracking and routing to appropriate handler.
       #
       # @param error [Exception] The error that occurred
       # @param session [Vass::V0::Session] The session object
       # @param error_type [Symbol] Type of error (:rate_limit, :authentication, :vass_api)
       #
-      def handle_authenticate_otc_error(error, session, error_type)
-        track_failure(SESSIONS_AUTHENTICATE_OTC, error_type: error.class.name)
+      def handle_authenticate_otp_error(error, session, error_type)
+        track_failure(SESSIONS_AUTHENTICATE_OTP, error_type: error.class.name)
         case error_type
         when :rate_limit then handle_validation_rate_limit_error(session, error)
-        when :authentication then handle_invalid_otc(session)
+        when :authentication then handle_invalid_otp(session)
         when :vass_api
           log_vass_event(action: 'vass_api_error', vass_uuid: session.uuid, level: :error,
                          error_class: error.class.name)
@@ -392,7 +392,7 @@ module Vass
 
         log_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_GENERATION_EXCEEDED)
-        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC generation'
+        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTP generation'
       end
 
       ##
@@ -427,50 +427,50 @@ module Vass
       end
 
       ##
-      # Validates OTC session (checks for expiry).
-      # The actual OTC validation and deletion happens atomically in validate_and_generate_jwt.
+      # Validates OTP session (checks for expiry).
+      # The actual OTP validation and deletion happens atomically in validate_and_generate_jwt.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] true if valid, false otherwise
       #
-      def validate_otc_session(session)
-        return handle_expired_otc(session) if session.otc_expired?
+      def validate_otp_session(session)
+        return handle_expired_otp(session) if session.otp_expired?
 
         true
       end
 
       ##
-      # Handles expired OTC.
+      # Handles expired OTP.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] false
       #
-      def handle_expired_otc(session)
-        log_vass_event(action: 'otc_expired', vass_uuid: session.uuid, level: :warn)
-        track_infrastructure_metric(SESSION_OTC_EXPIRED)
+      def handle_expired_otp(session)
+        log_vass_event(action: 'otp_expired', vass_uuid: session.uuid, level: :warn)
+        track_infrastructure_metric(SESSION_OTP_EXPIRED)
         render_session_error_response(
-          code: 'otc_expired',
-          detail: 'OTC has expired. Please request a new one.',
+          code: 'otp_expired',
+          detail: 'OTP has expired. Please request a new one.',
           status: :unauthorized
         )
         false
       end
 
       ##
-      # Handles invalid OTC submission.
+      # Handles invalid OTP submission.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] false
       #
-      def handle_invalid_otc(session)
+      def handle_invalid_otp(session)
         increment_validation_rate_limit(session.uuid)
-        log_invalid_otc(session.uuid)
-        track_infrastructure_metric(SESSION_OTC_INVALID)
+        log_invalid_otp(session.uuid)
+        track_infrastructure_metric(SESSION_OTP_INVALID)
 
         attempts_remaining = redis_client.validation_attempts_remaining(identifier: session.uuid)
         render_session_error_response(
-          code: 'invalid_otc',
-          detail: 'Invalid OTC. Please try again.',
+          code: 'invalid_otp',
+          detail: 'Invalid OTP. Please try again.',
           status: :unauthorized,
           attempts_remaining:
         )
@@ -485,12 +485,12 @@ module Vass
       end
 
       ##
-      # Logs invalid OTC attempt (no PHI).
+      # Logs invalid OTP attempt (no PHI).
       #
       # @param uuid [String] Veteran UUID
       #
-      def log_invalid_otc(uuid)
-        log_vass_event(action: 'invalid_otc', vass_uuid: uuid, level: :warn)
+      def log_invalid_otp(uuid)
+        log_vass_event(action: 'invalid_otp', vass_uuid: uuid, level: :warn)
       end
 
       ##
@@ -530,7 +530,7 @@ module Vass
 
         log_validation_rate_limit_exceeded(identifier)
         track_infrastructure_metric(RATE_LIMIT_VALIDATION_EXCEEDED)
-        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTC validation attempts'
+        raise Vass::Errors::RateLimitError, 'Rate limit exceeded for OTP validation attempts'
       end
 
       ##
@@ -552,7 +552,7 @@ module Vass
       end
 
       ##
-      # Handles rate limit errors in request_otc, determining which limit was hit.
+      # Handles rate limit errors in request_otp, determining which limit was hit.
       #
       # @param session [Vass::V0::Session] Session instance
       # @param error [Vass::Errors::RateLimitError] Error
@@ -576,7 +576,7 @@ module Vass
         retry_after = Settings.vass.rate_limit_expiry.to_i
         render_session_error_response(
           code: 'rate_limit_exceeded',
-          detail: 'Too many OTC requests. Please try again later.',
+          detail: 'Too many OTP requests. Please try again later.',
           status: :too_many_requests,
           retry_after:
         )
@@ -593,7 +593,7 @@ module Vass
         retry_after = Settings.vass.rate_limit_expiry.to_i
         render_session_error_response(
           code: 'account_locked',
-          detail: 'Too many failed attempts. Please request a new OTC.',
+          detail: 'Too many failed attempts. Please request a new OTP.',
           status: :too_many_requests,
           retry_after:
         )
