@@ -85,7 +85,7 @@ module VANotify
 
         keys = api_key_path.delete_prefix('Settings.').split('.')
         api_key = Settings.dig(*keys)
-        raise ArgumentError, "Unable to resolve API key from path: #{api_key_path}" unless api_key.present?
+        raise ArgumentError, "Unable to resolve API key from path: #{api_key_path}" if api_key.blank?
 
         api_key
       end
