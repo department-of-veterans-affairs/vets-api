@@ -25,6 +25,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     other_poa_request
   end
 
+  after do
+    travel_back
+  end
+
   # Use let instead of let! for test data that isn't required in every example
   let(:poa_code) { 'x23' }
   let(:time) { '2024-12-21T04:45:37.000Z' }
