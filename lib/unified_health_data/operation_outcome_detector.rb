@@ -66,9 +66,8 @@ module UnifiedHealthData
     end
 
     def extract_entries(source_data)
-      # SCDF returns data in different structures depending on the endpoint
-      # - Most endpoints: { 'entry' => [...] }
-      # - Medications/VistA: { 'medicationList' => { 'medication' => [...] }, 'entry' => [...] }
+      # SCDF returns OperationOutcome errors in the 'entry' array for all endpoints.
+      # Actual medication data may be in 'medicationList', but errors are always in 'entry'.
       source_data['entry'] || []
     end
 
@@ -93,7 +92,7 @@ module UnifiedHealthData
 
     def log_failure_details(user, resource_type)
       Rails.logger.warn(
-        message: 'UHD partial failure detected',
+        message: 'UHD upstream source returned OperationOutcome error',
         resource_type:,
         failed_sources: @failed_sources,
         failure_count: @failure_details.size,

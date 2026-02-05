@@ -2550,7 +2550,7 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:warn).with(
             hash_including(
-              message: 'UHD partial failure detected',
+              message: 'UHD upstream source returned OperationOutcome error',
               failed_sources: ['oracle-health'],
               resource_type: 'medications'
             )

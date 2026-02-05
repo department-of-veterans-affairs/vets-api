@@ -247,7 +247,7 @@ RSpec.describe UnifiedHealthData::OperationOutcomeDetector do
     it 'logs the partial failure' do
       expect(Rails.logger).to receive(:warn).with(
         hash_including(
-          message: 'UHD partial failure detected',
+          message: 'UHD upstream source returned OperationOutcome error',
           failed_sources: ['oracle-health'],
           resource_type: 'medications'
         )
