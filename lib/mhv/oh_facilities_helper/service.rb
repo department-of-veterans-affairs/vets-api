@@ -89,6 +89,8 @@ module MHV
         user_migrations = filter_and_merge_user_facilities(parsed_migrations)
         return [] if user_migrations.empty?
 
+        user_migrations.sort_by! { |migration| Date.parse(migration[:migration_date]) }
+
         user_migrations.map do |migration|
           migration_date = Date.parse(migration[:migration_date])
           {

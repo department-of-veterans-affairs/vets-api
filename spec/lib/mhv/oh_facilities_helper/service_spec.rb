@@ -271,11 +271,12 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when facilities have different migration dates' do
         let(:user_facility_ids) { %w[516 517] }
-        let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA];2026-04-01:[517,Toledo VA]' }
+        let(:oh_migrations_list) { '2026-04-01:[517,Toledo VA];2026-03-03:[516,Columbus VA]' }
 
-        it 'returns separate entries' do
+        it 'returns separate entries in chronological order' do
           result = service.get_migration_schedules
           expect(result.length).to eq(2)
+          expect(result.map { |r| r[:migration_date] }).to eq(['March 3, 2026', 'April 1, 2026'])
         end
       end
     end
