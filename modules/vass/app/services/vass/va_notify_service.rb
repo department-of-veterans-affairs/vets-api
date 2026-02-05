@@ -2,17 +2,17 @@
 
 module Vass
   ##
-  # Service class for sending OTC codes via VANotify.
+  # Service class for sending OTP codes via VANotify.
   #
-  # This service handles sending One-Time Codes (OTC) to users via email
+  # This service handles sending One-Time Passwords (OTP) to users via email
   # using the VANotify service.
   #
-  # @example Send OTC via email
+  # @example Send OTP via email
   #   service = Vass::VANotifyService.build
-  #   service.send_otc(
+  #   service.send_otp(
   #     contact_method: 'email',
   #     contact_value: 'veteran@example.com',
-  #     otc_code: '123456'
+  #     otp_code: '123456'
   #   )
   #
   class VANotifyService
@@ -42,37 +42,37 @@ module Vass
     end
 
     ##
-    # Sends an OTC code via email.
+    # Sends an OTP code via email.
     #
     # @param contact_method [String] Contact method (must be 'email')
     # @param contact_value [String] Email address
-    # @param otc_code [String] OTC code to send
+    # @param otp_code [String] OTP code to send
     #
     # @return [VaNotify::NotificationResponse] Response from VANotify
     # @raise [ArgumentError] if contact_method is invalid
     # @raise [VANotify::Error] if VANotify service fails
     #
-    def send_otc(contact_method:, contact_value:, otc_code:)
+    def send_otp(contact_method:, contact_value:, otp_code:)
       raise ArgumentError, "Invalid contact_method: #{contact_method}. Must be 'email'" unless contact_method == 'email'
 
-      send_email_otc(contact_value, otc_code)
+      send_email_otp(contact_value, otp_code)
     end
 
     private
 
     ##
-    # Sends OTC via email.
+    # Sends OTP via email.
     #
     # @param email_address [String] Email address
-    # @param otc_code [String] OTC code
+    # @param otp_code [String] OTP code
     #
     # @return [VaNotify::NotificationResponse] Response from VANotify
     #
-    def send_email_otc(email_address, otc_code)
+    def send_email_otp(email_address, otp_code)
       notify_client.send_email(
         email_address:,
         template_id: email_template_id,
-        personalisation: { otc_code: }
+        personalisation: { otp_code: }
       )
     end
 
@@ -86,13 +86,13 @@ module Vass
     end
 
     ##
-    # Returns the email template ID for OTC.
+    # Returns the email template ID for OTP.
     #
     # @return [String] Template ID
     #
     def email_template_id
       Settings.vanotify.services.va_gov.template_id.vass_otp_email ||
-        raise(ArgumentError, 'VASS OTC email template ID not configured')
+        raise(ArgumentError, 'VASS OTP email template ID not configured')
     end
   end
 end

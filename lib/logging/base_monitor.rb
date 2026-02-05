@@ -43,23 +43,35 @@ module Logging
     private
 
     # message prefix to prepend
+    # @return [String]
     def message_prefix
       "#{name} #{form_id}"
     end
 
     # Abstract methods
+
+    # Stats key for Sidekiq DD logging
+    # @return [String]
     def claim_stats_key
       raise NotImplementedError, 'Subclasses must implement claim_stats_key'
     end
 
+    # Stats key for Sidekiq DD logging
+    # @return [String]
     def submission_stats_key
       raise NotImplementedError, 'Subclasses must implement submission_stats_key'
     end
 
+    # Name to be used in monitor messages
+    # @see #message_prefix
+    # @return [String]
     def name
       raise NotImplementedError, 'Subclasses must implement name'
     end
 
+    # Form Id to be used in monitor messages
+    # @see #message_prefix
+    # @return [String]
     def form_id
       raise NotImplementedError, 'Subclasses must implement form_id'
     end
