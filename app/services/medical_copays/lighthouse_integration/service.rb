@@ -67,7 +67,8 @@ module MedicalCopays
 
         raw_bundle = raw_bundle.merge(
           'entry' => entries,
-          'total' => entries.length
+          'total' => entries.length,
+          'link' => []
         )
 
         formatted_entries = build_invoice_entries(raw_bundle)
