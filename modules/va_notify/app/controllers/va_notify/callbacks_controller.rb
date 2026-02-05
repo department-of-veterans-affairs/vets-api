@@ -105,7 +105,7 @@ module VANotify
     end
 
     def service_callback_tokens
-      Settings.vanotify.service_callback_tokens.to_h.values
+      Settings.vanotify.service_callback_tokens&.to_h&.values
     end
 
     def notification_params

@@ -44,6 +44,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       before do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(VaNotify::Client).to receive(:new).and_return(va_notify_client)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
       end
 
       it 'the service is initialized with the correct parameters' do
@@ -61,7 +62,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'sends a confirmation email' do
         requirements = {
-          callback_url: Settings.vanotify.callback_url,
           email_address:,
           template_id: Settings.vanotify
                                .services

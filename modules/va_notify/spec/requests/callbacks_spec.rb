@@ -6,7 +6,7 @@ require 'va_notify/default_callback'
 require 'va_notify/callback_signature_generator'
 
 RSpec.describe 'VANotify Callbacks', type: :request do
-  let(:valid_token) { Settings.vanotify.service_callback_tokens.to_h.values.first }
+  let(:valid_token) { Settings.vanotify.service_callback_tokens&.to_h&.values&.first }
   let(:invalid_token) { 'invalid_token' }
   let(:notification_id) { SecureRandom.uuid }
   let(:attr_package_params_cache_key) { SecureRandom.hex(32) }
