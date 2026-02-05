@@ -21,11 +21,11 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
   it 'stores and retrieves personalisation securely' do
     allow(VaNotify::Service).to receive(:new).and_return(instance_double(VaNotify::Service, send_email: true))
     Sidekiq::Testing.inline! do
-      key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation:, api_key: })
-      expect(Sidekiq::AttrPackage.find(key)).to eq(attrs: { email:, personalisation:, api_key: })
+      key = Sidekiq::AttrPackage.create(email:, personalisation:, api_key:)
+      expect(Sidekiq::AttrPackage.find(key)).to eq(email:, personalisation:, api_key:)
 
       VANotify::V2::QueueEmailJob.perform_async(template_id, key, callback_options)
-      expect(Sidekiq::AttrPackage.find(key)).to eq(attrs: { email:, personalisation:, api_key: })
+      expect(Sidekiq::AttrPackage.find(key)).to eq(email:, personalisation:, api_key:)
     end
   end
 
@@ -56,7 +56,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'handles VANotify::Error (400) and calls handle_backend_exception' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation:, api_key: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:, api_key:)
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::BadRequest.new(400, 'bad request')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
@@ -67,7 +67,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'raises and logs for VANotify::Error (5xx)' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation:, api_key: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:, api_key:)
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::ServerError.new(500, 'server error')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
