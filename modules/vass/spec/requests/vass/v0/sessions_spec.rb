@@ -314,7 +314,8 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
         expect(Rails.logger).to receive(:warn).with(
-          a_string_including('"service":"vass"', '"action":"invalid_otp"', %("vass_uuid":"#{uuid}"))
+          a_string_including('"service":"vass"', '"action":"otp_validation_failed"', %("vass_uuid":"#{uuid}"),
+                             '"attempt_number":', '"failure_type":"invalid_otp_code"')
         ).and_call_original
 
         invalid_params = params.deep_merge(session: { otp: '999999' })

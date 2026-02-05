@@ -67,6 +67,11 @@ module Vass
     SESSION_JWT_EXPIRED = "#{INFRASTRUCTURE_PREFIX}.session.jwt.expired".freeze
 
     # ========================================
+    # Infrastructure Metrics - Auth Failures
+    # ========================================
+    AUTH_IDENTITY_VALIDATION_FAILURE = "#{INFRASTRUCTURE_PREFIX}.auth.identity_validation.failure".freeze
+
+    # ========================================
     # Infrastructure Metrics - Availability Scenarios
     # ========================================
     AVAILABILITY_NO_COHORTS = "#{INFRASTRUCTURE_PREFIX}.availability.no_cohorts".freeze

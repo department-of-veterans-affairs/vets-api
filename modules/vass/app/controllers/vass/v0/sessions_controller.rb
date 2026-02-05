@@ -225,16 +225,38 @@ module Vass
 
       ##
       # Handles identity validation errors.
+      # Tracks attempt number for monitoring auth failure patterns.
       #
       # @param session [Vass::V0::Session] Session instance
       # @param error [Vass::Errors::IdentityValidationError] Error
       #
       def handle_identity_validation_error(session, _error)
-        log_vass_event(action: 'identity_validation_failed', vass_uuid: session.uuid, level: :warn)
+        attempt_number = redis_client.rate_limit_count(identifier: session.uuid)
+        track_identity_validation_failure(session.uuid, attempt_number)
         render_session_error_response(
           code: 'invalid_credentials',
           detail: 'Unable to verify identity. Please check your information.',
           status: :unauthorized
+        )
+      end
+
+      ##
+      # Tracks identity validation failure with attempt number for monitoring.
+      #
+      # @param uuid [String] Veteran UUID
+      # @param attempt_number [Integer] Current attempt number
+      #
+      def track_identity_validation_failure(uuid, attempt_number)
+        track_infrastructure_metric(
+          AUTH_IDENTITY_VALIDATION_FAILURE,
+          additional_tags: { attempt: attempt_number }
+        )
+        log_vass_event(
+          action: 'identity_validation_failed',
+          vass_uuid: uuid,
+          level: :warn,
+          attempt_number:,
+          failure_type: 'identity_mismatch'
         )
       end
 
@@ -458,14 +480,15 @@ module Vass
 
       ##
       # Handles invalid OTP submission.
+      # Tracks attempt number for monitoring OTP validation failure patterns.
       #
       # @param session [Vass::V0::Session] Session instance
       # @return [Boolean] false
       #
       def handle_invalid_otp(session)
         increment_validation_rate_limit(session.uuid)
-        log_invalid_otp(session.uuid)
-        track_infrastructure_metric(SESSION_OTP_INVALID)
+        attempt_number = redis_client.validation_rate_limit_count(identifier: session.uuid)
+        track_otp_validation_failure(session.uuid, attempt_number)
 
         attempts_remaining = redis_client.validation_attempts_remaining(identifier: session.uuid)
         render_session_error_response(
@@ -478,19 +501,30 @@ module Vass
       end
 
       ##
+      # Tracks OTP validation failure with attempt number for monitoring.
+      #
+      # @param uuid [String] Veteran UUID
+      # @param attempt_number [Integer] Current attempt number
+      #
+      def track_otp_validation_failure(uuid, attempt_number)
+        track_infrastructure_metric(
+          SESSION_OTP_INVALID,
+          additional_tags: { attempt: attempt_number }
+        )
+        log_vass_event(
+          action: 'otp_validation_failed',
+          vass_uuid: uuid,
+          level: :warn,
+          attempt_number:,
+          failure_type: 'invalid_otp_code'
+        )
+      end
+
+      ##
       # Logs validation error (no PHI).
       #
       def log_validation_error
         log_vass_event(action: 'validation_error', level: :warn)
-      end
-
-      ##
-      # Logs invalid OTP attempt (no PHI).
-      #
-      # @param uuid [String] Veteran UUID
-      #
-      def log_invalid_otp(uuid)
-        log_vass_event(action: 'invalid_otp', vass_uuid: uuid, level: :warn)
       end
 
       ##
