@@ -73,6 +73,15 @@ properties:
       suggestedNameDisplay:
         type: string
         example: "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James"
+      isOhMessage:
+        type: boolean
+        description: Indicates if this message is an Oracle Health message
+        example: false
+      ohMigrationPhase:
+        type: string
+        nullable: true
+        description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+        example: null
   links:
     type: object
     required:
