@@ -4,7 +4,7 @@ module Vass
   ##
   # Service class for sending OTP codes via VANotify.
   #
-  # This service handles sending One-Time Codes (OTP) to users via email
+  # This service handles sending One-Time Passwords (OTP) to users via email
   # using the VANotify service.
   #
   # @example Send OTP via email

@@ -6,7 +6,7 @@ module Vass
   #
   # Handles:
   # - OAuth access token from Microsoft identity provider (shared across requests)
-  # - One-Time Codes (OTP) for veteran verification flow
+  # - One-Time Passwords (OTP) for veteran verification flow
   # - Session data (EDIPI, veteran_id) after successful OTP verification
   #
   class RedisClient
@@ -68,14 +68,14 @@ module Vass
       end
     end
 
-    # ------------ One-Time Code (OTP) Management ------------
+    # ------------ One-Time Password (OTP) Management ------------
 
     ##
     # Saves an OTP for a veteran UUID with short expiration.
     # Stores the code along with identity data for validation during authentication.
     #
     # @param uuid [String] Veteran UUID
-    # @param code [String] One-time code
+    # @param code [String] One-time password
     # @param last_name [String] Veteran's last name (for identity verification)
     # @param dob [String] Veteran's date of birth (for identity verification)
     # @return [Boolean] true if write succeeds

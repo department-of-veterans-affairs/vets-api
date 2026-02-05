@@ -5,7 +5,7 @@ module Vass
     ##
     # Session model for managing OTP-based authentication flow.
     #
-    # This model handles the generation and validation of One-Time Codes (OTP)
+    # This model handles the generation and validation of One-Time Passwords (OTP)
     # for non-authenticated users who need to verify their identity
     # before scheduling appointments.
     #
@@ -16,7 +16,7 @@ module Vass
     # @!attribute contact_value
     #   @return [String] Email address or phone number
     # @!attribute otp_code
-    #   @return [String] User-provided one-time code (OTP) for validation (aliased as otp)
+    #   @return [String] User-provided one-time password (OTP) for validation (aliased as otp)
     # @!attribute redis_client
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
@@ -31,7 +31,6 @@ module Vass
 
       # OTP code length
       OTP_LENGTH = 6
-      OTP_LENGTH = 6 # Alias for backwards compatibility
 
       attr_accessor :contact_method, :contact_value, :edipi, :veteran_id
       attr_reader :uuid, :last_name, :date_of_birth, :otp_code, :redis_client
@@ -97,9 +96,9 @@ module Vass
       end
 
       ##
-      # Generates a new 6-digit one-time code (OTP).
+      # Generates a new 6-digit one-time password (OTP).
       #
-      # @return [String] Generated one-time code
+      # @return [String] Generated one-time password
       #
       def generate_otp
         SecureRandom.random_number(1_000_000).to_s.rjust(OTP_LENGTH, '0')

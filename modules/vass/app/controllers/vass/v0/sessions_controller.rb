@@ -3,9 +3,9 @@
 module Vass
   module V0
     ##
-    # Controller for OTP-based session management (One-Time Code).
+    # Controller for OTP-based session management (One-Time Password).
     #
-    # Handles the generation and validation of One-Time Codes (OTP)
+    # Handles the generation and validation of One-Time Passwords (OTP)
     # for non-authenticated users who need to verify their identity
     # before scheduling appointments.
     #
