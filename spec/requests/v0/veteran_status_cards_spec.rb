@@ -35,16 +35,10 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
             attributes: {
               full_name: 'John Doe',
               disability_rating: 50,
-              latest_service: {
-                branch: 'Army',
-                begin_date: '2010-01-01',
-                end_date: '2015-12-31'
-              },
               edipi: '1234567890',
               veteran_status: 'confirmed',
               not_confirmed_reason: nil,
-              service_summary_code: 'A1',
-              service_history_status: 'found'
+              service_summary_code: 'A1'
             }
           }
         end
@@ -66,7 +60,6 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
           expect(json['type']).to eq('veteran_status_card')
           expect(json['attributes']['full_name']).to be_present
           expect(json['attributes']['disability_rating']).to eq(50)
-          expect(json['attributes']['latest_service']).to be_present
           expect(json['attributes']['veteran_status']).to eq('confirmed')
         end
       end
@@ -81,8 +74,7 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
               alert_type: 'error',
               veteran_status: 'not confirmed',
               not_confirmed_reason: 'PERSON_NOT_FOUND',
-              service_summary_code: 'A1',
-              service_history_status: 'found'
+              service_summary_code: 'A1'
             }
           }
         end

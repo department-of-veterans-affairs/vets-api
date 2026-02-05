@@ -51,23 +51,6 @@ RSpec.describe VeteranStatusCard::Service do
 
   let(:ssc_code) { 'A1' }
 
-  let(:service_history_response) do
-    instance_double(
-      VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
-      episodes: service_episodes
-    )
-  end
-
-  let(:service_episodes) do
-    [
-      VAProfile::Models::ServiceHistory.new(
-        branch_of_service: 'Army',
-        begin_date: '2010-01-01',
-        end_date: '2015-12-31'
-      )
-    ]
-  end
-
   let(:disability_rating) { 50 }
 
   before do
@@ -75,8 +58,7 @@ RSpec.describe VeteranStatusCard::Service do
     allow(vet_verification_service).to receive(:get_vet_verification_status).and_return(vet_verification_response)
 
     allow(VAProfile::MilitaryPersonnel::Service).to receive(:new).and_return(military_personnel_service)
-    allow(military_personnel_service).to receive_messages(get_dod_service_summary: dod_service_summary_response,
-                                                          get_service_history: service_history_response)
+    allow(military_personnel_service).to receive(:get_dod_service_summary).and_return(dod_service_summary_response)
 
     allow(LighthouseRatedDisabilitiesProvider).to receive(:new).and_return(lighthouse_disabilities_provider)
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
@@ -209,15 +191,6 @@ RSpec.describe VeteranStatusCard::Service do
         )
       end
 
-      it 'includes service_history_status in log' do
-        subject.send(:log_vsc_result, confirmed: true)
-
-        expect(Rails.logger).to have_received(:info).with(
-          '[VeteranStatusCard::Service] VSC Card Result',
-          hash_including(service_history_status: 'found')
-        )
-      end
-
       context 'confirmation_status StatsD logging' do
         it 'logs the confirmation_status as a StatsD metric' do
           subject.instance_variable_set(:@confirmation_status, 'test_confirmation_status')
@@ -288,8 +261,7 @@ RSpec.describe VeteranStatusCard::Service do
             '[VeteranStatusCard::Service] VSC Card Result',
             hash_including(
               veteran_status: 'confirmed',
-              service_summary_code: ssc_code,
-              service_history_status: 'found'
+              service_summary_code: ssc_code
             )
           )
         end
@@ -465,13 +437,10 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:full_name]).to be_a(String)
           expect(result[:attributes][:full_name]).to be_present
           expect(result[:attributes][:disability_rating]).to eq(50)
-          expect(result[:attributes][:latest_service]).to be_present
-          expect(result[:attributes][:latest_service][:branch]).to eq('Army')
           expect(result[:attributes][:edipi]).to eq(user.edipi)
           expect(result[:attributes][:veteran_status]).to eq('confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to be_nil
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
@@ -500,7 +469,6 @@ RSpec.describe VeteranStatusCard::Service do
                   expect(result[:attributes][:veteran_status]).to eq('confirmed')
                   expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
                   expect(result[:attributes][:service_summary_code]).to eq(code)
-                  expect(result[:attributes][:service_history_status]).to eq('found')
                   expect(result[:attributes][:confirmation_status]).to eq(category)
                 end
               end
@@ -562,66 +530,6 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'service history scenarios' do
-        let(:veteran_status) { 'confirmed' }
-
-        it 'returns complete service history with date range' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service]).to be_present
-          expect(result[:attributes][:latest_service][:branch]).to eq('Army')
-          expect(result[:attributes][:latest_service][:begin_date]).to eq('2010-01-01')
-          expect(result[:attributes][:latest_service][:end_date]).to eq('2015-12-31')
-        end
-
-        context 'with multiple service episodes' do
-          let(:service_episodes) do
-            [
-              VAProfile::Models::ServiceHistory.new(
-                branch_of_service: 'Army',
-                begin_date: '2000-01-01',
-                end_date: '2005-12-31'
-              ),
-              VAProfile::Models::ServiceHistory.new(
-                branch_of_service: 'Navy',
-                begin_date: '2010-01-01',
-                end_date: '2015-12-31'
-              ),
-              VAProfile::Models::ServiceHistory.new(
-                branch_of_service: 'Air Force',
-                begin_date: '2018-01-01',
-                end_date: '2023-12-31'
-              )
-            ]
-          end
-
-          it 'returns the most recent service episode' do
-            result = subject.status_card
-
-            expect(result[:type]).to eq('veteran_status_card')
-            expect(result[:attributes][:latest_service][:branch]).to eq('Air Force')
-            expect(result[:attributes][:latest_service][:begin_date]).to eq('2018-01-01')
-            expect(result[:attributes][:latest_service][:end_date]).to eq('2023-12-31')
-          end
-        end
-
-        context 'with empty episodes array' do
-          let(:service_episodes) { [] }
-
-          it 'returns veteran_status_card with nil service values' do
-            result = subject.status_card
-
-            expect(result[:type]).to eq('veteran_status_card')
-            expect(result[:attributes][:latest_service][:branch]).to be_nil
-            expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-            expect(result[:attributes][:latest_service][:end_date]).to be_nil
-            expect(result[:attributes][:veteran_status]).to eq('confirmed')
-            expect(result[:attributes][:service_history_status]).to eq('empty')
-          end
-        end
-      end
-
       context 'complete data structure validation' do
         let(:veteran_status) { 'confirmed' }
 
@@ -635,23 +543,15 @@ RSpec.describe VeteranStatusCard::Service do
 
           expect(result[:attributes]).to be_a(Hash)
           expect(result[:attributes].keys).to contain_exactly(:full_name, :disability_rating,
-                                                              :latest_service, :edipi,
-                                                              :veteran_status, :not_confirmed_reason,
-                                                              :confirmation_status, :service_summary_code,
-                                                              :service_history_status)
+                                                              :edipi, :veteran_status,
+                                                              :not_confirmed_reason, :confirmation_status,
+                                                              :service_summary_code)
           expect(result[:attributes][:full_name]).to be_a(String)
           expect(result[:attributes][:disability_rating]).to be_a(Integer)
           expect(result[:attributes][:edipi]).to eq(user.edipi)
           expect(result[:attributes][:veteran_status]).to eq('confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to be_nil
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-          expect(result[:attributes][:service_history_status]).to eq('found')
-
-          expect(result[:attributes][:latest_service]).to be_a(Hash)
-          expect(result[:attributes][:latest_service].keys).to contain_exactly(:branch, :begin_date, :end_date)
-          expect(result[:attributes][:latest_service][:branch]).to be_a(String)
-          expect(result[:attributes][:latest_service][:begin_date]).to be_a(String)
-          expect(result[:attributes][:latest_service][:end_date]).to be_a(String)
         end
       end
     end
@@ -675,7 +575,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
@@ -695,7 +594,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('ERROR')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
@@ -716,7 +614,6 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:attributes][:veteran_status]).to eq('not confirmed')
               expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
               expect(result[:attributes][:service_summary_code]).to eq(code)
-              expect(result[:attributes][:service_history_status]).to eq('found')
             end
           end
         end
@@ -739,7 +636,6 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:attributes][:veteran_status]).to eq('not confirmed')
               expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
               expect(result[:attributes][:service_summary_code]).to eq(code)
-              expect(result[:attributes][:service_history_status]).to eq('found')
             end
           end
         end
@@ -759,7 +655,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
           expect(result[:attributes][:service_summary_code]).to eq('U')
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
@@ -777,7 +672,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
           expect(result[:attributes][:service_summary_code]).to eq('X')
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 
@@ -798,7 +692,6 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:attributes][:veteran_status]).to eq('not confirmed')
               expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
               expect(result[:attributes][:service_summary_code]).to eq(code)
-              expect(result[:attributes][:service_history_status]).to eq('found')
             end
           end
         end
@@ -821,7 +714,6 @@ RSpec.describe VeteranStatusCard::Service do
               expect(result[:attributes][:veteran_status]).to eq('not confirmed')
               expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
               expect(result[:attributes][:service_summary_code]).to eq(code)
-              expect(result[:attributes][:service_history_status]).to eq('found')
             end
           end
         end
@@ -958,71 +850,6 @@ RSpec.describe VeteranStatusCard::Service do
       expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(70)
 
       expect(subject.send(:disability_rating)).to eq(70)
-    end
-  end
-
-  describe '#latest_service_history' do
-    context 'with service episodes' do
-      let(:service_episodes) do
-        [
-          VAProfile::Models::ServiceHistory.new(
-            branch_of_service: 'Navy',
-            begin_date: '2000-01-01',
-            end_date: '2005-12-31'
-          ),
-          VAProfile::Models::ServiceHistory.new(
-            branch_of_service: 'Army',
-            begin_date: '2010-01-01',
-            end_date: '2015-12-31'
-          )
-        ]
-      end
-
-      it 'returns the most recent service episode' do
-        result = subject.send(:latest_service_history)
-
-        expect(result[:branch]).to eq('Army')
-        expect(result[:begin_date]).to eq('2010-01-01')
-        expect(result[:end_date]).to eq('2015-12-31')
-      end
-    end
-
-    context 'with no service episodes' do
-      let(:service_episodes) { [] }
-
-      it 'returns nil values' do
-        result = subject.send(:latest_service_history)
-
-        expect(result[:branch]).to be_nil
-        expect(result[:begin_date]).to be_nil
-        expect(result[:end_date]).to be_nil
-      end
-    end
-  end
-
-  describe '#format_service_date_range' do
-    context 'with a service episode' do
-      let(:episode) do
-        VAProfile::Models::ServiceHistory.new(
-          begin_date: '2010-01-01',
-          end_date: '2015-12-31'
-        )
-      end
-
-      it 'returns formatted date range' do
-        result = subject.send(:format_service_date_range, episode)
-
-        expect(result[:begin_date]).to eq('2010-01-01')
-        expect(result[:end_date]).to eq('2015-12-31')
-      end
-    end
-
-    context 'with nil episode' do
-      it 'returns nil' do
-        result = subject.send(:format_service_date_range, nil)
-
-        expect(result).to be_nil
-      end
     end
   end
 
@@ -1205,29 +1032,6 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when VAProfile MilitaryPersonnel (Service History) raises exception' do
-        let(:veteran_status) { 'confirmed' }
-
-        before do
-          allow(military_personnel_service).to receive(:get_service_history)
-            .and_raise(StandardError.new('Service history failed'))
-        end
-
-        it 'logs the error and returns veteran_status_card with nil service values' do
-          expect(Rails.logger).to receive(:error).with(/VAProfile::MilitaryPersonnel \(Service History\) error/,
-                                                       anything)
-
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
-          expect(result[:attributes][:veteran_status]).to eq('confirmed')
-          expect(result[:attributes][:service_history_status]).to eq('empty')
-        end
-      end
-
       context 'when disability rating provider raises exception' do
         let(:veteran_status) { 'confirmed' }
 
@@ -1295,44 +1099,6 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when military_personnel_service.get_service_history returns nil' do
-        let(:veteran_status) { 'confirmed' }
-
-        before do
-          allow(military_personnel_service).to receive(:get_service_history).and_return(nil)
-        end
-
-        it 'returns veteran_status_card with nil service values' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
-          expect(result[:attributes][:veteran_status]).to eq('confirmed')
-          expect(result[:attributes][:service_history_status]).to eq('empty')
-        end
-      end
-
-      context 'when service_history response has nil episodes' do
-        let(:veteran_status) { 'confirmed' }
-        let(:service_history_response) do
-          instance_double(
-            VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
-            episodes: nil
-          )
-        end
-
-        it 'returns veteran_status_card with nil service values' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:veteran_status]).to eq('confirmed')
-          expect(result[:attributes][:service_history_status]).to eq('empty')
-        end
-      end
-
       context 'when disability rating returns nil' do
         let(:veteran_status) { 'confirmed' }
 
@@ -1374,22 +1140,6 @@ RSpec.describe VeteranStatusCard::Service do
           expect(summary[:effective_start_date]).to eq('')
         end
       end
-
-      context 'when service episodes are empty array' do
-        let(:veteran_status) { 'confirmed' }
-        let(:service_episodes) { [] }
-
-        it 'returns veteran_status_card with nil service values' do
-          result = subject.status_card
-
-          expect(result[:type]).to eq('veteran_status_card')
-          expect(result[:attributes][:latest_service][:branch]).to be_nil
-          expect(result[:attributes][:latest_service][:begin_date]).to be_nil
-          expect(result[:attributes][:latest_service][:end_date]).to be_nil
-          expect(result[:attributes][:veteran_status]).to eq('confirmed')
-          expect(result[:attributes][:service_history_status]).to eq('empty')
-        end
-      end
     end
 
     describe 'error response formatting' do
@@ -1410,7 +1160,6 @@ RSpec.describe VeteranStatusCard::Service do
         expect(result[:attributes][:not_confirmed_reason]).to be_nil
         expect(result[:attributes][:confirmation_status]).to eq('NO_SSC_CHECK')
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-        expect(result[:attributes][:service_history_status]).to eq('found')
       end
     end
   end

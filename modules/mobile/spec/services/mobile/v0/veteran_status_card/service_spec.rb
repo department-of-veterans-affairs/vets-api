@@ -51,23 +51,6 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
 
   let(:ssc_code) { 'A1' }
 
-  let(:service_history_response) do
-    instance_double(
-      VAProfile::MilitaryPersonnel::ServiceHistoryResponse,
-      episodes: service_episodes
-    )
-  end
-
-  let(:service_episodes) do
-    [
-      VAProfile::Models::ServiceHistory.new(
-        branch_of_service: 'Army',
-        begin_date: '2010-01-01',
-        end_date: '2015-12-31'
-      )
-    ]
-  end
-
   let(:disability_rating) { 50 }
 
   before do
@@ -75,8 +58,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     allow(vet_verification_service).to receive(:get_vet_verification_status).and_return(vet_verification_response)
 
     allow(VAProfile::MilitaryPersonnel::Service).to receive(:new).and_return(military_personnel_service)
-    allow(military_personnel_service).to receive_messages(get_dod_service_summary: dod_service_summary_response,
-                                                          get_service_history: service_history_response)
+    allow(military_personnel_service).to receive(:get_dod_service_summary).and_return(dod_service_summary_response)
 
     allow(LighthouseRatedDisabilitiesProvider).to receive(:new).and_return(lighthouse_disabilities_provider)
     allow(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(disability_rating)
@@ -224,8 +206,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
             '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
             hash_including(
               veteran_status: 'confirmed',
-              service_summary_code: ssc_code,
-              service_history_status: 'found'
+              service_summary_code: ssc_code
             )
           )
         end
@@ -399,12 +380,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         expect(result[:type]).to eq('veteran_status_card')
         expect(result[:attributes][:full_name]).to be_a(String)
         expect(result[:attributes][:disability_rating]).to eq(50)
-        expect(result[:attributes][:latest_service]).to be_present
         expect(result[:attributes][:edipi]).to eq(user.edipi)
         expect(result[:attributes][:veteran_status]).to eq('confirmed')
         expect(result[:attributes][:not_confirmed_reason]).to be_nil
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-        expect(result[:attributes][:service_history_status]).to eq('found')
       end
     end
 
@@ -425,7 +404,6 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('MORE_RESEARCH_REQUIRED')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
-          expect(result[:attributes][:service_history_status]).to eq('found')
         end
       end
 

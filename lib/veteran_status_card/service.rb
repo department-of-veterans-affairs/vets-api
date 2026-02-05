@@ -97,11 +97,10 @@ module VeteranStatusCard
     # @return [Hash] the status card data with keys:
     #   - :type [String] 'veteran_status_card' or 'veteran_status_alert'
     #   - :attributes [Hash] containing either:
-    #     - When eligible: { full_name:, disability_rating:, latest_service:, edipi:,
-    #         veteran_status:, not_confirmed_reason:, confirmation_status:, service_summary_code:,
-    #         service_history_status: }
+    #     - When eligible: { full_name:, disability_rating:, edipi:,
+    #         veteran_status:, not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
-    #         not_confirmed_reason:, confirmation_status:, service_summary_code:, service_history_status: }
+    #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
     def status_card
       if eligible?
@@ -246,8 +245,7 @@ module VeteranStatusCard
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: vet_verification_status[:reason],
                           confirmation_status: confirmation_status_upcase,
-                          service_summary_code: ssc_code,
-                          service_history_status:
+                          service_summary_code: ssc_code
                         })
     end
 
@@ -271,13 +269,11 @@ module VeteranStatusCard
         attributes: {
           full_name:,
           disability_rating:,
-          latest_service: latest_service_history,
           edipi: @user&.edipi,
           veteran_status: CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
           confirmation_status: confirmation_status_upcase,
-          service_summary_code: ssc_code,
-          service_history_status:
+          service_summary_code: ssc_code
         }
       }
     end
@@ -298,8 +294,7 @@ module VeteranStatusCard
           veteran_status: NOT_CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
           confirmation_status: confirmation_status_upcase,
-          service_summary_code: ssc_code,
-          service_history_status:
+          service_summary_code: ssc_code
         }
       }
     end
@@ -405,86 +400,6 @@ module VeteranStatusCard
     #
     def lighthouse_disabilities_provider
       @lighthouse_disabilities_provider ||= LighthouseRatedDisabilitiesProvider.new(@user.icn)
-    end
-
-    ##
-    # Returns 'found' or 'empty' based on the Boolean from #service_history?
-    #
-    # @return [String] either 'found' or 'empty'
-    #
-    def service_history_status
-      service_history? ? 'found' : 'empty'
-    end
-
-    ##
-    # Checks if the user has any service history episodes
-    #
-    # @return [Boolean] true if service history episodes exist, false otherwise
-    #
-    def service_history?
-      service_history_response&.episodes&.any?
-    end
-
-    ##
-    # Gets the user's most recent military service history
-    # Returns hash with nil values if service call fails or no episodes exist
-    #
-    # @return [Hash] service history with keys:
-    #   - :branch [String, nil] the branch of service (e.g., 'Army')
-    #   - :begin_date [String, nil] the start of service date
-    #   - :end_date [String, nil] the end of service date
-    #
-    def latest_service_history
-      return @latest_service_history if defined?(@latest_service_history)
-
-      # Get the most recent service episode (episodes are sorted by begin_date, oldest first)
-      last_service = service_history_response&.episodes&.last
-      if last_service.nil?
-        @latest_service_history = { branch: nil, begin_date: nil, end_date: nil }
-        return @latest_service_history
-      end
-
-      last_service_dates = format_service_date_range(last_service)
-
-      @latest_service_history = {
-        branch: last_service.branch_of_service,
-        begin_date: last_service_dates&.dig(:begin_date),
-        end_date: last_service_dates&.dig(:end_date)
-      }
-    end
-
-    ##
-    # Gets the service history response (memoized)
-    # Returns nil if service call fails or user missing EDIPI
-    #
-    # @return [VAProfile::MilitaryPersonnel::ServiceHistoryResponse, nil] the API response or nil on error
-    #
-    def service_history_response
-      return @service_history_response if defined?(@service_history_response)
-      return @service_history_response = nil if @user.edipi.blank?
-
-      @service_history_response = begin
-        military_personnel_service.get_service_history
-      rescue => e
-        Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}",
-                           backtrace: e.backtrace)
-        nil
-      end
-    end
-
-    ##
-    # Formats a service episode's date range into a hash
-    #
-    # @param service_episode [VAProfile::Models::ServiceHistory, nil] the service episode
-    # @return [Hash, nil] date range with :begin_date and :end_date, or nil if no episode
-    #
-    def format_service_date_range(service_episode)
-      return nil unless service_episode
-
-      {
-        begin_date: service_episode.begin_date,
-        end_date: service_episode.end_date
-      }
     end
 
     ##
@@ -668,8 +583,7 @@ module VeteranStatusCard
           veteran_status: NOT_CONFIRMED_TEXT,
           not_confirmed_reason: vet_verification_status[:reason],
           confirmation_status: confirmation_status_upcase,
-          service_summary_code: ssc_code,
-          service_history_status:
+          service_summary_code: ssc_code
         }
       }
     end
