@@ -535,8 +535,8 @@ namespace :form526 do
           soj = award_response[:award_stn_nbr]
         else
           addr = fs.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress')
-          soj = BGSV2::Service.new(user).get_regional_office_by_zip_code(addr['zipFirstFive'], addr['country'],
-                                                                         addr['state'], 'CP', ssn)
+          soj = BGS::Service.new(user).get_regional_office_by_zip_code(addr['zipFirstFive'], addr['country'],
+                                                                       addr['state'], 'CP', ssn)
         end
         row = [vname, ssn, soj]
         csv << row

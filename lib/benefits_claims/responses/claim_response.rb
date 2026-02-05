@@ -37,6 +37,14 @@ module BenefitsClaims
       attribute :support_aliases, String, array: true
       attribute :documents, String
       attribute :date, String
+      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
+      attribute :long_description, Hash
+      attribute :next_steps, Hash
+      attribute :no_action_needed, Bool
+      attribute :is_dbq, Bool
+      attribute :is_proper_noun, Bool
+      attribute :is_sensitive, Bool
+      attribute :no_provide_prefix, Bool
     end
 
     class SupportingDocument

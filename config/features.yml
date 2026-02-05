@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_intent_to_file:
-    actor_type: user
-    description: Enables accredited representative portal intent to file (0966)
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -41,6 +37,9 @@ features:
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
+  acroform_debug_logs:
+    actor_type: user
+    description: When enabled, AcroForm problematic fields will report in Rails logs
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -83,6 +82,10 @@ features:
       NOTE: When ready for all users to be in the updated experience on
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
+    enable_in_development: true
+  ask_va_enhanced_inbox:
+    actor_type: cookie_id
+    description: Enables the enhanced Ask VA inbox experience
     enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
@@ -571,6 +574,10 @@ features:
   cst_multi_claim_provider:
     actor_type: user
     description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
+  cst_multi_claim_provider_mobile:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
     enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
@@ -1614,6 +1621,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -1744,6 +1755,10 @@ features:
   profile_hide_health_care_contacts:
     actor_type: user
     description: Hides the health care contacts section on the Profile
+    enable_in_development: true
+  profile_hide_missing_claim_information_notification_setting:
+    actor_type: user
+    description: Hides the Missing claim information notification setting on the Profile notifications page
     enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
@@ -2220,6 +2235,20 @@ features:
     actor_type: user
     enable_in_development: false
     description: Enables detailed error message logging in CCRA referral service with PII scrubbing
+  va_online_scheduling_use_primary_care_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use primary_care_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Takes priority over referring_provider_npi flag if both are enabled.
+  va_online_scheduling_use_referring_provider_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use referring_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Primary care flag takes priority if both are enabled.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -2786,6 +2815,10 @@ features:
   mhv_oh_unique_user_metrics_logging:
     actor_type: user
     description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
+    enable_in_development: true
+  mhv_oh_unique_user_metrics_logging_appt:
+    actor_type: user
+    description: Enables Oracle Health facility ID extraction for appointments controllers. When disabled, appointment_facility_ids returns nil, bypassing facility tracking overhead.
     enable_in_development: true
   form_8794_release:
     actor_type: user

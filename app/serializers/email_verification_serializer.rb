@@ -4,11 +4,11 @@
 # EmailVerificationSerializer - Conditional serializer with three response modes
 #
 # Modes:
-# - status: true   => { needs_verification: bool }
+# - status: "verified"/"unverified" => { needs_verification: bool, status: string }
 # - sent: true     => { email_sent: bool, template_type: string }
 # - verified: true => { verified: bool, verified_at: datetime }
 #
-# Usage: EmailVerificationSerializer.new(resource, status: true)
+# Usage: EmailVerificationSerializer.new(resource, status: 'verified')
 # Validation: Exactly one mode flag required, multiple flags raise ArgumentError
 #
 class EmailVerificationSerializer
@@ -18,7 +18,7 @@ class EmailVerificationSerializer
   set_id :id
 
   RESPONSE_TYPE_ATTRIBUTES = {
-    status: %i[needs_verification],
+    status: %i[needs_verification status],
     sent: %i[email_sent template_type],
     verified: %i[verified verified_at]
   }.freeze
@@ -67,14 +67,26 @@ class EmailVerificationSerializer
   def detect_response_type
     return nil unless response_type_flags
 
-    enabled = RESPONSE_TYPE_ATTRIBUTES.keys.select { |key| response_type_flags[key] == true }
+    status_enabled = response_type_flags[:status]
+    sent_enabled = response_type_flags[:sent] == true
+    verified_enabled = response_type_flags[:verified] == true
 
-    return enabled.first if enabled.size == 1
-    return nil if enabled.empty?
+    enabled_count = 0
+    enabled_count += 1 if status_enabled
+    enabled_count += 1 if sent_enabled
+    enabled_count += 1 if verified_enabled
 
-    raise ArgumentError,
-          'EmailVerificationSerializer expects exactly one of ' \
-          "#{RESPONSE_TYPE_ATTRIBUTES.keys.join(', ')} to be true, got: #{enabled.inspect}"
+    if enabled_count > 1
+      raise ArgumentError,
+            'EmailVerificationSerializer expects exactly one of ' \
+            "#{RESPONSE_TYPE_ATTRIBUTES.keys.join(', ')} to be set"
+    end
+
+    return :status if status_enabled
+    return :sent if sent_enabled
+    return :verified if verified_enabled
+
+    nil
   end
 
   def build_attributes_for(response_type)
@@ -84,6 +96,7 @@ class EmailVerificationSerializer
     when :status
       attrs = {}
       attrs[:needs_verification] = @resource.needs_verification if @resource.respond_to?(:needs_verification)
+      attrs[:status] = response_type_flags[:status]
       attrs
     when :sent
       attrs = {}

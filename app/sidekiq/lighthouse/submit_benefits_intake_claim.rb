@@ -134,7 +134,8 @@ module Lighthouse
           form_type: @claim.form_id,
           form_data: @claim.to_json,
           saved_claim: @claim,
-          saved_claim_id: @claim.id
+          saved_claim_id: @claim.id,
+          user_account_id: @claim.user_account_id
         )
         @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
                                                                 benefits_intake_uuid: @lighthouse_service.uuid)

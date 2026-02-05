@@ -55,11 +55,6 @@ module AccreditedRepresentativePortal
       PoaRequestFailureNotifier.new(poa_form_submission.power_of_attorney_request).call
 
       Monitoring.new.track_duration(
-        'ar.poa.submission.duration',
-        from: poa_form_submission.created_at,
-        to: poa_form_submission.status_updated_at
-      )
-      Monitoring.new.track_duration(
         'ar.poa.submission.failed.duration',
         from: poa_form_submission.created_at,
         to: poa_form_submission.status_updated_at

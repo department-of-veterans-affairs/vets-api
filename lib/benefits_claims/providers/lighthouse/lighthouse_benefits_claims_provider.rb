@@ -29,7 +29,7 @@ module BenefitsClaims
 
         def initialize(user)
           @user = user
-          @service = BenefitsClaims::Service.new(user.icn)
+          @service = BenefitsClaims::Service.new(user)
           @config = BenefitsClaims::Configuration.instance
         end
 

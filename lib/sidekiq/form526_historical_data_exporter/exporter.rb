@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/s3_helpers'
+
 module Sidekiq
   module Form526HistoricalDataExporter
     class Exporter
@@ -19,23 +21,13 @@ module Sidekiq
       def upload_to_s3!
         s3_resource = new_s3_resource
 
-        if Aws::S3.const_defined?(:TransferManager)
-          # Use TransferManager for efficient multipart uploads
-          options = {
-            content_type: 'application/json',
-            multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
-          }
-          Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
-            @file_path_and_name,
-            bucket: s3_bucket,
-            key: @file_name,
-            **options
-          )
-        else
-          # Fall back to basic upload
-          obj = s3_resource.bucket(s3_bucket).object(@file_name)
-          obj.upload_file(@file_path_and_name, content_type: 'application/json')
-        end
+        Common::S3Helpers.upload_file(
+          s3_resource:,
+          bucket: s3_bucket,
+          key: @file_name,
+          file_path: @file_path_and_name,
+          content_type: 'application/json'
+        )
       end
 
       def s3_bucket
