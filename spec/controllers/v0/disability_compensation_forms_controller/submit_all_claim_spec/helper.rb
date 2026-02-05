@@ -4,7 +4,7 @@ require_relative 'example_definition'
 require_relative 'vcr_endpoint_matchers'
 
 module SubmitAllClaimSpec
-  module Helper
+  module Helper # rubocop:disable Metrics/ModuleLength
     extend ActiveSupport::Concern
 
     class_methods do
@@ -17,9 +17,9 @@ module SubmitAllClaimSpec
           user = build(:user, :loa3, icn: definition.user_icn)
           sign_in_as(user)
 
-          VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do
+          VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do |cassette|
             Sidekiq::Testing.inline! do
-              self.class.with_lighthouse_token_signing_key do
+              self.class.with_lighthouse_token_signing_key(cassette.recording?) do
                 body = File.read(PAYLOAD_FIXTURE_PATH_PREFIX / "#{definition.payload_fixture}.json")
                 post(:submit_all_claim, body:, as: :json)
               end
@@ -76,9 +76,8 @@ module SubmitAllClaimSpec
       ##
       # TODO: Explain this.
       #
-      def with_lighthouse_token_signing_key(&)
-        ENV['CI'].present? or
-          return yield
+      def with_lighthouse_token_signing_key(cassette_recording, &)
+        return yield if cassette_recording
 
         settings = Settings.lighthouse
         rsa_key = FAKE_RSA_KEY_PATH
@@ -126,9 +125,16 @@ module SubmitAllClaimSpec
         # TODO: Explain this.
         #
         ARTIFICIAL_TOGGLE_VALUES.each do |toggle, value|
-          [toggle.to_sym, toggle.to_s].each do |t|
+          toggles = [
+            toggle.to_sym,
+            toggle.to_s
+          ]
+
+          toggles.each do |t|
             allow(Flipper).to(
-              receive(:enabled?).with(t, any_args).and_return(value)
+              receive(:enabled?)
+                .with(t, any_args)
+                .and_return(value)
             )
           end
         end
