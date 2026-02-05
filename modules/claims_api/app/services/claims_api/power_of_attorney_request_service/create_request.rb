@@ -344,10 +344,6 @@ module ClaimsApi
         @form_data[:consentLimits].present? && @form_data[:consentLimits].include?(condition)
       end
 
-      def format_phone(phone)
-        "#{phone[:areaCode]}#{phone[:phoneNumber]}"
-      end
-
       def add_meta_ids(vet_obj)
         return vet_obj if @vnp_res_object['meta'].blank?
 
@@ -370,13 +366,11 @@ module ClaimsApi
         # is international
         if phone_data[:countryCode].present? && phone_data[:countryCode] != '1'
           return ' ' if location_type == 'domestic'
-
-          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".gsub(/\s/, '')
-        else
-          return nil if location_type == 'international'
-
-          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}"
+        elsif location_type == 'international'
+          return nil
         end
+
+        "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".gsub(/\s/, '')
       end
     end
   end
