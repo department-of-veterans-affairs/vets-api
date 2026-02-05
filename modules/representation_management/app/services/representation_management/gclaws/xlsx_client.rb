@@ -64,7 +64,7 @@ module RepresentationManagement
       # @param output_file [Tempfile] Temporary output file for downloaded content
       # @return [Hash] Result hash with success/error information
       def self.execute_curl_download(config, output_file)
-        stdout, stderr, status = Open3.capture3(
+        command = [
           'curl', '-sS',
           '--ntlm',
           '-u', "#{config.username}:#{config.password}",
@@ -73,7 +73,9 @@ module RepresentationManagement
           '-o', output_file.path,
           '-w', '%<http_code>s\n%<content_type>s',
           config.url
-        )
+        ]
+
+        stdout, stderr, status = Open3.capture3(*command)
 
         process_curl_result(stdout, stderr, status, output_file.path)
       end
