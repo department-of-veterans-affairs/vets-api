@@ -1621,6 +1621,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
