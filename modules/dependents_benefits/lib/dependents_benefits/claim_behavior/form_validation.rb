@@ -9,7 +9,7 @@ module DependentsBenefits
       extend ActiveSupport::Concern
 
       # @see ::SavedClaim#form_schema
-      # @see ::VetsJsonSchema::SCHEMAS
+      # @see DependentsBenefits::FORM_SCHEMA_BASE
       def form_schema(form_id)
         path = "#{DependentsBenefits::FORM_SCHEMA_BASE}/#{form_id.sub('-V2', '')}.json"
         MultiJson.load(File.read(path))
