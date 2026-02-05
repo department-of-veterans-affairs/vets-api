@@ -4,8 +4,10 @@ require 'lighthouse/benefits_documents/service'
 
 module DisabilityCompensation
   ##
-  # TODO: Describe how to set settings for Benefits Claims API and
-  # Benefits Documents API. This includes `host` and `access_token` for both.
+  # TODO: Describe how to set settings for staging Benefits Claims API and
+  # staging Benefits Documents API. This includes `host` and `access_token`
+  # for both. In the absence of a local setup that points at the staging
+  # environment, this utility will probably not be of much use.
   #
   module DownloadClaimDocuments
     class << self
@@ -71,10 +73,10 @@ module DisabilityCompensation
       end
 
       ##
-      # NOTE: The documents returned by LH Benefits Claims API when fetching a
-      # claim do not include the ID that is needed by LH Benefits Documents
-      # API for downloading documents. Until that changes, we need this ID
-      # cross-reference.
+      # The documents returned by LH Benefits Claims API when fetching a claim
+      # do not include the ID that is needed by LH Benefits Documents API for
+      # downloading documents. Until that changes, we need to perform this
+      # expensive ID cross-reference from this additional network resource.
       #
       def fetch_vbms_document_uuids(service, participant_id)
         {}.tap do |memo|
