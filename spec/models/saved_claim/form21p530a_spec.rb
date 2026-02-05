@@ -294,4 +294,86 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
     end
   end
+
+  describe '#to_ibm' do
+    let(:claim) { described_class.new(form: valid_form_data.to_json) }
+    let(:ibm_payload) { claim.to_ibm }
+
+    it 'returns a hash with VBA Data Dictionary fields' do
+      expect(ibm_payload).to be_a(Hash)
+    end
+
+    it 'includes veteran identification fields' do
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => 'John',
+        'VETERAN_MIDDLE_INITIAL' => 'A',
+        'VETERAN_LAST_NAME' => 'Doe',
+        'VETERAN_NAME' => 'John A Doe',
+        'VETERAN_SSN' => '123456789',
+        'VETERAN_DOB' => '01/15/1940',
+        'DATE_OF_DEATH' => '01/01/2024'
+      )
+    end
+
+    it 'includes service period fields' do
+      expect(ibm_payload).to include(
+        'SERVICE_BRANCH_PERIOD1' => 'Army',
+        'SERVICE_START_DATE_PERIOD1' => '06/01/1968',
+        'SERVICE_END_DATE_PERIOD1' => '05/31/1972',
+        'RANK_AT_SEPARATION_PERIOD1' => 'Sergeant'
+      )
+    end
+
+    it 'includes burial information fields' do
+      expect(ibm_payload).to include(
+        'CEMETERY_NAME' => 'Missouri State Veterans Cemetery',
+        'CEMETERY_LOCATION' => 'Higginsville, MO',
+        'DATE_OF_BURIAL' => '01/15/2024'
+      )
+    end
+
+    it 'includes recipient organization fields' do
+      expect(ibm_payload).to include(
+        'RECIPIENT_ORG_NAME' => 'Missouri Veterans Commission',
+        'RECIPIENT_ORG_PHONE' => '555-123-4567',
+        'RECIPIENT_ORG_ADDRESS_LINE1' => '2400 Veterans Memorial Drive',
+        'RECIPIENT_ORG_ADDRESS_LINE2' => '5',
+        'RECIPIENT_ORG_ADDRESS_CITY' => 'Higginsville',
+        'RECIPIENT_ORG_ADDRESS_STATE' => 'MO',
+        'RECIPIENT_ORG_ADDRESS_ZIP5' => '64037'
+      )
+    end
+
+    it 'includes certification fields' do
+      expect(ibm_payload).to include(
+        'OFFICIAL_TITLE' => 'Director of Veterans Services',
+        'OFFICIAL_SIGNATURE' => 'John Doe'
+      )
+    end
+
+    it 'includes form metadata' do
+      expect(ibm_payload).to include(
+        'FORM_TYPE' => '21P-530a'
+      )
+    end
+
+    it 'handles multiple service periods' do
+      form_data = valid_form_data.dup
+      form_data['veteranServicePeriods']['periods'] << {
+        'serviceBranch' => 'Navy',
+        'dateEnteredService' => '1980-01-01',
+        'dateLeftService' => '1985-12-31',
+        'rankAtSeparation' => 'Lieutenant'
+      }
+      claim = described_class.new(form: form_data.to_json)
+      payload = claim.to_ibm
+
+      expect(payload).to include(
+        'SERVICE_BRANCH_PERIOD2' => 'Navy',
+        'SERVICE_START_DATE_PERIOD2' => '01/01/1980',
+        'SERVICE_END_DATE_PERIOD2' => '12/31/1985',
+        'RANK_AT_SEPARATION_PERIOD2' => 'Lieutenant'
+      )
+    end
+  end
 end

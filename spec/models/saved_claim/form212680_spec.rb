@@ -134,4 +134,71 @@ RSpec.describe SavedClaim::Form212680, type: :model do
       expect(instructions[:regional_office]).to include('Pension Management Center')
     end
   end
+
+  describe '#to_ibm' do
+    let(:claim) { build(:form212680) }
+    let(:ibm_payload) { claim.to_ibm }
+
+    it 'returns a hash with VBA Data Dictionary fields' do
+      expect(ibm_payload).to be_a(Hash)
+    end
+
+    it 'includes veteran identification fields' do
+      parsed = JSON.parse(claim.form)
+      vet_info = parsed['veteranInformation']
+
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => vet_info.dig('fullName', 'first'),
+        'VETERAN_LAST_NAME' => vet_info.dig('fullName', 'last'),
+        'VETERAN_SSN' => vet_info['ssn']
+      )
+    end
+
+    it 'includes claimant information fields when present' do
+      parsed = JSON.parse(claim.form)
+      next unless parsed['claimantInformation']
+
+      claimant = parsed['claimantInformation']
+      if claimant
+        expect(ibm_payload).to include(
+          'CLAIMANT_FIRST_NAME' => claimant.dig('fullName', 'first'),
+          'CLAIMANT_LAST_NAME' => claimant.dig('fullName', 'last')
+        )
+      end
+    end
+
+    it 'includes form metadata' do
+      expect(ibm_payload).to include('FORM_TYPE' => '2680')
+    end
+
+    it 'formats dates in MM/DD/YYYY format' do
+      parsed = JSON.parse(claim.form)
+      if parsed.dig('veteranInformation', 'dateOfBirth')
+        dob = ibm_payload['VETERAN_DOB']
+        expect(dob).to match(%r{\d{2}/\d{2}/\d{4}}) if dob.present?
+      end
+    end
+
+    it 'handles checkbox values as X or nil' do
+      # Checkboxes should be 'X' for true, nil for false
+      hospitalized_yes = ibm_payload['CL_HOSPITALIZED_YES']
+      expect([nil, 'X']).to include(hospitalized_yes) if hospitalized_yes
+    end
+
+    it 'includes physical assessment fields when present' do
+      parsed = JSON.parse(claim.form)
+      if parsed['physicalAssessment']
+        physical = parsed['physicalAssessment']
+        expect(ibm_payload.keys).to include('CLAIMANT_AGE') if physical['age']
+      end
+    end
+
+    it 'includes examiner information fields when present' do
+      parsed = JSON.parse(claim.form)
+      if parsed['examinerInformation']
+        examiner = parsed['examinerInformation']
+        expect(ibm_payload).to include('EXAMINER_NAME' => examiner['examinerName']) if examiner['examinerName']
+      end
+    end
+  end
 end
