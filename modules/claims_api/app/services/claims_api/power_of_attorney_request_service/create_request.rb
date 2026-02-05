@@ -96,9 +96,9 @@ module ClaimsApi
                 @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id]
 
                 @vnp_res_object['meta'][type.to_s]['phone_data'] = {}
-                @vnp_res_object['meta'][type.to_s]['phone_data'] =
-                  person[:phone].slice(:countryCode, :areaCode, :phoneNumber)
-                                .transform_keys(&:to_s)
+                phone_data = person[:phone].slice(:countryCode, :areaCode, :phoneNumber).transform_keys(&:to_s)
+                phone_data['phoneNumber'] = phone_data['phoneNumber']&.gsub(/\s/, '')
+                @vnp_res_object['meta'][type.to_s]['phone_data'] = phone_data
               end
             end
           end
@@ -366,7 +366,7 @@ module ClaimsApi
         if phone_data[:countryCode].present? && phone_data[:countryCode] != '1'
           return ' ' if location_type == 'domestic'
 
-          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".delete(' ')
+          "#{phone_data[:areaCode]}#{phone_data[:phoneNumber]}".gsub(/\s/, '')
         else
           return nil if location_type == 'international'
 
