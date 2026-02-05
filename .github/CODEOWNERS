@@ -282,6 +282,7 @@ app/models/mhv_opt_in_flag.rb @department-of-veterans-affairs/vfs-mhv-integratio
 app/models/mhv_user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/mhv/mr @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/models/mpi_data.rb @department-of-veterans-affairs/octo-identity
+app/models/multi_party_form_submission.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/models/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1780,6 +1781,7 @@ spec/models/mhv_opt_in_flag_spec.rb @department-of-veterans-affairs/vfs-mhv-inte
 spec/models/mhv_user_account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/mhv/mr @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 spec/models/mpi_data_spec.rb @department-of-veterans-affairs/octo-identity
+spec/models/multi_party_form_submission_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/models/onsite_notification_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/models/persistent_attachments @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/pensions @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 spec/models/personal_information_log_spec.rb @department-of-veterans-affairs/backend-review-group
