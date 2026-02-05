@@ -91,6 +91,41 @@ module MHV
         nil
       end
 
+      # Gets the current phase of the soonest migration window
+      # @return [String, nil] the current phase (e.g., "p3") or nil if no migration windows exist
+      def get_soonest_migration_phase
+        raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
+        return nil if raw_value.to_s.strip.blank?
+
+        migration_dates = extract_migration_dates(raw_value)
+        return nil if migration_dates.empty?
+
+        determine_current_phase(migration_dates.min)
+      rescue => e
+        Rails.logger.error(
+          'OH Soonest Migration Phase Lookup Error',
+          { error_class: e.class.name, error_message: e.message }
+        )
+        nil
+      end
+
+      # Extracts all valid migration dates from the migrations list string
+      # @param raw_value [String] the raw migrations list setting
+      # @return [Array<Date>] array of parsed migration dates
+      def extract_migration_dates(raw_value)
+        raw_value.to_s.split(';').filter_map do |migration_entry|
+          migration_entry = migration_entry.strip
+          next if migration_entry.blank?
+
+          date_part, facilities_part = migration_entry.split(':', 2)
+          next if date_part.blank? || facilities_part.blank?
+
+          Date.parse(date_part.strip)
+        rescue ArgumentError
+          nil
+        end
+      end
+
       private
 
       def pretransitioned_oh_facilities

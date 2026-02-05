@@ -806,4 +806,75 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
     end
   end
+
+  describe '#get_soonest_migration_phase' do
+    let(:user) { build(:user, :mhv) }
+    let(:service) { described_class.new(user) }
+
+    before do
+      allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
+    end
+
+    context 'when oh_migrations_list is blank' do
+      let(:oh_migrations_list) { nil }
+
+      it 'returns nil' do
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when oh_migrations_list is empty string' do
+      let(:oh_migrations_list) { '' }
+
+      it 'returns nil' do
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when there is a single migration date' do
+      let(:oh_migrations_list) { "#{(Time.zone.today + 5.days).strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'returns the current phase of that migration' do
+        expect(service.get_soonest_migration_phase).to eq('p3')
+      end
+    end
+
+    context 'when there are multiple migration dates' do
+      let(:far_date) { (Time.zone.today + 50.days).strftime('%Y-%m-%d') }
+      let(:near_date) { (Time.zone.today + 2.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "#{far_date}:[516,Columbus VA];#{near_date}:[517,Cleveland VA]" }
+
+      it 'returns the current phase of the soonest migration' do
+        # near_date is 2 days away, which is p4
+        expect(service.get_soonest_migration_phase).to eq('p4')
+      end
+    end
+
+    context 'when soonest migration is in p6 phase' do
+      let(:past_date) { (Time.zone.today - 3.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "#{past_date}:[516,Columbus VA]" }
+
+      it 'returns p6' do
+        expect(service.get_soonest_migration_phase).to eq('p6')
+      end
+    end
+
+    context 'when all migration dates have invalid format' do
+      let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
+
+      it 'returns nil' do
+        allow(Rails.logger).to receive(:error)
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when some migration dates are invalid but some are valid' do
+      let(:valid_date) { (Time.zone.today + 5.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "invalid-date:[516,Columbus VA];#{valid_date}:[517,Cleveland VA]" }
+
+      it 'returns the phase of the valid migration date' do
+        expect(service.get_soonest_migration_phase).to eq('p3')
+      end
+    end
+  end
 end
