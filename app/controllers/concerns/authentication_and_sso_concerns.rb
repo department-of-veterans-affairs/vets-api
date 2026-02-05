@@ -167,10 +167,13 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   end
 
   def user_credentials
-    {
-      idme: @current_user.user_account.user_verifications.idme.count,
-      logingov: @current_user.user_account.user_verifications.logingov.count
-    }
+    @user_credentials ||= begin
+      user_verifications = @current_user.user_account.user_verifications
+      {
+        idme: user_verifications.idme.count,
+        logingov: user_verifications.logingov.count
+      }
+    end
   end
 
   def credential_uuid

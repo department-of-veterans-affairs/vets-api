@@ -117,10 +117,13 @@ module SignIn
     end
 
     def user_credentials
-      {
-        idme: user_account.user_verifications.idme.count,
-        logingov: user_account.user_verifications.logingov.count
-      }
+      @user_credentials ||= begin
+        user_verifications = user_account.user_verifications
+        {
+          idme: user_verifications.idme.count,
+          logingov: user_verifications.logingov.count
+        }
+      end
     end
 
     def user_account
