@@ -2088,10 +2088,6 @@ features:
     actor_type: user
     description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
-  va_online_scheduling_cancel:
-    actor_type: user
-    description: Allows veterans to cancel VA appointments
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments

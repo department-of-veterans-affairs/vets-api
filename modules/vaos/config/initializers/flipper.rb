@@ -10,7 +10,6 @@ module Flipper
       CRITICAL_FEATURES_SYMBOLS = %i[
         appointments_consolidation
         va_online_scheduling
-        va_online_scheduling_cancel
         va_online_scheduling_community_care
         va_online_scheduling_direct
         va_online_scheduling_requests
@@ -19,7 +18,6 @@ module Flipper
       CRITICAL_FEATURES_NAMES = %w[
         appointments_consolidation
         va_online_scheduling
-        va_online_scheduling_cancel
         va_online_scheduling_community_care
         va_online_scheduling_direct
         va_online_scheduling_requests
