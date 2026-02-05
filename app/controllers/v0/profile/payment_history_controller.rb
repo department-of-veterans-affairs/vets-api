@@ -212,8 +212,7 @@ module V0
         Rails.logger.error('Exception occurred in payment history controller', {
                              user_uuid: current_user&.uuid,
                              exception_class:,
-                             exception_message: exception.message,
-                             backtrace: exception.backtrace&.first(5)
+                             exception_message: exception&.message
                            })
         StatsD.increment("api.payment_history.exception.#{exception_class.underscore}")
       end

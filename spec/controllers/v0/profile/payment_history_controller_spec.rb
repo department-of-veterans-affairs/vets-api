@@ -1099,6 +1099,110 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
     end
   end
 
+  describe '#log_payment_history_exception' do
+    let(:test_exception) { StandardError.new('Test error message') }
+
+    context 'with exception logging enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        sign_in_as(user)
+      end
+
+      it 'logs exception details and increments StatsD' do
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_raise(test_exception)
+
+        # Allow all logging calls - we're primarily testing StatsD metrics
+        allow(Rails.logger).to receive(:error).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
+
+        # Allow all StatsD calls
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific StatsD metric
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.exception.standard_error').and_call_original
+
+        get(:index)
+      end
+
+      it 'handles different exception types correctly' do
+        custom_exception = RuntimeError.new('Runtime error')
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_raise(custom_exception)
+
+        # Allow all logging calls
+        allow(Rails.logger).to receive(:error).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
+
+        # Allow all StatsD calls
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific StatsD metric
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.exception.runtime_error').and_call_original
+
+        get(:index)
+      end
+    end
+
+    context 'with exception logging disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:payment_history_detailed_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:payment_history_exception_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:payment_history_validation_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:payment_history).and_return(true)
+        sign_in_as(user)
+      end
+
+      it 'does not log exception details' do
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_raise(test_exception)
+
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.exception.standard_error')
+
+        get(:index)
+      end
+
+      it 'still allows exception to propagate' do
+        # Stub BGS services to succeed
+        person = double('person',
+                        status: 'ACTIVE',
+                        file_number: '123456789',
+                        participant_id: '123456',
+                        ssn_number: '123456789')
+        payment_history = double('payment_history', payments: [{ amount: '100.00' }])
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_return(person)
+        allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+          .and_return(payment_history)
+
+        # Make adapter method fail with RuntimeError
+        runtime_exception = RuntimeError.new('Adapter failure')
+        allow(controller).to receive(:adapter).and_raise(runtime_exception)
+
+        # Allow all logging calls
+        allow(Rails.logger).to receive(:error).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
+
+        # Verify no exception logging occurs for RuntimeError
+        expect(StatsD).not_to receive(:increment).with('api.payment_history.exception.runtime_error')
+        expect(Rails.logger).not_to receive(:error).with(
+          'Payment history request failed',
+          anything
+        )
+
+        get(:index)
+      end
+    end
+  end
+
   describe '#index' do
     context 'with only regular payments' do
       it 'returns only payments and no return payments' do
