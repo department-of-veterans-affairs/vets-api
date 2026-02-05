@@ -8,15 +8,15 @@ module DisabilityCompensation
     module SpecHelpers
       FAKE_RSA_KEY_PATH = 'spec/support/certificates/lhdd-fake-private.pem'
 
-      def with_lighthouse_token_signing_key
-        VCR.current_cassette&.recording? and
+      def with_lighthouse_token_signing_key(&)
+        ENV['CI'].present? or
           return yield
 
+        settings = Settings.lighthouse
         rsa_key = FAKE_RSA_KEY_PATH
-        with_settings(Settings.lighthouse.benefits_claims.access_token, { rsa_key: }) do
-          with_settings(Settings.lighthouse.auth.ccg, { rsa_key: }) do
-            yield
-          end
+
+        with_settings(settings.benefits_claims.access_token, { rsa_key: }) do
+          with_settings(settings.auth.ccg, { rsa_key: }, &)
         end
       end
 
