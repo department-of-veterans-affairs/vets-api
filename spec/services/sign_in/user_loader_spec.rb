@@ -81,26 +81,6 @@ RSpec.describe SignIn::UserLoader do
           end
         end
 
-        context 'and user is authenticated with dslogon' do
-          let(:user_verification) { create(:dslogon_user_verification, user_account:) }
-
-          it 'reloads user object with expected backing idme uuid' do
-            expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
-          end
-
-          context 'and the user has an unverified idme user_verification' do
-            let(:unverified_user_account) { create(:user_account, icn: nil) }
-            let!(:idme_user_verification) do
-              create(:idme_user_verification, idme_uuid: user_verification.backing_idme_uuid, verified_at: nil,
-                                              user_account: unverified_user_account)
-            end
-
-            it 'reloads the user object with the expected user_verification' do
-              expect(subject.user_verification).to eq user_verification
-            end
-          end
-        end
-
         context 'and user is authenticated with mhv' do
           let(:user_verification) { create(:mhv_user_verification, user_account:) }
 
