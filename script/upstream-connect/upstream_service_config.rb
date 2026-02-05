@@ -357,8 +357,8 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
     },
     'va_profile' => {
       name: 'VA Profile',
-      aliases: %w[demographics contact_info military_personnel military_service phones addresses emails preferred_name],
-      description: 'Connect to VA Profile for user profile and demographic data',
+      aliases: %w[contact_info demographics military_personnel military_service addresses emails phones preferred_name],
+      description: 'Connect to VA Profile for user profile, contact info, and military service history data',
       ports: [4433],
       settings_namespaces: ['va_profile'],
       skipped_settings: [%w[address_validation v3]],
