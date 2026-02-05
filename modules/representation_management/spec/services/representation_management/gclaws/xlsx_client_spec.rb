@@ -42,9 +42,9 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           expect(command).to include('curl')
           expect(command).to include('--ntlm')
           expect(command).to include('--max-time')
-          expect(command).to include('60')
+          expect(command).to include('120')
           expect(command).to include('--connect-timeout')
-          expect(command).to include('10')
+          expect(command).to include('30')
 
           # Write mock XLSX content to output file
           output_index = command.index('-o')
@@ -103,16 +103,11 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
 
       it 'cleans up tempfiles after block completes' do
         file_path = nil
-        netrc_path = nil
 
         # Capture paths before they're deleted
         allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
           tempfile = method.call(*args)
-          if args[0] == 'netrc'
-            netrc_path = tempfile.path
-          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
-            file_path = tempfile.path
-          end
+          file_path = tempfile.path if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
           tempfile
         end
 
@@ -123,7 +118,6 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
 
         # Files should be deleted after block
         expect(File.exist?(file_path)).to be false if file_path
-        expect(File.exist?(netrc_path)).to be false if netrc_path
       end
     end
 
@@ -620,25 +614,6 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           end
         end.not_to raise_error
       end
-    end
-  end
-
-  describe '.create_netrc_file' do
-    it 'creates a netrc file with proper permissions' do
-      config = RepresentationManagement::GCLAWS::XlsxConfiguration.new
-
-      netrc_file = subject.send(:create_netrc_file, config)
-
-      expect(File.exist?(netrc_file.path)).to be true
-      expect(File.stat(netrc_file.path).mode & 0o777).to eq(0o600)
-
-      content = File.read(netrc_file.path)
-      expect(content).to include("machine #{test_hostname}")
-      expect(content).to include("login #{test_username}")
-      expect(content).to include("password #{test_password}")
-
-      netrc_file.close
-      netrc_file.unlink
     end
   end
 end
