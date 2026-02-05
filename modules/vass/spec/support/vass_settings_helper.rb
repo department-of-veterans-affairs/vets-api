@@ -30,7 +30,7 @@ module VassSettingsHelper
       redis_token_expiry: 3540,
       rate_limit_max_attempts: 5,
       rate_limit_expiry: 900,
-      token_encryption_key: SecureRandom.hex(32)
+      token_encryption_key: 'test-encryption-key-32chars-min-for-aes256-security-required'
     }
 
     allow(Settings).to receive(:vass).and_return(

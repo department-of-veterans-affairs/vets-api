@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../../app/services/vass/va_notify_service'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe 'Vass::V0::Sessions', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }

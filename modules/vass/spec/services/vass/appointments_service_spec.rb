@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../app/services/vass/appointments_service'
+require_relative '../../support/vass_settings_helper'
 
 describe Vass::AppointmentsService do
   subject { described_class.build(edipi:, correlation_id:) }
