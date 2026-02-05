@@ -22,19 +22,19 @@ RSpec.describe VeteranOnboarding, type: :model do
   end
 
   it 'creates a VeteranOnboarding object if toggle is enabled' do
-    Flipper.enable(:veteran_onboarding_beta_flow, user)
+    Flipper.enable(:veteran_onboarding_beta_flow, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     expect { VeteranOnboarding.for_user(user) }.to change(VeteranOnboarding, :count).by(1)
   end
 
   describe '#show_onboarding_flow_on_login' do
     it 'returns the value of display_onboarding_flow' do
       subject = described_class.for_user(user)
-      Flipper.enable(:veteran_onboarding_beta_flow, user)
+      Flipper.enable(:veteran_onboarding_beta_flow, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       expect(subject.show_onboarding_flow_on_login).to be_truthy
     end
 
     it 'returns false and updates the database when verification is past the threshold' do
-      Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
+      Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       Settings.veteran_onboarding = OpenStruct.new(onboarding_threshold_days: 10)
       verified_at_date = Time.zone.today - 11
       allow_any_instance_of(UserVerification).to receive(:verified_at).and_return(verified_at_date)
@@ -55,7 +55,7 @@ RSpec.describe VeteranOnboarding, type: :model do
       it "returns #{scenario[:expected]} when verified #{scenario[:days_ago]} days ago" do
         verified_at_date = Time.zone.today - scenario[:days_ago]
         allow_any_instance_of(UserVerification).to receive(:verified_at).and_return(verified_at_date)
-        Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user)
+        Flipper.enable(:veteran_onboarding_show_to_newly_onboarded, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(user.onboarding&.show_onboarding_flow_on_login).to eq(scenario[:expected])
       end
     end

@@ -7,7 +7,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
 
   context 'logs changes to toggle values' do
     it 'logs feature calls with result after operation for disable' do
-      Flipper.disable(:this_is_only_a_test)
+      Flipper.disable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('disable')

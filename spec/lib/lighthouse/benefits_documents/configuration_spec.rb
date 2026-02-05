@@ -6,7 +6,7 @@ require 'lighthouse/benefits_documents/configuration'
 RSpec.describe BenefitsDocuments::Configuration do
   before do
     # Required to prevent inconsistent failure on CI pipeline
-    Flipper.enable('va_online_scheduling')
+    Flipper.enable('va_online_scheduling') # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
     token = 'abcd1234'
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)

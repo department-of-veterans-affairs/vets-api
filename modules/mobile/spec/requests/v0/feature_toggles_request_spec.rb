@@ -39,7 +39,7 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
       end
 
       it 'uses the current_user for feature toggle evaluation' do
-        Flipper.disable(@feature_name)
+        Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         Flipper.enable_actor(@feature_name, user)
 
         # retrieve features anonymously

@@ -60,7 +60,7 @@ describe AppealsApi::EvidenceSubmissionBackup, type: :job do
     end
 
     context 'when the delay evidence feature is disabled' do
-      before { Flipper.disable(:decision_review_delay_evidence) }
+      before { Flipper.disable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'does not take any action' do
         subject.perform

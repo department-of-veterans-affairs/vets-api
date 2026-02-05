@@ -33,14 +33,14 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990 do
       end
 
       it 'is skipped when feature flag is turned off' do
-        Flipper.disable(:form1990_confirmation_email)
+        Flipper.disable(:form1990_confirmation_email) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va1990_chapter33)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
-        Flipper.enable(:form1990_confirmation_email)
+        Flipper.enable(:form1990_confirmation_email) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'chapter 33' do

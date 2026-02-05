@@ -13,7 +13,7 @@ describe SchemaContract::ValidationInitiator do
 
     before do
       Timecop.freeze
-      Flipper.enable(:schema_contract_test_index)
+      Flipper.enable(:schema_contract_test_index) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'response is successful, feature flag is on, and no record exists for the current day' do
@@ -45,7 +45,7 @@ describe SchemaContract::ValidationInitiator do
     end
 
     context 'when feature flag is off' do
-      before { Flipper.disable(:schema_contract_test_index) }
+      before { Flipper.disable(:schema_contract_test_index) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'does not create a record or enqueue a job' do
         expect(SchemaContract::ValidationJob).not_to receive(:perform_async)

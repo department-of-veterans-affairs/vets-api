@@ -248,7 +248,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
       context 'when mhv_medications_display_pending_meds is set to false"' do
         before do
-          Flipper.disable(:mhv_medications_display_pending_meds)
+          Flipper.disable(:mhv_medications_display_pending_meds) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         it 'responds to GET #index with pending meds not included in list' do

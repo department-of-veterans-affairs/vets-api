@@ -7,7 +7,7 @@ RSpec.describe V0::VeteranOnboardingsController, type: :controller do
   let(:veteran_onboarding) { create(:veteran_onboarding, user_account: user.user_account) }
 
   before do
-    Flipper.enable(:veteran_onboarding_beta_flow, user)
+    Flipper.enable(:veteran_onboarding_beta_flow, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     sign_in_as(user)
   end
 

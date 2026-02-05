@@ -46,7 +46,7 @@ describe AppealsApi::MonthlyStatsReport do
 
     describe 'disabled' do
       it 'is disabled unless the dedicated flipper setting is enabled' do
-        Flipper.disable(:decision_review_monthly_stats_report_enabled)
+        Flipper.disable(:decision_review_monthly_stats_report_enabled) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         expect(AppealsApi::StatsReportMailer).not_to receive(:build)
 

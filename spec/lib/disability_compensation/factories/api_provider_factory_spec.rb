@@ -207,10 +207,10 @@ RSpec.describe ApiProviderFactory do
       end
 
       it 'provides a SupplementalDocumentUploadProvider based on a Flipper' do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
 
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
       end
     end

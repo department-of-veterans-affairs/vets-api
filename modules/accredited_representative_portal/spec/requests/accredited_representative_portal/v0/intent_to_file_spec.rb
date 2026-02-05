@@ -27,7 +27,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   end
 
   before do
-    Flipper.disable :accredited_representative_portal_skip_itf_check
+    Flipper.disable :accredited_representative_portal_skip_itf_check # rubocop:disable Project/ForbidFlipperToggleInSpecs
     VCR.configure do |c|
       c.debug_logger = File.open('record.log', 'w')
     end
@@ -70,7 +70,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
       context 'itf check skipped' do
         it 'returns 404' do
-          Flipper.enable :accredited_representative_portal_skip_itf_check
+          Flipper.enable :accredited_representative_portal_skip_itf_check # rubocop:disable Project/ForbidFlipperToggleInSpecs
           get("/accredited_representative_portal/v0/intent_to_file/?benefitType=compensation&#{veteran_query_params}")
           expect(response).to have_http_status(:not_found)
         end

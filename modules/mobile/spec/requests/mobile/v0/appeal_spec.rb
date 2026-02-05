@@ -142,7 +142,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
       end
 
       context 'with appeals model NOT used' do
-        before { Flipper.disable(:mobile_appeal_model) }
+        before { Flipper.disable(:mobile_appeal_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do

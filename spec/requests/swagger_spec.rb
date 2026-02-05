@@ -1165,8 +1165,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
-        Flipper.disable('disability_compensation_prevent_submission_job')
-        Flipper.disable('disability_compensation_production_tester')
+        Flipper.disable('disability_compensation_prevent_submission_job') # rubocop:disable Project/ForbidFlipperToggleInSpecs
+        Flipper.disable('disability_compensation_production_tester') # rubocop:disable Project/ForbidFlipperToggleInSpecs
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       end
@@ -1317,7 +1317,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:mhv_user) { create(:user, :loa3, :legacy_icn) }
 
       before do
-        Flipper.disable('disability_compensation_production_tester')
+        Flipper.disable('disability_compensation_production_tester') # rubocop:disable Project/ForbidFlipperToggleInSpecs
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
       end
 
@@ -2341,7 +2341,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'search' do
       before do
-        Flipper.disable(:search_use_v2_gsa)
+        Flipper.disable(:search_use_v2_gsa) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       context 'when successful' do

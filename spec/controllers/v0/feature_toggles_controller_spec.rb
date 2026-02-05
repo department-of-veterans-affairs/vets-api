@@ -80,7 +80,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
 
       Flipper.enable_actor(@feature_name, actor)
       Flipper.enable_percentage_of_actors(@feature_name, 25)
-      Flipper.enable(@feature_name)
+      Flipper.enable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       get :index, params: { cookie_id: }
 
@@ -98,7 +98,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       before do
         allow(ActiveRecord::Base.logger).to receive(:silence)
         allow(Settings.flipper).to receive(:mute_logs).and_return(true)
-        Flipper.disable(@feature_name)
+        Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         Flipper.enable_percentage_of_actors(@feature_name, 100)
       end
 
@@ -156,7 +156,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       @feature_name =  'find_a_representative_enabled'
       @cookie_id = 'abc_123'
       actor = Flipper::Actor.new(@cookie_id)
-      Flipper.disable(@feature_name)
+      Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       Flipper.enable_actor(@feature_name, actor)
 
       get :index, params: { features: @feature_name, cookie_id: @cookie_id }

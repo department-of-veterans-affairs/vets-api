@@ -9,7 +9,7 @@ RSpec.describe 'V0::DisabilityCompensationForm::RatingInfo' do
 
   before do
     sign_in_as(user)
-    Flipper.disable('profile_lighthouse_rating_info')
+    Flipper.disable('profile_lighthouse_rating_info') # rubocop:disable Project/ForbidFlipperToggleInSpecs
   end
 
   describe 'GET /v0/disability_compensation_form/rating_info' do

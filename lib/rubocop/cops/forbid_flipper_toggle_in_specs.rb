@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
 module RuboCop
-  module Cop
+  module Cops
+    # NOTE: Maybe should go into a Project namespace?
     module Project
       # Forbids using Flipper.enable/disable inside specs.
       #
       # Specs should use isolated feature managers or injected
       # flipper instances instead of mutating global state.
       #
-      class ForbidFlipperToggleInSpecs < Base
+      class ForbidFlipperToggleInSpecs < RuboCop::Cop::Base
         MSG = 'Avoid using Flipper.enable/disable in specs. Use mocks or an isolated flipper instance instead.'
 
+        # We may also want to catch `enable_actor` and similar methods in the future.
         RESTRICT_ON_SEND = %i[enable disable].freeze
 
         def on_send(node)

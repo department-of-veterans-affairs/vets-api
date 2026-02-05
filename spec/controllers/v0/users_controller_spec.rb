@@ -29,7 +29,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     context 'when profile claims enabled' do
       before do
-        Flipper.enable(:profile_user_claims)
+        Flipper.enable(:profile_user_claims) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'returns a JSON user profile with claims' do
@@ -55,7 +55,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
-      Flipper.disable(:profile_user_claims)
+      Flipper.disable(:profile_user_claims) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     it 'returns a JSON user profile with a bad_address' do
@@ -79,7 +79,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     context 'onboarding' do
       it 'returns a JSON user with onboarding information when the feature toggle is enabled' do
-        Flipper.enable(:veteran_onboarding_beta_flow, user)
+        Flipper.enable(:veteran_onboarding_beta_flow, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         get :show
         json = json_body_for(response)
         expect(response).to be_successful
@@ -88,8 +88,8 @@ RSpec.describe V0::UsersController, type: :controller do
       end
 
       it 'returns a JSON user without onboarding information when the feature toggle is disabled' do
-        Flipper.disable(:veteran_onboarding_beta_flow)
-        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+        Flipper.disable(:veteran_onboarding_beta_flow) # rubocop:disable Project/ForbidFlipperToggleInSpecs
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         get :show
         json = json_body_for(response)
         expect(response).to be_successful
@@ -100,7 +100,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     context 'when profile claims enabled' do
       before do
-        Flipper.enable(:profile_user_claims)
+        Flipper.enable(:profile_user_claims) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'returns a JSON user profile with claims' do

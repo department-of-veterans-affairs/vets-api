@@ -15,7 +15,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
 
   before do
     sign_in_as(user)
-    Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:disability_compensation_production_tester) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
     allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)
   end

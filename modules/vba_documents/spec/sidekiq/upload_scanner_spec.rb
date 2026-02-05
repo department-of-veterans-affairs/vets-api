@@ -128,7 +128,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
       end
 
       context 'and the delay evidence feature flag is disabled' do
-        before { Flipper.disable(:decision_review_delay_evidence) }
+        before { Flipper.disable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         it 'updates the submission status to "uploaded"' do
           with_settings(Settings.vba_documents.s3, enabled: true) do

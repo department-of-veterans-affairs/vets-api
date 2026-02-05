@@ -135,7 +135,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'submitted') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'does not call "submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'processing')

@@ -275,7 +275,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
-        Flipper.disable(:send_poa_to_corpdb)
+        Flipper.disable(:send_poa_to_corpdb) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         accept_service = instance_double(
           AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept

@@ -88,7 +88,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
       context 'when form526_send_backup_submission_exhaustion_email_notice is disabled' do
         before do
-          Flipper.disable(:form526_send_backup_submission_exhaustion_email_notice)
+          Flipper.disable(:form526_send_backup_submission_exhaustion_email_notice) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         it 'does not remediates the submission via an email notification' do
