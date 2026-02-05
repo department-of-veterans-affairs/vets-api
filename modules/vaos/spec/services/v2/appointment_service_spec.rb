@@ -61,7 +61,7 @@ describe VAOS::V2::AppointmentsService do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.enable_actor(:appointments_consolidation, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 

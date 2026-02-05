@@ -32,7 +32,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       @cookie_id = 'abc_123'
       actor = Flipper::Actor.new(@cookie_id)
       Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
-      Flipper.enable_actor(@feature_name, actor)
+      Flipper.enable_actor(@feature_name, actor) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       get :index, params: { cookie_id: @cookie_id }
 
@@ -55,7 +55,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'returns percentage of actor consistently' do
-      Flipper.enable_percentage_of_actors(@feature_name, 25)
+      Flipper.enable_percentage_of_actors(@feature_name, 25) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       5.times do |i|
         cookie_id = "cookie_#{31 + i}"
@@ -78,8 +78,8 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       cookie_id = 'abc_123'
       actor = Flipper::Actor.new(cookie_id)
 
-      Flipper.enable_actor(@feature_name, actor)
-      Flipper.enable_percentage_of_actors(@feature_name, 25)
+      Flipper.enable_actor(@feature_name, actor) # rubocop:disable Project/ForbidFlipperToggleInSpecs
+      Flipper.enable_percentage_of_actors(@feature_name, 25) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       Flipper.enable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       get :index, params: { cookie_id: }
@@ -99,7 +99,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
         allow(ActiveRecord::Base.logger).to receive(:silence)
         allow(Settings.flipper).to receive(:mute_logs).and_return(true)
         Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
-        Flipper.enable_percentage_of_actors(@feature_name, 100)
+        Flipper.enable_percentage_of_actors(@feature_name, 100) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'sets ActiveRecord logger to silence' do
@@ -157,7 +157,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       @cookie_id = 'abc_123'
       actor = Flipper::Actor.new(@cookie_id)
       Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
-      Flipper.enable_actor(@feature_name, actor)
+      Flipper.enable_actor(@feature_name, actor) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       get :index, params: { features: @feature_name, cookie_id: @cookie_id }
 

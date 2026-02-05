@@ -144,7 +144,7 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
   end
 
   context 'when non-legacy is used' do
-    before { Flipper.enable_actor(:mobile_allergy_intolerance_model, user) }
+    before { Flipper.enable_actor(:mobile_allergy_intolerance_model, user) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
     after { Flipper.disable(:mobile_allergy_intolerance_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
     it 'responds to GET #index' do

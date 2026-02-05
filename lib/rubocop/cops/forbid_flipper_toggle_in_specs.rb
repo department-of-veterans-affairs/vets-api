@@ -13,7 +13,16 @@ module RuboCop
         MSG = 'Avoid using Flipper.enable/disable in specs. Use mocks or an isolated flipper instance instead.'
 
         # We may also want to catch `enable_actor` and similar methods in the future.
-        RESTRICT_ON_SEND = %i[enable disable].freeze
+        RESTRICT_ON_SEND = %i[
+          enable
+          disable
+          enable_actor
+          disable_actor
+          enable_percentage_of_actors
+          disable_percentage_of_actors
+          enable_percentage_of_time
+          disable_percentage_of_time
+        ].freeze
 
         def on_send(node)
           return unless in_spec_file?

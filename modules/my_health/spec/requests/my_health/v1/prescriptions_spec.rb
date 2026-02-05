@@ -135,7 +135,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
     context 'Feature mhv_medications_display_pending_meds=true"' do
       before do
-        Flipper.enable_actor(:mhv_medications_display_pending_meds, current_user)
+        Flipper.enable_actor(:mhv_medications_display_pending_meds, current_user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'responds to GET #index with pending meds included in list' do
