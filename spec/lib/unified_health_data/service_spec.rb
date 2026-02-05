@@ -2524,25 +2524,21 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'includes failed_sources in the exception' do
-          expect do
-            service.send(:check_for_partial_failures!, body_with_error, resource_type: 'medications')
-          end.to raise_error do |error|
-            expect(error.failed_sources).to eq(['oracle-health'])
-          end
+          service.send(:check_for_partial_failures!, body_with_error, resource_type: 'medications')
+        rescue Common::Exceptions::UpstreamPartialFailure => e
+          expect(e.failed_sources).to eq(['oracle-health'])
         end
 
         it 'includes failure_details in the exception' do
-          expect do
-            service.send(:check_for_partial_failures!, body_with_error, resource_type: 'medications')
-          end.to raise_error do |error|
-            expect(error.failure_details).to include(
-              hash_including(
-                source: 'oracle-health',
-                severity: 'error',
-                code: 'exception'
-              )
+          service.send(:check_for_partial_failures!, body_with_error, resource_type: 'medications')
+        rescue Common::Exceptions::UpstreamPartialFailure => e
+          expect(e.failure_details).to include(
+            hash_including(
+              source: 'oracle-health',
+              severity: 'error',
+              code: 'exception'
             )
-          end
+          )
         end
 
         it 'logs the partial failure' do
@@ -2640,7 +2636,7 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'does not raise an error for get_prescriptions even with partial failure' do
-        # Note: This may fail due to parsing issues with the mock data, but should not fail
+        # NOTE: This may fail due to parsing issues with the mock data, but should not fail
         # due to partial failure detection
         expect { service.get_prescriptions }.not_to raise_error(Common::Exceptions::UpstreamPartialFailure)
       end
