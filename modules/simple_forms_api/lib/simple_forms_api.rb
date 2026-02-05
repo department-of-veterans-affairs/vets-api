@@ -61,6 +61,7 @@ module SimpleFormsApi
       # rubocop:enable Metrics/MethodLength
 
       def remove_words(message, words_to_remove)
+        message = message.dup if Flipper.enabled(:unfreeze_strings)
         words_to_remove.compact.each do |word|
           message.gsub!(word, '')
           message.gsub!(word.upcase, '')

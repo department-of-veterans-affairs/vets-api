@@ -2068,6 +2068,10 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  unfreeze_strings:
+    actor_type: user
+    description: Dupe messages to avoid FrozenError during PII scrubbing
+    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
