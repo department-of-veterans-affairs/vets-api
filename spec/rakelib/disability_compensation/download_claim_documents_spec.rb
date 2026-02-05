@@ -8,9 +8,8 @@ module DisabilityCompensation
     module SpecHelpers
       FAKE_RSA_KEY_PATH = 'spec/support/certificates/lhdd-fake-private.pem'
 
-      def with_lighthouse_token_signing_key(&)
-        ENV['CI'].present? or
-          return yield
+      def with_lighthouse_token_signing_key(cassette_recording, &)
+        return yield if cassette_recording
 
         settings = Settings.lighthouse
         rsa_key = FAKE_RSA_KEY_PATH
@@ -48,8 +47,8 @@ describe DisabilityCompensation::DownloadClaimDocuments do
       allow_unused_http_interactions: false
     }.freeze
 
-    VCR.use_cassette(vcr_name, vcr_options) do
-      with_lighthouse_token_signing_key do
+    VCR.use_cassette(vcr_name, vcr_options) do |cassette|
+      with_lighthouse_token_signing_key(cassette.recording?) do
         described_class.perform(
           claim_id: '600878948',
           icn: '1012667122V019349'
