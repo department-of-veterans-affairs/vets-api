@@ -76,10 +76,14 @@ module SubmitAllClaimSpec
       ##
       # TODO: Explain this.
       #
-      def with_lighthouse_token_signing_key(&)
-        settings = Settings.lighthouse.benefits_claims.access_token
-        VCR.current_cassette&.recording? or rsa_key = FAKE_RSA_KEY_PATH
-        with_settings(settings, { rsa_key: }.compact, &)
+      def with_lighthouse_token_signing_key
+        VCR.current_cassette&.recording? and
+          return yield
+
+        rsa_key = FAKE_RSA_KEY_PATH
+        with_settings(Settings.lighthouse.benefits_claims.access_token, { rsa_key: }) do
+          yield
+        end
       end
     end
 
