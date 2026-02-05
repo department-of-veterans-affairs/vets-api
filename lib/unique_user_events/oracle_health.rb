@@ -9,7 +9,24 @@ module UniqueUserEvents
   # based on user facility registrations and tracked events.
   module OracleHealth
     # Tracked facility IDs that should generate OH events
-    TRACKED_FACILITY_IDS = %w[757 506 515 553 655].freeze
+    # Loaded from Settings.unique_user_metrics.oracle_health_tracked_facility_ids
+    # Validates that all IDs are 3-digit numbers (VA facility ID format)
+    # Returns empty array if validation fails to avoid crashing metrics code
+    def self.tracked_facility_ids
+      ids = Settings.unique_user_metrics&.oracle_health_tracked_facility_ids || []
+
+      # Validate facility IDs are 3-digit numbers
+      invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+      if invalid_ids.any?
+        Rails.logger.error(
+          'UniqueUserEvents::OracleHealth: Invalid facility IDs in Settings.unique_user_metrics.oracle_health_tracked_facility_ids: ' \
+          "#{invalid_ids.join(', ')}. VA facility IDs must be 3-digit numbers. Returning empty array."
+        )
+        return []
+      end
+
+      ids.map(&:to_s)
+    end
 
     # Event suffix for Oracle Health facility-specific events (explicit facility context)
     OH_EVENT_SUFFIX = '_oh_'
@@ -79,7 +96,7 @@ module UniqueUserEvents
       # 1. In the provided facility_ids
       # 2. In the tracked facility list (controlled rollout)
       # 3. An actual OH facility for this user (cerner_facility_ids)
-      normalized_ids & TRACKED_FACILITY_IDS & cerner_ids
+      normalized_ids & tracked_facility_ids & cerner_ids
     end
 
     # Get user's facilities that match tracked OH facilities
@@ -88,7 +105,7 @@ module UniqueUserEvents
     # @return [Array<String>] Array of matching facility IDs
     def self.get_user_tracked_facilities(user)
       user_facilities = user.vha_facility_ids || []
-      user_facilities & TRACKED_FACILITY_IDS
+      user_facilities & tracked_facility_ids
     end
 
     private_class_method :get_user_tracked_facilities, :filter_tracked_oh_facilities

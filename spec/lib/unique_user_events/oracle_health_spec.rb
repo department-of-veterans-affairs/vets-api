@@ -96,6 +96,49 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     end
   end
 
+  describe '.tracked_facility_ids' do
+    it 'returns facility IDs from settings as strings' do
+      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
+        .and_return(%w[757 506])
+
+      expect(described_class.tracked_facility_ids).to eq(%w[757 506])
+    end
+
+    it 'validates that facility IDs are 3-digit numbers' do
+      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
+        .and_return(%w[757 12 9999 abc])
+      allow(Rails.logger).to receive(:error)
+
+      result = described_class.tracked_facility_ids
+
+      expect(result).to eq([])
+      expect(Rails.logger).to have_received(:error).with(
+        /Invalid facility IDs.*12, 9999, abc.*Returning empty array/
+      )
+    end
+
+    it 'handles nil settings gracefully' do
+      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
+        .and_return(nil)
+
+      expect(described_class.tracked_facility_ids).to eq([])
+    end
+
+    it 'handles empty array' do
+      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
+        .and_return([])
+
+      expect(described_class.tracked_facility_ids).to eq([])
+    end
+
+    it 'normalizes integer IDs to strings' do
+      allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
+        .and_return([757, 506])
+
+      expect(described_class.tracked_facility_ids).to eq(%w[757 506])
+    end
+  end
+
   describe '.generate_events with event_facility_ids' do
     let(:event_name) { 'prescriptions_refill_requested' }
 
@@ -132,8 +175,8 @@ RSpec.describe UniqueUserEvents::OracleHealth do
       end
 
       it 'generates OH events for multiple matching facilities' do
-        # Temporarily stub TRACKED_FACILITY_IDS to include multiple facilities for this test
-        stub_const('UniqueUserEvents::OracleHealth::TRACKED_FACILITY_IDS', %w[757 688])
+        # Temporarily stub tracked_facility_ids to include multiple facilities for this test
+        allow(described_class).to receive(:tracked_facility_ids).and_return(%w[757 688])
         allow(user).to receive(:cerner_facility_ids).and_return(%w[757 688])
 
         result = described_class.generate_events(
