@@ -8,12 +8,13 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
   let(:veteran_id) { 'vet-uuid-123' }
   let(:edipi) { '1234567890' }
   let(:jwt_secret) { 'test-jwt-secret' }
+  let(:jti) { SecureRandom.uuid }
   let(:jwt_token) do
     payload = {
       sub: veteran_id,
       exp: 1.hour.from_now.to_i,
       iat: Time.current.to_i,
-      jti: SecureRandom.uuid
+      jti:
     }
     JWT.encode(payload, jwt_secret, 'HS256')
   end
@@ -34,7 +35,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
         service_name: 'vass_api',
-        redis_otc_expiry: 600,
+        redis_otp_expiry: 600,
         redis_session_expiry: 7200,
         redis_token_expiry: 3540,
         rate_limit_max_attempts: 5,
@@ -42,9 +43,9 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
       )
     )
 
-    # Set up veteran metadata in Redis
+    # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
-    redis_client.save_veteran_metadata(uuid: veteran_id, edipi:, veteran_id:)
+    redis_client.save_session(uuid: veteran_id, jti:, edipi:, veteran_id:)
   end
 
   describe 'POST /vass/v0/appointment' do
@@ -58,8 +59,8 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
     let(:appointment_params) do
       {
         topics: %w[67e0bd9f-5e53-f011-bec2-001dd806389e 78f1ce0a-6f64-g122-cfd3-112ee917462f],
-        dtStartUtc: '2026-01-10T10:00:00Z',
-        dtEndUtc: '2026-01-10T10:30:00Z'
+        dt_start_utc: '2026-01-10T10:00:00Z',
+        dt_end_utc: '2026-01-10T10:30:00Z'
       }
     end
 
@@ -105,6 +106,23 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
               expect(json_response['data']).to be_present
               expect(json_response['data']['appointmentId']).to eq('e61e1a40-1e63-f011-bec2-001dd80351ea')
+            end
+          end
+        end
+
+        it 'tracks success metrics' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          expect(StatsD).to receive(:increment).with(
+            'api.vass.controller.appointments.create.success',
+            hash_including(tags: array_including('service:vass', 'endpoint:create'))
+          ).and_call_original
+
+          VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vass/appointments/save_appointment_success', match_requests_on: %i[method uri]) do
+              post('/vass/v0/appointment',
+                   params: appointment_params.to_json,
+                   headers:)
             end
           end
         end
@@ -195,6 +213,21 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
             hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
           ).at_least(:once)
         end
+
+        it 'tracks failure metrics' do
+          allow(StatsD).to receive(:increment)
+
+          post('/vass/v0/appointment',
+               params: appointment_params.to_json,
+               headers:)
+
+          expect(response).to have_http_status(:bad_request)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.vass.controller.appointments.create.failure',
+            hash_including(tags: array_including('service:vass', 'endpoint:create', 'error_type:missing_session_data'))
+          ).at_least(:once)
+        end
       end
 
       context 'when topics parameter is missing' do
@@ -224,7 +257,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
       context 'when start time is missing' do
         let(:invalid_params) do
-          appointment_params.except(:dtStartUtc)
+          appointment_params.except(:dt_start_utc)
         end
 
         it 'returns bad request' do
@@ -249,7 +282,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
 
       context 'when end time is missing' do
         let(:invalid_params) do
-          appointment_params.except(:dtEndUtc)
+          appointment_params.except(:dt_end_utc)
         end
 
         it 'returns bad request' do
@@ -272,15 +305,13 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
         end
       end
 
-      context 'when veteran metadata is missing from Redis' do
+      context 'when session is missing from Redis (token revoked)' do
         before do
-          Rails.cache.delete(
-            "veteran_metadata_#{veteran_id}",
-            namespace: 'vass-otc-cache'
-          )
+          redis_client = Vass::RedisClient.build
+          redis_client.delete_session(uuid: veteran_id)
         end
 
-        it 'returns unauthorized status' do
+        it 'returns unauthorized status with revoked token error' do
           post('/vass/v0/appointment',
                params: appointment_params.to_json,
                headers:)
@@ -288,7 +319,7 @@ RSpec.describe 'Vass::V0::Appointments - Create Appointment', type: :request do
           expect(response).to have_http_status(:unauthorized)
           json_response = JSON.parse(response.body)
           expect(json_response['errors']).to be_present
-          expect(json_response['errors'].first['detail']).to include('EDIPI not found')
+          expect(json_response['errors'].first['detail']).to eq('Token is invalid or already revoked')
         end
       end
 

@@ -23,7 +23,8 @@ module SignIn
         client_state: decoded_jwt.client_state,
         code: decoded_jwt.code,
         created_at: decoded_jwt.created_at,
-        scope: decoded_jwt.scope
+        scope: decoded_jwt.scope,
+        operation: decoded_jwt.operation
       )
     end
 

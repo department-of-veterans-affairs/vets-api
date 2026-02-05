@@ -777,6 +777,8 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1255,6 +1257,9 @@ representation_management:
   geocoder:
     mapbox:
       api_key: ~
+  ogc_attorney_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/attorneyexcellist.asp
+  ogc_claims_agent_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+  ogc_organizations_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/orgsexcellist.asp
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
@@ -1856,7 +1861,7 @@ vass:
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>

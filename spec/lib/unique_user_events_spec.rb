@@ -18,7 +18,22 @@ RSpec.describe UniqueUserEvents do
       result = described_class.log_event(user:, event_name:)
 
       expect(result).to eq([event_name])
-      expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(user:, event_names: [event_name])
+      expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+        user:, event_names: [event_name], event_facility_ids: nil
+      )
+    end
+
+    context 'with event_facility_ids' do
+      let(:event_facility_ids) { %w[757 688] }
+
+      it 'passes facility IDs to Service' do
+        result = described_class.log_event(user:, event_name:, event_facility_ids:)
+
+        expect(result).to eq([event_name])
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+          user:, event_names: [event_name], event_facility_ids:
+        )
+      end
     end
 
     context 'when feature flag is disabled' do
@@ -84,7 +99,7 @@ RSpec.describe UniqueUserEvents do
 
       expect(result).to eq([event_name, event_name2])
       expect(UniqueUserEvents::Service).to have_received(:buffer_events)
-        .with(user:, event_names: [event_name, event_name2])
+        .with(user:, event_names: [event_name, event_name2], event_facility_ids: nil)
     end
 
     it 'handles empty array' do
@@ -99,6 +114,82 @@ RSpec.describe UniqueUserEvents do
       described_class.log_events(user:, event_names: [event_name])
 
       expect(StatsD).to have_received(:measure).with('uum.unique_user_metrics.log_events.duration', kind_of(Numeric))
+    end
+
+    context 'with event_facility_ids' do
+      let(:event_facility_ids) { %w[757 688] }
+
+      it 'passes facility IDs to Service' do
+        result = described_class.log_events(user:, event_names: [event_name, event_name2], event_facility_ids:)
+
+        expect(result).to eq([event_name, event_name2])
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events)
+          .with(user:, event_names: [event_name, event_name2], event_facility_ids:)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(false)
+      end
+
+      it 'returns empty array without buffering' do
+        result = described_class.log_events(user:, event_names: [event_name])
+
+        expect(result).to eq([])
+        expect(UniqueUserEvents::Service).not_to have_received(:buffer_events)
+      end
+    end
+
+    context 'when ArgumentError is raised' do
+      before do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(ArgumentError, 'Invalid event')
+      end
+
+      it 're-raises the error' do
+        expect do
+          described_class.log_events(user:, event_names: [event_name])
+        end.to raise_error(ArgumentError, 'Invalid event')
+      end
+    end
+
+    context 'when other errors occur' do
+      before do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(StandardError, 'Service error')
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns empty array and logs the error' do
+        result = described_class.log_events(user:, event_names: [event_name])
+
+        expect(result).to eq([])
+        expect(Rails.logger).to have_received(:error).with(/UUM: Failed during log_events/)
+      end
+    end
+
+    context 'with empty facility IDs' do
+      let(:event_facility_ids) { [] }
+
+      it 'still calls Service with empty array' do
+        described_class.log_events(user:, event_names: [event_name], event_facility_ids:)
+
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+          user:, event_names: [event_name], event_facility_ids: []
+        )
+      end
+    end
+
+    context 'with nil-containing facility IDs after compacting' do
+      let(:event_facility_ids) { %w[757] }
+
+      it 'handles facility IDs correctly' do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events)
+          .and_return([event_name, "#{event_name}_oh_site_757"])
+
+        result = described_class.log_events(user:, event_names: [event_name], event_facility_ids:)
+
+        expect(result).to include("#{event_name}_oh_site_757")
+      end
     end
   end
 

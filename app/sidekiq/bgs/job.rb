@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'bgsv2/utilities/helpers'
+require 'bgs/utilities/helpers'
 
 module BGS
   class Job
-    include BGSV2::Utilities::Helpers
+    include BGS::Utilities::Helpers
     FILTERED_ERRORS = [
       'insertBenefitClaim: Invalid zipcode.',
       'Maximum number of EPs reached for this bnftClaimTypeCd',

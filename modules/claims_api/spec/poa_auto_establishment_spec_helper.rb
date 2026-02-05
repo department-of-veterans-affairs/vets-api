@@ -5,7 +5,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
     {
       'name' => 'Ralph Lee', 'ssn' => '796378782', 'file_number' => '123456',
       'date_of_birth' => '19481030', 'service_number' => '12345678',
-      'insurance_numbers' => '1234567890', 'phone_nbr' => '5555551234',
+      'insurance_numbers' => '1234567890', 'country_code' => '1', 'area_code' => '555',
+      'phone_number' => '5551234',
       'claimant_relationship' => 'Spouse', 'poa_code' => '083',
       'organization_name' => 'DISABLED AMERICAN VETERANS',
       'representativeLawFirmOrAgencyName' => nil, 'representative_first_name' => 'John',
@@ -20,7 +21,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
         'claimant_id' => '1013093331V548481',
         'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3', 'city_nm' => 'Boston',
         'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
-        'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil, 'phone_nbr' => '5555559876'
+        'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil, 'country_code' => '1',
+        'area_code' => '555', 'phone_number' => '5559876'
       },
       'registration_number' => '12345678'
     }
@@ -29,7 +31,8 @@ RSpec.shared_context 'shared POA auto establishment data' do
   let(:individual_gathered_data) do
     {
       'service_number' => '12345678', 'insurance_numbers' => '1234567890',
-      'phone_nbr' => '5555551234', 'claimant_relationship' => 'Spouse', 'poa_code' => '074',
+      'country_code' => '1', 'area_code' => '555', 'phone_number' => '5551234',
+      'claimant_relationship' => 'Spouse', 'poa_code' => '074',
       'organization_name' => 'AMERICAN LEGION', 'representativeLawFirmOrAgencyName' => nil,
       'representative_first_name' => 'John', 'representative_last_name' => 'Doe',
       'representative_title' => nil, 'section_7332_auth' => 'true', 'limitation_alcohol' => 'true',
@@ -42,7 +45,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
         'addrs_one_txt' => '123 Main St', 'addrs_two_txt' => 'Apt 3', 'city_nm' => 'Boston',
         'cntry_nm' => 'USA', 'postal_cd' => 'MA', 'zip_prefix_nbr' => '02110',
         'zip_first_suffix_nbr' => '1000', 'email_addrs_txt' => nil,
-        'phone_nbr' => '5555559876', 'claimant_id' => '1013093331V548481'
+        'country_code' => '1', 'area_code' => '555', 'phone_number' => '5559876', 'claimant_id' => '1013093331V548481'
       }
     }
   end
@@ -57,7 +60,9 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'VN',
               'zipCode' => '92264', 'zipCodeSuffix' => '0200'
             },
-            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
+            'phone' => {
+              'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234'
+            },
             'serviceNumber' => '12345678'
           },
           'representative' => { 'poaCode' => '074', 'type' => 'ATTORNEY', 'registrationNumber' => '12345678' },
@@ -72,7 +77,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'stateCode' => 'MA', 'countryCode' => 'US', 'zipCode' => '02110',
               'zipCodeSuffix' => '1000'
             },
-            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5559876' },
+            'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' },
             'relationship' => 'Spouse' }
         }
       }
@@ -89,7 +94,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'city' => 'Los Angeles', 'stateCode' => 'CA', 'countryCode' => 'US',
               'zipCode' => '92264', 'zipCodeSuffix' => '0200'
             },
-            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
+            'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5551234' },
             'serviceNumber' => '12345678',
             'insuranceNumber' => '1234567890'
           },
@@ -112,7 +117,7 @@ RSpec.shared_context 'shared POA auto establishment data' do
               'city' => 'Boston', 'stateCode' => 'MA', 'countryCode' => 'US',
               'zipCode' => '02110', 'zipCodeSuffix' => '1000'
             },
-            'phone' => { 'areaCode' => '555', 'phoneNumber' => '5559876' },
+            'phone' => { 'countryCode' => '1', 'areaCode' => '555', 'phoneNumber' => '5559876' },
             'relationship' => 'Spouse'
           }
         }

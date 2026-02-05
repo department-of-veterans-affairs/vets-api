@@ -21,7 +21,12 @@ module Mobile
         service = MHV::OhFacilitiesHelper::Service.new(@current_user)
         {
           is_user_at_pretransitioned_oh_facility: service.user_at_pretransitioned_oh_facility?,
-          is_user_facility_ready_for_info_alert: service.user_facility_ready_for_info_alert?
+          is_user_facility_ready_for_info_alert: service.user_facility_ready_for_info_alert?,
+          migrating_facilities_list: if Flipper.enabled?(:mhv_oh_migration_schedules, @current_user)
+                                       service.get_migration_schedules
+                                     else
+                                       []
+                                     end
         }
       end
     end

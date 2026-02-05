@@ -11,6 +11,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[7]'
         },
         'marriageValidityExplanation' => {
+          limit: 87,
+          question_num: 4,
+          question_suffix: 'A',
+          question_label: 'Explain why the marriage is/was not valid',
+          question_text: 'EXPLAIN WHY THE MARRIAGE IS/WAS NOT VALID',
           key: 'form1[0].#subform[208].Explanation[0]'
         },
         'marriedToVeteranAtTimeOfDeath' => {
@@ -20,6 +25,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[11]'
         },
         'howMarriageEndedExplanation' => {
+          limit: 52,
+          question_num: 4,
+          question_suffix: 'C',
+          question_label: 'How Marriage Ended',
+          question_text: 'HOW MARRIAGE ENDED',
           key: 'form1[0].#subform[208].Explain[2]'
         },
         'marriageDates' => {
@@ -56,6 +66,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[15]'
         },
         'marriageTypeExplanation' => {
+          limit: 61,
+          question_num: 4,
+          question_suffix: 'G',
+          question_label: 'Explain the type of marriage',
+          question_text: 'EXPLAIN THE TYPE OF MARRIAGE',
           key: 'form1[0].#subform[208].Explain[3]'
         },
         'childWithVeteran' => {
@@ -74,6 +89,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].CheckBox_NO[0]'
         },
         'separationExplanation' => {
+          limit: 53,
+          question_num: 4,
+          question_suffix: 'K',
+          question_label: 'Explain Separation Reason',
+          question_text: 'EXPLAIN SEPARATION REASON',
           key: 'form1[0].#subform[208].Explain[1]'
         },
         'remarriedAfterVeteralDeath' => {
@@ -116,6 +136,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].CheckBox_DID_NOT_END[1]'
         },
         'remarriageEndCauseExplanation' => {
+          limit: 45,
+          question_num: 4,
+          question_suffix: 'N',
+          question_label: 'Explain Remarriage End Cause',
+          question_text: 'EXPLAIN REMARRIAGE END CAUSE',
           key: 'form1[0].#subform[208].Explain[0]'
         },
         'claimantHasAdditionalMarriages' => {
@@ -135,7 +160,11 @@ module SurvivorsBenefits
       def expand_marriage(form_data)
         form_data['validMarriage'] = to_radio_yes_no(form_data['validMarriage'])
         form_data['marriedToVeteranAtTimeOfDeath'] = to_radio_yes_no(form_data['marriedToVeteranAtTimeOfDeath'])
-        form_data['howMarriageEnded'] = radio_marriage_ended(form_data['howMarriageEnded'])
+        form_data['howMarriageEnded'] = if form_data['marriedToVeteranAtTimeOfDeath'] == 'YES'
+                                          'DEATH'
+                                        else
+                                          radio_marriage_ended(form_data['howMarriageEnded'])
+                                        end
         form_data['marriageDates'] = {
           'from' => split_date(form_data.dig('marriageDates', 'from')),
           'to' => split_date(form_data.dig('marriageDates', 'to'))

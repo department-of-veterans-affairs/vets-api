@@ -14,6 +14,10 @@ class SavedClaim::Test < SavedClaim
   def attachment_keys
     [:files]
   end
+
+  def send_email(_email_type)
+    true
+  end
 end
 
 FactoryBot.define do

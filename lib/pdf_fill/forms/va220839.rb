@@ -137,10 +137,9 @@ module PdfFill
       def merge_fields(_options = {})
         form_data = JSON.parse(JSON.generate(@form_data))
 
-        convert_full_name(form_data, %w[pointOfContact fullName])
-        convert_full_name(form_data, %w[pointOfContactTwo fullName])
         convert_full_name(form_data, %w[authorizedOfficial fullName])
 
+        format_contacts(form_data)
         format_institutions(form_data)
         format_schools(form_data)
         format_agreement_type(form_data)
@@ -164,6 +163,24 @@ module PdfFill
 
         # we only need the year portion of the dates
         "#{range['from'][0..3]} to #{range['to'][0..3]}"
+      end
+
+      def format_contacts(form_data)
+        # pointOfContact is the yellow ribbon poc or financial rep
+        # pointOfContactTwo is the SCO
+        poc1 = form_data['pointOfContact'].dup
+        poc2 = form_data['pointOfContactTwo'].dup
+
+        if poc1['role'] == 'schoolCertifyingOfficial'
+          form_data['pointOfContact'] = poc2
+          form_data['pointOfContactTwo'] = poc1
+        else
+          form_data['pointOfContact'] = poc1
+          form_data['pointOfContactTwo'] = poc2
+        end
+
+        convert_full_name(form_data, %w[pointOfContact fullName])
+        convert_full_name(form_data, %w[pointOfContactTwo fullName])
       end
 
       def format_agreement_type(form_data)

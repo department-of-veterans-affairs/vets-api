@@ -416,4 +416,43 @@ RSpec.describe Rack::Attack do
       end
     end
   end
+
+  describe 'BIO form endpoints (form214192, form21p530a, form210779, form212680)' do
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 30 }
+
+    %w[
+      /v0/form214192
+      /v0/form21p530a
+      /v0/form210779
+      /v0/form212680
+    ].each do |endpoint|
+      context "when POST #{endpoint}" do
+        before do
+          limit.times do
+            post endpoint, { form_data: '{}' }.to_json, headers.merge('CONTENT_TYPE' => 'application/json')
+            expect(last_response).not_to have_http_status(:too_many_requests)
+          end
+
+          post endpoint, { form_data: '{}' }.to_json, other_headers.merge('CONTENT_TYPE' => 'application/json')
+        end
+
+        context 'response status for repeated requests from the same IP' do
+          let(:other_headers) { headers }
+
+          it 'throttles with status 429' do
+            expect(last_response).to have_http_status(:too_many_requests)
+          end
+        end
+
+        context 'response status for request from different IP' do
+          let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+          it 'does not throttle' do
+            expect(last_response).not_to have_http_status(:too_many_requests)
+          end
+        end
+      end
+    end
+  end
 end

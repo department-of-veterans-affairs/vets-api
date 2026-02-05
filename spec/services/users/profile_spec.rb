@@ -931,7 +931,7 @@ RSpec.describe Users::Profile do
 
         it 'includes facilities matching user va_treatment_facility_ids' do
           schedules = mpi_profile_result[:oh_migration_info][:migration_schedules]
-          facility_ids = schedules.first[:facilities].map { |f| f[:id] }
+          facility_ids = schedules.first[:facilities].map { |f| f[:facility_id] }
           expect(facility_ids).to contain_exactly('516', '517')
         end
 

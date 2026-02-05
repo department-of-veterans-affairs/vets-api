@@ -31,14 +31,17 @@ module Mobile
       end
 
       def refill
-        result = unified_health_service.refill_prescription(orders)
+        parsed_orders = orders
+        result = unified_health_service.refill_prescription(parsed_orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
 
-        # Log unique user event for prescription refill requested
+        # Log unique user event for prescription refill requested (includes OH tracking for matching facilities)
+        event_facility_ids = parsed_orders.map { |order| order['stationNumber'] }.compact.uniq
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+          event_facility_ids:
         )
 
         render json: response.serializable_hash

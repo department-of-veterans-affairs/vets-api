@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/s3_helpers'
 
 RSpec.describe Console1984LogUploadJob, type: :job do
   subject(:job) { described_class.new }
 
   let(:mock_s3_client) { instance_double(Aws::S3::Client) }
-  let(:mock_transfer_manager) { instance_double(Aws::S3::TransferManager) }
+  let(:mock_s3_resource) { instance_double(Aws::S3::Resource) }
   let(:yesterday_date) { Date.new(2024, 1, 19) }
   let(:temp_dir) { Rails.root.join('tmp', 'console_access_logs') }
   let(:expected_filename) { "console1984_logs_#{yesterday_date}.json" }
@@ -19,7 +20,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
     allow(Date).to receive(:yesterday).and_return(yesterday_date)
 
     allow(Aws::S3::Client).to receive(:new).with(region: 'us-gov-west-1').and_return(mock_s3_client)
-    allow(Aws::S3::TransferManager).to receive(:new).with(client: mock_s3_client).and_return(mock_transfer_manager)
+    allow(Aws::S3::Resource).to receive(:new).with(client: mock_s3_client).and_return(mock_s3_resource)
   end
 
   after do
@@ -34,7 +35,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
     context 'when in a valid environment' do
       before do
         allow(Rails.env).to receive(:development?).and_return(true)
-        allow(mock_transfer_manager).to receive(:upload_file)
+        allow(Common::S3Helpers).to receive(:upload_file)
         allow(FileUtils).to receive(:rm_f).with(expected_file_path.to_s)
       end
 
@@ -116,10 +117,11 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'uploads the file to S3 with correct parameters' do
-          expect(mock_transfer_manager).to receive(:upload_file).with(
-            expected_file_path.to_s,
+          expect(Common::S3Helpers).to receive(:upload_file).with(
+            s3_resource: mock_s3_resource,
             bucket: 'vets-api-console-access-logs',
             key: "test/#{expected_filename}",
+            file_path: expected_file_path.to_s,
             content_type: 'application/json',
             server_side_encryption: 'AES256'
           )
@@ -136,10 +138,11 @@ RSpec.describe Console1984LogUploadJob, type: :job do
           expect(file_content).to eq([])
         end
 
-        it 'still uploads to S3' do
-          expect(mock_transfer_manager).to receive(:upload_file).with(
-            expected_file_path.to_s,
+        it 'still uploads the empty file to S3' do
+          expect(Common::S3Helpers).to receive(:upload_file).with(
+            s3_resource: mock_s3_resource,
             bucket: 'vets-api-console-access-logs',
+            file_path: expected_file_path.to_s,
             key: "test/#{expected_filename}",
             content_type: 'application/json',
             server_side_encryption: 'AES256'
@@ -188,7 +191,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'logs the error and re-raises' do
-          allow(mock_transfer_manager).to receive(:upload_file).and_raise(s3_error)
+          allow(Common::S3Helpers).to receive(:upload_file).and_raise(s3_error)
 
           expect(Rails.logger).to receive(:error).with(
             "Console access logs upload failed for #{expected_filename}: Access Denied"
@@ -198,7 +201,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
         end
 
         it 'leaves the file on disk for retry' do
-          allow(mock_transfer_manager).to receive(:upload_file).and_raise(s3_error)
+          allow(Common::S3Helpers).to receive(:upload_file).and_raise(s3_error)
 
           expect { job.perform }.to raise_error(Aws::S3::Errors::ServiceError)
 
@@ -224,7 +227,7 @@ RSpec.describe Console1984LogUploadJob, type: :job do
       end
 
       it 'does not upload to S3' do
-        expect(mock_transfer_manager).not_to receive(:upload_file)
+        expect(Common::S3Helpers).not_to receive(:upload_file)
 
         job.perform
       end

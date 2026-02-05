@@ -4,7 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 require 'pcpg/monitor'
 require 'dependents/monitor'
-require 'vre/monitor'
+require 'vre/vre_monitor'
 
 # Datadog Dashboard:
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
@@ -211,10 +211,10 @@ class BenefitsIntakeStatusJob
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
       email = claim.parsed_form['email'] if claim.present?
       if claim.present? && email.present?
-        claim.send_failure_email(email)
-        VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
+        claim.send_email(:error)
+        VRE::VREMonitor.new.log_silent_failure_avoided(context, call_location:)
       else
-        VRE::Monitor.new.log_silent_failure(context, call_location:)
+        VRE::VREMonitor.new.log_silent_failure(context, call_location:)
       end
     end
   end
