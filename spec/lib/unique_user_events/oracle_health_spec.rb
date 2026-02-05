@@ -97,6 +97,23 @@ RSpec.describe UniqueUserEvents::OracleHealth do
   end
 
   describe '.tracked_facility_ids' do
+    context 'with actual config file settings' do
+      it 'loads facility IDs that are all valid 3-digit numbers' do
+        # Don't stub - use actual settings from config/settings/test.yml
+        facility_ids = described_class.tracked_facility_ids
+
+        expect(facility_ids).to be_an(Array)
+        expect(facility_ids).to all(match(/^\d{3}$/))
+        expect(facility_ids).to all(be_a(String))
+      end
+
+      it 'includes expected facility IDs' do
+        facility_ids = described_class.tracked_facility_ids
+
+        expect(facility_ids).to include('757', '506', '515', '553', '655')
+      end
+    end
+
     it 'returns facility IDs from settings as strings' do
       allow(Settings).to receive_message_chain(:unique_user_metrics, :oracle_health_tracked_facility_ids)
         .and_return(%w[757 506])
