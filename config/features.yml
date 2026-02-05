@@ -2841,6 +2841,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  form_21_0779_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-0779 (Request for Nursing Home Information)"
   vre_eligibility_status_phase_2_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates for phase 2
@@ -2848,10 +2852,18 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21P-530a on vets-website
+  form_21p_530a_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21P-530A (Application for Burial Allowance) - Deferred until VBA Data Dictionary is created"
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-4192 on vets-website
+  form_21_4192_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-4192 (Request for Employment Information)"
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2860,6 +2872,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
+  form_21_2680_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
