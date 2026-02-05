@@ -21,7 +21,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
         meta = response_body['meta']
         copay_summary = meta['copay_summary']
         data_element = response_body['data'].first
-
+binding.pry
         expect(copay_summary.keys)
           .to eq(%w[total_current_balance copay_bill_count last_updated_on])
 
