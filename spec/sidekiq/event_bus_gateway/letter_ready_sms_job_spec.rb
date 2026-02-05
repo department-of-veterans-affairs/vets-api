@@ -396,8 +396,8 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
       let(:cache_key) { 'test_cache_key_123' }
 
       before do
-        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key)
-                                    .and_raise(Sidekiq::AttrPackageError.new('find', 'Redis connection failed'))
+        error = Sidekiq::AttrPackageError.new('find', 'Redis connection failed')
+        allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_raise(error)
       end
 
       it 'logs the error and raises ArgumentError' do
@@ -419,8 +419,8 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
           first_name:,
           icn: mpi_profile.icn
         )
-        allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key)
-                                    .and_raise(Sidekiq::AttrPackageError.new('delete', 'Redis delete failed'))
+        error = Sidekiq::AttrPackageError.new('delete', 'Redis delete failed')
+        allow(Sidekiq::AttrPackage).to receive(:delete).with(cache_key).and_raise(error)
       end
 
       it 'logs the error and raises ArgumentError' do
