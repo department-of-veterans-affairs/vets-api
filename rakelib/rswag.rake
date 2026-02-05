@@ -54,6 +54,8 @@ namespace :rswag do
         %w[v1 v2].each { |version| format_for_swagger(version, version.eql?('v2') ? environment : nil) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
+      # Sanitize dynamic values after generation to reduce noise in git diffs
+      sanitize_claims_api_docs!
     end
   end
 
@@ -179,4 +181,55 @@ def rswag_to_oas!(filepath)
   end
 
   FileUtils.mv(temp_path, filepath)
+end
+
+# Sanitize dynamic values in examples to prevent noisy git diffs
+def sanitize_claims_api_docs!
+  paths = [
+    'modules/claims_api/app/swagger/claims_api/v1/swagger.json',
+    'modules/claims_api/app/swagger/claims_api/v2/dev/swagger.json',
+    'modules/claims_api/app/swagger/claims_api/v2/production/swagger.json'
+  ]
+
+  paths.each do |path|
+    filepath = Rails.root.join(path)
+    next unless File.exist?(filepath)
+
+    data = JSON.parse(File.read(filepath))
+    sanitize_example_values!(data)
+    File.write(filepath, JSON.pretty_generate(data))
+  end
+end
+
+# Recursively sanitize dynamic values in swagger examples
+def sanitize_example_values!(data)
+  # Counter to generate sequential stable IDs
+  @id_counter ||= 0
+  @uuid_counter ||= 0
+  @date_counter ||= 0
+
+  transformer = lambda do |k, v, _root|
+    # Sanitize UUID-style IDs (e.g., "d5536c5c-0465-4038-a368-1a9d9daf65c9")
+    if v.is_a?(String) && v.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      @uuid_counter += 1
+      format('00000000-0000-0000-0000-%012d', @uuid_counter)
+    # Sanitize ISO 8601 timestamps (e.g., "2024-01-15T10:30:45.123Z")
+    elsif v.is_a?(String) && v.match?(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+      '2024-01-01T00:00:00.000Z'
+    # Sanitize dates (e.g., "2024-01-15")
+    elsif k.to_s.match?(/date|Date/) && v.is_a?(String) && v.match?(/^\d{4}-\d{2}-\d{2}$/)
+      '2024-01-01'
+    # Sanitize numeric IDs in common ID fields
+    elsif k.to_s.match?(/\bid\b|\bId\b|_id$/) && v.is_a?(String) && v.match?(/^\d+$/)
+      @id_counter += 1
+      @id_counter.to_s
+    elsif k.to_s.match?(/\bid\b|\bId\b|_id$/) && v.is_a?(Integer)
+      @id_counter += 1
+      @id_counter
+    else
+      v
+    end
+  end
+
+  data.replace deep_transform(data, root: [], transformer:)
 end

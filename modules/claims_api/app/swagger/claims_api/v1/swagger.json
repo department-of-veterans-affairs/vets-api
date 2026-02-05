@@ -108,7 +108,7 @@
                         },
                         "received_date": {
                           "type": "string",
-                          "example": "2015-01-05T17:42:12.058Z",
+                          "example": "2024-01-01T00:00:00.000Z",
                           "format": "datetime"
                         },
                         "claimant_ssn": {
@@ -194,11 +194,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "294045",
+                    "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creation_date": "2025-02-07T09:17:18-06:00",
-                      "expiration_date": "2026-02-07T07:12:40-06:00",
+                      "creation_date": "2024-01-01T00:00:00.000Z",
+                      "expiration_date": "2024-01-01T00:00:00.000Z",
                       "type": "compensation",
                       "status": "duplicate"
                     }
@@ -501,7 +501,7 @@
                           },
                           "received_date": {
                             "type": "string",
-                            "example": "2015-01-05T17:42:12.058Z",
+                            "example": "2024-01-01T00:00:00.000Z",
                             "format": "datetime"
                           },
                           "claimant_ssn": {
@@ -598,11 +598,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "183042",
+                    "id": "2",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creation_date": "2020-06-05T11:24:28-05:00",
-                      "expiration_date": "2021-06-05T11:24:28-05:00",
+                      "creation_date": "2024-01-01T00:00:00.000Z",
+                      "expiration_date": "2024-01-01T00:00:00.000Z",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -1154,7 +1154,7 @@
                           },
                           "received_date": {
                             "type": "string",
-                            "example": "2015-01-05T17:42:12.058Z",
+                            "example": "2024-01-01T00:00:00.000Z",
                             "format": "datetime"
                           },
                           "claimant_ssn": {
@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8c9a9dbe-facc-4010-8d25-8679a91d1f74",
+                    "id": "00000000-0000-0000-0000-000000000001",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "627ef87f-266a-4999-8334-5e6bdbe4d8b7",
+                    "id": "00000000-0000-0000-0000-000000000002",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,17 +3181,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "075dacba-32db-42be-9676-05a69af9a547",
+                    "id": "00000000-0000-0000-0000-000000000003",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -5948,7 +5948,7 @@
                         "applicationExpirationDate": {
                           "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                           "type": "string",
-                          "example": "2018-08-28T19:53:45+00:00"
+                          "example": "2024-01-01T00:00:00.000Z"
                         },
                         "autoCestPDFGenerationDisabled": {
                           "description": "Allows you to bypass the auto PDF generation and instead upload the Disability form itself through Support Documents.",
@@ -5959,7 +5959,7 @@
                           "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                           "type": "string",
                           "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                          "example": "2018-08-28T19:53:45+00:00"
+                          "example": "2024-01-01T00:00:00.000Z"
                         }
                       }
                     }
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                    "id": "00000000-0000-0000-0000-000000000004",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.152Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                      "token": "00000000-0000-0000-0000-000000000005",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6380,18 +6380,18 @@
                         ],
                         "standardClaim": false,
                         "autoCestPDFGenerationDisabled": false,
-                        "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+                        "applicationExpirationDate": "2024-01-01T00:00:00.000Z",
                         "serviceInformation": {
                           "servicePeriods": [
                             {
-                              "activeDutyEndDate": "1990-01-02",
+                              "activeDutyEndDate": "2024-01-01",
                               "serviceBranch": "Air Force",
-                              "activeDutyBeginDate": "1980-02-05"
+                              "activeDutyBeginDate": "2024-01-01"
                             },
                             {
-                              "activeDutyEndDate": "1999-01-01",
+                              "activeDutyEndDate": "2024-01-01",
                               "serviceBranch": "Air Force Reserves",
-                              "activeDutyBeginDate": "1990-04-05"
+                              "activeDutyBeginDate": "2024-01-01"
                             }
                           ]
                         }
@@ -7810,7 +7810,7 @@
                           "applicationExpirationDate": {
                             "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                             "type": "string",
-                            "example": "2018-08-28T19:53:45+00:00"
+                            "example": "2024-01-01T00:00:00.000Z"
                           },
                           "autoCestPDFGenerationDisabled": {
                             "description": "Allows you to bypass the auto PDF generation and instead upload the Disability form itself through Support Documents.",
@@ -7821,7 +7821,7 @@
                             "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                             "type": "string",
                             "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                            "example": "2018-08-28T19:53:45+00:00"
+                            "example": "2024-01-01T00:00:00.000Z"
                           }
                         }
                       }
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                    "id": "00000000-0000-0000-0000-000000000006",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.941Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                      "token": "00000000-0000-0000-0000-000000000007",
                       "status": "pending",
                       "flashes": []
                     }
@@ -8631,18 +8631,18 @@
                         ],
                         "standardClaim": false,
                         "autoCestPDFGenerationDisabled": false,
-                        "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+                        "applicationExpirationDate": "2024-01-01T00:00:00.000Z",
                         "serviceInformation": {
                           "servicePeriods": [
                             {
-                              "activeDutyEndDate": "1990-01-02",
+                              "activeDutyEndDate": "2024-01-01",
                               "serviceBranch": "Air Force",
-                              "activeDutyBeginDate": "1980-02-05"
+                              "activeDutyBeginDate": "2024-01-01"
                             },
                             {
-                              "activeDutyEndDate": "1999-01-01",
+                              "activeDutyEndDate": "2024-01-01",
                               "serviceBranch": "Air Force Reserves",
-                              "activeDutyBeginDate": "1990-04-05"
+                              "activeDutyBeginDate": "2024-01-01"
                             }
                           ]
                         }
@@ -10061,7 +10061,7 @@
                           "applicationExpirationDate": {
                             "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                             "type": "string",
-                            "example": "2018-08-28T19:53:45+00:00"
+                            "example": "2024-01-01T00:00:00.000Z"
                           },
                           "autoCestPDFGenerationDisabled": {
                             "description": "Allows you to bypass the auto PDF generation and instead upload the Disability form itself through Support Documents.",
@@ -10072,7 +10072,7 @@
                             "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                             "type": "string",
                             "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                            "example": "2018-08-28T19:53:45+00:00"
+                            "example": "2024-01-01T00:00:00.000Z"
                           }
                         }
                       }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1bfdb989-b173-4a11-8ba2-35d1fa04e110",
+                    "id": "00000000-0000-0000-0000-000000000008",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:19.595Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "8e59dcdf-1b70-44e5-bb07-f0cea4db226d",
+                          "id": "00000000-0000-0000-0000-000000000009",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -10590,15 +10590,15 @@
                 "example": {
                   "data": [
                     {
-                      "id": "600354175",
+                      "id": "3",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600354175,
+                        "evss_id": 4,
                         "open": false,
                         "waiver_submitted": false,
                         "requested_decision": false,
                         "claim_type": "Compensation",
-                        "date_filed": "2022-12-01",
+                        "date_filed": "2024-01-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "development_letter_sent": false,
@@ -10608,15 +10608,15 @@
                       }
                     },
                     {
-                      "id": "600354178",
+                      "id": "5",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600354178,
+                        "evss_id": 6,
                         "open": false,
                         "waiver_submitted": false,
                         "requested_decision": false,
                         "claim_type": "Compensation",
-                        "date_filed": "2022-12-01",
+                        "date_filed": "2024-01-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "development_letter_sent": false,
@@ -10626,15 +10626,15 @@
                       }
                     },
                     {
-                      "id": "600311927",
+                      "id": "7",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600311927,
+                        "evss_id": 8,
                         "open": false,
                         "waiver_submitted": false,
                         "requested_decision": false,
                         "claim_type": "Compensation",
-                        "date_filed": "2022-06-23",
+                        "date_filed": "2024-01-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "development_letter_sent": false,
@@ -10644,15 +10644,15 @@
                       }
                     },
                     {
-                      "id": "600309680",
+                      "id": "9",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600309680,
+                        "evss_id": 10,
                         "open": false,
                         "waiver_submitted": false,
                         "requested_decision": false,
                         "claim_type": "Compensation",
-                        "date_filed": "2022-06-09",
+                        "date_filed": "2024-01-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "development_letter_sent": false,
@@ -10662,15 +10662,15 @@
                       }
                     },
                     {
-                      "id": "600308831",
+                      "id": "11",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600308831,
+                        "evss_id": 12,
                         "open": false,
                         "waiver_submitted": false,
                         "requested_decision": false,
                         "claim_type": "Compensation",
-                        "date_filed": "2022-06-06",
+                        "date_filed": "2024-01-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "development_letter_sent": false,
@@ -11019,15 +11019,15 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e00b3ab5-5822-4d1f-8832-011872882c73",
+                    "id": "00000000-0000-0000-0000-000000000010",
                     "type": "claims_api_claim",
                     "attributes": {
-                      "evss_id": 600118851,
+                      "evss_id": 13,
                       "open": false,
                       "waiver_submitted": false,
                       "requested_decision": false,
                       "claim_type": "Compensation",
-                      "date_filed": "2017-12-08",
+                      "date_filed": "2024-01-01",
                       "min_est_date": null,
                       "max_est_date": null,
                       "development_letter_sent": false,
@@ -11037,27 +11037,27 @@
                       "events_timeline": [
                         {
                           "type": "phase7",
-                          "date": "2018-06-12"
+                          "date": "2024-01-01"
                         },
                         {
                           "type": "completed",
-                          "date": "2018-06-12"
+                          "date": "2024-01-01"
                         },
                         {
                           "type": "filed",
-                          "date": "2017-12-08"
+                          "date": "2024-01-01"
                         }
                       ],
                       "va_representative": "AMERICAN LEGION",
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "c649f762-e097-4bec-8ea8-fb25aa549fe1",
+                          "id": "00000000-0000-0000-0000-000000000011",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-11-06T15:47:20.751Z"
+                          "uploaded_at": "2024-01-01T00:00:00.000Z"
                         }
                       ]
                     }
