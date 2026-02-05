@@ -7,5 +7,10 @@ class CreateOrganizationRepresentatives < ActiveRecord::Migration[7.2]
 
       t.timestamps
     end
+
+    add_foreign_key :organization_representatives, :veteran_representatives,
+                    column: :representative_id, primary_key: :representative_id, validate: false
+    add_foreign_key :organization_representatives, :veteran_organizations,
+                    column: :organization_poa, primary_key: :poa, validate: false
   end
 end

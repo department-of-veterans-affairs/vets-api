@@ -2269,6 +2269,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_04_160007) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "organization_representatives", "veteran_organizations", column: "organization_poa", primary_key: "poa", validate: false
+  add_foreign_key "organization_representatives", "veteran_representatives", column: "representative_id", primary_key: "representative_id", validate: false
   add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
   add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
