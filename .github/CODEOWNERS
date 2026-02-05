@@ -763,6 +763,7 @@ config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/bac
 config/initializers/config.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/console_filter_toggles.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/console1984_patch.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/console1984_supervisor_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/cookie_rotation.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/core_extensions.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/datadog.rb @department-of-veterans-affairs/backend-review-group

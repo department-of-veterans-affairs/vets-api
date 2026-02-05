@@ -1908,7 +1908,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                 state: 'FL',
                                 zip: '12345'
                               },
-                              appointments: { system: 'EPS', data: [] })
+                              appointments: { system: 'EPS', data: [] },
+                              selected_npi_for_eps: npi,
+                              selected_npi_source: :treating_nested)
             )
 
           expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
