@@ -339,10 +339,6 @@ module ClaimsApi
         @form_data[:consentLimits].present? && @form_data[:consentLimits].include?(condition)
       end
 
-      def format_phone(phone)
-        "#{phone[:areaCode]}#{phone[:phoneNumber]}"
-      end
-
       def add_meta_ids(vet_obj)
         return vet_obj if @vnp_res_object['meta'].blank?
 
