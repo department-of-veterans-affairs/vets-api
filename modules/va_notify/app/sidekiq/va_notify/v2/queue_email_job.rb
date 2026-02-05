@@ -22,7 +22,7 @@ module VANotify
       def perform(template_id, attr_package_key, callback_options = {})
         attrs = fetch_attrs(attr_package_key, template_id)
         email = attrs[:email]
-        personalisation = attrs[:personalisation] || {}
+        personalisation = attrs[:personalisation]
         api_key = attrs[:api_key]
 
         begin
