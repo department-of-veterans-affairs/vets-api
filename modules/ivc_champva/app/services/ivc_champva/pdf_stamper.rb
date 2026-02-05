@@ -5,7 +5,7 @@ require 'ivc_champva/monitor'
 
 module IvcChampva
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[10-10D 10-10D-EXTENDED 10-7959F-1 10-7959A 10-7959C-REV2025].freeze
+    FORM_REQUIRES_STAMP = %w[10-10D 10-10D-EXTENDED 10-7959F-1 10-7959A 10-7959C].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 

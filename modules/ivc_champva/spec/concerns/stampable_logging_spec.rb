@@ -241,7 +241,7 @@ RSpec.describe StampableLogging do
       let(:data_without_signature) do
         {
           'primary_contact_info' => { 'name' => { 'first' => 'Test', 'last' => 'User' } },
-          'form_number' => '10-7959C-REV2025'
+          'form_number' => '10-7959C'
         }
       end
       let(:form_without_signature) { IvcChampva::VHA107959cRev2025.new(data_without_signature) }
@@ -249,7 +249,7 @@ RSpec.describe StampableLogging do
       it 'logs missing signature data' do
         expect(Rails.logger).to receive(:info).with(
           a_string_matching(/IVC ChampVA Forms - VHA107959cRev2025 Missing stamp data for statement_of_truth_signature/)
-            .and(matching(/form_number: 10-7959C-REV2025/))
+            .and(matching(/form_number: 10-7959C/))
         )
 
         form_without_signature.desired_stamps
@@ -261,7 +261,7 @@ RSpec.describe StampableLogging do
         {
           'primary_contact_info' => { 'name' => { 'first' => 'Test', 'last' => 'User' } },
           'statement_of_truth_signature' => '',
-          'form_number' => '10-7959C-REV2025'
+          'form_number' => '10-7959C'
         }
       end
       let(:form_with_blank_signature) { IvcChampva::VHA107959cRev2025.new(data_with_blank_signature) }
@@ -269,7 +269,7 @@ RSpec.describe StampableLogging do
       it 'logs missing signature data for blank value' do
         expect(Rails.logger).to receive(:info).with(
           a_string_matching(/IVC ChampVA Forms - VHA107959cRev2025 Missing stamp data for statement_of_truth_signature/)
-            .and(matching(/form_number: 10-7959C-REV2025/))
+            .and(matching(/form_number: 10-7959C/))
         )
 
         form_with_blank_signature.desired_stamps
