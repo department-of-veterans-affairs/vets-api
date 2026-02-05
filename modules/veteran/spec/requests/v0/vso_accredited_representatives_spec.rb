@@ -15,7 +15,7 @@ RSpec.describe 'Veteran::V0::VSOAccreditedRepresentatives', type: :request do
     let(:long) { -77.0369 }
 
     before do
-      Flipper.enable(:find_a_representative_enable_api)
+      Flipper.enable(:find_a_representative_enable_api) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       # Create representatives
       create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',

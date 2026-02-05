@@ -14,16 +14,16 @@ RSpec.describe 'Feature Toggles API endpoint', type: :request do
       @feature_name = 'this_is_only_a_test'
       @feature_name_camel = @feature_name.camelize(:lower)
       @cached_enabled_val = Flipper.enabled?(@feature_name)
-      Flipper.enable(@feature_name)
+      Flipper.enable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       @second_feature = 'this_is_only_a_test_two'
       @second_feature_camel = @second_feature.camelize(:lower)
-      Flipper.enable(@second_feature)
+      Flipper.enable(@second_feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     after(:all) do
-      Flipper.disable(@feature_name)
-      Flipper.disable(@second_feature)
+      Flipper.disable(@feature_name) # rubocop:disable Project/ForbidFlipperToggleInSpecs
+      Flipper.disable(@second_feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'with authenticated user' do

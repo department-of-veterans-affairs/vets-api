@@ -15,7 +15,7 @@ RSpec.describe 'RepresentationManagement::V0::OriginalEntities', type: :request 
 
   context 'when use_veteran_models_for_appoint is disabled' do
     before do
-      Flipper.disable(:use_veteran_models_for_appoint)
+      Flipper.disable(:use_veteran_models_for_appoint) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     it 'returns a not found routing error' do
@@ -27,7 +27,7 @@ RSpec.describe 'RepresentationManagement::V0::OriginalEntities', type: :request 
 
   context 'when use_veteran_models_for_appoint is enabled' do
     before do
-      Flipper.enable(:use_veteran_models_for_appoint)
+      Flipper.enable(:use_veteran_models_for_appoint) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when no query param is provided' do

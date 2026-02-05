@@ -48,7 +48,7 @@ describe AppealsApi::EvidenceSubmissionBackup, type: :job do
     end
 
     context 'when the delay evidence feature is enabled' do
-      before { Flipper.enable(:decision_review_delay_evidence) }
+      before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'calls "#submits_to_central_mail!" for each evidence record returned from #evidence_to_submit' do
         subject.perform

@@ -8,7 +8,7 @@ shared_examples 'an endpoint requiring gateway origin headers' do |headers:|
 
   describe '#require_gateway_origin' do
     context 'with benefits_require_gateway_origin flag off' do
-      before { Flipper.disable(:benefits_require_gateway_origin) }
+      before { Flipper.disable(:benefits_require_gateway_origin) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'does nothing' do
         make_request(headers)
@@ -18,7 +18,7 @@ shared_examples 'an endpoint requiring gateway origin headers' do |headers:|
     end
 
     context 'with benefits_require_gateway_origin flag on' do
-      before { Flipper.enable(:benefits_require_gateway_origin) }
+      before { Flipper.enable(:benefits_require_gateway_origin) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'does nothing when rails is not running in production mode' do
         make_request(headers)

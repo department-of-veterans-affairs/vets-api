@@ -22,7 +22,7 @@ RSpec.shared_examples 'base_accredited_representatives_controller_shared_example
 
   context 'when find a rep is enabled' do
     before do
-      Flipper.enable(:find_a_representative_enable_api)
+      Flipper.enable(:find_a_representative_enable_api) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when a required param is missing' do

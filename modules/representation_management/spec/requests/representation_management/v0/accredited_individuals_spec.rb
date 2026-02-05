@@ -27,7 +27,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :req
 
   context 'when find_a_representative_use_accredited_models is enabled' do
     before do
-      Flipper.enable(:find_a_representative_use_accredited_models)
+      Flipper.enable(:find_a_representative_use_accredited_models) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when a required param is missing' do

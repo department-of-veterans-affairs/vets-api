@@ -462,7 +462,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'processing') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'calls "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'complete')
@@ -472,7 +472,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         end
 
         context 'and the delay evidence feature is disabled' do
-          before { Flipper.disable(:decision_review_delay_evidence) }
+          before { Flipper.disable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'complete')
@@ -486,7 +486,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'success') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(source: 'VA.gov')
@@ -500,7 +500,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'submitted') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'does not call "submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'processing')

@@ -9,7 +9,7 @@ module RuboCop
       # flipper instances instead of mutating global state.
       #
       class ForbidFlipperToggleInSpecs < Base
-        MSG = 'Avoid using Flipper.enable/disable in specs. Use an isolated flipper instance instead.'
+        MSG = 'Avoid using Flipper.enable/disable in specs. Use mocks or an isolated flipper instance instead.'
 
         RESTRICT_ON_SEND = %i[enable disable].freeze
 

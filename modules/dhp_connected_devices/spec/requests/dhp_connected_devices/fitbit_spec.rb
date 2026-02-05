@@ -19,7 +19,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
     end
 
     context 'fitbit feature enabled and un-authenticated user' do
-      before { Flipper.enable(:dhp_connected_devices_fitbit) }
+      before { Flipper.enable(:dhp_connected_devices_fitbit) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'returns unauthenticated' do
         expect(fitbit_connect).to be 401
@@ -28,7 +28,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
 
     context 'fitbit feature enabled and un-verified user' do
       before do
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         sign_in_as(user_without_icn)
       end
 
@@ -40,7 +40,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
     context 'fitbit feature disabled and authenticated user' do
       before do
         sign_in_as(current_user)
-        Flipper.disable(:dhp_connected_devices_fitbit)
+        Flipper.disable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'returns not found' do
@@ -51,7 +51,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
     context 'fitbit feature enabled and authenticated user' do
       before do
         sign_in_as(current_user)
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       let(:client) { DhpConnectedDevices::Fitbit::Client.new }
@@ -70,21 +70,21 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
 
     context 'fitbit feature enabled and user unauthenticated' do
       it 'navigating to /fitbit-callback returns error' do
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit)  # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(fitbit_callback).to be 401
       end
     end
 
     context 'fitbit feature not enabled and user unauthenticated' do
       it 'navigating to /fitbit-callback returns error' do
-        Flipper.disable(:dhp_connected_devices_fitbit)
+        Flipper.disable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(fitbit_callback).to be 401
       end
     end
 
     context 'fitbit feature enabled and user unverified' do
       before do
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         sign_in_as(user_without_icn)
       end
 
@@ -96,7 +96,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
     context 'fitbit feature not enabled and user authenticated' do
       before do
         sign_in_as(current_user)
-        Flipper.disable(:dhp_connected_devices_fitbit)
+        Flipper.disable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
 
       it 'navigating to /fitbit-callback returns error' do
@@ -115,7 +115,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
 
       before do
         sign_in_as(current_user)
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         create(:device, :fitbit)
       end
 
@@ -253,14 +253,14 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
 
     context 'fitbit feature enabled and user unauthenticated' do
       it 'navigating to /fitbit/disconnect returns error' do
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(fitbit_disconnect).to be 401
       end
     end
 
     context 'fitbit feature enabled and user unverified' do
       before do
-        Flipper.enable(:dhp_connected_devices_fitbit)
+        Flipper.enable(:dhp_connected_devices_fitbit) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         sign_in_as(user_without_icn)
       end
 

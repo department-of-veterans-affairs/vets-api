@@ -8,7 +8,7 @@ describe AppealsApi::WeeklyErrorReport, type: :job do
 
   describe '#perform' do
     it 'sends mail' do
-      Flipper.enable(:decision_review_weekly_error_report_enabled)
+      Flipper.enable(:decision_review_weekly_error_report_enabled) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       expect(AppealsApi::WeeklyErrorReportMailer).to receive(:build)
         .once
         .and_return(double.tap do |mailer|
@@ -19,7 +19,7 @@ describe AppealsApi::WeeklyErrorReport, type: :job do
     end
 
     it 'does not send report email if flipper disabled' do
-      Flipper.disable(:decision_review_weekly_error_report_enabled)
+      Flipper.disable(:decision_review_weekly_error_report_enabled) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       expect(AppealsApi::WeeklyErrorReportMailer).not_to receive(:build)
 
       described_class.new.perform

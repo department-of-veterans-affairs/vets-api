@@ -10,7 +10,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', typ
   let!(:bob_smith_firm) { create(:accredited_organization, :with_location, name: 'Bob Smith Firm') }
 
   before do
-    Flipper.enable(:appoint_a_representative_enable_pdf)
+    Flipper.enable(:appoint_a_representative_enable_pdf) # rubocop:disable Project/ForbidFlipperToggleInSpecs
   end
 
   context 'the response should be an empty array' do
@@ -54,11 +54,11 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', typ
 
   context "when the feature flag 'find_a_representative_use_accredited_models' is disabled" do
     before do
-      Flipper.disable(:find_a_representative_use_accredited_models)
+      Flipper.disable(:find_a_representative_use_accredited_models) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     after do
-      Flipper.enable(:find_a_representative_use_accredited_models)
+      Flipper.enable(:find_a_representative_use_accredited_models) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     it 'returns a 404' do
