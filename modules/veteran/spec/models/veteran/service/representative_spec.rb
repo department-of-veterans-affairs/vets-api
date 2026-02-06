@@ -547,4 +547,21 @@ describe Veteran::Service::Representative, type: :model do
       expect(representative.geocoding_record_id).to eq('test-rep-999')
     end
   end
+
+  describe 'associations' do
+    it 'has many organization_representatives' do
+      assoc = described_class.reflect_on_association(:organization_representatives)
+      expect(assoc.macro).to eq(:has_many)
+      expect(assoc.class_name).to eq('Veteran::Service::OrganizationRepresentative')
+      expect(assoc.foreign_key.to_s).to eq('representative_id')
+      expect(assoc.options[:primary_key].to_s).to eq('representative_id')
+    end
+
+    it 'has many organizations through organization_representatives' do
+      assoc = described_class.reflect_on_association(:organizations)
+      expect(assoc.macro).to eq(:has_many)
+      expect(assoc.options[:through]).to eq(:organization_representatives)
+      expect(assoc.options[:source]).to eq(:organization)
+    end
+  end
 end
