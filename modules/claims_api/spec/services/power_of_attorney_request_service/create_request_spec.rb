@@ -285,7 +285,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
     context 'international phone numbers', run_at: '2025-12-30T20:18:21Z' do
       let(:claimant_participant_id) { nil }
 
-      it 'detects the international number when its length != 10' do
+      it 'detects the international number when countryCode is included and not equal to 1' do
         temp = form_data
         temp[:veteran].merge!(additional_vet_details)
         temp[:veteran][:phone][:countryCode] = '11'
