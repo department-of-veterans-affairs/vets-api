@@ -104,6 +104,25 @@ describe 'sm client' do
           expect(message.oh_migration_phase).to eq('p5')
         end
       end
+
+      it 'logs error and sets oh_migration_phase to nil when an exception occurs' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          cached_teams = [
+            TriageTeamCache.new(triage_team_id: 401_155, station_number: '979')
+          ]
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+          allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+
+          expect(Rails.logger).to receive(:error).with(
+            'Error deriving OH migration phase',
+            hash_including(:error_class, :error_message, :message_id)
+          )
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
     end
 
     it 'gets a message thread', :vcr do
@@ -265,6 +284,27 @@ describe 'sm client' do
 
             result = client.get_full_messages_for_thread(message_id)
             # Don't set triage_group_id - it will be nil from the API
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'logs error and returns nil when an exception occurs' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            expect(Rails.logger).to receive(:error).with(
+              'Error deriving OH migration phase',
+              hash_including(:error_class, :error_message, :message_id)
+            )
 
             phase = client.send(:derive_oh_migration_phase, result)
             expect(phase).to be_nil

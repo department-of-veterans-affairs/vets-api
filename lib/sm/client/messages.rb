@@ -163,6 +163,12 @@ module SM
 
         # Look up migration phase for this station number
         oh_service.get_phase_for_station_number(station_number)
+      rescue => e
+        Rails.logger.error(
+          'Error deriving OH migration phase',
+          { error_class: e.class.name, error_message: e.message, message_id: message&.id }
+        )
+        nil
       end
 
       ##
