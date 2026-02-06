@@ -281,6 +281,59 @@ RSpec.describe SavedClaim::Form214192, type: :model do
     end
   end
 
+  describe '#to_ibm' do
+    let(:claim) { described_class.new(form: valid_form_data.to_json) }
+    let(:ibm_payload) { claim.to_ibm }
+
+    it 'returns a hash with VBA Data Dictionary fields' do
+      expect(ibm_payload).to be_a(Hash)
+    end
+
+    it 'includes veteran identification fields' do
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => 'John',
+        'VETERAN_INITIAL' => 'M',
+        'VETERAN_LAST_NAME' => 'Doe',
+        'VETERAN_SSN' => '123456789',
+        'VA_FILE_NUMBER' => '987654321',
+        'VETERAN_DOB' => '01011980'
+      )
+    end
+
+    it 'includes employer name and address combined field' do
+      expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('Acme Corporation')
+      expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('456 Business Ave')
+      expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('Commerce City, CA')
+      expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('54321')
+    end
+
+    it 'includes form metadata' do
+      expect(ibm_payload).to include(
+        'FORM_TYPE' => '21-4192',
+        'FORM_TYPE_1' => '21-4192'
+      )
+    end
+
+    it 'handles missing middle name' do
+      form_data = valid_form_data.dup
+      form_data['veteranInformation']['fullName'].delete('middle')
+      claim = described_class.new(form: form_data.to_json)
+      payload = claim.to_ibm
+
+      expect(payload['VETERAN_INITIAL']).to be_nil
+    end
+
+    it 'handles missing employer address street2' do
+      form_data = valid_form_data.dup
+      form_data['employmentInformation']['employerAddress'].delete('street2')
+      claim = described_class.new(form: form_data.to_json)
+      payload = claim.to_ibm
+
+      expect(payload['EMPLOYER_NAME_ADDRESS']).to include('Acme Corporation')
+      expect(payload['EMPLOYER_NAME_ADDRESS']).not_to include('200')
+    end
+  end
+
   describe 'FORM constant' do
     it 'is set to 21-4192' do
       expect(described_class::FORM).to eq('21-4192')

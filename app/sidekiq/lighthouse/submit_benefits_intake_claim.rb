@@ -8,6 +8,7 @@ require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
+require 'ibm/service'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -35,6 +36,9 @@ module Lighthouse
     def perform(saved_claim_id)
       init(saved_claim_id)
 
+      # Build IBM payload if form supports it
+      @ibm_payload = @claim.respond_to?(:to_ibm) ? @claim.to_ibm : nil
+
       # Create document stamps
       @pdf_path = process_record(@claim)
 
@@ -44,6 +48,9 @@ module Lighthouse
 
       response = @lighthouse_service.upload_doc(**lighthouse_service_upload_payload)
       raise BenefitsIntakeClaimError, response.body unless response.success?
+
+      # Upload to IBM MMS after successful Lighthouse submission
+      govcio_upload if @ibm_payload.present?
 
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
@@ -157,6 +164,25 @@ module Lighthouse
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
+    end
+
+    # Upload to IBM MMS if the govcio flipper is enabled
+    # Feature flag format: form_21_0779_govcio_mms, form_21_2680_govcio_mms, etc.
+    def govcio_upload
+      form_id = @claim.form_id.tr('-', '_')
+      flipper_key = :"form_#{form_id}_govcio_mms"
+
+      return unless Flipper.enabled?(flipper_key)
+
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS', generate_log_details)
+      ibm_service = Ibm::Service.new
+      ibm_service.upload_form(form: @ibm_payload.to_json, guid: @lighthouse_service.uuid)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.success", tags: ["form_id:#{@claim.form_id}"])
+    rescue => e
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload failed',
+                        generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.failure", tags: ["form_id:#{@claim.form_id}"])
+      # Don't raise - IBM upload failure shouldn't fail the entire job
     end
   end
 end
