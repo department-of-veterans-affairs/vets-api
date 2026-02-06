@@ -23,8 +23,8 @@ module ClaimsApi
       validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
-      # ensure 'anticipatedSeparationDate' if provided, in the future and
-      # occurs less than 180 days from the title10ActivationDate
+      # ensure 'anticipatedSeparationDate' if provided, is today or in the future and
+      # occurs no more than 180 days from the title10ActivationDate
       validate_form_526_title10_anticipated_separation_date!
       # ensure 'currentMailingAddress' attributes are valid
       validate_form_526_current_mailing_address!
