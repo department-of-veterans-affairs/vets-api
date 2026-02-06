@@ -161,8 +161,19 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
       'credential_used' => @current_user.identity.sign_in[:service_name],
       'credential_uuid' => credential_uuid,
+      'user_credentials' => user_credentials,
       'session_uuid' => sign_in_service_session ? @access_token.session_handle : @session_object.token,
       'expirationTime' => sign_in_service_session ? sign_in_service_exp_time : @session_object.ttl_in_time.iso8601(0) }
+  end
+
+  def user_credentials
+    @user_credentials ||= begin
+      user_verifications = @current_user.user_account.user_verifications
+      {
+        idme: user_verifications.idme.count,
+        logingov: user_verifications.logingov.count
+      }
+    end
   end
 
   def credential_uuid
