@@ -74,6 +74,12 @@ module SimpleFormsApi
     def get_attachments
       attachments = []
 
+      additional_address = @data['additional_address']
+      if additional_address
+        file_path = fill_pdf_with_additional_address
+        attachments << file_path
+      end
+
       supporting_documents = @data['veteran_supporting_documents']
       if supporting_documents
         confirmation_codes = []
@@ -83,6 +89,25 @@ module SimpleFormsApi
       end
 
       attachments
+    end
+
+    def fill_pdf_with_additional_address
+      additional_form_data = @data.dup
+      additional_form_data['applicant_address'] = {
+        'street' => additional_form_data.dig('additional_address', 'street'),
+        'street2' => additional_form_data.dig('additional_address', 'street2'),
+        'city' => additional_form_data.dig('additional_address', 'city'),
+        'state' => additional_form_data.dig('additional_address', 'state'),
+        'postal_code' => additional_form_data.dig('additional_address', 'postal_code'),
+        'country' => additional_form_data.dig('additional_address', 'country')
+      }
+      filler = SimpleFormsApi::PdfFiller.new(
+        form_number: 'vba_40_1330m',
+        form: SimpleFormsApi::VBA401330m.new(additional_form_data),
+        name: 'vba_40_1330m_additional_address'
+      )
+
+      filler.generate
     end
 
     def veteran_ssn_and_file_number
