@@ -89,6 +89,8 @@ module MHV
         user_migrations = filter_and_merge_user_facilities(parsed_migrations)
         return [] if user_migrations.empty?
 
+        user_migrations.sort_by! { |migration| Date.parse(migration[:migration_date]) }
+
         user_migrations.map do |migration|
           migration_date = Date.parse(migration[:migration_date])
           {
@@ -174,14 +176,14 @@ module MHV
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
         PHASES.transform_values do |day_offset|
-          format_phase_date(migration_date + day_offset)
+          "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
 
       # Determines the current phase based on today's date (inclusive boundaries)
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
-        today = Time.zone.today
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
         # Find the current phase by checking from latest phase to earliest
@@ -199,7 +201,7 @@ module MHV
       # Determines migration status based on today's date relative to migration
       # @return [String] NOT_STARTED, ACTIVE, or COMPLETE
       def determine_migration_status(migration_date)
-        today = Time.zone.today
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
         p0_offset = PHASES[:p0] # -60
