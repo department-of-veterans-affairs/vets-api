@@ -992,7 +992,10 @@
       :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Patient"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/patient"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
       :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation"
