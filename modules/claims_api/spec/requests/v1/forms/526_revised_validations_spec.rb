@@ -638,7 +638,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     # field validation tests
-    # need to validate if this is expected behavior
+    # this does not throw an error because the schema validation handles required fields
     context 'when anticipatedSeparationDate is missing' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { nil }
@@ -648,7 +648,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
-    # need to validate if this is expected behavior
+    # this does not throw an error because the schema validation handles required fields
     context 'when title10ActivationDate is missing' do
       let(:title10_activation_date) { nil }
       let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
@@ -658,6 +658,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
+    # happy path test
     context 'when anticipatedSeparationDate is within 180 days of title10ActivationDate' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
@@ -667,6 +668,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
+    # sad path test
     context 'when anticipatedSeparationDate is more than 180 days from title10ActivationDate' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 200.days.from_now.to_date.iso8601 }
