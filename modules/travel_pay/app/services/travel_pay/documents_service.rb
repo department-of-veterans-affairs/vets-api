@@ -76,6 +76,8 @@ module TravelPay
       return if document.blank?
 
       allowed_extensions = %w[pdf jpeg jpg png gif bmp tif tiff doc docx]
+      # Allow HEIC/HEIF when conversion is enabled
+      allowed_extensions += %w[heic heif] if Flipper.enabled?(:travel_pay_enable_heic_conversion)
 
       # Extract the extension from the original filename
       extension = File.extname(document.original_filename).delete('.').downcase
