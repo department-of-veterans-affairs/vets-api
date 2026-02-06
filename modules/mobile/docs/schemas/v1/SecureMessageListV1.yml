@@ -81,6 +81,9 @@ properties:
               type: string
               nullable: true
               enum: [ READ, null ]
+            replyDisabled:
+              type: boolean
+              example: false
             triageGroupName:
               type: string
               nullable: true
