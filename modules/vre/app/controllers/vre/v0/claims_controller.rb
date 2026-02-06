@@ -9,7 +9,10 @@ module VRE
 
       def create
         if claim.save
-          submission_id = setup_form_submission_tracking(claim, user_account)
+          if Flipper.enabled?(:vre_form_submission_tracking)
+            submission_id = setup_form_submission_tracking(claim,
+                                                           user_account)
+          end
           VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
           Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
           clear_saved_form(claim.form_id)
