@@ -203,4 +203,34 @@ RSpec.describe ClaimsApi::ServiceBase do
       service.send(:log_job_progress, claim.id, detail, transaction_id)
     end
   end
+
+  describe '#form_logger_consent_detail' do
+    let(:poa_code) { '065' }
+
+    it 'does not mention consentLimits in the log output if the array is empty' do
+      poa = OpenStruct.new(form_data: { 'recordConsent' => true, 'consentLimits' => [] })
+
+      detail = service.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail).to eq("Updating Access. recordConsent: true for representative #{poa_code}")
+    end
+
+    it 'does not mention consentLimits in the log output when no consentLimit key is sent' do
+      poa = OpenStruct.new(form_data: { 'recordConsent' => true })
+
+      detail = service.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail).to eq("Updating Access. recordConsent: true for representative #{poa_code}")
+    end
+
+    it 'mentions consentLimits in the log output if the array has any values' do
+      poa = OpenStruct.new(form_data: { 'recordConsent' => true, 'consentLimits' => ['DRUG_ABUSE'] })
+
+      detail = service.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail).to eq(
+        "Updating Access. recordConsent: true, consentLimits included for representative #{poa_code}"
+      )
+    end
+  end
 end
