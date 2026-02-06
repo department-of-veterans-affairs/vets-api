@@ -25,19 +25,16 @@ module TravelPay
     #
     # @param receipt_data [Hash, nil] the receipt hash containing file_data, content_type, etc.
     def receipt=(receipt_data)
-      if receipt_data.nil? || receipt_data.blank?
-        @receipt = nil
-      else
-        # Convert to hash with indifferent access for easier key handling
-        receipt_hash = receipt_data.with_indifferent_access
-        @receipt = if Flipper.enabled?(:travel_pay_enable_heic_conversion) && heic_image?(receipt_hash[:content_type])
-                     convert_heic_to_jpg(receipt_hash)
-                   else
-                     receipt_data
-                   end
-      end
+      @receipt = if receipt_data.nil? || receipt_data.blank?
+                   nil
+                 elsif Flipper.enabled?(:travel_pay_enable_heic_conversion)
+                   process_receipt_with_heic_conversion(receipt_data)
+                 else
+                   # When disabled: exact same behavior as master
+                   receipt_data
+                 end
     rescue => e
-      Rails.logger.error("Error converting HEIC receipt: #{e.message}")
+      Rails.logger.error("Error processing receipt: #{e.message}")
       @receipt = receipt_data
     end
 
@@ -128,6 +125,20 @@ module TravelPay
     end
 
     private
+
+    # Processes receipt data with HEIC conversion support
+    #
+    # @param receipt_data [Hash] the receipt hash to process
+    # @return [Hash] processed receipt hash with potential HEIC to JPG conversion
+    def process_receipt_with_heic_conversion(receipt_data)
+      receipt_hash = receipt_data.with_indifferent_access
+
+      if heic_image?(receipt_hash[:content_type])
+        convert_heic_to_jpg(receipt_hash)
+      else
+        receipt_data
+      end
+    end
 
     # Checks if the content type is HEIC/HEIF format
     #
