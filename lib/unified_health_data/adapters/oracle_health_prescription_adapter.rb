@@ -5,6 +5,7 @@ require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
 require_relative 'oracle_health_renewability_helper'
+require_relative 'oracle_health_tracking_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -13,6 +14,8 @@ module UnifiedHealthData
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
       include OracleHealthRenewabilityHelper
+      include OracleHealthTrackingHelper
+
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -97,37 +100,6 @@ module UnifiedHealthData
           indication_for_use: extract_indication_for_use(resource),
           remarks: extract_remarks(resource),
           disp_status: map_refill_status_to_disp_status(refill_status, prescription_source)
-        }
-      end
-
-      def build_tracking_information(resource)
-        contained_resources = resource['contained'] || []
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
-
-        dispenses.filter_map do |dispense|
-          extract_tracking_from_dispense(resource, dispense)
-        end
-      end
-
-      def extract_tracking_from_dispense(resource, dispense)
-        identifiers = dispense['identifier'] || []
-
-        tracking_number = find_identifier_value(identifiers, 'Tracking Number')
-        return nil unless tracking_number # Only create tracking record if we have a tracking number
-
-        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
-        carrier = find_identifier_value(identifiers, 'Carrier')
-        shipped_date = find_identifier_value(identifiers, 'Shipped Date')
-
-        {
-          prescription_name: extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'],
-          tracking_number:,
-          shipped_date:,
-          carrier:,
-          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
         }
       end
 

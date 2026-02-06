@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 require 'bgs_service/person_web_service'
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do
@@ -63,7 +63,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     end
 
     describe '#submit_form_2122' do
-      let(:bgs_poa_verifier) { BGSV2::PowerOfAttorneyVerifier.new(nil) }
+      let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
       context 'when poa code is valid' do
         before do
@@ -91,7 +91,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(person_web_service).to have_received(:find_by_ssn)
@@ -106,7 +106,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
@@ -123,7 +123,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 parsed = JSON.parse(response.body)
@@ -138,7 +138,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
@@ -206,7 +206,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                     allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                       .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                    allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                    allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                     allow(bgs_poa_verifier).to receive(:current_poa_code)
                       .and_return(Struct.new(:code).new('HelloWorld'))
                     post path, params: data, headers: headers.merge(auth_header)
@@ -224,7 +224,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 params = JSON.parse data
                 base64_signature = File.read(Rails.root.join(
@@ -924,7 +924,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     end
 
     describe '#active' do
-      let(:bgs_poa_verifier) { BGSV2::PowerOfAttorneyVerifier.new(nil) }
+      let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
       context 'when there is no BGS active power of attorney' do
         before do
@@ -934,7 +934,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
         it 'returns a 404' do
           mock_acg(scopes) do |auth_header|
-            allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
             expect(response).to have_http_status(:not_found)
           end
@@ -956,7 +956,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
         it 'returns a 200' do
           mock_acg(scopes) do |auth_header|
-            allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
             expect_any_instance_of(
@@ -993,7 +993,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         context 'when representative is part of an organization' do
           it "returns the organization's name and phone" do
             mock_acg(scopes) do |auth_header|
-              allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect(Veteran::Service::Organization).to receive(:find_by).and_return(
@@ -1027,7 +1027,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
           it "returns the representative's name and phone" do
             mock_acg(scopes) do |auth_header|
-              allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('A01').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
 
@@ -1053,7 +1053,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
           it 'returns a 404' do
             mock_acg(scopes) do |auth_header|
-              allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               allow(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               allow(Veteran::Service::Organization).to receive(:find_by).and_return(nil)
               get("#{path}/active", params: nil, headers: headers.merge(auth_header))
@@ -1071,7 +1071,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           it 'can find rep by suffix' do
             expect(Veteran::Service::Representative.exists?(last_name: 'Lincoln')).to be false
             mock_acg(scopes) do |auth_header|
-              allow(BGSV2::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               allow(bgs_poa_verifier).to receive_messages(current_poa_code: 'A01', previous_poa_code: nil)
 
               get("#{path}/active", params: nil, headers: headers.merge(auth_header))

@@ -18,6 +18,26 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
+    context 'when the job is disabled via Settings' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(false)
+      end
+
+      it 'does not delete any records and does not increment StatsD' do
+        guid = SecureRandom.uuid
+        SavedClaim::SupplementalClaim.create(guid:, form: '{}', delete_date: delete_date1)
+
+        Timecop.freeze(delete_date2) do
+          subject.new.perform
+
+          expect(SavedClaim.exists?(guid:)).to be true
+        end
+
+        expect(StatsD).not_to have_received(:increment)
+          .with(start_with('worker.decision_review.delete_saved_claim_records'), any_args)
+      end
+    end
+
     context 'when SavedClaim records have a delete_date set' do
       let(:guid1) { SecureRandom.uuid }
       let(:guid2) { SecureRandom.uuid }
@@ -81,6 +101,60 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
 
         expect(StatsD).to have_received(:increment)
           .with('worker.decision_review.delete_saved_claim_records.error').exactly(1).time
+      end
+    end
+  end
+
+  describe '#enabled?' do
+    subject(:job) { described_class.new }
+
+    context 'when setting is nil' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(nil)
+      end
+
+      it 'returns DEFAULT_ENABLED (true)' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is boolean true' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(true)
+      end
+
+      it 'returns true' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is boolean false' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(job.send(:enabled?)).to be false
+      end
+    end
+
+    context 'when setting is string "true"' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return('true')
+      end
+
+      it 'returns true' do
+        expect(job.send(:enabled?)).to be true
+      end
+    end
+
+    context 'when setting is string "false"' do
+      before do
+        allow(Settings.decision_review).to receive(:delete_saved_claim_records_job_enabled).and_return('false')
+      end
+
+      it 'returns false' do
+        expect(job.send(:enabled?)).to be false
       end
     end
   end
