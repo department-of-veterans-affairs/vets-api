@@ -28,7 +28,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
   before do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:form21p0537, user).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_logging, user).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_logging).and_return(true)
     allow(BioHeartApi::FormMapperRegistry).to receive(:mapper_for).with(form_number).and_return(mapper)
     allow(mapper).to receive(:transform).and_return(transformed_payload)
     allow(Ibm::Service).to receive(:new).and_return(ibm_service)
@@ -60,7 +60,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
         end
 
         it 'logs successful MMS submission' do
-          allow(ibm_service).to receive(:upload_form)
+          allow(ibm_service).to receive(:upload_form).and_return(status: 200, body: '', headers: {})
 
           expect(Rails.logger).to receive(:info).with("BioHeart MMS submission complete: #{confirmation_number}")
 

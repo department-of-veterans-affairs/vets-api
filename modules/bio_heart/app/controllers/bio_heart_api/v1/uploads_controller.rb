@@ -31,6 +31,8 @@ module BioHeartApi
 
         ibm_service = Ibm::Service.new
         ibm_response = ibm_service.upload_form(form: ibm_payload.to_json, guid: confirmation_number)
+        # The IBM service internally catches errors, so provided we get something back
+        # we know it succeeded (that could probably stand to be improved)
         if ibm_response
           Rails.logger.info("BioHeart MMS submission complete: #{confirmation_number}")
         else
