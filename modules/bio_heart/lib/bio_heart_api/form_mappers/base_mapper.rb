@@ -19,14 +19,14 @@ module BioHeartApi
 
       # Shared mapper utility methods go here
 
-      # Format date hash to MMDDYYYY for IBM MMS
+      # Format date hash to MM/DD/YYYY for IBM MMS
       #
       # @param date_hash [Hash, nil] Hash with 'month', 'day', 'year' keys
       # @return [String, nil] Formatted date string or nil
       def parse_date(date_hash)
         return nil unless date_hash && [date_hash['month'], date_hash['day'], date_hash['year']].none?(&:blank?)
 
-        "#{date_hash['month']}#{date_hash['day']}#{date_hash['year']}"
+        "#{date_hash['month']}/#{date_hash['day']}/#{date_hash['year']}"
       end
 
       # Build a full name from a name hash
