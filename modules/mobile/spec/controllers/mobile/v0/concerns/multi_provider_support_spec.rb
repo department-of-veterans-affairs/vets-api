@@ -202,6 +202,18 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
           expect(proxy).to have_received(:get_claim).with(claim_id)
         end
 
+        it 'works without type parameter when multi provider enabled, defaults to lighthouse' do
+          proxy = double('LighthouseProxy')
+          allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+          allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+
+          result = controller.send(:get_claim_from_providers, claim_id, nil)
+
+          expect(result).to eq({ 'data' => { 'id' => claim_id } })
+          expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
+          expect(proxy).to have_received(:get_claim).with(claim_id)
+        end
+
         it 'routes lighthouse to proxy (applies mobile-specific transforms)' do
           proxy = double('LighthouseProxy')
           allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
