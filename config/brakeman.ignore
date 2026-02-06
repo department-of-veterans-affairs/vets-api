@@ -3,71 +3,25 @@
     {
       "warning_type": "Command Injection",
       "warning_code": 14,
-      "fingerprint": "84625a733d7f2ffd270fcf6e18f67c453923d824339a5f2cf1a52aa9e376fdcf",
+      "fingerprint": "2350df5038610f4c2513cdaa6cfea3c92954f5befe4f4863e68b896ec70ac3e0",
       "check_name": "Execute",
       "message": "Possible command injection",
-      "file": "lib/dangerfile/parameter_filtering_allowlist_checker.rb",
-      "line": 49,
+      "file": "modules/representation_management/app/services/representation_management/gclaws/xlsx_client.rb",
+      "line": 78,
       "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "`git diff #{@base_sha}...#{@head_sha} -- #{FILTER_PARAM_FILE}`",
+      "code": "Open3.capture3(\"curl\", \"-sS\", \"--ntlm\", \"-u\", \"#{config.username}:#{config.password}\", \"--max-time\", \"120\", \"--connect-timeout\", \"30\", \"-o\", output_file.path, \"-w\", \"%<http_code>s\\\\n%<content_type>s\", config.url)",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "Dangerfile::ParameterFilteringAllowlistChecker",
-        "method": "filter_params_diff"
+        "class": "RepresentationManagement::GCLAWS::XlsxClient",
+        "method": "self.execute_curl_download"
       },
-      "user_input": "@base_sha",
+      "user_input": "config.username",
       "confidence": "Medium",
       "cwe_id": [
         77
       ],
-      "note": "Variables are set from trusted CI environment variables (GITHUB_HEAD_REF, GITHUB_BASE_REF) in Dangerfile, not user input"
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "e9cc61a1a90740bc6ea533b2c9b8815d3644689ea001a107abf0d2cf428178c0",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "script/vcr_mcp/validator.rb",
-      "line": 301,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "Open3.capture3(\"git\", \"cat-file\", \"-p\", \"HEAD:#{rel_path}\", :chdir => (VETS_API_ROOT))",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "VcrMcp::Validator",
-        "method": "fetch_git_original"
-      },
-      "user_input": "rel_path",
-      "confidence": "Medium",
-      "cwe_id": [
-        77
-      ],
-      "note": "rel_path is derived from relative_path() which removes VETS_API_ROOT prefix from validated cassette file paths - not user input. Using Open3.capture3 with argument array prevents shell injection."
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "c6be575b25f7d0b6a3a83da81c1680f867bc8262b47ae4edd92b93b0bd770667",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "modules/travel_pay/app/services/travel_pay/documents_client.rb",
-      "line": 102,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "connection(:server_url => Settings.travel_pay.base_url).delete(\"api/v1/claims/#{claim_id}/documents/#{document_id}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "TravelPay::DocumentsClient",
-        "method": "delete_document"
-      },
-      "user_input": "claim_id",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
+      "note": "Variables are set from Settings backed by the AWS Parameter Store, not user input"
     },
     {
       "warning_type": "File Access",
@@ -116,6 +70,29 @@
       "note": ""
     },
     {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "84625a733d7f2ffd270fcf6e18f67c453923d824339a5f2cf1a52aa9e376fdcf",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/dangerfile/parameter_filtering_allowlist_checker.rb",
+      "line": 49,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "`git diff #{base_sha}...#{head_sha} -- #{\"config/initializers/filter_parameter_logging.rb\"}`",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Dangerfile::ParameterFilteringAllowlistChecker",
+        "method": "filter_params_diff"
+      },
+      "user_input": "base_sha",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "Variables are set from trusted CI environment variables (GITHUB_HEAD_REF, GITHUB_BASE_REF) in Dangerfile, not user input"
+    },
+    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "93bff5eb783409090a4d4ef23da319bbc5fabe8d5308db025d89dcdefc0b14c1",
@@ -145,7 +122,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "modules/check_in/app/services/v2/chip/client.rb",
-      "line": 184,
+      "line": 187,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.delete(\"/#{base_path}/actions/deleteFromLorota/#{check_in_session.uuid}\")",
       "render_path": null,
@@ -208,45 +185,6 @@
       "note": ""
     },
     {
-      "warning_type": "Remote Code Execution",
-      "warning_code": 110,
-      "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
-      "check_name": "CookieSerialization",
-      "message": "Use of unsafe cookie serialization strategy `:marshal` might lead to remote code execution",
-      "file": "config/initializers/cookies_serializer.rb",
-      "line": 7,
-      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
-      "code": "Rails.application.config.action_dispatch.cookies_serializer = :marshal",
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        565,
-        502
-      ],
-      "note": "We are using the cookie serialization default from Rails 4.x"
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 113,
-      "fingerprint": "fea6a166c0704d9525d109c17d6ee95eda217dfb1ef56a4d4c91ec9bd384cbf8",
-      "check_name": "JSONEntityEscape",
-      "message": "HTML entities in JSON are not escaped by default",
-      "file": "config/environments/production.rb",
-      "line": 1,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_scripting/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        79
-      ],
-      "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "b50d5ce3f94b7618ba7789292642555ef2530f56b5f278fc1f365966f6c7edde",
@@ -270,6 +208,29 @@
       "note": "to_pdf is a method, not a model attribute and uses SecureRandom.uuid"
     },
     {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c6be575b25f7d0b6a3a83da81c1680f867bc8262b47ae4edd92b93b0bd770667",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "modules/travel_pay/app/services/travel_pay/documents_client.rb",
+      "line": 102,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "connection(:server_url => Settings.travel_pay.base_url).delete(\"api/v1/claims/#{claim_id}/documents/#{document_id}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TravelPay::DocumentsClient",
+        "method": "delete_document"
+      },
+      "user_input": "claim_id",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "c70b5ee6e728d67df51cd8d7fbdc8455e90614e751a80acdc2c241214c07e8fb",
@@ -291,7 +252,69 @@
         22
       ],
       "note": "to_pdf is a method, not a model attribute and uses SecureRandom.uuid"
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 110,
+      "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
+      "check_name": "CookieSerialization",
+      "message": "Use of unsafe cookie serialization strategy `:marshal` might lead to remote code execution",
+      "file": "config/initializers/cookies_serializer.rb",
+      "line": 7,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Rails.application.config.action_dispatch.cookies_serializer = :marshal",
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        565,
+        502
+      ],
+      "note": "We are using the cookie serialization default from Rails 4.x"
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "e9cc61a1a90740bc6ea533b2c9b8815d3644689ea001a107abf0d2cf428178c0",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "script/vcr_mcp/validator.rb",
+      "line": 302,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Open3.capture3(\"git\", \"cat-file\", \"-p\", \"HEAD:#{rel_path}\", :chdir => (VETS_API_ROOT))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VcrMcp::Validator",
+        "method": "fetch_git_original"
+      },
+      "user_input": "rel_path",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "rel_path is derived from relative_path() which removes VETS_API_ROOT prefix from validated cassette file paths - not user input. Using Open3.capture3 with argument array prevents shell injection."
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 113,
+      "fingerprint": "fea6a166c0704d9525d109c17d6ee95eda217dfb1ef56a4d4c91ec9bd384cbf8",
+      "check_name": "JSONEntityEscape",
+      "message": "HTML entities in JSON are not escaped by default",
+      "file": "config/environments/production.rb",
+      "line": 1,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_scripting/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        79
+      ],
+      "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
     }
   ],
-  "brakeman_version": "7.1.1"
+  "brakeman_version": "8.0.2"
 }

@@ -576,6 +576,10 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
+  accreditation_xlsx:
+    password: ~
+    url: ~
+    username: ~
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
