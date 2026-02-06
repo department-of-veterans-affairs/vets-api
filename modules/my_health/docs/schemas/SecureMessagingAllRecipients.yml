@@ -27,6 +27,17 @@ properties:
             - blockedStatus
             - preferredTeam
             - relationType
+            - locationName
+            - leadProviderName
+            - teamName
+            - suggestedNameDisplay
+            - healthCareSystemName
+            - groupTypeEnumVal
+            - subGroupTypeEnumVal
+            - groupTypePatientDisplay
+            - subGroupTypePatientDisplay
+            - ohTriageGroup
+            - migratingToOh
           properties:
             triageTeamId:
               type: integer
