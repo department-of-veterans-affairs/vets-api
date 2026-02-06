@@ -552,6 +552,31 @@ en:
         code: 'SM99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
+      SM_ATTACHMENT_FETCH_ERROR: # Failed to fetch attachment from MHV API
+        <<: *external_defaults
+        code: 'SM_ATTACHMENT_FETCH_ERROR'
+        detail: 'Failed to download attachment'
+        status: 502
+      SM_ATTACHMENT_STREAM_ERROR: # Error during attachment streaming
+        <<: *external_defaults
+        code: 'SM_ATTACHMENT_STREAM_ERROR'
+        detail: 'Failed to stream attachment'
+        status: 500
+      SM_ATTACHMENT_INVALID_RESPONSE: # MHV returned invalid response format
+        <<: *external_defaults
+        code: 'SM_ATTACHMENT_INVALID_RESPONSE'
+        detail: 'Received invalid response from messaging service'
+        status: 502
+      SM_ATTACHMENT_URL_FETCH_ERROR: # Failed to fetch attachment from S3 presigned URL
+        <<: *external_defaults
+        code: 'SM_ATTACHMENT_URL_FETCH_ERROR'
+        detail: 'Failed to download attachment from cloud storage'
+        status: 502
+      SM_UPLOAD_ATTACHMENT_ERROR: # Failed to upload attachment to S3
+        <<: *external_defaults
+        code: 'SM_UPLOAD_ATTACHMENT_ERROR'
+        detail: 'Failed to upload attachment'
+        status: 500
       MEDICALRECORDS_401:
         <<: *external_defaults
         code: "MEDICALRECORDS_401"
