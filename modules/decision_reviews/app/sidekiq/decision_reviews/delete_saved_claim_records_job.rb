@@ -10,8 +10,11 @@ module DecisionReviews
     sidekiq_options retry: false
 
     STATSD_KEY_PREFIX = 'worker.decision_review.delete_saved_claim_records'
+    DEFAULT_ENABLED = true
 
     def perform
+      return unless enabled?
+
       deleted_records = ::SavedClaim
                         .where(type: [
                                  'SavedClaim::HigherLevelReview',
@@ -26,6 +29,15 @@ module DecisionReviews
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")
       Rails.logger.error('DecisionReviews::DeleteSavedClaimRecordsJob perform exception', e.message)
+    end
+
+    private
+
+    def enabled?
+      setting = Settings.decision_review.delete_saved_claim_records_job_enabled
+      return DEFAULT_ENABLED if setting.nil?
+
+      ActiveModel::Type::Boolean.new.cast(setting)
     end
   end
 end

@@ -26,7 +26,7 @@ class Console1984LogUploadJob
   private
 
   def valid_environment?
-    Rails.env.development? || Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+    Rails.env.production?
   end
 
   def create_log_file

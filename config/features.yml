@@ -83,6 +83,10 @@ features:
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
     enable_in_development: true
+  ask_va_enhanced_inbox:
+    actor_type: cookie_id
+    description: Enables the enhanced Ask VA inbox experience
+    enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
     description: >
@@ -712,6 +716,9 @@ features:
     actor_type: user
     description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
+  decision_review_use_new_appealable_issues_service:
+    actor_type: user
+    description: Enables use of the new Appealable Issues service for fetching appealable issues.
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1617,6 +1624,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -1663,6 +1674,14 @@ features:
     actor_type: user
     description: Use LGY service for retrieving COE letters in the mobile app
     enable_in_development: false
+  mobile_debts_enabled:
+    actor_type: user
+    description: Enable/disable debts feature in mobile app
+    enable_in_development: true
+  mobile_medical_copays_enabled:
+    actor_type: user
+    description: Enable/disable medical copays feature in mobile app
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -2059,6 +2078,10 @@ features:
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
+    enable_in_development: true
+  unfreeze_strings:
+    actor_type: user
+    description: Dupe messages to avoid FrozenError during PII scrubbing
     enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
@@ -2727,9 +2750,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  form_10282_sftp_debug:
-    actor_type: user
-    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.

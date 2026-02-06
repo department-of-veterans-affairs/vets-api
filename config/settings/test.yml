@@ -299,7 +299,16 @@ covid_vaccine:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  appealable_issues:
+    auth:
+      aud_claim_url: ~
+      client_id: ~
+      rsa_key: ~
+      token_url: ~
+    mock: false
+    url: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
@@ -1857,7 +1866,7 @@ vass:
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>

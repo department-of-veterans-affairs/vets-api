@@ -19,7 +19,7 @@ RSpec.describe SignIn::UserLoader do
     end
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
-    let(:user_verification) { create(:idme_user_verification, user_account:) }
+    let!(:user_verification) { create(:idme_user_verification, user_account:) }
     let(:user_loa) { { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE } }
     let(:user_icn) { user_account.icn }
     let(:session) { create(:oauth_session, user_account:, user_verification:) }
@@ -157,6 +157,30 @@ RSpec.describe SignIn::UserLoader do
           expect(reloaded_user.multifactor).to eq(multifactor)
           expect(reloaded_user.fingerprint).to eq(request_ip)
           expect(reloaded_user.user_verification).to eq(user_verification)
+        end
+
+        context 'logging the reload_user event' do
+          let!(:expected_log_context) do
+            {
+              user_uuid:,
+              user_credentials: {
+                idme: user_account.user_verifications.idme.count,
+                logingov: user_account.user_verifications.logingov.count
+              },
+              credential_uuid: user_verification.credential_identifier,
+              icn: user_icn,
+              sign_in: {
+                service_name: user_verification.credential_type,
+                auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+                client_id:
+              }
+            }
+          end
+
+          it 'logs the reload_user event with the expected context' do
+            expect_any_instance_of(SignIn::Logger).to receive(:info).with('reload_user', expected_log_context)
+            subject
+          end
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do
