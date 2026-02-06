@@ -5,6 +5,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'search_click_tracking/configuration'
+require 'search/pii_redactor'
 
 module SearchClickTracking
   # This class builds a wrapper around Search.gov web click tracking API.
@@ -58,10 +59,10 @@ module SearchClickTracking
           affiliate:,
           access_key:,
           module_code:,
-          url:,
-          query:,
+          url: redacted_url,
+          query: redacted_query,
           position:,
-          user_agent:
+          user_agent: redacted_user_agent
         }
       )
     end
@@ -72,6 +73,18 @@ module SearchClickTracking
 
     def access_key
       Settings.search_click_tracking.access_key
+    end
+
+    def redacted_url
+      Search::PiiRedactor.redact(url)
+    end
+
+    def redacted_query
+      Search::PiiRedactor.redact(query)
+    end
+
+    def redacted_user_agent
+      Search::PiiRedactor.redact(user_agent)
     end
   end
 end

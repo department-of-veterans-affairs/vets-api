@@ -133,4 +133,17 @@ describe Search::Service do
       end
     end
   end
+
+  describe '#query_params' do
+    let(:query) { 'benefits test@example.com 123-45-6789' }
+
+    it 'redacts PII in the query parameter' do
+      params = subject.send(:query_params)
+
+      expect(params[:query]).to include('[REDACTED - email]')
+      expect(params[:query]).to include('[REDACTED - ssn]')
+      expect(params[:query]).not_to include('test@example.com')
+      expect(params[:query]).not_to include('123-45-6789')
+    end
+  end
 end
