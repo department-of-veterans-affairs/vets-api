@@ -187,8 +187,8 @@ module ClaimsApi
                                                         'anticipatedSeparationDate')
       return if anticipated_separation_date.blank?
 
-      # validate anticipated_separation_date is in the future
-      if Date.parse(anticipated_separation_date) <= Time.zone.today
+      # validate anticipated_separation_date is today or in the future (in line with FES check)
+      if Date.parse(anticipated_separation_date) < Time.zone.today
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
 

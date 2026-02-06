@@ -689,13 +689,22 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
+    # FES allows anticipatedSeparationDate to be the same as title10ActivationDate, so we need to allow that here as well
+    context 'when both anticipatedSeparationDate and title10ActivationDate are today' do
+      let(:title10_activation_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { Time.zone.today.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
     context 'when anticipatedSeparationDate is exactly today' do
       let(:title10_activation_date) { 1.day.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
 
       it 'raises an InvalidFieldValue error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
       end
     end
 
