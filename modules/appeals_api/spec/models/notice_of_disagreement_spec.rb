@@ -97,7 +97,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'processing') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true) }
 
           it 'calls "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'success')
@@ -107,7 +107,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         end
 
         context 'and the delay evidence feature is disabled' do
-          before { Flipper.disable(:decision_review_delay_evidence) }
+          before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(false) }
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'success')
@@ -121,7 +121,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'success') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true) }
 
           it 'does not call "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(source: 'VA.gov')
@@ -135,7 +135,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'submitted') }
 
         context 'and the delay evidence feature is enabled' do
-          before { Flipper.enable(:decision_review_delay_evidence) }
+          before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true) }
 
           it 'does not call "submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'processing')
