@@ -15,7 +15,7 @@ module FacilitiesApi
         PER_PAGE = 10
         RADIUS_MAX = 500
         RADIUS_MIN = 1
-        RESULTS_MAX = 50
+        RESULTS_MAX = 2499
         RESULTS_MIN = 2
 
         configuration FacilitiesApi::V2::PPMS::Configuration
