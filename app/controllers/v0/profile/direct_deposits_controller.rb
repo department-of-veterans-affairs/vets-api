@@ -61,7 +61,12 @@ module V0
       end
 
       def send_confirmation_email
-        VANotifyDdEmailJob.send_to_emails(current_user.all_emails)
+        if @current_user.icn.present?
+          all_emails = @current_user.all_emails
+          VANotifyDdEmailJob.send_to_emails(all_emails)
+        else
+          Rails.logger.info('DirectDeposits#send_confirmation_email NO ICN for user')
+        end
       end
     end
   end
