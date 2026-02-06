@@ -213,6 +213,32 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(6)
         expect(response.parsed_body.dig('meta', 'messageCounts', 'unread')).to eq(4)
       end
+
+      describe 'schema contract validation' do
+        let(:user_account) { create(:user_account) }
+
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when :schema_contract_messages_index is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:schema_contract_messages_index).and_return(true)
+          end
+
+          it 'validates schema for get_folder_messages' do
+            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+              get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'messages_index')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
+          end
+        end
+      end
     end
   end
 end

@@ -490,6 +490,53 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
       end
 
+      describe 'schema contract validation' do
+        let(:user_account) { create(:user_account) }
+
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when :schema_contract_message_show is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with('schema_contract_message_show').and_return(true)
+          end
+
+          it 'validates schema for get_message' do
+            VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+              end
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'message_show')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
+          end
+        end
+
+        context 'when :schema_contract_triage_teams is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with('schema_contract_triage_teams').and_return(true)
+          end
+
+          it 'validates schema for get_all_triage_teams' do
+            VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+              end
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'triage_teams')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
+          end
+        end
+      end
+
       describe 'message id validation' do
         it 'returns 400 for show with blank id' do
           get '/mobile/v0/messaging/health/messages/%20', headers: sis_headers

@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Schema for SM get_folder_messages response - list of messages in a folder",
+  "type": "object",
+  "required": ["data"],
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "subject",
+          "attachment",
+          "sent_date",
+          "sender_id",
+          "sender_name",
+          "recipient_id",
+          "recipient_name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body": {
+            "type": ["string", "null"]
+          },
+          "attachment": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": ["array", "null"]
+          },
+          "sent_date": {
+            "type": ["string", "null"]
+          },
+          "sender_id": {
+            "type": "integer"
+          },
+          "sender_name": {
+            "type": "string"
+          },
+          "recipient_id": {
+            "type": "integer"
+          },
+          "recipient_name": {
+            "type": "string"
+          },
+          "read_receipt": {
+            "type": ["string", "null"]
+          },
+          "triage_group_name": {
+            "type": ["string", "null"]
+          },
+          "suggested_name_display": {
+            "type": ["string", "null"]
+          },
+          "is_oh_message": {
+            "type": ["boolean", "null"]
+          },
+          "has_attachments": {
+            "type": ["boolean", "null"]
+          },
+          "proxy_sender_name": {
+            "type": ["string", "null"]
+          },
+          "uploads": {
+            "type": ["array", "null"]
+          },
+          "metadata": {
+            "type": ["object", "null"]
+          },
+          "attachment1_id": {
+            "type": ["integer", "null"]
+          },
+          "attachment2_id": {
+            "type": ["integer", "null"]
+          },
+          "attachment3_id": {
+            "type": ["integer", "null"]
+          },
+          "attachment4_id": {
+            "type": ["integer", "null"]
+          },
+          "is_large_attachment_upload": {
+            "type": ["boolean", "null"]
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "errors": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

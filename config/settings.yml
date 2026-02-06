@@ -273,7 +273,7 @@ claims_evidence_api:
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
-  port: '3310'
+  port: "3310"
 coe:
   prefill: true
 connected_apps_api:
@@ -384,7 +384,7 @@ edu:
   prefill: true
   production_excel_contents:
     emails:
-    - patricia.terry1@va.gov
+      - patricia.terry1@va.gov
   sftp:
     host: <%= ENV['edu__sftp__host'] %>
     key_path: <%= ENV['edu__sftp__key_path'] %>
@@ -399,30 +399,30 @@ edu:
     webhook_url: <%= ENV['edu__slack__webhook_url'] %>
   spool_error:
     emails:
-    - Joseph.Preisser@va.gov
-    - Shay.Norton-Leonard@va.gov
-    - PIERRE.BROWN@va.gov
-    - VAVBAHIN/TIMS@vba.va.gov
-    - EDUAPPMGMT.VBACO@VA.GOV
-    - vfep_support_team@va.gov
-    - eugenia.gina.ronat@accenturefederal.com
-    - morgan.whaley@accenturefederal.com
-    - m.c.shah@accenturefederal.com
-    - patrick.arthur@accenturefederal.com
-    - adam.freemer@accenturefederal.com
-    - dan.brooking@accenturefederal.com
-    - sebastian.cooper@accenturefederal.com
-    - david.rowley@accenturefederal.com
-    - nick.barthelemy@accenturefederal.com
+      - Joseph.Preisser@va.gov
+      - Shay.Norton-Leonard@va.gov
+      - PIERRE.BROWN@va.gov
+      - VAVBAHIN/TIMS@vba.va.gov
+      - EDUAPPMGMT.VBACO@VA.GOV
+      - vfep_support_team@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - patrick.arthur@accenturefederal.com
+      - adam.freemer@accenturefederal.com
+      - dan.brooking@accenturefederal.com
+      - sebastian.cooper@accenturefederal.com
+      - david.rowley@accenturefederal.com
+      - nick.barthelemy@accenturefederal.com
     staging_emails: <%= ENV['edu__spool_error__staging_emails'] %>
   staging_excel_contents:
     emails:
-    - alex.chan1@va.gov
-    - gregg.puhala@va.gov
-    - noah.stern@va.gov
-    - marelby.hernandez@va.gov
-    - nawar.hussein@va.gov
-    - engin.akman@va.gov
+      - alex.chan1@va.gov
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
+      - engin.akman@va.gov
   staging_sco_email:
     emails:
       - gregg.puhala@va.gov
@@ -678,9 +678,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
-  sasl_mechanisms: 'OAUTHBEARER'
+  sasl_mechanisms: "OAUTHBEARER"
   schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
-  security_protocol: 'sasl_ssl'
+  security_protocol: "sasl_ssl"
   test_topic_name: <%= ENV['kafka_producer__test_topic_name'] %>
   topic_name: <%= ENV['kafka_producer__topic_name'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
@@ -831,9 +831,9 @@ lighthouse_health_immunization:
   client_id: <%= ENV['lighthouse_health_immunization__client_id'] %>
   key_path: <%= ENV['lighthouse_health_immunization__key_path'] %>
   scopes:
-  - launch launch/patient
-  - patient/Immunization.read
-  - patient/Location.read
+    - launch launch/patient
+    - patient/Immunization.read
+    - patient/Location.read
 locators:
   mock_gis: <%= ENV['locators__mock_gis'] %>
   vha: <%= ENV['locators__vha'] %>
@@ -970,7 +970,7 @@ mhv:
     mock: <%= ENV['mhv__bb__mock'] %>
   facility_range: <%= ENV['mhv__facility_range'] %>
   facility_specific:
-  - 741MM
+    - 741MM
   inherited_proofing:
     app_token: <%= ENV['mhv__inherited_proofing__app_token'] %>
     host: <%= ENV['mhv__inherited_proofing__host'] %>
@@ -1135,84 +1135,84 @@ reports:
   send_email: true
   spool10203_submission:
     emails:
-    - Brian.Grubb@va.gov
-    - dana.kuykendall@va.gov
-    - Jennifer.Waltz2@va.gov
-    - Joseph.Preisser@va.gov
-    - Joshua.Lashbrook@va.gov
-    - kathleen.dalfonso@va.gov
-    - kyle.pietrosanto@va.gov
-    - lihan@adhocteam.us
-    - Lucas.Tickner@va.gov
-    - Ricardo.DaSilva@va.gov
-    - robert.shinners@va.gov
-    - shay.norton@va.gov
-    - tammy.hurley1@va.gov
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - robert.shinners@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
     staging_emails:
-    - Brian.Grubb@va.gov
-    - Joseph.Preisser@va.gov
-    - kyle.pietrosanto@va.gov
-    - lihan@adhocteam.us
-    - Lucas.Tickner@va.gov
-    - Ricardo.DaSilva@va.gov
-    - tammy.hurley1@va.gov
-    - vfep_support_team@va.gov
-    - eugenia.gina.ronat@accenturefederal.com
-    - morgan.whaley@accenturefederal.com
-    - m.c.shah@accenturefederal.com
-    - d.a.barnes@accenturefederal.com
-    - jacob.finnern@accenturefederal.com
-    - hocine.halli@accenturefederal.com
-    - adam.freemer@accenturefederal.com
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - tammy.hurley1@va.gov
+      - vfep_support_team@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - d.a.barnes@accenturefederal.com
+      - jacob.finnern@accenturefederal.com
+      - hocine.halli@accenturefederal.com
+      - adam.freemer@accenturefederal.com
   spool_submission:
     emails:
-    - Brian.Grubb@va.gov
-    - dana.kuykendall@va.gov
-    - Jennifer.Waltz2@va.gov
-    - Joseph.Preisser@va.gov
-    - Joshua.Lashbrook@va.gov
-    - kathleen.dalfonso@va.gov
-    - kyle.pietrosanto@va.gov
-    - lihan@adhocteam.us
-    - Lucas.Tickner@va.gov
-    - Ricardo.DaSilva@va.gov
-    - shay.norton@va.gov
-    - tammy.hurley1@va.gov
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
     staging_emails:
-    - Brian.Grubb@va.gov
-    - Joseph.Preisser@va.gov
-    - kyle.pietrosanto@va.gov
-    - lihan@adhocteam.us
-    - Lucas.Tickner@va.gov
-    - Ricardo.DaSilva@va.gov
-    - tammy.hurley1@va.gov
-    - vfep_support_team@va.gov
-    - eugenia.gina.ronat@accenturefederal.com
-    - morgan.whaley@accenturefederal.com
-    - m.c.shah@accenturefederal.com
-    - d.a.barnes@accenturefederal.com
-    - jacob.finnern@accenturefederal.com
-    - hocine.halli@accenturefederal.com
-    - adam.freemer@accenturefederal.com
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - tammy.hurley1@va.gov
+      - vfep_support_team@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - d.a.barnes@accenturefederal.com
+      - jacob.finnern@accenturefederal.com
+      - hocine.halli@accenturefederal.com
+      - adam.freemer@accenturefederal.com
   year_to_date_report:
     emails:
-    - 222A.VBAVACO@va.gov
-    - 224B.VBAVACO@va.gov
-    - 224C.VBAVACO@va.gov
-    - Brandon.Scott2@va.gov
-    - Brian.Grubb@va.gov
-    - Christina.DiTucci@va.gov
-    - EDU.VBAMUS@va.gov
-    - John.McNeal@va.gov
-    - Joseph.Preisser@va.gov
-    - Joshua.Lashbrook@va.gov
-    - kathleen.dalfonso@va.gov
-    - kyle.pietrosanto@va.gov
-    - Lucas.Tickner@va.gov
-    - michele.mendola@va.gov
-    - Ricardo.DaSilva@va.gov
-    - shay.norton@va.gov
-    - tammy.hurley1@va.gov
+      - 222A.VBAVACO@va.gov
+      - 224B.VBAVACO@va.gov
+      - 224C.VBAVACO@va.gov
+      - Brandon.Scott2@va.gov
+      - Brian.Grubb@va.gov
+      - Christina.DiTucci@va.gov
+      - EDU.VBAMUS@va.gov
+      - John.McNeal@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - Lucas.Tickner@va.gov
+      - michele.mendola@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
     staging_emails:
     - Brian.Grubb@va.gov
     - Joseph.Preisser@va.gov
@@ -1260,7 +1260,7 @@ rrd:
     recipients: <%= ENV['rrd__mas_tracking__recipients'] %>
   pact_tracking:
     recipients:
-    - fake_email
+      - fake_email
 salesforce:
   consumer_key: <%= ENV['salesforce__consumer_key'] %>
   env: <%= ENV['salesforce__env'] %>
@@ -1277,7 +1277,10 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  message_show: modules/mobile/app/schemas/message_show.json
+  messages_index: modules/mobile/app/schemas/messages_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
+  triage_teams: modules/mobile/app/schemas/triage_teams.json
 search:
   access_key: <%= ENV['search__access_key'] %>
   affiliate: va
@@ -1629,7 +1632,7 @@ vanotify:
         received686c674:
           template_id: <%= ENV['vanotify__services__dependents__email__received686c674__template_id'] %>
         submitted674:
-            template_id: <%= ENV['vanotify__services__dependents__email__submitted674__template_id'] %>
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted674__template_id'] %>
         submitted686:
           template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
         submitted686c674:
@@ -1941,66 +1944,66 @@ veteran_readiness_and_employment:
   credentials: <%= ENV['veteran_readiness_and_employment__credentials'] %>
   daily_report:
     emails:
-    - VRC.VBABOS@va.gov
-    - VRE.VBAPRO@va.gov
-    - VRE.VBANYN@va.gov
-    - VRC.VBABUF@va.gov
-    - VRE.VBAHAR@va.gov
-    - vre.vbanew@va.gov
-    - VREBDD.VBAPHI@va.gov
-    - VRE.VBAPIT@va.gov
-    - VRE.VBABAL@va.gov
-    - VRE.VBAROA@va.gov
-    - VRE.VBAHUN@va.gov
-    - VRETMP.VBAATG@va.gov
-    - VRE281900.VBASPT@va.gov
-    - VRC.VBAWIN@va.gov
-    - VRC.VBACMS@va.gov
-    - VREAPPS.VBANAS@va.gov
-    - VRC.VBANOL@va.gov
-    - VRE.VBAMGY@va.gov
-    - VRE.VBAJAC@va.gov
-    - VRE.VBACLE@va.gov
-    - VRE.VBAIND@va.gov
-    - VRE.VBALOU@va.gov
-    - VAVBACHI.VRE@va.gov
-    - VRE.VBADET@va.gov
-    - VREApplications.VBAMIW@va.gov
-    - VRC.VBASTL@va.gov
-    - VRE.VBADES@va.gov
-    - VRE.VBALIN@va.gov
-    - VRC.VBASPL@va.gov
-    - VRE.VBADEN@va.gov
-    - VRC.VBAALB@va.gov
-    - VRE.VBASLC@va.gov
-    - VRC.VBAOAK@va.gov
-    - ROVRC.VBALAN@va.gov
-    - VRE.VBAPHO@va.gov
-    - VRE.VBASEA@va.gov
-    - VRE.VBABOI@va.gov
-    - VRE.VBAPOR@va.gov
-    - VREAPPS.VBAWAC@va.gov
-    - VRE.VBALIT@va.gov
-    - VREBDD.VBAMUS@va.gov
-    - VRE.VBAREN@va.gov
-    - MBVRE.VBASAJ@va.gov
-    - VRE.VBAMPI@va.gov
-    - VRE.VBAHOU@va.gov
-    - VRE.VBAWAS@va.gov
-    - VRE.VBAMAN@va.gov
-    - EBENAPPS.VBASDC@va.gov
-    - VRE.VBATOG@va.gov
-    - VRE.VBAMAN@va.gov
-    - VRC.VBAFHM@va.gov
-    - VRC.VBAFAR@va.gov
-    - VRC.VBAFAR@va.gov
-    - VRE.VBADEN@va.gov
-    - VRE.VBAWIC@va.gov
-    - VRC.VBAHON@va.gov
-    - VAVBA/WIM/RO/VR&E@vba.va.gov
-    - VRE.VBAANC@va.gov
-    - VRE.VBAPIT@va.gov
-    - VRE-CMS.VBAVACO@va.gov
+      - VRC.VBABOS@va.gov
+      - VRE.VBAPRO@va.gov
+      - VRE.VBANYN@va.gov
+      - VRC.VBABUF@va.gov
+      - VRE.VBAHAR@va.gov
+      - vre.vbanew@va.gov
+      - VREBDD.VBAPHI@va.gov
+      - VRE.VBAPIT@va.gov
+      - VRE.VBABAL@va.gov
+      - VRE.VBAROA@va.gov
+      - VRE.VBAHUN@va.gov
+      - VRETMP.VBAATG@va.gov
+      - VRE281900.VBASPT@va.gov
+      - VRC.VBAWIN@va.gov
+      - VRC.VBACMS@va.gov
+      - VREAPPS.VBANAS@va.gov
+      - VRC.VBANOL@va.gov
+      - VRE.VBAMGY@va.gov
+      - VRE.VBAJAC@va.gov
+      - VRE.VBACLE@va.gov
+      - VRE.VBAIND@va.gov
+      - VRE.VBALOU@va.gov
+      - VAVBACHI.VRE@va.gov
+      - VRE.VBADET@va.gov
+      - VREApplications.VBAMIW@va.gov
+      - VRC.VBASTL@va.gov
+      - VRE.VBADES@va.gov
+      - VRE.VBALIN@va.gov
+      - VRC.VBASPL@va.gov
+      - VRE.VBADEN@va.gov
+      - VRC.VBAALB@va.gov
+      - VRE.VBASLC@va.gov
+      - VRC.VBAOAK@va.gov
+      - ROVRC.VBALAN@va.gov
+      - VRE.VBAPHO@va.gov
+      - VRE.VBASEA@va.gov
+      - VRE.VBABOI@va.gov
+      - VRE.VBAPOR@va.gov
+      - VREAPPS.VBAWAC@va.gov
+      - VRE.VBALIT@va.gov
+      - VREBDD.VBAMUS@va.gov
+      - VRE.VBAREN@va.gov
+      - MBVRE.VBASAJ@va.gov
+      - VRE.VBAMPI@va.gov
+      - VRE.VBAHOU@va.gov
+      - VRE.VBAWAS@va.gov
+      - VRE.VBAMAN@va.gov
+      - EBENAPPS.VBASDC@va.gov
+      - VRE.VBATOG@va.gov
+      - VRE.VBAMAN@va.gov
+      - VRC.VBAFHM@va.gov
+      - VRC.VBAFAR@va.gov
+      - VRC.VBAFAR@va.gov
+      - VRE.VBADEN@va.gov
+      - VRE.VBAWIC@va.gov
+      - VRC.VBAHON@va.gov
+      - VAVBA/WIM/RO/VR&E@vba.va.gov
+      - VRE.VBAANC@va.gov
+      - VRE.VBAPIT@va.gov
+      - VRE-CMS.VBAVACO@va.gov
   duplicate_submission_threshold_hours: <%= ENV['veteran_readiness_and_employment__duplicate_submission_threshold_hours'] || 24 %>
 vetext:
   mock: <%= ENV['vetext__mock'] %>
