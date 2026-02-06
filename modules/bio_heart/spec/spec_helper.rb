@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Configure Rails Envinronment
+# Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
 
 require 'rspec/rails'
