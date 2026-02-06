@@ -46,6 +46,11 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           expect(command).to include('--connect-timeout')
           expect(command).to include('30')
 
+          # Verify -w flag for HTTP code and content-type output
+          w_index = command.index('-w')
+          expect(w_index).not_to be_nil
+          expect(command[w_index + 1]).to eq('%<http_code>s\n%<content_type>s')
+
           # Write mock XLSX content to output file
           output_index = command.index('-o')
           output_file = command[output_index + 1]
