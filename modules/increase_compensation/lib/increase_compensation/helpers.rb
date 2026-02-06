@@ -22,6 +22,33 @@ module IncreaseCompensation
       }
     end
 
+    def map_date_range_for_care(date_range)
+      return {} if date_range.nil? || date_range['from'].nil?
+
+      {
+        'from' => split_date_without_day(date_range['from']),
+        'to' => split_date_without_day(date_range['to'])
+      }
+    end
+
+    # Splits a date string YYYY-MM, YYYY/MM, MM/YYYY, or MM-YYYY into Date hash of `{month:, day:, year:}``.
+    #
+    # @param year_month_string [String]
+    # @return [Hash]
+    #
+    def split_date_without_day(year_month_string)
+      return {} if year_month_string.nil? || year_month_string.blank? || year_month_string.length > 7
+
+      s_date = year_month_string.include?('-') ? year_month_string.split('-') : year_month_string.split('/')
+      month = s_date.select { |s| s.length == 2 }
+      year = s_date.select { |s| s.length > 2 }
+      {
+        'month' => month[0],
+        'day' => '',
+        'year' => year[0]
+      }
+    end
+
     ##
     # Format Currency into just thousands and hundreds. example 125,100 => `{ firstThree="125", lastThree="100" }`
     # Amount will be padded so that the value fills space right to left.
@@ -97,7 +124,7 @@ module IncreaseCompensation
                   }
                 }
               else
-                map_date_range(care_item[date_key].first)
+                map_date_range_for_care(care_item[date_key].first)
               end
       is_va = care_item['inVANetwork'] ? 'VA' : 'Non-VA'
       [

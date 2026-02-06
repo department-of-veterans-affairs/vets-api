@@ -120,6 +120,13 @@ Shows a menu of available services to connect to.
 - **Port**: `4492`
 - **Description**: Connect to Benefits Eligibility Platform for awards and payment history data
 
+### VA Profile
+- **Service Key**: `va_profile`
+- **Aliases**: `demographics`, `contact_info`, `military_personnel`, `military_service`, `phones`, `addresses`, `emails`, `preferred_name`
+- **Settings**: `va_profile`
+- **Port**: `4433`
+- **Description**: Connect to VA Profile for user profile, contact info, and military service history data
+
 ### Vet Service History and Eligibility API (Lighthouse)
 - **Service Key**: `vet_verification`
 - **Aliases**: `disability_rating`

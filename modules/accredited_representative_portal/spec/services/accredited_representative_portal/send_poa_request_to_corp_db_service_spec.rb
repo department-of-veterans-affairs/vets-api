@@ -71,7 +71,7 @@ RSpec.describe AccreditedRepresentativePortal::SendPoaRequestToCorpDbService do
           expect(rep[:poaCode]).to eq(poa_request.power_of_attorney_holder_poa_code)
 
           # Authorizations
-          expect(attributes[:recordConsent]).to be(true)
+          expect(attributes[:consentLimits].blank?).to be(false)
           expect(attributes[:consentAddressChange]).to be(true)
           consent_limits = parsed_data['authorizations']['recordDisclosureLimitations']
           expect(attributes[:consentLimits]).to match_array(consent_limits)

@@ -141,6 +141,12 @@ module IvcChampva
       map_policy_to_flat_fields(health_insurance[0], transformed, :primary) if health_insurance[0]
       map_policy_to_flat_fields(health_insurance[1], transformed, :secondary) if health_insurance[1]
 
+      if transformed['certifier_role'] == 'applicant'
+        transformed['applicant_email_address'] ||= transformed['certifier_email']
+      elsif transformed['applicant_email'].present?
+        transformed['applicant_email_address'] ||= transformed['applicant_email']
+      end
+
       transformed
     end
 

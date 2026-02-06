@@ -4,7 +4,7 @@ require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/form0781'
 require 'evss/disability_compensation_form/form8940'
-require 'bgsv2/disability_compensation_form_flashes'
+require 'bgs/disability_compensation_form_flashes'
 
 class SavedClaim::DisabilityCompensation < SavedClaim
   attr_accessor :form_hash
@@ -34,8 +34,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
                                                                                      @form_hash.deep_dup).translate,
       Form526Submission::FORM_8940 => EVSS::DisabilityCompensationForm::Form8940.new(user,
                                                                                      @form_hash.deep_dup).translate,
-      'flashes' => BGSV2::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup,
-                                                                claimed_disabilities).translate
+      'flashes' => BGS::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup,
+                                                              claimed_disabilities).translate
     }.to_json
   end
 end

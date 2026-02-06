@@ -525,7 +525,7 @@ module IvcChampva
 
         health_insurance.each_slice(2) do |policies_pair|
           applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
-          applicant_data['form_number'] = '10-7959C-REV2025'
+          applicant_data['form_number'] = '10-7959C'
 
           if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
             # NEW: Pass health_insurance array, constructor handles flattening
@@ -535,7 +535,7 @@ module IvcChampva
             # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
             applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
             form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
-            form.data['form_number'] = '10-7959C-REV2025'
+            form.data['form_number'] = '10-7959C'
             forms << form
           end
         end

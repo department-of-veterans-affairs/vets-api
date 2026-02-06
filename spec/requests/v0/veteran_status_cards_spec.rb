@@ -31,15 +31,14 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
       context 'when veteran is eligible' do
         let(:eligible_response) do
           {
-            confirmed: true,
-            full_name: { first: 'John', middle: nil, last: 'Doe', suffix: nil },
-            user_percent_of_disability: 50,
-            latest_service_history: {
-              branch_of_service: 'Army',
-              latest_service_date_range: {
-                begin_date: '2010-01-01',
-                end_date: '2015-12-31'
-              }
+            type: 'veteran_status_card',
+            attributes: {
+              full_name: 'John Doe',
+              disability_rating: 50,
+              edipi: '1234567890',
+              veteran_status: 'confirmed',
+              not_confirmed_reason: nil,
+              service_summary_code: 'A1'
             }
           }
         end
@@ -58,20 +57,25 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
           get '/v0/veteran_status_card'
 
           json = JSON.parse(response.body)
-          expect(json['confirmed']).to be true
-          expect(json['full_name']).to be_present
-          expect(json['user_percent_of_disability']).to eq(50)
-          expect(json['latest_service_history']).to be_present
+          expect(json['type']).to eq('veteran_status_card')
+          expect(json['attributes']['full_name']).to be_present
+          expect(json['attributes']['disability_rating']).to eq(50)
+          expect(json['attributes']['veteran_status']).to eq('confirmed')
         end
       end
 
       context 'when veteran is not eligible' do
         let(:ineligible_response) do
           {
-            confirmed: false,
-            title: 'Error Title',
-            message: 'Error message',
-            status: 'error'
+            type: 'veteran_status_alert',
+            attributes: {
+              header: 'Error Title',
+              body: 'Error message',
+              alert_type: 'error',
+              veteran_status: 'not confirmed',
+              not_confirmed_reason: 'PERSON_NOT_FOUND',
+              service_summary_code: 'A1'
+            }
           }
         end
 
@@ -89,10 +93,11 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
           get '/v0/veteran_status_card'
 
           json = JSON.parse(response.body)
-          expect(json['confirmed']).to be false
-          expect(json['title']).to eq('Error Title')
-          expect(json['message']).to eq('Error message')
-          expect(json['status']).to eq('error')
+          expect(json['type']).to eq('veteran_status_alert')
+          expect(json['attributes']['header']).to eq('Error Title')
+          expect(json['attributes']['body']).to eq('Error message')
+          expect(json['attributes']['alert_type']).to eq('error')
+          expect(json['attributes']['veteran_status']).to eq('not confirmed')
         end
       end
 

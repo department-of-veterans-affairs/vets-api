@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 050a914937ac65272deaba404a5c01f429206aa9
+  revision: 292ebeae984e8fb39b8b1277bdbcd1a5296553c8
   branch: master
   specs:
-    vets_json_schema (25.2.44)
+    vets_json_schema (25.2.47)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -255,7 +255,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1209.0)
+    aws-partitions (1.1211.0)
     aws-sdk-core (3.241.4)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -267,8 +267,8 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.120.0)
-      aws-sdk-core (~> 3, >= 3.241.3)
+    aws-sdk-kms (1.121.0)
+      aws-sdk-core (~> 3, >= 3.241.4)
       aws-sigv4 (~> 1.5)
     aws-sdk-s3 (1.209.0)
       aws-sdk-core (~> 3, >= 3.234.0)
@@ -294,9 +294,9 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.2.1)
-    bootsnap (1.20.1)
+    bootsnap (1.21.1)
       msgpack (~> 1.2)
-    brakeman (8.0.1)
+    brakeman (8.0.2)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -306,7 +306,8 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
-    byebug (12.0.0)
+    byebug (13.0.0)
+      reline (>= 0.6.0)
     carrierwave (3.1.2)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -347,7 +348,7 @@ GEM
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.4)
+    connection_pool (2.5.5)
     console1984 (0.2.2)
       irb (~> 1.13)
       parser
@@ -649,7 +650,7 @@ GEM
       mutex_m
       nkf
       rack (>= 2.0, < 4)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.14.0)
@@ -758,7 +759,8 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.2)
+    minitest (6.0.1)
+      prism (~> 1.5)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -856,6 +858,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-x64-mingw-ucrt)
+    pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -876,16 +881,18 @@ GEM
     prettyprint (0.2.0)
     prism (1.8.0)
     process_executer (1.3.0)
-    pry (0.15.2)
+    pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    pry (0.15.2-java)
+      reline (>= 0.6.0)
+    pry (0.16.0-java)
       coderay (~> 1.1)
       method_source (~> 1.0)
+      reline (>= 0.6.0)
       spoon (~> 0.0)
-    pry-byebug (3.11.0)
-      byebug (~> 12.0)
-      pry (>= 0.13, < 0.16)
+    pry-byebug (3.12.0)
+      byebug (~> 13.0)
+      pry (>= 0.13, < 0.17)
     pstore (0.2.0)
     psych (5.3.1)
       date
@@ -903,24 +910,25 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.21)
+    rack (3.2.4)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
-    rack-protection (3.2.0)
+    rack-protection (4.2.1)
       base64 (>= 0.1.0)
-      rack (~> 2.2, >= 2.2.4)
-    rack-session (1.0.2)
-      rack (< 3)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-session (2.1.1)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
     rack-test (2.2.0)
       rack (>= 1.3)
     rack-timeout (0.7.0)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rackup (1.0.1)
-      rack (< 3)
-      webrick
+    rackup (2.3.1)
+      rack (>= 3)
     rails (7.2.3)
       actioncable (= 7.2.3)
       actionmailbox (= 7.2.3)
@@ -1206,8 +1214,9 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    utf8-cleaner (1.0.0)
+    utf8-cleaner (2.0.1)
       activesupport
+      rack (~> 3.0)
     vcr (6.4.0)
     version_gem (1.1.3)
     virtus (2.0.0)
@@ -1413,7 +1422,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.21)
+  rack
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
