@@ -46,6 +46,8 @@ module SM
           if %w[p3 p4 p5 p6].include?(phase)
             team.blocked_status = true
             team.migrating_to_oh = true
+          else
+            team.migrating_to_oh = false
           end
         end
 
