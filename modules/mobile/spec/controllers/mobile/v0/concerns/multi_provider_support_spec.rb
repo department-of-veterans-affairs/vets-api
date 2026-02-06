@@ -14,7 +14,7 @@ class MobileMultiProviderSupportTestController
 end
 
 RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
-  let(:user) { double('User', icn: '1008596379V859838', uuid: 'test-uuid-123') }
+  let(:user) { double('User', icn: '1008596379V859838') }
   let(:controller) { MobileMultiProviderSupportTestController.new(user) }
   let(:provider_class) { double('ProviderClass', name: 'TestProvider') }
   let(:provider_instance) { double('Provider') }
@@ -190,21 +190,16 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
             .and_return([provider_class, provider_class2])
         end
 
-        it 'defaults to lighthouse when type parameter is missing (backward compatibility)' do
+        it 'defaults to lighthouse when type parameter is missing' do
           proxy = double('LighthouseProxy')
           allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
           allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
-          allow(Rails.logger).to receive(:info)
 
           result = controller.send(:get_claim_from_providers, claim_id)
 
           expect(result).to eq({ 'data' => { 'id' => claim_id } })
           expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
           expect(proxy).to have_received(:get_claim).with(claim_id)
-          expect(Rails.logger).to have_received(:info).with(
-            'Mobile claims: type parameter missing with multiple providers, defaulting to lighthouse',
-            hash_including(claim_id:)
-          )
         end
 
         it 'routes lighthouse to proxy (applies mobile-specific transforms)' do

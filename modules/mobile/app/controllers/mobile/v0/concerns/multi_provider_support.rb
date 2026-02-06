@@ -67,37 +67,28 @@ module Mobile
         # mobile-specific transforms (override_rv1, suppress_evidence_requests, schema validation).
         # Other providers use their provider implementation directly.
         #
-        # When multiple providers exist and type parameter is missing, defaults to 'lighthouse'
-        # for backward compatibility with existing bookmarked URLs. This is safe because all
-        # existing bookmarked claims are from Lighthouse (CHAMPVA is newly added).
-        #
-        # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
-        # the second provider. Existing bookmarks without type will continue to work.
+        # When type parameter is missing:
+        # - Single provider: Uses lighthouse / benefits-claims
+        # - Multiple providers: Default to Lighthouse (maintains existing bookmarked URLs)
         def get_claim_from_providers(claim_id, provider_type = nil)
           # If provider_type is specified, route based on type
           if provider_type.present?
             return get_claim_for_provider_type(claim_id, provider_type)
           end
 
-          # No provider_type specified - check if multiple providers exist
-          if configured_providers.length > 1
-            # Default to lighthouse for backward compatibility with bookmarked URLs
-            # All existing bookmarked claims are from Lighthouse since CHAMPVA is newly added
-            Rails.logger.info(
-              'Mobile claims: type parameter missing with multiple providers, defaulting to lighthouse',
-              claim_id:,
-              user_uuid: @current_user.uuid
-            )
-            return lighthouse_claims_proxy.get_claim(claim_id)
-          end
-
-          # Single provider - determine type and route accordingly
-          provider_class = configured_providers.first
-          if is_lighthouse_provider?(provider_class)
-            lighthouse_claims_proxy.get_claim(claim_id)
+          # No provider_type specified - check provider count
+          if configured_providers.length == 1
+            # Single provider - use it (whatever it is)
+            provider_class = configured_providers.first
+            if is_lighthouse_provider?(provider_class)
+              lighthouse_claims_proxy.get_claim(claim_id)
+            else
+              provider = provider_class.new(@current_user)
+              provider.get_claim(claim_id)
+            end
           else
-            provider = provider_class.new(@current_user)
-            provider.get_claim(claim_id)
+            # Multiple providers - default to Lighthouse
+            lighthouse_claims_proxy.get_claim(claim_id)
           end
         end
 
