@@ -198,7 +198,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
 
         it 'falls back to original data and logs error' do
           allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:error).with(/Error converting HEIC receipt/)
+          expect(Rails.logger).to receive(:error).with(/Error processing receipt/)
 
           subject.receipt = invalid_heic_receipt
 
