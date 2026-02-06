@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_06_172352) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1502,6 +1502,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "organization_representatives", force: :cascade do |t|
+    t.string "representative_id", null: false
+    t.string "organization_poa", limit: 3, null: false
+    t.string "acceptance_mode", default: "no_acceptance", null: false
+    t.datetime "deactivated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_poa", "representative_id"], name: "idx_org_reps_on_org_poa_and_rep_id", unique: true
+    t.index ["representative_id"], name: "index_organization_representatives_on_representative_id"
+    t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying, 'self_only'::character varying, 'no_acceptance'::character varying]::text[])", name: "org_reps_acceptance_mode_check"
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -2277,6 +2289,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "organization_representatives", "veteran_organizations", column: "organization_poa", primary_key: "poa"
+  add_foreign_key "organization_representatives", "veteran_representatives", column: "representative_id", primary_key: "representative_id"
   add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
   add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
