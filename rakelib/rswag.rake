@@ -54,6 +54,8 @@ namespace :rswag do
         %w[v1 v2].each { |version| format_for_swagger(version, version.eql?('v2') ? environment : nil) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
+      # Sanitize dynamic values after generation to reduce noise in git diffs
+      sanitize_claims_api_docs!
     end
   end
 
@@ -179,4 +181,66 @@ def rswag_to_oas!(filepath)
   end
 
   FileUtils.mv(temp_path, filepath)
+end
+
+# Sanitize dates and UUIDs in docs to prevent noisy git diffs
+def sanitize_claims_api_docs!
+  paths = [
+    'modules/claims_api/app/swagger/claims_api/v1/swagger.json',
+    'modules/claims_api/app/swagger/claims_api/v2/dev/swagger.json',
+    'modules/claims_api/app/swagger/claims_api/v2/production/swagger.json'
+  ]
+
+  paths.each do |path|
+    filepath = Rails.root.join(path)
+    next unless File.exist?(filepath)
+
+    data = JSON.parse(File.read(filepath))
+    sanitize_example_values!(data)
+    File.write(filepath, JSON.pretty_generate(data))
+  end
+end
+
+def sanitize_example_values!(data) # rubocop:disable Metrics/MethodLength
+  uuid_regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  iso_timestamp_regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+  utc_timestamp_regex = /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC$/
+  date_regex = /^\d{4}-\d{2}-\d{2}$/
+
+  # Counter to generate sequential UUIDs
+  @uuid_counter ||= 0
+
+  transformer = lambda do |_k, v, _root|
+    return v unless v.is_a?(String)
+
+    # Sanitize UUIDs
+    if v.match?(uuid_regex)
+      @uuid_counter += 1
+      format('00000000-0000-0000-0000-%012d', @uuid_counter)
+    # Sanitize ISO 8601 timestamps (e.g., "2026-02-06T17:04:14.037Z")
+    elsif v.match?(iso_timestamp_regex)
+      normalize_date_value(v, Date.parse(v.split('T').first)) { |d| "#{d}T00:00:00.000Z" }
+    # Sanitize UTC timestamps (e.g., "2026-02-06 17:04:47 UTC")
+    elsif v.match?(utc_timestamp_regex)
+      normalize_date_value(v, Date.parse(v.split.first)) { |d| "#{d} 00:00:00 UTC" }
+    # Sanitize simple dates (e.g., "2026-02-06")
+    elsif v.match?(date_regex)
+      normalize_date_value(v, Date.parse(v), &:to_s)
+    else
+      v
+    end
+  end
+
+  data.replace deep_transform(data, root: [], transformer:)
+end
+
+def normalize_date_value(original_value, parsed_date)
+  fixed_present_date = Date.new(2024, 1, 1)
+  fixed_future_date = Date.new(2025, 12, 31)
+  today = Time.zone.today
+
+  return original_value if parsed_date < today
+  return yield(fixed_future_date) if parsed_date > today
+
+  yield(fixed_present_date)
 end

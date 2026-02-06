@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8c9a9dbe-facc-4010-8d25-8679a91d1f74",
+                    "id": "00000000-0000-0000-0000-000000000001",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "627ef87f-266a-4999-8334-5e6bdbe4d8b7",
+                    "id": "00000000-0000-0000-0000-000000000002",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,17 +3181,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "075dacba-32db-42be-9676-05a69af9a547",
+                    "id": "00000000-0000-0000-0000-000000000003",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2024-01-01",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -6039,7 +6039,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                    "id": "00000000-0000-0000-0000-000000000004",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6047,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.152Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6061,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                      "token": "00000000-0000-0000-0000-000000000005",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -7914,7 +7914,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                    "id": "00000000-0000-0000-0000-000000000006",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7922,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.941Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7936,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                      "token": "00000000-0000-0000-0000-000000000007",
                       "status": "pending",
                       "flashes": []
                     }
@@ -10165,7 +10165,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1bfdb989-b173-4a11-8ba2-35d1fa04e110",
+                    "id": "00000000-0000-0000-0000-000000000008",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10173,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:19.595Z",
+                      "updated_at": "2024-01-01T00:00:00.000Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10186,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "8e59dcdf-1b70-44e5-bb07-f0cea4db226d",
+                          "id": "00000000-0000-0000-0000-000000000009",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -11019,7 +11019,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e00b3ab5-5822-4d1f-8832-011872882c73",
+                    "id": "00000000-0000-0000-0000-000000000010",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11052,12 +11052,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "c649f762-e097-4bec-8ea8-fb25aa549fe1",
+                          "id": "00000000-0000-0000-0000-000000000011",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-11-06T15:47:20.751Z"
+                          "uploaded_at": "2024-01-01T00:00:00.000Z"
                         }
                       ]
                     }
