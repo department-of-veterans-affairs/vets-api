@@ -136,7 +136,8 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           allow(result).to receive(:where).and_wrap_original do |where_method, *where_args|
             where_result = where_method.call(*where_args)
             call_count += 1
-            allow(where_result).to receive(:order).and_raise(StandardError, 'db error') if call_count == 1
+            # Raise error on second where call (first form type, after date filter)
+            allow(where_result).to receive(:order).and_raise(StandardError, 'db error') if call_count == 2
             where_result
           end
           result

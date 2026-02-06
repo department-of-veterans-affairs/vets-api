@@ -316,8 +316,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Process buffered Unique User Metrics events every 10 minutes
   mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
 
-  # Daily BIO submission status report for tracked forms
-  mgr.register('0 5 * * 1-5', 'BioSubmissionStatusReportJob')
+  # Weekly BIO submission status report for tracked forms (Mondays at 5am ET)
+  mgr.register('0 5 * * 1', 'BioSubmissionStatusReportJob')
 
   mgr.register('30 6 * * *', 'Console1984LogUploadJob')
 }

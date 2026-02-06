@@ -40,6 +40,7 @@ class BioSubmissionStatusReportJob
     attempts = FormSubmissionAttempt
                .joins(:form_submission)
                .where(form_submissions: { form_type: })
+               .where('form_submission_attempts.created_at >= ?', 90.days.ago)
                .order(created_at: :desc)
 
     cmp_statuses = fetch_cmp_statuses(attempts)
