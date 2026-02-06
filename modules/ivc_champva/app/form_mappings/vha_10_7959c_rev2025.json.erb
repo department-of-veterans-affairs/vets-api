@@ -14,7 +14,7 @@
   "form1[0].#subform[0].applicantSexRadioButtons2[0]":                   "<%= (form.data['applicant_gender'].is_a?(Hash) ? form.data.dig('applicant_gender', 'gender') : form.data['applicant_gender']) == 'male' ? 0 : 1 %>",
   "form1[0].#subform[0].PartARadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : ['a', 'ab', 'c'].include?(form.data.dig('medicare', 0, 'medicare_plan_type')) ? 0 : 1 %>",
   "form1[0].#subform[0].EffectiveDateA[0]":                              "<%= form.data.dig('medicare', 0, 'medicare_part_a_effective_date') %>",
-  "form1[0].#subform[0].PartBRadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : ['ab', 'c'].include?(form.data.dig('medicare', 0, 'medicare_plan_type')) ? 0 : 1 %>",
+  "form1[0].#subform[0].PartBRadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : ['b', 'ab', 'c'].include?(form.data.dig('medicare', 0, 'medicare_plan_type')) ? 0 : 1 %>",
   "form1[0].#subform[0].EffectiveDateB[0]":                              "<%= form.data.dig('medicare', 0, 'medicare_part_b_effective_date') %>",
   "form1[0].#subform[0].PartCRadioButtonList[0]":                        "<%= form.data.dig('medicare').blank? ? nil : form.data.dig('medicare', 0, 'medicare_plan_type') == 'c' ? 0 : 1  %>",
   "form1[0].#subform[0].MedicareAdvantageReplacementPlanCarrierName[0]": "<%= form.data.dig('medicare', 0, 'medicare_part_c_carrier') %>",
