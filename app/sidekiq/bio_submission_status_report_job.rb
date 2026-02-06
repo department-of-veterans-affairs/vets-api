@@ -91,20 +91,24 @@ class BioSubmissionStatusReportJob
       csv << []
       csv << HEADER_COLUMNS
 
-      attempts.each do |attempt|
-        cmp = cmp_statuses[attempt.benefits_intake_uuid] || {}
-        csv << [
-          attempt.benefits_intake_uuid,
-          attempt.aasm_state,
-          attempt.lighthouse_updated_at&.to_s,
-          cmp[:status],
-          cmp[:last_updated],
-          nil
-        ]
-      end
+      write_data_rows(csv, attempts, cmp_statuses)
     end
 
     filename
+  end
+
+  def write_data_rows(csv, attempts, cmp_statuses)
+    attempts.each do |attempt|
+      cmp = cmp_statuses[attempt.benefits_intake_uuid] || {}
+      csv << [
+        attempt.benefits_intake_uuid,
+        attempt.aasm_state,
+        attempt.lighthouse_updated_at.to_s,
+        cmp[:status],
+        cmp[:last_updated],
+        nil
+      ]
+    end
   end
 
   def expected_annual_submissions(form_type)

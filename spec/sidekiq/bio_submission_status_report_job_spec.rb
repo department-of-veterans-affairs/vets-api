@@ -14,9 +14,8 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:bio_submission_status_report_enabled).and_return(true)
-    allow(FeatureFlipper).to receive(:send_email?).and_return(true)
-    allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
-    allow(CentralMail::Service).to receive(:new).and_return(cmp_service)
+    allow(FeatureFlipper).to receive_messages(send_email?: true)
+    allow(CentralMail::Service).to receive_messages(service_is_up?: true, new: cmp_service)
     allow(cmp_service).to receive(:status).and_return(cmp_response)
   end
 
@@ -65,7 +64,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
         stub_reports_s3 do
           csv_content = nil
           allow(Reports::Uploader).to receive(:get_s3_link) do |path|
-            csv_content = CSV.read(path)
+            csv_content = CSV.read(path) if path.include?('21-4192')
             'https://s3.example.com/report.csv'
           end
           subject.perform
@@ -101,7 +100,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
         stub_reports_s3 do
           csv_content = nil
           allow(Reports::Uploader).to receive(:get_s3_link) do |path|
-            csv_content = CSV.read(path)
+            csv_content = CSV.read(path) if path.include?('21-4192')
             'https://s3.example.com/report.csv'
           end
 
@@ -159,7 +158,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
         stub_reports_s3 do
           csv_content = nil
           allow(Reports::Uploader).to receive(:get_s3_link) do |path|
-            csv_content = CSV.read(path)
+            csv_content = CSV.read(path) if path.include?('21-4192')
             'https://s3.example.com/report.csv'
           end
 
