@@ -809,6 +809,7 @@ config/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-
 config/puma.rb @department-of-veterans-affairs/backend-review-group
 config/redis.yml @department-of-veterans-affairs/backend-review-group
 config/routes.rb @department-of-veterans-affairs/backend-review-group
+config/schemas/21-2680-PRIMARY.json @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 config/settings @department-of-veterans-affairs/backend-review-group
 config/settings.local.yml.example @department-of-veterans-affairs/backend-review-group
 config/settings.yml @department-of-veterans-affairs/backend-review-group
