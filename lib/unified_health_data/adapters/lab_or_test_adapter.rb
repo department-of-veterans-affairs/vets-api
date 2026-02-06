@@ -11,6 +11,15 @@ module UnifiedHealthData
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
 
+      # HL7 v2-0074 diagnostic service section codes to user-friendly display names
+      TEST_CODE_DISPLAY_MAP = {
+        'CH' => 'Chemistry and hematology',
+        'MI' => 'Microbiology',
+        'SP' => 'Surgical Pathology',
+        'CY' => 'Cytology',
+        'EM' => 'Electron Microscopy'
+      }.freeze
+
       def parse_labs(records)
         return [] if records.blank?
 
@@ -61,6 +70,7 @@ module UnifiedHealthData
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
+          test_code_display: TEST_CODE_DISPLAY_MAP[code] || code,
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),
