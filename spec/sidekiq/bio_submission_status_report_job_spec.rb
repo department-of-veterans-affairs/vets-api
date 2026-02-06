@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'feature_flipper'
 
 RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
   subject { described_class.new }
 
+  let(:test_uuid) { 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }
   let(:cmp_service) { instance_double(CentralMail::Service) }
   let(:cmp_response) do
     double('response', body: [
-      { 'uuid' => 'uuid-1', 'status' => 'Received', 'lastUpdated' => '2025-01-15 12:00:00' }
+      { 'uuid' => test_uuid, 'status' => 'Received', 'lastUpdated' => '2025-01-15 12:00:00' }
     ].to_json)
   end
 
@@ -52,7 +54,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
       let!(:attempt) do
         create(:form_submission_attempt,
                form_submission:,
-               benefits_intake_uuid: 'uuid-1',
+               benefits_intake_uuid: test_uuid,
                aasm_state: 'pending',
                lighthouse_updated_at: Time.zone.parse('2025-01-15 10:00:00'))
       end
@@ -81,7 +83,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           expect(header_idx).to be_present
 
           data_row = csv_content[header_idx + 1]
-          expect(data_row[0]).to eq('uuid-1')
+          expect(data_row[0]).to eq(test_uuid)
           expect(data_row[1]).to eq('pending')
           expect(data_row[3]).to eq('Received')
         end
@@ -89,13 +91,14 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
     end
 
     context 'when CMP service is down' do
+      let(:down_uuid) { 'b2c3d4e5-f6a7-8901-bcde-f12345678901' }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192')
       end
       let!(:attempt) do
         create(:form_submission_attempt,
                form_submission:,
-               benefits_intake_uuid: 'uuid-2',
+               benefits_intake_uuid: down_uuid,
                aasm_state: 'success')
       end
 
@@ -115,7 +118,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
           header_idx = csv_content.index(described_class::HEADER_COLUMNS)
           data_row = csv_content[header_idx + 1]
-          expect(data_row[0]).to eq('uuid-2')
+          expect(data_row[0]).to eq(down_uuid)
           expect(data_row[3]).to be_nil
           expect(data_row[4]).to be_nil
         end
@@ -149,11 +152,12 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
     end
 
     context 'when CMP status call raises an error' do
+      let(:error_uuid) { 'c3d4e5f6-a7b8-9012-cdef-123456789012' }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192')
       end
       let!(:attempt) do
-        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: 'uuid-3')
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: error_uuid)
       end
 
       before do
