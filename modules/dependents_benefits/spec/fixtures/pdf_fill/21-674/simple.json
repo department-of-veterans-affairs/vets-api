@@ -29,23 +29,23 @@
     "student_information": [
       {
         "student_networth_information": {
-          "savings": "100",
-          "securities": "100",
-          "real_estate": "100",
-          "other_assets": "100",
-          "total_value": "100"
+          "savings": "100.00",
+          "securities": "100.00",
+          "real_estate": "100.00",
+          "other_assets": "100.00",
+          "total_value": "100.00"
         },
         "student_expected_earnings_next_year": {
-          "earnings_from_all_employment": "100",
-          "annual_social_security_payments": "100",
-          "other_annuities_income": "100",
-          "all_other_income": "100"
+          "earnings_from_all_employment": "100.00",
+          "annual_social_security_payments": "100.00",
+          "other_annuities_income": "100.00",
+          "all_other_income": "100.00"
         },
         "student_earnings_from_school_year": {
-          "earnings_from_all_employment": "100",
-          "annual_social_security_payments": "100",
-          "other_annuities_income": "100",
-          "all_other_income": "100"
+          "earnings_from_all_employment": "100.00",
+          "annual_social_security_payments": "100.00",
+          "other_annuities_income": "100.00",
+          "all_other_income": "100.00"
         },
         "school_information": {
           "isSchoolAccredited": true,
