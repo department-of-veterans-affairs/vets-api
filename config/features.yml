@@ -358,6 +358,9 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_ignore_recent_missing_statuses:
+    actor_type: user
+    description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
