@@ -5,7 +5,7 @@ services:
       - "63790:6379"
   postgres:
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
-    image: postgis/postgis:14-3.3-alpine
+    image: postgis/postgis:15-3.5-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
