@@ -1184,7 +1184,10 @@ components:
         cancelationReason:
           "$ref": "#/components/schemas/CodeableConcept"
         description:
-          description: Not used.
+          description: Type of care description for Cerner (Oracle Health) appointment.
+          type: string
+        typeOfCare:
+          description: The patient friendly type of care text for the appointment
           type: string
         comment:
           type: string

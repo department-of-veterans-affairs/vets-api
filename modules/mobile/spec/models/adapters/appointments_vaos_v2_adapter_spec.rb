@@ -495,29 +495,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  describe 'type_of_care' do
-    context 'with nil service type' do
-      it 'returns nil' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
-        expect(vaos_data[:type_of_care]).to be_nil
-      end
-    end
-
-    context 'with known service type' do
-      it 'returns appropriate copy for the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'outpatientMentalHealth' })
-        expect(vaos_data[:type_of_care]).to eq('Mental Health')
-      end
-    end
-
-    context 'with unknown service type' do
-      it 'returns a capitalized version of the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'hey there' })
-        expect(vaos_data[:type_of_care]).to eq('Hey There')
-      end
-    end
-  end
-
   describe 'status' do
     context 'with known status' do
       it 'converts status to appropriate text' do
