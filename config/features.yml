@@ -2539,6 +2539,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user
