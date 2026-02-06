@@ -374,12 +374,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         )
         expect(StatsD).not_to receive(:increment).with('api.payment_history.bgs_person.nil')
 
-        # This will fail because person is nil, but we're just testing logging doesn't happen
-        begin
-          get(:index)
-        rescue
-          # Expected to fail with nil person, we're just checking no logging occurred
-        end
+        get(:index)
       end
     end
   end
@@ -429,12 +424,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
           expect(StatsD).to receive(:increment)
             .with('api.payment_history.payment_history.nil').and_call_original
 
-          # This will fail because payment_history is nil, but we're testing the logging
-          begin
-            get(:index)
-          rescue
-            # Expected to fail, we're checking logging occurred
-          end
+          get(:index)
         end
       end
 
@@ -518,12 +508,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         )
         expect(StatsD).not_to receive(:increment).with('api.payment_history.payment_history.nil')
 
-        # This will fail because payment_history is nil, but we're just testing logging doesn't happen
-        begin
-          get(:index)
-        rescue
-          # Expected to fail, we're just checking no logging occurred
-        end
+        get(:index)
       end
     end
   end
