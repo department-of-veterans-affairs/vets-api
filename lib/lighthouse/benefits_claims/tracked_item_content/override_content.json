@@ -889,6 +889,35 @@
       ]
     }
   },
+  "Radiation-tell us how you were exposed": {
+    "friendlyName": "Radiation exposure information",
+    "shortDescription": "To process your disability claim for radiation exposure, we need more information from you.",
+    "supportAliases": [
+      "Radiation-tell us how you were exposed"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To process your disability claim, we need more details about your radiation exposure during military service. We’ll use this information to determine your radiation exposure level. Use the \"Radiation Risk Activity Information sheet\" as a guide. This sheet is included with your claim letter."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Use the \"Radiation Risk Activity Information sheet\" that we included with your claim letter to gather the details you need."
+        },
+        {
+          "type": "paragraph",
+          "content": "After completing the sheet, you can upload or mail it."
+        }
+      ]
+    }
+  },
   "RV1 - Reserve Records Request": {
     "friendlyName": "Reserve records",
     "activityDescription": "We’ve requested your reserve records on your behalf. No action is needed.",
