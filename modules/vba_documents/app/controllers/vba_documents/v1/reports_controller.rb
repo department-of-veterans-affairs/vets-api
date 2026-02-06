@@ -35,7 +35,7 @@ module VBADocuments
 
         if params[ID_PARAM].size > MAX_REPORT_SIZE
           raise Common::Exceptions::InvalidFieldValue.new(
-            "#{ID_PARAM} (max #{MAX_REPORT_SIZE})",
+            "#{ID_PARAM} (max limit is #{MAX_REPORT_SIZE} items)",
             "provided #{params[ID_PARAM].size} items"
           )
         end
