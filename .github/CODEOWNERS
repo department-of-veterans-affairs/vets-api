@@ -762,7 +762,7 @@ config/initializers/clamav.rb @department-of-veterans-affairs/backend-review-gro
 config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/config.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/console_filter_toggles.rb @department-of-veterans-affairs/backend-review-group
-config/initializers/console1984_supervisor_patch.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/console1984_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/cookie_rotation.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/core_extensions.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/datadog.rb @department-of-veterans-affairs/backend-review-group
@@ -1128,6 +1128,7 @@ modules/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affair
 modules/burials @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 modules/claims_api @department-of-veterans-affairs/lighthouse-dash
+modules/claims_api/config/schemas/v2/526.json @department-of-veterans-affairs/disability-benefits
 modules/claims_evidence_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/claims-evidence-api @department-of-veterans-affairs/backend-review-group
 modules/debts_api @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 modules/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
