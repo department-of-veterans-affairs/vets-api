@@ -81,6 +81,41 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
           .with(claim.id, middle_initial)
       end
     end
+
+    context 'when a claim is created without an id' do
+      let(:existing_claim) { create(:auto_established_claim, form_data: JSON.parse(claim_data)) }
+      let(:duplicate_claim_without_id) do
+        ClaimsApi::AutoEstablishedClaim.new(
+          status: ClaimsApi::AutoEstablishedClaim::PENDING,
+          auth_headers: {},
+          form_data: JSON.parse(claim_data)['data']['attributes'],
+          header_hash: existing_claim.header_hash
+        )
+      end
+
+      before do
+        # Mock create to return a claim without an id (duplicate scenario)
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:create).and_return(duplicate_claim_without_id)
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by)
+          .with(header_hash: duplicate_claim_without_id.header_hash)
+          .and_return(existing_claim)
+        allow(ClaimsApi::AutoEstablishedClaimSerializer).to receive(:new).with(existing_claim).and_return(
+          double(as_json: {})
+        )
+        allow_any_instance_of(
+          described_class
+        ).to receive_messages(validate_json_schema: nil, validate_initial_claim: nil,
+                              target_veteran: veteran, token:, auth_headers: {}, render: nil)
+      end
+
+      it 'finds and uses the existing claim by header_hash' do
+        subject.send(:submit_form_526) # rubocop:disable Naming/VariableNumber
+
+        expect(ClaimsApi::AutoEstablishedClaim).to have_received(:find_by)
+          .with(header_hash: duplicate_claim_without_id.header_hash)
+        expect(ClaimsApi::AutoEstablishedClaimSerializer).to have_received(:new).with(existing_claim)
+      end
+    end
   end
 
   describe '#validate_form_526' do

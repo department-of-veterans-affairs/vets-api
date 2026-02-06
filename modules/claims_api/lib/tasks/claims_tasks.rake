@@ -10,10 +10,4 @@ namespace :claims do
     puts 'id,evss_id,has_flashes,has_special_issues'
     claims.each { |claim| puts "#{claim.id},#{claim.evss_id},#{claim.flashes.any?},#{claim.special_issues.any?}" }
   end
-
-  task update_poa_md5: :environment do
-    power_of_attorneys = ClaimsApi::PowerOfAttorney.all
-    # save! reruns validations, which includes set_md5
-    power_of_attorneys.each(&:save!)
-  end
 end

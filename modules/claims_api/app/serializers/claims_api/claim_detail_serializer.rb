@@ -29,7 +29,6 @@ module ClaimsApi
         {
           id: document[:id],
           type: 'claim_supporting_document',
-          md5: document[:md5],
           header_hash: document[:header_hash],
           filename: document[:filename],
           uploaded_at: document[:uploaded_at]
