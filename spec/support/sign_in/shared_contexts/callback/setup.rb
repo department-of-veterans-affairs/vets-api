@@ -24,7 +24,7 @@ RSpec.shared_context 'callback_setup' do
            authentication:,
            enforced_terms:,
            terms_of_use_url:,
-           credential_service_providers: %w[idme logingov dslogon mhv],
+           credential_service_providers: %w[idme logingov mhv],
            service_levels: %w[loa1 loa3 ial1 ial2 min])
   end
   let(:enforced_terms) { nil }

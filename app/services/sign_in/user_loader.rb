@@ -91,8 +91,6 @@ module SignIn
       case user_verification.credential_type
       when Constants::Auth::IDME
         user_is_verified? ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
-      when Constants::Auth::DSLOGON
-        user_is_verified? ? Constants::Auth::IDME_DSLOGON_LOA3 : Constants::Auth::IDME_DSLOGON_LOA1
       when Constants::Auth::MHV
         user_is_verified? ? Constants::Auth::IDME_MHV_LOA3 : Constants::Auth::IDME_MHV_LOA1
       when Constants::Auth::LOGINGOV

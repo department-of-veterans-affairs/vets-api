@@ -10,7 +10,7 @@ RSpec.shared_context 'authorize_setup' do
   let(:authentication) { SignIn::Constants::Auth::COOKIE }
   let(:pkce) { true }
   let(:shared_sessions) { false }
-  let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
+  let(:credential_service_providers) { %w[idme logingov mhv] }
   let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
   let(:type) { { type: type_value } }
   let(:type_value) { 'some-type' }

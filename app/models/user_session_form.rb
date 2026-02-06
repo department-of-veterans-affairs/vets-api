@@ -63,7 +63,6 @@ class UserSessionForm
                             auth_broker: saml_attributes[:sign_in]&.dig(:auth_broker),
                             mhv_uuid: saml_attributes[:mhv_credential_uuid],
                             idme_uuid: saml_attributes[:idme_uuid],
-                            dslogon_uuid: saml_attributes[:edipi],
                             logingov_uuid: saml_attributes[:logingov_uuid],
                             icn: saml_attributes[:icn]).perform
   end

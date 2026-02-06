@@ -1281,7 +1281,6 @@ spec/controllers/v0/sign_in_controller_authorize_idme_spec.rb @department-of-vet
 spec/controllers/v0/sign_in_controller_authorize_logingov_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_authorize_sso_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_basic_spec.rb @department-of-veterans-affairs/octo-identity
-spec/controllers/v0/sign_in_controller_callback_dslogon_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_idme_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_callback_logingov_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/sign_in_controller_logingov_logout_proxy_spec.rb @department-of-veterans-affairs/octo-identity

@@ -7,7 +7,7 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, type: :service 
   describe '#get_mpi_data' do
     context 'given edipi statement' do
       edipi = '492031291'
-      let(:verification) { build(:dslogon_user_verification) }
+      let(:verification) { build(:idme_user_verification) }
       let(:edipi_statement) do
         {
           'veteranIdentifier' => edipi,
@@ -193,7 +193,7 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, type: :service 
   describe '#get_mpi_data v2' do
     context 'given edipi statement' do
       edipi = '492031291'
-      let(:verification) { build(:dslogon_user_verification) }
+      let(:verification) { build(:idme_user_verification) }
       let(:edipi_statement) do
         {
           'veteranIdentifier' => edipi,

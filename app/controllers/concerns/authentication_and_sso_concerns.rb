@@ -182,8 +182,6 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
       @current_user.identity.idme_uuid
     when SAML::User::LOGINGOV_CSID
       @current_user.identity.logingov_uuid
-    when SAML::User::DSLOGON_CSID
-      @current_user.identity.edipi
     end
   end
 

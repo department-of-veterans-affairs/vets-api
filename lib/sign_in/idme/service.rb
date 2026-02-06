@@ -37,8 +37,6 @@ module SignIn
         attributes = case type
                      when Constants::Auth::IDME
                        idme_attributes(user_info)
-                     when Constants::Auth::DSLOGON
-                       dslogon_attributes(user_info)
                      when Constants::Auth::MHV
                        mhv_attributes(user_info)
                      end
@@ -118,10 +116,6 @@ module SignIn
           current_ial == Constants::Auth::IAL_TWO ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
         when Constants::Auth::MHV
           current_ial == Constants::Auth::IAL_TWO ? Constants::Auth::IDME_MHV_LOA3 : Constants::Auth::IDME_MHV_LOA1
-        when Constants::Auth::DSLOGON
-          return Constants::Auth::IDME_DSLOGON_LOA3 if current_ial == Constants::Auth::IAL_TWO
-
-          Constants::Auth::IDME_DSLOGON_LOA1
         end
       end
 
@@ -132,17 +126,6 @@ module SignIn
           first_name: user_info.fname,
           last_name: user_info.lname,
           address: normalize_address(user_info)
-        }
-      end
-
-      def dslogon_attributes(user_info)
-        {
-          ssn: user_info.dslogon_idvalue&.tr('-', ''),
-          birth_date: user_info.dslogon_birth_date,
-          first_name: user_info.dslogon_fname,
-          middle_name: user_info.dslogon_mname,
-          last_name: user_info.dslogon_lname,
-          edipi: user_info.dslogon_uuid
         }
       end
 

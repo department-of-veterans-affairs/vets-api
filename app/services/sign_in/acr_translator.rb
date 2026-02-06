@@ -22,8 +22,6 @@ module SignIn
         translate_idme_values
       when Constants::Auth::LOGINGOV
         translate_logingov_values
-      when Constants::Auth::DSLOGON
-        translate_dslogon_values
       when Constants::Auth::MHV
         translate_mhv_values
       else
@@ -47,15 +45,6 @@ module SignIn
         uplevel ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
       else
         invalid_acr!(type:)
-      end
-    end
-
-    def translate_dslogon_values
-      case acr
-      when 'loa1', 'loa3', 'min'
-        Constants::Auth::IDME_DSLOGON_LOA1
-      else
-        raise Errors::InvalidAcrError.new message: 'Invalid ACR for dslogon'
       end
     end
 

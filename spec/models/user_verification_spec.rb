@@ -378,16 +378,6 @@ RSpec.describe UserVerification, type: :model do
       end
     end
 
-    context 'when dslogon_uuid is present' do
-      let(:dslogon_uuid) { 'some-dslogon-uuid' }
-      let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
-      let(:expected_credential_type) { SAML::User::DSLOGON_CSID }
-
-      it 'returns expected credential type' do
-        expect(subject).to eq(expected_credential_type)
-      end
-    end
-
     context 'when mhv_uuid is present' do
       let(:mhv_uuid) { 'some-mhv-uuid' }
       let(:backing_idme_uuid) { 'some-backing-idme-uuid' }

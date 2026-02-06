@@ -206,48 +206,6 @@ RSpec.describe SignIn::AcrTranslator do
       end
     end
 
-    context 'when type is dslogon' do
-      let(:type) { SignIn::Constants::Auth::DSLOGON }
-
-      context 'and acr is loa1' do
-        let(:acr) { 'loa1' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
-
-        it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
-        end
-      end
-
-      context 'and acr is loa3' do
-        let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
-
-        it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
-        end
-      end
-
-      context 'and acr is min' do
-        let(:acr) { 'min' }
-
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_DSLOGON_LOA1 } }
-
-        it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
-        end
-      end
-
-      context 'and acr is an arbitrary value' do
-        let(:acr) { 'some-acr' }
-        let(:expected_error) { SignIn::Errors::InvalidAcrError }
-        let(:expected_error_message) { 'Invalid ACR for dslogon' }
-
-        it 'raises invalid type error' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
-    end
-
     context 'when type is mhv' do
       let(:type) { SignIn::Constants::Auth::MHV }
 

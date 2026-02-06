@@ -26,7 +26,7 @@ module SAML
       authn_context:, level_of_assurance:,
       attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
     )
-      verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3'].include?(authn_context)
 
       if authn_context.present?
         if authn_context.include?('multifactor') && existing_attributes.present?

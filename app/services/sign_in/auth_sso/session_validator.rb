@@ -25,7 +25,7 @@ module SignIn
           idme_uuid: user_verification.idme_uuid || user_verification.backing_idme_uuid,
           logingov_uuid: user_verification.logingov_uuid,
           credential_email: session.credential_email,
-          edipi: user_verification.dslogon_uuid,
+          edipi: session_user_attributes[:edipi], 
           mhv_credential_uuid: user_verification.mhv_uuid,
           first_name: session_user_attributes[:first_name],
           last_name: session_user_attributes[:last_name],
