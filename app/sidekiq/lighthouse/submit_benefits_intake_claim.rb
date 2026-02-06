@@ -177,11 +177,11 @@ module Lighthouse
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS', generate_log_details)
       ibm_service = Ibm::Service.new
       ibm_service.upload_form(form: @ibm_payload.to_json, guid: @lighthouse_service.uuid)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.success")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.success", tags: ["form_id:#{@claim.form_id}"])
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload failed',
                         generate_log_details(e))
-      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.failure")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.failure", tags: ["form_id:#{@claim.form_id}"])
       # Don't raise - IBM upload failure shouldn't fail the entire job
     end
   end

@@ -197,7 +197,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
           guid: '123-456-789'
         )
         expect(StatsD).to receive(:increment)
-          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success')
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success',
+                tags: ['form_id:21-4192'])
 
         job.send(:govcio_upload)
       end
@@ -210,7 +211,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
           anything
         )
         expect(StatsD).to receive(:increment)
-          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.failure')
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.failure',
+                tags: ['form_id:21-4192'])
 
         expect { job.send(:govcio_upload) }.not_to raise_error
       end
@@ -225,7 +227,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       it 'does not upload to IBM MMS' do
         expect(ibm_service).not_to receive(:upload_form)
         expect(StatsD).not_to receive(:increment)
-          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success')
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success',
+                tags: ['form_id:21-4192'])
 
         job.send(:govcio_upload)
       end

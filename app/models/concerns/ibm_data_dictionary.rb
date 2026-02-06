@@ -130,11 +130,11 @@ module IbmDataDictionary
   end
 
   # Build checkbox value
-  # Returns 'X' for true, nil for false (standard VBA convention)
+  # Returns true for checked, nil for unchecked (IBM MMS convention)
   # @param value [Boolean, nil]
-  # @return [String, nil]
+  # @return [Boolean, nil]
   def build_checkbox_value(value)
-    value == true ? 'X' : nil
+    value == true ? true : nil
   end
 
   # Build form metadata fields

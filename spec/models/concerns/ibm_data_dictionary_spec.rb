@@ -221,8 +221,8 @@ RSpec.describe IbmDataDictionary do
   end
 
   describe '#build_checkbox_value' do
-    it 'returns X for true' do
-      expect(subject.build_checkbox_value(true)).to eq('X')
+    it 'returns true for true value' do
+      expect(subject.build_checkbox_value(true)).to be(true)
     end
 
     it 'returns nil for false' do
