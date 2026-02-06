@@ -28,6 +28,33 @@ RSpec.describe 'V0::UploadSupportingEvidence', type: :request do
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
         expect(sea.get_file&.read).not_to be_nil
       end
+
+      context 'when filename exceeds MAX_FILENAME_LENGTH' do
+        let(:long_filename) { "#{'a' * 200}.pdf" }
+        let(:long_filename_file) do
+          file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+          allow(file).to receive(:original_filename).and_return(long_filename)
+          file
+        end
+
+        it 'stores the file with a shortened filename' do
+          post '/v0/upload_supporting_evidence',
+               params: { supporting_evidence_attachment: { file_data: long_filename_file } }
+          expect(response).to have_http_status(:ok)
+          sea = SupportingEvidenceAttachment.last
+          stored_filename = sea.parsed_file_data['filename']
+          expect(stored_filename.length).to be <= SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH
+          expect(stored_filename).to end_with('.pdf')
+        end
+
+        it 'can retrieve the file without ENAMETOOLONG error' do
+          post '/v0/upload_supporting_evidence',
+               params: { supporting_evidence_attachment: { file_data: long_filename_file } }
+          sea = SupportingEvidenceAttachment.last
+          expect { sea.get_file }.not_to raise_error
+          expect(sea.get_file&.read).not_to be_nil
+        end
+      end
     end
 
     context 'with valid encrypted parameters' do

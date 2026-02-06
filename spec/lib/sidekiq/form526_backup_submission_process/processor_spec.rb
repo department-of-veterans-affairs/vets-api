@@ -80,18 +80,38 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               processor = described_class.new(submission.id)
               processed_files = processor.get_uploads
-              unique_path = "#{mock_random_file_path}.#{mock_timestamp}"
               processed_files.each do |processed_file|
-                if processed_file['name'].length > 101
-                  shortened_name = processed_file['name'][0..described_class::MAX_FILENAME_LENGTH]
-                  shortened_path = "#{unique_path}.#{shortened_name}.pdf"
-                  expect(processed_file[:file].length).to be <= processed_file['name'].length
-                  expect(processed_file[:file].length).to eq(shortened_path.length)
-                else
-                  expect(processed_file[:file].length).to eq("#{unique_path}.#{processed_file['name']}".length)
-                end
-                expect(processed_file[:file]).to match(%r{^tmp/[a-zA-Z0-9_\-.]+\.pdf$})
-                expect(processed_file[:file].length).to be <= 255
+                # Filenames are shortened at upload time by SupportingEvidenceAttachmentUploader,
+                # and the resulting filename (path component) should be reasonably short (<= 255 characters).
+                expect(processed_file[:file]).to match(%r{^tmp/.+\.pdf$})
+                expect(File.basename(processed_file[:file]).length).to be <= 255
+              end
+            end
+          end
+        end
+      end
+
+      context 'when uploads have long original filenames that were shortened' do
+        let(:long_filename) { "#{'a' * 200}.pdf" }
+
+        before do
+          # Override the first upload with a long filename
+          first_upload = upload_data.first
+          fixture_file_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+          file = Rack::Test::UploadedFile.new(fixture_file_path, 'application/pdf')
+          allow(file).to receive(:original_filename).and_return(long_filename)
+
+          sea = SupportingEvidenceAttachment.find_by(guid: first_upload['confirmationCode'])
+          sea.set_file_data!(file)
+          sea.save!
+        end
+
+        it 'retrieves files without ENAMETOOLONG error' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                processor = described_class.new(submission.id)
+                expect { processor.get_uploads }.not_to raise_error
               end
             end
           end
