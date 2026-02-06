@@ -28,6 +28,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
   before do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:form21p0537, user).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_logging, user).and_return(true)
     allow(BioHeartApi::FormMapperRegistry).to receive(:mapper_for).with(form_number).and_return(mapper)
     allow(mapper).to receive(:transform).and_return(transformed_payload)
     allow(Ibm::Service).to receive(:new).and_return(ibm_service)
@@ -44,7 +45,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
       context 'when Flipper is enabled for MMS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:bio_heart_govcio_mms).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_submit).and_return(true)
         end
 
         it 'submits to both Benefits Intake and IBM MMS' do
@@ -104,7 +105,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
       context 'when Flipper is disabled for MMS' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:bio_heart_govcio_mms).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_submit).and_return(false)
         end
 
         it 'does not submit to IBM MMS' do
@@ -125,7 +126,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
     context 'when parent submit returns response without confirmation number' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:bio_heart_govcio_mms).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_submit).and_return(true)
       end
 
       context 'with nil response' do
@@ -181,7 +182,7 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
     context 'when parent submit raises an exception' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:bio_heart_govcio_mms).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_submit).and_return(true)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:submit)
           .and_raise(StandardError.new('Benefits Intake API error'))
       end

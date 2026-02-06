@@ -15,7 +15,7 @@ module BioHeartApi
       private
 
       def submit_to_ibm_if_successful
-        return unless Flipper.enabled?(:bio_heart_govcio_mms)
+        return unless Flipper.enabled?(:bio_heart_mms_submit)
         return unless response.successful?
 
         # Response body is like:
@@ -25,19 +25,25 @@ module BioHeartApi
       end
 
       def submit_to_ibm(confirmation_number)
-        return unless Flipper.enabled?(:bio_heart_govcio_mms)
-
         mapper = FormMapperRegistry.mapper_for(params[:form_number])
         # We're not treating these as params beyond this point, so unsafe_h should be fine
         ibm_payload = mapper.transform(params.to_unsafe_h)
 
         ibm_service = Ibm::Service.new
-        ibm_service.upload_form(form: ibm_payload.to_json, guid: confirmation_number)
-        Rails.logger.info("BioHeart MMS submission complete: #{confirmation_number}")
+        ibm_response = ibm_service.upload_form(form: ibm_payload.to_json, guid: confirmation_number)
+        if ibm_response
+          Rails.logger.info("BioHeart MMS submission complete: #{confirmation_number}")
+        else
+          Rails.logger.error('BioHeart MMS submission failed: IBM upload returned no response',
+                             form_number: params[:form_number],
+                             guid: confirmation_number)
+        end
       rescue => e
-        Rails.logger.error("BioHeart MMS submission failed: #{e.message}",
-                           form_number: params[:form_number],
-                           guid: confirmation_number)
+        if Flipper.enabled?(:bio_heart_mms_logging)
+          Rails.logger.error("BioHeart MMS submission failed: #{e.message}",
+                             form_number: params[:form_number],
+                             guid: confirmation_number)
+        end
       end
 
       # Returns benefits intake API confirmation number if present in input, otherwise returns false.
