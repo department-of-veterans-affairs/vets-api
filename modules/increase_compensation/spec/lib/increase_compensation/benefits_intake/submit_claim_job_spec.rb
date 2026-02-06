@@ -25,7 +25,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     before do
       job.instance_variable_set(:@claim, claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      allow(claim).to receive(:to_pdf).with(claim.guid, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
       allow(claim).to receive(:persistent_attachments).and_return([])
 
       job.instance_variable_set(:@intake_service, service)
@@ -71,7 +71,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
 
-      expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      expect(claim).to receive(:to_pdf).with(claim.guid, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
       expect(Lighthouse::SubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
