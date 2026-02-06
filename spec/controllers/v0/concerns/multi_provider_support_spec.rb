@@ -122,23 +122,27 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
 
-      it 'skips provider when response has nil data' do
+      it 'requires type parameter when multiple providers exist' do
         provider_class2 = double('ProviderClass2', name: 'TestProvider2')
         provider_instance2 = double('Provider2')
         allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
         allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
           .with(user)
           .and_return([provider_class, provider_class2])
+        allow(controller).to receive(:supported_provider_types).and_return(%w[lighthouse test])
 
-        # First provider returns nil data (should be skipped)
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({ 'data' => nil })
-        # Second provider has the claim
-        allow(provider_instance2).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
-        allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+        expect do
+          controller.send(:get_claim_from_providers, claim_id)
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
 
-        result = controller.send(:get_claim_from_providers, claim_id)
+      it 'routes to correct provider when type parameter specified' do
+        lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+        lighthouse_instance = double('LighthouseProvider')
+        allow(lighthouse_class).to receive(:new).with(user).and_return(lighthouse_instance)
+        allow(lighthouse_instance).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+
+        result = controller.send(:get_claim_from_providers, claim_id, 'lighthouse')
 
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end

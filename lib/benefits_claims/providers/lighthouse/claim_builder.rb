@@ -25,6 +25,7 @@ module BenefitsClaims
           {
             id: claim_data['id'],
             type: claim_data['type'],
+            provider: claim_data['provider'],
             base_end_product_code: attrs['baseEndProductCode'],
             claim_date: attrs['claimDate'],
             claim_type: attrs['claimType'],

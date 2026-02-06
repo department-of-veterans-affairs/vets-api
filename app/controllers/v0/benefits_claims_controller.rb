@@ -58,7 +58,7 @@ module V0
 
     def show
       claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
-                get_claim_from_providers(params[:id])
+                get_claim_from_providers(params[:id], params[:type])
               else
                 service.get_claim(params[:id])
               end
