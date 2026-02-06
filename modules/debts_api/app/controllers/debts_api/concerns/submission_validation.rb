@@ -29,7 +29,7 @@ module DebtsApi
       end
 
       class FSRValidator < BaseValidator
-        # todo: move validation here from fsr_form_builder
+        # TODO: move validation here from fsr_form_builder
       end
 
       class DisputeDebtValidator < BaseValidator
