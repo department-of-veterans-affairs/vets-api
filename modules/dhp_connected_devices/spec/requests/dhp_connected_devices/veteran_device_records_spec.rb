@@ -8,7 +8,7 @@ Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
 
   describe 'veteran_device_record#record' do
     context 'unauthenticated user' do
-      before { Flipper.enable(:dhp_connected_devices_fitbit) }
+      before { Flipper.enable(:dhp_connected_devices_fitbit) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'returns unauthenticated error' do
         get '/dhp_connected_devices/veteran-device-records'

@@ -23,7 +23,7 @@ describe AppealsApi::AddIcnUpdater, type: :job do
     end
 
     it 'does not update ICN if flipper is disabled', skip: 'TODO' do
-      Flipper.disable(:decision_review_icn_updater_enabled)
+      Flipper.disable(:decision_review_icn_updater_enabled) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       # ...
     end
 

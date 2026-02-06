@@ -11,7 +11,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: [402, 555]) }
 
   before do
-    Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.enable_actor(:appointments_consolidation, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)

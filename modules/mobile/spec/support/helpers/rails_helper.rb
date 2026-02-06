@@ -14,7 +14,7 @@ RSpec.configure do |config|
   # Not every spec needs it but no specs need it disabled so to ensure we don't get flaky specs
   # this will just be enabled for all specs
   config.before :each, :mobile_spec, type: :request do
-    Flipper.enable('va_online_scheduling')
+    Flipper.enable('va_online_scheduling') # rubocop:disable Project/ForbidFlipperToggleInSpecs
   end
 
   config.after :each, :mobile_spec, skipped?: false, type: :request do |example|

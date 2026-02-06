@@ -7,7 +7,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
 
   context 'logs changes to toggle values' do
     it 'logs feature calls with result after operation for disable' do
-      Flipper.disable(:this_is_only_a_test)
+      Flipper.disable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('disable')
@@ -15,7 +15,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for disable_percentage_of_actors' do
-      Flipper.disable_percentage_of_actors(:this_is_only_a_test)
+      Flipper.disable_percentage_of_actors(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('disable')
@@ -23,7 +23,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for disable_percentage_of_time' do
-      Flipper.disable_percentage_of_time(:this_is_only_a_test)
+      Flipper.disable_percentage_of_time(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('disable')
@@ -31,7 +31,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for enable_percentage_of_actors' do
-      Flipper.enable_percentage_of_actors :this_is_only_a_test, 10
+      Flipper.enable_percentage_of_actors :this_is_only_a_test, 10 # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('enable')
@@ -39,7 +39,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for enable_percentage_of_time' do
-      Flipper.enable_percentage_of_time :this_is_only_a_test, 5
+      Flipper.enable_percentage_of_time :this_is_only_a_test, 5 # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('enable')
@@ -47,7 +47,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for enable_actor' do
-      Flipper.enable_actor :this_is_only_a_test, test_user
+      Flipper.enable_actor :this_is_only_a_test, test_user # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('enable')
@@ -55,7 +55,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     end
 
     it 'logs feature calls with result after operation for disable_actor' do
-      Flipper.disable_actor :this_is_only_a_test, test_user
+      Flipper.disable_actor :this_is_only_a_test, test_user # rubocop:disable Project/ForbidFlipperToggleInSpecs
       last_event = FeatureToggleEvent.last
       expect(last_event.feature_name).to eq('this_is_only_a_test')
       expect(last_event.operation).to eq('disable')

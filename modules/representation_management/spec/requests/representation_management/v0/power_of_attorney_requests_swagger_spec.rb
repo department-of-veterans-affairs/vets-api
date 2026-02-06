@@ -37,7 +37,7 @@ RSpec.describe 'Power of Attorney Requests',
           end
           before do
             sign_in_as(user)
-            Flipper.enable(:appoint_a_representative_enable_v2_features)
+            Flipper.enable(:appoint_a_representative_enable_v2_features) # rubocop:disable Project/ForbidFlipperToggleInSpecs
             allow_any_instance_of(RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate)
               .to receive(:call)
               .and_return({ request: poa_request_result })
@@ -59,7 +59,7 @@ RSpec.describe 'Power of Attorney Requests',
 
           before do
             sign_in_as(user)
-            Flipper.enable(:appoint_a_representative_enable_v2_features)
+            Flipper.enable(:appoint_a_representative_enable_v2_features) # rubocop:disable Project/ForbidFlipperToggleInSpecs
           end
 
           schema '$ref' => '#/components/schemas/errors'

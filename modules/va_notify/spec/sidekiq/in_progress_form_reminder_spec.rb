@@ -87,7 +87,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       it 'delegates to VANotify::UserAccountJob if its the oldest in_progress_form' do
-        Flipper.disable(:in_progress_generic_multiple_template)
+        Flipper.disable(:in_progress_generic_multiple_template) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         user_with_uuid = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_uuid)

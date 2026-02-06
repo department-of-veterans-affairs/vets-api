@@ -71,7 +71,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10297 do
             }
           end
 
-          before { Flipper.enable(:form10297_confirmation_email_with_silent_failure_processing) }
+          before { Flipper.enable(:form10297_confirmation_email_with_silent_failure_processing) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           it 'sends an email with the silent failure callback parameters' do
             subject = create(:va10297_simple_form)

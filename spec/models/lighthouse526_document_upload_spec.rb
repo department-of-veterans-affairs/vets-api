@@ -106,7 +106,7 @@ RSpec.describe Lighthouse526DocumentUpload do
 
           context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is enabled' do
             before do
-              Flipper.enable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
+              Flipper.enable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)  # rubocop:disable Project/ForbidFlipperToggleInSpecs
             end
 
             context 'when the upload was a piece of veteran-supplied evidence' do
@@ -160,7 +160,7 @@ RSpec.describe Lighthouse526DocumentUpload do
 
           context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is disabled' do
             before do
-              Flipper.disable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
+              Flipper.disable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure) # rubocop:disable Project/ForbidFlipperToggleInSpecs
             end
 
             context 'when the upload was a piece of veteran-supplied evidence' do

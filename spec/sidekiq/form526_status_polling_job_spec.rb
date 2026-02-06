@@ -214,7 +214,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
           let(:timestamp) { Time.now.utc }
 
           before do
-            Flipper.enable(:form526_send_backup_submission_polling_failure_email_notice)
+            Flipper.enable(:form526_send_backup_submission_polling_failure_email_notice) # rubocop:disable Project/ForbidFlipperToggleInSpecs
           end
 
           it 'enqueues a failure notification email job' do
@@ -247,7 +247,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
           let!(:pending_claim_ids) { Form526Submission.pending_backup.pluck(:backup_submitted_claim_id) }
 
           before do
-            Flipper.disable(:form526_send_backup_submission_polling_failure_email_notice)
+            Flipper.disable(:form526_send_backup_submission_polling_failure_email_notice) # rubocop:disable Project/ForbidFlipperToggleInSpecs
           end
 
           it 'does not enqueue a failure notification email job' do

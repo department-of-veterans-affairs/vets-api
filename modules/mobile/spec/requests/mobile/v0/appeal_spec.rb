@@ -70,8 +70,8 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
       end
 
       context 'with appeals model used' do
-        before { Flipper.enable(:mobile_appeal_model) }
-        after { Flipper.disable(:mobile_appeal_model) }
+        before { Flipper.enable(:mobile_appeal_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
+        after { Flipper.disable(:mobile_appeal_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do
@@ -142,7 +142,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
       end
 
       context 'with appeals model NOT used' do
-        before { Flipper.disable(:mobile_appeal_model) }
+        before { Flipper.disable(:mobile_appeal_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do

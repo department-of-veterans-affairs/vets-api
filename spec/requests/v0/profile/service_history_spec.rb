@@ -79,7 +79,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
       context 'when academy attendance flag is off' do
         before do
-          Flipper.disable(:profile_show_military_academy_attendance)
+          Flipper.disable(:profile_show_military_academy_attendance) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         it 'returns military service episodes only' do
@@ -106,7 +106,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
       context 'when academy attendance flag is on' do
         before do
-          Flipper.enable(:profile_show_military_academy_attendance)
+          Flipper.enable(:profile_show_military_academy_attendance) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         it 'returns military service and academy attendance episodes' do

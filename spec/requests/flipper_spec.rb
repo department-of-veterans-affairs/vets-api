@@ -192,7 +192,7 @@ RSpec.describe 'flipper', type: :request do
         before do
           allow(user).to receive(:organization_member?).with(Settings.sidekiq.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.sidekiq.github_team).and_return(true)
-          Flipper.disable(:this_is_only_a_test)
+          Flipper.disable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         it 'can see the feature name in title (h4) and button to enable/disable feature' do
@@ -341,7 +341,7 @@ RSpec.describe 'flipper', type: :request do
         it 'can toggle features' do
           allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
-          Flipper.enable(:this_is_only_a_test)
+          Flipper.enable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           bypass_flipper_authenticity_token do
             expect(Flipper.enabled?(:this_is_only_a_test)).to be true
@@ -355,7 +355,7 @@ RSpec.describe 'flipper', type: :request do
         it 'can add actors' do
           allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
-          Flipper.disable(:this_is_only_a_test)
+          Flipper.disable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
           test_user = create(:user)
 
           bypass_flipper_authenticity_token do
@@ -371,7 +371,7 @@ RSpec.describe 'flipper', type: :request do
         it 'can adjust percentage_of_actors' do
           allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
-          Flipper.disable(:this_is_only_a_test)
+          Flipper.disable(:this_is_only_a_test) # rubocop:disable Project/ForbidFlipperToggleInSpecs
           test_user1 = create(:user_account)
           test_user2 = create(:user_account)
 

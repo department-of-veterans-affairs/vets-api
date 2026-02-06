@@ -104,7 +104,7 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
   end
 
   context 'when legacy is used' do
-    before { Flipper.disable(:mobile_allergy_intolerance_model) }
+    before { Flipper.disable(:mobile_allergy_intolerance_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
     it 'responds to GET #index' do
       VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
@@ -144,8 +144,8 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
   end
 
   context 'when non-legacy is used' do
-    before { Flipper.enable_actor(:mobile_allergy_intolerance_model, user) }
-    after { Flipper.disable(:mobile_allergy_intolerance_model) }
+    before { Flipper.enable_actor(:mobile_allergy_intolerance_model, user) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
+    after { Flipper.disable(:mobile_allergy_intolerance_model) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
     it 'responds to GET #index' do
       allow(UniqueUserEvents).to receive(:log_events)

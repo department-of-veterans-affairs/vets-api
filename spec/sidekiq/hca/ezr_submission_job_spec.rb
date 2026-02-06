@@ -47,11 +47,11 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
   describe 'when retries are exhausted' do
     before do
-      Flipper.enable(:ezr_use_va_notify_on_submission_failure)
+      Flipper.enable(:ezr_use_va_notify_on_submission_failure) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     after do
-      Flipper.disable(:ezr_use_va_notify_on_submission_failure)
+      Flipper.disable(:ezr_use_va_notify_on_submission_failure) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when the parsed form is not present' do
@@ -123,7 +123,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           msg = {
             'args' => [encrypted_form, nil]
           }
-          Flipper.disable(:ezr_use_va_notify_on_submission_failure)
+          Flipper.disable(:ezr_use_va_notify_on_submission_failure) # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             expect(VANotify::EmailJob).not_to receive(:perform_async).with(*failure_email_template_params)

@@ -10,7 +10,7 @@ Rspec.describe 'V0::Search', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
-    Flipper.disable(:search_use_v2_gsa)
+    Flipper.disable(:search_use_v2_gsa) # rubocop:disable Project/ForbidFlipperToggleInSpecs
   end
 
   describe 'GET /v0/search' do

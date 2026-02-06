@@ -13,7 +13,7 @@ RSpec.describe VBADocuments::RunUnsuccessfulSubmissions, type: :job do
 
   describe '#perform' do
     context 'when the decision_review_delay_evidence feature is enabled' do
-      before { Flipper.enable(:decision_review_delay_evidence) }
+      before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'calls the UploadProcessor for the uploaded UploadSubmission' do
         expect(VBADocuments::UploadProcessor).to receive(:perform_async)
@@ -35,7 +35,7 @@ RSpec.describe VBADocuments::RunUnsuccessfulSubmissions, type: :job do
     end
 
     context 'when the decision_review_delay_evidence feature is disabled' do
-      before { Flipper.disable(:decision_review_delay_evidence) }
+      before { Flipper.disable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'calls the UploadProcessor for the uploaded UploadSubmission' do
         expect(VBADocuments::UploadProcessor).to receive(:perform_async)

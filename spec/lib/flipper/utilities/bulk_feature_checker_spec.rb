@@ -40,7 +40,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
 
       before do
         features.each do |feature|
-          Flipper.enable(feature)
+          Flipper.enable(feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
       end
 
@@ -60,7 +60,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
 
       before do
         features.each do |feature|
-          Flipper.disable(feature)
+          Flipper.disable(feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
       end
 
@@ -82,11 +82,11 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
 
       before do
         enabled_features.each do |feature|
-          Flipper.enable(feature)
+          Flipper.enable(feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         disabled_features.each do |feature|
-          Flipper.disable(feature)
+          Flipper.disable(feature) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
       end
 
@@ -108,11 +108,11 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
 
       before do
         enabled_features.each do |feature|
-          Flipper.enable(feature.to_s)
+          Flipper.enable(feature.to_s) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
 
         disabled_features.each do |feature|
-          Flipper.disable(feature.to_s)
+          Flipper.disable(feature.to_s) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         end
       end
 

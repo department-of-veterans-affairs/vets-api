@@ -3,7 +3,8 @@ inherit_from:
   - .rubocop_todo.yml
 
 require:
-  - './lib/rubocop/cops/ams_serializer.rb'
+  - ./lib/rubocop/cops/ams_serializer.rb
+  - ./lib/rubocop/cops/forbid_flipper_toggle_in_specs.rb
 
 plugins:
   - rubocop-rails

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.shared_examples 'base_accredited_representatives_controller_shared_examples' do |path, type|
   context 'when find a rep is disabled' do
     before do
-      Flipper.disable(:find_a_representative_enable_api)
+      Flipper.disable(:find_a_representative_enable_api) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     it 'returns a not found routing error' do
@@ -22,7 +22,7 @@ RSpec.shared_examples 'base_accredited_representatives_controller_shared_example
 
   context 'when find a rep is enabled' do
     before do
-      Flipper.enable(:find_a_representative_enable_api)
+      Flipper.enable(:find_a_representative_enable_api) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when a required param is missing' do

@@ -7,7 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+    Flipper.disable(:disability_compensation_lighthouse_document_service_provider) # rubocop:disable Project/ForbidFlipperToggleInSpecs
   end
 
   let(:user) { create(:user, :loa3) }

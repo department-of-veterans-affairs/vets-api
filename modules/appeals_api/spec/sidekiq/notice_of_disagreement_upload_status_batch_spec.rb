@@ -29,7 +29,7 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
     end
 
     context 'when status updater is enabled' do
-      before { Flipper.enable :decision_review_nod_status_updater_enabled }
+      before { Flipper.enable :decision_review_nod_status_updater_enabled } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'updates all the statuses' do
         Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
@@ -53,7 +53,7 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
 
     context 'when status updater is disabled' do
       it 'does not update statuses' do
-        Flipper.disable :decision_review_nod_status_updater_enabled
+        Flipper.disable :decision_review_nod_status_updater_enabled # rubocop:disable Project/ForbidFlipperToggleInSpecs
         Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
         upload.reload
         expect(upload.status).to eq('submitted')

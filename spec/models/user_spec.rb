@@ -1302,8 +1302,8 @@ RSpec.describe User, type: :model do
     let(:user) { create(:user) }
 
     before do
-      Flipper.enable(:veteran_onboarding_beta_flow, user)
-      Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+      Flipper.enable(:veteran_onboarding_beta_flow, user) # rubocop:disable Project/ForbidFlipperToggleInSpecs
+      Flipper.disable(:veteran_onboarding_show_to_newly_onboarded) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context "when feature toggle is enabled, show onboarding flow depending on user's preferences" do
@@ -1319,8 +1319,8 @@ RSpec.describe User, type: :model do
 
     context 'when feature toggle is disabled, never show onboarding flow' do
       it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
-        Flipper.disable(:veteran_onboarding_beta_flow)
-        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+        Flipper.disable(:veteran_onboarding_beta_flow) # rubocop:disable Project/ForbidFlipperToggleInSpecs
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded) # rubocop:disable Project/ForbidFlipperToggleInSpecs
         expect(user.show_onboarding_flow_on_login).to be_falsey
       end
     end

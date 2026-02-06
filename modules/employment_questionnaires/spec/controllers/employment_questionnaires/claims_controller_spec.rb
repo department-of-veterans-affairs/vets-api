@@ -11,7 +11,7 @@ RSpec.describe EmploymentQuestionnaires::V0::ClaimsController, type: :request do
 
   before do
     sign_in_as(user)
-    Flipper.enable(:employment_questionnaires_form_enabled)
+    Flipper.enable(:employment_questionnaires_form_enabled) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     allow(EmploymentQuestionnaires::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,

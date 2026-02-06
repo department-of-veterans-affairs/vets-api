@@ -42,7 +42,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
 
     context 'with mixed payments and flipper disabled' do
       it 'does not return both' do
-        Flipper.disable('payment_history')
+        Flipper.disable('payment_history') # rubocop:disable Project/ForbidFlipperToggleInSpecs
         VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
           VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn_returns') do
             sign_in_as(user)
@@ -55,7 +55,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             expect(JSON.parse(response.body)['data']['attributes']['return_payments'].count).to eq(0)
           end
         end
-        Flipper.enable('payment_history')
+        Flipper.enable('payment_history') # rubocop:disable Project/ForbidFlipperToggleInSpecs
       end
     end
   end

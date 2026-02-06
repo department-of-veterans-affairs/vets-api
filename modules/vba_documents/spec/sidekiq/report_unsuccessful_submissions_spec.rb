@@ -82,7 +82,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
     end
 
     context 'when the :decision_review_delay_evidence feature is enabled' do
-      before { Flipper.enable(:decision_review_delay_evidence) }
+      before { Flipper.enable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'returns submissions in "uploaded" status' do
         expect(subject.stuck).to include(stuck_submission)
@@ -96,7 +96,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
     end
 
     context 'when the :decision_review_delay_evidence feature is disabled' do
-      before { Flipper.disable(:decision_review_delay_evidence) }
+      before { Flipper.disable(:decision_review_delay_evidence) } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'returns submissions in "uploaded" status' do
         expect(subject.stuck).to include(stuck_submission)

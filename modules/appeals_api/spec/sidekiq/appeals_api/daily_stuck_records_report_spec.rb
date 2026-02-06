@@ -26,7 +26,7 @@ describe AppealsApi::DailyStuckRecordsReport, type: :job do
     end
 
     context 'when enabled' do
-      before { Flipper.enable :decision_review_daily_stuck_records_report_enabled }
+      before { Flipper.enable :decision_review_daily_stuck_records_report_enabled } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it_behaves_like 'a monitored worker'
 
@@ -69,7 +69,7 @@ describe AppealsApi::DailyStuckRecordsReport, type: :job do
     end
 
     context 'when disabled' do
-      before { Flipper.disable :decision_review_daily_stuck_records_report_enabled }
+      before { Flipper.disable :decision_review_daily_stuck_records_report_enabled } # rubocop:disable Project/ForbidFlipperToggleInSpecs
 
       it 'does nothing' do
         expect(AppealsApi::Slack::Messager).not_to receive(:new)

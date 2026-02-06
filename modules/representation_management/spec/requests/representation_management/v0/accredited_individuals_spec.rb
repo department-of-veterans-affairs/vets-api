@@ -11,7 +11,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :req
 
   context 'when find_a_representative_use_accredited_models is disabled' do
     before do
-      Flipper.disable(:find_a_representative_use_accredited_models)
+      Flipper.disable(:find_a_representative_use_accredited_models) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     it 'returns a not found routing error' do
@@ -27,7 +27,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :req
 
   context 'when find_a_representative_use_accredited_models is enabled' do
     before do
-      Flipper.enable(:find_a_representative_use_accredited_models)
+      Flipper.enable(:find_a_representative_use_accredited_models) # rubocop:disable Project/ForbidFlipperToggleInSpecs
     end
 
     context 'when a required param is missing' do
