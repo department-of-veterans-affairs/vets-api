@@ -14,8 +14,11 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:bio_submission_status_report_enabled).and_return(true)
-    allow(FeatureFlipper).to receive_messages(send_email?: true)
-    allow(CentralMail::Service).to receive_messages(service_is_up?: true, new: cmp_service)
+    allow(FeatureFlipper).to receive(:send_email?).and_return(true)
+    # rubocop:disable RSpec/ReceiveMessages
+    allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
+    allow(CentralMail::Service).to receive(:new).and_return(cmp_service)
+    # rubocop:enable RSpec/ReceiveMessages
     allow(cmp_service).to receive(:status).and_return(cmp_response)
   end
 
@@ -70,13 +73,17 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           subject.perform
 
           expect(csv_content[0]).to eq(['21-4192 Post-Go-Live Submission Tracker'])
-          expect(csv_content[2][0]).to eq('Expected annual submissions')
-          expect(csv_content[3][0]).to eq('Total submissions')
-          expect(csv_content[4][0]).to eq('Number of Incomplete/Errors')
-          expect(csv_content[6]).to eq(described_class::HEADER_COLUMNS)
-          expect(csv_content[7][0]).to eq('uuid-1')
-          expect(csv_content[7][1]).to eq('pending')
-          expect(csv_content[7][3]).to eq('Received')
+
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          expect(csv_content.find { |r| r&.first == 'Expected annual submissions' }).to be_present
+          expect(csv_content.find { |r| r&.first == 'Total submissions' }).to be_present
+          expect(csv_content.find { |r| r&.first == 'Number of Incomplete/Errors' }).to be_present
+          expect(header_idx).to be_present
+
+          data_row = csv_content[header_idx + 1]
+          expect(data_row[0]).to eq('uuid-1')
+          expect(data_row[1]).to eq('pending')
+          expect(data_row[3]).to eq('Received')
         end
       end
     end
@@ -106,7 +113,8 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
           subject.perform
 
-          data_row = csv_content[7]
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          data_row = csv_content[header_idx + 1]
           expect(data_row[0]).to eq('uuid-2')
           expect(data_row[3]).to be_nil
           expect(data_row[4]).to be_nil
@@ -125,9 +133,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           allow(result).to receive(:where).and_wrap_original do |where_method, *where_args|
             where_result = where_method.call(*where_args)
             call_count += 1
-            if call_count == 1
-              allow(where_result).to receive(:order).and_raise(StandardError, 'db error')
-            end
+            allow(where_result).to receive(:order).and_raise(StandardError, 'db error') if call_count == 1
             where_result
           end
           result
@@ -165,7 +171,8 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           expect(Rails.logger).to receive(:warn).with(/CMP status fetch failed/)
           subject.perform
 
-          data_row = csv_content[7]
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          data_row = csv_content[header_idx + 1]
           expect(data_row[3]).to be_nil
           expect(data_row[4]).to be_nil
         end

@@ -112,6 +112,6 @@ class BioSubmissionStatusReportJob
   end
 
   def expected_annual_submissions(form_type)
-    Settings.reports.bio_submission_status.expected_annual_submissions[form_type]&.to_i || 0
+    Settings.reports.bio_submission_status.expected_annual_submissions[form_type].to_i
   end
 end
