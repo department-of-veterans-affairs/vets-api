@@ -160,7 +160,7 @@ module IvcChampva
       pega_status = response_status.first == 200 ? 'Submitted' : nil
       IvcChampvaForm.create!(
         form_uuid: @metadata['uuid'],
-        email: validate_email(@metadata&.dig('primaryContactInfo', 'email')),
+        email: resolved_email,
         first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
         last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
         form_number: @metadata['docType'],
@@ -241,6 +241,10 @@ module IvcChampva
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d-]+(\.[a-z]+)*\.[a-z]+\z/i)
 
       email
+    end
+
+    def resolved_email
+      validate_email(@current_user&.email) || validate_email(@metadata&.dig('primaryContactInfo', 'email'))
     end
 
     # Returns sanitized string that is safe for logging

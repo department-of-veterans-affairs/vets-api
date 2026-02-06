@@ -120,6 +120,10 @@ features:
     actor_type: user
     description: (multi-claim provider) Enables the Lighthouse provider for benefits claims
     enable_in_development: true
+  benefits_claims_ivc_champva_provider:
+    actor_type: user
+    description: (multi-claim provider) Enables the IVC CHAMPVA provider for benefits claims
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
