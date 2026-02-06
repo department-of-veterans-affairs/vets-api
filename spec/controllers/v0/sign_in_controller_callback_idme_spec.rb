@@ -111,6 +111,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
                 let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
                 let(:authentication_time) { 0 }
+                let(:operation) { SignIn::Constants::Auth::AUTHORIZE }
                 let(:expected_logger_context) do
                   {
                     type:,
@@ -119,7 +120,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     acr:,
                     icn: mpi_profile.icn,
                     credential_uuid: idme_uuid,
-                    authentication_time:
+                    authentication_time:,
+                    operation:
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -171,6 +173,7 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
               let(:authentication_time) { 0 }
+              let(:operation) { SignIn::Constants::Auth::AUTHORIZE }
               let(:expected_logger_context) do
                 {
                   type:,
@@ -179,7 +182,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   acr:,
                   icn: mpi_profile.icn,
                   credential_uuid: idme_uuid,
-                  authentication_time:
+                  authentication_time:,
+                  operation:
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }

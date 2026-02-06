@@ -115,9 +115,9 @@ module V1
 
     def delete_sign_in_service_cookies
       cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: IdentitySettings.sign_in.info_cookie_domain)
+      cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME] = { value: '', expires: Time.at(0).utc }
     end
 
     def set_sentry_context_for_callback

@@ -20,6 +20,8 @@ describe SimpleFormsApi::PdfFiller do
     vba_26_4555-min
     vba_40_0247
     vba_40_0247-min
+    vba_40_1330m
+    vba_40_1330m-min
   ]
 
   describe '#initialize' do

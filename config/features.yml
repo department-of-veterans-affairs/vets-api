@@ -22,10 +22,6 @@ features:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
     enable_in_development: true
-  accredited_representative_portal_intent_to_file:
-    actor_type: user
-    description: Enables accredited representative portal intent to file (0966)
-    enable_in_development: true
   accredited_representative_portal_form_21a:
     actor_type: user
     description: >
@@ -41,6 +37,9 @@ features:
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
+  acroform_debug_logs:
+    actor_type: user
+    description: When enabled, AcroForm problematic fields will report in Rails logs
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -83,6 +82,10 @@ features:
       NOTE: When ready for all users to be in the updated experience on
       VA.gov, set this toggle to "Enabled", rather than specifying 100%
       in the percentage.
+    enable_in_development: true
+  ask_va_enhanced_inbox:
+    actor_type: cookie_id
+    description: Enables the enhanced Ask VA inbox experience
     enable_in_development: true
   ask_va_mock_api_for_testing:
     actor_type: cookie_id
@@ -175,6 +178,8 @@ features:
     description: "Gateway: Enable decision letter email notifications for EP930 review, referrals, and other"
   event_bus_gateway_letter_ready_push_notifications:
     description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
+  event_bus_gateway_letter_ready_sms_notifications:
+    description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
@@ -329,6 +334,9 @@ features:
   champva_use_hexapdf_to_unlock_pdfs:
     actor_type: user
     description: Enables the the use of hexapdf instead of pdftk to unlock password-protected PDFs on form submission
+  champva_convert_to_pdf_on_upload:
+    actor_type: user
+    description: Converts supporting documents to PDF at upload time instead of final submission to improve submit latency
   champva_stamper_logging:
     actor_type: user
     description: Enables logging of the desired stamp text
@@ -347,6 +355,9 @@ features:
   champva_claims_duty_to_assist:
     actor_type: user
     description: Enables stamping a blank document with the resubmission metadata for form 10-7959a
+  champva_bypass_persisting_ves_json_to_database:
+    actor_type: user
+    description: Enables logic to bypass persisting VES JSON to the database for form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -563,6 +574,10 @@ features:
   cst_multi_claim_provider:
     actor_type: user
     description: When enabled, use the multi-provider registry to fetch claims from configured providers.
+    enable_in_development: true
+  cst_multi_claim_provider_mobile:
+    actor_type: user
+    description: For mobile app, when enabled, use the multi-provider registry to fetch claims from configured providers
     enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
@@ -1329,6 +1344,10 @@ features:
   medical_expense_reports_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
+  medical_expense_reports_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21p-8416"
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -1392,6 +1411,10 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_oh_migration_schedules:
+    actor_type: user
+    description: Enables fetching Oracle Health migration schedules for VAHB mobile users
+    enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
     description: Enables improvements to medication management functionality
@@ -1475,6 +1498,10 @@ features:
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
+    enable_in_development: true
+  mhv_medical_records_images_domain:
+    actor_type: user
+    description: Pulls images out of Labs & Tests into its own top-level domain
     enable_in_development: true
   mhv_medical_records_merge_cvix_into_scdf:
     actor_type: user
@@ -1594,6 +1621,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oracle_health_cutover:
+    actor_type: user
+    description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -1724,6 +1755,10 @@ features:
   profile_hide_health_care_contacts:
     actor_type: user
     description: Hides the health care contacts section on the Profile
+    enable_in_development: true
+  profile_hide_missing_claim_information_notification_setting:
+    actor_type: user
+    description: Hides the Missing claim information notification setting on the Profile notifications page
     enable_in_development: true
   profile_limit_direct_deposit_for_non_beneficiaries:
     actor_type: user
@@ -2033,6 +2068,10 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  unfreeze_strings:
+    actor_type: user
+    description: Dupe messages to avoid FrozenError during PII scrubbing
+    enable_in_development: true
   va1010_forms_eesummary_rest_api_enabled:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
@@ -2040,6 +2079,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_enhanced_uuid_validation:
+    actor_type: user
+    description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
@@ -2193,6 +2235,24 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables custom email delivery callback for VAOS appointment status notifications
+  va_online_scheduling_ccra_error_logging:
+    actor_type: user
+    enable_in_development: false
+    description: Enables detailed error message logging in CCRA referral service with PII scrubbing
+  va_online_scheduling_use_primary_care_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use primary_care_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Takes priority over referring_provider_npi flag if both are enabled.
+  va_online_scheduling_use_referring_provider_npi:
+    actor_type: user
+    enable_in_development: false
+    description: >-
+      Use referring_provider_npi from CCRA for EPS provider lookups.
+      Default is treating_provider_npi (root level). Falls back to nested provider_npi if selected NPI is blank.
+      Primary care flag takes priority if both are enabled.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -2679,9 +2739,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  form_10282_sftp_debug:
-    actor_type: user
-    description: If enabled, shortcircuits 10282 form upload logic to provide better SFTP connection debugging
   my_va_auth_exp_redesign_available_to_opt_in:
     actor_type: user
     description: When enabled, a user will see the option to switch to the redesigned experience of MyVA.
@@ -2756,9 +2813,13 @@ features:
     actor_type: user
     description: Enables unique user metrics logging for MHV Portal analytics. When disabled, no events will be recorded to database or sent to StatsD.
     enable_in_development: true
-  unique_user_metrics_async_buffering:
+  mhv_oh_unique_user_metrics_logging:
     actor_type: user
-    description: Enables asynchronous batch processing for unique user metrics.
+    description: Enables Oracle Health (OH) site-specific unique user metrics logging. When disabled, OH events will not be generated even if unique_user_metrics_logging is enabled.
+    enable_in_development: true
+  mhv_oh_unique_user_metrics_logging_appt:
+    actor_type: user
+    description: Enables Oracle Health facility ID extraction for appointments controllers. When disabled, appointment_facility_ids returns nil, bypassing facility tracking overhead.
     enable_in_development: true
   form_8794_release:
     actor_type: user
@@ -2796,6 +2857,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-2680 on vets-website
+  form_2680_multi_party_forms_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: Enables multi-party forms feature for form 21-2680
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
@@ -2839,6 +2904,9 @@ features:
     description: >-
       Enables VA Notify delivery status callbacks for Simple Forms emails. When enabled,
       SimpleFormsApi::Notification::Email passes callback_klass and callback_metadata to VANotify jobs.
+  delete_old_education_benefits_job:
+    actor_type: user
+    description: If enabled, allow the EducationForm::DeleteOldEducationBenefitsClaims job to run as normal
   fmp_benefits_authorization_letter:
     actor_type: user
     description: Enables displaying FMP Benefits Authorization letter on Letters page
@@ -2846,3 +2914,6 @@ features:
     actor_type: user
     description: Enable debug logging for Facilities API for errors
     enable_in_development: false
+  vets_model_nested_array:
+    actor_type: user
+    description: If enabled, allows Vets::Model to serialize nested array of objects

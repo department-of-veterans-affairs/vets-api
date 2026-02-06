@@ -8,7 +8,7 @@ module VRE
 
     attributes :res_case_id,
                :is_transferred_to_cwnrs,
-               :is_interrupted,
+               :orientation_appointment_details,
                :external_status
   end
 end

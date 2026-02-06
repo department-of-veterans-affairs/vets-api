@@ -35,6 +35,9 @@ module VeteranStatusCard
     #
     def initialize(user)
       @user = user
+
+      raise ArgumentError, 'User cannot be nil' if @user.nil?
+      raise ArgumentError, 'User missing required fields' if @user.edipi.blank? || @user.icn.blank?
     end
 
     ##
@@ -52,9 +55,10 @@ module VeteranStatusCard
     #
     def status_card
       # Validate required user data
-      return nil_user_error_response if @user.nil?
-
       if eligible?
+        # Check if service history exists before returning eligible response
+        return error_response_hash(unknown_service_response) unless service_history?
+
         eligible_response
       else
         error_details = error_results
@@ -62,7 +66,37 @@ module VeteranStatusCard
       end
     rescue => e
       Rails.logger.error("VeteranStatusCard::Service error: #{e.message}", backtrace: e.backtrace)
-      error_response_hash(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE)
+      error_response_hash(something_went_wrong_response)
+    end
+
+    protected
+
+    def something_went_wrong_response
+      VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+    end
+
+    def dishonorable_response
+      VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
+    end
+
+    def ineligible_service_response
+      VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
+    end
+
+    def unknown_service_response
+      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
+    end
+
+    def edipi_no_pnl_response
+      VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+    end
+
+    def currently_serving_response
+      VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
+    end
+
+    def error_response
+      VeteranStatusCard::Constants::ERROR_RESPONSE
     end
 
     private
@@ -114,7 +148,7 @@ module VeteranStatusCard
     # @return [Hash] the error response
     #
     def nil_user_error_response
-      alert_response = VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+      alert_response = something_went_wrong_response
       {
         type: 'veteran_status_alert',
         veteran_status: 'not confirmed',
@@ -145,7 +179,7 @@ module VeteranStatusCard
     # @return [Hash] error details with keys :title, :message, :status
     #
     def error_results
-      # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR,
+      # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
       if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
         return {
           title: vet_verification_status[:title],
@@ -154,25 +188,35 @@ module VeteranStatusCard
         }
       end
 
-      # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38, so we
-      # don't need to explicitly check for those reasons
+      # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
+      response_for_ssc_code
+    end
 
-      return VeteranStatusCard::Constants::DISHONORABLE_RESPONSE if DISHONORABLE_SSC_CODES.include?(ssc_code)
-
-      if INELIGIBLE_SERVICE_SSC_CODES.include?(ssc_code)
-        return VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
+    ##
+    # Returns the appropriate error response based on the SSC (Service Summary Code)
+    # Maps specific SSC codes to their corresponding error responses
+    #
+    # @return [Hash] error response with keys :title, :message, :status
+    #
+    def response_for_ssc_code
+      case ssc_code
+      when *DISHONORABLE_SSC_CODES
+        dishonorable_response
+      when *INELIGIBLE_SERVICE_SSC_CODES
+        ineligible_service_response
+      when UNKNOWN_SERVICE_SSC_CODE
+        unknown_service_response
+      when EDIPI_NO_PNL_CODE
+        edipi_no_pnl_response
+      when *CURRENTLY_SERVING_CODES
+        currently_serving_response
+      when *ERROR_SSC_CODES
+        error_response
+      else # rubocop:disable Lint/DuplicateBranch
+        # Rubocop would catch this as a duplicate branch, but we want to explicitly
+        # keep the ERROR_SSC_CODES branch for documentation and in case the response changes
+        error_response
       end
-
-      return VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE if ssc_code == UNKNOWN_SERVICE_SSC_CODE
-
-      return VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE if ssc_code == EDIPI_NO_PNL_CODE
-
-      return VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE if CURRENTLY_SERVING_CODES.include?(ssc_code)
-
-      return VeteranStatusCard::Constants::ERROR_RESPONSE if ERROR_SSC_CODES.include?(ssc_code)
-
-      # Default fallback
-      VeteranStatusCard::Constants::ERROR_RESPONSE
     end
 
     ##
@@ -201,8 +245,6 @@ module VeteranStatusCard
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
     def disability_rating
-      return nil if @user.icn.blank?
-
       lighthouse_disabilities_provider.get_combined_disability_rating
     rescue => e
       Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
@@ -219,8 +261,17 @@ module VeteranStatusCard
     end
 
     ##
+    # Checks if the user has any service history episodes
+    #
+    # @return [Boolean] true if service history episodes exist, false otherwise
+    #
+    def service_history?
+      service_history_response&.episodes&.any?
+    end
+
+    ##
     # Gets the user's most recent military service history
-    # Returns hash with nil values if service call fails
+    # Returns hash with nil values if service call fails or no episodes exist
     #
     # @return [Hash] service history with keys:
     #   - :branch [String, nil] the branch of service (e.g., 'Army')
@@ -228,22 +279,36 @@ module VeteranStatusCard
     #   - :end_date [String, nil] the end of service date
     #
     def latest_service_history
-      return { branch: nil, begin_date: nil, end_date: nil } if @user.edipi.blank?
-
-      response = military_personnel_service.get_service_history
-
       # Get the most recent service episode (episodes are sorted by begin_date, oldest first)
-      last_service = response&.episodes&.last
+      last_service = service_history_response&.episodes&.last
+      return { branch: nil, begin_date: nil, end_date: nil } if last_service.nil?
+
       last_service_dates = format_service_date_range(last_service)
 
       {
-        branch: last_service&.branch_of_service,
+        branch: last_service.branch_of_service,
         begin_date: last_service_dates&.dig(:begin_date),
         end_date: last_service_dates&.dig(:end_date)
       }
-    rescue => e
-      Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}", backtrace: e.backtrace)
-      { branch: nil, begin_date: nil, end_date: nil }
+    end
+
+    ##
+    # Gets the service history response (memoized)
+    # Returns nil if service call fails or user missing EDIPI
+    #
+    # @return [VAProfile::MilitaryPersonnel::ServiceHistoryResponse, nil] the API response or nil on error
+    #
+    def service_history_response
+      return @service_history_response if defined?(@service_history_response)
+      return @service_history_response = nil if @user.edipi.blank?
+
+      @service_history_response = begin
+        military_personnel_service.get_service_history
+      rescue => e
+        Rails.logger.error("VAProfile::MilitaryPersonnel (Service History) error: #{e.message}",
+                           backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##
@@ -360,9 +425,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: VeteranVerification::Constants::ERROR_MESSAGE,
-            title: VeteranVerification::Constants::ERROR_MESSAGE_TITLE,
-            status: VeteranVerification::Constants::ERROR_MESSAGE_STATUS
+            message: error_response[:message],
+            title: error_response[:title],
+            status: error_response[:status]
           }
         else
           {

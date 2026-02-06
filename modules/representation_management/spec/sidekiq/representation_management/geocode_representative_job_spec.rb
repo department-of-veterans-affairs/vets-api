@@ -69,6 +69,27 @@ RSpec.describe RepresentationManagement::GeocodeRepresentativeJob, type: :job do
           )
         end
       end
+
+      context 'when Mapbox API key is not configured' do
+        before do
+          allow(Geocoder.config).to receive(:api_key).and_return(nil)
+        end
+
+        it 'completes successfully without errors' do
+          expect do
+            described_class.new.perform('AccreditedIndividual', individual.id)
+          end.not_to raise_error
+        end
+
+        it 'returns false from geocode_and_update_location!' do
+          expect(individual.geocode_and_update_location!).to be false
+        end
+
+        it 'does not make any geocoding API calls' do
+          described_class.new.perform('AccreditedIndividual', individual.id)
+          expect(Geocoder).not_to have_received(:search)
+        end
+      end
     end
 
     context 'when geocoding fails with an error' do

@@ -6,7 +6,7 @@ require 'admin/redis_health_checker'
 module V0
   class AdminController < ApplicationController
     service_tag 'platform-base'
-    skip_before_action :authenticate, only: :status
+    skip_before_action :authenticate, only: %i[status header_status]
 
     def status
       app_status = {
@@ -21,6 +21,25 @@ module V0
         }
       }
       render json: app_status
+    end
+
+    def header_status
+      headers_info = if Settings.vsp_environment == 'production'
+                       {}
+                     else
+                       {
+                         'X-Forwarded-Proto': request.headers['HTTP_X_FORWARDED_PROTO'],
+                         'X-Forwarded-Scheme': request.headers['HTTP_X_FORWARDED_SCHEME'],
+                         'request.ssl?': request.ssl?,
+                         'request.protocol': request.protocol,
+                         Host: request.host,
+                         Port: request.port,
+                         'Original-URL': request.original_url,
+                         Scheme: request.scheme
+                       }
+                     end
+
+      render json: headers_info, status: :ok
     end
   end
 end

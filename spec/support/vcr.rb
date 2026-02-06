@@ -18,7 +18,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<EVSS_DVP_BASE_URL>') { Settings.evss.dvp.url }
-  c.filter_sensitive_data('<FES_BASE_URL>') { Settings.claims_api.fes.host }
+  c.filter_sensitive_data('<FES_BASE_URL>') { Settings.claims_api.fes.service_url }
   c.filter_sensitive_data('<FARADAY_VERSION>') { Faraday::Connection::USER_AGENT }
   c.filter_sensitive_data('<DISABILITY_MAX_RATINGS_URI>') { Settings.disability_max_ratings_api.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
@@ -45,6 +45,15 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.api_gateway.hosts.sm_patient }
   c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
+  c.filter_sensitive_data('<OGC_ATTORNEY_EXCEL_LIST_URI>') do
+    Settings.representation_management.ogc_attorney_excel_list_uri
+  end
+  c.filter_sensitive_data('<OGC_CLAIMS_AGENT_EXCEL_LIST_URI>') do
+    Settings.representation_management.ogc_claims_agent_excel_list_uri
+  end
+  c.filter_sensitive_data('<OGC_ORGANIZATIONS_EXCEL_LIST_URI>') do
+    Settings.representation_management.ogc_organizations_excel_list_uri
+  end
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }

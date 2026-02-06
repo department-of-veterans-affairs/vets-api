@@ -8,10 +8,10 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
   let(:subject_v2) { described_class.new(user, form_content_v2) }
 
   let(:form_content_v1) do
-    JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_with_0781_fe_submission.json'))
+    JSON.parse(File.read('spec/support/disability_compensation_form/submit_all_claim/0781.json'))
   end
   let(:form_content_v2) do
-    JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_with_0781v2_fe_submission.json'))
+    JSON.parse(File.read('spec/support/disability_compensation_form/submit_all_claim/0781v2.json'))
   end
   let(:user) { build(:disabilities_compensation_user) }
 

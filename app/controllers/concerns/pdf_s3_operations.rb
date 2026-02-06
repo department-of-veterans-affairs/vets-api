@@ -29,7 +29,10 @@ module PdfS3Operations
   def create_submission_attempt(claim)
     form_submission = FormSubmission.create!(
       form_type: claim.form_id,
-      saved_claim: claim
+      form_data: claim.to_json,
+      saved_claim: claim,
+      saved_claim_id: claim.id,
+      user_account_id: claim.user_account_id
     )
     FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
   end

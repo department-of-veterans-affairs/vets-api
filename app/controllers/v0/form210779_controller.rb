@@ -26,7 +26,11 @@ module V0
       source_file_path = with_retries('Generate 21-0779 PDF') do
         claim.to_pdf
       end
-      raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
+
+      unless source_file_path
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new('Failed to generate PDF')
+      end
 
       send_data File.read(source_file_path),
                 filename: download_file_name(claim),

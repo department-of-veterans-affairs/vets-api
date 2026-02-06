@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/benefits-documents/system/v1/token"
     body:
       encoding: US-ASCII
-      string: grant_type=< valid data >
+      string: grant_type=valid
     headers:
       Accept:
       - application/json
@@ -21,21 +21,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 19 Aug 2025 18:01:26 GMT
+      - Thu, 15 Jan 2026 21:40:54 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
-      X-Ratelimit-Limit-Minute:
-      - '240'
-      Ratelimit-Reset:
-      - '35'
       X-Ratelimit-Remaining-Minute:
-      - '239'
+      - '238'
       Ratelimit-Limit:
       - '240'
       Ratelimit-Remaining:
-      - '239'
+      - '238'
+      Ratelimit-Reset:
+      - '6'
+      X-Ratelimit-Limit-Minute:
+      - '240'
       Vary:
       - Origin
       Cache-Control:
@@ -43,33 +43,30 @@ http_interactions:
       Pragma:
       - no-cache
       Etag:
-      - W/"408-N4OKDs3eqE7VqLW1ousBfq2642U:dtagent10317250630095842XDWE"
+      - W/"420-8vEkA2oCbM2qAI5d5mJTF+RJQtA:dtagent10323250822043923XVuO"
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-1714452287"
+      - dtSInfo;desc="0", dtRpid;desc="-1673415793"
       X-Envoy-Upstream-Service-Time:
-      - '380'
+      - '351'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 0625aa56-2142-4d4b-864b-17c3ebdbd255#446373
+      - a2b5103b-72ba-444b-9f53-fde2f7fbb41e#1616816
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
-        documents.read","expires_in":600,"state":null}'
-  recorded_at: Tue, 19 Aug 2025 18:01:26 GMT
+      string: '{"access_token":"fake_token","token_type":"Bearer","scope":"system/Form526.read
+        system/Form526.write","expires_in":300,"state":null}'
+  recorded_at: Thu, 15 Jan 2026 21:40:55 GMT
 - request:
     method: post
     uri: "<FES_BASE_URL>/form526-establishment-service/v1/submit"
     body:
       encoding: UTF-8
-      string: '{"data":{"serviceTransactionId":"claims-api-6913cb91-f077-4368-baf3-1bb642ffc0dd-1755612075","claimantParticipantId":"600049703","veteranParticipantId":"600049703","form526":{"serviceInformation":{"servicePeriods":[{"serviceBranch":"AIR\\n
-        Force","activeDutyBeginDate":"2015-11-14","activeDutyEndDate":"2018-11-30"}]},"veteran":{"currentMailingAddress":{"addressLine1":"1234
-        Couch Street","country":"USA","zipFirstFive":"12345","addressType":"DOMESTIC","city":"Portland","state":"OR"}},"disabilities":[{"name":"hearing
-        loss","disabilityActionType":"NEW","approximateBeginDate":{"year":2017,"month":7}}],"claimDate":"2025-08-19"}}}'
+      string: '{"form526":{"disabilities":[{"name":"Hearing Loss"}]}}'
     headers:
       Va-Eauth-Pid:
       - '600043201'
@@ -88,7 +85,7 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Tue, 19 Aug 2025 18:01:26 GMT
+      - Thu, 15 Jan 2026 21:40:55 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -96,19 +93,18 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="674407375", dtSInfo;desc="0"
+      - dtRpid;desc="1403267869", dtSInfo;desc="0"
       Pragma:
       - no-cache
       Cache-Control:
       - no-cache, no-store
       X-Envoy-Upstream-Service-Time:
-      - '177'
+      - '417'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"valid":false,"errors":[{"status":"400","title":"Invalid service
-        period branch name","detail":"Provided service period branch name is not valid:
-        AIR\\n Force","source":{"pointer":"/data/form526/serviceInformation/servicePeriods/0/serviceBranch"}}]}}'
-  recorded_at: Tue, 19 Aug 2025 18:01:26 GMT
-recorded_with: VCR 6.3.1
+      string: '{"errors":[{"detail":"Http Message Not Readable (Unrecognized Property)","status":400,"title":"Bad
+        Request","instance":"9edc1e8f-6ccd-44b1-8805-2ac298100bb5","diagnostics":"0Pj0d/QKO/n73t2BCgcCS82Mr/evMncYjaIGhBjroSUQWgGKgzSeh9jLP74hDiRxN15ERL+4IEQ3gXuFMf6G8KyAk6btKqeMqIfDbZCQsiOG3ZX6HI4q4mJqbHhba5x+GMiPIpyu95378v0G6hwcBiLpQZ6UgQnqxnGk3KXZjOVGk0I3/DfYLalxHSsaKKWen+rEylWRheorOaPXAJTbtvxDQCGGwuAjLRhi29GSGoOHGtgNsX+Kj2VLFXG2bNhibjSThKcBQqH/9hO/EjfuIv0alzb7GfA/ixzWhXYGjEVerhb+8zCXeAA1nPcyTnrKlteMLgMBSziDeeyOO9T//3JGjok/qklWswF28MlZt+rZANF8YBjbbTWNUpcwq2VYDgJJhbddl4fM1l6PRjbjOYh9K3ox4KGlKra80oxWWBJkAdDlVuvHJLlqANrGHsQzdpVVi3wVaIlY4whja3YeBQtVrFRr2iC0+G9yDEgusvZMp4IDdK56ekYsddK3CZsEhyMRwS34BOuSLkC4xaZ2DKxBPKnlOvYRhUofZUmTHRFTz0qo+UcCSCnMCwt//IifTGqzGfqE3OiqWltYKFOOVG2nm84ZIiiLlySEPHNzcSdpfT3E1kpT46OjVqBioc99vgg9ahW33uhcGwYrC8mJzPZR4FCLzuq/zRBkuGetuUqkImgp9JenT8vpb2CL5GgGo0I5kK9obEuPNRIqxV/RiMxHr8f9X/38OyZftkGb4xQ7fmN6im7EZkatiMcVmJylhWkoniqQl7Iccpy928m857EdhWgGgRX61Zc/O0pjEWcBoY2DYp2tI9Z0Aazp6Cey9a/awqxkx29KjXyyV9+uRw/rPAj4Oq9pvhvIuz3kUv0wXDbXyAF12KHbZi4dNwsGBsK+ELM2FYHnk1m1HxdILWgboQgyxIY0EsJ1O3aIn6E08/v+ZcwR0y6BrmJv52kfQhbaIxArbO/bYZF4QNDmaJ7kfaD5I3N96GkutS2Zw8SJGSVJEKrVhLFH9l2Ys1dHlXdfGAh/eWzS5aEewnOFjd1bZbJGZ1wGTW7lSLgHQBpsiAaro+RgtIdaa1AzsJo9Eun4PSZDQMuLhKFFkgi5R19YmOGiaVUKc2gNVn7ZhLhoG9svQGlcs/Tac7UFaNWs4bdq8Ipp0UJIdXox4T+dxeBLLUIXnwztAf3I6IU37nhvnkY7sgQ="}]}'
+  recorded_at: Thu, 15 Jan 2026 21:40:55 GMT
+recorded_with: VCR 6.4.0

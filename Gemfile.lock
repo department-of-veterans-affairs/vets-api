@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6f83c6cd8093b5fffe3463d2d3b794a8e91b6d4c
+  revision: 292ebeae984e8fb39b8b1277bdbcd1a5296553c8
   branch: master
   specs:
-    vets_json_schema (25.2.43)
+    vets_json_schema (25.2.47)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -255,7 +255,7 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1207.0)
+    aws-partitions (1.1209.0)
     aws-sdk-core (3.241.4)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -267,15 +267,15 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.119.0)
-      aws-sdk-core (~> 3, >= 3.241.0)
+    aws-sdk-kms (1.120.0)
+      aws-sdk-core (~> 3, >= 3.241.3)
       aws-sigv4 (~> 1.5)
     aws-sdk-s3 (1.209.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.110.0)
-      aws-sdk-core (~> 3, >= 3.241.0)
+    aws-sdk-sns (1.111.0)
+      aws-sdk-core (~> 3, >= 3.241.3)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -296,7 +296,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.20.1)
       msgpack (~> 1.2)
-    brakeman (7.1.2)
+    brakeman (8.0.2)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -317,8 +317,8 @@ GEM
     carrierwave-aws (1.6.0)
       aws-sdk-s3 (~> 1.0)
       carrierwave (>= 2.0, < 4)
-    cgi (0.5.0)
-    cgi (0.5.0-java)
+    cgi (0.5.1)
+    cgi (0.5.1-java)
     claide (1.1.0)
     claide-plugins (0.9.2)
       cork
@@ -343,11 +343,16 @@ GEM
       activesupport (>= 6.0)
       committee (>= 5.1.0)
       railties (>= 6.0)
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.6)
     config (5.6.1)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.4)
+    connection_pool (2.5.5)
+    console1984 (0.2.2)
+      irb (~> 1.13)
+      parser
+      rails (>= 7.0)
+      rainbow
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -385,7 +390,7 @@ GEM
       libddwaf (~> 1.25.1.1.0)
       logger
       msgpack
-    datadog-ruby_core_source (3.4.1)
+    datadog-ruby_core_source (3.5.2)
     date (3.5.1)
     date (3.5.1-java)
     date_time_precision (0.8.1)
@@ -409,23 +414,23 @@ GEM
     dry-configurable (1.3.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
-    dry-core (1.1.0)
+    dry-core (1.2.0)
       concurrent-ruby (~> 1.0)
       logger
       zeitwerk (~> 2.6)
-    dry-inflector (1.2.0)
+    dry-inflector (1.3.1)
     dry-initializer (3.2.0)
     dry-logic (1.6.0)
       bigdecimal
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
-    dry-schema (1.14.1)
+    dry-schema (1.15.0)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 1.0, >= 1.0.1)
       dry-core (~> 1.1)
       dry-initializer (~> 3.2)
-      dry-logic (~> 1.5)
+      dry-logic (~> 1.6)
       dry-types (~> 1.8)
       zeitwerk (~> 2.6)
     dry-struct (1.8.0)
@@ -433,8 +438,8 @@ GEM
       dry-types (~> 1.8, >= 1.8.2)
       ice_nine (~> 0.11)
       zeitwerk (~> 2.6)
-    dry-types (1.8.3)
-      bigdecimal (~> 3.0)
+    dry-types (1.9.0)
+      bigdecimal (>= 3.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.0)
       dry-inflector (~> 1.0)
@@ -644,7 +649,7 @@ GEM
       mutex_m
       nkf
       rack (>= 2.0, < 4)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.14.0)
@@ -753,7 +758,8 @@ GEM
       logger
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.2)
+    minitest (6.0.1)
+      prism (~> 1.5)
     mock_redis (0.51.0)
       redis (~> 5)
     msgpack (1.8.0)
@@ -851,6 +857,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-x64-mingw-ucrt)
+    pg (1.6.3-x86_64-linux)
     pg_query (6.1.0)
       google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
@@ -898,24 +907,25 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.21)
+    rack (3.2.4)
     rack-attack (6.8.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
-    rack-protection (3.2.0)
+    rack-protection (4.2.1)
       base64 (>= 0.1.0)
-      rack (~> 2.2, >= 2.2.4)
-    rack-session (1.0.2)
-      rack (< 3)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-session (2.1.1)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
     rack-test (2.2.0)
       rack (>= 1.3)
     rack-timeout (0.7.0)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rackup (1.0.1)
-      rack (< 3)
-      webrick
+    rackup (2.3.1)
+      rack (>= 3)
     rails (7.2.3)
       actioncable (= 7.2.3)
       actionmailbox (= 7.2.3)
@@ -1201,8 +1211,9 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    utf8-cleaner (1.0.0)
+    utf8-cleaner (2.0.1)
       activesupport
+      rack (~> 3.0)
     vcr (6.4.0)
     version_gem (1.1.3)
     virtus (2.0.0)
@@ -1304,11 +1315,12 @@ DEPENDENCIES
   committee-rails
   config
   connect_vbms!
+  console1984
   coverband
   csv
   danger
   database_cleaner
-  datadog
+  datadog (~> 2.22.0)
   date_validator
   debts_api!
   debug
@@ -1407,7 +1419,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.21)
+  rack
   rack-attack
   rack-cors
   rack-test (= 2.2.0)

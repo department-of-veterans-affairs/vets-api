@@ -23,6 +23,10 @@ accredited_representative_portal:
         stale_sla: 10
       use_mocks: false
       version: v1
+active_record_encryption:
+  deterministic_key: lRZb6GdKZX5L7zzuEe6osyDDC6V7R5PJ
+  key_derivation_salt: IdWoSgvha0ZyWLZPA4RLkYOMTbITYcKP
+  primary_key: Jhm5UbpDiP08qT2pW6EguvojkLSZjJdw
 adapted_housing:
   prefill: true
 argocd:
@@ -217,7 +221,11 @@ claims_api:
       ccg:
         aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
-    host: https://staging-api.va.gov
+        secret_key:  path/to/fake/key.pem
+    service_url: https://fakedomainandsubdomain.com
+    ssl: false
+    token_host: https://sandbox-api.va.gov
+    use_mocks: true
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -292,6 +300,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
@@ -627,6 +636,12 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: ~
+  path: "/api/validated-forms"
+  use_mocks: true
+  version: v1
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -759,6 +774,8 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -979,8 +996,8 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
-    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
+    oh_migrations_list: "2026-02-11:[983,Test 1],[984,Test 2];2026-05-01:[518,Cleveland VA]"
     pretransitioned_oh_facilities: 612, 357, 555
   rx:
     app_token: ~
@@ -1237,6 +1254,9 @@ representation_management:
   geocoder:
     mapbox:
       api_key: ~
+  ogc_attorney_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/attorneyexcellist.asp
+  ogc_claims_agent_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/caexcellist.asp
+  ogc_organizations_excel_list_uri: https://www.va.gov/ogc/apps/accreditation/orgsexcellist.asp
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
@@ -1838,7 +1858,7 @@ vass:
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>

@@ -4,8 +4,6 @@ module V0
   class Form212680Controller < ApplicationController
     include RetriableConcern
     service_tag 'form-21-2680'
-    skip_before_action :authenticate
-    before_action :load_user
     before_action :check_feature_enabled
 
     def create
@@ -30,7 +28,11 @@ module V0
       source_file_path = with_retries('Generate 21-2680 PDF') do
         claim.generate_prefilled_pdf
       end
-      raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
+
+      unless source_file_path
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new('Failed to generate PDF')
+      end
 
       send_data File.read(source_file_path),
                 filename: download_file_name(claim),
@@ -91,7 +93,10 @@ module V0
     end
 
     def build_and_save_claim!
-      claim = saved_claim_class.new(form: filtered_params)
+      claim = saved_claim_class.new(
+        form: filtered_params,
+        user_account_id: current_user&.user_account_uuid
+      )
       Rails.logger.info(
         'Begin claim submission',
         {

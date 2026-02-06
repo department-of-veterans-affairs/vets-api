@@ -2071,16 +2071,19 @@ paths:
   /v1/unique_user_metrics:
     post:
       description: |
-        Log unique user metrics events for analytics tracking. Processes multiple events in a single batch operation
-        and returns the status of each event. Events are logged only once per user - subsequent submissions of the
-        same event for the same user will return a status of 'exists' rather than creating duplicates.
+        Log unique user metrics events for analytics tracking. Accepts multiple events in a single batch operation
+        and buffers them for asynchronous processing by a background job.
 
         This endpoint is used for tracking unique user interactions with MHV Portal features to provide
         opt-out-free analytics that are more accurate than Google Analytics.
 
+        <strong>Asynchronous Processing:</strong> Events are buffered and processed in batches by a background job.
+        The response indicates which events were accepted for processing, not whether they are new unique events.
+        Duplicate events (same user + event combination) are handled during background processing.
+
         <strong>Valid Event Names:</strong> Event names must be from the approved registry of valid events.
         See <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a>
-        for the complete list of valid event names. Invalid event names will return a status of 'invalid' without causing the request to fail.
+        for the complete list. Invalid event names are silently filtered out.
       operationId: log_unique_user_metrics
       requestBody:
         content:
@@ -2092,9 +2095,9 @@ paths:
 
           <strong>NOTES:</strong>
           <ul>
-            <li>Each event will only be logged once per user</li>
+            <li>Events are buffered for asynchronous batch processing</li>
             <li>Event names must be from the approved registry - see <a href='https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb'>EventRegistry</a></li>
-            <li>Invalid event names will return a status of 'invalid' in the response (request will not fail)</li>
+            <li>Invalid event names are silently filtered out</li>
             <li>Maximum 50 characters per event name</li>
             <li>At least one event name must be provided</li>
           </ul>
@@ -2106,58 +2109,31 @@ paths:
               schema:
                 $ref: ./schemas/UniqueUserMetricsResponse.yml
               example:
-                results:
-                  - event_name: "mhv_landing_page_accessed"
-                    status: "exists"
-                    new_event: false
-                  - event_name: "secure_messaging_accessed"
-                    status: "exists"
-                    new_event: false
-                  - event_name: "prescriptions_accessed"
-                    status: "exists"
-                    new_event: false
-                  - event_name: "invalid_event_name"
-                    status: "invalid"
-                    new_event: false
-          description: OK - All events were duplicates (already existed for this user) or invalid
-        "201":
+                buffered_events: []
+          description: OK - No events were buffered (feature disabled or all events were invalid)
+        "202":
           content:
             application/json:
               schema:
                 $ref: ./schemas/UniqueUserMetricsResponse.yml
               example:
-                results:
-                  - event_name: "mhv_landing_page_accessed"
-                    status: "created"
-                    new_event: true
-                  - event_name: "secure_messaging_accessed"
-                    status: "exists"
-                    new_event: false
-                  - event_name: "prescriptions_accessed"
-                    status: "created"
-                    new_event: true
-                  - event_name: "invalid_event_name"
-                    status: "invalid"
-                    new_event: false
-          description: Created - At least one new unique event was logged (may also include invalid events)
+                buffered_events:
+                  - "mhv_landing_page_accessed"
+                  - "secure_messaging_accessed"
+                  - "prescriptions_accessed"
+          description: Accepted - Events were accepted and buffered for asynchronous processing
         "400":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
-          description: Bad Request - Invalid request parameters
+          description: Bad Request - Invalid request parameters (missing event_names, not an array, or empty array)
         "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        "501":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not Implemented - Unique user metrics logging is currently disabled
       summary: /v1/unique_user_metrics
   /v2/labs_and_tests:
     get:

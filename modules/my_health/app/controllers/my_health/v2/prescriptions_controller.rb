@@ -32,13 +32,17 @@ module MyHealth
       def refill
         return unless validate_feature_flag
 
-        result = service.refill_prescription(orders)
+        parsed_orders = orders
+        result = service.refill_prescription(parsed_orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
 
         # Log unique user event for prescription refill requested
+        # Also logs OH-specific events if any facility IDs match tracked OH facilities
+        event_facility_ids = parsed_orders.map { |order| order['stationNumber'] }.compact.uniq
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+          event_facility_ids:
         )
 
         render json: response.serializable_hash
@@ -69,6 +73,8 @@ module MyHealth
 
       def show
         return unless validate_feature_flag
+
+        raise Common::Exceptions::ParameterMissing, 'station_number' if params[:station_number].blank?
 
         prescriptions = service.get_prescriptions(current_only: false).compact
         prescription = prescriptions.find do |p|

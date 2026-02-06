@@ -18,6 +18,16 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
     context 'when logged in' do
       before { sign_in_as(user) }
 
+      it 'uses the base VeteranStatusCard::Service' do
+        mock_service = instance_double(VeteranStatusCard::Service)
+        allow(mock_service).to receive(:status_card).and_return({ type: 'veteran_status_card' })
+        expect(VeteranStatusCard::Service).to receive(:new).and_return(mock_service)
+
+        get '/v0/veteran_status_card'
+
+        expect(response).to have_http_status(:ok)
+      end
+
       context 'when veteran is eligible' do
         let(:eligible_response) do
           {
@@ -112,6 +122,37 @@ RSpec.describe 'V0::VeteranStatusCards', type: :request do
 
           expect(Rails.logger).to have_received(:error).with(
             'VeteranStatusCardsController unexpected error: Unexpected error',
+            hash_including(:backtrace)
+          )
+        end
+      end
+
+      context 'when service raises an argument error' do
+        before do
+          allow(VeteranStatusCard::Service).to receive(:new)
+            .and_raise(ArgumentError.new('this is an argument error'))
+        end
+
+        it 'returns an argument error' do
+          get '/v0/veteran_status_card'
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'returns an argument error message in the response body' do
+          get '/v0/veteran_status_card'
+
+          json = JSON.parse(response.body)
+          expect(json['error']).to eq('An argument error occurred')
+        end
+
+        it 'logs the error with backtrace' do
+          allow(Rails.logger).to receive(:error)
+
+          get '/v0/veteran_status_card'
+
+          expect(Rails.logger).to have_received(:error).with(
+            'VeteranStatusCardsController argument error: this is an argument error',
             hash_including(:backtrace)
           )
         end

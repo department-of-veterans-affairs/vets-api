@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/financial_status_report_service'
-require 'debts_api/v0/digital_dispute_submission_service'
 require 'sidekiq/attr_package'
 
 module DebtsApi

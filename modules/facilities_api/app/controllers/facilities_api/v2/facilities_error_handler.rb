@@ -16,24 +16,22 @@ module FacilitiesApi::V2::FacilitiesErrorHandler
     handle_error("#{controller_name}_#{action_name}", e)
   end
 
-  # To use this module, wrap controller actions with a rescue block that calls handle_error
-  # Example:
-  # def index
-  #   api_results = ppms_search
-  #   render_json(V2::PPMS::ProviderSerializer, ppms_params, api_results)
-  # rescue => e
-  #   handle_error('ccp_index', e)
-  # end
   def handle_error(method, e)
     raise e
   rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound => e
     json_error(method, e, 'Not Found', '404', :not_found)
   rescue Common::Exceptions::ServiceUnavailable => e
     json_error(method, e, 'Service Unavailable', '503', :service_unavailable)
-  rescue Common::Exceptions::Timeout, Net::ReadTimeout, Faraday::TimeoutError => e
+  rescue Common::Exceptions::Timeout, Common::Exceptions::GatewayTimeout, Net::ReadTimeout, Faraday::TimeoutError => e
     json_error(method, e, 'Gateway Timeout', '504', :gateway_timeout)
-  rescue Common::Exceptions::BackendServiceException => e
+  rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+         Common::Client::Errors::ParsingError => e
     json_error(method, e, 'Bad Gateway', '502', :bad_gateway)
+  rescue ActionController::ParameterMissing
+    raise # Let global ExceptionHandling format this properly
+  rescue => e
+    Datadog::Tracing.active_span&.set_error(e)
+    json_error("#{method}_unexpected", e, 'Internal server error', '500', :internal_server_error)
   end
 
   # Helper method to render JSON error responses

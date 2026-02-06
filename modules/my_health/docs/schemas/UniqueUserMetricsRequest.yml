@@ -9,7 +9,7 @@ properties:
       of valid events defined in the EventRegistry module. See the complete list of valid event names at:
       https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/unique_user_events/event_registry.rb
       
-      Invalid event names will return a status of 'invalid' in the response without causing the request to fail.
+      Invalid event names are silently filtered out and will not appear in the response.
     items:
       type: string
       minLength: 1

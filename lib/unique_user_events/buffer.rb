@@ -13,8 +13,8 @@ module UniqueUserEvents
   # - Batch pop uses Redis 6.2+ RPOP with count for atomic retrieval
   # - Designed for high throughput with minimal latency impact on API requests
   #
-  # @example Push an event to the buffer
-  #   UniqueUserEvents::Buffer.push(user_id: user.uuid, event_name: 'prescriptions_accessed')
+  # @example Push events to the buffer
+  #   UniqueUserEvents::Buffer.push_batch([{ user_id: user.uuid, event_name: 'prescriptions_accessed' }])
   #
   # @example Peek and trim events for processing
   #   events = UniqueUserEvents::Buffer.peek_batch(500)
@@ -26,20 +26,27 @@ module UniqueUserEvents
     # Redis key for the event buffer list
     BUFFER_KEY = 'unique_user_metrics:event_buffer'
 
-    # Push an event to the buffer
+    # Push multiple events to the buffer in a single Redis call
     #
-    # @param user_id [String] UUID of the user
-    # @param event_name [String] Name of the event
-    # @return [Integer] Length of the list after push
-    # @raise [ArgumentError] if user_id or event_name is blank
-    def self.push(user_id:, event_name:)
-      validate_inputs!(user_id, event_name)
+    # Uses LPUSH with multiple values for O(1) network round-trip regardless of count.
+    # This is more efficient than calling push() multiple times.
+    #
+    # @param events [Array<Hash>] Array of events with :user_id and :event_name keys
+    # @return [Integer] Length of the list after push, or 0 if events empty
+    # @raise [ArgumentError] if any event has invalid user_id or event_name
+    def self.push_batch(events)
+      return 0 if events.blank?
 
-      event = { user_id:, event_name:, buffered_at: Time.current.to_i }.to_json
-      redis.lpush(BUFFER_KEY, event)
+      buffered_at = Time.current.to_i
+      serialized_events = events.map do |event|
+        validate_inputs!(event[:user_id], event[:event_name])
+        { user_id: event[:user_id], event_name: event[:event_name], buffered_at: }.to_json
+      end
+
+      redis.lpush(BUFFER_KEY, serialized_events)
     rescue => e
-      Rails.logger.error('UUM Buffer: Failed to push event', {
-                           event_name:,
+      Rails.logger.error('UUM Buffer: Failed to push batch', {
+                           event_count: events&.size,
                            error: e.message
                          })
       raise

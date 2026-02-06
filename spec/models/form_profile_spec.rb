@@ -2414,38 +2414,40 @@ RSpec.describe FormProfile, type: :model do
             end
           end
         end
+      end
 
-        context 'when Vet360 prefill is enabled' do
-          let(:user) do
-            build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
-                                             vet360_id: '1781151')
-          end
+      context 'when Vet360 prefill is enabled' do
+        let(:user) do
+          build(:user, :loa3, :legacy_icn, suffix: 'Jr.', address: build(:va_profile_address),
+                                           vet360_id: '1781151')
+        end
 
-          before do
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
-            VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
-            expected_veteran_info = v21_526_ez_expected['veteran']
-            expected_veteran_info['emailAddress'] = user.va_profile_email
-            expected_veteran_info['primaryPhone'] = us_phone
-            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-          end
+        before do
+          expect(user).to receive(:authorize).with(:lighthouse, :access_vet_status?).and_return(true)
+          can_prefill_vaprofile(true)
+          expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+          VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
+          expected_veteran_info = v21_526_ez_expected['veteran']
+          expected_veteran_info['emailAddress'] = user.va_profile_email
+          expected_veteran_info['primaryPhone'] = us_phone
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        end
 
-          after do
-            VAProfile::Configuration::SETTINGS.prefill = false
-          end
+        after do
+          VAProfile::Configuration::SETTINGS.prefill = false
+        end
 
-          it 'returns prefilled 21-526EZ' do
-            expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
-                                               .and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
-              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
-                  VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                   allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                    VCR.use_cassette('disability_max_ratings/max_ratings') do
-                      expect_prefilled('21-526EZ')
-                    end
+        it 'returns prefilled 21-526EZ' do
+          expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                             .and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
+                VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                                 allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                  VCR.use_cassette('disability_max_ratings/max_ratings') do
+                    expect_prefilled('21-526EZ')
                   end
                 end
               end
@@ -2610,8 +2612,8 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '.load_form_mapping' do
-    it 'handles uppercase form ID 1330M with lowercase filename' do
-      expect { FormProfile.load_form_mapping('1330M') }.not_to raise_error
+    it 'handles uppercase form ID 40-1330M with lowercase filename' do
+      expect { FormProfile.load_form_mapping('40-1330M') }.not_to raise_error
     end
   end
 end

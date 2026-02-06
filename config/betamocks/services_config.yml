@@ -35,65 +35,104 @@
       :response_delay: 0.3
     ## Travel Pay
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/Auth/access-token"
+      :path: "/eis/api/btsss/travelclaim/api/v2/Auth/access-token"
       :file_path: "/travel_pay/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/search-by-appointment-date"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims/search-by-appointment-date"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims/*/documents"
       :file_path: "/travel_pay/claims/show/docs"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/[0-9a-fA-F-]{36}"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims/[0-9a-fA-F-]{36}"
       :file_path: "/travel_pay/claims/show"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)'
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
+      :path: "/eis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
+      :path: "/eis/api/btsss/travelclaim/api/v2/appointments/find-or-add"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
     - :method: :patch
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/submit'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/submit'
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
-      :file_path: "/travel_pay/documents"
+      :path: "/eis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
+      :file_path: "/travel_pay/documents/get"
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
       :response_delay: 0.3
-    ## Expenses
+    ## Mileage Expenses
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
+      :path: "/eis/api/btsss/travelclaim/api/v2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
+    ## Other Expenses
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1/expenses/other"
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/other"
       :file_path: "/travel_pay/expenses/other/create"
+      :response_delay: 0.3
+    ## Common Carrier Expenses
+    - :method: :post
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/commoncarrier"
+      :file_path: "/travel_pay/expenses/commoncarrier/create"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/commoncarrier/*"
+      :file_path: "/travel_pay/expenses/commoncarrier/get"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/commoncarrier\/(.+)'
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/commoncarrier/*"
+      :file_path: "/travel_pay/expenses/commoncarrier/patch"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/commoncarrier\/(.+)'
+      :response_delay: 0.3
+    ## Airtravel Expenses
+    - :method: :post
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel"
+      :file_path: "/travel_pay/expenses/airtravel/create"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel/*"
+      :file_path: "/travel_pay/expenses/airtravel/get"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/airtravel\/(.+)'
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/eis/api/btsss/travelclaim/api/v1/expenses/airtravel/*"
+      :file_path: "/travel_pay/expenses/airtravel/patch"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/eis\/api\/btsss\/travelclaim\/api\/v1\/expenses\/airtravel\/(.+)'
       :response_delay: 0.3
 
 #CRM Token post
@@ -626,14 +665,14 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+        :uid_locator: '\/vaos\/v1\/patients\/([a-zA-Z0-9]+)\/appointments'
     - :method: :get
       :path: "/vaos/v1/patients/*/appointments/*"
       :file_path: "vaos/appointments/get"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
+        :uid_locator: '\/vaos\/v1\/patients\/([a-zA-Z0-9]+)\/appointments\/([a-zA-Z0-9]+)'
     - :method: :get
       :path: "/vpg/v1/patients/*/appointments"
       :file_path: "vaos/vpg/appointments"
@@ -654,7 +693,7 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: 'url'
-        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+        :uid_locator: '\/facilities\/v2\/facilities\/([0-9]+)'
     - :method: :get
       :path: "/facilities/v2/facilities/*/clinics/*"
       :file_path: "vaos/clinics"
@@ -662,7 +701,10 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
-
+    - :method: :get
+      :path: "/vaos/v1/locations/*/clinics"
+      :file_path: "vaos/v1/clinics"
+      :response_delay: 0.3
     # Get referral list
     - :method: :get
       :path: "/vaos/v1/patients/*/referrals"
@@ -943,7 +985,10 @@
       :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Patient"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/patient"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
       :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation"

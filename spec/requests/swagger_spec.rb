@@ -9,13 +9,13 @@ require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
 require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
-require 'bgsv2/service'
+require 'bgs/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
-require 'debts_api/v0/digital_dispute_submission_service'
 require 'debts_api/v0/digital_dispute_dmc_service'
+require 'veteran_status_card/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -630,37 +630,16 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }.to_json
         end
 
-        context 'when the :digital_dmc_dispute_service feature is on' do
-          it 'validates the route' do
-            allow_any_instance_of(DebtsApi::V0::DigitalDisputeDmcService).to receive(:call!)
-            expect(subject).to validate(
-              :post,
-              '/debts_api/v0/digital_disputes',
-              200,
-              headers.merge(
-                '_data' => { metadata: metadata_json, files: [pdf_file] }
-              )
+        it 'validates the route' do
+          allow_any_instance_of(DebtsApi::V0::DigitalDisputeDmcService).to receive(:call!)
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            200,
+            headers.merge(
+              '_data' => { metadata: metadata_json, files: [pdf_file] }
             )
-          end
-        end
-
-        context 'when the :digital_dmc_dispute_service feature is off' do
-          it 'validates the route' do
-            allow(Flipper).to receive(:enabled?).with(:digital_dmc_dispute_service).and_return(false)
-            allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService).to receive(:call).and_return(
-              success: true,
-              message: 'Dispute successfully submitted',
-              submission_id: '12345'
-            )
-            expect(subject).to validate(
-              :post,
-              '/debts_api/v0/digital_disputes',
-              200,
-              headers.merge(
-                '_data' => { metadata: metadata_json, files: [pdf_file] }
-              )
-            )
-          end
+          )
         end
       end
     end
@@ -1193,7 +1172,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'submit_all_claim', 'all.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -2703,10 +2682,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'form 21-2680 house bound status' do
+      let(:user) { create(:user) }
       let(:saved_claim) { create(:form212680) }
+      let(:auth_headers) do
+        {
+          '_headers' => {
+            'Cookie' => sign_in(user, nil, true),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+          }
+        }
+      end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(true)
       end
 
       it 'supports submitting a form 21-2680' do
@@ -2714,7 +2703,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           200,
-          json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
+          auth_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
         )
       end
 
@@ -2723,7 +2712,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           400,
-          json_headers.merge('_data' => { foo: :bar }.to_json)
+          auth_headers.merge('_data' => { foo: :bar }.to_json)
         )
       end
 
@@ -2732,7 +2721,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :post,
           '/v0/form212680',
           422,
-          json_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
+          auth_headers.merge('_data' => { form: { foo: :bar }.to_json }.to_json)
         )
       end
 
@@ -2741,7 +2730,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :get,
           '/v0/form212680/download_pdf/{guid}',
           200,
-          'guid' => saved_claim.guid
+          { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => saved_claim.guid }
         )
       end
 
@@ -2750,19 +2739,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           :get,
           '/v0/form212680/download_pdf/{guid}',
           404,
-          'guid' => 'bad-guid'
+          { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => 'bad-guid' }
         )
       end
 
       context 'when feature toggle is disabled' do
-        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, nil).and_return(false) }
+        before { allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(false) }
 
         it 'handles 404 for create' do
           expect(subject).to validate(
             :post,
             '/v0/form212680',
             404,
-            json_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
+            auth_headers.merge('_data' => { form: VetsJsonSchema::EXAMPLES['21-2680'].to_json }.to_json)
           )
         end
 
@@ -2771,7 +2760,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             :get,
             '/v0/form212680/download_pdf/{guid}',
             404,
-            'guid' => saved_claim.guid
+            { '_headers' => { 'Cookie' => sign_in(user, nil, true) }, 'guid' => saved_claim.guid }
           )
         end
       end
@@ -2916,6 +2905,152 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:claim_id) { 600_383_363 }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
       let(:invalid_headers) { { '_headers' => { 'Cookie' => sign_in(invalid_user, nil, true) } } }
+
+      describe 'GET /v0/benefits_claims/{id}' do
+        let(:headers_with_id) { headers.merge('id' => claim_id.to_s) }
+        let(:invalid_headers_with_id) { invalid_headers.merge('id' => claim_id.to_s) }
+
+        context 'when the user is not signed in' do
+          it 'returns a status of 401' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 401, 'id' => claim_id.to_s)
+          end
+        end
+
+        context 'when the user is signed in, but does not have valid credentials' do
+          it 'returns a status of 403' do
+            expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 403, invalid_headers_with_id)
+          end
+        end
+
+        context 'when the user is signed in and has valid credentials' do
+          before do
+            token = 'fake_access_token'
+            allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+          end
+
+          context 'with cst_multi_claim_provider disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('cst_multi_claim_provider', anything).and_return(false)
+            end
+
+            context 'when there is a bad request' do
+              it 'returns a status of 400' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::BadRequest.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 400, headers_with_id)
+              end
+            end
+
+            context 'when the claim is not found' do
+              it 'returns a status of 404' do
+                VCR.use_cassette('lighthouse/benefits_claims/show/404_response') do
+                  expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 404, headers_with_id)
+                end
+              end
+            end
+
+            context 'when there is a rate limit exceeded' do
+              it 'returns a status of 429' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::TooManyRequests.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 429, headers_with_id)
+              end
+            end
+
+            context 'when there is an internal server error' do
+              it 'returns a status of 500' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 500, headers_with_id)
+              end
+            end
+
+            context 'when there is a bad gateway error' do
+              it 'returns a status of 502' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::BadGateway.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 502, headers_with_id)
+              end
+            end
+
+            context 'when there is a service unavailable' do
+              it 'returns a status of 503' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::ServiceUnavailable.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 503, headers_with_id)
+              end
+            end
+
+            context 'when there is a gateway timeout' do
+              it 'returns a status of 504' do
+                allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+                  .and_raise(Common::Exceptions::GatewayTimeout.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 504, headers_with_id)
+              end
+            end
+
+            it 'returns a status of 200' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 200, headers_with_id)
+              end
+            end
+          end
+
+          context 'with cst_multi_claim_provider enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('cst_multi_claim_provider', anything).and_return(true)
+            end
+
+            context 'when there is a bad request' do
+              it 'returns a status of 400' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::BadRequest.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 400, headers_with_id)
+              end
+            end
+
+            context 'when there is a rate limit exceeded' do
+              it 'returns a status of 429' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::TooManyRequests.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 429, headers_with_id)
+              end
+            end
+
+            context 'when there is an internal server error' do
+              it 'returns a status of 500' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::ExternalServerInternalServerError.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 500, headers_with_id)
+              end
+            end
+
+            context 'when there is a bad gateway error' do
+              it 'returns a status of 502' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::BadGateway.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 502, headers_with_id)
+              end
+            end
+
+            context 'when there is a service unavailable' do
+              it 'returns a status of 503' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::ServiceUnavailable.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 503, headers_with_id)
+              end
+            end
+
+            context 'when there is a gateway timeout' do
+              it 'returns a status of 504' do
+                allow_any_instance_of(V0::BenefitsClaimsController).to receive(:get_claim_from_providers)
+                  .and_raise(Common::Exceptions::GatewayTimeout.new)
+                expect(subject).to validate(:get, '/v0/benefits_claims/{id}', 504, headers_with_id)
+              end
+            end
+          end
+        end
+      end
 
       describe 'GET /v0/benefits_claims/failed_upload_evidence_submissions' do
         before do
@@ -3288,6 +3423,135 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
         end
       end
+    end
+  end
+
+  describe 'veteran_status_card' do
+    let(:user) { create(:user, :loa3) }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+    it 'returns ok status code' do
+      status_card_response = {
+        type: 'veteran_status_card',
+        veteran_status: 'confirmed',
+        service_summary_code: 'A1',
+        not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
+        attributes: {
+          full_name: 'John Doe',
+          disability_rating: 50,
+          latest_service: {
+            branch: 'Army',
+            begin_date: '2010-01-01',
+            end_date: '2015-12-31'
+          },
+          edipi: user.edipi
+        }
+      }
+      allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)
+      expect(subject).to validate(:get, '/v0/veteran_status_card', 200, headers)
+    end
+  end
+
+  describe 'scheduling preferences', :initiate_vaprofile do
+    let(:mhv_user) { build(:user, :loa3, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
+    before do
+      sign_in_as(mhv_user)
+      allow(Flipper).to receive(:enabled?).with(:profile_scheduling_preferences, mhv_user).and_return(true)
+      allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(true)
+
+      service_response_mock = double(
+        status: 200,
+        person_options: [],
+        bio: { personOptions: [] }
+      )
+
+      allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:get_person_options)
+        .and_return(service_response_mock)
+      allow_any_instance_of(VAProfile::PersonSettings::Service).to receive(:update_person_options)
+        .and_return(double)
+
+      transaction_mock = double(
+        id: 'txn-123',
+        transaction_id: 'txn-123',
+        transaction_status: 'RECEIVED',
+        type: 'AsyncTransaction::VAProfile::PersonOptionsTransaction'
+      )
+
+      allow(AsyncTransaction::VAProfile::PersonOptionsTransaction).to receive(:start)
+        .and_return(transaction_mock)
+
+      allow_any_instance_of(AsyncTransaction::BaseSerializer).to receive(:serializable_hash)
+        .and_return({
+                      data: {
+                        id: 'txn-123',
+                        type: 'async_transaction_va_profile_person_options_transactions',
+                        attributes: {
+                          transaction_id: 'txn-123',
+                          transaction_status: 'RECEIVED',
+                          type: 'AsyncTransaction::VAProfile::PersonOptionsTransaction',
+                          metadata: []
+                        }
+                      }
+                    })
+
+      allow_any_instance_of(SchedulingPreferencesSerializer).to receive(:serializable_hash)
+        .and_return({
+                      data: {
+                        id: '',
+                        type: 'scheduling_preferences',
+                        attributes: {
+                          preferences: []
+                        }
+                      }
+                    })
+    end
+
+    it 'supports getting scheduling preferences' do
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 401)
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 200, headers)
+    end
+
+    it 'supports getting scheduling preferences with 403 for non-pilot users' do
+      allow_any_instance_of(UserVisnService).to receive(:in_pilot_visn?).and_return(false)
+      expect(subject).to validate(:get, '/v0/profile/scheduling_preferences', 403, headers)
+    end
+
+    it 'supports posting scheduling preferences' do
+      expect(subject).to validate(:post, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [5] }
+      expect(subject).to validate(
+        :post,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
+    end
+
+    it 'supports putting scheduling preferences' do
+      expect(subject).to validate(:put, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [7] }
+      expect(subject).to validate(
+        :put,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
+    end
+
+    it 'supports deleting scheduling preferences' do
+      expect(subject).to validate(:delete, '/v0/profile/scheduling_preferences', 401)
+
+      scheduling_preferences = { item_id: 1, option_ids: [5] }
+      expect(subject).to validate(
+        :delete,
+        '/v0/profile/scheduling_preferences',
+        200,
+        headers.merge('_data' => scheduling_preferences)
+      )
     end
   end
 

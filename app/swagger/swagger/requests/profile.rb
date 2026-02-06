@@ -1002,7 +1002,7 @@ module Swagger
                             ' or that were just updated to COMPLETED during the course of this request.' \
                             ' The array will be empty if no transactions are pending or updated.' \
                             ' Only the most recent transaction for each profile field will be included' \
-                            ' so there may be up to 4 (Address, Email, Telephone, Permission).'
+                            ' so there may be up to 5 (Address, Email, Telephone, Permission, PersonOptions).'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile]
 
@@ -1322,6 +1322,125 @@ module Swagger
                   property :message, type: :array, example: "We're sorry. There's a problem...", description: 'Alert message to display to user'
                 end
               end
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/scheduling_preferences' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Gets a Veteran's appointment scheduling preferences"
+          key :operationId, 'getSchedulingPreferences'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Scheduling preferences retrieved successfully'
+            schema do
+              key :$ref, :SchedulingPreferences
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden - user not in pilot VISN or feature disabled'
+            schema do
+              key :required, [:errors]
+              property :errors do
+                key :type, :array
+                items do
+                  property :title, type: :string, example: 'Forbidden'
+                  property :detail, type: :string, example: 'Scheduling preferences not available'
+                  property :code, type: :string, example: 'COMMON_FORBIDDEN'
+                  property :status, type: :string, example: '403'
+                end
+              end
+            end
+          end
+        end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates scheduling preferences for a specific item'
+          key :operationId, 'createSchedulingPreferences'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Scheduling preference data'
+            key :required, true
+
+            schema do
+              key :$ref, :SchedulingPreferencesRequest
+            end
+          end
+
+          response 200 do
+            key :description, 'Scheduling preferences creation initiated'
+            schema do
+              key :$ref, :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates scheduling preferences for a specific item'
+          key :operationId, 'updateSchedulingPreferences'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Scheduling preference data'
+            key :required, true
+
+            schema do
+              key :$ref, :SchedulingPreferencesRequest
+            end
+          end
+
+          response 200 do
+            key :description, 'Scheduling preferences update initiated'
+            schema do
+              key :$ref, :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Removes all scheduling preferences from Veteran's profile for a specific item"
+          key :operationId, 'deleteSchedulingPreferences'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Scheduling preference data to remove'
+            key :required, true
+
+            schema do
+              key :$ref, :SchedulingPreferencesRequest
+            end
+          end
+
+          response 200 do
+            key :description, 'Scheduling preferences removal initiated'
+            schema do
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end

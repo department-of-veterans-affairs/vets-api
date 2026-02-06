@@ -8,13 +8,15 @@ describe Vass::RedisClient do
   let(:redis_client) { subject.build }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:redis_token_expiry) { 59.minutes }
-  let(:redis_otc_expiry) { 10.minutes }
+  let(:redis_otp_expiry) { 10.minutes }
   let(:redis_session_expiry) { 2.hours }
 
   let(:uuid) { 'f5d4e6a1-b2c3-4d5e-6f7a-8b9c0d1e2f3a' }
   let(:oauth_token) { 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.test.token' }
-  let(:otc_code) { '123456' }
-  let(:session_token) { SecureRandom.uuid }
+  let(:otp_code) { '123456' }
+  let(:last_name) { 'Smith' }
+  let(:dob) { '1980-01-15' }
+  let(:jti) { SecureRandom.uuid }
   let(:edipi) { '1234567890' }
   let(:veteran_id) { 'vet-uuid-123' }
 
@@ -32,8 +34,8 @@ describe Vass::RedisClient do
       expect(redis_client.settings.redis_token_expiry).to eq(redis_token_expiry)
     end
 
-    it 'gets redis_otc_expiry from settings' do
-      expect(redis_client.settings.redis_otc_expiry).to eq(redis_otc_expiry)
+    it 'gets redis_otp_expiry from settings' do
+      expect(redis_client.settings.redis_otp_expiry).to eq(redis_otp_expiry)
     end
 
     it 'gets redis_session_expiry from settings' do
@@ -112,115 +114,107 @@ describe Vass::RedisClient do
     end
   end
 
-  # ------------ OTC Management Tests ------------
+  # ------------ OTP Management Tests ------------
 
-  describe '#otc' do
-    context 'when OTC cache does not exist' do
-      it 'returns nil' do
-        expect(redis_client.otc(uuid:)).to be_nil
+  describe '#otp_data' do
+    context 'when OTP cache exists' do
+      before do
+        redis_client.save_otp(uuid:, code: otp_code, last_name:, dob:)
+      end
+
+      it 'returns hash with code, last_name, and dob' do
+        data = redis_client.otp_data(uuid:)
+        expect(data[:code]).to eq(otp_code)
+        expect(data[:last_name]).to eq(last_name)
+        expect(data[:dob]).to eq(dob)
       end
     end
 
-    context 'when OTC cache exists' do
-      before do
-        Rails.cache.write(
-          "otc_#{uuid}",
-          otc_code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
-        )
-      end
-
-      it 'returns the cached OTC' do
-        expect(redis_client.otc(uuid:)).to eq(otc_code)
+    context 'when OTP cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.otp_data(uuid:)).to be_nil
       end
     end
 
-    context 'when OTC cache has expired' do
+    context 'when OTP cache has expired' do
       before do
-        Rails.cache.write(
-          "otc_#{uuid}",
-          otc_code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
-        )
+        redis_client.save_otp(uuid:, code: otp_code, last_name:, dob:)
       end
 
       it 'returns nil' do
-        Timecop.travel(redis_otc_expiry.from_now) do
-          expect(redis_client.otc(uuid:)).to be_nil
+        Timecop.travel(redis_otp_expiry.from_now) do
+          expect(redis_client.otp_data(uuid:)).to be_nil
         end
       end
     end
   end
 
-  describe '#save_otc' do
-    it 'saves the OTC in cache with uuid key' do
-      expect(redis_client.save_otc(uuid:, code: otc_code)).to be(true)
+  describe '#save_otp' do
+    it 'saves the OTP in cache with uuid key' do
+      expect(redis_client.save_otp(uuid:, code: otp_code, last_name:, dob:)).to be(true)
 
-      val = Rails.cache.read(
-        "otc_#{uuid}",
-        namespace: 'vass-otc-cache'
-      )
-      expect(val).to eq(otc_code)
+      data = redis_client.otp_data(uuid:)
+      expect(data[:code]).to eq(otp_code)
+      expect(data[:last_name]).to eq(last_name)
+      expect(data[:dob]).to eq(dob)
     end
 
     it 'uses shorter expiry than OAuth token' do
-      redis_client.save_otc(uuid:, code: otc_code)
+      redis_client.save_otp(uuid:, code: otp_code, last_name:, dob:)
 
-      # Should still be present before OTC expiry
-      Timecop.travel((redis_otc_expiry - 1.minute).from_now) do
-        expect(redis_client.otc(uuid:)).to eq(otc_code)
+      # Should still be present before OTP expiry
+      Timecop.travel((redis_otp_expiry - 1.minute).from_now) do
+        expect(redis_client.otp_data(uuid:)&.dig(:code)).to eq(otp_code)
       end
 
-      # Should be gone after OTC expiry (but before token expiry)
-      Timecop.travel(redis_otc_expiry.from_now) do
-        expect(redis_client.otc(uuid:)).to be_nil
+      # Should be gone after OTP expiry (but before token expiry)
+      Timecop.travel(redis_otp_expiry.from_now) do
+        expect(redis_client.otp_data(uuid:)).to be_nil
       end
     end
   end
 
-  describe '#delete_otc' do
+  describe '#delete_otp' do
     before do
-      redis_client.save_otc(uuid:, code: otc_code)
+      redis_client.save_otp(uuid:, code: otp_code, last_name:, dob:)
     end
 
-    it 'removes the OTC from cache' do
-      expect(redis_client.otc(uuid:)).to eq(otc_code)
+    it 'removes the OTP from cache' do
+      expect(redis_client.otp_data(uuid:)&.dig(:code)).to eq(otp_code)
 
-      redis_client.delete_otc(uuid:)
+      redis_client.delete_otp(uuid:)
 
-      expect(redis_client.otc(uuid:)).to be_nil
+      expect(redis_client.otp_data(uuid:)).to be_nil
     end
 
-    it 'does not error when deleting non-existent OTC' do
-      redis_client.delete_otc(uuid:)
-      expect { redis_client.delete_otc(uuid:) }.not_to raise_error
+    it 'does not error when deleting non-existent OTP' do
+      redis_client.delete_otp(uuid:)
+      expect { redis_client.delete_otp(uuid:) }.not_to raise_error
     end
   end
 
-  describe 'OTC isolation by UUID' do
+  describe 'OTP isolation by UUID' do
     let(:uuid1) { 'uuid-1111-aaaa' }
     let(:uuid2) { 'uuid-2222-bbbb' }
     let(:code1) { '111111' }
     let(:code2) { '222222' }
 
-    it 'stores OTCs separately for different UUIDs' do
-      redis_client.save_otc(uuid: uuid1, code: code1)
-      redis_client.save_otc(uuid: uuid2, code: code2)
+    it 'stores OTPs separately for different UUIDs' do
+      redis_client.save_otp(uuid: uuid1, code: code1, last_name:, dob:)
+      redis_client.save_otp(uuid: uuid2, code: code2, last_name:, dob:)
 
-      expect(redis_client.otc(uuid: uuid1)).to eq(code1)
-      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
+      expect(redis_client.otp_data(uuid: uuid1)&.dig(:code)).to eq(code1)
+      expect(redis_client.otp_data(uuid: uuid2)&.dig(:code)).to eq(code2)
     end
 
-    it 'deletes OTC for one UUID without affecting others' do
-      redis_client.save_otc(uuid: uuid1, code: code1)
-      redis_client.save_otc(uuid: uuid2, code: code2)
+    it 'deletes OTP for one UUID without affecting others' do
+      redis_client.save_otp(uuid: uuid1, code: code1, last_name:, dob:)
+      redis_client.save_otp(uuid: uuid2, code: code2, last_name:, dob:)
 
-      redis_client.delete_otc(uuid: uuid1)
+      redis_client.delete_otp(uuid: uuid1)
 
-      expect(redis_client.otc(uuid: uuid1)).to be_nil
-      expect(redis_client.otc(uuid: uuid2)).to eq(code2)
+      expect(redis_client.otp_data(uuid: uuid1)).to be_nil
+      expect(redis_client.otp_data(uuid: uuid2)&.dig(:code)).to eq(code2)
     end
   end
 
@@ -230,55 +224,56 @@ describe Vass::RedisClient do
     it 'saves session data in cache' do
       expect(
         redis_client.save_session(
-          session_token:,
+          uuid:,
+          jti:,
           edipi:,
-          veteran_id:,
-          uuid:
+          veteran_id:
         )
       ).to be(true)
 
       val = Rails.cache.read(
-        "session_#{session_token}",
+        "session_#{uuid}",
         namespace: 'vass-session-cache'
       )
       expect(val).to be_present
     end
 
-    it 'stores EDIPI, veteran_id, and uuid' do
+    it 'stores jti, EDIPI, and veteran_id' do
       redis_client.save_session(
-        session_token:,
+        uuid:,
+        jti:,
         edipi:,
-        veteran_id:,
-        uuid:
+        veteran_id:
       )
 
-      session_data = redis_client.session(session_token:)
+      session_data = redis_client.session(uuid:)
+      expect(session_data[:jti]).to eq(jti)
       expect(session_data[:edipi]).to eq(edipi)
       expect(session_data[:veteran_id]).to eq(veteran_id)
-      expect(session_data[:uuid]).to eq(uuid)
     end
   end
 
   describe '#session' do
     context 'when session does not exist' do
       it 'returns nil' do
-        expect(redis_client.session(session_token:)).to be_nil
+        expect(redis_client.session(uuid:)).to be_nil
       end
     end
 
     context 'when session exists' do
       before do
         redis_client.save_session(
-          session_token:,
+          uuid:,
+          jti:,
           edipi:,
-          veteran_id:,
-          uuid:
+          veteran_id:
         )
       end
 
       it 'returns session data as hash' do
-        session_data = redis_client.session(session_token:)
+        session_data = redis_client.session(uuid:)
         expect(session_data).to be_a(Hash)
+        expect(session_data[:jti]).to eq(jti)
         expect(session_data[:edipi]).to eq(edipi)
         expect(session_data[:veteran_id]).to eq(veteran_id)
       end
@@ -287,16 +282,16 @@ describe Vass::RedisClient do
     context 'when session has expired' do
       before do
         redis_client.save_session(
-          session_token:,
+          uuid:,
+          jti:,
           edipi:,
-          veteran_id:,
-          uuid:
+          veteran_id:
         )
       end
 
       it 'returns nil' do
         Timecop.travel(redis_session_expiry.from_now) do
-          expect(redis_client.session(session_token:)).to be_nil
+          expect(redis_client.session(uuid:)).to be_nil
         end
       end
     end
@@ -305,14 +300,14 @@ describe Vass::RedisClient do
       before do
         # Write invalid JSON to cache
         Rails.cache.write(
-          "session_#{session_token}",
+          "session_#{uuid}",
           'invalid json {corrupt data',
           namespace: 'vass-session-cache'
         )
       end
 
       it 'returns nil' do
-        expect(redis_client.session(session_token:)).to be_nil
+        expect(redis_client.session(uuid:)).to be_nil
       end
 
       it 'logs the parse error without PHI' do
@@ -321,7 +316,7 @@ describe Vass::RedisClient do
           .with(a_string_including('"service":"vass"', '"component":"redis_client"',
                                    '"action":"json_parse_failed"', '"key_type":"session_data"'))
           .and_call_original
-        redis_client.session(session_token:)
+        redis_client.session(uuid:)
       end
     end
   end
@@ -329,22 +324,22 @@ describe Vass::RedisClient do
   describe '#edipi' do
     context 'when session does not exist' do
       it 'returns nil' do
-        expect(redis_client.edipi(session_token:)).to be_nil
+        expect(redis_client.edipi(uuid:)).to be_nil
       end
     end
 
     context 'when session exists' do
       before do
         redis_client.save_session(
-          session_token:,
+          uuid:,
+          jti:,
           edipi:,
-          veteran_id:,
-          uuid:
+          veteran_id:
         )
       end
 
       it 'returns EDIPI from session' do
-        expect(redis_client.edipi(session_token:)).to eq(edipi)
+        expect(redis_client.edipi(uuid:)).to eq(edipi)
       end
     end
   end
@@ -352,22 +347,115 @@ describe Vass::RedisClient do
   describe '#veteran_id' do
     context 'when session does not exist' do
       it 'returns nil' do
-        expect(redis_client.veteran_id(session_token:)).to be_nil
+        expect(redis_client.veteran_id(uuid:)).to be_nil
       end
     end
 
     context 'when session exists' do
       before do
         redis_client.save_session(
-          session_token:,
+          uuid:,
+          jti:,
           edipi:,
-          veteran_id:,
-          uuid:
+          veteran_id:
         )
       end
 
       it 'returns veteran_id from session' do
-        expect(redis_client.veteran_id(session_token:)).to eq(veteran_id)
+        expect(redis_client.veteran_id(uuid:)).to eq(veteran_id)
+      end
+    end
+  end
+
+  describe '#session_exists?' do
+    context 'when session does not exist' do
+      it 'returns false' do
+        expect(redis_client.session_exists?(uuid:)).to be(false)
+      end
+    end
+
+    context 'when session exists' do
+      before do
+        redis_client.save_session(
+          uuid:,
+          jti:,
+          edipi:,
+          veteran_id:
+        )
+      end
+
+      it 'returns true' do
+        expect(redis_client.session_exists?(uuid:)).to be(true)
+      end
+    end
+
+    context 'when session has been deleted (revoked)' do
+      before do
+        redis_client.save_session(
+          uuid:,
+          jti:,
+          edipi:,
+          veteran_id:
+        )
+        redis_client.delete_session(uuid:)
+      end
+
+      it 'returns false' do
+        expect(redis_client.session_exists?(uuid:)).to be(false)
+      end
+    end
+  end
+
+  describe '#session_valid_for_jti?' do
+    context 'when session does not exist' do
+      it 'returns false' do
+        expect(redis_client.session_valid_for_jti?(uuid:, jti:)).to be(false)
+      end
+    end
+
+    context 'when session exists with matching jti' do
+      before do
+        redis_client.save_session(uuid:, jti:, edipi:, veteran_id:)
+      end
+
+      it 'returns true' do
+        expect(redis_client.session_valid_for_jti?(uuid:, jti:)).to be(true)
+      end
+    end
+
+    context 'when session exists with different jti' do
+      let(:old_jti) { SecureRandom.uuid }
+      let(:new_jti) { SecureRandom.uuid }
+
+      before do
+        redis_client.save_session(uuid:, jti: new_jti, edipi:, veteran_id:)
+      end
+
+      it 'returns false for old jti' do
+        expect(redis_client.session_valid_for_jti?(uuid:, jti: old_jti)).to be(false)
+      end
+
+      it 'returns true for new jti' do
+        expect(redis_client.session_valid_for_jti?(uuid:, jti: new_jti)).to be(true)
+      end
+    end
+
+    context 'when new token is issued (re-authentication)' do
+      let(:first_jti) { SecureRandom.uuid }
+      let(:second_jti) { SecureRandom.uuid }
+
+      it 'invalidates the previous token' do
+        # First authentication
+        redis_client.save_session(uuid:, jti: first_jti, edipi:, veteran_id:)
+        expect(redis_client.session_valid_for_jti?(uuid:, jti: first_jti)).to be(true)
+
+        # Second authentication overwrites session with new jti
+        redis_client.save_session(uuid:, jti: second_jti, edipi:, veteran_id:)
+
+        # First token is now invalid
+        expect(redis_client.session_valid_for_jti?(uuid:, jti: first_jti)).to be(false)
+        # Second token is valid
+        expect(redis_client.session_valid_for_jti?(uuid:, jti: second_jti)).to be(true)
       end
     end
   end
@@ -375,49 +463,51 @@ describe Vass::RedisClient do
   describe '#delete_session' do
     before do
       redis_client.save_session(
-        session_token:,
+        uuid:,
+        jti:,
         edipi:,
-        veteran_id:,
-        uuid:
+        veteran_id:
       )
     end
 
     it 'removes session data from cache' do
-      expect(redis_client.session(session_token:)).to be_present
+      expect(redis_client.session(uuid:)).to be_present
 
-      redis_client.delete_session(session_token:)
+      redis_client.delete_session(uuid:)
 
-      expect(redis_client.session(session_token:)).to be_nil
+      expect(redis_client.session(uuid:)).to be_nil
     end
 
     it 'does not error when deleting non-existent session' do
-      redis_client.delete_session(session_token:)
-      expect { redis_client.delete_session(session_token:) }.not_to raise_error
+      redis_client.delete_session(uuid:)
+      expect { redis_client.delete_session(uuid:) }.not_to raise_error
     end
   end
 
-  describe 'session isolation by token' do
-    let(:token1) { SecureRandom.uuid }
-    let(:token2) { SecureRandom.uuid }
+  describe 'session isolation by uuid' do
+    let(:uuid1) { SecureRandom.uuid }
+    let(:uuid2) { SecureRandom.uuid }
+    let(:jti1) { SecureRandom.uuid }
+    let(:jti2) { SecureRandom.uuid }
     let(:edipi1) { '1111111111' }
     let(:edipi2) { '2222222222' }
 
-    it 'stores sessions separately for different tokens' do
-      redis_client.save_session(session_token: token1, edipi: edipi1, veteran_id: 'vet-1', uuid:)
-      redis_client.save_session(session_token: token2, edipi: edipi2, veteran_id: 'vet-2', uuid:)
+    it 'stores sessions separately for different uuids' do
+      redis_client.save_session(uuid: uuid1, jti: jti1, edipi: edipi1, veteran_id: 'vet-1')
+      redis_client.save_session(uuid: uuid2, jti: jti2, edipi: edipi2, veteran_id: 'vet-2')
 
-      expect(redis_client.edipi(session_token: token1)).to eq(edipi1)
-      expect(redis_client.edipi(session_token: token2)).to eq(edipi2)
+      expect(redis_client.edipi(uuid: uuid1)).to eq(edipi1)
+      expect(redis_client.edipi(uuid: uuid2)).to eq(edipi2)
     end
 
-    it 'deletes session for one token without affecting others' do
-      redis_client.save_session(session_token: token1, edipi: edipi1, veteran_id: 'vet-1', uuid:)
-      redis_client.save_session(session_token: token2, edipi: edipi2, veteran_id: 'vet-2', uuid:)
+    it 'deletes session for one uuid without affecting others' do
+      redis_client.save_session(uuid: uuid1, jti: jti1, edipi: edipi1, veteran_id: 'vet-1')
+      redis_client.save_session(uuid: uuid2, jti: jti2, edipi: edipi2, veteran_id: 'vet-2')
 
-      redis_client.delete_session(session_token: token1)
+      redis_client.delete_session(uuid: uuid1)
 
-      expect(redis_client.session(session_token: token1)).to be_nil
-      expect(redis_client.edipi(session_token: token2)).to eq(edipi2)
+      expect(redis_client.session(uuid: uuid1)).to be_nil
+      expect(redis_client.edipi(uuid: uuid2)).to eq(edipi2)
     end
   end
 

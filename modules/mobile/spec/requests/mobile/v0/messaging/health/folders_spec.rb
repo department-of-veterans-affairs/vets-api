@@ -84,7 +84,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
             expect(folder.dig('attributes', 'name')).to eq('Drafts')
             expect(folder['type']).to eq('folders')
             expect(response).to match_camelized_response_schema('folders')
-          end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+          end.to trigger_statsd_increment('mhv.sm.api.client.cache.hit', times: 1)
         end
       end
 
@@ -201,7 +201,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
             expect(message.dig('attributes', 'category')).to eq('MEDICATIONS')
             expect(message['type']).to eq('messages')
             expect(response).to match_camelized_response_schema('messages')
-          end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+          end.to trigger_statsd_increment('mhv.sm.api.client.cache.hit', times: 1)
         end
       end
 

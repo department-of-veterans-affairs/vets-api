@@ -210,7 +210,7 @@ module MHV
       return events if events.empty?
 
       # Generate cache keys for all events
-      cache_keys = events.map { |e| generate_cache_key(e[:user_id], e[:event_name]) }
+      cache_keys = events.map { |e| MHVMetricsUniqueUserEvent.generate_cache_key(e[:user_id], e[:event_name]) }
 
       # Batch read from cache
       cached_results = Rails.cache.read_multi(*cache_keys, namespace: CACHE_NAMESPACE)
@@ -263,7 +263,7 @@ module MHV
 
       # Build hash for write_multi: { cache_key => true }
       cache_entries = events.each_with_object({}) do |event, hash|
-        key = generate_cache_key(event[:user_id], event[:event_name])
+        key = MHVMetricsUniqueUserEvent.generate_cache_key(event[:user_id], event[:event_name])
         hash[key] = true
       end
 
@@ -282,15 +282,6 @@ module MHV
           tags: ["event_name:#{event_name}"]
         )
       end
-    end
-
-    # Generate consistent cache key for user/event combination
-    #
-    # @param user_id [String] UUID of the user
-    # @param event_name [String] Name of the event
-    # @return [String] Cache key
-    def generate_cache_key(user_id, event_name)
-      "#{user_id}:#{event_name}"
     end
 
     # Check if queue depth exceeds threshold and alert if so

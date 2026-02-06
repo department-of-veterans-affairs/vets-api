@@ -103,7 +103,7 @@ Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
   chain.add SidekiqStatsInstrumentation::ServerMiddleware
   chain.add Sidekiq::ErrorTag
-  chain.add Sidekiq::Batch::Server
+  chain.add Sidekiq::Batch::Server if defined?(Sidekiq::Batch)
 end
 
 require 'shrine/storage/memory'

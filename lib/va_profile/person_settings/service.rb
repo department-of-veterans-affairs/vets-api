@@ -4,6 +4,7 @@
 # development and not fully integrated, gated behind the profile_scheduling_preferences
 # feature flag via the SchedulingPreferencesController.
 
+require 'va_profile/contact_information/v2/transaction_response'
 require 'va_profile/person_settings/configuration'
 require 'va_profile/person_settings/person_options_response'
 
@@ -45,13 +46,13 @@ module VAProfile
       end
 
       # POSTs updated person options to the VAProfile API
-      # @param person_options_data [Hash] the person options data to be sent to VAProfile
-      # @return [VAProfile::PersonSettings::PersonOptionsResponse] response wrapper around person options object
+      # @param person_options_data [Hash] the person options data to be sent to VAProfile in JSON format
+      # @return [VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse] response wrapper around tx object
       def update_person_options(person_options_data)
         with_monitoring do
           verify_user!
-          raw_response = perform(:post, person_options_request_path, person_options_data)
-          PersonOptionsResponse.from(raw_response)
+          raw_response = perform(:post, person_options_request_path, person_options_data.to_json)
+          VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse.from(raw_response)
         end
       rescue => e
         handle_error(e)

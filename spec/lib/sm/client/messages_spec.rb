@@ -123,6 +123,38 @@ describe 'sm client' do
         draft = attributes_for(:message_draft, id: 655_626).slice(:id, :subject, :body, :recipient_id)
         expect { client.post_create_message_reply(631_270, draft) }.to raise_error(Common::Exceptions::ValidationErrors)
       end
+
+      context 'with blank id' do
+        it 'raises ParameterMissing for post_create_message_reply with nil id' do
+          expect { client.post_create_message_reply(nil, params) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+
+        it 'raises ParameterMissing for post_create_message_reply with blank id' do
+          expect { client.post_create_message_reply('', params) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+
+        it 'raises ParameterMissing for post_create_message_reply_with_attachment with nil id' do
+          expect { client.post_create_message_reply_with_attachment(nil, params_with_attachments) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+
+        it 'raises ParameterMissing for post_create_message_reply_with_attachment with blank id' do
+          expect { client.post_create_message_reply_with_attachment('', params_with_attachments) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+
+        it 'raises ParameterMissing for post_create_message_reply_with_lg_attachment with nil id' do
+          expect { client.post_create_message_reply_with_lg_attachment(nil, params_with_attachments) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+
+        it 'raises ParameterMissing for post_create_message_reply_with_lg_attachment with blank id' do
+          expect { client.post_create_message_reply_with_lg_attachment('', params_with_attachments) }
+            .to raise_error(Common::Exceptions::ParameterMissing)
+        end
+      end
     end
 
     context 'nested resources' do

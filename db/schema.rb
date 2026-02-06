@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,8 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
-
-  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -824,7 +822,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", force: :cascade do |t|
     t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
@@ -840,7 +838,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
-    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
     t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
@@ -1168,6 +1165,32 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
   end
 
+  create_table "form_intake_submissions", force: :cascade do |t|
+    t.bigint "form_submission_id", null: false
+    t.string "aasm_state", default: "pending", null: false
+    t.integer "retry_count", default: 0, null: false
+    t.string "benefits_intake_uuid", null: false
+    t.string "form_intake_submission_id"
+    t.string "gcio_tracking_number"
+    t.text "request_payload_ciphertext"
+    t.text "response_ciphertext"
+    t.text "error_message_ciphertext"
+    t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.datetime "submitted_at"
+    t.datetime "completed_at"
+    t.datetime "last_attempted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aasm_state", "created_at"], name: "idx_form_intake_sub_on_state_and_created"
+    t.index ["aasm_state"], name: "index_form_intake_submissions_on_aasm_state"
+    t.index ["benefits_intake_uuid"], name: "index_form_intake_submissions_on_benefits_intake_uuid"
+    t.index ["form_intake_submission_id"], name: "idx_form_intake_sub_on_intake_id", unique: true, where: "(form_intake_submission_id IS NOT NULL)"
+    t.index ["form_submission_id", "aasm_state"], name: "idx_form_intake_sub_on_form_sub_id_and_state"
+    t.index ["form_submission_id"], name: "index_form_intake_submissions_on_form_submission_id"
+    t.index ["last_attempted_at"], name: "idx_form_intake_sub_on_last_attempted", where: "((aasm_state)::text = 'pending'::text)"
+  end
+
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
@@ -1415,6 +1438,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
     t.integer "vet360_link_attempts"
     t.boolean "vet360_linked"
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
+  end
+
+  create_table "multi_party_form_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "form_type", null: false
+    t.string "status", default: "primary_in_progress", null: false
+    t.uuid "primary_user_uuid", null: false
+    t.bigint "primary_in_progress_form_id"
+    t.datetime "primary_completed_at"
+    t.string "secondary_email"
+    t.uuid "secondary_user_uuid"
+    t.bigint "secondary_in_progress_form_id"
+    t.datetime "secondary_completed_at"
+    t.datetime "secondary_notified_at"
+    t.text "secondary_access_token_digest"
+    t.datetime "secondary_access_token_expires_at"
+    t.bigint "saved_claim_id"
+    t.datetime "submitted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "nod_notifications", force: :cascade do |t|
@@ -2223,6 +2265,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_21_172007) do
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form_email_matches_profile_logs", "user_accounts"
+  add_foreign_key "form_intake_submissions", "form_submissions"
   add_foreign_key "form_submission_attempts", "form_submissions"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"

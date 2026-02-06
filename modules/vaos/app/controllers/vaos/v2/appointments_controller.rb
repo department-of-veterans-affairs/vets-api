@@ -40,10 +40,11 @@ module VAOS
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
 
-        # Log unique user event for appointments accessed
+        # Log unique user event for appointments accessed (with facility tracking for OH events)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+          event_facility_ids: appointment_facility_ids(appointments[:data])
         )
 
         if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
@@ -141,7 +142,29 @@ module VAOS
         handle_appointment_creation_error(e)
       end
 
+      def get_avs_binaries
+        render json: VAOS::V2::AvsBinarySerializer.new(avs_binaries), status: :ok
+      end
+
       private
+
+      # Extract unique facility IDs (3-character) from user-visible appointments for OH event tracking
+      # Only includes appointments that are future, past, or pending (shown to users in the UI)
+      # Note: location_id may be a sta6aid (5-6 characters like "983GC") - we extract only the
+      # 3-character facility ID prefix to match against TRACKED_FACILITY_IDS
+      # Returns nil if mhv_oh_unique_user_metrics_logging_appt feature flag is disabled
+      # @param appointments [Array] list of appointment hashes/objects
+      # @return [Array<String>, nil] unique 3-character facility IDs or nil if none/disabled
+      def appointment_facility_ids(appointments)
+        return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_appt)
+
+        visible_appointments = appointments.select do |appt|
+          # Pending appointments are always visible; non-cancelled appointments with date flags are visible
+          appt[:pending] || (appt[:status] != 'cancelled' && (appt[:future] || appt[:past]))
+        end
+        station_ids = visible_appointments.filter_map { |appt| appt[:location_id]&.[](0..2) }.uniq
+        station_ids.presence
+      end
 
       def set_facility_error_msg(appointment)
         appointment[:location] = FACILITY_ERROR_MSG if appointment[:location_id].present? && appointment[:location].nil?
@@ -189,6 +212,12 @@ module VAOS
       def updated_appointment
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
+      end
+
+      def avs_binaries
+        @avs_binaries ||=
+          appointments_service.fetch_avs_binaries(avs_binaries_params[:appointment_id],
+                                                  avs_binaries_params[:doc_ids].split(','))
       end
 
       # Makes a call to the VAOS service to create a new appointment.
@@ -257,6 +286,12 @@ module VAOS
         params.require(:referral_number)
         params.require(:referral_consult_id)
         params.permit(:referral_number, :referral_consult_id)
+      end
+
+      def avs_binaries_params
+        params.require(:appointment_id)
+        params.require(:doc_ids)
+        params.permit(:appointment_id, :doc_ids)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -391,7 +426,7 @@ module VAOS
       end
 
       def create_method_logging_name
-        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_OH_request)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg)
           APPT_CREATE_VPG
         else
           APPT_CREATE_VAOS

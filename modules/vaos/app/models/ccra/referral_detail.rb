@@ -12,7 +12,8 @@ module Ccra
                 :referring_facility_address,
                 :referral_date, :station_id, :referral_consult_id,
                 :treating_facility_name, :treating_facility_code, :treating_facility_phone,
-                :treating_facility_address
+                :treating_facility_address,
+                :primary_care_provider_npi, :referring_provider_npi, :treating_provider_npi
     attr_accessor :uuid, :appointments, :has_appointments
 
     ##
@@ -34,10 +35,59 @@ module Ccra
       @referral_date = attributes[:referral_date]
       @station_id = attributes[:station_id]
 
+      # Capture root-level NPI fields
+      @primary_care_provider_npi = attributes[:primary_care_provider_npi]
+      @referring_provider_npi = attributes[:referring_provider_npi]
+      @treating_provider_npi = attributes[:treating_provider_npi]
+
       # Parse provider and facility info
       parse_referring_facility_info(attributes[:referring_facility_info])
       parse_treating_provider_info(attributes[:treating_provider_info])
       parse_treating_facility_info(attributes[:treating_facility_info])
+    end
+
+    ##
+    # Selects the appropriate NPI for EPS provider lookups based on feature flags
+    #
+    # Priority order:
+    # 1. If va_online_scheduling_use_primary_care_npi is enabled, use primary_care_provider_npi
+    # 2. If va_online_scheduling_use_referring_provider_npi is enabled, use referring_provider_npi
+    # 3. Default to treating_provider_npi (root level)
+    # 4. Fallback to provider_npi (nested, from treating_provider_info) if selected NPI is blank
+    #
+    # Note: If user is nil, all feature flags will be treated as disabled and default behavior applies.
+    # Flipper.enabled? safely handles nil actors by returning false.
+    #
+    # @param user [User, nil] The current user for checking feature flags (can be nil)
+    # @return [String, nil] The selected NPI, or nil if none available
+    def selected_npi_for_eps(user)
+      selected = if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+                   @primary_care_provider_npi
+                 elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+                   @referring_provider_npi
+                 else
+                   @treating_provider_npi
+                 end
+
+      # Fallback to nested provider_npi if selected NPI is blank
+      selected.presence || @provider_npi
+    end
+
+    ##
+    # Returns a symbol indicating which NPI source was selected
+    #
+    # Used for logging and debugging to understand which NPI selection path was taken.
+    #
+    # @param user [User, nil] The current user for checking feature flags (can be nil)
+    # @return [Symbol] :primary_care, :referring, :treating_root, or :treating_nested
+    def selected_npi_source(user)
+      if user && Flipper.enabled?(:va_online_scheduling_use_primary_care_npi, user)
+        @primary_care_provider_npi.present? ? :primary_care : :treating_nested
+      elsif user && Flipper.enabled?(:va_online_scheduling_use_referring_provider_npi, user)
+        @referring_provider_npi.present? ? :referring : :treating_nested
+      else
+        @treating_provider_npi.present? ? :treating_root : :treating_nested
+      end
     end
 
     ##
@@ -78,7 +128,10 @@ module Ccra
         'referral_date' => @referral_date,
         'station_id' => @station_id,
         'referral_consult_id' => @referral_consult_id,
-        'uuid' => @uuid
+        'uuid' => @uuid,
+        'primary_care_provider_npi' => @primary_care_provider_npi,
+        'referring_provider_npi' => @referring_provider_npi,
+        'treating_provider_npi' => @treating_provider_npi
       }
     end
 
@@ -120,6 +173,9 @@ module Ccra
       @provider_name = hash['provider_name']
       @provider_npi = hash['provider_npi']
       @provider_specialty = hash['provider_specialty']
+      @primary_care_provider_npi = hash['primary_care_provider_npi']
+      @referring_provider_npi = hash['referring_provider_npi']
+      @treating_provider_npi = hash['treating_provider_npi']
     end
 
     # Assign facility information including addresses
