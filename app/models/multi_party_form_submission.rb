@@ -21,7 +21,7 @@ class MultiPartyFormSubmission < ApplicationRecord
     state :primary_in_progress, initial: true
     state :awaiting_secondary_start
     state :secondary_in_progress
-    state :awaiting_primary_review
+    # state :awaiting_primary_review
     state :submitted
 
     event :primary_complete do
@@ -38,15 +38,23 @@ class MultiPartyFormSubmission < ApplicationRecord
 
     event :secondary_complete do
       transitions from: :secondary_in_progress,
-                  to: :awaiting_primary_review,
-                  after: :notify_primary_of_completion
-    end
-
-    event :primary_submit do
-      transitions from: :awaiting_primary_review,
                   to: :submitted,
                   after: :process_final_submission
     end
+
+    # TODO: This is still somewhat undecided whether or not
+    # the primary party will review and submit the form
+    # event :secondary_complete do
+    #   transitions from: :secondary_in_progress,
+    #               to: :awaiting_primary_review,
+    #               after: :notify_primary_of_completion
+    # end
+
+    # event :primary_submit do
+    #   transitions from: :awaiting_primary_review,
+    #               to: :submitted,
+    #               after: :process_final_submission
+    # end
   end
 
   # Scopes
@@ -91,9 +99,9 @@ class MultiPartyFormSubmission < ApplicationRecord
     update!(secondary_notified_at: Time.current)
   end
 
-  def notify_primary_of_completion
-    MultiPartyForms::NotifyPrimaryPartyJob.perform_async(id, 'secondary_completed')
-  end
+  # def notify_primary_of_completion
+  #   MultiPartyForms::NotifyPrimaryPartyJob.perform_async(id, 'secondary_completed')
+  # end
 
   def process_final_submission
     MultiPartyForms::SubmitFormJob.perform_async(id)
