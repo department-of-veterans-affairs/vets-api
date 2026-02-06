@@ -88,7 +88,20 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                      file_type: nil,
                                      document_type: nil,
                                      filename: nil,
-                                     document_id: nil })
+                                     document_id: nil,
+                                     # Content override fields should be nil when the feature flag is disabled
+                                     activity_description: nil,
+                                     can_upload_file: nil,
+                                     friendly_name: nil,
+                                     is_dbq: nil,
+                                     is_proper_noun: nil,
+                                     is_sensitive: nil,
+                                     long_description: nil,
+                                     next_steps: nil,
+                                     no_action_needed: nil,
+                                     no_provide_prefix: nil,
+                                     short_description: nil,
+                                     support_aliases: nil })
   end
 
   describe 'download_eligible_documents' do
@@ -243,6 +256,80 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
       it 'does not include display_title in the response' do
         expect(test_claim[:display_title]).to be_nil
+      end
+    end
+  end
+
+  describe 'tracked item content overrides' do
+    let(:test_claim) do
+      subject.parse(claim_data[2])
+    end
+
+    let(:real_content) do
+      BenefitsClaims::TrackedItemContent.find_by_display_name('21-4142') # rubocop:disable Rails/DynamicFindBy
+    end
+
+    context "when the 'cst_evidence_requests_content_override_mobile' feature flag is enabled" do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+          .and_return(true)
+        allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+          .and_return(real_content)
+      end
+
+      it 'includes content override fields in tracked item events' do
+        tracked_item = test_claim[:events_timeline].find do |event|
+          %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
+        end
+
+        expect(tracked_item.friendly_name).to eq('Authorization to disclose information')
+        expect(tracked_item.short_description).to eq(
+          'We need your permission to request your personal information from a non-VA source, ' \
+          'like a private doctor or hospital.'
+        )
+        expect(tracked_item.activity_description).to be_nil
+        expect(tracked_item.support_aliases).to eq(['21-4142'])
+        expect(tracked_item.can_upload_file).to be(true)
+        expect(tracked_item.no_action_needed).to be(false)
+        expect(tracked_item.is_dbq).to be(false)
+        expect(tracked_item.is_proper_noun).to be(false)
+        expect(tracked_item.is_sensitive).to be(false)
+        expect(tracked_item.no_provide_prefix).to be(false)
+        expect(tracked_item.long_description).to be_a(Hash)
+        expect(tracked_item.next_steps).to be_a(Hash)
+      end
+    end
+
+    context "when the 'cst_evidence_requests_content_override_mobile' feature flag is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+          .and_return(false)
+      end
+
+      it 'does not include content override fields in tracked item events' do
+        tracked_item = test_claim[:events_timeline].find do |event|
+          %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
+        end
+
+        expect(tracked_item.friendly_name).to be_nil
+        expect(tracked_item.short_description).to be_nil
+        expect(tracked_item.activity_description).to be_nil
+        expect(tracked_item.support_aliases).to be_nil
+        expect(tracked_item.can_upload_file).to be_nil
+        expect(tracked_item.no_action_needed).to be_nil
+        expect(tracked_item.is_dbq).to be_nil
+        expect(tracked_item.is_proper_noun).to be_nil
+        expect(tracked_item.is_sensitive).to be_nil
+        expect(tracked_item.no_provide_prefix).to be_nil
+        expect(tracked_item.long_description).to be_nil
+        expect(tracked_item.next_steps).to be_nil
+      end
+
+      it 'does not call TrackedItemContent lookup' do
+        expect(BenefitsClaims::TrackedItemContent).not_to receive(:find_by_display_name)
+        test_claim
       end
     end
   end
