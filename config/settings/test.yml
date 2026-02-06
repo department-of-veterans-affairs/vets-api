@@ -638,9 +638,9 @@ iam_ssoe:
   timeout: 20
 ibm:
   breakers_error_threshold: 80
-  host: ~
+  host: test.com
   path: "/api/validated-forms"
-  use_mocks: true
+  use_mocks: false
   version: v1
 intent_to_file:
   prefill: true
