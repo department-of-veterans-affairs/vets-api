@@ -129,21 +129,12 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
         allow(Flipper).to receive(:enabled?).with(:bio_heart_mms_submit).and_return(true)
       end
 
-      context 'with nil response' do
+      context 'with error response' do
         before do
-          allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:submit).and_return(nil)
-        end
-
-        it 'does not attempt IBM submission' do
-          expect(ibm_service).not_to receive(:upload_form)
-
-          post('/bio_heart_api/v1/bio_heart', params:)
-        end
-      end
-
-      context 'with empty string response' do
-        before do
-          allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:submit).and_return('')
+          # Mock the benefits intake service inside parent controller's submit method to fail
+          allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+            .to receive(:submit_form_to_benefits_intake)
+            .and_return(json: JSON.parse('{}'), status: :internal_server_error)
         end
 
         it 'does not attempt IBM submission' do
@@ -155,7 +146,8 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
       context 'with invalid JSON response' do
         before do
-          allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:submit)
+          allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+            .to receive(:submit_form_to_benefits_intake)
             .and_return('not valid json')
         end
 
@@ -168,7 +160,8 @@ RSpec.describe 'BioHeartApi::V1::Uploads', type: :request do
 
       context 'with JSON response missing confirmation_number' do
         before do
-          allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:submit)
+          allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+            .to receive(:submit_form_to_benefits_intake)
             .and_return({ submission_api: 'benefitsIntake' }.to_json)
         end
 
