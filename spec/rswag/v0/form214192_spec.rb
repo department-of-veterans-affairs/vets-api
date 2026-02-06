@@ -4,7 +4,7 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 
-RSpec.describe 'Form 21-4192 API', openapi_spec: 'public/openapi.json', type: :request do
+RSpec.describe 'Form 21-4192 API', openapi_spec: 'config/openapi/openapi.json', type: :request do
   before do
     host! Settings.hostname
     allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-1234-1234-123456789abc')

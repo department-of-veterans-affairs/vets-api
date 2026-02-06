@@ -3,7 +3,7 @@
 class RswagConfig
   def config
     {
-      'public/openapi.json' => {
+      'config/openapi/openapi.json' => {
         openapi: '3.0.3',
         info: info_spec,
         paths: {},
