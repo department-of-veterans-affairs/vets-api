@@ -50,7 +50,11 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
     end
 
     it '.pending_for_secondary returns only pending submissions' do
-      secondary_in_progress = create(:multi_party_form_submission, secondary_email: email, status: 'secondary_in_progress')
+      secondary_in_progress = create(
+        :multi_party_form_submission,
+        secondary_email: email,
+        status: 'secondary_in_progress'
+      )
 
       results = described_class.pending_for_secondary(email)
 
@@ -66,15 +70,15 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
       expect(submission.status).to eq('primary_in_progress')
     end
 
-    # uncomment this once NotifySecondaryPartyJob is implemented
-    xit 'transitions from primary_in_progress to awaiting_secondary_start' do
-      # expect(MultiPartyForms::NotifySecondaryPartyJob).to receive(:perform_async).with(submission.id)
-      submission.primary_complete!
-      expect(submission.status).to eq('awaiting_secondary_start')
-      expect(submission.secondary_notified_at).to be_present
-    end
+    # TODO: uncomment this once NotifySecondaryPartyJob is implemented
+    # it 'transitions from primary_in_progress to awaiting_secondary_start' do
+    #     # expect(MultiPartyForms::NotifySecondaryPartyJob).to receive(:perform_async).with(submission.id)
+    #     submission.primary_complete!
+    #     expect(submission.status).to eq('awaiting_secondary_start')
+    #     expect(submission.secondary_notified_at).to be_present
+    # end
 
-    xit 'transitions from awaiting_secondary_start to secondary_in_progress' do
+    it 'transitions from awaiting_secondary_start to secondary_in_progress' do
       submission.update!(status: 'awaiting_secondary_start')
 
       submission.secondary_start!
@@ -82,26 +86,27 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
       expect(submission.status).to eq('secondary_in_progress')
     end
 
-    # uncomment this once NotifyPrimaryPartyJob is implemented
-    xit 'transitions from secondary_in_progress to awaiting_primary_review' do
-      submission.update!(status: 'secondary_in_progress')
-      # expect(MultiPartyForms::NotifyPrimaryPartyJob).to receive(:perform_async).with(submission.id, 'secondary_completed')
+    # TODO: uncomment this once NotifyPrimaryPartyJob is implemented
+    # it 'transitions from secondary_in_progress to awaiting_primary_review' do
+    #     submission.update!(status: 'secondary_in_progress')
+    #     # expect(MultiPartyForms::NotifyPrimaryPartyJob).to receive(:perform_async)
+    #     #   .with(submission.id, 'secondary_completed')
 
-      submission.secondary_complete!
+    #     submission.secondary_complete!
 
-      expect(submission.status).to eq('awaiting_primary_review')
-    end
+    #     expect(submission.status).to eq('awaiting_primary_review')
+    # end
 
-    # uncomment this once SubmitFormJob is implemented
-    xit 'transitions from awaiting_primary_review to submitted' do
-      submission.update!(status: 'awaiting_primary_review')
-      # expect(MultiPartyForms::SubmitFormJob).to receive(:perform_async).with(submission.id)
+    # TODO: uncomment this once SubmitFormJob is implemented
+    # it 'transitions from awaiting_primary_review to submitted' do
+    #     submission.update!(status: 'awaiting_primary_review')
+    #     # expect(MultiPartyForms::SubmitFormJob).to receive(:perform_async).with(submission.id)
 
-      submission.primary_submit!
+    #     submission.primary_submit!
 
-      expect(submission).to be_submitted
-      expect(submission.submitted_at).to be_present
-    end
+    #     expect(submission).to be_submitted
+    #     expect(submission.submitted_at).to be_present
+    # end
 
     it 'guards primary_complete! transition if secondary_email is missing' do
       submission.update!(secondary_email: nil)
@@ -110,11 +115,11 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
   end
 
   describe 'form id generation' do
-    let(:submission) { build(:multi_party_form_submission, form_type: form_type) }
+    let(:submission) { build(:multi_party_form_submission, form_type:) }
 
     it 'returns correctly formatted form IDs' do
-      expect(submission.primary_form_id).to eq("21-2680-PRIMARY")
-      expect(submission.secondary_form_id).to eq("21-2680-SECONDARY")
+      expect(submission.primary_form_id).to eq('21-2680-PRIMARY')
+      expect(submission.secondary_form_id).to eq('21-2680-SECONDARY')
     end
   end
 
@@ -128,7 +133,7 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
 
     it 'rejects an incorrect token' do
       submission.generate_secondary_access_token!
-      expect(submission.verify_secondary_token("invalid-token-string")).to be false
+      expect(submission.verify_secondary_token('invalid-token-string')).to be false
     end
 
     it 'rejects an expired token' do
