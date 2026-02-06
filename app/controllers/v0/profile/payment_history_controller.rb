@@ -208,13 +208,13 @@ module V0
       def log_payment_history_exception(exception)
         return unless Flipper.enabled?(:payment_history_exception_logging)
 
-        exception_class = exception.class.name
+        exception_class = exception&.class&.name
         Rails.logger.error('Exception occurred in payment history controller', {
                              user_uuid: current_user&.uuid,
                              exception_class:,
                              exception_message: exception&.message
                            })
-        StatsD.increment("api.payment_history.exception.#{exception_class.underscore}")
+        StatsD.increment("api.payment_history.exception.#{exception_class&.underscore}")
       end
     end
   end
