@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'decision_reviews/v1/concerns/error_handling'
+require 'common/client/concerns/monitoring'
+require 'common/client/errors'
+require 'common/exceptions/forbidden'
+require 'common/exceptions/schema_validation_errors'
 require 'decision_reviews/v1/configuration'
+require 'decision_reviews/v1/service_exception'
 require 'decision_reviews/v1/constants'
 require 'decision_reviews/v1/supplemental_claim_services'
 require 'decision_reviews/v1/logging_utils'
@@ -13,7 +17,7 @@ module DecisionReviews
     # Proxy Service for the Lighthouse Decision Reviews API.
     #
     class Service < Common::Client::Base
-      include DecisionReviews::V1::Concerns::ErrorHandling
+      include Common::Client::Concerns::Monitoring
       include ::DecisionReviewV1
       include DecisionReviews::V1::SupplementalClaimServices
       include DecisionReviews::V1::LoggingUtils
@@ -21,6 +25,20 @@ module DecisionReviews
       STATSD_KEY_PREFIX = 'api.decision_review'
       ZIP_REGEX = /^\d{5}(-\d{4})?$/
       NO_ZIP_PLACEHOLDER = '00000'
+
+      ERROR_MAP = {
+        504 => Common::Exceptions::GatewayTimeout,
+        503 => Common::Exceptions::ServiceUnavailable,
+        502 => Common::Exceptions::BadGateway,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        429 => Common::Exceptions::TooManyRequests,
+        422 => Common::Exceptions::UnprocessableEntity,
+        413 => Common::Exceptions::PayloadTooLarge,
+        404 => Common::Exceptions::ResourceNotFound,
+        403 => Common::Exceptions::Forbidden,
+        401 => Common::Exceptions::Unauthorized,
+        400 => Common::Exceptions::BadRequest
+      }.freeze
 
       configuration DecisionReviews::V1::Configuration
 
@@ -391,6 +409,88 @@ module DecisionReviews
           'X-VA-SSN' => user.ssn.to_s,
           'X-VA-ICN' => user.icn.presence
         }
+      end
+
+      def with_monitoring_and_error_handling(&)
+        with_monitoring(2, &)
+      rescue => e
+        handle_error(error: e)
+      end
+
+      def save_error_details(error)
+        PersonalInformationLog.create!(
+          error_class: "#{self.class.name}#save_error_details exception #{error.class} (DECISION_REVIEW_V1)",
+          data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
+        )
+      end
+
+      def log_error_details(error:, message: nil)
+        info = {
+          message:,
+          error_class: error.class,
+          error:
+        }
+        ::Rails.logger.info(info)
+      end
+
+      def error_log_params(error)
+        log_params = { is_success: false, response_error: error }
+        log_params[:body] = error.body if error.try(:status) == 422
+        log_params
+      end
+
+      def handle_error(error:, message: nil)
+        save_and_log_error(error:, message:)
+        source_hash = { source: "#{error.class} raised in #{self.class}" }
+
+        raise case error
+              when Faraday::ParsingError
+                DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
+              when Common::Client::Errors::ClientError
+                error_status = error.status
+
+                if ERROR_MAP.key?(error_status)
+                  ERROR_MAP[error_status].new(source_hash.merge(detail: error.body))
+                elsif error_status == 403
+                  Common::Exceptions::Forbidden.new source_hash
+                else
+                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error_status}", response_values: source_hash,
+                                                            original_status: error_status, original_body: error.body)
+                end
+              else
+                error
+              end
+      end
+
+      def save_and_log_error(error:, message:)
+        save_error_details(error)
+        log_error_details(error:, message:)
+      end
+
+      def validate_against_schema(json:, schema:, append_to_error_class: '')
+        errors = JSONSchemer.schema(schema).validate(json).to_a
+        return if errors.empty?
+
+        raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
+      rescue => e
+        PersonalInformationLog.create!(
+          error_class: "#{self.class.name}#validate_against_schema exception #{e.class}#{append_to_error_class}",
+          data: {
+            json:, schema:, errors:,
+            error: Class.new.include(FailedRequestLoggable).exception_hash(e)
+          }
+        )
+        raise
+      end
+
+      def raise_schema_error_unless_200_status(status)
+        return if status == 200
+
+        raise Common::Exceptions::SchemaValidationErrors, ["expecting 200 status received #{status}"]
+      end
+
+      def remove_pii_from_json_schemer_errors(errors)
+        errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
       end
     end
   end
