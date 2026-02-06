@@ -24,7 +24,8 @@ module Ccra
     end
 
     # Saves referral data to the Redis cache.
-    # The data is stored as JSON with a compound key combining ICN and referral ID.
+    # The data is encrypted using Lockbox before storing to protect PII
+    # The cache key uses a hashed ICN to prevent ICN exposure in cache key listing
     #
     # @param id [String] The referral ID to use as part of the cache key
     # @param icn [String] The ICN of the patient to use as part of the cache key
@@ -32,9 +33,11 @@ module Ccra
     # @return [Boolean] true if the cache operation was successful
     def save_referral_data(id:, icn:, referral_data:)
       cache_key = generate_cache_key(id, icn)
+      encrypted_data = encrypt_data(referral_data.to_json)
+
       Rails.cache.write(
         cache_key,
-        referral_data.to_json,
+        encrypted_data,
         namespace: REFERRAL_CACHE_NAMESPACE,
         expires_in: redis_referral_expiry
       )
@@ -71,18 +74,22 @@ module Ccra
     end
 
     # Retrieves referral data from the Redis cache.
-    # If found, the cached JSON data is deserialized into a ReferralDetail object.
+    # Data is decrypted after retrieval using Lockbox
+    # If found and decrypted, the JSON data is deserialized into a ReferralDetail object.
+    # If decryption fails (old unencrypted data), returns nil (cache miss)
     #
     # @param id [String] The referral ID
     # @param icn [String] The ICN of the patient
-    # @return [ReferralDetail, nil] A ReferralDetail object if found in cache, nil otherwise
+    # @return [ReferralDetail, nil] A ReferralDetail object if found and successfully decrypted, nil otherwise
     def fetch_referral_data(id:, icn:)
       cache_key = generate_cache_key(id, icn)
-      json_data = Rails.cache.read(
-        cache_key,
-        namespace: REFERRAL_CACHE_NAMESPACE
-      )
-      json_data ? ReferralDetail.new.from_json(json_data) : nil
+      encrypted_data = Rails.cache.read(cache_key, namespace: REFERRAL_CACHE_NAMESPACE)
+      return nil unless encrypted_data
+
+      decrypted_json = decrypt_data(encrypted_data)
+      return nil unless decrypted_json
+
+      ReferralDetail.new.from_json(decrypted_json)
     end
 
     # Clears referral data from the Redis cache for a specific referral.
@@ -100,14 +107,48 @@ module Ccra
 
     private
 
+    # Returns a configured Lockbox instance for encryption/decryption
+    #
+    # @return [Lockbox] A Lockbox instance with the master key
+    def lockbox
+      @lockbox ||= begin
+        key = Settings.lockbox.master_key&.to_s
+        raise ArgumentError, 'Lockbox master key is required' if key.blank?
+
+        Lockbox.new(key:, encode: true)
+      end
+    end
+
+    # Encrypts data using Lockbox before caching
+    #
+    # @param data [String] The data to encrypt (JSON string)
+    # @return [String] The encrypted ciphertext
+    def encrypt_data(data)
+      lockbox.encrypt(data)
+    end
+
+    # Decrypts data retrieved from cache using Lockbox
+    # Returns nil if decryption fails (handles backward compatibility with old unencrypted data)
+    #
+    # @param encrypted_data [String] The encrypted ciphertext
+    # @return [String, nil] The decrypted JSON string, or nil if decryption fails
+    def decrypt_data(encrypted_data)
+      lockbox.decrypt(encrypted_data)
+    rescue Lockbox::DecryptionError => e
+      Rails.logger.warn("CCRA Redis: Failed to decrypt cached data (old unencrypted data?): #{e.message}")
+      nil
+    end
+
     # Generates a consistent cache key for a referral.
-    # The key format is "#{REFERRAL_CACHE_KEY}#{icn}_#{id}"
+    # The ICN is hashed (SHA256) to prevent PII exposure in Redis key listings
+    # The key format is "#{REFERRAL_CACHE_KEY}#{hashed_icn}_#{id}"
     #
     # @param id [String] The referral ID
     # @param icn [String] The ICN of the patient
-    # @return [String] The generated cache key
+    # @return [String] The generated cache key with hashed ICN
     def generate_cache_key(id, icn)
-      "#{REFERRAL_CACHE_KEY}#{icn}_#{id}"
+      hashed_icn = Digest::SHA256.hexdigest(icn)
+      "#{REFERRAL_CACHE_KEY}#{hashed_icn}_#{id}"
     end
 
     # Generates a consistent cache key for a booking start time.

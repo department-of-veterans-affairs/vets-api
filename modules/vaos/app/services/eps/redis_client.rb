@@ -24,6 +24,7 @@ module Eps
     end
 
     # Store appointment status check data
+    # Data is encrypted using Lockbox before storing to protect PII (email addresses)
     #
     # @param uuid [String] User's UUID
     # @param appointment_id [String] The appointment ID
@@ -36,30 +37,68 @@ module Eps
       raise ArgumentError, 'Email is required' if email.blank?
 
       cache_key = generate_appointment_data_key(uuid, appointment_id)
+      data = { appointment_id:, email: }
+      encrypted_data = encrypt_data(data)
+
       Rails.cache.write(
         cache_key,
-        { appointment_id:, email: },
+        encrypted_data,
         namespace: CACHE_NAMESPACE,
         expires_in: CACHE_TTL
       )
     end
 
     # Retrieve appointment status check data from cache
+    # Data is decrypted after retrieval using Lockbox
+    # If decryption fails (old unencrypted data), returns nil (cache miss)
     #
     # @param uuid [String] User's UUID
     # @param appointment_id [String] The appointment ID
-    # @return [Hash, nil] Appointment data if found
+    # @return [Hash, nil] Appointment data if found and successfully decrypted
     def fetch_appointment_data(uuid:, appointment_id:)
       return if uuid.blank? || appointment_id.blank?
 
       cache_key = generate_appointment_data_key(uuid, appointment_id)
-      Rails.cache.read(
-        cache_key,
-        namespace: CACHE_NAMESPACE
-      )
+      encrypted_data = Rails.cache.read(cache_key, namespace: CACHE_NAMESPACE)
+      return nil unless encrypted_data
+
+      decrypt_data(encrypted_data)
     end
 
     private
+
+    # Returns a configured Lockbox instance for encryption/decryption
+    #
+    # @return [Lockbox] A Lockbox instance with the master key
+    def lockbox
+      @lockbox ||= begin
+        key = Settings.lockbox.master_key&.to_s
+        raise ArgumentError, 'Lockbox master key is required' if key.blank?
+
+        Lockbox.new(key:, encode: true)
+      end
+    end
+
+    # Encrypts data using Lockbox before caching
+    #
+    # @param data [Hash] The data to encrypt
+    # @return [String] The encrypted ciphertext
+    def encrypt_data(data)
+      lockbox.encrypt(data.to_json)
+    end
+
+    # Decrypts data retrieved from cache using Lockbox
+    # Returns nil if decryption fails (handles backward compatibility with old unencrypted data)
+    #
+    # @param encrypted_data [String] The encrypted ciphertext
+    # @return [Hash, nil] The decrypted data with symbolized keys, or nil if decryption fails
+    def decrypt_data(encrypted_data)
+      decrypted_json = lockbox.decrypt(encrypted_data)
+      JSON.parse(decrypted_json, symbolize_names: true)
+    rescue Lockbox::DecryptionError => e
+      Rails.logger.warn("EPS Redis: Failed to decrypt cached data (old unencrypted data?): #{e.message}")
+      nil
+    end
 
     # Generates a consistent cache key for status check data.
     #
