@@ -35,16 +35,18 @@ module ClaimsApi
         def gather_poa_data
           data = gather_read_all_veteran_representative_data
           vnp_find_addrs_data = gather_vnp_addrs_data('veteran')
-          vnp_find_phone_data = gather_vnp_phone_data('veteran')
-
           data.merge!(vnp_find_addrs_data)
-          data.merge!(vnp_find_phone_data)
+
+          if @metadata.dig('veteran', 'vnp_phone_id')
+            vnp_find_phone_data = gather_vnp_phone_data('veteran')
+            data.merge!(vnp_find_phone_data)
+          end
 
           data.merge!('registration_number' => @registration_number.to_s)
           if @claimant.present?
             claimant_addr_data = gather_vnp_addrs_data('claimant')
 
-            if @metadata['claimant'].key?('vnp_phone_id')
+            if @metadata.dig('claimant', 'vnp_phone_id')
               claimant_phone_data = gather_vnp_phone_data('claimant')
               claimant_addr_data.merge!(claimant_phone_data)
             end
