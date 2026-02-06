@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake_url.com/suite/webapi/update-ch3-milestone-status
+    body:
+      encoding: UTF-8
+      string: '{"icn":"","milestones":[{"milestoneType":"ORIENTATION_COMPLETION","isMilestoneCompleted":true,"milestoneCompletionDate":"2025-01-15","milestoneSubmissionUser":"john.smith"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Appian-API-Key:
+      - <APPIAN_API_KEY>
+  response:
+    status:
+      code: 403
+      message: '403'
+    headers:
+      date:
+      - Mon, 06 Oct 2025 15:51:09 GMT
+      content-type:
+      - application/json;charset=UTF-8
+      content-length:
+      - '45'
+      connection:
+      - keep-alive
+      server:
+      - Apache
+      cache-control:
+      - no-cache, private
+      x-trace-id:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      x-frame-options:
+      - SAMEORIGIN
+      content-security-policy-report-only:
+      - 'style-src ''unsafe-inline'' ''self'' ''strict-dynamic'' ''nonce-MzZlOTkyZDAtOTI3NS00Y2QxLTgxNWMtYzYzZmY1NTg5MGIy'';
+        child-src ''none''; script-src ''self'' ''unsafe-inline'' ''unsafe-eval''
+        ''strict-dynamic'' ''nonce-MmRlYTdiOTItNWI5My00ZmRlLTg1MzMtOGNmZjYwM2RlNjIx'';
+        object-src https:; frame-src https:; img-src https:; default-src ''self'';
+        font-src ''self'' https: data:; report-uri /suite/rest/a/logging/latest/csp/report;
+        report-to report;'
+      content-security-policy:
+      - report-uri /suite/rest/a/logging/latest/csp/report; report-to report;
+      reporting-endpoints:
+      - report="/suite/rest/a/logging/latest/csp/report"
+      x-xss-protection:
+      - 1; mode=block
+      requested-while-authenticated:
+      - 'false'
+      vary:
+      - Accept-Encoding
+      content-encoding:
+      - gzip
+      x-content-type-options:
+      - nosniff
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"errorMessageList":["ICN is required"]}'
+  recorded_at: Mon, 06 Oct 2025 15:51:09 GMT
+recorded_with: VCR 6.3.1
