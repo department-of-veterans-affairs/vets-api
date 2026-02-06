@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe MultiPartyFormSubmission, type: :model do
-  let(:form_type) { "21-2680" }
+  let(:form_type) { '21-2680' }
 
   describe 'associations' do
     it { is_expected.to belong_to(:primary_in_progress_form).class_name('InProgressForm') }
@@ -12,7 +14,6 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:form_type) }
     it { is_expected.to validate_presence_of(:primary_user_uuid) }
-    it { is_expected.to validate_presence_of(:primary_in_progress_form) }
 
     it 'validates secondary_email format' do
       expect(build(:multi_party_form_submission, secondary_email: '')).to be_valid

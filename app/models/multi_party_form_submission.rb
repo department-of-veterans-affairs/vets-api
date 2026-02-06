@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MultiPartyFormSubmission < ApplicationRecord
   include AASM
 
@@ -13,7 +15,6 @@ class MultiPartyFormSubmission < ApplicationRecord
   validates :form_type, presence: true
   validates :primary_user_uuid, presence: true
   validates :secondary_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
-  validates :primary_in_progress_form, presence: true
 
   # AASM state machine configuration
   aasm column: :status do
@@ -49,9 +50,8 @@ class MultiPartyFormSubmission < ApplicationRecord
   end
 
   # Scopes
-  scope :pending_for_secondary, ->(email) {
-    where(secondary_email: email, status: %w[awaiting_secondary_start secondary_in_progress])
-  }
+  scope :pending_for_secondary,
+      ->(email) { where(secondary_email: email, status: %w[awaiting_secondary_start secondary_in_progress]) }
   scope :for_primary_user, ->(uuid) { where(primary_user_uuid: uuid) }
   scope :for_secondary_user, ->(uuid) { where(secondary_user_uuid: uuid) }
 
