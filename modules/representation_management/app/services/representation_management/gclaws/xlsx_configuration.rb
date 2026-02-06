@@ -48,9 +48,7 @@ module RepresentationManagement
           unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
             raise ConfigurationError, "GCLAWS accreditation_xlsx URL must be HTTP or HTTPS, got: #{url_string}"
           end
-          unless uri.host
-            raise ConfigurationError, "GCLAWS accreditation_xlsx URL missing hostname: #{url_string}"
-          end
+          raise ConfigurationError, "GCLAWS accreditation_xlsx URL missing hostname: #{url_string}" unless uri.host
         rescue URI::InvalidURIError => e
           raise ConfigurationError, "GCLAWS accreditation_xlsx URL is malformed: #{e.message}"
         end

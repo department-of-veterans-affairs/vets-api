@@ -37,10 +37,30 @@ module RepresentationManagement
       #     end
       #   end
       #   # Tempfile automatically deleted here
-      def self.download_accreditation_xlsx
+      def self.download_accreditation_xlsx(&)
         raise ArgumentError, 'Block required' unless block_given?
 
-        config = XlsxConfiguration.new
+        config = initialize_configuration
+        return yield config unless config.is_a?(XlsxConfiguration)
+
+        perform_download_with_cleanup(config, &)
+      end
+
+      # Initializes and validates configuration
+      #
+      # @return [XlsxConfiguration, Hash] Configuration object or error hash
+      def self.initialize_configuration
+        XlsxConfiguration.new
+      rescue XlsxConfiguration::ConfigurationError => e
+        handle_error('configuration_error', e, :internal_server_error,
+                     "GCLAWS XLSX configuration error: #{e.message}")
+      end
+
+      # Performs download with automatic tempfile cleanup
+      #
+      # @param config [XlsxConfiguration] Configuration with URL and credentials
+      # @yield [Hash] Result hash with success/error information
+      def self.perform_download_with_cleanup(config)
         output_file = nil
 
         begin
@@ -48,7 +68,6 @@ module RepresentationManagement
           output_file.close
 
           result = execute_curl_download(config, output_file)
-
           yield result
         ensure
           if output_file
@@ -194,7 +213,8 @@ module RepresentationManagement
         Rails.logger.error("RepresentationManagement::GCLAWS::XlsxClient error: #{message}")
       end
 
-      private_class_method :execute_curl_download, :process_curl_result,
+      private_class_method :initialize_configuration, :perform_download_with_cleanup,
+                           :execute_curl_download, :process_curl_result,
                            :handle_curl_error, :handle_error, :notify_slack_error,
                            :log_to_slack_channel, :log_error
     end

@@ -35,6 +35,84 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
       end
     end
 
+    context 'when configuration is invalid' do
+      before do
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns a structured error when URL is missing' do
+        allow(Settings.gclaws).to receive(:accreditation_xlsx).and_return(
+          OpenStruct.new(
+            url: nil,
+            username: test_username,
+            password: test_password
+          )
+        )
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
+          /#{error_log_prefix} GCLAWS XLSX configuration_error error/
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:error]).to match(/GCLAWS XLSX configuration error/)
+        expect(result[:error]).to match(/URL is missing or empty/)
+        expect(result[:status]).to eq(:internal_server_error)
+      end
+
+      it 'returns a structured error when username is missing' do
+        allow(Settings.gclaws).to receive(:accreditation_xlsx).and_return(
+          OpenStruct.new(
+            url: test_url,
+            username: nil,
+            password: test_password
+          )
+        )
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
+          /#{error_log_prefix} GCLAWS XLSX configuration_error error/
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:error]).to match(/GCLAWS XLSX configuration error/)
+        expect(result[:error]).to match(/username is missing or empty/)
+        expect(result[:status]).to eq(:internal_server_error)
+      end
+
+      it 'returns a structured error when password is missing' do
+        allow(Settings.gclaws).to receive(:accreditation_xlsx).and_return(
+          OpenStruct.new(
+            url: test_url,
+            username: test_username,
+            password: nil
+          )
+        )
+
+        result = nil
+        subject.download_accreditation_xlsx do |r|
+          result = r
+        end
+
+        expect(Rails.logger).to have_received(:error).with(
+          /#{error_log_prefix} GCLAWS XLSX configuration_error error/
+        )
+
+        expect(result[:success]).to be false
+        expect(result[:error]).to match(/GCLAWS XLSX configuration error/)
+        expect(result[:error]).to match(/password is missing or empty/)
+        expect(result[:status]).to eq(:internal_server_error)
+      end
+    end
+
     context 'when the request is successful' do
       before do
         allow(Open3).to receive(:capture3) do |*command|
