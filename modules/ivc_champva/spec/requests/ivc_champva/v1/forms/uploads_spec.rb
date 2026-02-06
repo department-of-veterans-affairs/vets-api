@@ -311,6 +311,22 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  # Shared examples for testing missing form_number parameter
+  shared_examples 'returns HTTP 400 for missing form_number' do |endpoint_path|
+    it 'returns HTTP 400 when form_number parameter is missing' do
+      post endpoint_path, params: {}
+
+      expect(response).to have_http_status(:bad_request)
+      json_response = JSON.parse(response.body)
+      expect(json_response['errors']).to be_present
+      expect(json_response['errors'].first['title']).to include('Missing parameter')
+    end
+  end
+
+  describe '#submit error handling' do
+    include_examples 'returns HTTP 400 for missing form_number', '/ivc_champva/v1/forms'
+  end
+
   # Copied this test from the #submit endpoint tests above and adjusted to use
   # the new endpoint. We'll need more tests in future, but wanted to have at
   # least one verifying it wasn't throwing rampant errors
@@ -339,6 +355,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    include_examples 'returns HTTP 400 for missing form_number', '/ivc_champva/v1/forms/10-10d-ext'
 
     # Also taken from the main #submit endpoint tests as they function the same at this level
     it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
@@ -792,7 +810,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     it 'raises an error for a missing form number' do
       allow(controller).to receive(:params).and_return({})
-      expect { controller.send(:get_form_id) }.to raise_error('Missing/malformed form_number in params')
+      expect { controller.send(:get_form_id) }.to raise_error(Common::Exceptions::ParameterMissing)
     end
   end
 

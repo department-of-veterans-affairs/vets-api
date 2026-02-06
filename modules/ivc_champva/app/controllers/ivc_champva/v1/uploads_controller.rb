@@ -47,6 +47,11 @@ module IvcChampva
 
           render json: response[:json], status: response[:status]
         end
+      rescue Common::Exceptions::BaseError => e
+        # Re-raise BaseError exceptions to let the framework's ExceptionHandling concern
+        # (app/controllers/concerns/exception_handling.rb) convert them to appropriate
+        # HTTP status codes (e.g., ParameterMissing -> 400, Forbidden -> 403)
+        raise
       rescue => e
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
@@ -84,6 +89,11 @@ module IvcChampva
         end
 
         submit(parsed_form_data)
+      rescue Common::Exceptions::BaseError => e
+        # Re-raise BaseError exceptions to let the framework's ExceptionHandling concern
+        # (app/controllers/concerns/exception_handling.rb) convert them to appropriate
+        # HTTP status codes (e.g., ParameterMissing -> 400, Forbidden -> 403)
+        raise
       rescue => e
         log_error_and_respond("Error submitting merged form: #{e.message}", e)
       end
@@ -974,7 +984,7 @@ module IvcChampva
 
       def get_form_id
         form_number = params[:form_number]
-        raise 'Missing/malformed form_number in params' unless form_number
+        raise Common::Exceptions::ParameterMissing, :form_number unless form_number
 
         FORM_NUMBER_MAP[form_number]
       end
