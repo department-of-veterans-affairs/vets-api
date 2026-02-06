@@ -84,7 +84,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to eq(
-          'errors' => { 'files' => ['at least one file is required'] }
+          'errors' => { 'files' => ['Invalid file'] }
         )
       end
 
