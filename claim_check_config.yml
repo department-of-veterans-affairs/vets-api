@@ -1,0 +1,13 @@
+# Sample configuration file for ClaimPdfCheckJob
+# Place this file in your vets-api directory and reference it with --config
+# Note: upload_enabled defaults to true - set to false to disable S3 upload
+# Note: Issue #131101 - Date defaults are placeholders, uncomment to override
+
+start_date: '2024-08-19'  # Issue #131101 placeholder
+end_date: '2025-01-10'    # Issue #131101 placeholder
+output_dir: '/tmp'
+upload_enabled: true  # Default: true (set to false to disable)
+s3_bucket: 'your-s3-bucket-name'
+s3_region: 'us-gov-west-1'
+s3_prefix: 'form526-pdf-checks/'
+max_claims: 500
