@@ -13,7 +13,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
   end
 
   describe 'index', skip: 'temporarily skipped' do
-    it 'returns a formatted hash response' do
+    it 'returns a formatted hash response', skip: 'temporarily skipped' do
       VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
@@ -65,6 +65,14 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         response_body = JSON.parse(response.body)
         expect(response_body['data']).to eq([])
+      end
+    end
+
+    it 'handles bad params' do
+      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
+        get '/v1/medical_copays?count=-4'
+
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Invalid count parameter' })
       end
     end
   end
@@ -142,6 +150,42 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         expect(errors.first.keys).to match_array(%w[title detail status code])
       end
+    end
+  end
+
+  describe 'summary' do
+    let(:service) { instance_double(MedicalCopays::LighthouseIntegration::Service) }
+
+    before do
+      allow(MedicalCopays::LighthouseIntegration::Service)
+        .to receive(:new)
+        .with(current_user.icn)
+        .and_return(service)
+    end
+
+    it 'returns summarized copay data with default month window' do
+      allow(service).to receive(:summary).with(month_count: 6).and_return(
+        {
+          entries: [],
+          meta: {
+            total_amount_due: 125.50,
+            total_copays: 3,
+            month_window: 6
+          }
+        }
+      )
+
+      get '/v1/medical_copays/summary'
+      expect(response).to have_http_status(:ok)
+
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to eq([])
+      expect(body['meta']).to eq(
+        'total_amount_due' => 125.5,
+        'total_copays' => 3,
+        'month_window' => 6
+      )
     end
   end
 end
