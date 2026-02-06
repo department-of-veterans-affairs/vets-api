@@ -81,6 +81,19 @@ RSpec.describe IncreaseCompensation::Helpers do
     end
   end
 
+  describe '#split_date_without_day' do
+    it 'splits a yyyy-mm sting into a year, month, and day hash' do
+      expect(subject.split_date_without_day('2021/11')).to eq({ 'month' => '11', 'day' => '', 'year' => '2021' })
+      expect(subject.split_date_without_day('2021-11')).to eq({ 'month' => '11', 'day' => '', 'year' => '2021' })
+      expect(subject.split_date_without_day('11-2021')).to eq({ 'month' => '11', 'day' => '', 'year' => '2021' })
+      expect(subject.split_date_without_day('11/2021')).to eq({ 'month' => '11', 'day' => '', 'year' => '2021' })
+      expect(subject.split_date_without_day('')).to eq({})
+      expect(subject.split_date_without_day(nil)).to eq({})
+      expect(subject.split_date_without_day('11/2021/33')).to eq({})
+      expect(subject.split_date_without_day('2021-11-05')).to eq({})
+    end
+  end
+
   describe '#format_first_care_item' do
     it 'formats to write 1 single item to form' do
       care_item =
@@ -89,8 +102,8 @@ RSpec.describe IncreaseCompensation::Helpers do
           'nameAndAddressOfHospital' => 'Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001',
           'hospitalTreatmentDates' => [
             {
-              'from' => '2024-06-01',
-              'to' => '2024-06-15'
+              'from' => '2024-01',
+              'to' => '2024-02'
             }
           ]
         }
@@ -98,8 +111,11 @@ RSpec.describe IncreaseCompensation::Helpers do
         [
           {
             'from' => {
-              'month' => '06', 'day' => '01', 'year' => '2024'
-            }, 'to' => { 'month' => '06', 'day' => '15', 'year' => '2024' }
+              'month' => '01', 'day' => '', 'year' => '2024'
+            },
+            'to' => {
+              'month' => '02', 'day' => '', 'year' => '2024'
+            }
           },
           'VA - Cheyenne VA Medical Center, 789 Health Ave, Cheyenne, WY 82001'
         ]

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'hca/service'
-require 'bgsv2/service'
+require 'bgs/service'
 require 'pdf_fill/filler'
 require 'lighthouse/facilities/v1/client'
 
@@ -27,7 +27,7 @@ module V0
         return
       end
 
-      service = BGSV2::Service.new(current_user)
+      service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
 
       hca_rating_info = { user_percent_of_disability: disability_rating }

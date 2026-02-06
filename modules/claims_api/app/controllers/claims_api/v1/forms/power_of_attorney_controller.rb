@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
@@ -211,7 +211,7 @@ module ClaimsApi
         end
 
         def power_of_attorney_verifier
-          @verifier ||= BGSV2::PowerOfAttorneyVerifier.new(target_veteran)
+          @verifier ||= BGS::PowerOfAttorneyVerifier.new(target_veteran)
         end
 
         def header_md5

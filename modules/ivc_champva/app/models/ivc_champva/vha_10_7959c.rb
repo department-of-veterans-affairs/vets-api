@@ -81,6 +81,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id:)
     end
 
+    # The old 7959c form was never stamped - return empty array for compatibility
+    # with FORM_REQUIRES_STAMP now including "10-7959C" for the rev2025 model
+    def desired_stamps
+      []
+    end
+
     # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
