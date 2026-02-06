@@ -12,8 +12,8 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('/tmp/dummy.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
-    allow(monitor).to receive(:track_submission_info)
-    allow(monitor).to receive(:track_submission_error)
+    allow(monitor).to receive(:track_info_event)
+    allow(monitor).to receive(:track_error_event)
     allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
     allow(claim_processor).to receive(:collect_child_claims).and_return([child_claim])
     allow(claim_processor).to receive(:handle_successful_submission)
@@ -259,9 +259,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
     end
 
     it 'logs submission info' do
-      expect(monitor).to receive(:track_submission_info).with(
+      expect(monitor).to receive(:track_info_event).with(
         match(/Successfully submitted/),
-        'success',
+        action: 'success',
+        component: anything,
         parent_claim_id: parent_claim.id
       )
       job.send(:handle_job_success)
@@ -269,9 +270,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
     it 'tracks submission error on error' do
       allow(claim_processor).to receive(:handle_successful_submission).and_raise(StandardError.new('Logging error'))
-      expect(monitor).to receive(:track_submission_error).with(
+      expect(monitor).to receive(:track_error_event).with(
         'Error handling job success',
-        'success_failure',
+        action: 'success_failure',
+        component: anything,
         error: anything,
         claim_id: anything,
         parent_claim_id: parent_claim.id
@@ -330,9 +332,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
     end
 
     it 'logs the permanent failure' do
-      expect(monitor).to receive(:track_submission_error).with(
+      expect(monitor).to receive(:track_error_event).with(
         match(/Error submitting/),
-        'error.permanent',
+        action: 'error.permanent',
+        component: anything,
         error: exception,
         parent_claim_id: parent_claim.id,
         claim_id: parent_claim.id
@@ -483,9 +486,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
           end
 
           it 'tracks the validation error' do
-            expect(monitor).to receive(:track_submission_error).with(
+            expect(monitor).to receive(:track_error_event).with(
               match(/Submission attempt failure/),
-              'claim.error',
+              action: 'claim.error',
+              component: anything,
               error: an_instance_of(DependentsBenefits::Invalid686cClaim),
               parent_claim_id: parent_claim.id,
               saved_claim_id: claim.id
@@ -557,9 +561,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
           end
 
           it 'tracks the validation error' do
-            expect(monitor).to receive(:track_submission_error).with(
+            expect(monitor).to receive(:track_error_event).with(
               match(/Submission attempt failure/),
-              'claim.error',
+              action: 'claim.error',
+              component: anything,
               error: an_instance_of(DependentsBenefits::Invalid674Claim),
               parent_claim_id: parent_claim.id,
               saved_claim_id: claim.id
@@ -611,9 +616,10 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
         end
 
         it 'tracks submission error' do
-          expect(monitor).to receive(:track_submission_error).with(
+          expect(monitor).to receive(:track_error_event).with(
             match(/Submission attempt failure/),
-            'claim.error',
+            action: 'claim.error',
+            component: anything,
             error:,
             parent_claim_id: parent_claim.id,
             saved_claim_id: claim.id
