@@ -34,7 +34,8 @@ module MyHealth
         not_refillable = ['false'].include?(item.is_refillable.to_s)
         if item.refill_remaining.to_i.zero? && not_refillable
           return true if disp_status&.downcase == 'active'
-          return true if disp_status&.downcase == 'active: parked' && !item.rx_rf_records.all?(&:empty?)
+          return true if disp_status&.downcase == 'active: parked' && item.rx_rf_records.present? &&
+                         !item.rx_rf_records.all?(&:empty?)
         end
         if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
           return true
