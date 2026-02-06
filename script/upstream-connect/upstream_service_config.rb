@@ -22,21 +22,21 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
   SERVICES = {
     'appeals' => {
       name: 'Appeals (Caseflow)',
-      description: 'Connect to Caseflow appeals system',
+      description: 'Connect to Caseflow (Appeals) system',
       ports: [4437],
       settings_namespaces: ['caseflow'],
       skipped_settings: [[]],
       tunnel_setting: ['host'],
       mock_mpi: true,
       instructions: <<~TEXT
-        MPI Connection Instructions:
+        Caseflow Connection Instructions:
 
         1. No additional steps needed.
 
         Test Connection:
           - Health Check: https://localhost:4437/health-check
           - Test User: vets.gov.user+0@gmail.com (Hector) <TODO no longer valid?>
-          - endpoints: /mobile/v0/appeal/:id, A6223
+          - Endpoints: /mobile/v0/appeal/:id, A6223
 
       TEXT
     },
@@ -50,7 +50,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       tunnel_setting: ['url'],
       mock_mpi: false,
       instructions: <<~TEXT
-        BEP/BGS Instructions:
+        BEP/BGS Connection Instructions:
 
         Update Local Settings with SSL setting:
         ```
@@ -62,7 +62,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
         - Test User: vets.gov.user+137@gmail.com (Martin)
-        - endpoints: /mobile/v0/awards <TODO: data parsing issue?>
+        - Endpoints: /mobile/v0/awards <TODO: data parsing issue?>
                      /mobile/v0/dependents
                      /mobile/v0/payment_history
 
@@ -96,7 +96,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: <Test Case Needed>
-          - endpoints: <Test Case Needed>
+          - Endpoints: <Test Case Needed>
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -131,7 +131,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/claims-and-appeals-overview?
+          - Endpoints: /mobile/v0/claims-and-appeals-overview?
                        /mobile/v0/claim/:id, id: 600810891
 
         Additional Notes:
@@ -169,7 +169,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/claims/decision-letters
+          - Endpoints: /mobile/v0/claims/decision-letters
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -204,7 +204,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: <TODO Test Case Needed>
-          - endpoints: /mobile/v0/payment-information/benefits
+          - Endpoints: /mobile/v0/payment-information/benefits
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -253,7 +253,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/health/immunizations
+          - Endpoints: /mobile/v0/health/immunizations
                        /mobile/v0/health/locations/:id, id: <TODO>
 
 
@@ -292,7 +292,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/health/allergy-intolerances
+          - Endpoints: /mobile/v0/health/allergy-intolerances
                        /mobile/v0/health/labs-and-tests
 
         Additional Notes:
@@ -328,7 +328,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: vets.gov.user+54@gmail.com
-          - endpoints: /mobile/v0/letters
+          - Endpoints: /mobile/v0/letters
 
         Additional Notes:
         - See the Lighthouse documentation for more info
@@ -338,7 +338,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
     'user' => {
       name: 'MPI',
       aliases: %w[mpi],
-      description: 'Connect to Benefits Eligibility Platform for awards and payment history data',
+      description: 'Connect to MVI for user identity data',
       ports: [4492],
       settings_namespaces: ['lighthouse.facilities'],
       skipped_settings: [[]],
@@ -347,12 +347,35 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
       instructions: <<~TEXT
         MPI Connection Instructions:
 
-        No additional steps needed.
+        1. Run `upstream-connect` for `va_profile` as well if requesting `/v0/user`
 
         Test Connection:
           - Test User: judy.morrison@id.me
-          - endpoints: /mobile/v0/user
+          - Endpoints: /mobile/v0/user
                        /mobile/v0/user/authorized-services
+      TEXT
+    },
+    'va_profile' => {
+      name: 'VA Profile',
+      aliases: %w[contact_info demographics military_personnel military_service addresses emails phones preferred_name],
+      description: 'Connect to VA Profile for user profile, contact info, and military service history data',
+      ports: [4433],
+      settings_namespaces: ['va_profile'],
+      skipped_settings: [%w[address_validation v3]],
+      tunnel_setting: ['url'],
+      mock_mpi: false, # While MPI is not required for these calls, it is often used in conjunction with the MPI config. This prevents conflicting MPI port settings # rubocop:disable Layout/LineLength
+      instructions: <<~TEXT
+        VA Profile Connection Instructions:
+
+        1. To connect to VA Profile (QA), TEMPORARILY
+          update `SETTINGS` in `lib/va_profile/configuration.rb` to `SETTINGS = Settings.va_profile`
+
+        Test Connection:
+          - Test User: judy.morrison@id.me
+          - Endpoints: GET /mobile/v0/user/contact-info
+                       GET /mobile/v0/user/demographics
+                       GET /mobile/v0/user/military-service-history
+                       POST /mobile/v0/phones
       TEXT
     },
     'vet_verification' => {
@@ -387,7 +410,7 @@ class UpstreamServiceConfig # rubocop:disable Metrics/ClassLength
 
         Test Connection:
           - Test User: <Need good test case>
-          - endpoints: /mobile/v0/disability_rating
+          - Endpoints: /mobile/v0/disability_rating
                        /mobile/v0/vet_verification_status
 
         Additional Notes:
