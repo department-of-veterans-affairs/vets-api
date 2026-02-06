@@ -1112,13 +1112,23 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
           .and_raise(test_exception)
 
-        # Allow all logging calls - we're primarily testing StatsD metrics
+        # Allow all logging calls
         allow(Rails.logger).to receive(:error).and_call_original
         allow(Rails.logger).to receive(:info).and_call_original
         allow(Rails.logger).to receive(:warn).and_call_original
 
         # Allow all StatsD calls
         allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific error log
+        expect(Rails.logger).to receive(:error).with(
+          'Exception occurred in payment history controller',
+          hash_including(
+            user_uuid: user.uuid,
+            exception_class: 'StandardError',
+            exception_message: 'Test error message'
+          )
+        ).and_call_original
 
         # Expect specific StatsD metric
         expect(StatsD).to receive(:increment)
@@ -1139,6 +1149,16 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
 
         # Allow all StatsD calls
         allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific error log
+        expect(Rails.logger).to receive(:error).with(
+          'Exception occurred in payment history controller',
+          hash_including(
+            user_uuid: user.uuid,
+            exception_class: 'RuntimeError',
+            exception_message: 'Runtime error'
+          )
+        ).and_call_original
 
         # Expect specific StatsD metric
         expect(StatsD).to receive(:increment)
@@ -1161,6 +1181,10 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
           .and_raise(test_exception)
 
+        expect(Rails.logger).not_to receive(:error).with(
+          'Exception occurred in payment history controller',
+          anything
+        )
         expect(StatsD).not_to receive(:increment).with('api.payment_history.exception.standard_error')
 
         get(:index)
