@@ -26,7 +26,7 @@ module BioHeartApi
       def parse_date(date_hash)
         return nil unless date_hash && [date_hash['month'], date_hash['day'], date_hash['year']].none?(&:blank?)
 
-        "#{date_hash['month']}/#{date_hash['day']}/#{date_hash['year']}"
+        "#{format('%02d', date_hash['month'].to_i)}/#{format('%02d', date_hash['day'].to_i)}/#{date_hash['year']}"
       end
 
       # Build a full name from a name hash
