@@ -7,12 +7,17 @@ module IvcChampva
       #
       # @param [boolean] silent whether or not to `puts` the batch information
       # @param [boolean] ignore_last_minute whether or not to ignore submissions made < 1 minute ago
+      # @param [boolean] ignore_recent whether or not to ignore submissions made < 2 hours ago
       #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID
-      def get_missing_statuses(silent: false, ignore_last_minute: false)
+      def get_missing_statuses(silent: false, ignore_last_minute: false, ignore_recent: false)
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
-        all_nil_statuses = all_nil_statuses.where('created_at < ?', 1.minute.ago) if ignore_last_minute
+        if ignore_last_minute
+          all_nil_statuses = all_nil_statuses.where('created_at < ?', 1.minute.ago)
+        elsif ignore_recent
+          all_nil_statuses = all_nil_statuses.where('created_at < ?', 2.hours.ago)
+        end
         batches = batch_records(all_nil_statuses)
 
         return batches if silent
