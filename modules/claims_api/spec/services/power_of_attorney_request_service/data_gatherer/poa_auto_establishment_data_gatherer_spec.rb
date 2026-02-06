@@ -222,4 +222,52 @@ describe ClaimsApi::PowerOfAttorneyRequestService::DataGatherer::PoaAutoEstablis
       end
     end
   end
+
+  describe 'phone data handling' do
+    context 'when no phone data exists in metadata' do
+      let(:metadata) do
+        {
+          'veteran' => {
+            'vnp_mail_id' => '157252',
+            'vnp_email_id' => '157251'
+          }
+        }
+      end
+
+      it 'does not call phone validation or gathering methods for the veteran' do
+        VCR.use_cassette(
+          'claims_api/power_of_attorney_request_service/decide/data_gatherer/poa_data_gather_no_phone'
+        ) do
+          expect_any_instance_of(ClaimsApi::VnpPtcpntPhoneService)
+            .not_to receive(:vnp_ptcpnt_phone_find_by_primary_key)
+
+          result = subject.gather_data
+
+          expect(result['phone_number']).to be_nil
+        end
+      end
+
+      context 'does not call phone validation or gathering methods for the claimant' do
+        let(:metadata) do
+          {
+            'veteran' => { 'vnp_mail_id' => '157653', 'vnp_email_id' => '157652' },
+            'claimant' => { 'vnp_mail_id' => '157655', 'vnp_email_id' => '157654' }
+          }
+        end
+
+        it 'does not call phone validation or gathering methods for the claimant' do
+          VCR.use_cassette(
+            'claims_api/power_of_attorney_request_service/decide/data_gatherer/poa_data_gather_dependent_no_phone'
+          ) do
+            expect_any_instance_of(ClaimsApi::VnpPtcpntPhoneService)
+              .not_to receive(:vnp_ptcpnt_phone_find_by_primary_key)
+
+            result = subject.gather_data
+
+            expect(result.dig('claimant', 'phone_number')).to be_nil
+          end
+        end
+      end
+    end
+  end
 end

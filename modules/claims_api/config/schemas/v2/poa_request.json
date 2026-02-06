@@ -95,20 +95,46 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "areaCode",
             "phoneNumber"
           ],
           "properties": {
+            "countryCode": { 
+              "description": "Country code for the veteran's phone number. Required for international phone numbers.",
+              "type": "string", 
+              "pattern": "^[0-9]+$" 
+            },
             "areaCode": {
-              "description": "Area code for the veteran's phone number.",
-              "type": "string", "pattern": "^[2-9][0-9]{2}$",
+              "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
+              "type": "string", 
+              "pattern": "^[2-9][0-9]*$",
               "example": "555"
             },
             "phoneNumber": {
               "description": "Phone number for the veteran.",
-              "type": "string", "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
+              "type": "string", 
+              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 23
             }
+          },
+          "if": {
+            "properties": {
+              "countryCode": {
+                "anyOf": [
+                  { "type": "string", "enum": ["1"] }
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": ["areaCode"]
+          },
+          "else": {
+            "anyOf": [
+              { "required": ["countryCode"] },
+              { "required": ["areaCode"] }
+            ]
           }
         },
         "email": {
@@ -187,20 +213,46 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "areaCode",
             "phoneNumber"
           ],
           "properties": {
+            "countryCode": { 
+              "description": "Country code for the veteran's phone number. Required for international phone numbers.",
+              "type": "string", 
+              "pattern": "^[0-9]+$" 
+            },
             "areaCode": {
-              "description": "Area code for the dependent claimant's phone number.",
-              "type": "string", "pattern": "^[2-9][0-9]{2}$",
+              "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
+              "type": "string", 
+              "pattern": "^[2-9][0-9]*$",
               "example": "555"
             },
             "phoneNumber": {
-              "description": "Phone number for the dependent claimant.",
-              "type": "string", "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
+              "description": "Phone number for the veteran.",
+              "type": "string", 
+              "pattern": "^\\d(?:[- ]?\\d){0,23}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 23
             }
+          },
+          "if": {
+            "properties": {
+              "countryCode": {
+                "anyOf": [
+                  { "type": "string", "enum": ["1"] }
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": ["areaCode"]
+          },
+          "else": {
+            "anyOf": [
+              { "required": ["countryCode"] },
+              { "required": ["areaCode"] }
+            ]
           }
         },
         "email": {

@@ -282,6 +282,37 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
       end
     end
 
+    context 'international phone numbers', run_at: '2025-12-30T20:18:21Z' do
+      let(:claimant_participant_id) { nil }
+
+      it 'detects the international number when countryCode is included and not equal to 1' do
+        temp = form_data
+        temp[:veteran].merge!(additional_vet_details)
+        temp[:veteran][:phone][:countryCode] = '11'
+        temp[:veteran][:phone][:areaCode] = '22'
+        temp[:veteran][:phone][:phoneNumber] = '3333 4444'
+        file_name = 'claims_api/power_of_attorney_request_service/create_request/international_phone_number'
+
+        VCR.use_cassette(file_name) do
+          expect_any_instance_of(ClaimsApi::VnpPtcpntPhoneService).to receive(:vnp_ptcpnt_phone_create).with(
+            {
+              vnp_proc_id: '3874842',
+              vnp_ptcpnt_id: '209001',
+              phone_type_nm: 'Daytime',
+              phone_nbr: ' ',
+              cntry_nbr: '11',
+              frgn_phone_rfrnc_txt: '2233334444',
+              efctv_dt: '2025-12-30T20:18:21Z'
+            }
+          )
+
+          res = subject.call
+
+          expect(res['phoneNumber']).to be_nil
+        end
+      end
+    end
+
     describe 'meta data' do
       let(:response_obj) do
         {
