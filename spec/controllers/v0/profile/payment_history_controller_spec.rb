@@ -1195,6 +1195,40 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
 
         get(:index)
       end
+
+      it 'normalizes namespaced exception names to prevent / in metrics' do
+        # Create a namespaced exception class
+        namespaced_exception = Class.new(StandardError)
+        stub_const('BGS::ServiceError', namespaced_exception)
+        custom_exception = BGS::ServiceError.new('BGS service error')
+
+        allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+          .and_raise(custom_exception)
+
+        # Allow all logging calls
+        allow(Rails.logger).to receive(:error).and_call_original
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
+
+        # Allow all StatsD calls
+        allow(StatsD).to receive(:increment).and_call_original
+
+        # Expect specific error log with original class name
+        expect(Rails.logger).to receive(:error).with(
+          'Exception occurred in payment history controller',
+          hash_including(
+            user_uuid: user.uuid,
+            exception_class: 'BGS::ServiceError',
+            exception_message: 'BGS service error'
+          )
+        ).and_call_original
+
+        # Expect StatsD metric with / replaced by _
+        expect(StatsD).to receive(:increment)
+          .with('api.payment_history.exception.bgs_service_error').and_call_original
+
+        get(:index)
+      end
     end
 
     context 'with exception logging disabled' do

@@ -216,7 +216,10 @@ module V0
                              exception_class:,
                              exception_message: exception&.message
                            })
-        StatsD.increment("api.payment_history.exception.#{exception_class&.underscore}")
+        # Normalize exception identifier: replace / with _ for namespaced exceptions,
+        # and provide fallback for nil to ensure valid metric names
+        exception_identifier = exception_class&.underscore&.tr('/', '_') || 'unknown_exception'
+        StatsD.increment("api.payment_history.exception.#{exception_identifier}")
       end
     end
   end
