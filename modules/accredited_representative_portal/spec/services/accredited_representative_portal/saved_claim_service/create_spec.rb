@@ -244,6 +244,16 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
             end
           end
 
+          context 'when Faraday raises TooManyRequestsError' do
+            it 'raises TooManyRequestsError' do
+              allow_any_instance_of(
+                AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob
+              ).to receive(:perform).and_raise(Faraday::TooManyRequestsError.new('Too Many Requests'))
+
+              expect { perform }.to raise_error described_class::TooManyRequestsError
+            end
+          end
+
           context 'unhandled errors' do
             it 'raises UnknownError' do
               allow_any_instance_of(
