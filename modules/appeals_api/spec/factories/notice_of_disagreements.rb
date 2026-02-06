@@ -77,6 +77,46 @@ FactoryBot.define do
     end
   end
 
+  factory :min_nod_v2_issues_length_overflow, class: 'AppealsApi::NoticeOfDisagreement' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_long_issues_desc.json' }
+  end
+
+  factory :min_nod_v2_6_issues, class: 'AppealsApi::NoticeOfDisagreement' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_6_issues.json' }
+  end
+
+  factory :min_nod_v2_long_rep_name, class: 'AppealsApi::NoticeOfDisagreement' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_long_rep_name.json' }
+  end
+
+  factory :min_nod_v2_long_email, class: 'AppealsApi::NoticeOfDisagreement' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_long_email.json' }
+  end
+
+  factory :min_nod_v2_extension_request, class: 'AppealsApi::NoticeOfDisagreement' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_extension_request.json' }
+  end
+
+  
+
+
+
+
   # Notice of Disagreements API v0 NODs
   factory :notice_of_disagreement_v0,
           class: 'AppealsApi::NoticeOfDisagreement', parent: :notice_of_disagreement_v2 do
