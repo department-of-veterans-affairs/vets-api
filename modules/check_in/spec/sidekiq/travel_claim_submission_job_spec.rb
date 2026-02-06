@@ -178,8 +178,6 @@ describe CheckIn::TravelClaimSubmissionJob, type: :worker do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                         .and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil, save_token: nil)

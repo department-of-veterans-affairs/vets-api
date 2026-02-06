@@ -190,12 +190,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('SMS sender ID error'))
       end
 
       it 'handles SMS sender ID not found error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'SMS sender ID error')
+        expect { client.send_push(push_args) }.to raise_error(VANotify::BadRequest)
       end
     end
 
@@ -215,12 +213,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Authentication required'))
       end
 
       it 'handles missing authentication token error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'Authentication required')
+        expect { client.send_push(push_args) }.to raise_error(VANotify::Unauthorized)
       end
     end
 
@@ -243,12 +239,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Invalid service ID'))
       end
 
       it 'handles invalid service ID data type error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'Invalid service ID')
+        expect { client.send_push(push_args) }.to raise_error(VANotify::Forbidden)
       end
     end
 
@@ -266,12 +260,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Server error'))
       end
 
       it 'handles internal server error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'Server error')
+        expect { client.send_push(push_args) }.to raise_error(VANotify::ServerError)
       end
     end
 
@@ -289,12 +281,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Mobile app not initialized'))
       end
 
       it 'handles mobile app not initialized error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'Mobile app not initialized')
+        expect { client.send_push(push_args) }.to raise_error(VANotify::BadRequest)
       end
     end
 
@@ -312,46 +302,10 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-        allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Downstream service error'))
       end
 
       it 'handles invalid downstream service response error' do
-        expect { client.send_push(push_args) }.to raise_error(StandardError, 'Downstream service error')
-      end
-    end
-
-    context 'with va_notify_custom_errors feature flag enabled' do
-      let(:error_response) do
-        {
-          'errors' => [
-            {
-              'error' => 'BadRequestError',
-              'message' => 'sms_sender_id e925b547-8195-4ed2-83c5-0633a74d780a does not exist in database for ' \
-                           'service id 9ffb5212-e621-45df-820d-97ee65d392ab'
-            }
-          ],
-          'status_code' => 400
-        }
-      end
-      let(:client_error) do
-        Common::Client::Errors::ClientError.new('Bad Request', 400, error_response)
-      end
-
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
-        allow_any_instance_of(described_class).to receive(:log_error_details)
-        allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
-        allow(VANotify::Error).to receive(:from_generic_error).and_return(VANotify::BadRequest.new(400, 'Custom error'))
-      end
-
-      it 'raises VANotify::Error with push context including template_id' do
-        expect(VANotify::Error).to receive(:from_generic_error) do |error, context|
-          expect(error).to eq(client_error)
-          expect(context).to include(template_id: 'template-123')
-        end.and_return(VANotify::BadRequest.new(400, 'Custom error'))
-
-        expect { client.send_push(push_args) }.to raise_error(VANotify::BadRequest)
+        expect { client.send_push(push_args) }.to raise_error(VANotify::Error)
       end
     end
   end
@@ -373,34 +327,11 @@ RSpec.describe VaNotify::Client do
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(client_error)
         allow_any_instance_of(described_class).to receive(:log_error_details)
+        allow(VANotify::Error).to receive(:from_generic_error).and_return(VANotify::Error.new(400, 'Test error'))
       end
 
-      context 'when va_notify_custom_errors is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
-          allow(VANotify::Error).to receive(:from_generic_error).and_return(VANotify::Error.new(400, 'Test error'))
-        end
-
-        it 'raises VANotify::Error with context' do
-          expect { client.send_push(push_args) }.to raise_error(VANotify::Error)
-        end
-      end
-
-      context 'when va_notify_custom_errors is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(false)
-          allow(client).to receive(:raise_backend_exception).and_raise(StandardError.new('Backend error'))
-        end
-
-        it 'raises backend exception' do
-          expect(client).to receive(:raise_backend_exception).with(
-            'VANOTIFY_PUSH_400',
-            described_class,
-            client_error
-          )
-
-          expect { client.send_push(push_args) }.to raise_error(StandardError, 'Backend error')
-        end
+      it 'raises VANotify::Error with context' do
+        expect { client.send_push(push_args) }.to raise_error(VANotify::Error)
       end
     end
   end

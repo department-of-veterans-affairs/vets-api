@@ -275,8 +275,6 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil, save_token: nil)
