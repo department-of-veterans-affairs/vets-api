@@ -11,6 +11,7 @@ module Lighthouse
 
       attributes :external_id,
                  :facility,
+                 :patient,
                  :bill_number,
                  :status,
                  :status_description,
