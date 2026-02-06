@@ -38,6 +38,7 @@ module Swagger
           benefit_summary_dependent
           benefit_verification
           certificate_of_eligibility
+          foreign_medical_program
         ], example: 'proof_of_service'
       end
     end

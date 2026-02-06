@@ -16,6 +16,10 @@ describe EVSS::Letters::DownloadService do
         expect(EVSS::Letters::Letter::LETTER_TYPES).to include letter_type
       end
 
+      it 'foreign_medical_program is a valid letter type' do
+        expect(EVSS::Letters::Letter::LETTER_TYPES).to include 'foreign_medical_program'
+      end
+
       context 'without options' do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download') do

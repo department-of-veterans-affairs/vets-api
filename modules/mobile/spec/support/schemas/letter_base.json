@@ -21,7 +21,8 @@
         "benefit_summary",
         "benefit_verification",
         "certificate_of_eligibility",
-        "certificate_of_eligibility_home_loan"
+        "certificate_of_eligibility_home_loan",
+        "foreign_medical_program"
       ]
     }
   },

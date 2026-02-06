@@ -4704,6 +4704,7 @@
                 "certificate_of_eligibility",
                 "civil_service",
                 "commissary",
+                "foreign_medical_program",
                 "medicare_partd",
                 "minimum_essential_coverage",
                 "proof_of_service",
@@ -21432,7 +21433,8 @@
               "Benefit Summary Letter",
               "Dependent Benefit Summary Letter",
               "Benefit Verification Letter",
-              "Certificate of Eligibility for Home Loan Letter"
+              "Certificate of Eligibility for Home Loan Letter",
+              "Foreign Medical Program Letter"
             ]
           },
           "letterType": {
@@ -21448,7 +21450,8 @@
               "benefit_summary_dependent",
               "benefit_verification",
               "certificate_of_eligibility",
-              "certificate_of_eligibility_home_loan"
+              "certificate_of_eligibility_home_loan",
+              "foreign_medical_program"
             ]
           },
           "referenceNumber": {

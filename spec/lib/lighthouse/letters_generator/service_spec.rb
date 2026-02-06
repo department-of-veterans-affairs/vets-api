@@ -27,6 +27,26 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       is_valid = service.valid_type?('SUMMARY_of_BENEFITS')
       expect(is_valid).to be(false)
     end
+
+    context 'when fmp_benefits_authorization_letter feature flag is enabled' do
+      it 'returns true for foreign_medical_program letter type' do
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(true)
+        service = Lighthouse::LettersGenerator::Service.new
+
+        is_valid = service.valid_type?('foreign_medical_program')
+        expect(is_valid).to be(true)
+      end
+    end
+
+    context 'when fmp_benefits_authorization_letter feature flag is disabled' do
+      it 'returns false for foreign_medical_program letter type' do
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(false)
+        service = Lighthouse::LettersGenerator::Service.new
+
+        is_valid = service.valid_type?('foreign_medical_program')
+        expect(is_valid).to be(false)
+      end
+    end
   end
 
   context 'a request' do

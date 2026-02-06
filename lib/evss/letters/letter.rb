@@ -25,6 +25,7 @@ module EVSS
         certificate_of_eligibility
         civil_service
         commissary
+        foreign_medical_program
         medicare_partd
         minimum_essential_coverage
         proof_of_service
