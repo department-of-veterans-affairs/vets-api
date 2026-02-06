@@ -643,6 +643,8 @@ ibm:
   path: "/api/validated-forms"
   use_mocks: false
   version: v1
+increase_compensation:
+  prefill: true
 intent_to_file:
   prefill: true
 ivc_champva:

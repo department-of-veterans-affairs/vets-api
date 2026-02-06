@@ -713,6 +713,8 @@ config/form_profile_mappings/21P-0537.yml @department-of-veterans-affairs/bio-he
 config/form_profile_mappings/21P-0969.yml @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-527EZ.yml @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-530EZ.yml @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/21-8940.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-intake-pingwind
+config/form_profile_mappings/21-8940v1.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-intake-pingwind
 config/form_profile_mappings/22-0803.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0993.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0994.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers

@@ -1,0 +1,7 @@
+veteranFullName: [identity_information, full_name]
+veteranSocialSecurityNumber: [identity_information, ssn]
+veteranAddress: [contact_information, address]
+veteranPhone: [contact_information, us_phone]
+email: [contact_information, email]
+emailAddress: [contact_information, email]
+veteranDateOfBirth: [identity_information, date_of_birth]
