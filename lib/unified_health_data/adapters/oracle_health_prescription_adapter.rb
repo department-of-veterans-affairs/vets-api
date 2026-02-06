@@ -110,7 +110,10 @@ module UnifiedHealthData
         dispenses.map do |dispense|
           {
             status: dispense['status'],
-            refill_date: dispense['whenHandedOver'],
+            # dispensed_date: Aligns with Vista semantics - "when the medication was dispensed/filled"
+            # Maps from FHIR whenHandedOver (when medication was given to patient)
+            dispensed_date: dispense['whenHandedOver'],
+            refill_date: dispense['whenHandedOver'], # Deprecated: use dispensed_date instead
             when_prepared: dispense['whenPrepared'],
             when_handed_over: dispense['whenHandedOver'],
             facility_name: facility_resolver.resolve_facility_name(dispense),

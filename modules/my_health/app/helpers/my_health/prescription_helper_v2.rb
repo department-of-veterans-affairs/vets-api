@@ -158,20 +158,27 @@ module MyHealth
         empty_dates + sorted_with_dates
       end
 
+      # Partitions prescriptions into those with dates and those without dates.
+      # Returns [empty_date_meds, filled_meds] - meds without dates first, meds with dates second.
+      # This matches the expected destructuring in last_fill_date_sort.
       def partition_meds_by_date(records)
-        records.partition { |med| empty_field?(get_sorted_dispensed_date(med)) }.reverse
+        records.partition { |med| empty_field?(get_sorted_dispensed_date(med)) }
       end
 
       def get_sorted_dispensed_date(med)
-        return extract_last_refill_date(med) if med.respond_to?(:dispenses) && med.dispenses.present?
+        return extract_last_fill_date(med) if med.respond_to?(:dispenses) && med.dispenses.present?
         return med.sorted_dispensed_date if med.respond_to?(:sorted_dispensed_date)
 
         med.dispensed_date&.to_date
       end
 
-      def extract_last_refill_date(med)
-        refill_dates = med.dispenses.map { |d| d[:refill_date]&.to_date }.compact
-        refill_dates.max || med.dispensed_date&.to_date
+      # Extracts the most recent fill date from a prescription's dispenses.
+      # Both Vista and Oracle Health adapters now provide dispensed_date in dispenses:
+      # - Vista: dispensed_date from VistA dispensedDate field
+      # - Oracle Health: dispensed_date from FHIR whenHandedOver field
+      def extract_last_fill_date(med)
+        dispensed_dates = med.dispenses.filter_map { |d| d[:dispensed_date]&.to_date }
+        dispensed_dates.max || med.dispensed_date&.to_date
       end
 
       def get_medication_name(med)

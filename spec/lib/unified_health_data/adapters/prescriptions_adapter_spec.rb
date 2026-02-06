@@ -830,7 +830,9 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
 
         first_dispense = oracle_prescription.dispenses.first
         expect(first_dispense[:status]).to eq('completed')
-        expect(first_dispense[:refill_date]).to eq('2025-01-15T10:00:00Z')
+        # dispensed_date aligns with Vista semantics (when medication was filled)
+        expect(first_dispense[:dispensed_date]).to eq('2025-01-15T10:00:00Z')
+        expect(first_dispense[:refill_date]).to eq('2025-01-15T10:00:00Z') # Deprecated: same as dispensed_date
         expect(first_dispense[:facility_name]).to eq('Portland VA Medical Center')
         expect(first_dispense[:instructions]).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
         expect(first_dispense[:quantity]).to eq(30)
