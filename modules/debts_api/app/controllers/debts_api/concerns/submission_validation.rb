@@ -29,11 +29,7 @@ module DebtsApi
       end
 
       class FSRValidator < BaseValidator
-        class << self
-          def validate_form_schema(form)
-            BaseValidator.validate_form_schema(form, 'fsr.json')
-          end
-        end
+        # todo: move validation here from fsr_form_builder
       end
 
       class DisputeDebtValidator < BaseValidator
