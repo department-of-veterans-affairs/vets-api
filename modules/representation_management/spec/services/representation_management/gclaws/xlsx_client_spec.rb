@@ -457,9 +457,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
 
         allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
           tempfile = method.call(*args)
-          if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
-            file_path = tempfile.path
-          end
+          file_path = tempfile.path if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
           tempfile
         end
 
@@ -487,9 +485,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
 
         allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
           tempfile = method.call(*args)
-          if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
-            file_path = tempfile.path
-          end
+          file_path = tempfile.path if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
           tempfile
         end
 
