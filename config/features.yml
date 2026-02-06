@@ -2108,10 +2108,6 @@ features:
     actor_type: user
     description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
-  va_online_scheduling_cancel:
-    actor_type: user
-    description: Allows veterans to cancel VA appointments
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -2169,18 +2165,6 @@ features:
   va_dependents_no_ssn:
     actor_type: user
     description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
-  va_online_scheduling_enable_OH_cancellations:
-    actor_type: user
-    enable_in_development: true
-    description: Allows appointment cancellations to be routed to Oracle Health sites.
-  va_online_scheduling_enable_OH_eligibility:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_slots_search:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -2201,14 +2185,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_online_scheduling_OH_direct_schedule:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable direct scheduling workflow for Oracle Health appointments.
-  va_online_scheduling_OH_request:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable request workflow for Oracle Health appointments.
   va_online_scheduling_parallel_travel_claims:
     actor_type: user
     enable_in_development: true
