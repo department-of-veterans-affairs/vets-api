@@ -35,28 +35,8 @@ module SM
         collection = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata],
                                                                        errors: json[:errors])
 
-        # Batch lookup OH migration phases for all teams at once
-        oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
-        station_numbers = collection.data.map(&:station_number).compact.uniq
-        phases_map = oh_service.get_phases_for_station_numbers(station_numbers)
-
-        # Update blocked_status for teams in p3-p6
-        collection.data.each do |team|
-          phase = phases_map[team.station_number.to_s]
-          if %w[p3 p4 p5 p6].include?(phase)
-            team.blocked_status = true
-            team.migrating_to_oh = true
-          else
-            team.migrating_to_oh = false
-          end
-        end
-
-        # Cache only triage_team_id and station_number via TriageTeamCache model
-        minimal_data = collection.data.map do |team|
-          { triage_team_id: team.triage_team_id, station_number: team.station_number }
-        end
-        cache_key = "#{user_uuid}-all-triage-teams-station-numbers"
-        TriageTeamCache.set_cached(cache_key, minimal_data)
+        update_teams_migration_status(collection.data)
+        cache_triage_team_station_numbers(user_uuid, collection.data)
 
         collection
       end
@@ -86,6 +66,34 @@ module SM
 
         get_all_triage_teams(session.user_uuid)
         TriageTeamCache.get_cached(cache_key)
+      end
+
+      private
+
+      # Updates blocked_status and migrating_to_oh for teams in p3-p6 migration phases
+      def update_teams_migration_status(teams)
+        oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
+        station_numbers = teams.map(&:station_number).compact.uniq
+        phases_map = oh_service.get_phases_for_station_numbers(station_numbers)
+
+        teams.each do |team|
+          phase = phases_map[team.station_number.to_s]
+          if %w[p3 p4 p5 p6].include?(phase)
+            team.blocked_status = true
+            team.migrating_to_oh = true
+          else
+            team.migrating_to_oh = false
+          end
+        end
+      end
+
+      # Caches minimal triage team data (triage_team_id and station_number)
+      def cache_triage_team_station_numbers(user_uuid, teams)
+        minimal_data = teams.map do |team|
+          { triage_team_id: team.triage_team_id, station_number: team.station_number }
+        end
+        cache_key = "#{user_uuid}-all-triage-teams-station-numbers"
+        TriageTeamCache.set_cached(cache_key, minimal_data)
       end
     end
   end
