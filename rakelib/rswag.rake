@@ -259,4 +259,3 @@ def sanitize_example_values!(data) # rubocop:disable Metrics/MethodLength
 
   data.replace deep_transform(data, root: [], transformer:)
 end
-
