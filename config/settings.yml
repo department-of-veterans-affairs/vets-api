@@ -1132,6 +1132,24 @@ reports:
     bucket: <%= ENV['reports__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['reports__aws__secret_access_key'] %>
+  bio_submission_status:
+    emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
+    enabled: true
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+    - '21-4192'
+    - '21-0779'
+    - '21P-530a'
+    - '21-2680'
+    staging_emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
@@ -1194,24 +1212,6 @@ reports:
     - jacob.finnern@accenturefederal.com
     - hocine.halli@accenturefederal.com
     - adam.freemer@accenturefederal.com
-  bio_submission_status:
-    emails:
-    - Cameron.Testerman@va.gov
-    - Leah.Keeler@va.gov
-    enabled: true
-    expected_annual_submissions:
-      '21-0779': 0
-      '21-2680': 0
-      '21-4192': 0
-      '21P-530a': 0
-    form_types:
-    - '21-4192'
-    - '21-0779'
-    - '21P-530a'
-    - '21-2680'
-    staging_emails:
-    - Cameron.Testerman@va.gov
-    - Leah.Keeler@va.gov
   year_to_date_report:
     emails:
     - 222A.VBAVACO@va.gov
