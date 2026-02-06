@@ -236,7 +236,12 @@ module VAProfile
         private
 
         def verify_vet360_id!
-          raise 'ContactInformationV2 - Missing User VAProfile_ID' if @user&.vet360_id.blank?
+          return if @user&.vet360_id.present?
+
+          raise Common::Exceptions::RecordNotFound.new(
+            @user&.uuid,
+            detail: 'User does not have a VA Profile ID'
+          )
         end
 
         def verify_user!
