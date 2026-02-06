@@ -68,7 +68,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'canReply' => true
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573059'
@@ -97,7 +97,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'canReply' => true
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -126,7 +126,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'canReply' => true
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'
@@ -160,7 +160,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
 
         expect(response).to be_successful
         # messages with reply_disabled: false, true, nil
-        expect(response.parsed_body['data'].map { |msg| msg['attributes']['canReply'] }).to eq [true, false, true]
+        expect(response.parsed_body['data'].map { |msg| msg['attributes']['replyDisabled'] }).to eq [false, true, false]
       end
 
       it 'filters the provided message when excludeProvidedMessage is true' do

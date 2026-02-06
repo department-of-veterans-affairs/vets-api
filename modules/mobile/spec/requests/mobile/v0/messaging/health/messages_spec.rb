@@ -85,7 +85,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response.parsed_body['data']['attributes']['canReply']).to be(false)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(true)
         expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
@@ -97,7 +97,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response.parsed_body['data']['attributes']['canReply']).to be(true)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(false)
         expect(response).to match_camelized_response_schema('message', strict: false)
       end
 

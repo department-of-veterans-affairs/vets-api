@@ -71,7 +71,7 @@ describe Mobile::V0::MessagesSerializer, type: :serializer do
     expect(links['self']).to eq expected_url
   end
 
-  it 'includes :can_reply' do
-    expect(attributes['can_reply']).to eq !message.reply_disabled
+  it 'includes :reply_disabled' do
+    expect(attributes['reply_disabled']).to eq message.reply_disabled
   end
 end

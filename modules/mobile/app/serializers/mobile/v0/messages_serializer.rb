@@ -10,12 +10,9 @@ module Mobile
 
       attributes :category, :subject, :body, :attachment, :sent_date,
                  :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,
-                 :triage_group_name, :proxy_sender_name, :is_oh_message
+                 :triage_group_name, :proxy_sender_name, :is_oh_message, :reply_disabled
 
       attribute :message_id, &:id
-      attribute :can_reply do |object|
-        !object.reply_disabled
-      end
 
       link :self do |object|
         Mobile::UrlHelper.new.v0_message_url(object.id)
