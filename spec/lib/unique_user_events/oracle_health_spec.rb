@@ -17,7 +17,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when mhv_oh_unique_user_metrics_logging is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_oh_unique_user_metrics_logging).and_return(false)
-        allow(user).to receive(:vha_facility_ids).and_return(%w[757])
+        allow(user).to receive(:cerner_facility_ids).and_return(%w[757])
       end
 
       it 'returns empty array without generating OH events' do
@@ -30,7 +30,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when event is tracked for Oracle Health' do
       context 'when user has matching facilities' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[757 200])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[757 200])
         end
 
         it 'generates OH events for matching facilities' do
@@ -42,7 +42,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has only the tracked facility' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[757])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[757])
         end
 
         it 'generates OH event for the matching facility' do
@@ -54,7 +54,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has no matching facilities' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[200 300])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[200 300])
         end
 
         it 'returns empty array' do
@@ -66,7 +66,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has nil facility IDs' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(nil)
+          allow(user).to receive(:cerner_facility_ids).and_return(nil)
         end
 
         it 'returns empty array' do
@@ -79,7 +79,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
     context 'when event is not tracked for Oracle Health' do
       before do
-        allow(user).to receive(:vha_facility_ids).and_return(['757'])
+        allow(user).to receive(:cerner_facility_ids).and_return(['757'])
       end
 
       it 'returns empty array' do
@@ -383,7 +383,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
   describe 'all tracked events' do
     before do
-      allow(user).to receive(:vha_facility_ids).and_return(['757'])
+      allow(user).to receive(:cerner_facility_ids).and_return(['757'])
     end
 
     described_class::TRACKED_EVENTS.each do |tracked_event|
