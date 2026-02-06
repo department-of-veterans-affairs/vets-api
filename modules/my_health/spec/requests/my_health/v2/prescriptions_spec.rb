@@ -916,6 +916,25 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
+      it 'includes prescription_id in recently_requested items for frontend URL construction' do
+        # This test ensures that prescription_id is serialized in recently_requested metadata.
+        # Without this, frontend DelayedRefillAlert builds URLs like /prescriptions/undefined
+        # causing 404 errors when users click on recently requested prescription links.
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions', headers:)
+
+          json_response = JSON.parse(response.body)
+          recently_requested = json_response['meta']['recently_requested']
+
+          # Each recently_requested item must have prescription_id for frontend to build valid URLs
+          recently_requested.each do |rx|
+            expect(rx).to have_key('prescription_id'),
+                          'recently_requested items must include prescription_id for frontend URL construction'
+            expect(rx['prescription_id']).to be_present if rx['id'].present?
+          end
+        end
+      end
+
       it 'sorts PD prescriptions to the top when pending meds enabled' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Enable pending meds flipper

@@ -144,6 +144,33 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(oracle_prescription).to be_present
       end
 
+      it 'includes prescription_id in serialized attributes for VistA prescriptions' do
+        # This test ensures prescription_id is a proper attribute (not just a method alias)
+        # so it gets included when the prescription is serialized in API response metadata.
+        # Without this, meta.recentlyRequested items would have 'id' but not 'prescriptionId',
+        # causing 404 errors when frontend tries to construct URLs like /prescriptions/undefined
+        prescriptions = subject.parse(unified_response)
+        vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }
+
+        serialized_attrs = vista_prescription.attributes
+
+        expect(serialized_attrs).to have_key('prescription_id')
+        expect(serialized_attrs['prescription_id']).to eq('28148665')
+        expect(serialized_attrs['id']).to eq('28148665')
+      end
+
+      it 'includes prescription_id in serialized attributes for Oracle Health prescriptions' do
+        # Same test for Oracle Health source to ensure consistency across data sources
+        prescriptions = subject.parse(unified_response)
+        oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
+
+        serialized_attrs = oracle_prescription.attributes
+
+        expect(serialized_attrs).to have_key('prescription_id')
+        expect(serialized_attrs['prescription_id']).to eq('15208365735')
+        expect(serialized_attrs['id']).to eq('15208365735')
+      end
+
       it 'extracts provider_name from VistA data' do
         prescriptions = subject.parse(unified_response)
         vista_prescription = prescriptions.find { |p| p.prescription_id == '28148665' }

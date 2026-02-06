@@ -56,10 +56,17 @@ module UnifiedHealthData
       # This allows refill_metadata to be computed after dispenses_data is available
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
+        build_identity_attributes(resource).merge(build_prescription_details(resource, dispenses_data))
+      end
+
+      def build_identity_attributes(resource)
+        prescription_id_value = resource['id']
+        { id: prescription_id_value, prescription_id: prescription_id_value, type: 'Prescription' }
+      end
+
+      def build_prescription_details(resource, dispenses_data)
         refill_status = extract_refill_status(resource, dispenses_data)
         {
-          id: resource['id'],
-          type: 'Prescription',
           refill_status:,
           refill_submit_date: nil,
           refill_date: extract_refill_date(resource),

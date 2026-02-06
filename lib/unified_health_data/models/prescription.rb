@@ -7,6 +7,7 @@ module UnifiedHealthData
     include Vets::Model
 
     attribute :id, String
+    attribute :prescription_id, String
     attribute :type, String
     attribute :refill_status, String
     attribute :refill_submit_date, String
@@ -38,10 +39,5 @@ module UnifiedHealthData
     attribute :cmop_ndc_number, String
     attribute :grouped_medications, Array, default: nil
     attribute :disp_status, String
-
-    # Method aliases to match serializer expectations
-    def prescription_id
-      id
-    end
   end
 end
