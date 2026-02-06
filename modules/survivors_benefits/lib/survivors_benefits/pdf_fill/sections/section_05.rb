@@ -22,177 +22,311 @@ module SurvivorsBenefits
             key: 'form1[0].#subform[209].VeteransSocialSecurityNumber_LastFourNumbers[2]'
           }
         },
-        'veteranMarriages' => {
-          limit: 2,
+        'veteranMarriageOne' => {
           first_key: 'reasonForSeparation',
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 1,
+              question_num: 5,
               question_suffix: 'A',
-              question_label: "Spouse's First Name",
+              question_label: 'Spouse\'s First Name',
               question_text: 'SPOUSE\'S FIRST NAME',
-              iterator_offset: ->(iterator) { 1 - iterator },
-              key: "form1[0].#subform[209].FirstName[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].FirstName[1]'
             },
             'middle' => {
               limit: 1,
-              question_num: 1,
+              question_num: 5,
               question_suffix: 'A',
-              iterator_offset: ->(iterator) { 1 - iterator },
-              key: "form1[0].#subform[209].MiddleInitial1[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].MiddleInitial1[1]'
             },
             'last' => {
               limit: 18,
-              question_num: 1,
+              question_num: 5,
               question_suffix: 'A',
-              question_label: "Veteran's Last Name",
-              question_text: 'VETERAN\'S LAST NAME',
-              iterator_offset: ->(iterator) { 1 - iterator },
-              key: "form1[0].#subform[209].LastName[#{ITERATOR}]"
+              question_label: 'Spouse\'s Last Name',
+              question_text: 'SPOUSE\'S LAST NAME',
+              key: 'form1[0].#subform[209].LastName[1]'
             }
           },
           'reasonForSeparation' => {
-            iterator_offset: ->(iterator) { 18 - iterator },
-            key: "form1[0].#subform[209].RadioButtonList[#{ITERATOR}]"
+            key: 'form1[0].#subform[209].RadioButtonList[18]'
           },
           'reasonForSeparationExplanation' => {
-            iterator_offset: ->(iterator) { 5 - iterator },
-            key: "form1[0].#subform[209].Explain[#{ITERATOR}]"
+            limit: 52,
+            question_num: 5,
+            question_suffix: 'B',
+            question_label: 'Reason For Separation Explanation',
+            question_text: 'REASON FOR SEPARATION EXPLANATION',
+            key: 'form1[0].#subform[209].Explain[5]'
           },
           'dateOfMarriage' => {
             'month' => {
-              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Month[3]'
             },
             'day' => {
-              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Day[3]'
             },
             'year' => {
-              iterator_offset: ->(iterator) { 3 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Year[3]'
             }
           },
           'dateOfSeparation' => {
             'month' => {
-              iterator_offset: ->(iterator) { 2 - iterator },
-              key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Month[2]'
             },
             'day' => {
-              iterator_offset: ->(iterator) { 2 - iterator },
-              key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Day[2]'
             },
             'year' => {
-              iterator_offset: ->(iterator) { 2 - iterator },
-              key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Year[2]'
             }
           },
           'locationOfMarriage' => {
-            limit: 63,
-            question_num: 7.1,
-            question_suffix: '[Veteran]',
-            question_label: '(4) Place Of Marriage',
-            question_text: '(4) PLACE OF MARRIAGE',
-            iterator_offset: ->(iterator) { 1 - iterator },
-            key: "form1[0].#subform[209].Place_Of_Marriage[#{ITERATOR}]"
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'D',
+            question_label: 'Place Of Marriage',
+            question_text: 'PLACE OF MARRIAGE',
+            key: 'form1[0].#subform[209].Place_Of_Marriage[1]'
           },
           'locationOfSeparation' => {
-            limit: 54,
-            question_num: 7.1,
-            question_suffix: '[Veteran]',
-            question_label: '(5) Place Of Marriage Termination',
-            question_text: '(5) PLACE OF MARRIAGE TERMINATION',
-            iterator_offset: ->(iterator) { 1 - iterator },
-            key: "form1[0].#subform[209].Place_Of_Marriage_Termination[#{ITERATOR}]"
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'E',
+            question_label: 'Place Of Marriage Termination',
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
+            key: 'form1[0].#subform[209].Place_Of_Marriage_Termination[1]'
+          }
+        },
+        'veteranMarriageTwo' => {
+          first_key: 'reasonForSeparation',
+          'spouseFullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 5,
+              question_suffix: 'F',
+              question_label: 'Spouse\'s First Name',
+              question_text: 'SPOUSE\'S FIRST NAME',
+              key: 'form1[0].#subform[209].FirstName[0]'
+            },
+            'middle' => {
+              limit: 1,
+              question_num: 5,
+              question_suffix: 'F',
+              key: 'form1[0].#subform[209].MiddleInitial1[0]'
+            },
+            'last' => {
+              limit: 18,
+              question_num: 5,
+              question_suffix: 'F',
+              question_label: 'Spouse\'s Last Name',
+              question_text: 'SPOUSE\'S LAST NAME',
+              key: 'form1[0].#subform[209].LastName[0]'
+            }
+          },
+          'reasonForSeparation' => {
+            key: 'form1[0].#subform[209].RadioButtonList[17]'
+          },
+          'reasonForSeparationExplanation' => {
+            limit: 52,
+            question_num: 5,
+            question_suffix: 'G',
+            question_label: 'Reason For Separation Explanation',
+            question_text: 'REASON FOR SEPARATION EXPLANATION',
+            key: 'form1[0].#subform[209].Explain[4]'
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'form1[0].#subform[209].Date_Month[0]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[209].Date_Day[0]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[209].Date_Year[0]'
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: 'form1[0].#subform[209].Date_Month[1]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[209].Date_Day[1]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[209].Date_Year[1]'
+            }
+          },
+          'locationOfMarriage' => {
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'I',
+            question_label: 'Place Of Marriage',
+            question_text: 'PLACE OF MARRIAGE',
+            key: 'form1[0].#subform[209].Place_Of_Marriage[0]'
+          },
+          'locationOfSeparation' => {
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'J',
+            question_label: 'Place Of Marriage Termination',
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
+            key: 'form1[0].#subform[209].Place_Of_Marriage_Termination[0]'
           }
         },
         'veteranHasAdditionalMarriages' => {
           key: 'form1[0].#subform[209].RadioButtonList[19]'
         },
-        'spouseMarriages' => {
-          limit: 2,
+        'spouseMarriageOne' => {
           first_key: 'reasonForSeparation',
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 1,
-              question_suffix: 'A',
-              question_label: "Spouse's First Name",
+              question_num: 5,
+              question_suffix: 'L',
+              question_label: 'Spouse\'s First Name',
               question_text: 'SPOUSE\'S FIRST NAME',
-              iterator_offset: ->(iterator) { 3 - iterator },
-              key: "form1[0].#subform[209].FirstName[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].FirstName[3]'
             },
             'middle' => {
               limit: 1,
-              question_num: 1,
-              question_suffix: 'A',
-              iterator_offset: ->(iterator) { 3 - iterator },
-              key: "form1[0].#subform[209].MiddleInitial1[#{ITERATOR}]"
+              question_num: 5,
+              question_suffix: 'L',
+              key: 'form1[0].#subform[209].MiddleInitial1[3]'
             },
             'last' => {
               limit: 18,
-              question_num: 1,
-              question_suffix: 'A',
-              question_label: "Veteran's Last Name",
-              question_text: 'VETERAN\'S LAST NAME',
-              iterator_offset: ->(iterator) { 3 - iterator },
-              key: "form1[0].#subform[209].LastName[#{ITERATOR}]"
+              question_num: 5,
+              question_suffix: 'L',
+              question_label: 'Spouse\'s Last Name',
+              question_text: 'SPOUSE\'S LAST NAME',
+              key: 'form1[0].#subform[209].LastName[3]'
             }
           },
           'reasonForSeparation' => {
-            iterator_offset: ->(iterator) { 21 - iterator },
-            key: "form1[0].#subform[209].RadioButtonList[#{ITERATOR}]"
+            key: 'form1[0].#subform[209].RadioButtonList[21]'
           },
           'reasonForSeparationExplanation' => {
-            iterator_offset: ->(iterator) { 7 - iterator },
-            key: "form1[0].#subform[209].Explain[#{ITERATOR}]"
+            limit: 64,
+            question_num: 5,
+            question_suffix: 'M',
+            question_label: 'Reason For Separation Explanation',
+            question_text: 'REASON FOR SEPARATION EXPLANATION',
+            key: 'form1[0].#subform[209].Explain[7]'
           },
           'dateOfMarriage' => {
             'month' => {
-              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Month[7]'
             },
             'day' => {
-              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Day[7]'
             },
             'year' => {
-              iterator_offset: ->(iterator) { 7 - (iterator * 3) },
-              key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Year[7]'
             }
           },
           'dateOfSeparation' => {
             'month' => {
-              iterator_offset: ->(iterator) { 6 - iterator },
-              key: "form1[0].#subform[209].Date_Month[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Month[6]'
             },
             'day' => {
-              iterator_offset: ->(iterator) { 6 - iterator },
-              key: "form1[0].#subform[209].Date_Day[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Day[6]'
             },
             'year' => {
-              iterator_offset: ->(iterator) { 6 - iterator },
-              key: "form1[0].#subform[209].Date_Year[#{ITERATOR}]"
+              key: 'form1[0].#subform[209].Date_Year[6]'
             }
           },
           'locationOfMarriage' => {
-            limit: 63,
-            question_num: 7.1,
-            question_suffix: '[Veteran]',
-            question_label: '(4) Place Of Marriage',
-            question_text: '(4) PLACE OF MARRIAGE',
-            iterator_offset: ->(iterator) { 3 - iterator },
-            key: "form1[0].#subform[209].Place_Of_Marriage[#{ITERATOR}]"
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'O',
+            question_label: 'Place Of Marriage',
+            question_text: 'PLACE OF MARRIAGE',
+            key: 'form1[0].#subform[209].Place_Of_Marriage[3]'
           },
           'locationOfSeparation' => {
-            limit: 54,
-            question_num: 7.1,
-            question_suffix: '[Veteran]',
-            question_label: '(5) Place Of Marriage Termination',
-            question_text: '(5) PLACE OF MARRIAGE TERMINATION',
-            iterator_offset: ->(iterator) { 3 - iterator },
-            key: "form1[0].#subform[209].Place_Of_Marriage_Termination[#{ITERATOR}]"
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'P',
+            question_label: 'Place Of Marriage Termination',
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
+            key: 'form1[0].#subform[209].Place_Of_Marriage_Termination[3]'
+          }
+        },
+        'spouseMarriageTwo' => {
+          first_key: 'reasonForSeparation',
+          'spouseFullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 5,
+              question_suffix: 'Q',
+              question_label: 'Spouse\'s First Name',
+              question_text: 'SPOUSE\'S FIRST NAME',
+              key: 'form1[0].#subform[209].FirstName[2]'
+            },
+            'middle' => {
+              limit: 1,
+              question_num: 5,
+              question_suffix: 'Q',
+              key: 'form1[0].#subform[209].MiddleInitial1[2]'
+            },
+            'last' => {
+              limit: 18,
+              question_num: 5,
+              question_suffix: 'Q',
+              question_label: 'Spouse\'s Last Name',
+              question_text: 'SPOUSE\'S LAST NAME',
+              key: 'form1[0].#subform[209].LastName[2]'
+            }
+          },
+          'reasonForSeparation' => {
+            key: 'form1[0].#subform[209].RadioButtonList[20]'
+          },
+          'reasonForSeparationExplanation' => {
+            limit: 64,
+            question_num: 5,
+            question_suffix: 'R',
+            question_label: 'Reason For Separation Explanation',
+            question_text: 'REASON FOR SEPARATION EXPLANATION',
+            key: 'form1[0].#subform[209].Explain[6]'
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'form1[0].#subform[209].Date_Month[4]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[209].Date_Day[4]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[209].Date_Year[4]'
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: 'form1[0].#subform[209].Date_Month[5]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[209].Date_Day[5]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[209].Date_Year[5]'
+            }
+          },
+          'locationOfMarriage' => {
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'T',
+            question_label: 'Place Of Marriage',
+            question_text: 'PLACE OF MARRIAGE',
+            key: 'form1[0].#subform[209].Place_Of_Marriage[2]'
+          },
+          'locationOfSeparation' => {
+            limit: 42,
+            question_num: 5,
+            question_suffix: 'U',
+            question_label: 'Place Of Marriage Termination',
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
+            key: 'form1[0].#subform[209].Place_Of_Marriage_Termination[2]'
           }
         },
         'spouseHasAdditionalMarriages' => {
@@ -202,8 +336,12 @@ module SurvivorsBenefits
 
       def expand(form_data)
         form_data['p12HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-        form_data['veteranMarriages'] = build_marital_history(form_data['veteranMarriages'])
-        form_data['spouseMarriages'] = build_marital_history(form_data['spouseMarriages'], 'SPOUSE')
+        veteran_marriages = build_marital_history(form_data['veteranMarriages'], 'VETERAN')
+        form_data['veteranMarriageOne'] = veteran_marriages.first || {}
+        form_data['veteranMarriageTwo'] = veteran_marriages.second || {}
+        spouse_marriages = build_marital_history(form_data['spouseMarriages'], 'SPOUSE')
+        form_data['spouseMarriageOne'] = spouse_marriages.first || {}
+        form_data['spouseMarriageTwo'] = spouse_marriages.second || {}
         form_data['veteranHasAdditionalMarriages'] =
           case form_data['veteranHasAdditionalMarriages']
           when true then 1
@@ -214,7 +352,7 @@ module SurvivorsBenefits
         form_data
       end
 
-      def build_marital_history(marriages, marriage_for = 'VETERAN')
+      def build_marital_history(marriages, marriage_for)
         return [] unless marriages.present? && %w[VETERAN SPOUSE].include?(marriage_for)
 
         marriages.map do |marriage|

@@ -96,6 +96,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[16]'
         },
         'placeOfSeparation' => {
+          limit: 32,
+          question_num: 3,
+          question_suffix: 'E',
+          question_label: 'Place of Last Separation',
+          question_text: 'PLACE OF LAST SEPARATION',
           key: 'form1[0].#subform[208].Place_Of_Last_Separation[0]'
         },
         'nationalGuardActivated' => {
