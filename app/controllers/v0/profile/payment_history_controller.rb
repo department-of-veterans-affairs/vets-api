@@ -112,9 +112,11 @@ module V0
         end
 
         # Additional identifier check - ensure user has contact information for BGS service
-        if current_user&.common_name.blank? && current_user&.email.blank? && current_user&.va_profile_email.blank?
-          Rails.logger.error('User missing all contact identifiers (common_name, email, va_profile_email)', {
-                               user_uuid: current_user&.uuid
+        # BGS::PaymentService uses common_name.presence || email for external_key
+        if current_user&.common_name.blank? && current_user&.email.blank?
+          Rails.logger.error('User missing all contact identifiers (common_name, email)', {
+                               user_uuid: current_user&.uuid,
+                               va_profile_email_present: current_user&.va_profile_email.present?
                              })
           StatsD.increment('api.payment_history.user.no_contact_identifiers')
         end

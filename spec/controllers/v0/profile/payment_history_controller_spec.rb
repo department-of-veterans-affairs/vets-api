@@ -199,8 +199,52 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
 
             # Set specific expectations for our validation
             expect(Rails.logger).to receive(:error).with(
-              'User missing all contact identifiers (common_name, email, va_profile_email)',
-              hash_including(user_uuid: user_without_contact.uuid)
+              'User missing all contact identifiers (common_name, email)',
+              hash_including(
+                user_uuid: user_without_contact.uuid,
+                va_profile_email_present: false
+              )
+            ).and_call_original
+            expect(StatsD).to receive(:increment)
+              .with('api.payment_history.user.no_contact_identifiers').and_call_original
+
+            get(:index)
+          end
+        end
+
+        context 'when user has va_profile_email but missing common_name and email' do
+          let(:user_with_only_va_email) do
+            create(:evss_user, first_name: nil, last_name: nil, email: nil)
+          end
+
+          before do
+            sign_in_as(user_with_only_va_email)
+            # Stub the controller's current_user with va_profile_email but no common_name or email
+            allow(controller).to receive(:current_user).and_return(user_with_only_va_email)
+            allow(user_with_only_va_email).to receive_messages(common_name: nil, va_profile_email: 'va@example.com')
+
+            # Stub BGS services to prevent actual calls
+            allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
+              .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
+                                           participant_id: '123456', ssn_number: '123456789'))
+            allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
+              .and_return(double('payment_history', payments: []))
+          end
+
+          it 'logs error with va_profile_email_present: true and increments StatsD' do
+            # Allow all other calls
+            allow(StatsD).to receive(:increment).and_call_original
+            allow(Rails.logger).to receive(:info).and_call_original
+            allow(Rails.logger).to receive(:warn).and_call_original
+            allow(Rails.logger).to receive(:error).and_call_original
+
+            # Set specific expectations - should still fail validation but log va_profile_email presence
+            expect(Rails.logger).to receive(:error).with(
+              'User missing all contact identifiers (common_name, email)',
+              hash_including(
+                user_uuid: user_with_only_va_email.uuid,
+                va_profile_email_present: true
+              )
             ).and_call_original
             expect(StatsD).to receive(:increment)
               .with('api.payment_history.user.no_contact_identifiers').and_call_original
@@ -216,7 +260,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
               anything
             )
             expect(Rails.logger).not_to receive(:error).with(
-              'User missing all contact identifiers (common_name, email, va_profile_email)',
+              'User missing all contact identifiers (common_name, email)',
               anything
             )
             expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_identifiers')
@@ -242,7 +286,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             anything
           )
           expect(Rails.logger).not_to receive(:error).with(
-            'User missing all contact identifiers (common_name, email, va_profile_email)',
+            'User missing all contact identifiers (common_name, email)',
             anything
           )
           expect(StatsD).not_to receive(:increment).with('api.payment_history.user.no_identifiers')
