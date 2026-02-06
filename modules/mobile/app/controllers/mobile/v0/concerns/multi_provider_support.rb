@@ -38,35 +38,67 @@ module Mobile
           ["provider:#{provider_name}"]
         end
 
+        # Returns both provider type and claim response for adapter routing
+        # @return [Hash] hash with :provider_type and :claim_response keys
+        def get_claim_with_provider_type(claim_id, provider_type = nil)
+          # Determine actual provider type
+          actual_provider_type = if provider_type.present?
+                                   provider_type.to_s.downcase
+                                 elsif configured_providers.length == 1
+                                   detect_provider_type(configured_providers.first)
+                                 else
+                                   # Default to lighthouse for backward compatibility
+                                   'lighthouse'
+                                 end
+
+          claim_response = get_claim_from_providers(claim_id, provider_type)
+
+          {
+            provider_type: actual_provider_type,
+            claim_response: claim_response
+          }
+        end
+
         # Overrides base implementation to use explicit routing instead of fallback iteration.
         #
         # Retrieves a claim from the appropriate provider based on provider_type parameter.
         #
-        # When multiple providers exist, the type parameter is REQUIRED to prevent ID collision
-        # (same claim ID could exist in multiple systems). With a single provider, type is optional
-        # for backward compatibility.
+        # For Lighthouse claims, routes through Mobile::V0::LighthouseClaims::Proxy to apply
+        # mobile-specific transforms (override_rv1, suppress_evidence_requests, schema validation).
+        # Other providers use their provider implementation directly.
+        #
+        # When multiple providers exist and type parameter is missing, defaults to 'lighthouse'
+        # for backward compatibility with existing bookmarked URLs. This is safe because all
+        # existing bookmarked claims are from Lighthouse (CHAMPVA is newly added).
         #
         # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
-        # the second provider. This ensures type is always present before it becomes required.
+        # the second provider. Existing bookmarks without type will continue to work.
         def get_claim_from_providers(claim_id, provider_type = nil)
-          # If provider_type is specified, use it directly
+          # If provider_type is specified, route based on type
           if provider_type.present?
-            provider_class = provider_class_for_type(provider_type)
-            provider = provider_class.new(@current_user)
-            return provider.get_claim(claim_id)
+            return get_claim_for_provider_type(claim_id, provider_type)
           end
 
           # No provider_type specified - check if multiple providers exist
           if configured_providers.length > 1
-            valid_types = supported_provider_types.join(', ')
-            detail_message = "Provider type is required. Valid types: #{valid_types}"
-            raise Common::Exceptions::ParameterMissing.new('type', detail: detail_message)
+            # Default to lighthouse for backward compatibility with bookmarked URLs
+            # All existing bookmarked claims are from Lighthouse since CHAMPVA is newly added
+            Rails.logger.info(
+              'Mobile claims: type parameter missing with multiple providers, defaulting to lighthouse',
+              claim_id:,
+              user_uuid: @current_user.uuid
+            )
+            return lighthouse_claims_proxy.get_claim(claim_id)
           end
 
-          # Single provider - no id collision possible
+          # Single provider - determine type and route accordingly
           provider_class = configured_providers.first
-          provider = provider_class.new(@current_user)
-          provider.get_claim(claim_id)
+          if is_lighthouse_provider?(provider_class)
+            lighthouse_claims_proxy.get_claim(claim_id)
+          else
+            provider = provider_class.new(@current_user)
+            provider.get_claim(claim_id)
+          end
         end
 
         def provider_class_for_type(type)
@@ -82,6 +114,39 @@ module Mobile
         def supported_provider_types
           # Returns list of valid provider type strings that can be used in the type parameter
           ['lighthouse']
+        end
+
+        # Routes claim request to appropriate implementation based on provider type
+        # Lighthouse uses Proxy (with mobile transforms), others use provider directly
+        def get_claim_for_provider_type(claim_id, provider_type)
+          case provider_type.to_s.downcase
+          when 'lighthouse'
+            lighthouse_claims_proxy.get_claim(claim_id)
+          else
+            provider_class = provider_class_for_type(provider_type)
+            provider = provider_class.new(@current_user)
+            provider.get_claim(claim_id)
+          end
+        end
+
+        # Checks if a provider class is the Lighthouse provider
+        def is_lighthouse_provider?(provider_class)
+          provider_class.name.include?('Lighthouse')
+        end
+
+        # Detects provider type string from provider class
+        def detect_provider_type(provider_class)
+          if is_lighthouse_provider?(provider_class)
+            'lighthouse'
+          else
+            provider_class.name.split('::').last.gsub(/Provider$/, '').underscore
+          end
+        end
+
+        # Returns the mobile-specific Lighthouse Proxy
+        # This proxy includes mobile transforms (override_rv1, suppress_evidence_requests)
+        def lighthouse_claims_proxy
+          Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
         end
       end
     end
