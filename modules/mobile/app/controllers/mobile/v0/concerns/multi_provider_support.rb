@@ -47,7 +47,7 @@ module Mobile
                                  elsif configured_providers.length == 1
                                    detect_provider_type(configured_providers.first)
                                  else
-                                   # Default to lighthouse for backward compatibility
+                                   # No type specified with multiple providers - default to Lighthouse
                                    'lighthouse'
                                  end
 
@@ -67,9 +67,13 @@ module Mobile
         # mobile-specific transforms (override_rv1, suppress_evidence_requests, schema validation).
         # Other providers use their provider implementation directly.
         #
-        # When type parameter is missing:
-        # - Single provider: Uses lighthouse / benefits-claims
-        # - Multiple providers: Default to Lighthouse (maintains existing bookmarked URLs)
+        # Type parameter behavior:
+        # - No type parameter → Defaults to Lighthouse (recommended for Lighthouse claims)
+        # - type=champva → Routes to CHAMPVA provider (required for non-Lighthouse claims)
+        # - type=lighthouse → Routes to Lighthouse (works but unnecessary - omit for cleaner URLs)
+        #
+        # This approach maintains backward compatibility with existing bookmarked URLs while
+        # preventing ID collisions when multiple providers are enabled
         def get_claim_from_providers(claim_id, provider_type = nil)
           # If provider_type is specified, route based on type
           return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
