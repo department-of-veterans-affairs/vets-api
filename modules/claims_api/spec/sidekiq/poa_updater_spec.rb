@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/bgs_error_helpers'
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
@@ -83,23 +84,33 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
     before do
       create_mock_lighthouse_service
-      allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_return(
-        return_code: 'some error code'
-      )
     end
 
-    it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-      expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-      subject.new.perform(poa.id)
-      poa.reload
-      expect(poa.status).to eq('errored')
+    context 'with a response indicating failure' do
+      before do
+        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_return(
+          return_code: 'some error code'
+        )
+      end
+
+      it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+        subject.new.perform(poa.id)
+        poa.reload
+        expect(poa.status).to eq('errored')
+      end
+
+      it 'updates the process status to FAILED' do
+        subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+        expect(process.step_status).to eq('FAILED')
+      end
     end
 
-    it 'updates the process status to FAILED' do
-      subject.new.perform(poa.id)
-      process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
-      expect(process.step_status).to eq('FAILED')
-    end
+    # run error handling shared examples for BGS service errors and standard errors
+    include_examples 'BGS service error handling', BGS::VetRecordWebService, :update_birls_record
+
+    include_examples 'standard error handling', BGS::VetRecordWebService, :update_birls_record
   end
 
   context 'when an errored job has exhausted its retries' do
@@ -123,25 +134,39 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
   describe 'when the claims_api_use_person_web_service flipper is on' do
     let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+    let(:poa) { create_poa }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
       allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
                                                                external_key: anything)
                                                          .and_return(person_web_service)
-      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
     end
 
-    it 'calls local bgs person web service instead of bgs-ext' do
-      poa = create_poa
-      subject.new.perform(poa.id)
+    context 'and the PersonWebService retrieves successfully' do
+      before do
+        allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+      end
 
-      expect(person_web_service).to have_received(:find_by_ssn)
+      it 'calls local bgs person web service instead of bgs-ext' do
+        subject.new.perform(poa.id)
+
+        expect(person_web_service).to have_received(:find_by_ssn)
+      end
+    end
+
+    context 'and the PersonWebService raises an exception' do
+      # run error handling shared examples for BGS service errors and standard errors
+      include_examples 'BGS service error handling with instance double', :person_web_service, :find_by_ssn
+
+      include_examples 'standard error handling with instance double', :person_web_service, :find_by_ssn
     end
   end
 
   describe 'when the claims_api_use_update_poa_relationship flipper is on' do
     let(:manage_rep_poa_update_service) { instance_double(ClaimsApi::ManageRepresentativeService) }
+    let(:poa) { create_poa }
+
     let(:successful_response) do
       {
         'dateRequestAccepted' => '2025-01-30T00:00:00-06:00',
@@ -157,14 +182,29 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
       allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(external_uid: anything,
                                                                           external_key: anything)
                                                                     .and_return(manage_rep_poa_update_service)
-      allow(manage_rep_poa_update_service).to receive(:update_poa_relationship).and_return(successful_response)
     end
 
-    it 'calls local bgs vet record service instead of bgs-ext' do
-      poa = create_poa
-      subject.new.perform(poa.id)
+    context 'and the ManageRepresentativeService retrieves successfully' do
+      before do
+        allow(manage_rep_poa_update_service).to receive(:update_poa_relationship).and_return(successful_response)
+      end
 
-      expect(manage_rep_poa_update_service).to have_received(:update_poa_relationship)
+      it 'calls local bgs vet record service instead of bgs-ext' do
+        subject.new.perform(poa.id)
+
+        expect(manage_rep_poa_update_service).to have_received(:update_poa_relationship)
+      end
+    end
+
+    context 'and the ManageRepresentativeService raises an exception' do
+      # run error handling shared examples for BGS service errors and standard errors
+      include_examples 'BGS service error handling with instance double',
+                       :manage_rep_poa_update_service,
+                       :update_poa_relationship
+
+      include_examples 'standard error handling with instance double',
+                       :manage_rep_poa_update_service,
+                       :update_poa_relationship
     end
   end
 
