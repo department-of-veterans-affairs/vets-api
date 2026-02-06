@@ -673,6 +673,10 @@ RSpec.describe ApplicationController, type: :controller do
         },
         'credential_used' => 'idme',
         'credential_uuid' => user.idme_uuid,
+        'user_credentials' => {
+          idme: user.user_account.user_verifications.idme.count,
+          logingov: user.user_account.user_verifications.logingov.count
+        },
         'session_uuid' => token,
         'expirationTime' => expiration_time
       }
