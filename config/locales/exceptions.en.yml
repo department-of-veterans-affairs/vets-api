@@ -60,6 +60,12 @@ en:
         detail: "\"%{sort_criteria}\" is not a valid sort criteria for \"%{resource}\""
         code: 106
         status: 400
+      max_array_size_exceeded:
+        <<: *defaults
+        title: Too many items submitted
+        detail: "\"%{field}\" cannot exceed %{max_size} items (submitted %{actual_size})"
+        code: 108
+        status: 400
       invalid_pagination_params:
         <<: *defaults
         title: Invalid pagination params
