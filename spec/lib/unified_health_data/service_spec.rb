@@ -1398,11 +1398,11 @@ describe UnifiedHealthData::Service, type: :service do
       #   20849028695: status='active', intent='order', refills=0, containedCount=2 (dispense status='in-progress')
       #                → NOT renewable (Gate 7: active processing)
       #
-      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_vista_only):
-      # ================================================================================
-      # VistA Prescriptions:
-      #   25804852: dispStatus='Active: On Hold', isRenewable=false
-      #   25804855: dispStatus='Expired', isRenewable=false
+      # VCR Cassette Data Reference (unified_health_data/get_prescriptions_vista_data_valid):
+      # ====================================================================================
+      # VistA Prescriptions with isRenewable: false (for testing non-renewable cases):
+      #   25804854: dispStatus='Discontinued', isRenewable=false, reason='Discontinued more than 120 Days'
+      #   25804855: dispStatus='Expired', isRenewable=false, reason='Expired more than 120 Days'
       #
       context 'is_renewable attribute' do
         context 'VistA prescriptions' do
@@ -1421,11 +1421,23 @@ describe UnifiedHealthData::Service, type: :service do
             end
           end
 
-          # NOTE: The vista_only cassette has OperationOutcome errors from Oracle Health,
-          # which now raises UpstreamPartialFailure. The is_renewable: true case (tested above
-          # with get_prescriptions_success cassette) provides coverage for VistA renewability pass-through.
-          # If we need to test is_renewable: false specifically, we'd need a cassette with both
-          # sources returning valid data but containing non-renewable prescriptions.
+          it 'passes through isRenewable=false from the API response' do
+            # VCR Cassette Data Reference (unified_health_data/get_prescriptions_vista_data_valid):
+            # VistA prescriptions with isRenewable: false:
+            #   25804854: dispStatus='Discontinued', reason='Discontinued more than 120 Days'
+            #   25804855: dispStatus='Expired', reason='Expired more than 120 Days'
+            VCR.use_cassette('unified_health_data/get_prescriptions_vista_data_valid') do
+              prescriptions = service.get_prescriptions
+
+              # 25804854: dispStatus='Discontinued', isRenewable=false
+              discontinued_rx = prescriptions.find { |p| p.prescription_id == '25804854' }
+              expect(discontinued_rx.is_renewable).to be false
+
+              # 25804855: dispStatus='Expired', isRenewable=false
+              expired_rx = prescriptions.find { |p| p.prescription_id == '25804855' }
+              expect(expired_rx.is_renewable).to be false
+            end
+          end
         end
 
         context 'Oracle Health prescriptions' do
