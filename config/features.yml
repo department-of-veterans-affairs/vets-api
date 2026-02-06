@@ -130,9 +130,9 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
-  bio_heart_govcio_mms:
-    actor_type: cookie_id
-    description: "Toggle the sending of data to IBM GOVCIO for BIO HEART forms"
+  bio_heart_mms_logging:
+    actor_type: user
+    description: Enable verbose logging in the BIO HEART MMS data submission workflow
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
