@@ -1209,6 +1209,24 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+  bio_submission_status:
+    emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
+    enabled: true
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
+    staging_emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
   year_to_date_report:
     emails:
       - 222A.VBAVACO@va.gov
@@ -1250,24 +1268,6 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
-  bio_submission_status:
-    enabled: true
-    emails:
-      - Cameron.Testerman@va.gov
-      - Leah.Keeler@va.gov
-    staging_emails:
-      - Cameron.Testerman@va.gov
-      - Leah.Keeler@va.gov
-    expected_annual_submissions:
-      '21-4192': 0
-      '21-0779': 0
-      '21P-530a': 0
-      '21-2680': 0
-    form_types:
-      - '21-4192'
-      - '21-0779'
-      - '21P-530a'
-      - '21-2680'
 representation_management:
   geocoder:
     mapbox:
