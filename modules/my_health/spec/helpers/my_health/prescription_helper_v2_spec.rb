@@ -172,6 +172,49 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
           expect(helper.renewable(prescription)).to be false
         end
       end
+
+      context 'when disp_status is Active: Parked with nil dispenses' do
+        it 'does not raise and returns false' do
+          prescription = build_prescription(
+            is_renewable: nil,
+            disp_status: 'Active: Parked',
+            is_refillable: false,
+            refill_remaining: 0,
+            dispenses: nil
+          )
+
+          expect { helper.renewable(prescription) }.not_to raise_error
+          expect(helper.renewable(prescription)).to be false
+        end
+      end
+
+      context 'when disp_status is Active: Parked with empty dispenses' do
+        it 'returns false' do
+          prescription = build_prescription(
+            is_renewable: nil,
+            disp_status: 'Active: Parked',
+            is_refillable: false,
+            refill_remaining: 0,
+            dispenses: [{}]
+          )
+
+          expect(helper.renewable(prescription)).to be false
+        end
+      end
+
+      context 'when disp_status is Active: Parked with non-empty dispenses' do
+        it 'returns true' do
+          prescription = build_prescription(
+            is_renewable: nil,
+            disp_status: 'Active: Parked',
+            is_refillable: false,
+            refill_remaining: 0,
+            dispenses: [{ expiration_date: Time.zone.today.to_s }]
+          )
+
+          expect(helper.renewable(prescription)).to be true
+        end
+      end
     end
   end
 
