@@ -1210,6 +1210,12 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'
+    - :method: :post
+      :path: "/suite/webapi/update-ch3-milestone-status"
+      :file_path: "vre/ch31_case_milestones"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
 
 # SOB/DGI
 - :name: "SOB"

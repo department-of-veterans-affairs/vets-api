@@ -1262,6 +1262,8 @@ res:
   base_url: https://fake_url.com
   ch_31_case_details:
     mock: ~
+  ch_31_case_milestones:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
