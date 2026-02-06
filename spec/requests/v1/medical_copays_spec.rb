@@ -14,7 +14,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
   describe 'index', skip: 'temporarily skipped' do
     it 'returns a formatted hash response' do
-      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
+      VCR.use_cassette('lighthouse/hcc/copay_list_by_month', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)

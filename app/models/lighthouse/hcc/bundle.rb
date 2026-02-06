@@ -48,6 +48,13 @@ module Lighthouse
         uri.scheme = base.scheme
         uri.host = base.host
         uri.port = base.port
+
+        if uri.query.present?
+          params = CGI.parse(uri.query)
+          params.delete('patient')
+          uri.query = params.any? ? URI.encode_www_form(params) : nil
+        end
+
         uri.to_s
       end
 
@@ -56,17 +63,24 @@ module Lighthouse
       end
 
       def build_meta
-        relations = @bundle['link'].index_by { |l| l['relation'] }
+        relations = @bundle['link'].to_a.index_by { |l| l['relation'] }
         self_url = relations['self']&.dig('url')
-        query_string = CGI.parse(URI(self_url).query.to_s)
 
         base_meta = {
           total: @bundle['total'].to_i,
-          page: query_string['page']&.first.to_i,
-          per_page: query_string['_count']&.first.to_i
+          page: nil,
+          per_page: nil
         }
 
-        base_meta.merge(copay_summary_meta)
+        return base_meta.merge(copay_summary_meta) if self_url.blank?
+
+        query_string = CGI.parse(URI(self_url).query.to_s)
+
+        {
+          total: @bundle['total'].to_i,
+          page: query_string['page']&.first.to_i,
+          per_page: query_string['_count']&.first.to_i
+        }.merge(copay_summary_meta)
       end
 
       def copay_summary_meta

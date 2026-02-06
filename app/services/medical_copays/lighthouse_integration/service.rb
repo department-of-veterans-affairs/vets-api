@@ -55,7 +55,56 @@ module MedicalCopays
         raise e
       end
 
+      def list_months(month_count: 18, count: 50)
+        raw_bundle, entries = collect_entries_in_range(month_count:, count:)
+
+        if entries.empty?
+          return Lighthouse::HCC::Bundle.new(
+            raw_bundle.merge('entry' => []),
+            []
+          )
+        end
+
+        raw_bundle = raw_bundle.merge(
+          'entry' => entries,
+          'total' => entries.length,
+          'link' => []
+        )
+
+        formatted_entries = build_invoice_entries(raw_bundle)
+        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
+      end
+
       private
+
+      def collect_entries_in_range(month_count:, count:)
+        from = month_count.months.ago.utc
+        page = 1
+        all_entries = []
+        last_raw_bundle = nil
+
+        loop do
+          raw = invoice_service.list(count:, page:)
+          last_raw_bundle = raw
+
+          entries = raw['entry'] || []
+          break if entries.empty?
+
+          entries.each do |entry|
+            date_str = entry.dig('resource', 'date')
+            next unless date_str
+
+            invoice_date = Time.iso8601(date_str)
+            next if invoice_date < from
+
+            all_entries << entry
+          end
+
+          page += 1
+        end
+
+        [last_raw_bundle, all_entries]
+      end
 
       def record_success(operation)
         start_time = Time.current
