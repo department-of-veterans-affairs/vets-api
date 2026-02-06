@@ -467,6 +467,74 @@ RSpec.describe SignIn::AttributeValidator do
         end
       end
 
+      shared_examples 'get traits service' do
+        let(:find_profile_response) do
+          create(:find_profile_response, profile: mpi_profile)
+        end
+        let(:auto_uplevel) { true }
+
+        let(:mpi_profile) do
+          build(
+            :mpi_profile,
+            ssn:,
+            birth_date:,
+            given_names: [first_name],
+            family_name: last_name,
+            id_theft_flag: false,
+            deceased_date: nil,
+            edipis: ['some-edipi'],
+            edipi: 'some-edipi',
+            participant_ids: ['some-participant-id'],
+            participant_id: 'some-participant-id',
+            mhv_iens: ['some-mhv-ien'],
+            mhv_ien: 'some-mhv-ien',
+            birls_ids: ['some-birls-id'],
+            birls_id: 'some-birls-id',
+            icn: 'some-icn'
+          )
+        end
+        let(:get_traits_caller) { instance_double(SignIn::GetTraitsCaller, perform_async: true) }
+
+        before do
+          allow(SignIn::GetTraitsCaller).to receive(:new)
+            .with(user_attributes)
+            .and_return(get_traits_caller)
+        end
+
+        context 'when ssoe_get_traits feature flag is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:ssoe_get_traits)
+              .and_return(false)
+          end
+
+          it 'does not enqueue the get traits job' do
+            subject
+
+            expect(get_traits_caller).not_to have_received(:perform_async)
+          end
+        end
+
+        context 'when ssoe_get_traits feature flag is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:ssoe_get_traits)
+              .and_return(true)
+          end
+
+          it 'enqueues get traits job' do
+            subject
+
+            expect(SignIn::GetTraitsCaller)
+              .to have_received(:new)
+              .with(user_attributes)
+
+            expect(get_traits_caller)
+              .to have_received(:perform_async)
+          end
+        end
+      end
+
       context 'and authentication is with mhv' do
         let(:service_name) { SignIn::Constants::Auth::MHV }
         let(:mhv_icn) { 'some-icn' }
@@ -583,6 +651,8 @@ RSpec.describe SignIn::AttributeValidator do
             it_behaves_like 'mpi attribute validations'
           end
         end
+
+        it_behaves_like 'get traits service'
       end
 
       context 'and authentication is with logingov' do
@@ -709,6 +779,7 @@ RSpec.describe SignIn::AttributeValidator do
 
         context 'and credential is not missing any required attributes' do
           it_behaves_like 'credential mpi verification'
+          it_behaves_like 'get traits service'
         end
       end
 
@@ -763,6 +834,7 @@ RSpec.describe SignIn::AttributeValidator do
 
         context 'and credential is not missing any required attributes' do
           it_behaves_like 'credential mpi verification'
+          it_behaves_like 'get traits service'
         end
       end
 
@@ -814,6 +886,7 @@ RSpec.describe SignIn::AttributeValidator do
 
         context 'and credential is not missing any required attributes' do
           it_behaves_like 'credential mpi verification'
+          it_behaves_like 'get traits service'
         end
       end
     end
