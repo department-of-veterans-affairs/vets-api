@@ -1128,7 +1128,7 @@ modules/bpds @department-of-veterans-affairs/bpds @department-of-veterans-affair
 modules/burials @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 modules/claims_api @department-of-veterans-affairs/lighthouse-dash
-modules/claims_api/config/schemas/v2/526.json @department-of-veterans-affairs/disability-benefits
+modules/claims_api/config/schemas/v2/526.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 modules/claims_evidence_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/claims-evidence-api @department-of-veterans-affairs/backend-review-group
 modules/debts_api @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 modules/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
