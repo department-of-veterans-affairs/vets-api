@@ -67,6 +67,9 @@ properties:
   recipientName:
     type: string
     example: "ROE, RICHARD"
+  replyDisabled:
+    type: boolean
+    example: false
   proxySenderName:
     type: string
     nullable: true

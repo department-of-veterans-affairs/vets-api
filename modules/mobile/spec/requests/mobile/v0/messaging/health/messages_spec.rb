@@ -77,6 +77,30 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                             '/health/messages/573059/attachments/674847' } })
       end
 
+      it 'responds to GET #show with reply_disabled' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
+      end
+
+      it 'responds to GET #show with reply_disabled false' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_not_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(false)
+        expect(response).to match_camelized_response_schema('message', strict: false)
+      end
+
       it 'responds to GET #show with active triage group' do
         VCR.use_cassette('mobile/messages/gets_a_message_active_triage_team') do
           VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do

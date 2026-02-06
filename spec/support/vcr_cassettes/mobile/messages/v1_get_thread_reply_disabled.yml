@@ -1,0 +1,111 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/v1/sm/patient/message/573059/messagesforthread"
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Apache-Coyote/1.1
+        X-Powered-By:
+          - Servlet/2.5 JSP/2.1
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '639'
+        Date:
+          - Tue, 31 Jan 2017 21:30:46 GMT
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "message": [
+              { 
+                "message_id": 573059,
+                "category": "OTHER",
+                "subject": "Release 16.2 - SM last login ",
+                "message_body": "Provider Reply",
+                "attachment": false,
+                "hasAttachments": false,
+                "sentDate": null,
+                "senderId": 257555,
+                "senderName": "ISLAM, MOHAMMAD",
+                "recipientId": 384939,
+                "recipientName": "MVIONE, TEST",
+                "readReceipt": "READ",
+                "hasAttachments": false,
+                "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "proxy_sender_name": null,
+                "thread_id": 2800585,
+                "folder_id": -2,
+                "draft_date": "2023-05-16T14:55:01.000+00:00",
+                "to_date": null,
+                "has_attachments": false,
+                "reply_disabled": false
+              },
+              {
+                "message_id": 573052,
+                "category": "OTHER",
+                "subject": "Release 16.2 - SM last login ",
+                "message_body": "Provider Reply",
+                "attachment": false,
+                "hasAttachments": false,
+                "sentDate": null,
+                "senderId": 257555,
+                "senderName": "ISLAM, MOHAMMAD",
+                "recipientId": 384939,
+                "recipientName": "MVIONE, TEST",
+                "readReceipt": "READ",
+                "hasAttachments": false,
+                "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "proxy_sender_name": null,
+                "thread_id": 2800585,
+                "folder_id": -2,
+                "draft_date": "2023-05-16T14:55:01.000+00:00",
+                "to_date": null,
+                "has_attachments": false,
+                "reply_disabled": true
+              },
+              {
+                "message_id": 573041,
+                "category": "OTHER",
+                "subject": "Release 16.2- SM last login ",
+                "message_body": "Release 16.2- SM last login ",
+                "attachment": false,
+                "hasAttachments": false,
+                "sentDate": null,
+                "senderId": 384939,
+                "senderName": "MVIONE, TEST",
+                "recipientId": 345468,
+                "recipientName": "WORKLOAD CAPTURE_Mohammad",
+                "readReceipt": "READ",
+                "hasAttachments": false,
+                "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "proxy_sender_name": null,
+                "thread_id": 2800585,
+                "folder_id": -2,
+                "draft_date": "2023-05-16T14:55:01.000+00:00",
+                "to_date": null,
+                "has_attachments": false
+              }
+            ]
+          }
+      http_version:
+    recorded_at: Tue, 31 Jan 2017 21:30:47 GMT
+recorded_with: VCR 3.0.3

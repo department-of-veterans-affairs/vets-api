@@ -8,5 +8,6 @@ class MessageThreadDetails < Message
   attribute :draft_date, Vets::Type::DateTimeString
   attribute :to_date, Vets::Type::DateTimeString
   attribute :has_attachments, Bool, default: false
+  attribute :reply_disabled, Bool, default: false
   attribute :attachments, Array
 end

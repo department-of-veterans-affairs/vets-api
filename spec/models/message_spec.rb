@@ -18,7 +18,8 @@ RSpec.describe Message do
                                                                :triage_group_name, :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
-                                                               :attachment4_id, :metadata, :is_large_attachment_upload)
+                                                               :attachment4_id, :metadata,
+                                                               :is_large_attachment_upload, :reply_disabled)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
@@ -30,6 +31,7 @@ RSpec.describe Message do
       expect(subject.recipient_id).to eq(params[:recipient_id])
       expect(subject.recipient_name).to eq(params[:recipient_name])
       expect(subject.read_receipt).to eq(params[:read_receipt])
+      expect(subject.reply_disabled).to eq(params[:reply_disabled])
     end
 
     it 'sorts by sent_date DESC' do

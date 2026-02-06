@@ -14,6 +14,10 @@ describe MyHealth::V1::MessageDetailsSerializer, type: :serializer do
     expect(data['id']).to eq message.message_id.to_s
   end
 
+  it 'includes :reply_disabled' do
+    expect(attributes['reply_disabled']).to eq message.reply_disabled
+  end
+
   it 'includes :body' do
     expect(attributes['body']).to eq message.message_body
   end
