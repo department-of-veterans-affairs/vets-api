@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "minItems": 1,
+  "maxItems": 100,
+  "items": {
+    "type": "object",
+    "required": [
+      "composite_debt_id",
+      "deduction_code",
+      "original_ar",
+      "current_ar",
+      "benefit_type",
+      "dispute_reason"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "composite_debt_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^[A-Za-z0-9_-]+$"
+      },
+      "deduction_code": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[A-Za-z0-9_-]+$"
+      },
+      "original_ar": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 999999999,
+        "multipleOf": 0.01
+      },
+      "current_ar": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 999999999,
+        "multipleOf": 0.01
+      },
+      "benefit_type": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^[A-Za-z0-9 _,/\\-]+$"
+      },
+      "dispute_reason": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000,
+        "pattern": "^[^<>\\x00-\\x1F\\x7F]+$"
+      },
+      "rcvbl_id": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2147483647
+      }
+    }
+  }
+}
