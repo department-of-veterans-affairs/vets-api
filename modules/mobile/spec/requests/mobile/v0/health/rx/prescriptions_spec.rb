@@ -150,6 +150,18 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
       end
+
+      it 'includes sortedDispensedDate field' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+        end
+
+        expect(response).to have_http_status(:ok)
+        data = response.parsed_body['data']
+
+        prescriptions_with_dates = data.select { |rx| rx.dig('attributes', 'sortedDispensedDate').present? }
+        expect(prescriptions_with_dates).not_to be_empty
+      end
     end
 
     context 'when user does not have mhv access' do

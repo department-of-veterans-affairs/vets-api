@@ -732,4 +732,103 @@ describe V2::Lorota::Service do
       end
     end
   end
+
+  describe '#parse_check_in_response_data' do
+    let(:service_instance) { subject.build(check_in: valid_check_in) }
+
+    context 'when JSON parsing succeeds' do
+      let(:raw_data) do
+        double('FaradayResponse', body: appointment_data.to_json)
+      end
+
+      it 'returns appointments and demographics status' do
+        appointments, demographics_status = service_instance.send(:parse_check_in_response_data, raw_data)
+
+        expect(appointments).to be_an(Array)
+        expect(appointments.size).to eq(2)
+        expect(demographics_status).to be_a(Hash)
+        expect(demographics_status['demographicsNeedsUpdate']).to be true
+      end
+    end
+
+    context 'when Oj::ParseError occurs' do
+      let(:raw_data) { double('FaradayResponse', body: 'invalid json {') }
+
+      before do
+        allow(Oj).to receive(:load).and_raise(Oj::ParseError.new('Invalid JSON'))
+      end
+
+      it 'logs a warning and returns empty arrays' do
+        expect(Rails.logger).to receive(:warn).with(
+          {
+            message: 'JSON parsing failed',
+            check_in_uuid: id,
+            error: 'Invalid JSON'
+          }
+        )
+
+        appointments, demographics_status = service_instance.send(:parse_check_in_response_data, raw_data)
+
+        expect(appointments).to eq([])
+        expect(demographics_status).to eq({})
+      end
+    end
+
+    context 'when EncodingError occurs' do
+      let(:raw_data) { double('FaradayResponse', body: 'some data') }
+
+      before do
+        allow(Oj).to receive(:load).and_raise(EncodingError.new('Invalid encoding'))
+      end
+
+      it 'logs an error and returns empty arrays' do
+        expect(Rails.logger).to receive(:error).with(
+          {
+            message: 'Encoding issue detected - possible data corruption',
+            check_in_uuid: id,
+            error: 'Invalid encoding'
+          }
+        )
+
+        appointments, demographics_status = service_instance.send(:parse_check_in_response_data, raw_data)
+
+        expect(appointments).to eq([])
+        expect(demographics_status).to eq({})
+      end
+    end
+
+    context 'when StandardError occurs' do
+      let(:raw_data) { double('FaradayResponse', body: 'some data') }
+
+      before do
+        allow(Oj).to receive(:load).and_raise(StandardError.new('Unexpected error'))
+      end
+
+      it 'logs an error and returns empty arrays' do
+        expect(Rails.logger).to receive(:error).with(
+          {
+            message: 'Unexpected error parsing check-in response',
+            check_in_uuid: id,
+            error: 'Unexpected error'
+          }
+        )
+
+        appointments, demographics_status = service_instance.send(:parse_check_in_response_data, raw_data)
+
+        expect(appointments).to eq([])
+        expect(demographics_status).to eq({})
+      end
+    end
+
+    context 'when parsed data is missing expected keys' do
+      let(:raw_data) { double('FaradayResponse', body: '{}') }
+
+      it 'returns empty arrays for missing data' do
+        appointments, demographics_status = service_instance.send(:parse_check_in_response_data, raw_data)
+
+        expect(appointments).to eq([])
+        expect(demographics_status).to eq({})
+      end
+    end
+  end
 end

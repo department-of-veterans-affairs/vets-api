@@ -126,10 +126,34 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
+                  mock_file_number_check
 
                   post appoint_individual_path, params: data.to_json, headers: auth_header
+
                   expect(response).to have_http_status(:accepted)
                 end
+              end
+            end
+
+            context 'auth headers' do
+              let(:poa) do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                      .and_return(bgs_poa)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                      .and_return({ person_poa_history: nil })
+                    mock_file_number_check
+
+                    post appoint_individual_path, params: data.to_json, headers: auth_header
+                    poa_id = JSON.parse(response.body)['data']['id']
+                    ClaimsApi::PowerOfAttorney.find(poa_id)
+                  end
+                end
+              end
+
+              it 'adds the file_number to the header' do
+                expect(poa.auth_headers).to have_key('file_number')
               end
             end
 
@@ -182,6 +206,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                     .to receive(:disable_jobs?).and_return(false)
                   allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
                                                       .and_return true
+                  mock_file_number_check
                 end
 
                 context 'and the request includes a claimant' do
@@ -221,10 +246,12 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)
                         json['data']['attributes']['claimant'] = claimant_data
-                        json['data']['attributes']['claimant']['relationship'] = 'Self'
+                        json['data']['attributes']['claimant']['relationship'] =
+                          'Self'
                         request_body = json.to_json
 
-                        post appoint_individual_path, params: request_body, headers: auth_header
+                        post appoint_individual_path, params: request_body,
+                                                      headers: auth_header
                         poa_id = JSON.parse(response.body)['data']['id']
                         poa = ClaimsApi::PowerOfAttorney.find(poa_id)
                         auth_headers = poa.auth_headers
@@ -239,6 +266,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 before do
                   allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
                                                       .and_return false
+                  mock_file_number_check
                 end
 
                 it 'does not add the dependent object to the auth_headers' do
@@ -321,6 +349,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
 
             context 'when the country is not US' do
               it 'returns a 202' do
+                mock_file_number_check
+
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
                   claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
@@ -350,6 +380,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
               include_context 'claimant data setup'
 
               it 'returns a 202 when all conditionally required data is present' do
+                mock_file_number_check
+
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
@@ -469,7 +501,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
       end
     end
 
-    describe 'validate2122a' do
+    describe 'validate 2122a' do
       let(:data) do
         {
           data: {

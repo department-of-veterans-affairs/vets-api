@@ -30,7 +30,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
     context 'with an erroneous bgs response' do
       it 'returns no content' do
-        allow_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents).and_raise(BGS::ShareError)
+        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get(:show, params: { id: user.participant_id }, as: :json)
         expect(response).to have_http_status(:bad_request)
       end
@@ -59,6 +59,12 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       it 'validates successfully' do
         response = post(:create, params: test_form, as: :json)
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'sets the user account on the claim' do
+        post(:create, params: test_form, as: :json)
+        claim = DependentsBenefits::PrimaryDependencyClaim.last
+        expect(claim.user_account).to eq(user.user_account)
       end
 
       it 'creates saved claims' do

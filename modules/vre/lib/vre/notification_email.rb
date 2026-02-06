@@ -12,6 +12,9 @@ module VRE
     private
 
     def claim_class
+      # TODO(02/2026): Update to VRE::VREVeteranReadinessEmploymentClaim
+      # See: https://github.com/department-of-veterans-affairs/va-iir/issues/2011
+      # Currently points to monolith SavedClaim::VeteranReadinessEmploymentClaim
       SavedClaim::VeteranReadinessEmploymentClaim
     end
 

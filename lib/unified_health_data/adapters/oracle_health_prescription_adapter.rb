@@ -5,6 +5,7 @@ require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
 require_relative 'oracle_health_renewability_helper'
+require_relative 'oracle_health_tracking_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -13,6 +14,8 @@ module UnifiedHealthData
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
       include OracleHealthRenewabilityHelper
+      include OracleHealthTrackingHelper
+
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
@@ -97,37 +100,6 @@ module UnifiedHealthData
           indication_for_use: extract_indication_for_use(resource),
           remarks: extract_remarks(resource),
           disp_status: map_refill_status_to_disp_status(refill_status, prescription_source)
-        }
-      end
-
-      def build_tracking_information(resource)
-        contained_resources = resource['contained'] || []
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
-
-        dispenses.filter_map do |dispense|
-          extract_tracking_from_dispense(resource, dispense)
-        end
-      end
-
-      def extract_tracking_from_dispense(resource, dispense)
-        identifiers = dispense['identifier'] || []
-
-        tracking_number = find_identifier_value(identifiers, 'Tracking Number')
-        return nil unless tracking_number # Only create tracking record if we have a tracking number
-
-        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
-        carrier = find_identifier_value(identifiers, 'Carrier')
-        shipped_date = find_identifier_value(identifiers, 'Shipped Date')
-
-        {
-          prescription_name: extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'],
-          tracking_number:,
-          shipped_date:,
-          carrier:,
-          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
         }
       end
 
@@ -402,13 +374,15 @@ module UnifiedHealthData
         # Rule: Expired more than 120 days ago → discontinued
         return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
 
-        # Rule: No refills remaining → expired (UNLESS it's a Non-VA medication)
+        # Rule: Most recent dispense is in-progress → refillinprocess
+        # This takes priority over expired status since an active refill is being processed
+        return 'refillinprocess' if has_in_progress_dispense
+
+        # Rule: No refills remaining AND past expiration date → expired (UNLESS it's a Non-VA medication)
         # Non-VA meds are always reported with 0 refills but should still be 'active' if status is 'active'
         is_non_va = resource && non_va_med?(resource)
-        return 'expired' if refills_remaining.zero? && !is_non_va
-
-        # Rule: Most recent dispense is in-progress → refillinprocess
-        return 'refillinprocess' if has_in_progress_dispense
+        is_past_expiration = expiration_date && expiration_date < Time.current.utc
+        return 'expired' if refills_remaining.zero? && is_past_expiration && !is_non_va
 
         # Default: active
         'active'

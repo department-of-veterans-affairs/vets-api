@@ -128,6 +128,54 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
         expect(response).to have_http_status(:no_content)
       end
     end
+
+    context 'when required attributes are missing' do
+      before do
+        allow(MebApi::V0::Submit1990emebFormConfirmation).to receive(:perform_async)
+      end
+
+      it 'does not send email when claim_status is missing' do
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          email: 'test@test.com', first_name: 'test'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not send email when email is missing and user has no email' do
+        user_without_email = build(:user, :loa3, user_details.merge(email: nil))
+        sign_in_as(user_without_email)
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          claim_status: 'ELIGIBLE', first_name: 'test'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not send email when first_name is missing and user has no first_name' do
+        user_without_name = build(:user, :loa3, user_details.merge(first_name: nil))
+        sign_in_as(user_without_name)
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          claim_status: 'ELIGIBLE', email: 'test@test.com'
+        }
+        expect(MebApi::V0::Submit1990emebFormConfirmation).not_to have_received(:perform_async)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'logs warning with attribute presence info' do
+        expect(Rails.logger).to receive(:warn).with(
+          '1990emeb confirmation email skipped due to missing attributes',
+          hash_including(
+            status_present: false,
+            email_present: true,
+            first_name_present: true
+          )
+        )
+        post '/meb_api/v0/forms_send_confirmation_email', params: {
+          email: 'test@test.com', first_name: 'test'
+        }
+      end
+    end
   end
 
   describe 'GET /meb_api/v0/forms_claim_letter' do
@@ -394,27 +442,88 @@ RSpec.describe 'MebApi::V0 Forms', type: :request do
       end
     end
 
-    context 'when an exception occurs in submit_claim' do
+    context 'when submission fails' do
       let(:error_message) { 'Submission failed' }
 
-      before do
-        allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+      context 'with a generic StandardError' do
+        before do
+          require 'dgi/forms/service/submission_service'
+          submission_service = instance_double(MebApi::DGI::Forms::Submission::Service)
+          allow_any_instance_of(MebApi::V0::FormsController)
+            .to receive(:submission_service).and_return(submission_service)
+          allow(submission_service).to receive(:submit_claim).and_raise(StandardError.new(error_message))
+        end
+
+        it 'logs error with ICN, error class and message (no status/body for generic errors)' do
+          expect(Rails.logger).to receive(:error)
+            .with('MEB Forms submit_claim failed', hash_including(
+                                                     icn: user.icn,
+                                                     error_class: 'StandardError',
+                                                     error_message:,
+                                                     request_id: kind_of(String)
+                                                   ))
+          allow(Rails.logger).to receive(:error)
+
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          expect(response).to have_http_status(:internal_server_error)
+        end
+
+        it 'increments attempt metric' do
+          expect(StatsD).to receive(:increment).with('api.meb.submit_claim.attempt').once
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:error)
+
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          expect(response).to have_http_status(:internal_server_error)
+        end
+
+        it 'returns 500 Internal Server Error' do
+          allow(Rails.logger).to receive(:error)
+          allow(Rails.logger).to receive(:info)
+
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          expect(response).to have_http_status(:internal_server_error)
+        end
       end
 
-      it 'logs an error with exception class and message' do
-        expect(Rails.logger).to receive(:error)
-          .with("MEB Forms submit_claim failed: StandardError - #{error_message}")
-        expect(Rails.logger).to receive(:error).at_least(:once)
+      context 'with DGI service ClientError (downstream service failure)' do
+        let(:error_body) { { timestamp: '2025-01-14', status: 500, error: 'Internal service error' }.to_json }
+        let(:client_error) do
+          Common::Client::Errors::ClientError.new('DGI service error', 500, error_body)
+        end
 
-        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
-        expect(response).to have_http_status(:internal_server_error)
-      end
+        before do
+          require 'dgi/forms/service/submission_service'
+          submission_service = instance_double(MebApi::DGI::Forms::Submission::Service)
+          allow_any_instance_of(MebApi::V0::FormsController)
+            .to receive(:submission_service).and_return(submission_service)
+          allow(submission_service).to receive(:submit_claim).and_raise(client_error)
+        end
 
-      it 're-raises the exception after logging' do
-        allow(Rails.logger).to receive(:error)
+        it 'logs error with DGI HTTP status and response body for troubleshooting' do
+          expect(Rails.logger).to receive(:error)
+            .with('MEB Forms submit_claim failed', hash_including(
+                                                     icn: user.icn,
+                                                     error_class: 'Common::Client::Errors::ClientError',
+                                                     error_message: 'DGI service error',
+                                                     status: 500,
+                                                     response_body: error_body,
+                                                     request_id: kind_of(String)
+                                                   ))
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
 
-        post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
-        expect(response).to have_http_status(:internal_server_error)
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          expect(response).to have_http_status(:service_unavailable)
+        end
+
+        it 'returns 503 Service Unavailable (breakers converts ClientError to ServiceOutage)' do
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
+
+          post '/meb_api/v0/forms_submit_claim', params: { test_param: 'value' }
+          expect(response).to have_http_status(:service_unavailable)
+        end
       end
     end
   end

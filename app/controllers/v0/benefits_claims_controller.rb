@@ -11,6 +11,7 @@ require 'lighthouse/benefits_documents/update_documents_status_service'
 module V0
   class BenefitsClaimsController < ApplicationController
     include InboundRequestLogging
+    include V0::Concerns::MultiProviderSupport
     before_action { authorize :lighthouse, :access? }
     before_action :log_request_origin
     service_tag 'claims-shared'
@@ -25,9 +26,14 @@ module V0
     ].freeze
 
     FEATURE_USE_TITLE_GENERATOR_WEB = 'cst_use_claim_title_generator_web'
+    FEATURE_MULTI_CLAIM_PROVIDER = 'cst_multi_claim_provider'
 
     def index
-      claims = service.get_claims
+      claims = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                 get_claims_from_providers
+               else
+                 service.get_claims
+               end
 
       check_for_birls_id
       check_for_file_number
@@ -51,7 +57,11 @@ module V0
     end
 
     def show
-      claim = service.get_claim(params[:id])
+      claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
+                get_claim_from_providers(params[:id])
+              else
+                service.get_claim(params[:id])
+              end
       update_claim_type_language(claim['data'])
 
       # Manual status override for certain tracked items
@@ -132,7 +142,7 @@ module V0
     end
 
     def service
-      @service ||= BenefitsClaims::Service.new(@current_user.icn)
+      @service ||= BenefitsClaims::Service.new(@current_user)
     end
 
     def check_for_birls_id
@@ -167,29 +177,20 @@ module V0
       if Flipper.enabled?(:cst_use_claim_title_generator_web)
         # Adds displayTitle and claimTypeBase to the claim response object
         BenefitsClaims::TitleGenerator.update_claim_title(claim)
-      else
-        language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
-        if language_map.key?(claim.dig('attributes', 'claimType'))
-          claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
-        end
+      end
+
+      # always map "Death" claimType to "expenses related to death or burial"
+      # TODO: #131812 [CST/MyVA] Remove claimType mapping from api responses (blocked)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
     end
 
     def add_evidence_submissions(claim, evidence_submissions)
-      tracked_items = claim['attributes']['trackedItems']
-
-      filter_evidence_submissions(evidence_submissions, tracked_items, claim)
-    end
-
-    def filter_evidence_submissions(evidence_submissions, tracked_items, claim)
       non_duplicate_submissions = filter_duplicate_evidence_submissions(evidence_submissions, claim)
-
-      filtered_evidence_submissions = []
-      non_duplicate_submissions.each do |es|
-        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
-      end
-
-      filtered_evidence_submissions
+      tracked_items = claim['attributes']['trackedItems']
+      non_duplicate_submissions.map { |es| build_filtered_evidence_submission_record(es, tracked_items) }
     end
 
     def filter_duplicate_evidence_submissions(evidence_submissions, claim)

@@ -1,19 +1,17 @@
 type: object
 required:
-  - results
+  - buffered_events
 properties:
-  results:
+  buffered_events:
     type: array
-    description: Array of processing results for each event name that was submitted
+    description: |
+      Array of event names that were accepted for asynchronous processing.
+      Only valid event names are included - invalid events are silently filtered out.
+      Events are buffered and processed in batches by a background job.
+      Note: This indicates events were accepted for processing, not whether they are new unique events.
     items:
-      $ref: "./UniqueUserMetricsEventResult.yml"
+      type: string
     example:
-      - event_name: "mhv_landing_page_accessed"
-        status: "created"
-        new_event: true
-      - event_name: "secure_messaging_accessed"
-        status: "exists"
-        new_event: false
-      - event_name: "prescriptions_accessed"
-        status: "created"
-        new_event: true
+      - "mhv_landing_page_accessed"
+      - "secure_messaging_accessed"
+      - "prescriptions_accessed"

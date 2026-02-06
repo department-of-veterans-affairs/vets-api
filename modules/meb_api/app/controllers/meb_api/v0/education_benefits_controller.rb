@@ -63,6 +63,7 @@ module MebApi
       end
 
       def submit_claim
+        StatsD.increment('api.meb.submit_claim.attempt')
         response_data = fetch_direct_deposit_info
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
@@ -74,7 +75,7 @@ module MebApi
           }
         }
       rescue => e
-        Rails.logger.error("MEB submit_claim failed: #{e.class} - #{e.message}")
+        log_submission_error(e, 'MEB submit_claim failed')
         raise
       end
 
@@ -94,13 +95,22 @@ module MebApi
       end
 
       def send_confirmation_email
-        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+        return head :no_content unless Flipper.enabled?(:form1990meb_confirmation_email)
 
         status = params[:claim_status]
         email = params[:email] || @current_user.email
         first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
 
-        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
+        missing_attributes = []
+        missing_attributes << 'claim_status' if status.blank?
+        missing_attributes << 'email' if email.blank?
+        missing_attributes << 'first_name' if first_name.blank?
+
+        if missing_attributes.any?
+          return log_missing_email_attributes('1990meb', missing_attributes, status, email, first_name)
+        end
+
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name)
       end
 
       def submit_enrollment_verification

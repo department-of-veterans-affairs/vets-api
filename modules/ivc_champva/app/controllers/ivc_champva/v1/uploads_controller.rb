@@ -331,7 +331,16 @@ module IvcChampva
             "submit_supporting_documents attachment.file size: #{number_to_human_size(attachment.file&.size)}"
           )
 
-          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+          unless attachment.valid?
+            error_msgs = attachment.errors.full_messages.join(', ')
+            Rails.logger.error "submit_supporting_documents attachment is invalid: #{error_msgs}"
+            raise Common::Exceptions::ValidationErrors, attachment
+          end
+
+          # Convert to PDF before save to reduce final submission latency
+          if Flipper.enabled?(:champva_convert_to_pdf_on_upload, @current_user)
+            attachment.file = convert_to_pdf(attachment.file)
+          end
 
           attachment.save
 
@@ -477,6 +486,25 @@ module IvcChampva
         end
       end
 
+      ##
+      # Converts an uploaded file to PDF if it's an image. Returns the file unchanged if already a PDF.
+      #
+      # @param uploaded_file [ActionDispatch::Http::UploadedFile] The file to convert
+      # @return [ActionDispatch::Http::UploadedFile] The converted PDF or original file
+      # @raise [StandardError] If PDF conversion fails
+      def convert_to_pdf(uploaded_file)
+        return uploaded_file if uploaded_file.content_type == 'application/pdf'
+
+        tempfile = IvcChampva::PdfConverter.new(uploaded_file).convert_to_tempfile
+        pdf_filename = uploaded_file.original_filename.sub(/\.[^.]+\z/, '.pdf')
+
+        ActionDispatch::Http::UploadedFile.new(
+          tempfile:,
+          filename: pdf_filename,
+          type: 'application/pdf'
+        )
+      end
+
       def applicants_with_ohi(applicants)
         applicants.select do |item|
           item.key?('health_insurance') || item.key?('medicare')
@@ -497,7 +525,7 @@ module IvcChampva
 
         health_insurance.each_slice(2) do |policies_pair|
           applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
-          applicant_data['form_number'] = '10-7959C-REV2025'
+          applicant_data['form_number'] = '10-7959C'
 
           if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
             # NEW: Pass health_insurance array, constructor handles flattening
@@ -507,7 +535,7 @@ module IvcChampva
             # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
             applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
             form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
-            form.data['form_number'] = '10-7959C-REV2025'
+            form.data['form_number'] = '10-7959C'
             forms << form
           end
         end
@@ -795,6 +823,10 @@ module IvcChampva
         form.track_current_user_loa(@current_user)
         form.track_email_usage
 
+        if Flipper.enabled?(:champva_update_datadog_tracking, @current_user) && form.respond_to?(:track_submission)
+          form.track_submission(@current_user)
+        end
+
         attachment_ids = build_attachment_ids(base_form_id, parsed_form_data, applicant_rounded_number)
         attachment_ids = [base_form_id] if attachment_ids.empty?
 
@@ -846,9 +878,10 @@ module IvcChampva
             # Relabel main claim sheet as CVA Reopen; supporting docs retain original types.
             main = Array.new(applicant_rounded_number) { 'CVA Reopen' }
             main.concat(supporting_document_ids(parsed_form_data))
+          elsif selector == 'PDI number'
+            # Main form keeps default form_id; all supporting docs get relabeled to "CVA Bene Response".
+            build_pdi_resubmission_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           else
-            # Main claim sheet stays as default form_id; generated stamped page in model is labeled
-            # "CVA Bene Response"; supporting docs keep their original types.
             build_default_attachment_ids(form_id, parsed_form_data, applicant_rounded_number)
           end
         else
@@ -869,6 +902,20 @@ module IvcChampva
       end
 
       ##
+      # Builds the attachment_ids array for PDI number resubmissions.
+      # All documents (main form and supporting docs) are labeled "CVA Bene Response".
+      #
+      # @param [String] _form_id The mapped form ID (unused, all docs get same label)
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @param [Integer] applicant_rounded_number number of main form attachments needed
+      # @return [Array<String>] array of attachment_ids
+      def build_pdi_resubmission_attachment_ids(_form_id, parsed_form_data, applicant_rounded_number)
+        supporting_doc_count = parsed_form_data['supporting_docs']&.count.to_i
+        total_doc_count = applicant_rounded_number + supporting_doc_count
+        Array.new(total_doc_count) { 'CVA Bene Response' }
+      end
+
+      ##
       # Add a blank page to the PDF with stamped metadata if the form allows it.
       #
       # This method checks if the form has a `stamp_metadata` method that returns a hash.
@@ -881,12 +928,15 @@ module IvcChampva
       def add_blank_doc_and_stamp(form, parsed_form_data)
         # Only triggers if the form in question has a method that returns values
         # we want to stamp.
-        if form.methods.include?(:stamp_metadata) && form.stamp_metadata.is_a?(Hash)
-          blank_page_path = IvcChampva::Attachments.get_blank_page
+        if form.methods.include?(:stamp_metadata)
           stamps = form.stamp_metadata
-          IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
-          att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
-          add_supporting_doc(parsed_form_data, att)
+
+          if !stamps.nil? && stamps.is_a?(Hash)
+            blank_page_path = IvcChampva::Attachments.get_blank_page
+            IvcChampva::PdfStamper.stamp_metadata_items(blank_page_path, stamps[:metadata])
+            att = create_custom_attachment(form, blank_page_path, stamps[:attachment_id])
+            add_supporting_doc(parsed_form_data, att)
+          end
         end
       end
 

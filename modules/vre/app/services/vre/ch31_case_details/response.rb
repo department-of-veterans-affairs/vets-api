@@ -7,8 +7,8 @@ module VRE
 
       attribute :res_case_id, Integer
       attribute :is_transferred_to_cwnrs, Bool
-      attribute :is_interrupted, Bool
-      attribute :external_status, Hash
+      attribute :orientation_appointment_details, OrientationAppointmentDetails
+      attribute :external_status, ExternalStatus
 
       def initialize(_status, response = nil)
         super(response.body) if response

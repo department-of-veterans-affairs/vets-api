@@ -77,22 +77,37 @@ module SM
       def get_folder_messages(user_uuid, folder_id, use_cache)
         cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
         get_cached_or_fetch_data(use_cache, cache_key, Message) do
-          page = 1
-          json = { data: [], errors: {}, metadata: {} }
-
-          loop do
-            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-            path = append_requires_oh_messages_query(path)
-            page_data = perform(:get, path, nil, token_headers).body
-            json[:data].concat(page_data[:data])
-            json[:metadata].merge(page_data[:metadata])
-            break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
-
-            page += 1
-          end
-          Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+          json = fetch_all_folder_messages(folder_id)
+          is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
+          result = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+          track_metric('get_folder_messages', is_oh:, status: 'success')
+          result
+        rescue => e
+          track_metric('get_folder_messages', is_oh: false, status: 'failure')
+          raise e
         end
       end
+
+      private
+
+      def fetch_all_folder_messages(folder_id)
+        page = 1
+        json = { data: [], errors: {}, metadata: {} }
+
+        loop do
+          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          path = append_requires_oh_messages_query(path)
+          page_data = perform(:get, path, nil, token_headers).body
+          json[:data].concat(page_data[:data])
+          json[:metadata].merge(page_data[:metadata])
+          break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+
+          page += 1
+        end
+        json
+      end
+
+      public
 
       ##
       # Get a collection of Threads
@@ -117,8 +132,13 @@ module SM
         path = append_requires_oh_messages_query(path)
 
         json = perform(:get, path, nil, token_headers).body
-
-        Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
+        is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
+        result = Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
+        track_metric('get_folder_threads', is_oh:, status: 'success')
+        result
+      rescue => e
+        track_metric('get_folder_threads', is_oh: false, status: 'failure')
+        raise e
       end
 
       ##

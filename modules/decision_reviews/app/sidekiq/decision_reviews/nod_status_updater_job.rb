@@ -7,8 +7,10 @@ module DecisionReviews
     private
 
     def records_to_update
-      @notice_of_disagreements ||=
-        ::SavedClaim::NoticeOfDisagreement.where(delete_date: nil).order(created_at: :asc).to_a
+      ::SavedClaim::NoticeOfDisagreement
+        .includes(appeal_submission: :appeal_submission_uploads)
+        .where(delete_date: nil)
+        .order(created_at: :asc)
     end
 
     def statsd_prefix

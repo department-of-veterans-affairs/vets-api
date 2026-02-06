@@ -47,4 +47,60 @@ Rspec.describe DependentsBenefits::BenefitsIntake::SubmissionHandler do
       expect(instance.handle(:stale)).to be true
     end
   end
+
+  describe 'private methods' do
+    describe '#claim_class' do
+      it 'returns DependentsBenefits::PrimaryDependencyClaim' do
+        expect(instance.send(:claim_class)).to eq(DependentsBenefits::PrimaryDependencyClaim)
+      end
+    end
+
+    describe '#monitor' do
+      it 'returns an instance of DependentsBenefits::Monitor' do
+        expect(instance.send(:monitor)).to eq(monitor)
+      end
+    end
+
+    describe '#notification_email' do
+      let(:notification_email) { double('Dependents::NotificationEmail') }
+
+      before do
+        allow(Dependents::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+      end
+
+      it 'returns an instance of Dependents::NotificationEmail' do
+        expect(instance.send(:notification_email)).to eq(notification_email)
+      end
+    end
+
+    describe '#on_failure' do
+      let(:notification_email) { double('Dependents::NotificationEmail') }
+
+      before do
+        allow(Dependents::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+        allow(notification_email).to receive(:send_error_notification).and_return(true)
+        allow_any_instance_of(BenefitsIntake::SubmissionHandler::SavedClaim).to receive(:on_failure).and_return(true)
+      end
+
+      it 'sends an error notification email' do
+        expect(notification_email).to receive(:send_error_notification)
+        instance.send(:on_failure)
+      end
+    end
+
+    describe '#on_success' do
+      let(:notification_email) { double('Dependents::NotificationEmail') }
+
+      before do
+        allow(Dependents::NotificationEmail).to receive(:new).with(claim.id).and_return(notification_email)
+        allow(notification_email).to receive(:send_received_notification).and_return(true)
+        allow_any_instance_of(BenefitsIntake::SubmissionHandler::SavedClaim).to receive(:on_success).and_return(true)
+      end
+
+      it 'sends a received notification email' do
+        expect(notification_email).to receive(:send_received_notification)
+        instance.send(:on_success)
+      end
+    end
+  end
 end

@@ -8,7 +8,7 @@ module Lighthouse
       PAYMENT_DUE_DAYS = 30
 
       attribute :external_id, String
-      attribute :facility, String
+      attribute :facility, Hash
       attribute :bill_number, String
       attribute :status, String
       attribute :status_description, String
@@ -35,6 +35,7 @@ module Lighthouse
         @medication_dispenses = attrs[:medication_dispenses] || {}
         @medications = attrs[:medications] || {}
         @payments_data = attrs[:payments] || []
+        @facility_address = attrs[:facility_address]
         assign_attributes
       end
 
@@ -42,7 +43,6 @@ module Lighthouse
 
       def assign_attributes
         @external_id = @invoice_data['id']
-        @facility = @invoice_data.dig('issuer', 'display')
         @bill_number = @invoice_data.dig('identifier', 0, 'value')
         @status = @invoice_data['status']
         @status_description = @invoice_data.dig('_status', 'valueCodeableConcept', 'text')
@@ -53,6 +53,7 @@ module Lighthouse
         assign_balances
         assign_line_items
         assign_payments
+        assign_facility
       end
 
       def assign_balances
@@ -70,6 +71,26 @@ module Lighthouse
       def assign_line_items
         invoice_line_items = @invoice_data['lineItem'] || []
         @line_items = invoice_line_items.map { |li| build_line_item(li) }
+      end
+
+      def assign_facility
+        @facility = {
+          'name' => @invoice_data.dig('issuer', 'display'),
+          'address' => build_facility_address
+        }
+      end
+
+      def build_facility_address
+        return nil unless @facility_address
+
+        {
+          'address_line1' => @facility_address[:address_line1],
+          'address_line2' => @facility_address[:address_line2],
+          'address_line3' => @facility_address[:address_line3],
+          'city' => @facility_address[:city],
+          'state' => @facility_address[:state],
+          'postalCode' => @facility_address[:postalCode]
+        }
       end
 
       def build_line_item(invoice_line_item)

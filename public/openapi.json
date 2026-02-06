@@ -29,10 +29,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "312",
+                    "id": "225",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-10-31T19:15:55.994Z",
+                      "submitted_at": "2026-01-13T15:44:02.028Z",
                       "regional_office": [],
                       "confirmation_number": "12345678-1234-1234-1234-123456789abc",
                       "guid": "12345678-1234-1234-1234-123456789abc",
@@ -567,10 +567,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "40",
+                    "id": "226",
                     "type": "saved_claims",
                     "attributes": {
-                      "submitted_at": "2025-11-04T20:55:13.291Z",
+                      "submitted_at": "2026-01-13T15:44:07.053Z",
                       "regional_office": [
                         "Department of Veterans Affairs",
                         "Pension Management Center",
@@ -672,7 +672,7 @@
                       },
                       "ssn": {
                         "type": "string",
-                        "pattern": "^\\d{9}$",
+                        "pattern": "^[0-9]{9}$",
                         "description": "Social Security Number (9 digits)",
                         "example": "123456789"
                       },
@@ -682,7 +682,8 @@
                       },
                       "vaFileNumber": {
                         "type": "string",
-                        "example": "987654321"
+                        "example": "987654321",
+                        "pattern": "^\\d{8,9}$"
                       },
                       "dateOfBirth": {
                         "type": "string",
@@ -716,6 +717,9 @@
                         "type": "array",
                         "items": {
                           "type": "object",
+                          "required": [
+                            "serviceBranch"
+                          ],
                           "properties": {
                             "serviceBranch": {
                               "type": "string",
@@ -755,6 +759,10 @@
                   },
                   "burialInformation": {
                     "type": "object",
+                    "required": [
+                      "nameOfStateCemeteryOrTribalOrganization",
+                      "dateOfBurial"
+                    ],
                     "properties": {
                       "nameOfStateCemeteryOrTribalOrganization": {
                         "type": "string",
@@ -763,6 +771,10 @@
                       },
                       "placeOfBurial": {
                         "type": "object",
+                        "required": [
+                          "stateCemeteryOrTribalCemeteryName",
+                          "stateCemeteryOrTribalCemeteryLocation"
+                        ],
                         "properties": {
                           "stateCemeteryOrTribalCemeteryName": {
                             "type": "string",
@@ -783,6 +795,11 @@
                       },
                       "recipientOrganization": {
                         "type": "object",
+                        "required": [
+                          "name",
+                          "phoneNumber",
+                          "address"
+                        ],
                         "properties": {
                           "name": {
                             "type": "string",
@@ -797,6 +814,8 @@
                             "properties": {
                               "streetAndNumber": {
                                 "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100,
                                 "example": "2400 Veterans Memorial Drive"
                               },
                               "aptOrUnitNumber": {
@@ -807,6 +826,8 @@
                               },
                               "city": {
                                 "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100,
                                 "example": "Higginsville"
                               },
                               "state": {
@@ -816,18 +837,11 @@
                               "country": {
                                 "type": "string",
                                 "maxLength": 3,
-                                "description": "Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)",
-                                "example": "US"
+                                "example": "USA"
                               },
                               "postalCode": {
                                 "type": "string",
                                 "example": "64037"
-                              },
-                              "postalCodeExtension": {
-                                "type": "string",
-                                "pattern": "^\\d{4}$",
-                                "description": "4-digit postal code extension (ZIP+4)",
-                                "example": "1234"
                               }
                             }
                           }
@@ -960,7 +974,7 @@
                       },
                       "ssn": {
                         "type": "string",
-                        "pattern": "^\\d{9}$",
+                        "pattern": "^[0-9]{9}$",
                         "description": "Social Security Number (9 digits)",
                         "example": "123456789"
                       },
@@ -970,7 +984,8 @@
                       },
                       "vaFileNumber": {
                         "type": "string",
-                        "example": "987654321"
+                        "example": "987654321",
+                        "pattern": "^\\d{8,9}$"
                       },
                       "dateOfBirth": {
                         "type": "string",
@@ -1004,6 +1019,9 @@
                         "type": "array",
                         "items": {
                           "type": "object",
+                          "required": [
+                            "serviceBranch"
+                          ],
                           "properties": {
                             "serviceBranch": {
                               "type": "string",
@@ -1043,6 +1061,10 @@
                   },
                   "burialInformation": {
                     "type": "object",
+                    "required": [
+                      "nameOfStateCemeteryOrTribalOrganization",
+                      "dateOfBurial"
+                    ],
                     "properties": {
                       "nameOfStateCemeteryOrTribalOrganization": {
                         "type": "string",
@@ -1051,6 +1073,10 @@
                       },
                       "placeOfBurial": {
                         "type": "object",
+                        "required": [
+                          "stateCemeteryOrTribalCemeteryName",
+                          "stateCemeteryOrTribalCemeteryLocation"
+                        ],
                         "properties": {
                           "stateCemeteryOrTribalCemeteryName": {
                             "type": "string",
@@ -1071,6 +1097,11 @@
                       },
                       "recipientOrganization": {
                         "type": "object",
+                        "required": [
+                          "name",
+                          "phoneNumber",
+                          "address"
+                        ],
                         "properties": {
                           "name": {
                             "type": "string",
@@ -1085,6 +1116,8 @@
                             "properties": {
                               "streetAndNumber": {
                                 "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100,
                                 "example": "2400 Veterans Memorial Drive"
                               },
                               "aptOrUnitNumber": {
@@ -1095,6 +1128,8 @@
                               },
                               "city": {
                                 "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100,
                                 "example": "Higginsville"
                               },
                               "state": {
@@ -1104,18 +1139,11 @@
                               "country": {
                                 "type": "string",
                                 "maxLength": 3,
-                                "description": "Country code (ISO 3166-1 Alpha-2 or Alpha-3, max 3 characters)",
-                                "example": "US"
+                                "example": "USA"
                               },
                               "postalCode": {
                                 "type": "string",
                                 "example": "64037"
-                              },
-                              "postalCodeExtension": {
-                                "type": "string",
-                                "pattern": "^\\d{4}$",
-                                "description": "4-digit postal code extension (ZIP+4)",
-                                "example": "1234"
                               }
                             }
                           }

@@ -24,4 +24,11 @@ RSpec.describe DependentsBenefits::AddRemoveDependent do
       expect(claim.form_id).to eq('21-686C')
     end
   end
+
+  describe '#business_line' do
+    it 'returns CMP' do
+      claim = DependentsBenefits::AddRemoveDependent.new(form: saved_claim.form)
+      expect(claim.business_line).to eq('CMP')
+    end
+  end
 end

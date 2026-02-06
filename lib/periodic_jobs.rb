@@ -17,11 +17,20 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
 
+  # Update HigherLevelReviews with upstream processing error statuses with their Central Mail status
+  mgr.register('42 */6 * * *', 'AppealsApi::HigherLevelReviewUploadErrorStatusBatch')
+
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
 
+  # Update NoticeOfDisagreements with upstream processing error statuses with their Central Mail status
+  mgr.register('24 */6 * * *', 'AppealsApi::NoticeOfDisagreementUploadErrorStatusBatch')
+
   # Update SupplementalClaim statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
+
+  # Update SupplementalClaims with upstream processing error statuses with their Central Mail status
+  mgr.register('36 */6 * * *', 'AppealsApi::SupplementalClaimUploadErrorStatusBatch')
 
   # Remove PII from appeal records after they have been successfully processed by the VA
   mgr.register('45 0 * * *', 'AppealsApi::CleanUpPii')
@@ -92,6 +101,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
+
+  if Flipper.enabled?(:delete_old_education_benefits_job)
+    # Clear out SavedClaim::EducationBenefits models with an old enough `delete_date`
+    mgr.register('0 3 * * *', 'EducationForm::DeleteOldEducationBenefitsClaims')
+  end
 
   # Checks in TUD users that weren't properly checked in.
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
@@ -171,7 +185,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
-  mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
@@ -222,7 +235,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
   # Updates all accredited entities (agents, attorneys, representatives, veteran service organizations)
-  mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
+  # This job is currently disabled until the GCLAWS Accreditation API is up and running
+  # mgr.register('0 4 * * *', 'RepresentationManagement::AccreditedEntitiesQueueUpdates')
 
   # Sends emails to power of attorney claimants whose request will expire in 30 days
   mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
@@ -259,6 +273,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Delete old BenefitsIntake records 60 days or older
   mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob')
+
+  # Delete old IntentToFile records 60 days or older
+  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldIntentToFileRecordsJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
@@ -298,4 +315,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Process buffered Unique User Metrics events every 10 minutes
   mgr.register('*/10 * * * *', 'MHV::UniqueUserMetricsProcessorJob')
+
+  mgr.register('30 6 * * *', 'Console1984LogUploadJob')
 }

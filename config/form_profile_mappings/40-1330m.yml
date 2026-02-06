@@ -1,0 +1,11 @@
+# Form profile mappings for VA Form 1330M - Medallions Application
+# Maps VA Profile data to form fields for prefill
+# Field names must match the frontend form schema
+
+# Applicant contact info
+email: [contact_information, email]
+phoneNumber: [contact_information, us_phone]
+
+# Applicant mailing address - returns the whole address object
+# which gets camelized (street, street2, city, state, country, postalCode)
+applicantMailingAddress: [contact_information, address]

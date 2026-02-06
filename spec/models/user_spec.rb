@@ -1056,11 +1056,11 @@ RSpec.describe User, type: :model do
         let(:bgs_dependent_response) { nil }
 
         before do
-          allow_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents).and_return(bgs_dependent_response)
+          allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_return(bgs_dependent_response)
         end
 
         it 'makes a call to the BGS for relationship information' do
-          expect_any_instance_of(BGS::DependentV2Service).to receive(:get_dependents)
+          expect_any_instance_of(BGS::DependentService).to receive(:get_dependents)
           user.relationships
         end
 

@@ -11,16 +11,24 @@
         "type": { "type": "string" },
         "attributes": {
           "type": "object",
-          "required": ["res_case_id", "is_transferred_to_cwnrs", "is_interrupted", "external_status"],
+          "required": ["res_case_id", "is_transferred_to_cwnrs", "orientation_appointment_details", "external_status"],
           "properties": {
             "res_case_id": { "type": ["integer", "null"] },
             "is_transferred_to_cwnrs": { "type": ["boolean", "null"] },
-            "is_interrupted": { "type": ["boolean", "null"] },
+            "orientation_appointment_details": {
+              "type": ["object", "null"],
+              "properties": {
+                "appointment_date_time": { "type": ["string", "null"] },
+                "appointment_place": { "type": ["string", "null"] }
+              }
+            },
             "external_status": {
               "type": ["object", "null"],
               "properties": {
                 "is_discontinued": { "type": ["boolean", "null"] },
                 "discontinued_reason": { "type": ["string", "null"] },
+                "is_interrupted": { "type": ["boolean", "null"] },
+                "interrupted_reason": { "type": ["string", "null"] },
                 "state_list": {
                   "type": ["array", "null"],
                   "items": {

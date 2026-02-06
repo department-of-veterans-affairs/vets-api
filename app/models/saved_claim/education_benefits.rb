@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SavedClaim::EducationBenefits < SavedClaim
-  has_one(:education_benefits_claim, foreign_key: 'saved_claim_id', inverse_of: :saved_claim)
+  has_one(:education_benefits_claim, foreign_key: 'saved_claim_id', inverse_of: :saved_claim, dependent: :destroy)
 
   validates(:education_benefits_claim, presence: true)
 
@@ -18,6 +18,14 @@ class SavedClaim::EducationBenefits < SavedClaim
   end
 
   def after_submit(user); end
+
+  def requires_authenticated_user?
+    false
+  end
+
+  def retention_period
+    nil
+  end
 
   private
 

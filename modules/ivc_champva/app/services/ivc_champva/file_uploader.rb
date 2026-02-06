@@ -67,6 +67,7 @@ module IvcChampva
     #
     # @return [Array<Array<Integer, String>>] Array of arrays containing status codes and error messages
     def handle_iterative_uploads
+      bypass_ves_json_flag = Flipper.enabled?(:champva_bypass_persisting_ves_json_to_database, @current_user)
       @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
 
@@ -76,7 +77,11 @@ module IvcChampva
 
         file_name = File.basename(file_path).gsub('-tmp', '')
         response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
-        insert_form(file_name, response_status.to_s) if @insert_db_row
+        if bypass_ves_json_flag
+          insert_form(file_name, response_status.to_s) if @insert_db_row && file_name.exclude?('_ves.json')
+        else
+          insert_form(file_name, response_status.to_s) if @insert_db_row # rubocop:disable Style/IfInsideElse
+        end
 
         response_status
       end.compact

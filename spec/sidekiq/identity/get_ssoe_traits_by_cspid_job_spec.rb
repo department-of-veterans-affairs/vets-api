@@ -83,10 +83,18 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
   end
 
   context 'when service call fails' do
+    let(:error_response) do
+      {
+        success: false,
+        error: {
+          code: 'SOAPFault',
+          message: 'Something went wrong'
+        }
+      }
+    end
+
     before do
-      allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_raise(
-        SSOe::Errors::RequestError, 'Something went wrong'
-      )
+      allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_return(error_response)
     end
 
     context 'when attributes are missing from Redis' do
@@ -130,31 +138,57 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
       it_behaves_like 'service call failure', should_raise: false
     end
 
-    context 'when an unhandled exception occurs' do
+    context 'when an SSOe service error occurs' do
       before do
-        allow_any_instance_of(SSOe::Service).to receive(:get_traits).and_raise(SSOe::Errors::Error, 'Unexpected crash')
+        allow_any_instance_of(SSOe::Service).to receive(:get_traits)
+          .and_raise(SSOe::Errors::ServerError, 'Connection timeout')
       end
 
-      it 'logs and re-raises the exception' do
+      it 'logs and re-raises the SSOe error' do
         expect(Rails.logger).to receive(:error).with(
-          /\[GetSSOeTraitsByCspidJob\] .* error: SSOe::Errors::Error - Unexpected crash/,
+          '[GetSSOeTraitsByCspidJob] SSOe service error: SSOe::Errors::ServerError - Connection timeout',
           hash_including(credential_method:, credential_id:)
         )
 
-        expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
-                                                   tags: ["credential_method:#{credential_method}"])
+        expect(StatsD).to receive(:increment).with(
+          'worker.get_ssoe_traits_by_cspid.failure',
+          tags: ["credential_method:#{credential_method}"]
+        )
 
-        expect { job.perform(cache_key, credential_method, credential_id) }
-          .to raise_error(SSOe::Errors::Error, /Unexpected crash/)
+        expect do
+          job.perform(cache_key, credential_method, credential_id)
+        end.to raise_error(SSOe::Errors::ServerError, /Connection timeout/)
+      end
+    end
+
+    context 'when an AttrPackage error occurs' do
+      before do
+        allow(Sidekiq::AttrPackage).to receive(:find)
+          .and_raise(Sidekiq::AttrPackageError.new('find', 'Redis connection failed'))
       end
 
-      it_behaves_like 'service call failure'
+      it 'logs and re-raises the AttrPackage error' do
+        expect(Rails.logger).to receive(:error).with(
+          '[GetSSOeTraitsByCspidJob] AttrPackage error: Sidekiq::AttrPackageError - ' \
+          '[Sidekiq] [AttrPackage] find error: Redis connection failed',
+          hash_including(credential_method:, credential_id:)
+        )
+
+        expect(StatsD).to receive(:increment).with(
+          'worker.get_ssoe_traits_by_cspid.failure',
+          tags: ["credential_method:#{credential_method}"]
+        )
+
+        expect do
+          job.perform(cache_key, credential_method, credential_id)
+        end.to raise_error(Sidekiq::AttrPackageError, /Redis connection failed/)
+      end
     end
 
     it 'logs failure, increments metric, does not delete cache, and raises' do
       expect(Rails.logger).to receive(:error).with(
-        /\[GetSSOeTraitsByCspidJob\] .* error: SSOe::Errors::RequestError - Something went wrong/,
-        hash_including(credential_method:, credential_id:)
+        '[GetSSOeTraitsByCspidJob] SSOe::Service.get_traits failed',
+        hash_including(credential_method:, credential_id:, error: error_response[:error])
       )
 
       expect(StatsD).to receive(:increment).with('worker.get_ssoe_traits_by_cspid.failure',
@@ -162,8 +196,9 @@ RSpec.describe Identity::GetSSOeTraitsByCspidJob, type: :job do
 
       expect(Sidekiq::AttrPackage).not_to receive(:delete)
 
-      expect { job.perform(cache_key, credential_method, credential_id) }
-        .to raise_error(SSOe::Errors::RequestError, /Something went wrong/)
+      expect do
+        job.perform(cache_key, credential_method, credential_id)
+      end.to raise_error(/SSOe::Service.get_traits failed/)
     end
   end
 end

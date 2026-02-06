@@ -183,8 +183,9 @@ module MHV
       # Step 3: Bulk insert to database (uncached_events = cache misses = db queries)
       inserted_events = bulk_insert_events(uncached_events)
 
-      # Step 4: Update cache for inserted events
-      cache_inserted_events(inserted_events)
+      # Step 4: Cache ALL events sent to DB
+      # This prevents repeated DB lookups when cache expires but record exists
+      cache_events(uncached_events)
 
       # Step 5: Increment StatsD for new events
       increment_statsd_counters(inserted_events)
@@ -201,7 +202,7 @@ module MHV
       events.uniq { |event| [event[:user_id], event[:event_name]] }
     end
 
-    # Filter out events that are already in the Redis cache
+    # Filter out events that are already in the Redis cache and refresh their TTL
     #
     # @param events [Array<Hash>] Unique events to check
     # @return [Array<Hash>] Events not found in cache
@@ -209,10 +210,13 @@ module MHV
       return events if events.empty?
 
       # Generate cache keys for all events
-      cache_keys = events.map { |e| generate_cache_key(e[:user_id], e[:event_name]) }
+      cache_keys = events.map { |e| MHVMetricsUniqueUserEvent.generate_cache_key(e[:user_id], e[:event_name]) }
 
       # Batch read from cache
       cached_results = Rails.cache.read_multi(*cache_keys, namespace: CACHE_NAMESPACE)
+
+      # Refresh TTL for cached events (keeps active users in cache longer)
+      Rails.cache.write_multi(cached_results, namespace: CACHE_NAMESPACE, expires_in: CACHE_TTL) if cached_results.any?
 
       # Filter out events that are cached
       events.reject.with_index do |_event, index|
@@ -251,15 +255,15 @@ module MHV
       end
     end
 
-    # Cache inserted events using write_multi
+    # Cache events using write_multi
     #
-    # @param events [Array<Hash>] Events that were inserted
-    def cache_inserted_events(events)
+    # @param events [Array<Hash>] Events to cache
+    def cache_events(events)
       return if events.empty?
 
       # Build hash for write_multi: { cache_key => true }
       cache_entries = events.each_with_object({}) do |event, hash|
-        key = generate_cache_key(event[:user_id], event[:event_name])
+        key = MHVMetricsUniqueUserEvent.generate_cache_key(event[:user_id], event[:event_name])
         hash[key] = true
       end
 
@@ -278,15 +282,6 @@ module MHV
           tags: ["event_name:#{event_name}"]
         )
       end
-    end
-
-    # Generate consistent cache key for user/event combination
-    #
-    # @param user_id [String] UUID of the user
-    # @param event_name [String] Name of the event
-    # @return [String] Cache key
-    def generate_cache_key(user_id, event_name)
-      "#{user_id}:#{event_name}"
     end
 
     # Check if queue depth exceeds threshold and alert if so

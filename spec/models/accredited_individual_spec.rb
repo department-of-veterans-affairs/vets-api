@@ -348,6 +348,432 @@ RSpec.describe AccreditedIndividual, type: :model do
     end
   end
 
+  describe '#geocode_and_update_location!' do
+    let(:individual) do
+      create(:accredited_individual,
+             address_line1: '1600 Pennsylvania Ave NW',
+             city: 'Washington',
+             state_code: 'DC',
+             zip_code: '20500')
+    end
+
+    let(:geocoding_result) do
+      double('Geocoder::Result',
+             latitude: 38.8977,
+             longitude: -77.0365)
+    end
+
+    before do
+      allow(Geocoder.config).to receive(:api_key).and_return('test_api_key')
+      allow(Geocoder).to receive(:search).and_return([geocoding_result])
+    end
+
+    context 'when Geocoder API key is not configured' do
+      before do
+        allow(Geocoder.config).to receive(:api_key).and_return(nil)
+      end
+
+      it 'returns false immediately without making API calls' do
+        expect(Geocoder).not_to receive(:search)
+        expect(individual.geocode_and_update_location!).to be false
+      end
+
+      it 'does not modify the record' do
+        expect { individual.geocode_and_update_location! }.not_to change { individual.reload.attributes }
+      end
+    end
+
+    context 'when Geocoder API key is blank string' do
+      before do
+        allow(Geocoder.config).to receive(:api_key).and_return('')
+      end
+
+      it 'returns false immediately without making API calls' do
+        expect(Geocoder).not_to receive(:search)
+        expect(individual.geocode_and_update_location!).to be false
+      end
+    end
+
+    context 'when geocoding is successful' do
+      it 'updates lat, long, and location fields' do
+        expect(individual.geocode_and_update_location!).to be true
+
+        individual.reload
+        expect(individual.lat).to eq(38.8977)
+        expect(individual.long).to eq(-77.0365)
+        expect(individual.location.to_s).to eq('POINT (-77.0365 38.8977)')
+      end
+
+      it 'calls Geocoder.search with the built address' do
+        individual.geocode_and_update_location!
+
+        expect(Geocoder).to have_received(:search).with('1600 Pennsylvania Ave NW Washington DC 20500')
+      end
+
+      it 'sets fallback_location_updated_at timestamp' do
+        expect { individual.geocode_and_update_location! }
+          .to change { individual.reload.fallback_location_updated_at }
+          .from(nil)
+          .to(be_within(1.second).of(Time.current))
+      end
+
+      it 'clears all location and address fields before geocoding' do
+        individual.update!(
+          lat: 40.0,
+          long: -75.0,
+          city: 'Old City',
+          state_code: 'XX',
+          zip_code: '99999',
+          address_line1: 'Old Address',
+          raw_address: {
+            'address_line1' => '1600 Pennsylvania Ave NW',
+            'city' => 'Washington',
+            'state_code' => 'DC',
+            'zip_code' => '20500'
+          }
+        )
+
+        individual.geocode_and_update_location!
+        individual.reload
+
+        # Verify fields were updated with new geocoded data
+        expect(individual.lat).to eq(38.8977)
+        expect(individual.long).to eq(-77.0365)
+        # Address fields get updated from raw_address if present
+        expect(individual.city).to eq('Washington')
+        expect(individual.state_code).to eq('DC')
+        expect(individual.zip_code).to eq('20500')
+      end
+    end
+
+    context 'when geocoding is successful with raw_address' do
+      let(:individual) do
+        create(:accredited_individual,
+               raw_address: {
+                 'address_line1' => '1600 Pennsylvania Ave NW',
+                 'city' => 'Washington',
+                 'state_code' => 'DC',
+                 'zip_code' => '20500'
+               },
+               address_line1: '1600 Pennsylvania Ave NW',
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'populates city, state_code, and zip_code from raw_address' do
+        individual.geocode_and_update_location!
+        individual.reload
+
+        expect(individual.city).to eq('Washington')
+        expect(individual.state_code).to eq('DC')
+        expect(individual.zip_code).to eq('20500')
+      end
+
+      it 'updates location fields' do
+        individual.geocode_and_update_location!
+        individual.reload
+
+        expect(individual.lat).to eq(38.8977)
+        expect(individual.long).to eq(-77.0365)
+      end
+
+      it 'sets fallback_location_updated_at' do
+        expect { individual.geocode_and_update_location! }
+          .to change { individual.reload.fallback_location_updated_at }
+          .from(nil)
+          .to(be_within(1.second).of(Time.current))
+      end
+    end
+
+    context 'when geocoding with partial raw_address' do
+      let(:individual) do
+        create(:accredited_individual,
+               raw_address: {
+                 'city' => 'Springfield',
+                 'state_code' => 'IL'
+               },
+               address_line1: nil,
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'only populates fields present in raw_address' do
+        individual.geocode_and_update_location!
+        individual.reload
+
+        expect(individual.city).to eq('Springfield')
+        expect(individual.state_code).to eq('IL')
+        expect(individual.zip_code).to be_nil
+      end
+    end
+
+    context 'when no address data is available' do
+      let(:individual) do
+        create(:accredited_individual,
+               address_line1: nil,
+               city: nil,
+               state_code: nil,
+               zip_code: nil)
+      end
+
+      it 'returns false without calling Geocoder' do
+        expect(individual.geocode_and_update_location!).to be false
+        expect(Geocoder).not_to have_received(:search)
+      end
+
+      it 'does not update any fields' do
+        original_lat = individual.lat
+        original_long = individual.long
+        original_location = individual.location
+
+        individual.geocode_and_update_location!
+
+        expect(individual.lat).to eq(original_lat)
+        expect(individual.long).to eq(original_long)
+        expect(individual.location).to eq(original_location)
+      end
+    end
+
+    context 'when geocoding returns no results' do
+      before do
+        allow(Geocoder).to receive(:search).and_return([])
+      end
+
+      it 'returns false' do
+        expect(individual.geocode_and_update_location!).to be false
+      end
+
+      it 'does not update any fields' do
+        original_lat = individual.lat
+        original_long = individual.long
+        original_location = individual.location
+
+        individual.geocode_and_update_location!
+
+        expect(individual.lat).to eq(original_lat)
+        expect(individual.long).to eq(original_long)
+        expect(individual.location).to eq(original_location)
+      end
+    end
+
+    context 'when an unhandled error occurs during geocoding' do
+      before do
+        allow(Geocoder).to receive(:search).and_raise(StandardError.new('API error'))
+      end
+
+      it 'allows the error to bubble up for proper error handling' do
+        expect { individual.geocode_and_update_location! }
+          .to raise_error(StandardError, 'API error')
+      end
+    end
+
+    context 'with specific Geocoder error types' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      context 'when rate limited' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::OverQueryLimitError.new('Rate limit exceeded'))
+        end
+
+        it 'logs warning and re-raises for Sidekiq retry' do
+          expect { individual.geocode_and_update_location! }
+            .to raise_error(Geocoder::OverQueryLimitError)
+          expect(Rails.logger).to have_received(:warn).with(/rate limit/)
+        end
+      end
+
+      context 'when request denied' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::RequestDenied.new('Request denied'))
+        end
+
+        it 'logs error and returns false without retry' do
+          expect(individual.geocode_and_update_location!).to be false
+          expect(Rails.logger).to have_received(:error).with(/request denied/)
+        end
+      end
+
+      context 'when invalid request' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::InvalidRequest.new('Invalid request'))
+        end
+
+        it 'logs error and returns false without retry' do
+          expect(individual.geocode_and_update_location!).to be false
+          expect(Rails.logger).to have_received(:error).with(/invalid request/)
+        end
+      end
+
+      context 'when invalid API key' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::InvalidApiKey.new('Invalid API key'))
+        end
+
+        it 'logs error and returns false without retry' do
+          expect(individual.geocode_and_update_location!).to be false
+          expect(Rails.logger).to have_received(:error).with(/API key invalid/)
+        end
+      end
+
+      context 'when service unavailable' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Geocoder::ServiceUnavailable.new('Service unavailable'))
+        end
+
+        it 'logs warning and re-raises for Sidekiq retry' do
+          expect { individual.geocode_and_update_location! }
+            .to raise_error(Geocoder::ServiceUnavailable)
+          expect(Rails.logger).to have_received(:warn).with(/service unavailable/)
+        end
+      end
+
+      context 'when socket error occurs' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(SocketError.new('Connection failed'))
+        end
+
+        it 'logs warning and re-raises for Sidekiq retry' do
+          expect { individual.geocode_and_update_location! }
+            .to raise_error(SocketError)
+          expect(Rails.logger).to have_received(:warn).with(/network error/)
+        end
+      end
+
+      context 'when timeout occurs' do
+        before do
+          allow(Geocoder).to receive(:search).and_raise(Timeout::Error.new('Request timed out'))
+        end
+
+        it 'logs warning and re-raises for Sidekiq retry' do
+          expect { individual.geocode_and_update_location! }
+            .to raise_error(Timeout::Error)
+          expect(Rails.logger).to have_received(:warn).with(/network error/)
+        end
+      end
+    end
+  end
+
+  describe '#formatted_raw_address' do
+    context 'with full address available from attributes' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: '123 Main St',
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: '62701')
+      end
+
+      it 'returns the full address string' do
+        expect(individual.send(:formatted_raw_address)).to eq('123 Main St Springfield IL 62701')
+      end
+    end
+
+    context 'with full address available from raw_address hash' do
+      let(:individual) do
+        build(:accredited_individual,
+              raw_address: {
+                'address_line1' => '456 Oak Ave',
+                'address_line2' => 'Suite 100',
+                'city' => 'Chicago',
+                'state_code' => 'IL',
+                'zip_code' => '60601'
+              },
+              address_line1: nil,
+              city: nil,
+              state_code: nil,
+              zip_code: nil)
+      end
+
+      it 'returns the full address string from raw_address' do
+        expect(individual.send(:formatted_raw_address)).to eq('456 Oak Ave Suite 100 Chicago IL 60601')
+      end
+    end
+
+    context 'with raw_address taking precedence over attributes' do
+      let(:individual) do
+        build(:accredited_individual,
+              raw_address: {
+                'address_line1' => 'Raw Address St',
+                'city' => 'Raw City',
+                'state_code' => 'RC'
+              },
+              address_line1: 'Attribute Address St',
+              city: 'Attribute City',
+              state_code: 'AC',
+              zip_code: '12345')
+      end
+
+      it 'uses raw_address values when present' do
+        result = individual.send(:formatted_raw_address)
+        expect(result).to include('Raw Address St')
+        expect(result).to include('Raw City')
+        expect(result).to include('RC')
+        expect(result).to include('12345') # Falls back to attribute for missing field
+      end
+    end
+
+    context 'with only city and state available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: nil)
+      end
+
+      it 'returns city and state' do
+        expect(individual.send(:formatted_raw_address)).to eq('Springfield IL')
+      end
+    end
+
+    context 'with only zip code available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: nil,
+              state_code: nil,
+              zip_code: '62701')
+      end
+
+      it 'returns just the zip code' do
+        expect(individual.send(:formatted_raw_address)).to eq('62701')
+      end
+    end
+
+    context 'with no address data available' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: nil,
+              city: nil,
+              state_code: nil,
+              zip_code: nil)
+      end
+
+      it 'returns nil' do
+        expect(individual.send(:formatted_raw_address)).to be_nil
+      end
+    end
+
+    context 'with partial address (missing zip)' do
+      let(:individual) do
+        build(:accredited_individual,
+              address_line1: '123 Main St',
+              city: 'Springfield',
+              state_code: 'IL',
+              zip_code: nil)
+      end
+
+      it 'returns address without zip' do
+        expect(individual.send(:formatted_raw_address)).to eq('123 Main St Springfield IL')
+      end
+    end
+  end
+
   describe '#validate_address' do
     let(:raw_address_data) do
       {

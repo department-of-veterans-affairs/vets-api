@@ -28,10 +28,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = create_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -67,10 +68,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = reply_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -114,38 +116,37 @@ module MyHealth
       end
 
       def create_client_response(message, message_params_h, create_message_params)
-        return client.post_create_message(message_params_h, poll_for_status: oh_triage_group?) if message.uploads.blank?
+        return client.post_create_message(message_params_h, is_oh: oh_triage_group?) if message.uploads.blank?
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint')
-          client.post_create_message_with_lg_attachments(create_message_params, poll_for_status: oh_triage_group?)
+          client.post_create_message_with_lg_attachments(create_message_params, is_oh: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint')
-          client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+          client.post_create_message_with_attachment(create_message_params, is_oh: oh_triage_group?)
         end
       end
 
       def reply_client_response(message, message_params_h, create_message_params)
         if message.uploads.blank?
-          return client.post_create_message_reply(params[:id], message_params_h,
-                                                  poll_for_status: oh_triage_group?)
+          return client.post_create_message_reply(params[:id], message_params_h, is_oh: oh_triage_group?)
         end
 
         if use_large_attachment_upload
           Rails.logger.info('MHV SM: Using large attachments endpoint - reply')
           client.post_create_message_reply_with_lg_attachment(params[:id], create_message_params,
-                                                              poll_for_status: oh_triage_group?)
+                                                              is_oh: oh_triage_group?)
         else
           Rails.logger.info('MHV SM: Using standard attachments endpoint - reply')
           client.post_create_message_reply_with_attachment(params[:id], create_message_params,
-                                                           poll_for_status: oh_triage_group?)
+                                                           is_oh: oh_triage_group?)
         end
       end
 
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number)
         end
       end
 
@@ -173,11 +174,20 @@ module MyHealth
         return false unless any_file_too_large || total_size_too_large || total_file_count_too_large
 
         Flipper.enabled?(:mhv_secure_messaging_large_attachments) ||
-          (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, @current_user) && oh_triage_group?)
+          (Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user) && oh_triage_group?)
       end
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      # Retrieves the facility ID from the station_number parameter provided by the frontend.
+      # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      # The station_number is optional - if not provided, facility tracking is skipped.
+      #
+      # @return [String, nil] The station number if provided, or nil if not provided.
+      def recipient_facility_id
+        message_params[:station_number]&.to_s&.presence
       end
     end
   end

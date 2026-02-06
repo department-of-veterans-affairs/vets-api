@@ -164,4 +164,31 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       end
     end
   end
+
+  describe '#create' do
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+    let(:valid_params) do
+      {
+        form_type: '0803',
+        education_benefits_claim: {
+          form: build(:va0803).form
+        }
+      }
+    end
+
+    it 'creates the correct saved claim record' do
+      Timecop.freeze(DateTime.new(2020, 1, 1, 0, 0, 0)) do
+        sign_in_as(user)
+        expect { post :create, params: valid_params }.to change(SavedClaim::EducationBenefits::VA0803, :count).by(1)
+        saved_claim = SavedClaim::EducationBenefits::VA0803.first
+        expect(saved_claim.user_account).to eq(user.user_account)
+        expect(saved_claim.delete_date).to be_within(1.second).of(DateTime.new(2020, 1, 8, 0, 0, 0)) # 1 week retention
+      end
+    end
+
+    it 'returns an error if no user is signed in but authentication is required' do
+      expect { post :create, params: valid_params }.not_to change(SavedClaim::EducationBenefits::VA0803, :count)
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

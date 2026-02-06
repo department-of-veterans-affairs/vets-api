@@ -4,7 +4,8 @@ module IvcChampva
   class VHA1010d2027
     ADDITIONAL_PDF_KEY = 'applicants'
     ADDITIONAL_PDF_COUNT = 3
-    STATS_KEY = 'api.ivc_champva_form.10_10d_2027'
+    STATS_KEY = 'api.ivc_champva_form.10_10d'
+    FORM_VERSION = 'vha_10_10d_2027'
 
     include Virtus.model(nullify_blank: true)
     include Attachments
@@ -96,11 +97,27 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-10D-2027 Email Used', email_used:)
     end
 
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.submission", tags: [
+                         "identity:#{identity}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-10D-2027 Submission', identity:,
+                                                                      current_user_loa:,
+                                                                      email_used:,
+                                                                      form_version: FORM_VERSION)
+    end
+
     def method_missing(_, *args)
       args&.first
     end
 
-    def respond_to_missing?(_)
+    def respond_to_missing?(_method_name, _include_private = false)
       true
     end
 

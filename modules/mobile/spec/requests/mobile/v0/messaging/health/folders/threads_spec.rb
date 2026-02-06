@@ -90,7 +90,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request
             headers: sis_headers,
             params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       end
-
       expect(response).to have_http_status(:bad_request)
     end
   end
