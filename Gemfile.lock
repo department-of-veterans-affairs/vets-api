@@ -525,6 +525,9 @@ GEM
     flipper-active_support_cache_store (1.3.6)
       activesupport (>= 4.2, < 9)
       flipper (~> 1.3.6)
+    flipper-api (1.3.6)
+      flipper (~> 1.3.6)
+      rack (>= 1.4, < 4)
     flipper-ui (1.3.6)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.6)
@@ -1353,6 +1356,7 @@ DEPENDENCIES
   flipper
   flipper-active_record
   flipper-active_support_cache_store
+  flipper-api
   flipper-ui
   foreman
   fuubar

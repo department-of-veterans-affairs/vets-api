@@ -479,7 +479,7 @@ Rails.application.routes.draw do
   get '/flipper/logout', to: 'flipper#logout'
   get '/flipper/login', to: 'flipper#login'
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
-
+  mount Flipper::Api.app(Flipper) => '/flipper_api', constraints: Flipper::RouteAuthorizationConstraint
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
