@@ -427,6 +427,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount BioHeartApi::Engine, at: '/bio_heart_api'
   mount BPDS::Engine, at: '/bpds'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'

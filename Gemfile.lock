@@ -95,6 +95,7 @@ PATH
     ask_va_api (0.1.0)
     avs (0.1.0)
     banners (0.1.0)
+    bio_heart_api (0.0.1)
     bpds (0.1.0)
     burials (0.1.0)
     check_in (0.1.0)
@@ -1299,6 +1300,7 @@ DEPENDENCIES
   banners!
   betamocks!
   bgs_ext!
+  bio_heart_api!
   blind_index
   blueprinter
   bootsnap
