@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'rack/utils'
 # require 'search_click_tracking/service'
 
 # Rerecording VCR Cassettes
@@ -51,6 +52,22 @@ describe SearchClickTracking::Service do
           expect(response.body).to eq "[\"Query can't be blank\"]"
         end
       end
+    end
+  end
+
+  describe '#query_params' do
+    let(:query) { 'test@example.com' }
+    let(:user_agent) { 'agent 555-123-4567' }
+    let(:url) { 'https://www.testurl.com?email=test@example.com' }
+
+    it 'redacts PII in query, url, and user_agent' do
+      params = Rack::Utils.parse_nested_query(subject.send(:query_params))
+
+      expect(params['query']).to eq('[REDACTED - email]')
+      expect(params['url']).to include('[REDACTED - email]')
+      expect(params['user_agent']).to include('[REDACTED - phone]')
+      expect(params['url']).not_to include('test@example.com')
+      expect(params['user_agent']).not_to include('555-123-4567')
     end
   end
 end
