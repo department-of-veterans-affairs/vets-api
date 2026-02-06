@@ -17,7 +17,8 @@
     "sub_group_type_enum_val",
     "group_type_patient_display",
     "sub_group_type_patient_display",
-    "oh_triage_group"
+    "oh_triage_group",
+    "migrating_to_oh"
   ],
   "properties": {
     "triage_team_id": {
