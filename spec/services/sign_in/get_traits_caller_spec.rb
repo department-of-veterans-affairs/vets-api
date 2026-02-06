@@ -38,13 +38,30 @@ RSpec.describe SignIn::GetTraitsCaller do
 
   describe '#perform_async' do
     context 'when get traits call is successful' do
-      it 'creates a cache key and enqueues the SSOe traits job' do
-        get_traits_caller.perform_async
+      shared_examples 'get traits caller' do |credential_type:, csp_uuid:|
+        it 'creates a cache key and enqueues the SSOe traits job' do
+          get_traits_caller.perform_async
 
-        expect(Sidekiq::AttrPackage).to have_received(:create)
-        expect(Identity::GetSSOeTraitsByCspidJob)
-          .to have_received(:perform_async)
-          .with(cache_key, 'idme', 'idme-uuid')
+          expect(Sidekiq::AttrPackage).to have_received(:create)
+          expect(Identity::GetSSOeTraitsByCspidJob)
+            .to have_received(:perform_async)
+            .with(cache_key, credential_type, send(csp_uuid))
+        end
+      end
+
+      context 'with idme' do
+        it_behaves_like 'get traits caller',
+                        credential_type: 'idme',
+                        csp_uuid: :idme_uuid
+      end
+
+      context 'with logingov' do
+        let(:idme_uuid) { nil }
+        let(:logingov_uuid) { 'logingov-uuid' }
+
+        it_behaves_like 'get traits caller',
+                        credential_type: 'logingov',
+                        csp_uuid: :logingov_uuid
       end
     end
 
@@ -66,7 +83,7 @@ RSpec.describe SignIn::GetTraitsCaller do
           end
         end
 
-        context 'when crendeital_method is missing' do
+        context 'when credential_method is missing' do
           before do
             allow_any_instance_of(SignIn::GetTraitsCaller)
               .to receive(:credential_method)
