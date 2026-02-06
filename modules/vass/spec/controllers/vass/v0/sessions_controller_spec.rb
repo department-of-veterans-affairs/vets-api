@@ -227,7 +227,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:validate_identity_against_veteran_data).and_raise(
           Vass::Errors::IdentityValidationError.new('Veteran identity could not be verified')
         )
-        allow(redis_client).to receive_messages(rate_limit_exceeded?: false, validation_rate_limit_exceeded?: false)
+        allow(redis_client).to receive_messages(rate_limit_exceeded?: false, validation_rate_limit_exceeded?: false,
+                                                rate_limit_count: 1)
         allow(redis_client).to receive(:increment_rate_limit)
         allow(appointments_service).to receive(:get_veteran_info).and_return(veteran_data_mismatch)
       end
@@ -275,7 +276,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       it 'returns unprocessable entity status' do
         post :request_otp, params:, format: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_contact_info')
@@ -450,7 +451,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           .and_raise(Vass::Errors::AuthenticationError, 'Invalid OTP')
         allow(redis_client).to receive(:increment_validation_rate_limit)
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
-                                                validation_attempts_remaining: 2)
+                                                validation_attempts_remaining: 2,
+                                                validation_rate_limit_count: 1)
       end
 
       it 'returns unauthorized status' do
@@ -467,9 +469,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :authenticate_otp, params:, format: :json
       end
 
-      it 'logs StatsD metric' do
+      it 'logs StatsD metric with attempt number' do
         expect(StatsD).to receive(:increment).with('api.vass.infrastructure.session.otp.invalid',
-                                                   tags: ['service:vass'])
+                                                   tags: ['service:vass', 'attempt:1'])
         post :authenticate_otp, params:, format: :json
       end
     end

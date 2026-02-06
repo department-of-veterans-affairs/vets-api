@@ -172,7 +172,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           VCR.use_cassette('vass/sessions/get_veteran_missing_contact', match_requests_on: %i[method uri]) do
             post '/vass/v0/request-otp', params:, as: :json
 
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             json_response = JSON.parse(response.body)
             expect(json_response['errors']).to be_present
             expect(json_response['errors'].first['code']).to eq('missing_contact_info')
@@ -315,7 +315,8 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
         expect(Rails.logger).to receive(:warn).with(
-          a_string_including('"service":"vass"', '"action":"invalid_otp"', %("vass_uuid":"#{uuid}"))
+          a_string_including('"service":"vass"', '"action":"otp_validation_failed"', %("vass_uuid":"#{uuid}"),
+                             '"attempt_number":', '"failure_type":"invalid_otp_code"')
         ).and_call_original
 
         invalid_params = params.deep_merge(session: { otp: '999999' })
