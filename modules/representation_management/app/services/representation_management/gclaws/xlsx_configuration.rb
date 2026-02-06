@@ -13,7 +13,7 @@ module RepresentationManagement
         @password = settings.password
       end
 
-      # Extracts the hostname from the configured URL for use in netrc file
+      # Extracts the hostname from the configured URL
       #
       # @return [String] The hostname (e.g., 'ssrs.example.com')
       def hostname

@@ -454,13 +454,10 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
     context 'tempfile cleanup' do
       it 'cleans up tempfiles even when an error occurs' do
         file_path = nil
-        netrc_path = nil
 
         allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
           tempfile = method.call(*args)
-          if args[0] == 'netrc'
-            netrc_path = tempfile.path
-          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
+          if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
             file_path = tempfile.path
           end
           tempfile
@@ -481,20 +478,16 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           expect(result[:success]).to be false
         end
 
-        # Files should still be deleted after error
+        # File should still be deleted after error
         expect(File.exist?(file_path)).to be false if file_path
-        expect(File.exist?(netrc_path)).to be false if netrc_path
       end
 
       it 'cleans up tempfiles even when block raises an exception' do
         file_path = nil
-        netrc_path = nil
 
         allow(Tempfile).to receive(:new).and_wrap_original do |method, *args|
           tempfile = method.call(*args)
-          if args[0] == 'netrc'
-            netrc_path = tempfile.path
-          elsif args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
+          if args[0].is_a?(Array) && args[0][0] == 'gclaws_accreditation'
             file_path = tempfile.path
           end
           tempfile
@@ -518,9 +511,8 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           end
         end.to raise_error(StandardError, 'Block error')
 
-        # Files should still be deleted after exception
+        # File should still be deleted after exception
         expect(File.exist?(file_path)).to be false if file_path
-        expect(File.exist?(netrc_path)).to be false if netrc_path
       end
     end
   end
