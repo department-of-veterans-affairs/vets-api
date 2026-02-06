@@ -17,6 +17,8 @@ module FacilitiesApi
         RADIUS_MIN = 1
         RESULTS_MAX = 50
         RESULTS_MIN = 2
+        LAT_RANGE = -90.0..90.0
+        LONG_RANGE = -180.0..180.0
 
         configuration FacilitiesApi::V2::PPMS::Configuration
 
@@ -123,11 +125,29 @@ module FacilitiesApi
         end
 
         def fetch_lat_long_and_radius(params)
-          latitude = Float(params.values_at(:lat, :latitude).compact.first).round(DEGREES_OF_ACCURACY)
-          longitude = Float(params.values_at(:long, :longitude).compact.first).round(DEGREES_OF_ACCURACY)
-          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
-
+          lat_param = params.values_at(:lat, :latitude).compact.first
+          long_param = params.values_at(:long, :longitude).compact.first
+          radius_param = params.fetch(:radius)
+          latitude = parse_coordinate!(lat_param, 'lat', LAT_RANGE)
+          longitude = parse_coordinate!(long_param, 'long', LONG_RANGE)
+          radius = parse_radius!(radius_param)
           [latitude, longitude, radius]
+        end
+
+        def parse_coordinate!(value, field_name, valid_range)
+          coord = Float(value, exception: false)
+          raise Common::Exceptions::InvalidFieldValue.new(field_name, value) if coord.nil?
+          raise Common::Exceptions::InvalidFieldValue.new(field_name, value) unless valid_range.cover?(coord)
+
+          coord.round(DEGREES_OF_ACCURACY)
+        end
+
+        def parse_radius!(value)
+          # Validate as numeric, then convert to integer for clamping
+          radius = Float(value, exception: false)&.to_i
+          raise Common::Exceptions::InvalidFieldValue.new('radius', value) if radius.nil?
+
+          radius.clamp(RADIUS_MIN, RADIUS_MAX)
         end
 
         def fetch_pagination(params)

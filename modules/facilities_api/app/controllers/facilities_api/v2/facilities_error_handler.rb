@@ -18,6 +18,8 @@ module FacilitiesApi::V2::FacilitiesErrorHandler
 
   def handle_error(method, e)
     raise e
+  rescue Common::Exceptions::InvalidFieldValue => e
+    json_error(method, e, "Invalid field value: #{e.field}", '400', :bad_request)
   rescue Common::Exceptions::RecordNotFound, Faraday::ResourceNotFound, Net::HTTPNotFound => e
     json_error(method, e, 'Not Found', '404', :not_found)
   rescue Common::Exceptions::ServiceUnavailable => e
