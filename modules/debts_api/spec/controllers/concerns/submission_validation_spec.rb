@@ -39,19 +39,6 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
     end
   end
 
-  describe 'FSRValidator' do
-    describe '.validate_form_schema' do
-      it 'delegates to BaseValidator with fsr.json schema' do
-        form = { 'some' => 'fsr', 'data' => true }
-        allow(base_validator).to receive(:validate_form_schema).with(form, 'fsr.json')
-
-        fsr_validator.validate_form_schema(form)
-
-        expect(base_validator).to have_received(:validate_form_schema).with(form, 'fsr.json')
-      end
-    end
-  end
-
   describe 'DisputeDebtValidator' do
     let(:user) { build(:user, :loa3) }
     let(:valid_metadata) do
