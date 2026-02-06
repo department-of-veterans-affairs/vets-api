@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
                                                       team_owner: :vfs_authenticated_experience_backend,
                                                       type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+  let(:user) { create(:user, :loa3, icn: '1012666073V986297') }
 
   before do
     sign_in_as(user)

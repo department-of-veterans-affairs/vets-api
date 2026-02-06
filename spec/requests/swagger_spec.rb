@@ -1677,7 +1677,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'Direct Deposit' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+      let(:user) { create(:user, :loa3, icn: '1012666073V986297') }
 
       before do
         token = 'abcdefghijklmnop'
