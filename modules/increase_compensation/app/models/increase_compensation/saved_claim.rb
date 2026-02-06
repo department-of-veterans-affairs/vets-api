@@ -90,7 +90,6 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
-      Rails.logger.info('IncreaseCompensation::ToPdf filling', { path: pdf_path })
       # test fails because form is nil
       if form && pdf_path.present?
         signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
