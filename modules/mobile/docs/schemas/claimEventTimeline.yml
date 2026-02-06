@@ -70,3 +70,68 @@ properties:
     description: 'Only used for other_documents_list type event for untracked documents'
     nullable: true
     example: '{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}'
+  friendly_name:
+    type: string
+    description: 'User-friendly display name for the tracked item'
+    nullable: true
+    example: 'Authorization to disclose information'
+  short_description:
+    type: string
+    description: 'Brief description of the an action, if any, that needs to be taken or has been taken'
+    nullable: true
+    example: 'We need your permission to request your personal information from a non-VA source.'
+  activity_description:
+    type: string
+    description: 'Description of the activity'
+    nullable: true
+    example: 'We’ve requested your reserve records on your behalf. No action is needed.'
+  support_aliases:
+    type: array
+    description: 'Alternative names/identifiers for a given tracked item type'
+    nullable: true
+    items:
+      type: string
+    example: ['21-4142']
+  can_upload_file:
+    type: boolean
+    nullable: true
+    example: true
+  no_action_needed:
+    type: boolean
+    nullable: true
+    example: false
+  is_dbq:
+    type: boolean
+    nullable: true
+    example: false
+  is_proper_noun:
+    type: boolean
+    nullable: true
+    example: false
+  is_sensitive:
+    type: boolean
+    nullable: true
+    example: false
+  no_provide_prefix:
+    type: boolean
+    nullable: true
+    example: false
+  long_description:
+    type: object
+    nullable: true
+    example: null
+  next_steps:
+    type: object
+    nullable: true
+    example:
+      blocks:
+        - type: paragraph
+          content: 'Use VA Form 21-4142 to give us permission to request your personal information.'
+        - type: paragraph
+          content:
+            - 'You can complete and sign this form online, or use a PDF version and upload or mail it.'
+            - type: lineBreak
+            - type: link
+              text: 'VA Form 21-4142'
+              href: '/find-forms/about-form-21-4142/'
+              testId: 'VA Form 21-4142'

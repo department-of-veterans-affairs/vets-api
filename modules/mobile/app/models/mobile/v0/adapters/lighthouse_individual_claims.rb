@@ -40,6 +40,8 @@ module Mobile
 
         UPLOADED_STATUSES = %w[ACCEPTED INITIAL_REVIEW_COMPLETE SUBMITTED_AWAITING_REVIEW].freeze
 
+        FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE = 'cst_evidence_requests_content_override_mobile'
+
         DEFAULT_DATE = Date.new
 
         # rubocop:disable Metrics/MethodLength
@@ -155,8 +157,19 @@ module Mobile
 
         def create_tracked_item_event(tracked_item, tracked_item_documents)
           documents = create_documents(tracked_item_documents)
+          event = build_tracked_item_event(tracked_item, tracked_item_documents, documents)
 
-          event = {
+          # Add content overrides if feature is enabled
+          if Flipper.enabled?(FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+            merge_tracked_item_content_overrides!(event, tracked_item['displayName'])
+          end
+
+          event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
+          ClaimEventTimeline.new(event)
+        end
+
+        def build_tracked_item_event(tracked_item, tracked_item_documents, documents)
+          {
             type: LH_STATUS_TO_EVSS_TYPE[tracked_item['status'].to_sym],
             tracked_item_id: tracked_item['id'],
             description: tracked_item['description'],
@@ -173,9 +186,27 @@ module Mobile
             documents:,
             upload_date: latest_upload_date(documents)
           }
+        end
 
-          event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
-          ClaimEventTimeline.new(event)
+        def merge_tracked_item_content_overrides!(event, display_name)
+          content = BenefitsClaims::TrackedItemContent.find_by_display_name(display_name) # rubocop:disable Rails/DynamicFindBy
+
+          return unless content
+
+          event.merge!(
+            activity_description: content[:activityDescription],
+            can_upload_file: content[:canUploadFile],
+            friendly_name: content[:friendlyName],
+            is_dbq: content[:isDBQ],
+            is_proper_noun: content[:isProperNoun],
+            is_sensitive: content[:isSensitive],
+            long_description: content[:longDescription],
+            next_steps: content[:nextSteps],
+            no_action_needed: content[:noActionNeeded],
+            no_provide_prefix: content[:noProvidePrefix],
+            short_description: content[:shortDescription],
+            support_aliases: content[:supportAliases]
+          )
         end
 
         def create_documents(documents)

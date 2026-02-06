@@ -512,6 +512,12 @@ features:
       When enabled, tracked items in claims status tool use content dictionary
       overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
+  cst_evidence_requests_content_override_mobile:
+    actor_type: user
+    description: >
+      When enabled, tracked items in mobile claims status tool use content dictionary
+      overrides for display names, descriptions, and structured content blocks.
+    enable_in_development: true
   cst_include_ddl_5103_letters:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters

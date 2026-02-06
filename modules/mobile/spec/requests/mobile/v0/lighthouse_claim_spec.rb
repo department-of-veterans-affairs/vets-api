@@ -103,6 +103,91 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
       end
 
+      context "when the 'cst_evidence_requests_content_override_mobile' feature flag is enabled" do
+        let(:mock_content) do
+          {
+            friendlyName: 'Test Friendly Name',
+            shortDescription: 'Test short description',
+            activityDescription: 'Test activity description',
+            supportAliases: ['test-alias'],
+            canUploadFile: true,
+            noActionNeeded: true,
+            isDBQ: true,
+            isProperNoun: true,
+            isSensitive: true,
+            noProvidePrefix: true,
+            longDescription: { blocks: [{ type: 'paragraph', content: 'Test long description' }] },
+            nextSteps: { blocks: [{ type: 'paragraph', content: 'Test next steps' }] }
+          }
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?)
+            .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+            .and_return(true)
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+            .and_return(mock_content)
+        end
+
+        it 'includes content override fields in tracked item events' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+
+          tracked_item = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').find do |event|
+            event['trackedItemId'].present?
+          end
+
+          expect(tracked_item['friendlyName']).to eq('Test Friendly Name')
+          expect(tracked_item['shortDescription']).to eq('Test short description')
+          expect(tracked_item['activityDescription']).to eq('Test activity description')
+          expect(tracked_item['supportAliases']).to eq(['test-alias'])
+          expect(tracked_item['canUploadFile']).to be(true)
+          expect(tracked_item['noActionNeeded']).to be(true)
+          expect(tracked_item['isDbq']).to be(true)
+          expect(tracked_item['isProperNoun']).to be(true)
+          expect(tracked_item['isSensitive']).to be(true)
+          expect(tracked_item['noProvidePrefix']).to be(true)
+          expect(tracked_item['longDescription']).to be_a(Hash)
+          expect(tracked_item['nextSteps']).to be_a(Hash)
+        end
+      end
+
+      context "when the 'cst_evidence_requests_content_override_mobile' feature flag is disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?)
+            .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+            .and_return(false)
+        end
+
+        it 'does not include content override fields in tracked item events' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+
+          tracked_item = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').find do |event|
+            event['trackedItemId'].present?
+          end
+
+          expect(tracked_item['friendlyName']).to be_nil
+          expect(tracked_item['shortDescription']).to be_nil
+          expect(tracked_item['activityDescription']).to be_nil
+          expect(tracked_item['supportAliases']).to be_nil
+          expect(tracked_item['canUploadFile']).to be_nil
+          expect(tracked_item['noActionNeeded']).to be_nil
+          expect(tracked_item['isDbq']).to be_nil
+          expect(tracked_item['isProperNoun']).to be_nil
+          expect(tracked_item['isSensitive']).to be_nil
+          expect(tracked_item['noProvidePrefix']).to be_nil
+          expect(tracked_item['longDescription']).to be_nil
+          expect(tracked_item['nextSteps']).to be_nil
+        end
+      end
+
       context 'when :cst_suppress_evidence_requests_mobile is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
