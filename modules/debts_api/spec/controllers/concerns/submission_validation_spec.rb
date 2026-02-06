@@ -88,14 +88,16 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
       it 'raises FormInvalid when disputes are empty (no composite_debt_id)' do
         expect do
           dispute_validator.send(:validate_debt_exist_for_user, [], user)
-        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid, invalid_payload_message)
+        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid,
+                           invalid_payload_message)
       end
 
       it 'raises FormInvalid when disputes have no composite_debt_id (all nil)' do
         allow(mock_service).to receive(:get_debts_by_ids).with([nil]).and_return([])
         expect do
           dispute_validator.send(:validate_debt_exist_for_user, [{ 'other' => 'key' }], user)
-        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid, invalid_payload_message)
+        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid,
+                           invalid_payload_message)
       end
 
       it 'raises FormInvalid when fewer debts are returned than requested' do
@@ -103,7 +105,8 @@ RSpec.describe DebtsApi::Concerns::SubmissionValidation do
         disputes_two = [{ 'composite_debt_id' => '71166' }, { 'composite_debt_id' => '99999' }]
         expect do
           dispute_validator.send(:validate_debt_exist_for_user, disputes_two, user)
-        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid, invalid_payload_message)
+        end.to raise_error(DebtsApi::Concerns::SubmissionValidation::BaseValidator::FormInvalid,
+                           invalid_payload_message)
       end
     end
   end
